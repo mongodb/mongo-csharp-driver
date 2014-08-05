@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Servers
             if (_state.TryChange(State.Initial, State.Open))
             {
                 _connectionPool.Initialize();
-                var metronome = new AsyncMetronome(_settings.HeartbeatInterval);
+                var metronome = new Metronome(_settings.HeartbeatInterval);
                 AsyncBackgroundTask.Start(
                     HeartbeatAsync,
                     ct =>

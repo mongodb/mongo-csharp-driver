@@ -49,7 +49,7 @@
     </Compile>
     <Compile Include="Async\AsyncBackgroundTask.cs" />
     <Compile Include="Async\AsyncDropbox.cs" />
-    <Compile Include="Async\AsyncMetronome.cs" />
+    <Compile Include="Misc\Metronome.cs" />
     <Compile Include="Async\AsyncQueue.cs" />
     <Compile Include="Async\IAsyncEnumerable.cs" />
     <Compile Include="Async\IAsyncEnumerator.cs" />

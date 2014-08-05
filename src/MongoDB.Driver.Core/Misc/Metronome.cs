@@ -18,9 +18,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Async
+namespace MongoDB.Driver.Core.Misc
 {
-    internal sealed class AsyncMetronome
+    internal sealed class Metronome
     {
         // fields
         private readonly IClock _clock;
@@ -28,12 +28,12 @@ namespace MongoDB.Driver.Core.Async
         private readonly TimeSpan _period;
 
         // constructors
-        public AsyncMetronome(TimeSpan period)
+        public Metronome(TimeSpan period)
             : this(period, SystemClock.Instance)
         {
         }
 
-        internal AsyncMetronome(TimeSpan period, IClock clock)
+        internal Metronome(TimeSpan period, IClock clock)
         {
             _period = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(period, "period");
             _clock = Ensure.IsNotNull(clock, "clock");
@@ -65,11 +65,6 @@ namespace MongoDB.Driver.Core.Async
                 _nextTick += _period;
             }
             return _nextTick - now;
-        }
-
-        public async Task WaitAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            await Task.Delay(GetNextTickDelay(), cancellationToken);
         }
     }
 }

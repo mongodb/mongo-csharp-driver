@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Async;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Tests.Misc;
 using NUnit.Framework;
 
@@ -25,20 +26,20 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Tests.Async
 {
     [TestFixture]
-    public class AsyncMetronomeTests
+    public class MetronomeTests
     {
         private FrozenClock _clock;
         private readonly TimeSpan _halfPeriod = TimeSpan.FromMilliseconds(500);
         private readonly TimeSpan _period = TimeSpan.FromMilliseconds(1000);
         private readonly TimeSpan _quarterPeriod = TimeSpan.FromMilliseconds(250);
-        private AsyncMetronome _subject;
+        private Metronome _subject;
         private readonly TimeSpan _threeQuarterPeriod = TimeSpan.FromMilliseconds(750);
 
         [SetUp]
         public void Setup()
         {
             _clock = FrozenClock.FreezeUtcNow();
-            _subject = new AsyncMetronome(_period, _clock);
+            _subject = new Metronome(_period, _clock);
         }
 
         [Test]
@@ -51,7 +52,7 @@ namespace MongoDB.Driver.Core.Tests.Async
         [Test]
         public void Constructor_should_throw_if_clock_is_null()
         {
-            Action act = () => new AsyncMetronome(_period, null);
+            Action act = () => new Metronome(_period, null);
             act.ShouldThrow<ArgumentNullException>();
         }
 
@@ -59,7 +60,7 @@ namespace MongoDB.Driver.Core.Tests.Async
         public void Constructor_should_throw_if_period_is_negative()
         {
             var period = TimeSpan.FromMilliseconds(-2);
-            Action act = () => new AsyncMetronome(period);
+            Action act = () => new Metronome(period);
             act.ShouldThrow<ArgumentException>();
         }
 
@@ -67,7 +68,7 @@ namespace MongoDB.Driver.Core.Tests.Async
         public void GetNextTickDelay_should_be_infinite_if_period_is_infinite()
         {
             var period = Timeout.InfiniteTimeSpan;
-            var subject = new AsyncMetronome(period);
+            var subject = new Metronome(period);
             subject.GetNextTickDelay().Should().Be(Timeout.InfiniteTimeSpan);
         }
 
