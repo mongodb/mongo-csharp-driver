@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Connections
                     entry.TaskCompletionSource.TrySetException(new MessageNotSentException());
                 }
 
-                foreach (var awaiter in _inboundDropbox.GetAwaiters())
+                foreach (var awaiter in _inboundDropbox.RemoveAllAwaiters())
                 {
                     awaiter.TrySetException(exception);
                 }

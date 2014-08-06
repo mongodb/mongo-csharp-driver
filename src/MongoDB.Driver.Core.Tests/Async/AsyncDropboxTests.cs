@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Tests.Async
         [TestCase(0)]
         [TestCase(1)]
         [TestCase(2)]
-        public void GetAwaiters_should_return_the_right_number_of_awaiters(int n)
+        public void RemoveAllAwaiters_should_return_the_right_number_of_awaiters(int n)
         {
             var subject = new AsyncDropbox<int, int>();
             for (var i = 0; i < n; i++)
@@ -37,8 +37,10 @@ namespace MongoDB.Driver.Core.Tests.Async
                 subject.ReceiveAsync(i, Timeout.InfiniteTimeSpan, CancellationToken.None);
             }
 
-            var count = subject.GetAwaiters().Count();
-            count.Should().Be(n);
+            subject.AwaiterCount.Should().Be(n);
+            var awaiters = subject.RemoveAllAwaiters();
+            awaiters.Count().Should().Be(n);
+            subject.AwaiterCount.Should().Be(0);
         }
 
         [Test]

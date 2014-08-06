@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -51,14 +52,13 @@ namespace MongoDB.Driver.Core.Async
         }
 
         // methods
-        public IEnumerable<TaskCompletionSource<TMessage>> GetAwaiters()
+        public IEnumerable<TaskCompletionSource<TMessage>> RemoveAllAwaiters()
         {
             lock (_lock)
             {
-                foreach (var awaiter in _awaiters.Values)
-                {
-                    yield return awaiter;
-                }
+                var awaiters = _awaiters.Values.ToList();
+                _awaiters.Clear();
+                return awaiters;
             }
         }
 
