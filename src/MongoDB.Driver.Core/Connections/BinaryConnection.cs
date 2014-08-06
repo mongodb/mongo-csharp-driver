@@ -110,11 +110,11 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
-        public void ConnectionFailed(Exception exception)
+        private void ConnectionFailed(Exception exception)
         {
             if (_state.TryChange(State.Open, State.Failed))
             {
-                foreach (var entry in _outboundQueue.GetEntries())
+                foreach (var entry in _outboundQueue.DequeueAll())
                 {
                     entry.TaskCompletionSource.TrySetException(new MessageNotSentException());
                 }
@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Core.Connections
             _state.TryChange(State.Open);
         }
 
-        private async Task ReceiveBackgroundTask(CancellationToken cancellationToken)
+        private async Task<bool> ReceiveBackgroundTask(CancellationToken cancellationToken)
         {
             try
             {
@@ -199,11 +199,12 @@ namespace MongoDB.Driver.Core.Connections
                 buffer.ReadBytes(8, responseToBytes, 0, 4);
                 var responseTo = BitConverter.ToInt32(responseToBytes, 0);
                 _inboundDropbox.Post(responseTo, new InboundDropboxEntry(buffer));
+                return true;
             }
             catch (Exception ex)
             {
                 ConnectionFailed(ex);
-                throw;
+                return false;
             }
         }
 
@@ -245,7 +246,7 @@ namespace MongoDB.Driver.Core.Connections
             return substituteReply ?? reply;
         }
 
-        private async Task SendBackgroundTask(CancellationToken cancellationToken)
+        private async Task<bool> SendBackgroundTask(CancellationToken cancellationToken)
         {
             var entry = await _outboundQueue.DequeueAsync();
             try
@@ -253,12 +254,13 @@ namespace MongoDB.Driver.Core.Connections
                 await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, cancellationToken);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 entry.TaskCompletionSource.TrySetResult(true);
+                return true;
             }
             catch (Exception ex)
             {
-                entry.TaskCompletionSource.TrySetException(ex);
                 ConnectionFailed(ex);
-                throw;
+                entry.TaskCompletionSource.TrySetException(ex);
+                return false;
             }
         }
 

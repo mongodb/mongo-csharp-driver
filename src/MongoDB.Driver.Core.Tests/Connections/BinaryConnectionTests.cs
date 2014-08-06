@@ -14,15 +14,19 @@
 */
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -233,6 +237,69 @@ namespace MongoDB.Driver.Core.Tests.Connections
         }
 
         [Test]
+        public void ReceiveMessageAsync_should_throw_network_exception_to_all_awaiters()
+        {
+            using (var stream = Substitute.For<Stream>())
+            {
+                _streamFactory.CreateStreamAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None)
+                    .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
+
+                var readTcs = new TaskCompletionSource<int>();
+                stream.ReadAsync(null, 0, 0, CancellationToken.None)
+                    .ReturnsForAnyArgs(readTcs.Task);
+
+                var writeTcs = new TaskCompletionSource<int>();
+                stream.WriteAsync(null, 0, 0, CancellationToken.None)
+                    .ReturnsForAnyArgs(writeTcs.Task);
+
+                _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+
+                var task1 = _subject.ReceiveMessageAsync<BsonDocument>(1, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+                readTcs.SetException(new SocketException());
+
+                Action act1 = () => task1.GetAwaiter().GetResult();
+                act1.ShouldThrow<SocketException>();
+
+                Action act2 = () => task2.GetAwaiter().GetResult();
+                act2.ShouldThrow<SocketException>();
+            }
+        }
+
+        [Test]
+        public void ReceiveMessageAsync_should_throw_ConnectionFailedException_when_connection_has_failed()
+        {
+            using (var stream = Substitute.For<Stream>())
+            {
+                _streamFactory.CreateStreamAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None)
+                    .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
+
+                var readTcs = new TaskCompletionSource<int>();
+                stream.ReadAsync(null, 0, 0, CancellationToken.None)
+                    .ReturnsForAnyArgs(readTcs.Task);
+
+                var writeTcs = new TaskCompletionSource<int>();
+                stream.WriteAsync(null, 0, 0, CancellationToken.None)
+                    .ReturnsForAnyArgs(writeTcs.Task);
+
+                _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+
+                var task1 = _subject.ReceiveMessageAsync<BsonDocument>(1, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+                readTcs.SetException(new SocketException());
+
+                Action act1 = () => task1.GetAwaiter().GetResult();
+                act1.ShouldThrow<SocketException>();
+
+                var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+                Action act2 = () => task2.GetAwaiter().GetResult();
+                act2.ShouldThrow<ConnectionFailedException>();
+            }
+        }
+
+        [Test]
         public void SendMessagesAsync_should_throw_an_ArgumentNullException_if_messages_is_null()
         {
             Action act = () => _subject.SendMessagesAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
@@ -289,6 +356,40 @@ namespace MongoDB.Driver.Core.Tests.Connections
                 var sentRequests = MessageHelper.TranslateMessagesToBsonDocuments(stream.ToArray());
 
                 sentRequests.Should().BeEquivalentTo(expectedRequests);
+            }
+        }
+
+        [Test]
+        public void SendMessageAsync_should_throw_MessageNotSentException_for_queued_messages()
+        {
+            using (var stream = Substitute.For<Stream>())
+            {
+                _streamFactory.CreateStreamAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None)
+                    .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
+
+                var readTcs = new TaskCompletionSource<int>();
+                stream.ReadAsync(null, 0, 0, CancellationToken.None)
+                    .ReturnsForAnyArgs(readTcs.Task);
+
+                var writeTcs = new TaskCompletionSource<int>();
+                stream.WriteAsync(null, 0, 0, CancellationToken.None)
+                    .ReturnsForAnyArgs(writeTcs.Task);
+
+                _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+
+                var message1 = new KillCursorsMessage(1, new[] { 1L });
+                var task1 = _subject.SendMessageAsync(message1, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+                var message2 = new KillCursorsMessage(2, new[] { 2L });
+                var task2 = _subject.SendMessageAsync(message2, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+                writeTcs.SetException(new SocketException());
+
+                Action act1 = () => task1.GetAwaiter().GetResult();
+                act1.ShouldThrow<SocketException>();
+
+                Action act2 = () => task2.GetAwaiter().GetResult();
+                act2.ShouldThrow<MessageNotSentException>();
             }
         }
     }

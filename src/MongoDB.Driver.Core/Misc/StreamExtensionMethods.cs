@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Misc
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToWrite = Math.Min(count, backingBytes.Count - backingBytes.Offset);
-                await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite);
+                await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite, cancellationToken);
                 offset += bytesToWrite;
                 count -= bytesToWrite;
             }

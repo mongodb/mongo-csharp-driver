@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Async;
 using NUnit.Framework;
@@ -22,6 +23,21 @@ namespace MongoDB.Driver.Core.Tests.Async
     [TestFixture]
     public class AsyncQueueTests
     {
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        public void DequeueAll_should_dequeue_all_items(int n)
+        {
+            var subject = new AsyncQueue<int>();
+            for (var i = 0; i < n; i++)
+            {
+                subject.Enqueue(i);
+            }
+
+            var count = subject.DequeueAll().Count();
+            count.Should().Be(n);
+        }
+
         [Test]
         public void Items_should_be_dequeued_in_the_order_they_were_enqueued()
         {

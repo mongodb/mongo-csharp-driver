@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Tests.Async
                     {
                         cancellationTokenSource.Cancel();
                     }
-                    return Task.FromResult<object>(null); 
+                    return Task.FromResult(true);
                 },
                 TimeSpan.FromMilliseconds(5),
                 cancellationTokenSource.Token);
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Tests.Async
                 ct =>
                 {
                     count++;
-                    return Task.FromResult<object>(null);
+                    return Task.FromResult(true);
                 },
                 Timeout.InfiniteTimeSpan,
                 CancellationToken.None);

@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private async Task MaintainSizeAsync(CancellationToken cancellationToken)
+        private async Task<bool> MaintainSizeAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -230,6 +230,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 // do nothing, this is called in the background
             }
+
+            return true;
         }
 
         private async Task PrunePoolAsync(CancellationToken cancellationToken)

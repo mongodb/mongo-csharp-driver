@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private async Task HeartbeatAsync(CancellationToken cancellationToken)
+        private async Task<bool> HeartbeatAsync(CancellationToken cancellationToken)
         {
             const int maxRetryCount = 2;
             HeartbeatInfo heartbeatInfo = null;
@@ -201,6 +201,8 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             OnDescriptionChanged(newDescription);
+
+            return true;
         }
 
         private async Task<HeartbeatInfo> GetHeartbeatInfoAsync(IConnection connection, CancellationToken cancellationToken)

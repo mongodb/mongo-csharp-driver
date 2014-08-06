@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -25,6 +26,21 @@ namespace MongoDB.Driver.Core.Tests.Async
     [TestFixture]
     public class AsyncDropboxTests
     {
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        public void GetAwaiters_should_return_the_right_number_of_awaiters(int n)
+        {
+            var subject = new AsyncDropbox<int, int>();
+            for (var i = 0; i < n; i++)
+            {
+                subject.ReceiveAsync(i, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            }
+
+            var count = subject.GetAwaiters().Count();
+            count.Should().Be(n);
+        }
+
         [Test]
         public void Receive_async_should_return_an_uncompleted_task_when_the_message_does_not_exists()
         {

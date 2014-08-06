@@ -29,6 +29,17 @@ namespace MongoDB.Driver.Core.Async
         private readonly Queue<TaskCompletionSource<T>> _awaiters = new Queue<TaskCompletionSource<T>>();
 
         // methods
+        public IEnumerable<T> DequeueAll()
+        {
+            lock (_lock)
+            {
+                while (_queue.Count > 0)
+                {
+                    yield return _queue.Dequeue();
+                }
+            }
+        }
+
         public Task<T> DequeueAsync()
         {
             lock (_lock)
@@ -64,17 +75,6 @@ namespace MongoDB.Driver.Core.Async
             if (awaiter != null)
             {
                 awaiter.TrySetResult(item);
-            }
-        }
-
-        public IEnumerable<T> GetEntries()
-        {
-            lock (_lock)
-            {
-                while (_queue.Count > 0)
-                {
-                    yield return _queue.Dequeue();
-                }
             }
         }
     }

@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Async
 {
     internal static class AsyncBackgroundTask
     {
-        public static async Task Start(Func<CancellationToken, Task> action, Func<CancellationToken, Task> delayTask, CancellationToken cancellationToken)
+        public static async Task Start(Func<CancellationToken, Task<bool>> action, Func<CancellationToken, Task> delayTask, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(action, "action");
 
@@ -38,7 +38,11 @@ namespace MongoDB.Driver.Core.Async
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    await action(cancellationToken).ConfigureAwait(false);
+                    var keepGoing = await action(cancellationToken).ConfigureAwait(false);
+                    if (!keepGoing)
+                    {
+                        return;
+                    }
                     await delayTask(cancellationToken);
                 }
             }
@@ -46,7 +50,7 @@ namespace MongoDB.Driver.Core.Async
             { }
         }
 
-        public static Task Start(Func<CancellationToken, Task> action, TimeSpan delay, CancellationToken cancellationToken)
+        public static Task Start(Func<CancellationToken, Task<bool>> action, TimeSpan delay, CancellationToken cancellationToken)
         {
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(delay, "delay");
 
