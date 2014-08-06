@@ -110,9 +110,20 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
-        public void ConnectionFailed(Exception ex)
+        public void ConnectionFailed(Exception exception)
         {
-            // TODO: what?
+            if (_state.TryChange(State.Open, State.Failed))
+            {
+                foreach (var entry in _outboundQueue.GetEntries())
+                {
+                    entry.TaskCompletionSource.TrySetException(new MessageNotSentException());
+                }
+
+                foreach (var awaiter in _inboundDropbox.GetAwaiters())
+                {
+                    awaiter.TrySetException(exception);
+                }
+            }
         }
 
         public void Dispose()
@@ -123,10 +134,13 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Dispose(bool disposing)
         {
-            if (disposing && _state.TryChange(State.Disposed))
+            if (_state.TryChange(State.Disposed))
             {
-                _backgroundTaskCancellationTokenSource.Cancel();
-                _backgroundTaskCancellationTokenSource.Dispose();
+                if (disposing)
+                {
+                    _backgroundTaskCancellationTokenSource.Cancel();
+                    _backgroundTaskCancellationTokenSource.Dispose();
+                }
             }
         }
 
@@ -340,6 +354,10 @@ namespace MongoDB.Driver.Core.Connections
         private void ThrowIfDisposedOrNotOpen()
         {
             ThrowIfDisposed();
+            if (_state.Value == State.Failed)
+            {
+                throw new ConnectionFailedException();
+            }
             if (_state.Value != State.Open && _state.Value != State.Initializing)
             {
                 throw new InvalidOperationException("The connection must be opened before it can be used.");
@@ -353,7 +371,8 @@ namespace MongoDB.Driver.Core.Connections
             public static int Connecting = 1;
             public static int Initializing = 2;
             public static int Open = 3;
-            public static int Disposed = 4;
+            public static int Failed = 4;
+            public static int Disposed = 5;
         }
 
         private class InboundDropboxEntry

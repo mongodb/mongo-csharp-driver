@@ -51,6 +51,17 @@ namespace MongoDB.Driver.Core.Async
         }
 
         // methods
+        public IEnumerable<TaskCompletionSource<TMessage>> GetAwaiters()
+        {
+            lock (_lock)
+            {
+                foreach (var awaiter in _awaiters.Values)
+                {
+                    yield return awaiter;
+                }
+            }
+        }
+
         public void Post(TId id, TMessage message)
         {
             TaskCompletionSource<TMessage> awaiter = null;

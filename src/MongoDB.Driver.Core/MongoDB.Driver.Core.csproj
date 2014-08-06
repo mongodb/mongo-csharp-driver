@@ -101,6 +101,7 @@
     <Compile Include="Clusters\ClusterState.cs" />
     <Compile Include="Clusters\ClusterType.cs" />
     <Compile Include="Clusters\ClusterWrapper.cs" />
+    <Compile Include="ConnectionFailedException.cs" />
     <Compile Include="ConnectionPools\ExclusiveConnectionPool.cs" />
     <Compile Include="ConnectionPools\ExclusiveConnectionPoolFactory.cs" />
     <Compile Include="Connections\ConnectionHandle.cs" />
@@ -159,6 +160,7 @@
     <Compile Include="Configuration\ConnectionString.cs" />
     <Compile Include="ConfigurationException.cs" />
     <Compile Include="AuthenticationException.cs" />
+    <Compile Include="MessageNotSentException.cs" />
     <Compile Include="Misc\ToStringComparer.cs" />
     <Compile Include="Misc\IdGenerator.cs" />
     <Compile Include="Misc\InterlockedInt32.cs" />

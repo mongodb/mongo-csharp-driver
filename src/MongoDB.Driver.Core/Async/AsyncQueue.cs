@@ -66,5 +66,16 @@ namespace MongoDB.Driver.Core.Async
                 awaiter.TrySetResult(item);
             }
         }
+
+        public IEnumerable<T> GetEntries()
+        {
+            lock (_lock)
+            {
+                while (_queue.Count > 0)
+                {
+                    yield return _queue.Dequeue();
+                }
+            }
+        }
     }
 }
