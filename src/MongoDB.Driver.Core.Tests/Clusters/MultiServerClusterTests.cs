@@ -51,7 +51,8 @@ namespace MongoDB.Driver.Core.Tests.Clusters
         [Test]
         public void Constructor_should_throw_if_no_endpoints_are_specified()
         {
-            Action act = () => CreateSubject();
+            var settings = new ClusterSettings().WithEndPoints(new EndPoint[0]);
+            Action act = () => new MultiServerCluster(settings, _serverFactory, _clusterListener);
 
             act.ShouldThrow<ArgumentOutOfRangeException>();
         }

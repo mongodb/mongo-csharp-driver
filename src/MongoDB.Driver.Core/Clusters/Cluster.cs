@@ -117,6 +117,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         public virtual void Initialize()
         {
+            ThrowIfDisposed();
             _state.TryChange(State.Initial, State.Open);
         }
 
@@ -145,7 +146,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         public async Task<IServer> SelectServerAsync(IServerSelector selector, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            ThrowIfNotOpen();
+            ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, "selector");
             var slidingTimeout = new SlidingTimeout(timeout);
 
@@ -223,13 +224,13 @@ namespace MongoDB.Driver.Core.Clusters
             if (isIncompatible)
             {
                 var message = string.Format(
-                    "This versin of the driver is incompatible with one or more of the " +
-                    "servers to which it is connectioned: {0}", description);
+                    "This version of the driver is incompatible with one or more of the " +
+                    "servers to which it is connected: {0}.", description);
                 throw new MongoDBException(message);
             }
         }
 
-        private void ThrowIfNotOpen()
+        private void ThrowIfDisposedOrNotOpen()
         {
             if (_state.Value != State.Open)
             {

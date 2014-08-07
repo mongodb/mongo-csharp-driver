@@ -44,9 +44,9 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var connectionMode = _settings.ConnectionMode;
 
-            if(connectionMode == ClusterConnectionMode.Unspecified)
+            if (connectionMode == ClusterConnectionMode.Unspecified)
             {
-                if(_settings.ReplicaSetName != null)
+                if (_settings.ReplicaSetName != null)
                 {
                     connectionMode = ClusterConnectionMode.ReplicaSet;
                 }
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
             }
 
-            switch(connectionMode)
+            switch (connectionMode)
             {
                 case ClusterConnectionMode.Direct:
                 case ClusterConnectionMode.Standalone:

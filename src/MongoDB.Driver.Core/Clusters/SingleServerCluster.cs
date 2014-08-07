@@ -86,7 +86,6 @@ namespace MongoDB.Driver.Core.Clusters
         public override void Initialize()
         {
             base.Initialize();
-            ThrowIfDisposed();
             if (_state.TryChange(State.Initial, State.Open))
             {
                 _server = CreateServer(Settings.EndPoints[0]);

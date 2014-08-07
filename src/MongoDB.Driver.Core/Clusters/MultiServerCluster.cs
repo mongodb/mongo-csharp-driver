@@ -20,7 +20,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Async;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -74,7 +73,7 @@ namespace MongoDB.Driver.Core.Clusters
                     UpdateClusterDescription(clusterDescription);
                 }
             }
-            base.Dispose();
+            base.Dispose(disposing);
         }
 
         public override void Initialize()
@@ -304,11 +303,11 @@ namespace MongoDB.Driver.Core.Clusters
                 }
             }
             
-            if(serverDescription.Type == ServerType.ReplicaSetPrimary)
+            if (serverDescription.Type == ServerType.ReplicaSetPrimary)
             {
                 var requiredEndPoints = serverDescription.ReplicaSetConfig.Members;
                 var extraEndPoints = clusterDescription.Servers.Where(x => !requiredEndPoints.Contains(x.EndPoint)).Select(x => x.EndPoint);
-                foreach(var endPoint in extraEndPoints)
+                foreach (var endPoint in extraEndPoints)
                 {
                     clusterDescription = RemoveServer(clusterDescription, endPoint);
                 }

@@ -20,14 +20,14 @@ namespace MongoDB.Driver.Core.Misc
 {
     public sealed class Range<T> : IEquatable<Range<T>> where T : IComparable<T>
     {
-        // private fields
+        // fields
         private readonly T _max;
         private readonly T _min;
 
         // constructors
         public Range(T min, T max)
         {
-            if(min.CompareTo(max) > 0)
+            if (min.CompareTo(max) > 0)
             {
                 throw new ArgumentOutOfRangeException("min", "Must be less than max.");
             }
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Misc
             _max = max;
         }
 
-        // public properties
+        // properties
         public T Max
         {
             get { return _max; }
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Misc
             get { return _min; }
         }
 
-        // public methods
+        // methods
         public bool Equals(Range<T> other)
         {
             if (other == null)
@@ -81,7 +81,5 @@ namespace MongoDB.Driver.Core.Misc
         {
             return string.Format("[{0}, {1}]", _min, _max);
         }
-
-        
     }
 }

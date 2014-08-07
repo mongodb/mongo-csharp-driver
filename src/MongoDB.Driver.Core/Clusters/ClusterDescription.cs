@@ -17,8 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Shared;
@@ -31,6 +29,7 @@ namespace MongoDB.Driver.Core.Clusters
     public sealed class ClusterDescription : IEquatable<ClusterDescription>
     {
         #region static
+        // static methods
         public static ClusterDescription CreateInitial(ClusterId clusterId, ClusterType clusterType)
         {
             return new ClusterDescription(
@@ -136,9 +135,9 @@ namespace MongoDB.Driver.Core.Clusters
             IEnumerable<ServerDescription> replacementServers;
 
             var oldServerDescription = _servers.SingleOrDefault(s => s.EndPoint == value.EndPoint);
-            if(oldServerDescription != null)
+            if (oldServerDescription != null)
             {
-                if(oldServerDescription.Equals(value))
+                if (oldServerDescription.Equals(value))
                 {
                     return this;
                 }
@@ -160,7 +159,7 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterDescription WithoutServerDescription(EndPoint endPoint)
         {
             var oldServerDescription = _servers.SingleOrDefault(s => s.EndPoint == endPoint);
-            if(oldServerDescription == null)
+            if (oldServerDescription == null)
             {
                 return this;
             }
