@@ -21,11 +21,30 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    public enum ClusterType
+    public enum ClusterConnectionMode
     {
-        Unknown,
+        Unspecified,
+        Direct,
         Standalone,
         ReplicaSet,
         Sharded
+    }
+
+    public static class ClusterConnectionModeExtensionMethods
+    {
+        public static ClusterType ToClusterType(this ClusterConnectionMode connectionMode)
+        {
+            switch(connectionMode)
+            {
+                case ClusterConnectionMode.ReplicaSet:
+                    return ClusterType.ReplicaSet;
+                case ClusterConnectionMode.Sharded:
+                    return ClusterType.Sharded;
+                case ClusterConnectionMode.Standalone:
+                    return ClusterType.Standalone;
+                default:
+                    return ClusterType.Unknown;
+            }
+        }
     }
 }

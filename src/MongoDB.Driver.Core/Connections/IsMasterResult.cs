@@ -150,6 +150,16 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        public int MaxWireVersion
+        {
+            get { return _wrapped.GetValue("maxWireVersion", 0).ToInt32(); }
+        }
+
+        public int MinWireVersion
+        {
+            get { return _wrapped.GetValue("minWireVersion", 0).ToInt32(); }
+        }
+
         public BsonDocument Wrapped
         {
             get { return _wrapped; }

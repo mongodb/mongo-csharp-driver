@@ -30,28 +30,32 @@ namespace MongoDB.Driver.Core.Clusters
     /// <summary>
     /// Represents a cluster.
     /// </summary>
-    public abstract class Cluster : ICluster
+    internal abstract class Cluster : ICluster
     {
+        // static fields
+        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(0, 2);
+        private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
+
         // fields
         private readonly ClusterId _clusterId;
         private ClusterDescription _description;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
-        private bool _disposed;
+        private readonly object _descriptionLock = new object();
         private readonly IClusterListener _listener;
-        private readonly object _lock = new object();
-        private readonly IServerSelector _randomServerSelector = new RandomServerSelector();
-        private readonly IServerFactory _serverFactory;
+        private readonly IClusterableServerFactory _serverFactory;
         private readonly ClusterSettings _settings;
+        private readonly InterlockedInt32 _state;
 
         // constructors
-        protected Cluster(ClusterSettings settings, IServerFactory serverFactory, IClusterListener listener)
+        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IClusterListener listener)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _serverFactory = Ensure.IsNotNull(serverFactory, "serverFactory");
             _listener = listener;
+            _state = new InterlockedInt32(State.Initial);
 
             _clusterId = new ClusterId();
-            _description = ClusterDescription.CreateUninitialized(_clusterId, settings.RequiredClusterType ?? ClusterType.Unknown);
+            _description = ClusterDescription.CreateInitial(_clusterId, _settings.ConnectionMode.ToClusterType());
             _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
@@ -68,26 +72,16 @@ namespace MongoDB.Driver.Core.Clusters
         {
             get
             {
-                lock (_lock)
+                lock (_descriptionLock)
                 {
                     return _description;
                 }
             }
         }
 
-        protected bool Disposed
-        {
-            get { return _disposed; }
-        }
-
         protected IClusterListener Listener
         {
             get { return _listener; }
-        }
-
-        protected object Lock
-        {
-            get { return _lock; }
         }
 
         public ClusterSettings Settings
@@ -109,37 +103,26 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected virtual void Dispose(bool disposing)
         {
-            _disposed = true;
-        }
-
-        public async Task<ClusterDescription> GetDescriptionAsync(int minimumRevision = 0, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ThrowIfDisposed();
-            var slidingTimeout = new SlidingTimeout(timeout);
-            while (true)
+            if (_state.TryChange(State.Disposed))
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                var newClusterDescription = new ClusterDescription(
+                    _clusterId,
+                    ClusterType.Unknown,
+                    Enumerable.Empty<ServerDescription>(),
+                    null);
 
-                ClusterDescription description;
-                Task descriptionChangedTask;
-                lock (_lock)
-                {
-                    description = _description;
-                    descriptionChangedTask = _descriptionChangedTaskCompletionSource.Task;
-                }
-
-                if (description.Revision >= minimumRevision)
-                {
-                    return description;
-                }
-
-                await descriptionChangedTask.WithTimeout(slidingTimeout, cancellationToken);
+                UpdateClusterDescription(newClusterDescription);
             }
         }
 
-        public abstract IServer GetServer(EndPoint endPoint);
+        public virtual void Initialize()
+        {
+            _state.TryChange(State.Initial, State.Open);
+        }
 
-        protected virtual void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
+        protected abstract void Invalidate();
+
+        protected void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
         {
             ClusterDescriptionChangedEventArgs args = null;
 
@@ -162,6 +145,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         public async Task<IServer> SelectServerAsync(IServerSelector selector, TimeSpan timeout, CancellationToken cancellationToken)
         {
+            ThrowIfNotOpen();
             Ensure.IsNotNull(selector, "selector");
             var slidingTimeout = new SlidingTimeout(timeout);
 
@@ -169,31 +153,35 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                ClusterDescription description;
                 Task descriptionChangedTask;
-                lock (_lock)
+                ClusterDescription description;
+                lock (_descriptionLock)
                 {
-                    description = _description;
                     descriptionChangedTask = _descriptionChangedTaskCompletionSource.Task;
+                    description = _description;
                 }
 
-                var connectedServers = description.Servers.Where(s => s.State == ServerState.Connected);
-                var selectedServers = selector.SelectServers(_description, connectedServers).ToList();
+                ThrowIfIncompatible(description);
 
-                while (selectedServers.Any())
+                var connectedServers = description.Servers.Where(s => s.State == ServerState.Connected);
+                var selectedServers = selector.SelectServers(description, connectedServers).ToList();
+
+                while (selectedServers.Count > 0)
                 {
                     var server = selectedServers.Count == 1 ?
                         selectedServers[0] :
-                        _randomServerSelector.SelectServers(_description, selectedServers).Single();
+                        __randomServerSelector.SelectServers(description, selectedServers).Single();
 
-                    IClusterableServer rootServer;
-                    if (TryGetServer(server.EndPoint, out rootServer))
+                    IClusterableServer selectedServer;
+                    if (TryGetServer(server.EndPoint, out selectedServer))
                     {
-                        return rootServer;
+                        return selectedServer;
                     }
 
                     selectedServers.Remove(server);
                 }
+
+                Invalidate();
 
                 await descriptionChangedTask.WithTimeout(slidingTimeout, cancellationToken);
             }
@@ -206,10 +194,9 @@ namespace MongoDB.Driver.Core.Clusters
             ClusterDescription oldClusterDescription = null;
             TaskCompletionSource<bool> oldDescriptionChangedTaskCompletionSource = null;
 
-            lock (_lock)
+            lock (_descriptionLock)
             {
                 oldClusterDescription = _description;
-                newClusterDescription = newClusterDescription.WithRevision(oldClusterDescription.Revision + 1);
                 _description = newClusterDescription;
 
                 oldDescriptionChangedTaskCompletionSource = _descriptionChangedTaskCompletionSource;
@@ -220,12 +207,43 @@ namespace MongoDB.Driver.Core.Clusters
             oldDescriptionChangedTaskCompletionSource.TrySetResult(true);
         }
 
-        protected void ThrowIfDisposed()
+        private void ThrowIfDisposed()
         {
-            if (_disposed)
+            if (_state.Value == State.Disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }
+        }
+
+        private void ThrowIfIncompatible(ClusterDescription description)
+        {
+            var isIncompatible = description.Servers
+                .Any(sd => sd.WireVersionRange != null && !sd.WireVersionRange.Overlaps(__supportedWireVersionRange));
+
+            if (isIncompatible)
+            {
+                var message = string.Format(
+                    "This versin of the driver is incompatible with one or more of the " +
+                    "servers to which it is connectioned: {0}", description);
+                throw new MongoDBException(message);
+            }
+        }
+
+        private void ThrowIfNotOpen()
+        {
+            if (_state.Value != State.Open)
+            {
+                ThrowIfDisposed();
+                throw new InvalidOperationException("Server must be initialized.");
+            }
+        }
+
+        // nested classes
+        private static class State
+        {
+            public const int Initial = 0;
+            public const int Open = 1;
+            public const int Disposed = 2;
         }
     }
 }

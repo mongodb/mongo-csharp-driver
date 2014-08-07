@@ -23,10 +23,7 @@ namespace MongoDB.Driver.Core.Clusters
 {
     public enum ClusterState
     {
-        Uninitialized = 0,
         Disconnected,
-        PartiallyConnected,
-        Connected,
-        Disposed
+        Connected
     }
 }

@@ -28,11 +28,11 @@ namespace MongoDB.Driver.Core.Clusters
     {
         // fields
         private readonly IClusterListener _listener;
-        private readonly IServerFactory _serverFactory;
+        private readonly IClusterableServerFactory _serverFactory;
         private readonly ClusterSettings _settings;
 
         // constructors
-        public ClusterFactory(ClusterSettings settings, IServerFactory serverFactory, IClusterListener listener)
+        public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IClusterListener listener)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _serverFactory = Ensure.IsNotNull(serverFactory, "serverFactory");
@@ -42,30 +42,30 @@ namespace MongoDB.Driver.Core.Clusters
         // methods
         public ICluster CreateCluster()
         {
-            if (_settings.RequiredClusterType.HasValue)
+            var connectionMode = _settings.ConnectionMode;
+
+            if(connectionMode == ClusterConnectionMode.Unspecified)
             {
-                switch (_settings.RequiredClusterType.Value)
+                if(_settings.ReplicaSetName != null)
                 {
-                    case ClusterType.Direct:
-                    case ClusterType.Standalone:
-                        return CreateSingleServerCluster();
-
-                    case ClusterType.ReplicaSet:
-                    case ClusterType.Sharded:
-                        return CreateMultiServerCluster();
-
-                    default:
-                        throw new ArgumentException(string.Format("Invalid cluster type: {0}.", _settings.RequiredClusterType), "settings");
+                    connectionMode = ClusterConnectionMode.ReplicaSet;
+                }
+                else if (_settings.EndPoints.Count == 1)
+                {
+                    connectionMode = ClusterConnectionMode.Direct;
                 }
             }
 
-            if (_settings.EndPoints.Count == 1)
+            switch(connectionMode)
             {
-                return CreateSingleServerCluster();
-            }
-            else
-            {
-                return CreateMultiServerCluster();
+                case ClusterConnectionMode.Direct:
+                case ClusterConnectionMode.Standalone:
+                    return CreateSingleServerCluster();
+                case ClusterConnectionMode.ReplicaSet:
+                case ClusterConnectionMode.Sharded:
+                    return CreateMultiServerCluster();
+                default:
+                    throw new NotSupportedException();
             }
         }
 

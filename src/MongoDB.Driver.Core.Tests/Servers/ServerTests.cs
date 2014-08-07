@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         private IConnectionFactory _heartbeatConnectionFactory;
         private IServerListener _listener;
         private ServerSettings _settings;
-        private Server _subject;
+        private ClusterableServer _subject;
 
 
         [SetUp]
@@ -67,13 +67,13 @@ namespace MongoDB.Driver.Core.Tests.Servers
             _settings = new ServerSettings()
                 .WithHeartbeatInterval(Timeout.InfiniteTimeSpan);
 
-            _subject = new Server(_settings, _clusterId, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            _subject = new ClusterableServer(_settings, _clusterId, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
         }
 
         [Test]
         public void Constructor_should_throw_when_settings_is_null()
         {
-            Action act = () => new Server(null, _clusterId, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            Action act = () => new ClusterableServer(null, _clusterId, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         [Test]
         public void Constructor_should_throw_when_clusterId_is_null()
         {
-            Action act = () => new Server(_settings, null, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            Action act = () => new ClusterableServer(_settings, null, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         [Test]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
-            Action act = () => new Server(_settings, _clusterId, null, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            Action act = () => new ClusterableServer(_settings, _clusterId, null, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         [Test]
         public void Constructor_should_throw_when_connectionPoolFactory_is_null()
         {
-            Action act = () => new Server(_settings, _clusterId, _endPoint, null, _heartbeatConnectionFactory, _listener);
+            Action act = () => new ClusterableServer(_settings, _clusterId, _endPoint, null, _heartbeatConnectionFactory, _listener);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         [Test]
         public void Constructor_should_throw_when_heartbeatConnectionFactory_is_null()
         {
-            Action act = () => new Server(_settings, _clusterId, _endPoint, _connectionPoolFactory, null, _listener);
+            Action act = () => new ClusterableServer(_settings, _clusterId, _endPoint, _connectionPoolFactory, null, _listener);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         [Test]
         public void Constructor_should_not_throw_when_listener_is_null()
         {
-            Action act = () => new Server(_settings, _clusterId, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, null);
+            Action act = () => new ClusterableServer(_settings, _clusterId, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, null);
 
             act.ShouldNotThrow();
         }

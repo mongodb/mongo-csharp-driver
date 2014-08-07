@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.Tests.Helpers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Tests.Clusters
@@ -61,26 +62,13 @@ namespace MongoDB.Driver.Core.Tests.Clusters
 
         // static member tests
         [Test]
-        public void CreateDisposed_should_return_disposed_description()
+        public void CreateInitial_should_return_initial_description()
         {
-            var subject = ClusterDescription.CreateDisposed(__clusterId, ClusterType.Standalone);
+            var subject = ClusterDescription.CreateInitial(__clusterId, ClusterType.Standalone);
             subject.ClusterId.Should().Be(__clusterId);
             subject.ReplicaSetConfig.Should().BeNull();
-            subject.Revision.Should().Be(0);
             subject.Servers.Should().BeEmpty();
-            subject.State.Should().Be(ClusterState.Disposed);
-            subject.Type.Should().Be(ClusterType.Standalone);
-        }
-
-        [Test]
-        public void CreateUnitialized_should_return_unitialized_description()
-        {
-            var subject = ClusterDescription.CreateUninitialized(__clusterId, ClusterType.Standalone);
-            subject.ClusterId.Should().Be(__clusterId);
-            subject.ReplicaSetConfig.Should().BeNull();
-            subject.Revision.Should().Be(0);
-            subject.Servers.Should().BeEmpty();
-            subject.State.Should().Be(ClusterState.Uninitialized);
+            subject.State.Should().Be(ClusterState.Disconnected);
             subject.Type.Should().Be(ClusterType.Standalone);
         }
 
@@ -91,38 +79,13 @@ namespace MongoDB.Driver.Core.Tests.Clusters
             var subject = new ClusterDescription(
                 __clusterId,
                 ClusterType.ReplicaSet,
-                ClusterState.Connected,
                 new[] { __serverDescription1, __serverDescription2 },
-                __replicaSetConfig,
-                1);
+                __replicaSetConfig);
             subject.ClusterId.Should().Be(__clusterId);
             subject.ReplicaSetConfig.Should().Be(__replicaSetConfig);
-            subject.Revision.Should().Be(1);
             subject.Servers.Should().ContainInOrder(new[] { __serverDescription1, __serverDescription2 });
-            subject.State.Should().Be(ClusterState.Connected);
+            subject.State.Should().Be(ClusterState.Disconnected);
             subject.Type.Should().Be(ClusterType.ReplicaSet);
-        }
-
-        private ClusterDescription CreateSubject(string notEqualField = null)
-        {
-            var clusterId = new ClusterId(1);
-            var type = ClusterType.ReplicaSet;
-            var state = ClusterState.Connected;
-            var servers = new[] { __serverDescription1, __serverDescription2 };
-            var replicaSetConfig = new ReplicaSetConfig(new[] { __endPoint1, __endPoint2 }, "name", __endPoint1, 1);
-            var revision = 1;
-
-            switch (notEqualField)
-            {
-                case "ClusterId": clusterId = new ClusterId(2); break;
-                case "Type": type = ClusterType.Unknown ; break;
-                case "State": state = ClusterState.PartiallyConnected ; break;
-                case "Servers": servers = new[] { __serverDescription1 }; break;
-                case "ReplicaSetConfig": replicaSetConfig = new ReplicaSetConfig(new[] { __endPoint1 }, "name", __endPoint1, 1); break;
-                case "Revision":  revision = 2; break;
-            }
-
-            return new ClusterDescription(clusterId, type, state, servers, replicaSetConfig, revision);
         }
 
         [Test]
@@ -138,7 +101,6 @@ namespace MongoDB.Driver.Core.Tests.Clusters
         [TestCase("ClusterId")]
         [TestCase("ReplicaSetConfig")]
         [TestCase("Servers")]
-        [TestCase("State")]
         [TestCase("Type")]
         public void Equals_should_return_false_if_any_field_is_not_equal(string notEqualField)
         {
@@ -160,29 +122,32 @@ namespace MongoDB.Driver.Core.Tests.Clusters
         }
 
         [Test]
+        public void State_should_be_connected_if_any_server_is_connected()
+        {
+            var connected = ServerDescriptionHelper.Connected(new ClusterId(1));
+            var subject = new ClusterDescription(new ClusterId(1), ClusterType.Standalone, new[] { __serverDescription1, connected }, null);
+
+            subject.State.Should().Be(ClusterState.Connected);
+        }
+
+        [Test]
         public void ToString_should_return_string_representation()
         {
-            var subject = new ClusterDescription(new ClusterId(1), ClusterType.Standalone, ClusterState.Connected, new[] { __serverDescription1 }, null, 1);
-            var expected = string.Format("{{ ClusterId : 1, Type : Standalone, State : Connected, Servers : [{0}], ReplicaSetConfig : null, Revision : 1 }}",
+            var subject = new ClusterDescription(new ClusterId(1), ClusterType.Standalone, new[] { __serverDescription1 }, null);
+            var expected = string.Format("{{ ClusterId : 1, Type : Standalone, State : Disconnected, Servers : [{0}], ReplicaSetConfig : null }}",
                 __serverDescription1);
             subject.ToString().Should().Be(expected);
         }
 
         [Test]
-        public void WithRevision_should_return_new_instance_if_value_is_not_equal()
+        public void WithServerDescription_should_add_server_if_server_does_not_exist()
         {
             var subject1 = CreateSubject();
-            var subject2 = subject1.WithRevision(subject1.Revision + 1);
+            var newServerDescription = new ServerDescription(new ServerId(__clusterId, new DnsEndPoint("127.0.0.1", 27018)), new DnsEndPoint("127.0.0.1", 27018));
+            var subject2 = subject1.WithServerDescription(newServerDescription);
             subject2.Should().NotBeSameAs(subject1);
-            subject2.Should().Be(subject1);
-        }
-
-        [Test]
-        public void WithRevision_should_return_same_instance_if_value_is_equal()
-        {
-            var subject1 = CreateSubject();
-            var subject2 = subject1.WithRevision(subject1.Revision);
-            subject2.Should().BeSameAs(subject1);
+            subject2.Should().NotBe(subject1);
+            subject2.Servers.Count.Should().Be(3);
         }
 
         [Test]
@@ -195,7 +160,8 @@ namespace MongoDB.Driver.Core.Tests.Clusters
                 oldServerDescription.ReplicaSetConfig,
                 oldServerDescription.Tags,
                 oldServerDescription.Type,
-                oldServerDescription.Version);
+                oldServerDescription.Version,
+                oldServerDescription.WireVersionRange);
             var subject2 = subject1.WithServerDescription(newServerDescription);
             subject2.Should().NotBeSameAs(subject1);
             subject2.Should().NotBe(subject1);
@@ -207,6 +173,15 @@ namespace MongoDB.Driver.Core.Tests.Clusters
             var subject1 = CreateSubject();
             var subject2 = subject1.WithServerDescription(subject1.Servers[0]);
             subject2.Should().BeSameAs(subject1);
+        }
+
+        [Test]
+        public void WithoutServerDescription_should_remove_server_if_it_exists()
+        {
+            var subject1 = CreateSubject();
+            var subject2 = subject1.WithoutServerDescription(__endPoint1);
+            subject2.Should().NotBeSameAs(subject1);
+            subject2.Servers.Count.Should().Be(1);
         }
 
         [Test]
@@ -224,6 +199,24 @@ namespace MongoDB.Driver.Core.Tests.Clusters
             var subject1 = CreateSubject();
             var subject2 = subject1.WithType(subject1.Type);
             subject2.Should().BeSameAs(subject1);
+        }
+
+        private ClusterDescription CreateSubject(string notEqualField = null)
+        {
+            var clusterId = new ClusterId(1);
+            var type = ClusterType.ReplicaSet;
+            var servers = new[] { __serverDescription1, __serverDescription2 };
+            var replicaSetConfig = new ReplicaSetConfig(new[] { __endPoint1, __endPoint2 }, "name", __endPoint1, 1);
+
+            switch (notEqualField)
+            {
+                case "ClusterId": clusterId = new ClusterId(2); break;
+                case "Type": type = ClusterType.Unknown; break;
+                case "Servers": servers = new[] { __serverDescription1 }; break;
+                case "ReplicaSetConfig": replicaSetConfig = new ReplicaSetConfig(new[] { __endPoint1 }, "name", __endPoint1, 1); break;
+            }
+
+            return new ClusterDescription(clusterId, type, servers, replicaSetConfig);
         }
     }
 }

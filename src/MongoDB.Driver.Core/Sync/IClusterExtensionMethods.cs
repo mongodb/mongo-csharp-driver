@@ -25,12 +25,6 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
     public static class IClusterExtensionMethods
     {
         // static methods
-        public static ClusterDescription GetDescription(this ICluster cluster, int minimumRevision = 0, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(cluster, "cluster");
-            return cluster.GetDescriptionAsync(minimumRevision, timeout, cancellationToken).GetAwaiter().GetResult();
-        }
-
         public static IServer SelectServer(this ICluster cluster, IServerSelector selector = null, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(cluster, "cluster");

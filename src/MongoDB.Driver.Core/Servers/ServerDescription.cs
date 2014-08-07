@@ -37,12 +37,12 @@ namespace MongoDB.Driver.Core.Servers
         private readonly TimeSpan _averageRoundTripTime;
         private readonly EndPoint _endPoint;
         private readonly ReplicaSetConfig _replicaSetConfig;
-        private readonly int _revision;
         private readonly ServerId _serverId;
         private readonly ServerState _state;
         private readonly TagSet _tags;
         private readonly ServerType _type;
         private readonly SemanticVersion _version;
+        private readonly Range<int> _wireVersionRange;
 
         // constructors
         public ServerDescription(ServerId serverId, EndPoint endPoint)
@@ -50,11 +50,11 @@ namespace MongoDB.Driver.Core.Servers
                 TimeSpan.Zero,
                 endPoint,
                 null,
-                0,
                 serverId,
                 ServerState.Disconnected,
                 null,
                 ServerType.Unknown,
+                null,
                 null)
         {
         }
@@ -67,17 +67,18 @@ namespace MongoDB.Driver.Core.Servers
             TimeSpan averageRoundTripTime,
             ReplicaSetConfig replicaSetConfig,
             TagSet tags,
-            SemanticVersion version)
+            SemanticVersion version,
+            Range<int> wireVersionRange)
             : this(
                 averageRoundTripTime,
                 endPoint,
                 replicaSetConfig,
-                0,
                 serverId,
                 state,
                 tags,
                 type,
-                version)
+                version,
+                wireVersionRange)
         {
         }
 
@@ -85,12 +86,12 @@ namespace MongoDB.Driver.Core.Servers
             TimeSpan averageRoundTripTime,
             EndPoint endPoint,
             ReplicaSetConfig replicaSetConfig,
-            int revision,
             ServerId serverId,
             ServerState state,
             TagSet tags,
             ServerType type,
-            SemanticVersion version)
+            SemanticVersion version,
+            Range<int> wireVersionRange)
         {
             Ensure.IsNotNull(endPoint, "endPoint");
             Ensure.IsNotNull(serverId, "serverId");
@@ -102,12 +103,12 @@ namespace MongoDB.Driver.Core.Servers
             _averageRoundTripTime = averageRoundTripTime;
             _endPoint = endPoint;
             _replicaSetConfig = replicaSetConfig;
-            _revision = revision;
             _serverId = serverId;
             _state = state;
             _tags = tags;
             _type = type;
             _version = version;
+            _wireVersionRange = wireVersionRange;
         }
 
         // properties
@@ -124,11 +125,6 @@ namespace MongoDB.Driver.Core.Servers
         public ReplicaSetConfig ReplicaSetConfig
         {
             get { return _replicaSetConfig; }
-        }
-
-        public int Revision
-        {
-            get { return _revision; }
         }
 
         public ServerId ServerId
@@ -156,6 +152,11 @@ namespace MongoDB.Driver.Core.Servers
             get { return _version; }
         }
 
+        public Range<int> WireVersionRange
+        {
+            get { return _wireVersionRange; }
+        }
+
         // methods
         public override bool Equals(object obj)
         {
@@ -178,7 +179,8 @@ namespace MongoDB.Driver.Core.Servers
                 _state == rhs._state &&
                 object.Equals(_tags, rhs._tags) &&
                 _type == rhs._type &&
-                object.Equals(_version, rhs._version);
+                object.Equals(_version, rhs._version) &&
+                object.Equals(_wireVersionRange, rhs._wireVersionRange);
         }
 
         public override int GetHashCode()
@@ -193,19 +195,20 @@ namespace MongoDB.Driver.Core.Servers
                 .Hash(_tags)
                 .Hash(_type)
                 .Hash(_version)
+                .Hash(_wireVersionRange)
                 .GetHashCode();
         }
 
         public override string ToString()
         {
             return string.Format(
-                "{{ ServerId : {0}, EndPoint : {1}, State : {2}, Type : {3}, Tags : {4}, Revision : {5} }}",
+                "{{ ServerId : {0}, EndPoint : {1}, State : {2}, Type : {3}, Tags : {4}, WireVersionRange : {5} }}",
                 _serverId,
                 _endPoint,
                 _state,
                 _type,
                 _tags,
-                _revision);
+                _wireVersionRange);
         }
 
         public ServerDescription WithHeartbeatInfo(
@@ -213,14 +216,16 @@ namespace MongoDB.Driver.Core.Servers
             ReplicaSetConfig replicaSetConfig,
             TagSet tags,
             ServerType type,
-            SemanticVersion version)
+            SemanticVersion version,
+            Range<int> wireVersionRange)
         {
             if (_state == ServerState.Connected && 
                 _averageRoundTripTime == averageRoundTripTime &&
                 object.Equals(_replicaSetConfig, replicaSetConfig) &&                
                 object.Equals(_tags, tags) &&
                 _type == type &&
-                object.Equals(_version, version))
+                object.Equals(_version, version) &&
+                object.Equals(_wireVersionRange, wireVersionRange))
             {
                 return this;
             }
@@ -230,27 +235,13 @@ namespace MongoDB.Driver.Core.Servers
                     averageRoundTripTime,
                     _endPoint,
                     replicaSetConfig,
-                    0,
                     _serverId,
                     ServerState.Connected,
                     tags,
                     type,
-                    version);
+                    version,
+                    wireVersionRange);
             }
-        }
-
-        public ServerDescription WithRevision(int value)
-        {
-            return _revision == value ? this : new ServerDescription(
-                _averageRoundTripTime,
-                _endPoint,
-                _replicaSetConfig,
-                value,
-                _serverId,
-                _state,
-                _tags,
-                _type,
-                _version);
         }
     }
 }

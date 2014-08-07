@@ -31,9 +31,9 @@ namespace MongoDB.Driver.Core.Configuration
         #endregion
 
         // fields
+        private readonly ClusterConnectionMode _connectionMode;
         private readonly IReadOnlyList<EndPoint> _endPoints;
         private readonly string _replicaSetName;
-        private readonly ClusterType? _requiredClusterType;
 
         // constructors
         public ClusterSettings()
@@ -42,24 +42,24 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         internal ClusterSettings(
-            ClusterType? requiredClusterType,
+            ClusterConnectionMode connectionMode,
             IReadOnlyList<EndPoint> endPoints,
             string replicaSetName)
         {
-            _requiredClusterType = requiredClusterType;
+            _connectionMode = connectionMode;
             _endPoints = endPoints;
             _replicaSetName = replicaSetName;
         }
 
         // properties
+        public ClusterConnectionMode ConnectionMode
+        {
+            get { return _connectionMode; }
+        }
+
         public IReadOnlyList<EndPoint> EndPoints
         {
             get { return _endPoints; }
-        }
-
-        public ClusterType? RequiredClusterType
-        {
-            get { return _requiredClusterType; }
         }
 
         public string ReplicaSetName
@@ -68,6 +68,11 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // methods
+        public ClusterSettings WithConnectionMode(ClusterConnectionMode value)
+        {
+            return (_connectionMode == value) ? this : new Builder(this) { _connectionMode = value }.Build();
+        }
+
         public ClusterSettings WithEndPoints(IEnumerable<EndPoint> value)
         {
             var list = value.ToList();
@@ -79,32 +84,27 @@ namespace MongoDB.Driver.Core.Configuration
             return object.Equals(_replicaSetName, value) ? this : new Builder(this) { _replicaSetName = value }.Build();
         }
 
-        public ClusterSettings WithRequiredClusterType(ClusterType value)
-        {
-            return (_requiredClusterType == value) ? this : new Builder(this) { _requiredClusterType = value }.Build();
-        }
-
         // nested types
         private struct Builder
         {
             // fields
+            public ClusterConnectionMode _connectionMode;
             public IReadOnlyList<EndPoint> _endPoints;
             public string _replicaSetName;
-            public ClusterType? _requiredClusterType;
 
             // constructors
             public Builder(ClusterSettings other)
             {
+                _connectionMode = other._connectionMode;
                 _endPoints = other._endPoints;
                 _replicaSetName = other._replicaSetName;
-                _requiredClusterType = other._requiredClusterType;
             }
 
             // methods
             public ClusterSettings Build()
             {
                 return new ClusterSettings(
-                    _requiredClusterType,
+                    _connectionMode,
                     _endPoints,
                     _replicaSetName);
             }

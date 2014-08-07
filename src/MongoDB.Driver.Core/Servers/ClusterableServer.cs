@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server in a MongoDB cluster.
     /// </summary>
-    internal sealed class Server : IClusterableServer
+    internal sealed class ClusterableServer : IClusterableServer
     {
         // fields
         private readonly ExponentiallyWeightedMovingAverage _averageRoundTripTimeCalculator = new ExponentiallyWeightedMovingAverage(0.2);
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Servers
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // constructors
-        public Server(ServerSettings settings, ClusterId clusterId, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory hearbeatConnectionFactory, IServerListener listener)
+        public ClusterableServer(ServerSettings settings, ClusterId clusterId, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory hearbeatConnectionFactory, IServerListener listener)
         {
             _settings = Ensure.IsNotNull(settings, "settings"); ;
             Ensure.IsNotNull(clusterId, "clusterId");
@@ -193,7 +193,8 @@ namespace MongoDB.Driver.Core.Servers
                     isMasterResult.GetReplicaSetConfig(_settings.AddressFamily),
                     isMasterResult.Tags,
                     isMasterResult.ServerType,
-                    buildInfoResult.ServerVersion);
+                    buildInfoResult.ServerVersion,
+                    new Range<int>(isMasterResult.MinWireVersion, isMasterResult.MaxWireVersion));
             }
             else
             {
@@ -267,7 +268,6 @@ namespace MongoDB.Driver.Core.Servers
             {
                 return;
             }
-            newDescription = newDescription.WithRevision(oldDescription.Revision + 1);
             Interlocked.Exchange(ref _currentDescription, newDescription);
 
             var args = new ServerDescriptionChangedEventArgs(oldDescription, newDescription);
@@ -329,10 +329,10 @@ namespace MongoDB.Driver.Core.Servers
 
         private sealed class ServerConnection : ConnectionWrapper, IConnectionHandle
         {
-            private readonly Server _server;
+            private readonly ClusterableServer _server;
             private readonly IConnectionHandle _wrappedHandle;
             
-            public ServerConnection(Server server, IConnectionHandle wrapped)
+            public ServerConnection(ClusterableServer server, IConnectionHandle wrapped)
                 : base(wrapped)
             {
                 _wrappedHandle = wrapped;

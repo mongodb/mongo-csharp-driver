@@ -49,7 +49,8 @@ namespace MongoDB.Driver.Core.Tests.Servers
                 TimeSpan.FromSeconds(1),
                 null,
                 null,
-                new SemanticVersion(2, 6, 3));
+                new SemanticVersion(2, 6, 3),
+                new Range<int>(0, 2));
         }
         #endregion
 
@@ -60,12 +61,12 @@ namespace MongoDB.Driver.Core.Tests.Servers
             subject.AverageRoundTripTime.Should().Be(TimeSpan.Zero);
             subject.EndPoint.Should().Be(__endPoint);
             subject.ReplicaSetConfig.Should().BeNull();
-            subject.Revision.Should().Be(0);
             subject.ServerId.Should().Be(__serverId);
             subject.State.Should().Be(ServerState.Disconnected);
             subject.Tags.Should().BeNull();
             subject.Type.Should().Be(ServerType.Unknown);
             subject.Version.Should().BeNull();
+            subject.WireVersionRange.Should().BeNull();
         }
 
         [Test]
@@ -81,6 +82,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
             var tags = new TagSet(new [] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
             var version = new SemanticVersion(2, 6, 3);
+            var wireVersionRange = new Range<int>(2, 3);
 
             var subject = new ServerDescription(
                 __serverId,
@@ -90,12 +92,12 @@ namespace MongoDB.Driver.Core.Tests.Servers
                 averageRoundTripTime,
                 replicaSetConfig,
                 tags,
-                version);
+                version,
+                wireVersionRange);
 
             subject.AverageRoundTripTime.Should().Be(TimeSpan.FromSeconds(1));
             subject.EndPoint.Should().Be(__endPoint);
             subject.ReplicaSetConfig.Should().Be(replicaSetConfig);
-            subject.Revision.Should().Be(0);
             subject.ServerId.Should().Be(__serverId);
             subject.State.Should().Be(state);
             subject.Tags.Should().Be(tags);
@@ -111,6 +113,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         [TestCase("Tags")]
         [TestCase("Type")]
         [TestCase("Version")]
+        [TestCase("WireVersionRange")]
         public void Equals_should_return_false_when_any_field_is_not_equal(string notEqualField)
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
@@ -125,6 +128,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
             var version = new SemanticVersion(2, 6, 3);
+            var wireVersionRange = new Range<int>(2, 3);
 
             var subject = new ServerDescription(
                 serverId,
@@ -134,7 +138,8 @@ namespace MongoDB.Driver.Core.Tests.Servers
                 averageRoundTripTime,
                 replicaSetConfig,
                 tags,
-                version);
+                version,
+                wireVersionRange);
 
             switch (notEqualField)
             {
@@ -146,6 +151,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
                 case "Tags": tags = new TagSet(new[] { new Tag("x", "b") }); break;
                 case "Type": type = ServerType.ReplicaSetSecondary; break;
                 case "Version": version = new SemanticVersion(version.Major, version.Minor, version.Patch + 1); break;
+                case "WireVersionRange": wireVersionRange = new Range<int>(0, 0); break;
             }
 
             var serverDescription2 = new ServerDescription(
@@ -156,7 +162,8 @@ namespace MongoDB.Driver.Core.Tests.Servers
                 averageRoundTripTime,
                 replicaSetConfig,
                 tags,
-                version);
+                version,
+                wireVersionRange);
 
             subject.Equals(serverDescription2).Should().BeFalse();
             subject.Equals((object)serverDescription2).Should().BeFalse();
@@ -173,21 +180,12 @@ namespace MongoDB.Driver.Core.Tests.Servers
             subject.GetHashCode().Should().Be(serverDescription2.GetHashCode());
         }
 
-        [Test]
-        public void Equals_should_return_true_when_all_fields_are_equal_and_revision_is_not_equal()
-        {
-            ServerDescription subject = new ServerDescription(__serverId, __endPoint);
-            ServerDescription serverDescription2 = subject.WithRevision(subject.Revision + 1);
-            subject.Equals(serverDescription2).Should().BeTrue();
-            subject.Equals((object)serverDescription2).Should().BeTrue();
-            subject.GetHashCode().Should().Be(serverDescription2.GetHashCode());
-        }
-
         [TestCase("AverageRoundTripTime")]
         [TestCase("ReplicaSetConfig")]
         [TestCase("Tags")]
         [TestCase("Type")]
         [TestCase("Version")]
+        [TestCase("WireVersionRange")]
         public void WithHeartbeat_should_return_new_instance_when_a_field_is_not_equal(string notEqualField)
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
@@ -200,6 +198,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
             var version = new SemanticVersion(2, 6, 3);
+            var wireVersionRange = new Range<int>(2, 3);
 
             var subject = new ServerDescription(
                 __serverId,
@@ -209,7 +208,8 @@ namespace MongoDB.Driver.Core.Tests.Servers
                 averageRoundTripTime,
                 replicaSetConfig,
                 tags,
-                version);
+                version,
+                wireVersionRange);
 
             switch (notEqualField)
             {
@@ -218,9 +218,10 @@ namespace MongoDB.Driver.Core.Tests.Servers
                 case "Tags": tags = new TagSet(new[] { new Tag("x", "b") }); break;
                 case "Type": type = ServerType.ReplicaSetSecondary; break;
                 case "Version": version = new SemanticVersion(version.Major, version.Minor, version.Patch + 1); break;
+                case "WireVersionRange": wireVersionRange = new Range<int>(0, 0); break;
             }
 
-            var serverDescription2 = subject.WithHeartbeatInfo(averageRoundTripTime, replicaSetConfig, tags, type, version);
+            var serverDescription2 = subject.WithHeartbeatInfo(averageRoundTripTime, replicaSetConfig, tags, type, version, wireVersionRange);
 
             subject.Equals(serverDescription2).Should().BeFalse();
             subject.Equals((object)serverDescription2).Should().BeFalse();
@@ -240,6 +241,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
             var version = new SemanticVersion(2, 6, 3);
+            var wireVersionRange = new Range<int>(0, 2);
 
             var subject = new ServerDescription(
                 __serverId,
@@ -249,19 +251,11 @@ namespace MongoDB.Driver.Core.Tests.Servers
                 averageRoundTripTime,
                 replicaSetConfig,
                 tags,
-                version);
+                version,
+                wireVersionRange);
 
-            var serverDescription2 = subject.WithHeartbeatInfo(averageRoundTripTime, replicaSetConfig, tags, type, version);
+            var serverDescription2 = subject.WithHeartbeatInfo(averageRoundTripTime, replicaSetConfig, tags, type, version, wireVersionRange);
             serverDescription2.Should().BeSameAs(subject);
-        }
-
-        [Test]
-        public void WithRevision_should_return_new_instance_when_value_is_not_equal()
-        {
-            var subject = new ServerDescription(__serverId, __endPoint);
-            var serverDescription2 = subject.WithRevision(subject.Revision + 1);
-            serverDescription2.Revision.Should().NotBe(subject.Revision);
-            serverDescription2.Should().Be(subject);
         }
     }
 }

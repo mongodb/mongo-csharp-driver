@@ -14,14 +14,8 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -31,31 +25,19 @@ namespace MongoDB.Driver.Core.Clusters
     /// <summary>
     /// Represents a standalone cluster.
     /// </summary>
-    public class SingleServerCluster : Cluster
+    internal sealed class SingleServerCluster : Cluster
     {
         // fields
         private IClusterableServer _server;
+        private readonly InterlockedInt32 _state;
 
         // constructor
-        internal SingleServerCluster(ClusterSettings settings, IServerFactory serverFactory, IClusterListener listener)
+        internal SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IClusterListener listener)
             : base(settings, serverFactory, listener)
         {
             Ensure.IsEqualTo(settings.EndPoints.Count, 1, "settings.EndPoints.Count");
-            Ensure.IsNull(settings.ReplicaSetName, "settings.ReplicaSetName");
-            if (settings.RequiredClusterType.HasValue)
-            {
-                switch (settings.RequiredClusterType.Value)
-                {
-                    case ClusterType.Direct:
-                    case ClusterType.Sharded:
-                    case ClusterType.Standalone:
-                    case ClusterType.Unknown:
-                        break;
-                    default:
-                        var message = string.Format("RequiredClusterType is not compatible with SingleServerCluster: {0}.", settings.RequiredClusterType.Value);
-                        throw new ArgumentException(message, "settings.RequiredClusterType");
-                }
-            }
+
+            _state = new InterlockedInt32(State.Initial);
         }
 
         // methods
@@ -64,6 +46,7 @@ namespace MongoDB.Driver.Core.Clusters
             switch (serverDescription.Type)
             {
                 case ServerType.ReplicaSetArbiter:
+                case ServerType.ReplicaSetGhost:
                 case ServerType.ReplicaSetOther:
                 case ServerType.ReplicaSetPassive:
                 case ServerType.ReplicaSetPrimary:
@@ -80,59 +63,74 @@ namespace MongoDB.Driver.Core.Clusters
                     return ClusterType.Unknown;
 
                 default:
-                    throw new MongoDBException("Unexpectec ServerTypes.");
+                    throw new MongoDBException("Unexpected ServerTypes.");
             }
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
+            if (_state.TryChange(State.Disposed))
             {
-                _server.DescriptionChanged -= ServerDescriptionChanged;
-                _server.Dispose();
+                if (disposing)
+                {
+                    if (_server != null)
+                    {
+                        _server.DescriptionChanged -= ServerDescriptionChanged;
+                        _server.Dispose();
+                    }
+                }
             }
             base.Dispose(disposing);
         }
 
-        public override IServer GetServer(EndPoint endPoint)
+        public override void Initialize()
         {
-            if (_server.EndPoint.Equals(endPoint))
+            base.Initialize();
+            ThrowIfDisposed();
+            if (_state.TryChange(State.Initial, State.Open))
             {
-                return _server;
-            }
-            else
-            {
-                return null;
+                _server = CreateServer(Settings.EndPoints[0]);
+                _server.DescriptionChanged += ServerDescriptionChanged;
+                _server.Initialize();
             }
         }
 
-        public void Initialize()
+        protected override void Invalidate()
         {
-            _server = CreateServer(Settings.EndPoints.Single());
-            _server.DescriptionChanged += ServerDescriptionChanged;
-            _server.Initialize();
+            _server.Invalidate();
         }
 
         private void ServerDescriptionChanged(object sender, ServerDescriptionChangedEventArgs args)
         {
             var oldClusterDescription = Description;
+            ClusterDescription newClusterDescription;
 
             var newServerDescription = args.NewServerDescription;
-            var newClusterState = newServerDescription.State == ServerState.Connected ? ClusterState.Connected : ClusterState.Disconnected;
-
-            var clusterType = oldClusterDescription.Type;
-            if (clusterType == ClusterType.Unknown)
+            if (newServerDescription.State == ServerState.Disconnected)
             {
-                clusterType = DetermineClusterType(newServerDescription);
+                newClusterDescription = Description
+                    .WithServerDescription(newServerDescription);
             }
+            else
+            {
+                var determinedClusterType = DetermineClusterType(newServerDescription);
+                var clusterType = oldClusterDescription.Type;
+                if (clusterType == ClusterType.Unknown)
+                {
+                    clusterType = determinedClusterType;
+                }
 
-            var newClusterDescription = new ClusterDescription(
-                ClusterId,
-                clusterType,
-                newClusterState,
-                new[] { newServerDescription },
-                null,
-                0);
+                if (determinedClusterType != clusterType)
+                {
+                    newClusterDescription = Description
+                        .WithoutServerDescription(args.NewServerDescription.EndPoint);
+                }
+                else
+                {
+                    newClusterDescription = Description
+                        .WithServerDescription(newServerDescription);
+                }
+            }
 
             UpdateClusterDescription(newClusterDescription);
         }
@@ -149,6 +147,22 @@ namespace MongoDB.Driver.Core.Clusters
                 server = null;
                 return false;
             }
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_state.Value == State.Disposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
+        }
+
+        // nested classes
+        private static class State
+        {
+            public const int Initial = 0;
+            public const int Open = 1;
+            public const int Disposed = 2;
         }
     }
 }

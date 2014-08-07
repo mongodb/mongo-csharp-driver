@@ -65,8 +65,15 @@
     <Compile Include="Authentication\MongoDBX509AuthenticatorTests.cs" />
     <Compile Include="Clusters\ClusterDescriptionTests.cs" />
     <Compile Include="Clusters\ClusterIdTests.cs" />
-    <Compile Include="Clusters\Monitoring\ClusterMonitorLogicTests.cs" />
+    <Compile Include="Clusters\ClusterTests.cs" />
     <Compile Include="Clusters\ReadPreferenceTests.cs" />
+    <Compile Include="Clusters\ServerSelectors\DelegateServerSelectorTests.cs" />
+    <Compile Include="Clusters\ServerSelectors\CompositeServerSelectorTests.cs" />
+    <Compile Include="Clusters\ServerSelectors\ReadPreferenceServerSelectorTests.cs" />
+    <Compile Include="Clusters\ServerSelectors\RandomServerSelectorTests.cs" />
+    <Compile Include="Clusters\ServerSelectors\LatencyLimitingServerSelectorTests.cs" />
+    <Compile Include="Clusters\ServerSelectors\EndPointServerSelectorTests.cs" />
+    <Compile Include="Clusters\SingleServerClusterTests.cs" />
     <Compile Include="Clusters\TagSetTests.cs" />
     <Compile Include="Clusters\TagTests.cs" />
     <Compile Include="Configuration\ConnectionStringTests.cs" />
@@ -86,12 +93,15 @@
     <Compile Include="Exceptions\QueryExceptionTests.cs" />
     <Compile Include="Exceptions\WriteExceptionTests.cs" />
     <Compile Include="Helpers\BlockingMemoryStream.cs" />
+    <Compile Include="Helpers\MockClusterableServerFactory.cs" />
     <Compile Include="Helpers\MockConnection.cs" />
     <Compile Include="Helpers\RawBsonDocumentHelper.cs" />
+    <Compile Include="Helpers\ServerDescriptionHelper.cs" />
     <Compile Include="Misc\ConstantRandomStringGenerator.cs" />
     <Compile Include="Misc\EndPointParserTests.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverageTests.cs" />
     <Compile Include="Misc\FrozenClock.cs" />
+    <Compile Include="Misc\RangeTests.cs" />
     <Compile Include="Misc\SemanticVersionTests.cs" />
     <Compile Include="Misc\SlidingTimeoutTests.cs" />
     <Compile Include="Misc\InterlockedInt32Tests.cs" />
@@ -127,6 +137,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clusters\MultiServerClusterTests.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

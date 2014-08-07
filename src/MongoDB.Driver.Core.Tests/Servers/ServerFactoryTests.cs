@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
             var result = subject.CreateServer(_clusterId, _endPoint);
 
             result.Should().NotBeNull();
-            result.Should().BeOfType<Server>();
+            result.Should().BeOfType<ClusterableServer>();
         }
     }
 }

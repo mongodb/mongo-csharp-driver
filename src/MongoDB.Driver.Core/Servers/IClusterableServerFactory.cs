@@ -13,12 +13,24 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.Clusters.Monitoring
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Connections;
+
+namespace MongoDB.Driver.Core.Servers
 {
-    public enum TransitionActionType
+    /// <summary>
+    /// Represents a server factory.
+    /// </summary>
+    public interface IClusterableServerFactory
     {
-        AddServer,
-        RemoveServer,
-        UpdateClusterDescription
+        // methods
+        IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint);
     }
 }

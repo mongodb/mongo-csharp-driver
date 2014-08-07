@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents the default server factory.
     /// </summary>
-    public class ServerFactory : IServerFactory
+    public class ServerFactory : IClusterableServerFactory
     {
         // fields
         private readonly IConnectionPoolFactory _connectionPoolFactory;
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Servers
         // methods
         public IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint)
         {
-            return new Server(_settings, clusterId, endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            return new ClusterableServer(_settings, clusterId, endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
         }
     }
 }

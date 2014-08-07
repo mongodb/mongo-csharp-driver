@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Core.Servers
 {
@@ -38,16 +39,26 @@ namespace MongoDB.Driver.Core.Servers
     {
         public static bool IsReplicaSetMember(this ServerType serverType)
         {
-            switch (serverType)
+            return ToClusterType(serverType) == ClusterType.ReplicaSet;
+        }
+
+        public static ClusterType ToClusterType(this ServerType serverType)
+        {
+            switch(serverType)
             {
                 case ServerType.ReplicaSetPrimary:
                 case ServerType.ReplicaSetSecondary:
                 case ServerType.ReplicaSetArbiter:
                 case ServerType.ReplicaSetOther:
                 case ServerType.ReplicaSetGhost:
-                    return true;
+                case ServerType.ReplicaSetPassive:
+                    return ClusterType.ReplicaSet;
+                case ServerType.ShardRouter:
+                    return ClusterType.Sharded;
+                case ServerType.Standalone:
+                    return ClusterType.Standalone;
                 default:
-                    return false;
+                    return ClusterType.Unknown;
             }
         }
     }

@@ -39,19 +39,12 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         #endregion
 
         // fields
-        private readonly IServerSelector _latencyLimitingServerSelector;
         private readonly ReadPreference _readPreference;
 
         // constructors
         public ReadPreferenceServerSelector(ReadPreference readPreference)
-            : this(readPreference, TimeSpan.FromMilliseconds(15))
-        {
-        }
-
-        public ReadPreferenceServerSelector(ReadPreference readPreference, TimeSpan secondaryAcceptableLatency)
         {
             _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
-            _latencyLimitingServerSelector = new LatencyLimitingServerSelector(secondaryAcceptableLatency);
         }
 
         // properties
@@ -63,24 +56,27 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         // methods
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
-            IEnumerable<ServerDescription> selectedServers;
             switch (cluster.Type)
             {
-                case ClusterType.ReplicaSet: selectedServers = SelectForReplicaSet(servers); break;
-                case ClusterType.Sharded: selectedServers = SelectForShardedCluster(servers); break;
-                case ClusterType.Standalone: selectedServers = SelectForStandaloneCluster(servers); break;
-                case ClusterType.Unknown: selectedServers = __noServers; break;
+                case ClusterType.ReplicaSet: return SelectForReplicaSet(servers);
+                case ClusterType.Sharded: return SelectForShardedCluster(servers);
+                case ClusterType.Standalone: return SelectForStandaloneCluster(servers);
+                case ClusterType.Unknown: return __noServers;
                 default:
                     var message = string.Format("ReadPreferenceServerSelector is not implemented for cluster of type: {0}.", cluster.Type);
                     throw new NotImplementedException(message);
             }
-
-            return _latencyLimitingServerSelector.SelectServers(cluster, selectedServers);
         }
 
-        private IReadOnlyList<ServerDescription> SelectByTagSets(IEnumerable<ServerDescription> servers)
+        private IEnumerable<ServerDescription> SelectByTagSets(IEnumerable<ServerDescription> servers)
         {
-            foreach (var tagSet in (_readPreference.TagSets ?? new[] { new TagSet() }))
+            var tagSets = _readPreference.TagSets;
+            if(tagSets == null || !tagSets.Any())
+            {
+                return servers;
+            }
+
+            foreach (var tagSet in _readPreference.TagSets)
             {
                 var matchingServers = new List<ServerDescription>();
                 foreach (var server in servers)
@@ -124,7 +120,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                     return SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetSecondary));
 
                 case ReadPreferenceMode.SecondaryPreferred:
-                    var matchingSecondaries = SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetSecondary));
+                    var matchingSecondaries = SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetSecondary)).ToList();
                     if (matchingSecondaries.Count != 0)
                     {
                         return matchingSecondaries;

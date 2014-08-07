@@ -98,6 +98,28 @@ namespace MongoDB.Driver.Core.Tests.Connections
         }
 
         [Test]
+        [TestCase("{ maxWireVersion: 100 }", 100)]
+        [TestCase("{ maxWireVersion: 0 }", 0)]
+        [TestCase("{ }", 0)]
+        public void MaxWireVersion_should_parse_document_correctly(string json, int expected)
+        {
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+
+            subject.MaxWireVersion.Should().Be(expected);
+        }
+
+        [Test]
+        [TestCase("{ minWireVersion: 100 }", 100)]
+        [TestCase("{ minWireVersion: 0 }", 0)]
+        [TestCase("{ }", 0)]
+        public void MinWireVersion_should_parse_document_correctly(string json, int expected)
+        {
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+
+            subject.MinWireVersion.Should().Be(expected);
+        }
+
+        [Test]
         [TestCase("{ ok: 1, isreplicaset: true, setName: \"awesome\", ismaster: true }", ServerType.ReplicaSetGhost)]
         [TestCase("{ ok: 1, setName: \"awesome\", ismaster: true }", ServerType.ReplicaSetPrimary)]
         [TestCase("{ ok: 1, setName: \"awesome\", ismaster: true, secondary: true }", ServerType.ReplicaSetPrimary)]
