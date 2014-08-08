@@ -29,8 +29,8 @@ namespace MongoDB.Driver.Core.WireProtocol
     public class InsertWireProtocol<TDocument> : WriteWireProtocolBase
     {
         // fields
-        private readonly Batch<TDocument> _batch;
         private readonly bool _continueOnError;
+        private readonly BatchableSource<TDocument> _documentSource;
         private readonly int? _maxBatchCount;
         private readonly int? _maxMessageSize;
         private readonly IBsonSerializer<TDocument> _serializer;
@@ -41,14 +41,14 @@ namespace MongoDB.Driver.Core.WireProtocol
             string collectionName,
             WriteConcern writeConcern,
             IBsonSerializer<TDocument> serializer,
-            Batch<TDocument> batch,
+            BatchableSource<TDocument> documentSource,
             int? maxBatchCount,
             int? maxMessageSize,
             bool continueOnError)
             : base(databaseName, collectionName, writeConcern)
         {
             _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _batch = Ensure.IsNotNull(batch, "batch");
+            _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
             _maxBatchCount = Ensure.IsNullOrGreaterThanOrEqualToZero(maxBatchCount, "maxBatchCount");
             _maxMessageSize = Ensure.IsNullOrGreaterThanOrEqualToZero(maxMessageSize, "maxMessageSize");
             _continueOnError = continueOnError;
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 DatabaseName,
                 CollectionName,
                 _serializer,
-                _batch,
+                _documentSource,
                 _maxBatchCount ?? int.MaxValue,
                 _maxMessageSize ?? connection.Description.MaxMessageSize,
                 _continueOnError);

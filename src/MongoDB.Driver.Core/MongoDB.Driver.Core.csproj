@@ -49,6 +49,7 @@
     </Compile>
     <Compile Include="Async\AsyncBackgroundTask.cs" />
     <Compile Include="Async\AsyncDropbox.cs" />
+    <Compile Include="Misc\BatchableSource.cs" />
     <Compile Include="Misc\Metronome.cs" />
     <Compile Include="Async\AsyncQueue.cs" />
     <Compile Include="Async\IAsyncEnumerable.cs" />
@@ -164,8 +165,6 @@
     <Compile Include="QueryException.cs" />
     <Compile Include="Servers\ServerId.cs" />
     <Compile Include="WriteException.cs" />
-    <Compile Include="Misc\Batch.cs" />
-    <Compile Include="Misc\BatchResult.cs" />
     <Compile Include="Misc\EndPointParser.cs" />
     <Compile Include="Misc\Ensure.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverage.cs" />

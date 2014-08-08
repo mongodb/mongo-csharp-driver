@@ -15,8 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -39,23 +37,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // methods
-        private void AddDocument(TDocument document, byte[] serializedDocument, ProgressTracker tracker)
+        private void AddDocument(State state, byte[] serializedDocument)
         {
             var streamWriter = _binaryWriter.StreamWriter;
             streamWriter.WriteBytes(serializedDocument);
-            tracker.BatchCount++;
-            tracker.MessageSize = (int)streamWriter.Position - tracker.MessageStartPosition;
-            tracker.Documents.Add(document);
+            state.BatchCount++;
+            state.MessageSize = (int)streamWriter.Position - state.MessageStartPosition;
         }
 
-        private void AddDocument(TDocument document, ProgressTracker tracker)
+        private void AddDocument(State state, TDocument document)
         {
             var streamWriter = _binaryWriter.StreamWriter;
             var context = BsonSerializationContext.CreateRoot<TDocument>(_binaryWriter);
             _serializer.Serialize(context, document);
-            tracker.BatchCount++;
-            tracker.MessageSize = (int)streamWriter.Position - tracker.MessageStartPosition;
-            tracker.Documents.Add(document);
+            state.BatchCount++;
+            state.MessageSize = (int)streamWriter.Position - state.MessageStartPosition;
         }
 
         private InsertFlags BuildInsertFlags(InsertMessage<TDocument> message)
@@ -91,7 +87,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var databaseName = fullCollectionName.Substring(0, firstDot);
             var collectionName = fullCollectionName.Substring(firstDot + 1);
 
-            var batch = new FirstBatch<TDocument>(documents.GetEnumerator(), canBeSplit: false);
+            var documentSource = new BatchableSource<TDocument>(documents);
             var maxBatchCount = 0;
             var maxMessageSize = 0;
             var continueOnError = false;
@@ -101,77 +97,61 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 databaseName,
                 collectionName,
                 _serializer,
-                batch,
+                documentSource,
                 maxBatchCount,
                 maxMessageSize,
                 continueOnError);
         }
 
-        private byte[] RemoveLastDocument(int documentStartPosition, ProgressTracker tracker)
+        private byte[] RemoveLastDocument(State state, int documentStartPosition)
         {
-            var streamReader = _binaryReader.StreamReader;
-            var stream = streamReader.BaseStream;
+            var stream = _binaryWriter.Stream;
 
-            var documentSize = (int)streamReader.Position - documentStartPosition;
-            streamReader.Position = documentStartPosition;
+            var documentSize = (int)stream.Position - documentStartPosition;
+            stream.Position = documentStartPosition;
             var serializedDocument = new byte[documentSize];
             stream.FillBuffer(serializedDocument, 0, documentSize);
-            streamReader.Position = documentStartPosition;
+            stream.Position = documentStartPosition;
             stream.SetLength(documentStartPosition);
-            tracker.BatchCount--;
-            tracker.MessageSize = (int)streamReader.Position - tracker.MessageStartPosition;
-            tracker.Documents.RemoveAt(tracker.Documents.Count - 1);
+            state.BatchCount--;
+            state.MessageSize = (int)stream.Position - state.MessageStartPosition;
+
             return serializedDocument;
         }
 
-        private void WriteDocuments(int messageStartPosition, InsertMessage<TDocument> message)
+        private void WriteDocuments(State state)
         {
-            var batch = message.Documents;
-
-            var tracker = new ProgressTracker { MessageStartPosition = messageStartPosition, Documents = new List<TDocument>() };
-
-            var continuationBatch = batch as ContinuationBatch<TDocument, byte[]>;
-            if (continuationBatch != null)
+            if (state.Message.DocumentSource.Batch != null)
             {
-                var document = continuationBatch.PendingItem;
-                var serializedDocument = continuationBatch.PendingState;
-                AddDocument(document, serializedDocument, tracker);
-                continuationBatch.ClearPending(); // so it can get garbage collected sooner
+                WriteExistingBatch(state);
             }
-
-            var enumerator = batch.Enumerator;
-            while (enumerator.MoveNext())
+            else
             {
-                var streamReader = _binaryReader.StreamReader;
-                var document = enumerator.Current;
-                var documentStartPosition = (int)streamReader.Position;
-                AddDocument(document, tracker);
+                WriteNewBatch(state);
+            }
+        }
 
-                if ((tracker.BatchCount > message.MaxBatchCount || tracker.MessageSize > message.MaxMessageSize) && tracker.BatchCount > 1)
+        private void WriteExistingBatch(State state)
+        {
+            var streamReader = _binaryReader.StreamReader;
+            var message = state.Message;
+
+            foreach (var document in message.DocumentSource.Batch)
+            {
+                AddDocument(state, document);
+
+                if ((state.BatchCount > message.MaxBatchCount || state.MessageSize > message.MaxMessageSize) && state.BatchCount > 1)
                 {
-                    var firstBatch = batch as FirstBatch<TDocument>;
-                    if (firstBatch != null && !firstBatch.CanBeSplit)
-                    {
-                        throw new ArgumentException("The documents did not fit in a single batch.");
-                    }
-
-                    var serializedDocument = RemoveLastDocument(documentStartPosition, tracker);
-                    var nextBatch = new ContinuationBatch<TDocument, byte[]>(enumerator, document, serializedDocument);
-                    var intermediateBatchResult = new BatchResult<TDocument>(tracker.BatchCount, tracker.MessageSize, tracker.Documents, nextBatch);
-                    batch.SetResult(intermediateBatchResult);
-                    return;
+                    throw new ArgumentException("The existing batch does not fit in an Insert message.");
                 }
-
             }
-
-            var lastBatchResult = new BatchResult<TDocument>(tracker.BatchCount, tracker.MessageSize, tracker.Documents, null);
-            batch.SetResult(lastBatchResult);
         }
 
         public void WriteMessage(InsertMessage<TDocument> message)
         {
             var streamWriter = _binaryWriter.StreamWriter;
             var messageStartPosition = (int)streamWriter.Position;
+            var state = new State { Message = message, MessageStartPosition = messageStartPosition };
 
             streamWriter.WriteInt32(0); // messageSize
             streamWriter.WriteInt32(message.RequestId);
@@ -179,8 +159,45 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32((int)Opcode.Insert);
             streamWriter.WriteInt32((int)BuildInsertFlags(message));
             streamWriter.WriteCString(message.DatabaseName + "." + message.CollectionName);
-            WriteDocuments(messageStartPosition, message);
+            WriteDocuments(state);
             streamWriter.BackpatchSize(messageStartPosition);
+        }
+
+        private void WriteNewBatch(State state)
+        {
+            var batch = new List<TDocument>();
+
+            var message = state.Message;
+            var documentSource = message.DocumentSource;
+
+            var overflow = (Overflow)documentSource.StartBatch();
+            if (overflow != null)
+            {
+                batch.Add(overflow.Document);
+                AddDocument(state, overflow.SerializedDocument);
+            }
+
+            // always go one document too far so that we can detect when the docuemntSource runs out of documents
+            while (documentSource.MoveNext())
+            {
+                var document = documentSource.Current;
+
+                var streamReader = _binaryReader.StreamReader;
+                var documentStartPosition = (int)streamReader.Position;
+                AddDocument(state, document);
+
+                if ((state.BatchCount > message.MaxBatchCount || state.MessageSize > message.MaxMessageSize) && state.BatchCount > 1)
+                {
+                    var serializedDocument = RemoveLastDocument(state, documentStartPosition);
+                    overflow = new Overflow { Document = document, SerializedDocument = serializedDocument };
+                    documentSource.EndBatch(batch, overflow);
+                    return;
+                }
+
+                batch.Add(document);
+            }
+
+            documentSource.EndBatch(batch);
         }
 
         // explicit interface implementations
@@ -194,6 +211,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             WriteMessage((InsertMessage<TDocument>)message);
         }
 
+        // nested types
+        private class Overflow
+        {
+            public TDocument Document;
+            public byte[] SerializedDocument;
+        }
+
         [Flags]
         private enum InsertFlags
         {
@@ -201,12 +225,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             ContinueOnError = 1
         }
 
-        private class ProgressTracker
+        private class State
         {
+            public InsertMessage<TDocument> Message;
             public int MessageStartPosition;
             public int BatchCount;
             public int MessageSize;
-            public List<TDocument> Documents;
         }
     }
 }

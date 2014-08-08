@@ -184,7 +184,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var indexDocument = CreateIndexDocument();
-            var operation = new InsertOpcodeOperation(_databaseName, "system.indexes", new[] { indexDocument }).WithWriteConcern(_writeConcern);
+            var documentSource = new BatchableSource<BsonDocument>(new[] { indexDocument });
+            var operation = new InsertOpcodeOperation(_databaseName, "system.indexes", documentSource).WithWriteConcern(_writeConcern);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
 

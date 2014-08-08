@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly string _collectionName;
         private readonly bool _continueOnError;
         private readonly string _databaseName;
-        private readonly Batch<TDocument> _documents;
+        private readonly BatchableSource<TDocument> _documentSource;
         private readonly int _maxBatchCount;
         private readonly int _maxMessageSize;
         private readonly IBsonSerializer<TDocument> _serializer;
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             string databaseName,
             string collectionName,
             IBsonSerializer<TDocument> serializer,
-            Batch<TDocument> documents,
+            BatchableSource<TDocument> documentSource,
             int maxBatchCount,
             int maxMessageSize,
             bool continueOnError)
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _documents = Ensure.IsNotNull(documents, "documents");
+            _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
             _maxBatchCount = Ensure.IsGreaterThanOrEqualToZero(maxBatchCount, "maxBatchCount");
             _maxMessageSize = Ensure.IsGreaterThanOrEqualToZero(maxMessageSize, "maxMessageSize");
             _continueOnError = continueOnError;
@@ -68,9 +68,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             get { return _databaseName; }
         }
 
-        public Batch<TDocument> Documents
+        public BatchableSource<TDocument> DocumentSource
         {
-            get { return _documents; }
+            get { return _documentSource; }
         }
 
         public int MaxBatchCount

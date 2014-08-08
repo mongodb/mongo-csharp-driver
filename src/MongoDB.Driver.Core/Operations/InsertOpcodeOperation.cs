@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Core.Operations
         public InsertOpcodeOperation(
             string databaseName,
             string collectionName,
-            IEnumerable<BsonDocument> documents)
-            : base(databaseName, collectionName, BsonDocumentSerializer.Instance, documents)
+            BatchableSource<BsonDocument> documentSource)
+            : base(databaseName, collectionName, BsonDocumentSerializer.Instance, documentSource)
         {
         }
     }
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _collectionName;
         private readonly bool _continueOnError;
         private readonly string _databaseName;
-        private readonly IEnumerable<TDocument> _documents;
+        private readonly BatchableSource<TDocument> _documentSource;
         private readonly int? _maxBatchCount;
         private readonly int? _maxDocumentSize;
         private readonly int? _maxMessageSize;
@@ -56,12 +56,12 @@ namespace MongoDB.Driver.Core.Operations
             string databaseName,
             string collectionName,
             IBsonSerializer<TDocument> serializer,
-            IEnumerable<TDocument> documents)
+            BatchableSource<TDocument> documentSource)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _documents = Ensure.IsNotNull(documents, "documents");
+            _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
             _writeConcern = WriteConcern.Acknowledged;
         }
 
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
             string collectionName,
             bool continueOnError,
             string databaseName,
-            IEnumerable<TDocument> documents,
+            BatchableSource<TDocument> documentSource,
             int? maxBatchCount,
             int? maxDocumentSize,
             int? maxMessageSize,
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Operations
             _collectionName = collectionName;
             _continueOnError = continueOnError;
             _databaseName = databaseName;
-            _documents = documents;
+            _documentSource = documentSource;
             _maxBatchCount = maxBatchCount;
             _maxDocumentSize = maxDocumentSize;
             _maxMessageSize = maxMessageSize;
@@ -103,9 +103,9 @@ namespace MongoDB.Driver.Core.Operations
             get { return _databaseName; }
         }
 
-        public IEnumerable<TDocument> Documents
+        public BatchableSource<TDocument> DocumentSource
         {
-            get { return _documents; }
+            get { return _documentSource; }
         }
 
         public int? MaxBatchCount
@@ -134,14 +134,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private InsertWireProtocol<TDocument> CreateProtocol(Batch<TDocument> batch)
+        private InsertWireProtocol<TDocument> CreateProtocol()
         {
             return new InsertWireProtocol<TDocument>(
                 _databaseName,
                 _collectionName,
                 _writeConcern,
                 _serializer,
-                batch,
+                _documentSource,
                 _maxBatchCount,
                 _maxMessageSize,
                 _continueOnError);
@@ -150,17 +150,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            using (var enumerator = _documents.GetEnumerator())
-            {
-                var batch = new FirstBatch<TDocument>(enumerator, false);
-                return await ExecuteBatchAsync(binding, batch, timeout, cancellationToken);
-            }
-        }
-
-        public async Task<BsonDocument> ExecuteBatchAsync(IWriteBinding binding, Batch<TDocument> batch, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(binding, "binding");
-            var protocol = CreateProtocol(batch);
+            var protocol = CreateProtocol();
             return await protocol.ExecuteAsync(binding, timeout, cancellationToken);
         }
 
@@ -181,10 +171,10 @@ namespace MongoDB.Driver.Core.Operations
             return (_databaseName == value) ? this : new Builder(this) { _databaseName = value }.Build();
         }
 
-        public InsertOpcodeOperation<TDocument> WithDocuments(IEnumerable<TDocument> value)
+        public InsertOpcodeOperation<TDocument> WithDocuments(BatchableSource<TDocument> value)
         {
             Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_documents, value) ? this : new Builder(this) { _documents = value }.Build();
+            return object.ReferenceEquals(_documentSource, value) ? this : new Builder(this) { _documentSource = value }.Build();
         }
 
         public InsertOpcodeOperation<TDocument> WithMaxBatchCount(int? value)
@@ -211,22 +201,6 @@ namespace MongoDB.Driver.Core.Operations
             return object.ReferenceEquals(_serializer, value) ? this : new Builder(this) { _serializer = value }.Build();
         }
 
-        public InsertOpcodeOperation<TOther> WithSerializer<TOther>(IBsonSerializer<TOther> value)
-        {
-            Ensure.IsNotNull(value, "value");
-            IEnumerable<TOther> documents = null;
-            return new InsertOpcodeOperation<TOther>(
-                _collectionName,
-                _continueOnError,
-                _databaseName,
-                documents,
-                _maxBatchCount,
-                _maxDocumentSize,
-                _maxMessageSize,
-                value,
-                _writeConcern);
-        }
-
         public InsertOpcodeOperation<TDocument> WithWriteConcern(WriteConcern value)
         {
             Ensure.IsNotNull(value, "value");
@@ -240,7 +214,7 @@ namespace MongoDB.Driver.Core.Operations
             public string _collectionName;
             public bool _continueOnError;
             public string _databaseName;
-            public IEnumerable<TDocument> _documents;
+            public BatchableSource<TDocument> _documentSource;
             public int? _maxBatchCount;
             public int? _maxDocumentSize;
             public int? _maxMessageSize;
@@ -253,7 +227,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionName = original._collectionName;
                 _continueOnError = original._continueOnError;
                 _databaseName = original._databaseName;
-                _documents = original._documents;
+                _documentSource = original._documentSource;
                 _maxBatchCount = original.MaxBatchCount;
                 _maxDocumentSize = original.MaxDocumentSize;
                 _maxMessageSize = original.MaxMessageSize;
@@ -268,7 +242,7 @@ namespace MongoDB.Driver.Core.Operations
                     _collectionName,
                     _continueOnError,
                     _databaseName,
-                    _documents,
+                    _documentSource,
                     _maxBatchCount,
                     _maxDocumentSize,
                     _maxMessageSize,
