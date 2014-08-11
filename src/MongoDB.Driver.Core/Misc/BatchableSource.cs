@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.Misc
     public sealed class BatchableSource<T>
     {
         // fields
-        private IReadOnlyList<T> _batch = new List<T>();
+        private IReadOnlyList<T> _batch;
         private IEnumerator<T> _enumerator;
         private bool _hasMore;
         private object _overflow;

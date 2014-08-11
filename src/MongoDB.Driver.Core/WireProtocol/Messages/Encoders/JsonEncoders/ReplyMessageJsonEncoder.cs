@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // constructors
         public ReplyMessageJsonEncoder(JsonReader jsonReader, JsonWriter jsonWriter, IBsonSerializer<TDocument> serializer)
         {
+            Ensure.That(jsonReader != null || jsonWriter != null, "jsonReader and jsonWriter cannot both be null.");
             _jsonReader = jsonReader;
             _jsonWriter = jsonWriter;
             _serializer = Ensure.IsNotNull(serializer, "serializer");
@@ -45,12 +46,81 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // methods
         public ReplyMessage<TDocument> ReadMessage()
         {
-            throw new NotImplementedException();
+            if (_jsonReader == null)
+            {
+                throw new InvalidOperationException("No jsonReader was provided.");
+            }
+
+            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(_jsonReader);
+            var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
+
+            var opcode = messageDocument["opcode"].AsString;
+            if (opcode != "reply")
+            {
+                throw new FormatException("Opcode is not reply.");
+            }
+
+            var awaitCapable = messageDocument.GetValue("awaitCapable", false).ToBoolean();
+            var cursorId = messageDocument["cursorId"].ToInt64();
+            var cursorNotFound = messageDocument.GetValue("cursorNotFound", false).ToBoolean();
+            var numberReturned = messageDocument["numberReturned"].ToInt32();
+            var queryFailure = false;
+            var requestId = messageDocument["requestId"].ToInt32();
+            var responseTo = messageDocument["responseTo"].ToInt32();
+            var startingFrom = messageDocument.GetValue("startingFrom", 0).ToInt32();
+
+            List<TDocument> documents = null;
+            if (messageDocument.Contains("documents"))
+            {
+                documents = new List<TDocument>();
+                foreach (BsonDocument serializedDocument in messageDocument["documents"].AsBsonArray)
+                {
+                    using (var documentReader = new BsonDocumentReader(serializedDocument))
+                    {
+                        var documentContext = BsonDeserializationContext.CreateRoot<TDocument>(documentReader);
+                        var document = _serializer.Deserialize(documentContext);
+                        documents.Add(document);
+                    }
+                }
+            }
+
+            BsonDocument queryFailureDocument = null;
+            if (messageDocument.Contains("queryFailure"))
+            {
+                queryFailure = true;
+                queryFailureDocument = messageDocument["queryFailure"].AsBsonDocument;
+            }
+
+            return new ReplyMessage<TDocument>(
+                awaitCapable,
+                cursorId,
+                cursorNotFound,
+                documents,
+                numberReturned,
+                queryFailure,
+                queryFailureDocument,
+                requestId,
+                responseTo,
+                _serializer,
+                startingFrom);
         }
 
         public void WriteMessage(ReplyMessage<TDocument> message)
         {
-            var document = new BsonDocument
+            Ensure.IsNotNull(message, "message");
+            if (_jsonWriter == null)
+            {
+                throw new InvalidOperationException("No jsonWriter was provided.");
+            }
+
+            BsonArray documents = null;
+            if (!message.QueryFailure)
+            {
+                var wrappers = message.Documents.Select(d => new BsonDocumentWrapper(d, _serializer));
+                documents = new BsonArray(wrappers);
+            }
+
+            var messageDocument = new BsonDocument
             {
                 { "opcode", "reply" },
                 { "requestId", message.RequestId },
@@ -59,13 +129,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 { "cursorNotFound", true, message.CursorNotFound },
                 { "numberReturned", message.NumberReturned },
                 { "startingFrom", message.StartingFrom, message.StartingFrom != 0 },
-                { "queryFailure", true, message.QueryFailure },
-                { "queryFailureDocument", () => message.QueryFailureDocument, message.QueryFailure },
-                { "documents", "[...]", message.Documents != null }
+                { "awaitCapable", true, message.AwaitCapable },
+                { "queryFailure", () => message.QueryFailureDocument, message.QueryFailure },
+                { "documents", documents, documents != null }
             };
 
-            var context = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
-            BsonDocumentSerializer.Instance.Serialize(context, document);
+            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
+            BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 
         // explicit interface implementations

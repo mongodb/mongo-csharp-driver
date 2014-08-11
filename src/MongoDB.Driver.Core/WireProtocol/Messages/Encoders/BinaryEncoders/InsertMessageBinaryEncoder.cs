@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // constructors
         public InsertMessageBinaryEncoder(BsonBinaryReader binaryReader, BsonBinaryWriter binaryWriter, IBsonSerializer<TDocument> serializer)
         {
+            Ensure.That(binaryReader != null || binaryWriter != null, "binaryReader and binaryWriter cannot both be null.");
             _binaryReader = binaryReader;
             _binaryWriter = binaryWriter;
             _serializer = Ensure.IsNotNull(serializer, "serializer");
@@ -66,6 +67,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         public InsertMessage<TDocument> ReadMessage()
         {
+            if (_binaryReader == null)
+            {
+                throw new InvalidOperationException("No binaryReader was provided.");
+            }
+
             var streamReader = _binaryReader.StreamReader;
             var startPosition = streamReader.Position;
 
@@ -90,7 +96,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var documentSource = new BatchableSource<TDocument>(documents);
             var maxBatchCount = 0;
             var maxMessageSize = 0;
-            var continueOnError = false;
+            var continueOnError = flags.HasFlag(InsertFlags.ContinueOnError);
 
             return new InsertMessage<TDocument>(
                 requestId,
@@ -133,7 +139,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         private void WriteExistingBatch(State state)
         {
-            var streamReader = _binaryReader.StreamReader;
             var message = state.Message;
 
             foreach (var document in message.DocumentSource.Batch)
@@ -142,13 +147,19 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
                 if ((state.BatchCount > message.MaxBatchCount || state.MessageSize > message.MaxMessageSize) && state.BatchCount > 1)
                 {
-                    throw new ArgumentException("The existing batch does not fit in an Insert message.");
+                    throw new ArgumentException("The existing batch does not fit in one Insert message.");
                 }
             }
         }
 
         public void WriteMessage(InsertMessage<TDocument> message)
         {
+            Ensure.IsNotNull(message, "message");
+            if (_binaryWriter == null)
+            {
+                throw new InvalidOperationException("No binaryWriter was provided.");
+            }
+
             var streamWriter = _binaryWriter.StreamWriter;
             var messageStartPosition = (int)streamWriter.Position;
             var state = new State { Message = message, MessageStartPosition = messageStartPosition };
@@ -182,8 +193,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 var document = documentSource.Current;
 
-                var streamReader = _binaryReader.StreamReader;
-                var documentStartPosition = (int)streamReader.Position;
+                var streamWriter = _binaryWriter.StreamWriter;
+                var documentStartPosition = (int)streamWriter.Position;
                 AddDocument(state, document);
 
                 if ((state.BatchCount > message.MaxBatchCount || state.MessageSize > message.MaxMessageSize) && state.BatchCount > 1)

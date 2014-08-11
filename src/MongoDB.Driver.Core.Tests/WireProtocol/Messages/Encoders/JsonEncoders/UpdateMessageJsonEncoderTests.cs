@@ -25,31 +25,35 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
 {
     [TestFixture]
-    public class DeleteMessageJsonEncoderTests
+    public class UpdateMessageJsonEncoderTests
     {
         #region static
         // static fields
         private static readonly string __collectionName = "c";
         private static readonly string __databaseName = "d";
-        private static readonly bool __isMulti = false;
+        private static readonly bool __isMulti = true;
+        private static readonly bool __isUpsert = true;
         private static readonly BsonDocument __query = new BsonDocument("x", 1);
         private static readonly int __requestId = 1;
-        private static readonly DeleteMessage __testMessage;
+        private static readonly UpdateMessage __testMessage;
         private static readonly string __testMessageJson;
+        private static readonly BsonDocument __update = new BsonDocument("y", 1);
 
         // static constructor
-        static DeleteMessageJsonEncoderTests()
+        static UpdateMessageJsonEncoderTests()
         {
-            __testMessage = new DeleteMessage(__requestId, __databaseName, __collectionName, __query, __isMulti);
+            __testMessage = new UpdateMessage(__requestId, __databaseName, __collectionName, __query, __update, __isMulti, __isUpsert);
 
             __testMessageJson =
                 "{ " +
-                    "\"opcode\" : \"delete\", " +
+                    "\"opcode\" : \"update\", " +
                     "\"requestId\" : 1, " +
                     "\"database\" : \"d\", " +
-                    "\"collection\" : \"c\", "+
+                    "\"collection\" : \"c\", " +
+                    "\"isMulti\" : true, " +
+                    "\"isUpsert\" : true, " +
                     "\"query\" : { \"x\" : 1 }, " +
-                    "\"isMulti\" : false" +
+                    "\"update\" : { \"y\" : 1 }" +
                 " }";
         }
         #endregion
@@ -62,7 +66,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
             using (var jsonReader = new JsonReader(stringReader))
             using (var jsonWriter = new JsonWriter(stringWriter))
             {
-                Action action = () => new DeleteMessageJsonEncoder(jsonReader, jsonWriter);
+                Action action = () => new UpdateMessageJsonEncoder(jsonReader, jsonWriter);
                 action.ShouldNotThrow();
             }
         }
@@ -73,7 +77,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
             using (var stringReader = new StringReader(""))
             using (var jsonReader = new JsonReader(stringReader))
             {
-                Action action = () => new DeleteMessageJsonEncoder(jsonReader, null);
+                Action action = () => new UpdateMessageJsonEncoder(jsonReader, null);
                 action.ShouldNotThrow();
             }
         }
@@ -84,7 +88,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
             using (var stringWriter = new StringWriter())
             using (var jsonWriter = new JsonWriter(stringWriter))
             {
-                Action action = () => new DeleteMessageJsonEncoder(null, jsonWriter);
+                Action action = () => new UpdateMessageJsonEncoder(null, jsonWriter);
                 action.ShouldNotThrow();
             }
         }
@@ -92,7 +96,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
         [Test]
         public void Constructor_should_throw_if_jsonReader_and_jsonWriter_are_both_null()
         {
-            Action action = () => new DeleteMessageJsonEncoder(null, null);
+            Action action = () => new UpdateMessageJsonEncoder(null, null);
             action.ShouldThrow<ArgumentException>();
         }
 
@@ -102,13 +106,15 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
             using (var stringReader = new StringReader(__testMessageJson))
             using (var jsonReader = new JsonReader(stringReader))
             {
-                var subject = new DeleteMessageJsonEncoder(jsonReader, null);
+                var subject = new UpdateMessageJsonEncoder(jsonReader, null);
                 var message = subject.ReadMessage();
-                message.CollectionName.Should().Be(__collectionName);
                 message.DatabaseName.Should().Be(__databaseName);
+                message.CollectionName.Should().Be(__collectionName);
                 message.IsMulti.Should().Be(__isMulti);
+                message.IsUpsert.Should().Be(__isUpsert);
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);
+                message.Update.Should().Be(__update);
             }
         }
 
@@ -118,7 +124,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
             using (var stringWriter = new StringWriter())
             using (var jsonWriter = new JsonWriter(stringWriter))
             {
-                var subject = new DeleteMessageJsonEncoder(null, jsonWriter);
+                var subject = new UpdateMessageJsonEncoder(null, jsonWriter);
                 Action action = () => subject.ReadMessage();
                 action.ShouldThrow<InvalidOperationException>();
             }
@@ -130,7 +136,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
             using (var stringReader = new StringReader(""))
             using (var jsonReader = new JsonReader(stringReader))
             {
-                var subject = new DeleteMessageJsonEncoder(jsonReader, null);
+                var subject = new UpdateMessageJsonEncoder(jsonReader, null);
                 Action action = () => subject.WriteMessage(__testMessage);
                 action.ShouldThrow<InvalidOperationException>();
             }
@@ -142,7 +148,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
             using (var stringWriter = new StringWriter())
             using (var jsonWriter = new JsonWriter(stringWriter))
             {
-                var subject = new DeleteMessageJsonEncoder(null, jsonWriter);
+                var subject = new UpdateMessageJsonEncoder(null, jsonWriter);
                 Action action = () => subject.WriteMessage(null);
                 action.ShouldThrow<ArgumentNullException>();
             }
@@ -154,7 +160,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
             using (var stringWriter = new StringWriter())
             using (var jsonWriter = new JsonWriter(stringWriter))
             {
-                var subject = new DeleteMessageJsonEncoder(null, jsonWriter);
+                var subject = new UpdateMessageJsonEncoder(null, jsonWriter);
                 subject.WriteMessage(__testMessage);
                 var json = stringWriter.ToString();
                 json.Should().Be(__testMessageJson);

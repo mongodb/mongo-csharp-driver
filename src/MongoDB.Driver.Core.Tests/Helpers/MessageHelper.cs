@@ -60,6 +60,7 @@ namespace MongoDB.Driver.Core.Tests.Helpers
             int startingFrom = 0)
         {
             return new ReplyMessage<T>(
+                awaitCapable: true,
                 cursorId: cursorId,
                 cursorNotFound: false,
                 documents: new[] { document }.ToList(),
@@ -79,6 +80,7 @@ namespace MongoDB.Driver.Core.Tests.Helpers
             int startingFrom = 0)
         {
             return new ReplyMessage<T>(
+                awaitCapable: true,
                 cursorId: cursorId,
                 cursorNotFound: false,
                 documents: new List<T>(),

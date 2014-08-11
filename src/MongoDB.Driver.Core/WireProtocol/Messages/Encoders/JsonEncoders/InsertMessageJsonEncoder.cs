@@ -15,10 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -37,6 +33,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // constructors
         public InsertMessageJsonEncoder(JsonReader jsonReader, JsonWriter jsonWriter, IBsonSerializer<TDocument> serializer)
         {
+            Ensure.That(jsonReader != null || jsonWriter != null, "jsonReader and jsonWriter cannot both be null.");
             _jsonReader = jsonReader;
             _jsonWriter = jsonWriter;
             _serializer = Ensure.IsNotNull(serializer, "serializer");
@@ -45,12 +42,81 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // methods
         public InsertMessage<TDocument> ReadMessage()
         {
-            throw new NotImplementedException();
+            if (_jsonReader == null)
+            {
+                throw new InvalidOperationException("No jsonReader was provided.");
+            }
+
+            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(_jsonReader);
+            var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
+
+            var opcode = messageDocument["opcode"].AsString;
+            if (opcode != "insert")
+            {
+                throw new FormatException("Opcode is not insert.");
+            }
+
+            var requestId = messageDocument["requestId"].ToInt32();
+            var databaseName = messageDocument["database"].AsString;
+            var collectionName = messageDocument["collection"].AsString;
+            var maxBatchCount = messageDocument["maxBatchCount"].ToInt32();
+            var maxMessageSize = messageDocument["maxMessageSize"].ToInt32();
+            var continueOnError = messageDocument["continueOnError"].ToBoolean();
+            var documents = messageDocument["documents"];
+
+            if (documents.IsBsonNull)
+            {
+                throw new FormatException("InsertMessageJsonEncoder requires documents to not be null.");
+            }
+
+            var batch = new List<TDocument>();
+            foreach (BsonDocument serializedDocument in documents.AsBsonArray)
+            {
+                using (var documentReader = new BsonDocumentReader(serializedDocument))
+                {
+                    var documentContext = BsonDeserializationContext.CreateRoot<TDocument>(documentReader);
+                    var document = _serializer.Deserialize(documentContext);
+                    batch.Add(document);
+                }
+            }
+            var documentSource = new BatchableSource<TDocument>(batch);
+
+            return new InsertMessage<TDocument>(
+                requestId,
+                databaseName,
+                collectionName,
+                _serializer,
+                documentSource,
+                maxBatchCount,
+                maxMessageSize,
+                continueOnError);
         }
 
         public void WriteMessage(InsertMessage<TDocument> message)
         {
-            var document = new BsonDocument
+            Ensure.IsNotNull(message, "message");
+            if (_jsonWriter == null)
+            {
+                throw new InvalidOperationException("No jsonWriter was provided.");
+            }
+
+            BsonValue documents;
+            if (message.DocumentSource.Batch == null)
+            {
+                documents = BsonNull.Value;
+            }
+            else
+            {
+                var array = new BsonArray();
+                foreach (var document in message.DocumentSource.Batch)
+                {
+                    var wrappedDocument = new BsonDocumentWrapper(document, _serializer);
+                    array.Add(wrappedDocument);
+                }
+                documents = array;
+            }
+
+            var messageDocument = new BsonDocument
             {
                 { "opcode", "insert" },
                 { "requestId", message.RequestId },
@@ -59,11 +125,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 { "maxBatchCount", message.MaxBatchCount },
                 { "maxMessageSize", message.MaxMessageSize },
                 { "continueOnError", message.ContinueOnError },
-                { "documents", "[...]" } // TODO: use a BsonValueWrapper to serialize the documents
+                { "documents", documents }
             };
 
-            var context = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
-            BsonDocumentSerializer.Instance.Serialize(context, document);
+            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
+            BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 
         // explicit interface implementations

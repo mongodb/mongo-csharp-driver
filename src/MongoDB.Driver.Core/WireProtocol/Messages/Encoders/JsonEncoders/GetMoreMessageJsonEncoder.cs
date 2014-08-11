@@ -14,15 +14,11 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
@@ -35,6 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // constructors
         public GetMoreMessageJsonEncoder(JsonReader jsonReader, JsonWriter jsonWriter)
         {
+            Ensure.That(jsonReader != null || jsonWriter != null, "jsonReader and jsonWriter cannot both be null.");
             _jsonReader = jsonReader;
             _jsonWriter = jsonWriter;
         }
@@ -42,12 +39,43 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // methods
         public GetMoreMessage ReadMessage()
         {
-            throw new NotImplementedException();
+            if (_jsonReader == null)
+            {
+                throw new InvalidOperationException("No jsonReader was provided.");
+            }
+
+            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(_jsonReader);
+            var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
+
+            var opcode = messageDocument["opcode"].AsString;
+            if (opcode != "getMore")
+            {
+                throw new FormatException("Opcode is not getMore.");
+            }
+
+            var requestId = messageDocument["requestId"].ToInt32();
+            var databaseName = messageDocument["database"].AsString;
+            var collectionName = messageDocument["collection"].AsString;
+            var cursorId = messageDocument["cursorId"].ToInt32();
+            var batchSize = messageDocument["batchSize"].ToInt32();
+
+            return new GetMoreMessage(
+                requestId,
+                databaseName,
+                collectionName,
+                cursorId,
+                batchSize);
         }
 
         public void WriteMessage(GetMoreMessage message)
         {
-            var document = new BsonDocument
+            Ensure.IsNotNull(message, "message");
+            if (_jsonWriter == null)
+            {
+                throw new InvalidOperationException("No jsonWriter was provided.");
+            }
+
+            var messageDocument = new BsonDocument
             {
                 { "opcode", "getMore" },
                 { "requestId", message.RequestId },
@@ -57,8 +85,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 { "batchSize", message.BatchSize }
             };
 
-            var context = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
-            BsonDocumentSerializer.Instance.Serialize(context, document);
+            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
+            BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 
         // explicit interface implementations

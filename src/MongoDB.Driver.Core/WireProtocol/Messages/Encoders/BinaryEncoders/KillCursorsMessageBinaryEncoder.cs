@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using System.Text;
 using MongoDB.Bson.IO;
@@ -29,6 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // constructors
         public KillCursorsMessageBinaryEncoder(BsonBinaryReader binaryReader, BsonBinaryWriter binaryWriter)
         {
+            Ensure.That(binaryReader != null || binaryWriter != null, "binaryReader and binaryWriter cannot both be null.");
             _binaryReader = binaryReader;
             _binaryWriter = binaryWriter;
         }
@@ -36,6 +38,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // methods
         public KillCursorsMessage ReadMessage()
         {
+            if (_binaryReader == null)
+            {
+                throw new InvalidOperationException("No binaryReader was provided.");
+            }
+
             var streamReader = _binaryReader.StreamReader;
 
             var messageSize = streamReader.ReadInt32();
@@ -57,6 +64,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         public void WriteMessage(KillCursorsMessage message)
         {
+            Ensure.IsNotNull(message, "message");
+            if (_binaryWriter == null)
+            {
+                throw new InvalidOperationException("No binaryWriter was provided.");
+            }
+
             var streamWriter = _binaryWriter.StreamWriter;
             var startPosition = streamWriter.Position;
 

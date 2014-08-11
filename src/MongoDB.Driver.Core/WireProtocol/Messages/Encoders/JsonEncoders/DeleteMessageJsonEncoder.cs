@@ -14,11 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -49,20 +44,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 throw new InvalidOperationException("No jsonReader was provided.");
             }
 
-            var context = BsonDeserializationContext.CreateRoot<BsonDocument>(_jsonReader);
-            var document = BsonDocumentSerializer.Instance.Deserialize(context);
+            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(_jsonReader);
+            var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
 
-            var opcode = document["Opcode"].AsString;
-            if (opcode != "Delete")
+            var opcode = messageDocument["opcode"].AsString;
+            if (opcode != "delete")
             {
-                throw new FormatException("Opcode is not Delete.");
+                throw new FormatException("Opcode is not delete.");
             }
 
-            var requestId = document["RequestId"].ToInt32();
-            var databaseName = document["DatabaseName"].AsString;
-            var collectionName = document["CollectionName"].AsString;
-            var query = document["Query"].AsBsonDocument;
-            var isMulti = document["IsMulti"].ToBoolean();
+            var requestId = messageDocument["requestId"].ToInt32();
+            var databaseName = messageDocument["database"].AsString;
+            var collectionName = messageDocument["collection"].AsString;
+            var query = messageDocument["query"].AsBsonDocument;
+            var isMulti = messageDocument["isMulti"].ToBoolean();
 
             return new DeleteMessage(
                 requestId,
@@ -80,18 +75,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 throw new InvalidOperationException("No jsonWriter was provided.");
             }
 
-            var document = new BsonDocument
+            var messageDocument = new BsonDocument
             {
-                { "Opcode", "Delete" },
-                { "RequestId", message.RequestId },
-                { "DatabaseName", message.DatabaseName },
-                { "CollectionName", message.CollectionName },
-                { "Query", message.Query ?? new BsonDocument() },
-                { "IsMulti", message.IsMulti }
+                { "opcode", "delete" },
+                { "requestId", message.RequestId },
+                { "database", message.DatabaseName },
+                { "collection", message.CollectionName },
+                { "query", message.Query ?? new BsonDocument() },
+                { "isMulti", message.IsMulti }
             };
 
-            var context = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
-            BsonDocumentSerializer.Instance.Serialize(context, document);
+            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
+            BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 
         // explicit interface implementations

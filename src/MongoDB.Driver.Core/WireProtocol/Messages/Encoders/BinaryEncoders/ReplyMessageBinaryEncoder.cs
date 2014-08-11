@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // constructors
         public ReplyMessageBinaryEncoder(BsonBinaryReader binaryReader, BsonBinaryWriter binaryWriter, IBsonSerializer<TDocument> serializer)
         {
+            Ensure.That(binaryReader != null || binaryWriter != null, "binaryReader and binaryWriter cannot both be null.");
             _binaryReader = binaryReader;
             _binaryWriter = binaryWriter;
             _serializer = Ensure.IsNotNull(serializer, "serializer");
@@ -45,6 +46,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // methods
         public ReplyMessage<TDocument> ReadMessage()
         {
+            if (_binaryReader == null)
+            {
+                throw new InvalidOperationException("No binaryReader was provided.");
+            }
+
             var streamReader = _binaryReader.StreamReader;
 
             var messageSize = streamReader.ReadInt32();
@@ -58,6 +64,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             List<TDocument> documents = null;
             BsonDocument queryFailureDocument = null;
 
+            var awaitCapable = flags.HasFlag(ResponseFlags.AwaitCapable);
             var cursorNotFound = flags.HasFlag(ResponseFlags.CursorNotFound);
             var queryFailure = flags.HasFlag(ResponseFlags.QueryFailure);
 
@@ -77,6 +84,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
 
             return new ReplyMessage<TDocument>(
+                awaitCapable,
                 cursorId,
                 cursorNotFound,
                 documents,
@@ -91,6 +99,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         public void WriteMessage(ReplyMessage<TDocument> message)
         {
+            Ensure.IsNotNull(message, "message");
+            if (_binaryWriter == null)
+            {
+                throw new InvalidOperationException("No binaryWriter was provided.");
+            }
+
             var streamWriter = _binaryWriter.StreamWriter;
             var startPosition = streamWriter.Position;
 
@@ -99,7 +113,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(message.ResponseTo);
             streamWriter.WriteInt32((int)Opcode.Reply);
 
-            var flags = ResponseFlags.AwaitCapable;
+            var flags = ResponseFlags.None;
+            if (message.AwaitCapable)
+            {
+                flags |= ResponseFlags.AwaitCapable;
+            }
             if (message.QueryFailure)
             {
                 flags |= ResponseFlags.QueryFailure;
@@ -144,6 +162,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Flags]
         internal enum ResponseFlags
         {
+            None = 0,
             CursorNotFound = 1,
             QueryFailure = 2,
             AwaitCapable = 8

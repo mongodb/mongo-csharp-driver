@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // constructors
         public UpdateMessageJsonEncoder(JsonReader jsonReader, JsonWriter jsonWriter)
         {
+            Ensure.That(jsonReader != null || jsonWriter != null, "jsonReader and jsonWriter cannot both be null.");
             _jsonReader = jsonReader;
             _jsonWriter = jsonWriter;
         }
@@ -42,12 +44,47 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // methods
         public UpdateMessage ReadMessage()
         {
-            throw new NotImplementedException();
+            if (_jsonReader == null)
+            {
+                throw new InvalidOperationException("No jsonReader was provided.");
+            }
+
+            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(_jsonReader);
+            var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
+
+            var opcode = messageDocument["opcode"].AsString;
+            if (opcode != "update")
+            {
+                throw new FormatException("Opcode is not update.");
+            }
+
+            var requestId = messageDocument["requestId"].ToInt32();
+            var databaseName = messageDocument["database"].AsString;
+            var collectionName = messageDocument["collection"].AsString;
+            var query = messageDocument["query"].AsBsonDocument;
+            var update = messageDocument["update"].AsBsonDocument;
+            var isMulti = messageDocument.GetValue("isMulti", false).ToBoolean();
+            var isUpsert = messageDocument.GetValue("isUpsert", false).ToBoolean();
+
+            return new UpdateMessage(
+                requestId,
+                databaseName,
+                collectionName,
+                query,
+                update,
+                isMulti,
+                isUpsert);
         }
 
         public void WriteMessage(UpdateMessage message)
         {
-            var document = new BsonDocument
+            Ensure.IsNotNull(message, "message");
+            if (_jsonWriter == null)
+            {
+                throw new InvalidOperationException("No jsonWriter was provided.");
+            }
+
+            var messageDocument = new BsonDocument
             {
                 { "opcode", "update" },
                 { "requestId", message.RequestId },
@@ -55,12 +92,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 { "collection", message.CollectionName },
                 { "isMulti", true, message.IsMulti },
                 { "isUpsert", true, message.IsUpsert },
-                { "query", (BsonValue)message.Query ?? BsonNull.Value },
-                { "update", (BsonValue)message.Update ?? BsonNull.Value }
+                { "query", message.Query },
+                { "update", message.Update }
             };
 
-            var context = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
-            BsonDocumentSerializer.Instance.Serialize(context, document);
+            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
+            BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 
         // explicit interface implementations

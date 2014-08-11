@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="AssertionExtensions.cs" />
     <Compile Include="Async\AsyncDropboxTests.cs" />
+    <Compile Include="Misc\BatchableSourceTests.cs" />
     <Compile Include="Misc\MetronomeTests.cs" />
     <Compile Include="Async\AsyncQueueTests.cs" />
     <Compile Include="Async\AsyncBackgroundTaskTests.cs" />
@@ -116,8 +117,20 @@
     <Compile Include="WireProtocol\Messages\DeleteMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\Encoders\BinaryEncoders\BinaryMessageEncoderFactoryTests.cs" />
     <Compile Include="WireProtocol\Messages\Encoders\BinaryEncoders\DeleteMessageBinaryEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\BinaryEncoders\GetMoreMessageBinaryEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\BinaryEncoders\InsertMessageBinaryEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\BinaryEncoders\KillCursorsMessageBinaryEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\BinaryEncoders\QueryMessageBinaryEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\BinaryEncoders\ReplyMessageBinaryEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\BinaryEncoders\UpdateMessageBinaryEncoderTests.cs" />
     <Compile Include="WireProtocol\Messages\Encoders\JsonEncoders\DeleteMessageJsonEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\JsonEncoders\GetMoreJsonEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\JsonEncoders\InsertMessageJsonEncoderTests.cs" />
     <Compile Include="WireProtocol\Messages\Encoders\JsonEncoders\JsonMessageEncoderFactoryTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\JsonEncoders\KillCursorsMessageJsonEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\JsonEncoders\QueryMessageJsonEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\JsonEncoders\ReplyMessageJsonEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\JsonEncoders\UpdateMessageJsonEncoderTests.cs" />
     <Compile Include="WireProtocol\Messages\GetMoreMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\InsertMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\KillCursorsMessageTests.cs" />

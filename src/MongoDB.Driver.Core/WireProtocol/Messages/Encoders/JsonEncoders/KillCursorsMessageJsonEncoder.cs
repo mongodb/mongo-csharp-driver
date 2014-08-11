@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // constructors
         public KillCursorsMessageJsonEncoder(JsonReader jsonReader, JsonWriter jsonWriter)
         {
+            Ensure.That(jsonReader != null || jsonWriter != null, "jsonReader and jsonWriter cannot both be null.");
             _jsonReader = jsonReader;
             _jsonWriter = jsonWriter;
         }
@@ -42,20 +44,45 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // methods
         public KillCursorsMessage ReadMessage()
         {
-            throw new NotImplementedException();
+            if (_jsonReader == null)
+            {
+                throw new InvalidOperationException("No jsonReader was provided.");
+            }
+
+            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(_jsonReader);
+            var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
+
+            var opcode = messageDocument["opcode"].AsString;
+            if (opcode != "killCursors")
+            {
+                throw new FormatException("Opcode is not killCursors.");
+            }
+
+            var requestId = messageDocument["requestId"].ToInt32();
+            var cursorIds = messageDocument["cursorIds"].AsBsonArray.Select(v => v.ToInt64());
+
+            return new KillCursorsMessage(
+                requestId,
+                cursorIds);
         }
 
         public void WriteMessage(KillCursorsMessage message)
         {
-            var document = new BsonDocument
+            Ensure.IsNotNull(message, "message");
+            if (_jsonWriter == null)
+            {
+                throw new InvalidOperationException("No jsonWriter was provided.");
+            }
+
+            var messageDocument = new BsonDocument
             {
                 { "opcode", "killCursors" },
                 { "requestId", message.RequestId },
                 { "cursorIds", new BsonArray(message.CursorIds.Select(id => new BsonInt64(id))) }
             };
 
-            var context = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
-            BsonDocumentSerializer.Instance.Serialize(context, document);
+            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
+            BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 
         // explicit interface implementations

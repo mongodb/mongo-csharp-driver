@@ -41,7 +41,8 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
         [Test]
         public void Constructor_should_initialize_instance()
         {
-            var subject = new ReplyMessage<BsonDocument>(_cursorId, false, _documents, _numberReturned, false, null, _requestId, _responseTo, _serializer, _startingFrom);
+            var subject = new ReplyMessage<BsonDocument>(true, _cursorId, false, _documents, _numberReturned, false, null, _requestId, _responseTo, _serializer, _startingFrom);
+            subject.AwaitCapable.Should().BeTrue();
             subject.CursorId.Should().Be(_cursorId);
             subject.CursorNotFound.Should().BeFalse();
             subject.Documents.Should().BeSameAs(_documents);
@@ -57,7 +58,8 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
         [Test]
         public void Constructor_with_cursor_not_found_should_initialize_instance()
         {
-            var subject = new ReplyMessage<BsonDocument>(_cursorId, true, null, 0, false, null, _requestId, _responseTo, _serializer, 0);
+            var subject = new ReplyMessage<BsonDocument>(true, _cursorId, true, null, 0, false, null, _requestId, _responseTo, _serializer, 0);
+            subject.AwaitCapable.Should().BeTrue();
             subject.CursorId.Should().Be(_cursorId);
             subject.CursorNotFound.Should().BeTrue();
             subject.Documents.Should().BeNull();
@@ -73,28 +75,29 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
         [Test]
         public void Constructor_with_both_documents_nor_queryFailureDocument_should_throw()
         {
-            Action action = () => new ReplyMessage<BsonDocument>(_cursorId, false, _documents, _numberReturned, false, _queryFailureDocument, _requestId, _responseTo, null, _startingFrom);
+            Action action = () => new ReplyMessage<BsonDocument>(true, _cursorId, false, _documents, _numberReturned, false, _queryFailureDocument, _requestId, _responseTo, null, _startingFrom);
             action.ShouldThrow<ArgumentException>();
         }
 
         [Test]
         public void Constructor_with_neither_documents_nor_queryFailureDocument_should_throw()
         {
-            Action action = () => new ReplyMessage<BsonDocument>(_cursorId, false, null, _numberReturned, false, null, _requestId, _responseTo, null, _startingFrom);
+            Action action = () => new ReplyMessage<BsonDocument>(true, _cursorId, false, null, _numberReturned, false, null, _requestId, _responseTo, null, _startingFrom);
             action.ShouldThrow<ArgumentException>();
         }
 
         [Test]
         public void Constructor_with_null_serializer_should_throw()
         {
-            Action action = () => new ReplyMessage<BsonDocument>(_cursorId, false, _documents, _numberReturned, false, null, _requestId, _responseTo, null, _startingFrom);
+            Action action = () => new ReplyMessage<BsonDocument>(true, _cursorId, false, _documents, _numberReturned, false, null, _requestId, _responseTo, null, _startingFrom);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_queryFailure_should_initialize_instance()
         {
-            var subject = new ReplyMessage<BsonDocument>(_cursorId, false, null, 0, true, _queryFailureDocument, _requestId, _responseTo, _serializer, 0);
+            var subject = new ReplyMessage<BsonDocument>(true, _cursorId, false, null, 0, true, _queryFailureDocument, _requestId, _responseTo, _serializer, 0);
+            subject.AwaitCapable.Should().BeTrue();
             subject.CursorId.Should().Be(_cursorId);
             subject.CursorNotFound.Should().BeFalse();
             subject.Documents.Should().BeNull();
@@ -114,7 +117,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetReplyMessageEncoder(_serializer).Returns(mockEncoder);
 
-            var subject = new ReplyMessage<BsonDocument>(_cursorId, false, _documents, _numberReturned, false, null, _requestId, _responseTo, _serializer, _startingFrom);
+            var subject = new ReplyMessage<BsonDocument>(true, _cursorId, false, _documents, _numberReturned, false, null, _requestId, _responseTo, _serializer, _startingFrom);
             var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }

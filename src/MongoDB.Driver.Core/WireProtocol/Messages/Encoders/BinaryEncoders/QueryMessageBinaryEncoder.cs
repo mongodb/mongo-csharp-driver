@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // constructors
         public QueryMessageBinaryEncoder(BsonBinaryReader binaryReader, BsonBinaryWriter binaryWriter)
         {
+            Ensure.That(binaryReader != null || binaryWriter != null, "binaryReader and binaryWriter cannot both be null.");
             _binaryReader = binaryReader;
             _binaryWriter = binaryWriter;
         }
@@ -56,16 +57,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             if (message.TailableCursor)
             {
                 flags |= QueryFlags.TailableCursor;
-                if (message.AwaitData)
-                {
-                    flags |= QueryFlags.AwaitData;
-                }
+            }
+            if (message.AwaitData)
+            {
+                flags |= QueryFlags.AwaitData;
             }
             return flags;
         }
 
         public QueryMessage ReadMessage()
         {
+            if (_binaryReader == null)
+            {
+                throw new InvalidOperationException("No binaryReader was provided.");
+            }
+
             var streamReader = _binaryReader.StreamReader;
             var startPosition = streamReader.Position;
 
@@ -111,6 +117,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         public void WriteMessage(QueryMessage message)
         {
+            Ensure.IsNotNull(message, "message");
+            if (_binaryWriter == null)
+            {
+                throw new InvalidOperationException("No binaryWriter was provided.");
+            }
+
             var streamWriter = _binaryWriter.StreamWriter;
             var startPosition = streamWriter.Position;
 

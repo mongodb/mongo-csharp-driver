@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     public class ReplyMessage<TDocument> : ReplyMessage
     {
         // fields
+        private readonly bool _awaitCapable;
         private readonly long _cursorId;
         private readonly bool _cursorNotFound;
         private readonly List<TDocument> _documents;
@@ -47,6 +48,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         // constructors
         public ReplyMessage(
+            bool awaitCapable,
             long cursorId,
             bool cursorNotFound,
             List<TDocument> documents,
@@ -66,6 +68,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             {
                 throw new ArgumentException("Documents and queryFailureDocument cannot both be provided.");
             }
+            _awaitCapable = awaitCapable;
             _cursorId = cursorId;
             _cursorNotFound = cursorNotFound;
             _documents = documents; // can be null
@@ -79,6 +82,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
+        public bool AwaitCapable
+        {
+            get { return _awaitCapable; }
+        }
+
         public long CursorId
         {
             get { return _cursorId; }
