@@ -15,8 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +30,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
-using System.Diagnostics;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -155,6 +155,7 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         _listener.ConnectionBeforeClosing(_connectionId);
                     }
+
                     _backgroundTaskCancellationTokenSource.Cancel();
                     _backgroundTaskCancellationTokenSource.Dispose();
                     try
@@ -166,6 +167,7 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         // eat this...
                     }
+
                     if (_listener != null)
                     {
                         _listener.ConnectionAfterClosing(_connectionId);
@@ -197,6 +199,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 _listener.ConnectionBeforeOpening(_connectionId, _settings);
             }
+
             try
             {
                 var slidingTimeout = new SlidingTimeout(timeout);
@@ -208,6 +211,7 @@ namespace MongoDB.Driver.Core.Connections
                 stopwatch.Stop();
                 _connectionId = _description.ConnectionId;
                 _state.TryChange(State.Open);
+
                 if (_listener != null)
                 {
                     _listener.ConnectionAfterOpening(_connectionId, _settings, stopwatch.Elapsed);
@@ -264,6 +268,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     _listener.ConnectionBeforeReceivingMessage(_connectionId, responseTo);
                 }
+
                 var stopwatch = Stopwatch.StartNew();
                 var buffer = await _inboundDropbox.ReceiveAsync(responseTo, slidingTimeout, cancellationToken);
                 int length = buffer.Length;
@@ -277,6 +282,7 @@ namespace MongoDB.Driver.Core.Connections
                     reply = encoder.ReadMessage();
                 }
                 stopwatch.Stop();
+
                 if (_listener != null)
                 {
                     _listener.ConnectionAfterReceivingMessage<TDocument>(_connectionId, reply, length, stopwatch.Elapsed);
@@ -344,11 +350,12 @@ namespace MongoDB.Driver.Core.Connections
                         buffer.Length = (int)stream.Length;
                     }
 
+                    var stopwatch = Stopwatch.StartNew();
                     var entry = new OutboundQueueEntry(buffer, cancellationToken);
                     _outboundQueue.Enqueue(entry);
-                    var stopwatch = Stopwatch.StartNew();
                     await entry.Task;
                     stopwatch.Stop();
+
                     if (_listener != null)
                     {
                         _listener.ConnectionAfterSendingMessages(_connectionId, messagesToSend, buffer.Length, stopwatch.Elapsed);
@@ -369,9 +376,9 @@ namespace MongoDB.Driver.Core.Connections
         private void StartBackgroundTasks()
         {
             AsyncBackgroundTask.Start(SendBackgroundTask, TimeSpan.FromMilliseconds(0), _backgroundTaskCancellationTokenSource.Token)
-                .RunInBackground(ConnectionFailed);
+                .HandleUnobservedException(ConnectionFailed);
             AsyncBackgroundTask.Start(ReceiveBackgroundTask, TimeSpan.FromMilliseconds(0), _backgroundTaskCancellationTokenSource.Token)
-                .RunInBackground(ConnectionFailed);
+                .HandleUnobservedException(ConnectionFailed);
         }
 
         private void ThrowIfDisposed()

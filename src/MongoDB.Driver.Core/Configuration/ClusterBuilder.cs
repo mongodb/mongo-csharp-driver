@@ -129,25 +129,25 @@ namespace MongoDB.Driver.Core.Configuration
         public ClusterBuilder AddListener(IListener listener)
         {
             var clusterListener = listener as IClusterListener;
-            if(clusterListener != null)
+            if (clusterListener != null)
             {
                 _clusterListener = ClusterListenerPair.Create(_clusterListener, clusterListener);
             }
 
             var serverListener = listener as IServerListener;
-            if(serverListener != null)
+            if (serverListener != null)
             {
                 _serverListener = ServerListenerPair.Create(_serverListener, serverListener);
             }
 
             var connectionPoolListener = listener as IConnectionPoolListener;
-            if(connectionPoolListener != null)
+            if (connectionPoolListener != null)
             {
                 _connectionPoolListener = ConnectionPoolListenerPair.Create(_connectionPoolListener, connectionPoolListener);
             }
 
             var connectionListener = listener as IConnectionListener;
-            if(connectionListener != null)
+            if (connectionListener != null)
             {
                 _connectionListener = ConnectionListenerPair.Create(_connectionListener, connectionListener);
             }

@@ -97,10 +97,11 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Initial, State.Open))
             {
-                if(_listener != null)
+                if (_listener != null)
                 {
                     _listener.ServerBeforeOpening(_serverId, _settings);
                 }
+
                 var stopwatch = Stopwatch.StartNew();
                 _connectionPool.Initialize();
                 var metronome = new Metronome(_settings.HeartbeatInterval);
@@ -113,10 +114,10 @@ namespace MongoDB.Driver.Core.Servers
                         return newDelay.Task;
                     },
                     _heartbeatCancellationTokenSource.Token)
-                    .RunInBackground(ex => { }); // TODO: do we need to do anything here?
-
+                    .HandleUnobservedException(ex => { }); // TODO: do we need to do anything here?
                 stopwatch.Stop();
-                if(_listener != null)
+
+                if (_listener != null)
                 {
                     _listener.ServerAfterOpening(_serverId, _settings, stopwatch.Elapsed);
                 }
@@ -127,7 +128,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             ThrowIfNotOpen();
             var delay = Interlocked.CompareExchange(ref _heartbeatDelay, null, null);
-            if(delay != null)
+            if (delay != null)
             {
                 delay.Interrupt();
             }
@@ -145,17 +146,19 @@ namespace MongoDB.Driver.Core.Servers
             {
                 if (disposing)
                 {
-                    if(_listener != null)
+                    if (_listener != null)
                     {
                         _listener.ServerBeforeClosing(_serverId);
                     }
+
                     _heartbeatCancellationTokenSource.Cancel();
                     _heartbeatCancellationTokenSource.Dispose();
                     _connectionPool.Dispose();
-                    if(_heartbeatConnection != null)
+                    if (_heartbeatConnection != null)
                     {
                         _heartbeatConnection.Dispose();
                     }
+
                     if (_listener != null)
                     {
                         _listener.ServerAfterClosing(_serverId);

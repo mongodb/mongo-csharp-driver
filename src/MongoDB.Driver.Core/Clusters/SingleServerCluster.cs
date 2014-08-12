@@ -74,10 +74,11 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (disposing)
                 {
-                    if(Listener != null)
+                    if (Listener != null)
                     {
                         Listener.ClusterBeforeClosing(ClusterId);
                     }
+
                     var stopwatch = Stopwatch.StartNew();
                     if (_server != null)
                     {
@@ -85,7 +86,8 @@ namespace MongoDB.Driver.Core.Clusters
                         _server.Dispose();
                     }
                     stopwatch.Stop();
-                    if(Listener != null)
+
+                    if (Listener != null)
                     {
                         Listener.ClusterAfterClosing(ClusterId, stopwatch.Elapsed);
                     }
@@ -99,17 +101,19 @@ namespace MongoDB.Driver.Core.Clusters
             base.Initialize();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                if(Listener != null)
+                if (Listener != null)
                 {
                     Listener.ClusterBeforeOpening(ClusterId, Settings);
                     Listener.ClusterBeforeAddingServer(ClusterId, Settings.EndPoints[0]);
                 }
+
                 var stopwatch = Stopwatch.StartNew();
                 _server = CreateServer(Settings.EndPoints[0]);
                 _server.DescriptionChanged += ServerDescriptionChanged;
                 _server.Initialize();
                 stopwatch.Stop();
-                if(Listener != null)
+
+                if (Listener != null)
                 {
                     Listener.ClusterAfterAddingServer(_server.ServerId, stopwatch.Elapsed);
                     Listener.ClusterAfterOpening(ClusterId, Settings, stopwatch.Elapsed);

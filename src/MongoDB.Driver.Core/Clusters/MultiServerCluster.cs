@@ -61,10 +61,11 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (disposing)
                 {
-                    if(Listener != null)
+                    if (Listener != null)
                     {
                         Listener.ClusterBeforeClosing(ClusterId);
                     }
+
                     var stopwatch = Stopwatch.StartNew();
                     _monitorServersCancellationTokenSource.Cancel();
                     _monitorServersCancellationTokenSource.Dispose();
@@ -78,7 +79,8 @@ namespace MongoDB.Driver.Core.Clusters
                     }
                     UpdateClusterDescription(clusterDescription);
                     stopwatch.Stop();
-                    if(Listener != null)
+
+                    if (Listener != null)
                     {
                         Listener.ClusterAfterClosing(ClusterId, stopwatch.Elapsed);
                     }
@@ -92,7 +94,7 @@ namespace MongoDB.Driver.Core.Clusters
             base.Initialize();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                if(Listener != null)
+                if (Listener != null)
                 {
                     Listener.ClusterBeforeOpening(ClusterId, Settings);
                 }
@@ -102,7 +104,7 @@ namespace MongoDB.Driver.Core.Clusters
                     MonitorServersAsync,
                     TimeSpan.Zero,
                     _monitorServersCancellationTokenSource.Token)
-                    .RunInBackground(ex => { }); // TODO: do we need to handle any error here?
+                    .HandleUnobservedException(ex => { }); // TODO: do we need to handle any error here?
 
                 // We lock here even though AddServer locks. Monitors
                 // are re-entrant such that this won't cause problems,
@@ -119,7 +121,11 @@ namespace MongoDB.Driver.Core.Clusters
 
                 UpdateClusterDescription(clusterDescription);
                 stopwatch.Stop();
-                Listener.ClusterAfterOpening(ClusterId, Settings, stopwatch.Elapsed);
+
+                if (Listener != null)
+                {
+                    Listener.ClusterAfterOpening(ClusterId, Settings, stopwatch.Elapsed);
+                }
             }
         }
 
@@ -309,10 +315,12 @@ namespace MongoDB.Driver.Core.Clusters
             clusterDescription = clusterDescription.WithServerDescription(server.Description);
             server.Initialize();
             stopwatch.Stop();
+
             if (Listener != null)
             {
                 Listener.ClusterAfterAddingServer(server.ServerId, stopwatch.Elapsed);
             }
+
             return clusterDescription;
         }
 
@@ -351,10 +359,11 @@ namespace MongoDB.Driver.Core.Clusters
                     return clusterDescription;
                 }
 
-                if(Listener != null)
+                if (Listener != null)
                 {
                     Listener.ClusterBeforeRemovingServer(server.ServerId, reason);
                 }
+
                 _servers.Remove(server);
             }
 
@@ -362,6 +371,7 @@ namespace MongoDB.Driver.Core.Clusters
             server.DescriptionChanged -= ServerDescriptionChangedHandler;
             server.Dispose();
             stopwatch.Stop();
+
             if (Listener != null)
             {
                 Listener.ClusterAfterRemovingServer(server.ServerId, reason, stopwatch.Elapsed);

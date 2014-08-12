@@ -25,11 +25,11 @@ namespace MongoDB.Driver.Core.Async
     public static class TaskExtensionMethods
     {
         // static methods
-        public static void RunInBackground(this Task task, Action<Exception> onError)
+        public static void HandleUnobservedException(this Task task, Action<Exception> onError)
         {
             task.ContinueWith(t =>
             {
-                if(t.IsFaulted)
+                if (t.IsFaulted)
                 {
                     onError(t.Exception);
                 }

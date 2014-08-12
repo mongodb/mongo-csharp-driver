@@ -256,7 +256,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     ct => MaintainSizeAsync(ct),
                     _settings.MaintenanceInterval,
                     _maintenanceCancellationTokenSource.Token)
-                    .RunInBackground(ex => { }); // TODO: do we need to handle any error here?
+                    .HandleUnobservedException(ex => { }); // TODO: do we need to handle any error here?
 
                 if (_listener != null)
                 {
@@ -345,7 +345,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         return;
                     }
 
-                    if(_listener != null)
+                    if (_listener != null)
                     {
                         _listener.ConnectionPoolBeforeAddingAConnection(_serverId);
                     }
@@ -358,6 +358,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     await connection.OpenAsync(Timeout.InfiniteTimeSpan, cancellationToken);
                     _connectionHolder.Return(connection);
                     stopwatch.Stop();
+
                     if (_listener != null)
                     {
                         _listener.ConnectionPoolAfterAddingAConnection(connection.ConnectionId, stopwatch.Elapsed);
@@ -388,7 +389,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return;
             }
 
-            if(_listener != null)
+            if (_listener != null)
             {
                 _listener.ConnectionPoolBeforeCheckingInAConnection(connection.ConnectionId);
             }
@@ -397,6 +398,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionHolder.Return(connection);
             _poolQueue.Release();
             stopwatch.Stop();
+
             if (_listener != null)
             {
                 _listener.ConnectionPoolAfterCheckingInAConnection(connection.ConnectionId, stopwatch.Elapsed);
@@ -647,9 +649,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     _listener.ConnectionPoolBeforeRemovingAConnection(connection.ConnectionId);
                 }
+
                 var stopwatch = Stopwatch.StartNew();
                 connection.Dispose();
                 stopwatch.Stop();
+
                 if (_listener != null)
                 {
                     _listener.ConnectionPoolAfterRemovingAConnection(connection.ConnectionId, stopwatch.Elapsed);

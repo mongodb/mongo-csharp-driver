@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -30,12 +26,12 @@ namespace MongoDB.Driver.Core.Events
         // static
         public static IConnectionPoolListener Create(IConnectionPoolListener first, IConnectionPoolListener second)
         {
-            if(first == null)
+            if (first == null)
             {
                 return second;
             }
 
-            if(second == null)
+            if (second == null)
             {
                 return first;
             }
@@ -117,8 +113,8 @@ namespace MongoDB.Driver.Core.Events
 
         public void ConnectionPoolErrorEnteringWaitQueue(ServerId serverId, TimeSpan elapsed, Exception exception)
         {
-            _first.ConnectionPoolErrorCheckingOutAConnection(serverId, elapsed, exception);
-            _second.ConnectionPoolErrorCheckingOutAConnection(serverId, elapsed, exception);
+            _first.ConnectionPoolErrorEnteringWaitQueue(serverId, elapsed, exception);
+            _second.ConnectionPoolErrorEnteringWaitQueue(serverId, elapsed, exception);
         }
 
         public void ConnectionPoolBeforeCheckingOutAConnection(ServerId serverId)

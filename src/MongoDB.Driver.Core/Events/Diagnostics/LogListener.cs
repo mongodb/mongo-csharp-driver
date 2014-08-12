@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -27,6 +24,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             _level = level;
             _enricher = enricher ?? new LogEnricher();
         }
+
         // Clusters
         public override void ClusterBeforeClosing(ClusterId clusterId)
         {

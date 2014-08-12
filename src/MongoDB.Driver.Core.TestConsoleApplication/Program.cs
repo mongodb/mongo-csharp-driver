@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -35,9 +33,10 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             {
                 Console.WriteLine("Unhandled exception:");
                 Console.WriteLine(ex.ToString());
-                Console.WriteLine("Press Enter to exit");
-                Console.ReadLine();
             }
+
+            Console.WriteLine("Press Enter to exit");
+            Console.ReadLine();
         }
 
         private static ICluster CreateCluster()
@@ -48,14 +47,14 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             var writer = TextWriter.Synchronized(streamWriter);
 
             return new ClusterBuilder()
-                .ConfigureWithConnectionString("mongodb://localhost:30000,localhost:30001")
+                .ConfigureWithConnectionString("mongodb://localhost")
                 .ConfigureServer(s => s
                     .WithHeartbeatInterval(TimeSpan.FromMinutes(1))
                     .WithHeartbeatTimeout(TimeSpan.FromMinutes(1)))
                 .ConfigureConnection(s => s
                     .WithMaxLifeTime(TimeSpan.FromSeconds(30)))
                 .AddListener(new LogListener(writer, LogLevel.Debug))
-                .UsePerformanceCounters("test", true)
+                // .UsePerformanceCounters("test", true)
                 .BuildCluster();
         }
 
@@ -63,6 +62,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         {
             Console.WriteLine("Press Enter to begin");
             Console.ReadLine();
+
             Console.WriteLine("Clearing Data");
             await ClearData(cluster).ConfigureAwait(false);
             Console.WriteLine("Inserting Seed Data");
@@ -78,6 +78,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 
             Console.WriteLine("Press Enter to shutdown");
             Console.ReadLine();
+
             cancellationTokenSource.Cancel();
             Task.WaitAll(tasks.ToArray());
         }

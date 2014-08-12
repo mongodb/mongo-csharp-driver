@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
@@ -16,12 +12,12 @@ namespace MongoDB.Driver.Core.Events
         // static
         public static IClusterListener Create(IClusterListener first, IClusterListener second)
         {
-            if(first == null)
+            if (first == null)
             {
                 return second;
             }
 
-            if(second == null)
+            if (second == null)
             {
                 return first;
             }
