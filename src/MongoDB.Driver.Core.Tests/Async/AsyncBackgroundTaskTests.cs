@@ -29,17 +29,17 @@ namespace MongoDB.Driver.Core.Tests.Async
         [Test]
         public void Start_should_throw_ArgumentNullException_when_action_is_null()
         {
-            Action act = () => AsyncBackgroundTask.Start(null, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => AsyncBackgroundTask.Start(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public async Task Start_should_run_the_action_on_the_specified_interval()
+        public void Start_should_run_the_action_on_the_specified_interval()
         {
             var cancellationTokenSource = new CancellationTokenSource();
             int count = 0;
-            await AsyncBackgroundTask.Start(
+            AsyncBackgroundTask.Start(
                 ct => 
                 { 
                     count++; 
@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Core.Tests.Async
                 TimeSpan.FromMilliseconds(5),
                 cancellationTokenSource.Token);
 
+            SpinWait.SpinUntil(() => count >= 5, 4000);
             count.Should().Be(5);
         }
 
@@ -59,7 +60,7 @@ namespace MongoDB.Driver.Core.Tests.Async
         public async Task Start_should_run_the_action_only_once_when_the_delay_is_infinite()
         {
             int count = 0;
-            await AsyncBackgroundTask.Start(
+            AsyncBackgroundTask.Start(
                 ct =>
                 {
                     count++;
@@ -68,6 +69,7 @@ namespace MongoDB.Driver.Core.Tests.Async
                 Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
+            SpinWait.SpinUntil(() => count >= 1, 4000);
             count.Should().Be(1);
         }
     }

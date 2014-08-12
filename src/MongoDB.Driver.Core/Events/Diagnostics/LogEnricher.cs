@@ -13,27 +13,20 @@
 * limitations under the License.
 */
 
-using System.Net;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.Events
+namespace MongoDB.Driver.Core.Events.Diagnostics
 {
-    public class SendingHeartbeatEventArgs
+    public class LogEnricher
     {
-        // fields
-        private readonly EndPoint _endPoint;
-
-        // constructors
-        public SendingHeartbeatEventArgs(EndPoint endPoint)
+        public virtual string Enrich(LogLevel level, string message)
         {
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-        }
-
-        // properties
-        public EndPoint EndPoint
-        {
-            get { return _endPoint; }
+            return level.ToString().PadRight(5) + " " + DateTime.UtcNow.ToString() + " " + Thread.CurrentThread.ManagedThreadId.ToString().PadRight(4) + message;
         }
     }
 }

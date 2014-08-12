@@ -13,13 +13,25 @@
 * limitations under the License.
 */
 
+using System;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Servers;
 namespace MongoDB.Driver.Core.Events
 {
-    public interface IServerListener
+    public interface IServerListener : IListener
     {
         // methods
-        void SendingHeartbeat(SendingHeartbeatEventArgs args);
-        void SentHeartbeat(SentHeartbeatEventArgs args);
-        void ServerDescriptionChanged(ServerDescriptionChangedEventArgs args);
+        void ServerBeforeClosing(ServerId serverId);
+        void ServerAfterClosing(ServerId serverId);
+
+        void ServerBeforeOpening(ServerId serverId, ServerSettings settings);
+        void ServerAfterOpening(ServerId serverId, ServerSettings settings, TimeSpan elapsed);
+
+        void ServerBeforeHeartbeating(ConnectionId connectionId);
+        void ServerAfterHeartbeating(ConnectionId connectionId, TimeSpan elapsed);
+        void ServerErrorHeartbeating(ConnectionId connectionId, Exception exception);
+
+        void ServerAfterDescriptionChanged(ServerDescription oldDescription, ServerDescription newDescription);
     }
 }

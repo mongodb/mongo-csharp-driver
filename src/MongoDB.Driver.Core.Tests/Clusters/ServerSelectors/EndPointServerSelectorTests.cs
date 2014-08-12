@@ -41,8 +41,7 @@ namespace MongoDB.Driver.Core.Tests.Clusters.ServerSelectors
                     ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017)),
                     ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018)),
                     ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27019)),
-                },
-                null);
+                });
         }
 
         [Test]

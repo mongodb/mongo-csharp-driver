@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
         [Test]
         public void Constructor_should_throw_when_settings_is_null()
         {
-            Action act = () => new ExclusiveConnectionPoolFactory(null, _connectionFactory);
+            Action act = () => new ExclusiveConnectionPoolFactory(null, _connectionFactory, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
         [Test]
         public void Constructor_should_throw_when_connectionFactory_is_null()
         {
-            Action act = () => new ExclusiveConnectionPoolFactory(_settings, null);
+            Action act = () => new ExclusiveConnectionPoolFactory(_settings, null, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
         [Test]
         public void CreateConnectionPool_should_throw_when_serverId_is_null()
         {
-            var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory);
+            var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, null);
 
             Action act = () => subject.CreateConnectionPool(null, _endPoint);
             act.ShouldThrow<ArgumentNullException>();
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
         [Test]
         public void CreateConnectionPool_should_throw_when_endPoint_is_null()
         {
-            var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory);
+            var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, null);
 
             Action act = () => subject.CreateConnectionPool(_serverId, null);
             act.ShouldThrow<ArgumentNullException>();
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
         [Test]
         public void CreateConnectionPool_should_return_a_ConnectionPool()
         {
-            var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory);
+            var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, null);
 
             var result = subject.CreateConnectionPool(_serverId, _endPoint);
 

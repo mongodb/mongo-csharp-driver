@@ -35,7 +35,6 @@ namespace MongoDB.Driver.Core.Tests.Clusters
         private static readonly ClusterId __clusterId;
         private static readonly DnsEndPoint __endPoint1;
         private static readonly DnsEndPoint __endPoint2;
-        private static readonly ReplicaSetConfig __replicaSetConfig;
         private static readonly ServerDescription __serverDescription1;
         private static readonly ServerDescription __serverDescription2;
         private static readonly ServerId __serverId1;
@@ -52,11 +51,6 @@ namespace MongoDB.Driver.Core.Tests.Clusters
             __serverId2 = new ServerId(__clusterId, __endPoint2);
             __serverDescription1 = new ServerDescription(__serverId1, __endPoint1);
             __serverDescription2 = new ServerDescription(__serverId2, __endPoint2);
-            __replicaSetConfig = new ReplicaSetConfig(
-                new[] { __endPoint1, __endPoint2 },
-                "name",
-                __endPoint1,
-                1);
         }
         #endregion
 
@@ -66,7 +60,6 @@ namespace MongoDB.Driver.Core.Tests.Clusters
         {
             var subject = ClusterDescription.CreateInitial(__clusterId, ClusterType.Standalone);
             subject.ClusterId.Should().Be(__clusterId);
-            subject.ReplicaSetConfig.Should().BeNull();
             subject.Servers.Should().BeEmpty();
             subject.State.Should().Be(ClusterState.Disconnected);
             subject.Type.Should().Be(ClusterType.Standalone);
@@ -79,10 +72,8 @@ namespace MongoDB.Driver.Core.Tests.Clusters
             var subject = new ClusterDescription(
                 __clusterId,
                 ClusterType.ReplicaSet,
-                new[] { __serverDescription1, __serverDescription2 },
-                __replicaSetConfig);
+                new[] { __serverDescription1, __serverDescription2 });
             subject.ClusterId.Should().Be(__clusterId);
-            subject.ReplicaSetConfig.Should().Be(__replicaSetConfig);
             subject.Servers.Should().ContainInOrder(new[] { __serverDescription1, __serverDescription2 });
             subject.State.Should().Be(ClusterState.Disconnected);
             subject.Type.Should().Be(ClusterType.ReplicaSet);
@@ -99,7 +90,6 @@ namespace MongoDB.Driver.Core.Tests.Clusters
         }
 
         [TestCase("ClusterId")]
-        [TestCase("ReplicaSetConfig")]
         [TestCase("Servers")]
         [TestCase("Type")]
         public void Equals_should_return_false_if_any_field_is_not_equal(string notEqualField)
@@ -125,7 +115,7 @@ namespace MongoDB.Driver.Core.Tests.Clusters
         public void State_should_be_connected_if_any_server_is_connected()
         {
             var connected = ServerDescriptionHelper.Connected(new ClusterId(1));
-            var subject = new ClusterDescription(new ClusterId(1), ClusterType.Standalone, new[] { __serverDescription1, connected }, null);
+            var subject = new ClusterDescription(new ClusterId(1), ClusterType.Standalone, new[] { __serverDescription1, connected });
 
             subject.State.Should().Be(ClusterState.Connected);
         }
@@ -133,8 +123,8 @@ namespace MongoDB.Driver.Core.Tests.Clusters
         [Test]
         public void ToString_should_return_string_representation()
         {
-            var subject = new ClusterDescription(new ClusterId(1), ClusterType.Standalone, new[] { __serverDescription1 }, null);
-            var expected = string.Format("{{ ClusterId : 1, Type : Standalone, State : Disconnected, Servers : [{0}], ReplicaSetConfig : null }}",
+            var subject = new ClusterDescription(new ClusterId(1), ClusterType.Standalone, new[] { __serverDescription1 });
+            var expected = string.Format("{{ ClusterId : 1, Type : Standalone, State : Disconnected, Servers : [{0}] }}",
                 __serverDescription1);
             subject.ToString().Should().Be(expected);
         }
@@ -213,10 +203,9 @@ namespace MongoDB.Driver.Core.Tests.Clusters
                 case "ClusterId": clusterId = new ClusterId(2); break;
                 case "Type": type = ClusterType.Unknown; break;
                 case "Servers": servers = new[] { __serverDescription1 }; break;
-                case "ReplicaSetConfig": replicaSetConfig = new ReplicaSetConfig(new[] { __endPoint1 }, "name", __endPoint1, 1); break;
             }
 
-            return new ClusterDescription(clusterId, type, servers, replicaSetConfig);
+            return new ClusterDescription(clusterId, type, servers);
         }
     }
 }

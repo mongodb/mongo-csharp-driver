@@ -15,12 +15,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -33,6 +35,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly ListConnectionHolder _connectionHolder;
         private readonly EndPoint _endPoint;
         private int _generation;
+        private readonly IConnectionPoolListener _listener;
         private readonly CancellationTokenSource _maintenanceCancellationTokenSource;
         private readonly WaitQueue _poolQueue;
         private readonly ServerId _serverId;
@@ -45,14 +48,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
             ServerId serverId,
             EndPoint endPoint,
             ConnectionPoolSettings settings,
-            IConnectionFactory connectionFactory)
+            IConnectionFactory connectionFactory,
+            IConnectionPoolListener listener)
         {
             _serverId = Ensure.IsNotNull(serverId, "serverId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _settings = Ensure.IsNotNull(settings, "settings");
             _connectionFactory = Ensure.IsNotNull(connectionFactory, "connectionFactory");
+            _listener = listener;
 
-            _connectionHolder = new ListConnectionHolder();
+            _connectionHolder = new ListConnectionHolder(_listener);
             _poolQueue = new WaitQueue(settings.MaxConnections);
             _waitQueue = new SemaphoreSlim(settings.MaxWaitQueueSize);
             _maintenanceCancellationTokenSource = new CancellationTokenSource();
@@ -62,28 +67,28 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // properties
         public int AvailableCount
         {
-            get 
+            get
             {
                 ThrowIfDisposed();
-                return _poolQueue.CurrentCount; 
+                return _poolQueue.CurrentCount;
             }
         }
 
         public int CreatedCount
         {
-            get 
+            get
             {
                 ThrowIfDisposed();
-                return UsedCount + DormantCount; 
+                return UsedCount + DormantCount;
             }
         }
 
         public int DormantCount
         {
-            get 
+            get
             {
                 ThrowIfDisposed();
-                return _connectionHolder.Count; 
+                return _connectionHolder.Count;
             }
         }
 
@@ -99,10 +104,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public int UsedCount
         {
-            get 
+            get
             {
                 ThrowIfDisposed();
-                return _settings.MaxConnections - AvailableCount; 
+                return _settings.MaxConnections - AvailableCount;
             }
         }
 
@@ -116,14 +121,29 @@ namespace MongoDB.Driver.Core.ConnectionPools
             bool enteredWaitQueue = false;
             bool enteredPool = false;
 
+            Stopwatch stopwatch = new Stopwatch();
             try
             {
+                if (_listener != null)
+                {
+                    _listener.ConnectionPoolBeforeEnteringWaitQueue(_serverId);
+                }
+
+                stopwatch.Start();
                 enteredWaitQueue = _waitQueue.Wait(0); // don't wait...
                 if (!enteredWaitQueue)
                 {
                     throw new MongoDBException("Too many waiters in the connection pool.");
                 }
+                stopwatch.Stop();
 
+                if(_listener != null)
+                {
+                    _listener.ConnectionPoolAfterEnteringWaitQueue(_serverId, stopwatch.Elapsed);
+                    _listener.ConnectionPoolBeforeCheckingOutAConnection(_serverId);
+                }
+
+                stopwatch.Restart();
                 var waitQueueTimeout = (int)Math.Min(slidingTimeout.ToTimeout().TotalMilliseconds, timeout.TotalMilliseconds);
                 if (waitQueueTimeout == Timeout.Infinite)
                 {
@@ -134,12 +154,20 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (enteredPool)
                 {
-                    return AcquireConnection();
+                    var acquired = AcquireConnection();
+                    stopwatch.Stop();
+                    if (_listener != null)
+                    {
+                        _listener.ConnectionPoolAfterCheckingOutAConnection(acquired.ConnectionId, stopwatch.Elapsed);
+                    }
+                    return acquired;
                 }
 
-                throw new TimeoutException("Timed out waiting for a connection.");
+                stopwatch.Stop();
+                var message = string.Format("Timed out waiting for a connection after {0}ms.", stopwatch.ElapsedMilliseconds);
+                throw new TimeoutException(message);
             }
-            catch
+            catch (Exception ex)
             {
                 if (enteredPool)
                 {
@@ -153,6 +181,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     }
                 }
 
+                if (_listener != null)
+                {
+                    if (!enteredWaitQueue)
+                    {
+                        _listener.ConnectionPoolErrorEnteringWaitQueue(_serverId, stopwatch.Elapsed, ex);
+                    }
+                    else
+                    {
+                        _listener.ConnectionPoolErrorCheckingOutAConnection(_serverId, stopwatch.Elapsed, ex);
+                    }
+                }
                 throw;
             }
             finally
@@ -176,7 +215,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
             PooledConnection connection = _connectionHolder.Acquire();
             if (connection == null)
             {
+                if(_listener != null)
+                {
+                    _listener.ConnectionPoolBeforeAddingAConnection(_serverId);
+                }
+                var stopwatch = Stopwatch.StartNew();
                 connection = CreateNewConnection();
+                stopwatch.Stop();
+                if (_listener != null)
+                {
+                    _listener.ConnectionPoolAfterAddingAConnection(connection.ConnectionId, stopwatch.Elapsed);
+                }
             }
 
             return new AcquiredConnection(this, connection);
@@ -199,11 +248,20 @@ namespace MongoDB.Driver.Core.ConnectionPools
             ThrowIfDisposed();
             if (_state.TryChange(State.Initial, State.Open))
             {
+                if (_listener != null)
+                {
+                    _listener.ConnectionPoolBeforeOpening(_serverId, _settings);
+                }
                 AsyncBackgroundTask.Start(
                     ct => MaintainSizeAsync(ct),
                     _settings.MaintenanceInterval,
                     _maintenanceCancellationTokenSource.Token)
-                    .LogUnobservedExceptions();
+                    .RunInBackground(ex => { }); // TODO: do we need to handle any error here?
+
+                if (_listener != null)
+                {
+                    _listener.ConnectionPoolAfterOpening(_serverId, _settings);
+                }
             }
         }
 
@@ -211,11 +269,20 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             if (_state.TryChange(State.Disposed))
             {
-                // TODO: dispose all connections in the pool
+                if (_listener != null)
+                {
+                    _listener.ConnectionPoolBeforeClosing(_serverId);
+                }
+
+                _connectionHolder.Clear();
                 _maintenanceCancellationTokenSource.Cancel();
                 _maintenanceCancellationTokenSource.Dispose();
                 _poolQueue.Dispose();
                 _waitQueue.Dispose();
+                if (_listener != null)
+                {
+                    _listener.ConnectionPoolAfterClosing(_serverId);
+                }
             }
         }
 
@@ -278,12 +345,23 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         return;
                     }
 
+                    if(_listener != null)
+                    {
+                        _listener.ConnectionPoolBeforeAddingAConnection(_serverId);
+                    }
+
+                    var stopwatch = Stopwatch.StartNew();
                     var connection = CreateNewConnection();
                     // when adding in a connection, we need to open it because 
                     // the whole point of having a min pool size is to have
                     // them available and ready...
                     await connection.OpenAsync(Timeout.InfiniteTimeSpan, cancellationToken);
                     _connectionHolder.Return(connection);
+                    stopwatch.Stop();
+                    if (_listener != null)
+                    {
+                        _listener.ConnectionPoolAfterAddingAConnection(connection.ConnectionId, stopwatch.Elapsed);
+                    }
                 }
                 finally
                 {
@@ -310,8 +388,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return;
             }
 
+            if(_listener != null)
+            {
+                _listener.ConnectionPoolBeforeCheckingInAConnection(connection.ConnectionId);
+            }
+
+            var stopwatch = Stopwatch.StartNew();
             _connectionHolder.Return(connection);
             _poolQueue.Release();
+            stopwatch.Stop();
+            if (_listener != null)
+            {
+                _listener.ConnectionPoolAfterCheckingInAConnection(connection.ConnectionId, stopwatch.Elapsed);
+            }
         }
 
         private void ThrowIfDisposed()
@@ -470,9 +559,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             private readonly object _lock = new object();
             private readonly List<PooledConnection> _connections;
+            private readonly IConnectionPoolListener _listener;
 
-            public ListConnectionHolder()
+            public ListConnectionHolder(IConnectionPoolListener listener)
             {
+                _listener = listener;
                 _connections = new List<PooledConnection>();
             }
 
@@ -487,6 +578,18 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
+            public void Clear()
+            {
+                lock (_lock)
+                {
+                    foreach (var connection in _connections)
+                    {
+                        RemoveConnection(connection);
+                    }
+                    _connections.Clear();
+                }
+            }
+
             public void Prune()
             {
                 lock (_lock)
@@ -495,8 +598,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     {
                         if (_connections[i].IsExpired)
                         {
-                            _connections[i].Dispose();
+                            RemoveConnection(_connections[i]);
                             _connections.RemoveAt(i);
+                            break;
                         }
                     }
                 }
@@ -509,9 +613,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     if (_connections.Count > 0)
                     {
                         var connection = _connections[_connections.Count - 1];
-                        if (!connection.IsExpired)
+                        _connections.RemoveAt(_connections.Count - 1);
+                        if (connection.IsExpired)
                         {
-                            _connections.RemoveAt(_connections.Count - 1);
+                            RemoveConnection(connection);
+                        }
+                        else
+                        {
                             return connection;
                         }
                     }
@@ -523,7 +631,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 if (connection.IsExpired)
                 {
-                    connection.Dispose();
+                    RemoveConnection(connection);
                     return;
                 }
 
@@ -533,6 +641,20 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
+            private void RemoveConnection(PooledConnection connection)
+            {
+                if (_listener != null)
+                {
+                    _listener.ConnectionPoolBeforeRemovingAConnection(connection.ConnectionId);
+                }
+                var stopwatch = Stopwatch.StartNew();
+                connection.Dispose();
+                stopwatch.Stop();
+                if (_listener != null)
+                {
+                    _listener.ConnectionPoolAfterRemovingAConnection(connection.ConnectionId, stopwatch.Elapsed);
+                }
+            }
         }
     }
 }

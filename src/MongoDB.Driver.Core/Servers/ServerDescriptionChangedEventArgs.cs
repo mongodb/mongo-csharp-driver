@@ -17,7 +17,7 @@ using System;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.Events
+namespace MongoDB.Driver.Core.Servers
 {
     public class ServerDescriptionChangedEventArgs : EventArgs
     {

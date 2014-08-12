@@ -13,13 +13,28 @@
 * limitations under the License.
 */
 
+using System;
+using System.Net;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Servers;
 namespace MongoDB.Driver.Core.Events
 {
-    public interface IClusterListener
+    public interface IClusterListener : IListener
     {
         // methods
-        void ClusterDescriptionChanged(ClusterDescriptionChangedEventArgs args);
-        void ServerAdded(ServerAddedEventArgs args);
-        void ServerRemoved(ServerRemovedEventArgs args);
+        void ClusterBeforeClosing(ClusterId clusterId);
+        void ClusterAfterClosing(ClusterId clusterId, TimeSpan elapsed);
+
+        void ClusterBeforeOpening(ClusterId clusterId, ClusterSettings settings);
+        void ClusterAfterOpening(ClusterId clusterId, ClusterSettings settings, TimeSpan elapsed);
+
+        void ClusterBeforeAddingServer(ClusterId clusterId, EndPoint endPoint);
+        void ClusterAfterAddingServer(ServerId serverId, TimeSpan elapsed);
+        
+        void ClusterBeforeRemovingServer(ServerId serverId, string reason);
+        void ClusterAfterRemovingServer(ServerId serverId, string reason, TimeSpan elapsed);
+
+        void ClusterDescriptionChanged(ClusterDescription oldClusterDescription, ClusterDescription newClusterDescription);
     }
 }

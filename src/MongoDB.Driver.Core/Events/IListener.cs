@@ -13,16 +13,9 @@
 * limitations under the License.
 */
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace MongoDB.Driver.Core.Events
 {
-    public interface IMessageListener
+    public interface IListener
     {
-        void ReceivedMessage(ReceivedMessageEventArgs args);
-        void SendingMessage(SendingMessageEventArgs args);
-        void SentMessage(SentMessageEventArgs args);
     }
 }

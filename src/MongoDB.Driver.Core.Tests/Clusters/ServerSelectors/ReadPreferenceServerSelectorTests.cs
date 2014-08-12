@@ -43,8 +43,7 @@ namespace MongoDB.Driver.Core.Tests.Clusters.ServerSelectors
             _description = new ClusterDescription(
                 clusterId,
                 ClusterType.ReplicaSet,
-                new[] { _primary, _secondary1, _secondary2 },
-                null);
+                new[] { _primary, _secondary1, _secondary2 });
         }
 
         [Test]

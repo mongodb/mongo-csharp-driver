@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Connections
     public interface IConnection : IDisposable
     {
         // properties
+        ConnectionId ConnectionId { get;}
         ConnectionDescription Description { get; }
         EndPoint EndPoint { get; }
         bool IsExpired { get; }

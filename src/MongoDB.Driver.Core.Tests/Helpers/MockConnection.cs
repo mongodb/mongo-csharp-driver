@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -28,12 +29,13 @@ namespace MongoDB.Driver.Core.Tests.Helpers
     public class MockConnection : IConnection
     {
         // fields
+        private ConnectionId _connectionId;
         private readonly Queue<MongoDBMessage> _replyMessages;
         private readonly List<RequestMessage> _sentMessages;
 
         // constructors
         public MockConnection()
-            : this(null)
+            : this(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017)))
         {
         }
 
@@ -42,20 +44,23 @@ namespace MongoDB.Driver.Core.Tests.Helpers
             _replyMessages = new Queue<MongoDBMessage>();
             _sentMessages = new List<RequestMessage>();
             Settings = new ConnectionSettings();
-            ServerId = serverId;
+            _connectionId = new ConnectionId(serverId);
         }
 
         // properties
+        public ConnectionId ConnectionId
+        {
+            get { return _connectionId; }
+        }
+
         public ConnectionDescription Description { get; set; }
 
         public EndPoint EndPoint
         {
-            get { return ServerId.EndPoint; }
+            get { return _connectionId.ServerId.EndPoint; }
         }
 
         public bool IsExpired { get; set; }
-
-        public ServerId ServerId { get; set; }
 
         public ConnectionSettings Settings { get; set; }
 

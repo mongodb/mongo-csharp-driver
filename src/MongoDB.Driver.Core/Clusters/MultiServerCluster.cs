@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -60,6 +61,11 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (disposing)
                 {
+                    if(Listener != null)
+                    {
+                        Listener.ClusterBeforeClosing(ClusterId);
+                    }
+                    var stopwatch = Stopwatch.StartNew();
                     _monitorServersCancellationTokenSource.Cancel();
                     _monitorServersCancellationTokenSource.Dispose();
                     var clusterDescription = Description;
@@ -67,10 +73,15 @@ namespace MongoDB.Driver.Core.Clusters
                     {
                         foreach (var server in _servers.ToList())
                         {
-                            clusterDescription = RemoveServer(clusterDescription, server.EndPoint);
+                            clusterDescription = RemoveServer(clusterDescription, server.EndPoint, "The cluster is closing.");
                         }
                     }
                     UpdateClusterDescription(clusterDescription);
+                    stopwatch.Stop();
+                    if(Listener != null)
+                    {
+                        Listener.ClusterAfterClosing(ClusterId, stopwatch.Elapsed);
+                    }
                 }
             }
             base.Dispose(disposing);
@@ -81,11 +92,17 @@ namespace MongoDB.Driver.Core.Clusters
             base.Initialize();
             if (_state.TryChange(State.Initial, State.Open))
             {
+                if(Listener != null)
+                {
+                    Listener.ClusterBeforeOpening(ClusterId, Settings);
+                }
+
+                var stopwatch = Stopwatch.StartNew();
                 AsyncBackgroundTask.Start(
                     MonitorServersAsync,
                     TimeSpan.Zero,
                     _monitorServersCancellationTokenSource.Token)
-                    .LogUnobservedExceptions();
+                    .RunInBackground(ex => { }); // TODO: do we need to handle any error here?
 
                 // We lock here even though AddServer locks. Monitors
                 // are re-entrant such that this won't cause problems,
@@ -101,6 +118,8 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 UpdateClusterDescription(clusterDescription);
+                stopwatch.Stop();
+                Listener.ClusterAfterOpening(ClusterId, Settings, stopwatch.Elapsed);
             }
         }
 
@@ -183,7 +202,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (!args.NewServerDescription.Type.IsReplicaSetMember())
             {
-                return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint);
+                return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint, string.Format("Server is a {0}, not a replica set member.", args.NewServerDescription.Type));
             }
 
             if (args.NewServerDescription.Type == ServerType.ReplicaSetGhost)
@@ -198,7 +217,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             if (_replicaSetName != args.NewServerDescription.ReplicaSetConfig.Name)
             {
-                return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint);
+                return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint, string.Format("Server was a member of the '{0}' replica set, but should be '{1}'.", args.NewServerDescription.ReplicaSetConfig.Name, _replicaSetName));
             }
 
             clusterDescription = clusterDescription.WithServerDescription(args.NewServerDescription);
@@ -224,7 +243,7 @@ namespace MongoDB.Driver.Core.Clusters
                             currentPrimary.Invalidate();
                             // set it to disconnected in the cluster
                             clusterDescription = clusterDescription.WithServerDescription(
-                                new ServerDescription(currentPrimary.Description.ServerId, currentPrimary.EndPoint));
+                                new ServerDescription(currentPrimary.ServerId, currentPrimary.EndPoint));
                         }
                     }
                 }
@@ -237,7 +256,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (args.NewServerDescription.Type != ServerType.ShardRouter)
             {
-                return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint);
+                return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint, "Server is not a shard router.");
             }
 
             return clusterDescription.WithServerDescription(args.NewServerDescription);
@@ -247,7 +266,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (Settings.EndPoints.Count > 1)
             {
-                return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint);
+                return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint, "Cluster was provided with multiple endpoints, one of which is a standalone.");
             }
             if (args.NewServerDescription.Type != ServerType.Standalone)
             {
@@ -268,6 +287,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             IClusterableServer server;
+            Stopwatch stopwatch = new Stopwatch();
             lock (_serversLock)
             {
                 if (_servers.Any(n => n.EndPoint.Equals(endPoint)))
@@ -275,20 +295,24 @@ namespace MongoDB.Driver.Core.Clusters
                     return clusterDescription;
                 }
 
+                if (Listener != null)
+                {
+                    Listener.ClusterBeforeAddingServer(ClusterId, endPoint);
+                }
+
+                stopwatch.Start();
                 server = CreateServer(endPoint);
+                server.DescriptionChanged += ServerDescriptionChangedHandler;
                 _servers.Add(server);
-            }
-
-            server.DescriptionChanged += ServerDescriptionChangedHandler;
-
-            if (Listener != null)
-            {
-                var args = new ServerAddedEventArgs(server.Description);
-                Listener.ServerAdded(args);
             }
 
             clusterDescription = clusterDescription.WithServerDescription(server.Description);
             server.Initialize();
+            stopwatch.Stop();
+            if (Listener != null)
+            {
+                Listener.ClusterAfterAddingServer(server.ServerId, stopwatch.Elapsed);
+            }
             return clusterDescription;
         }
 
@@ -309,14 +333,14 @@ namespace MongoDB.Driver.Core.Clusters
                 var extraEndPoints = clusterDescription.Servers.Where(x => !requiredEndPoints.Contains(x.EndPoint)).Select(x => x.EndPoint);
                 foreach (var endPoint in extraEndPoints)
                 {
-                    clusterDescription = RemoveServer(clusterDescription, endPoint);
+                    clusterDescription = RemoveServer(clusterDescription, endPoint, "Server is not in the host list of the primary.");
                 }
             }
 
             return clusterDescription;
         }
 
-        private ClusterDescription RemoveServer(ClusterDescription clusterDescription, EndPoint endPoint)
+        private ClusterDescription RemoveServer(ClusterDescription clusterDescription, EndPoint endPoint, string reason)
         {
             IClusterableServer server;
             lock (_serversLock)
@@ -327,16 +351,20 @@ namespace MongoDB.Driver.Core.Clusters
                     return clusterDescription;
                 }
 
+                if(Listener != null)
+                {
+                    Listener.ClusterBeforeRemovingServer(server.ServerId, reason);
+                }
                 _servers.Remove(server);
             }
 
+            var stopwatch = new Stopwatch();
             server.DescriptionChanged -= ServerDescriptionChangedHandler;
             server.Dispose();
-
+            stopwatch.Stop();
             if (Listener != null)
             {
-                var args = new ServerRemovedEventArgs(endPoint);
-                Listener.ServerRemoved(args);
+                Listener.ClusterAfterRemovingServer(server.ServerId, reason, stopwatch.Elapsed);
             }
 
             return clusterDescription.WithoutServerDescription(endPoint);

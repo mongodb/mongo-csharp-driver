@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -28,6 +29,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
+using System.Diagnostics;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -41,24 +43,23 @@ namespace MongoDB.Driver.Core.Connections
         private ConnectionId _connectionId;
         private readonly IConnectionInitializer _connectionInitializer;
         private EndPoint _endPoint;
-        private readonly AsyncDropbox<int, InboundDropboxEntry> _inboundDropbox = new AsyncDropbox<int, InboundDropboxEntry>();
+        private readonly AsyncDropbox<int, IByteBuffer> _inboundDropbox;
         private ConnectionDescription _description;
         private DateTime _lastUsedAtUtc;
-        private readonly IMessageListener _listener;
+        private readonly IConnectionListener _listener;
         private DateTime _openedAtUtc;
         private readonly object _openLock = new object();
         private Task _openTask;
-        private readonly AsyncQueue<OutboundQueueEntry> _outboundQueue = new AsyncQueue<OutboundQueueEntry>();
-        private readonly ServerId _serverId;
+        private readonly AsyncQueue<OutboundQueueEntry> _outboundQueue;
         private readonly ConnectionSettings _settings;
         private readonly InterlockedInt32 _state;
         private Stream _stream;
         private readonly IStreamFactory _streamFactory;
 
         // constructors
-        public BinaryConnection(ServerId serverId, EndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionInitializer connectionInitializer, IMessageListener listener)
+        public BinaryConnection(ServerId serverId, EndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionInitializer connectionInitializer, IConnectionListener listener)
         {
-            _serverId = Ensure.IsNotNull(serverId, "serverId");
+            Ensure.IsNotNull(serverId, "serverId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _settings = Ensure.IsNotNull(settings, "settings");
             _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");
@@ -67,11 +68,18 @@ namespace MongoDB.Driver.Core.Connections
 
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
 
-            _connectionId = new ConnectionId(_serverId);
+            _connectionId = new ConnectionId(serverId);
+            _inboundDropbox = new AsyncDropbox<int, IByteBuffer>();
+            _outboundQueue = new AsyncQueue<OutboundQueueEntry>();
             _state = new InterlockedInt32(State.Initial);
         }
 
         // properties
+        public ConnectionId ConnectionId
+        {
+            get { return _connectionId; }
+        }
+
         public ConnectionDescription Description
         {
             get { return _description; }
@@ -100,7 +108,7 @@ namespace MongoDB.Driver.Core.Connections
                     return true;
                 }
 
-                return _state.Value == State.Disposed;
+                return _state.Value > State.Open;
             }
         }
 
@@ -123,6 +131,11 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     awaiter.TrySetException(exception);
                 }
+
+                if (_listener != null)
+                {
+                    _listener.ConnectionFailed(_connectionId, exception);
+                }
             }
         }
 
@@ -138,20 +151,25 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (disposing)
                 {
+                    if (_listener != null)
+                    {
+                        _listener.ConnectionBeforeClosing(_connectionId);
+                    }
                     _backgroundTaskCancellationTokenSource.Cancel();
                     _backgroundTaskCancellationTokenSource.Dispose();
-                }
-            }
-        }
-
-        private void OnSentMessages(List<RequestMessage> messages, Exception ex)
-        {
-            if (_listener != null)
-            {
-                foreach (var message in messages)
-                {
-                    var args = new SentMessageEventArgs(_endPoint, _connectionId, message, ex);
-                    _listener.SentMessage(args);
+                    try
+                    {
+                        _stream.Close();
+                        _stream.Dispose();
+                    }
+                    catch
+                    {
+                        // eat this...
+                    }
+                    if (_listener != null)
+                    {
+                        _listener.ConnectionAfterClosing(_connectionId);
+                    }
                 }
             }
         }
@@ -175,13 +193,38 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task OpenAsyncHelper(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
-            _stream = await _streamFactory.CreateStreamAsync(_endPoint, slidingTimeout, cancellationToken);
-            _state.TryChange(State.Initializing);
-            StartBackgroundTasks();
-            _description = await _connectionInitializer.InitializeConnectionAsync(this, _serverId, slidingTimeout, cancellationToken);
-            _connectionId = _description.ConnectionId;
-            _state.TryChange(State.Open);
+            if (_listener != null)
+            {
+                _listener.ConnectionBeforeOpening(_connectionId, _settings);
+            }
+            try
+            {
+                var slidingTimeout = new SlidingTimeout(timeout);
+                var stopwatch = Stopwatch.StartNew();
+                _stream = await _streamFactory.CreateStreamAsync(_endPoint, slidingTimeout, cancellationToken);
+                _state.TryChange(State.Initializing);
+                StartBackgroundTasks();
+                _description = await _connectionInitializer.InitializeConnectionAsync(this, _connectionId, slidingTimeout, cancellationToken);
+                stopwatch.Stop();
+                _connectionId = _description.ConnectionId;
+                _state.TryChange(State.Open);
+                if (_listener != null)
+                {
+                    _listener.ConnectionAfterOpening(_connectionId, _settings, stopwatch.Elapsed);
+                }
+            }
+            catch (Exception ex)
+            {
+                _state.TryChange(State.Failed);
+
+                if (_listener != null)
+                {
+                    _listener.ConnectionErrorOpening(_connectionId, ex);
+                    _listener.ConnectionFailed(_connectionId, ex);
+                }
+
+                throw;
+            }
         }
 
         private async Task<bool> ReceiveBackgroundTask(CancellationToken cancellationToken)
@@ -198,7 +241,7 @@ namespace MongoDB.Driver.Core.Connections
                 var responseToBytes = new byte[4];
                 buffer.ReadBytes(8, responseToBytes, 0, 4);
                 var responseTo = BitConverter.ToInt32(responseToBytes, 0);
-                _inboundDropbox.Post(responseTo, new InboundDropboxEntry(buffer));
+                _inboundDropbox.Post(responseTo, buffer);
                 return true;
             }
             catch (Exception ex)
@@ -215,13 +258,17 @@ namespace MongoDB.Driver.Core.Connections
             ThrowIfDisposedOrNotOpen();
 
             var slidingTimeout = new SlidingTimeout(timeout);
-            var entry = await _inboundDropbox.ReceiveAsync(responseTo, slidingTimeout, cancellationToken);
-
-            ReplyMessage<TDocument> reply;
-            if (entry.Buffer != null)
+            try
             {
-                using (var buffer = entry.Buffer)
-                using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: false))
+                if (_listener != null)
+                {
+                    _listener.ConnectionBeforeReceivingMessage(_connectionId, responseTo);
+                }
+                var stopwatch = Stopwatch.StartNew();
+                var buffer = await _inboundDropbox.ReceiveAsync(responseTo, slidingTimeout, cancellationToken);
+                int length = buffer.Length;
+                ReplyMessage<TDocument> reply;
+                using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: true))
                 {
                     var readerSettings = BsonBinaryReaderSettings.Defaults; // TODO: where are reader settings supposed to come from?
                     var binaryReader = new BsonBinaryReader(stream, readerSettings);
@@ -229,21 +276,23 @@ namespace MongoDB.Driver.Core.Connections
                     var encoder = encoderFactory.GetReplyMessageEncoder<TDocument>(serializer);
                     reply = encoder.ReadMessage();
                 }
-            }
-            else
-            {
-                reply = (ReplyMessage<TDocument>)entry.Reply;
-            }
+                stopwatch.Stop();
+                if (_listener != null)
+                {
+                    _listener.ConnectionAfterReceivingMessage<TDocument>(_connectionId, reply, length, stopwatch.Elapsed);
+                }
 
-            ReplyMessage<TDocument> substituteReply = null;
-            if (_listener != null)
-            {
-                var args = new ReceivedMessageEventArgs(_endPoint, _connectionId, reply);
-                _listener.ReceivedMessage(args);
-                substituteReply = (ReplyMessage<TDocument>)args.SubstituteReply;
+                return reply;
             }
+            catch (Exception ex)
+            {
+                if (_listener != null)
+                {
+                    _listener.ConnectionErrorReceivingMessage(_connectionId, responseTo, ex);
+                }
 
-            return substituteReply ?? reply;
+                throw;
+            }
         }
 
         private async Task<bool> SendBackgroundTask(CancellationToken cancellationToken)
@@ -271,78 +320,58 @@ namespace MongoDB.Driver.Core.Connections
             ThrowIfDisposedOrNotOpen();
 
             var slidingTimeout = new SlidingTimeout(timeout);
-            var sentMessages = new List<RequestMessage>();
-            var substituteReplies = new Dictionary<int, ReplyMessage>();
+            var messagesToSend = messages.ToList();
 
-            Exception exception = null;
-            using (var buffer = new MultiChunkBuffer(BsonChunkPool.Default))
+            try
             {
-                using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: false))
+                if (_listener != null)
                 {
-                    var writerSettings = BsonBinaryWriterSettings.Defaults;
-                    var binaryWriter = new BsonBinaryWriter(stream, writerSettings);
-                    var encoderFactory = new BinaryMessageEncoderFactory(binaryWriter);
-                    foreach (var message in messages)
-                    {
-                        RequestMessage substituteMessage = null;
-                        ReplyMessage substituteReply = null;
-                        if (_listener != null)
-                        {
-                            var args = new SendingMessageEventArgs(_endPoint, _connectionId, message);
-                            _listener.SendingMessage(args);
-                            substituteMessage = args.SubstituteMessage;
-                            substituteReply = args.SubstituteReply;
-                        }
-
-                        var actualMessage = substituteMessage ?? message;
-                        sentMessages.Add(actualMessage);
-
-                        if (substituteReply == null)
-                        {
-                            var encoder = actualMessage.GetEncoder(encoderFactory);
-                            encoder.WriteMessage(actualMessage);
-                        }
-                        else
-                        {
-                            substituteReplies.Add(message.RequestId, substituteReply);
-                        }
-                    }
-                    buffer.Length = (int)stream.Length;
+                    _listener.ConnectionBeforeSendingMessages(_connectionId, messagesToSend);
                 }
 
-                if (buffer.Length > 0)
+                using (var buffer = new MultiChunkBuffer(BsonChunkPool.Default))
                 {
-                    try
+                    using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: false))
                     {
-                        var entry = new OutboundQueueEntry(buffer, cancellationToken);
-                        _outboundQueue.Enqueue(entry);
-                        await entry.Task;
+                        var writerSettings = BsonBinaryWriterSettings.Defaults;
+                        var binaryWriter = new BsonBinaryWriter(stream, writerSettings);
+                        var encoderFactory = new BinaryMessageEncoderFactory(binaryWriter);
+                        foreach (var message in messagesToSend)
+                        {
+                            var encoder = message.GetEncoder(encoderFactory);
+                            encoder.WriteMessage(message);
+                        }
+                        buffer.Length = (int)stream.Length;
                     }
-                    catch (Exception ex)
+
+                    var entry = new OutboundQueueEntry(buffer, cancellationToken);
+                    _outboundQueue.Enqueue(entry);
+                    var stopwatch = Stopwatch.StartNew();
+                    await entry.Task;
+                    stopwatch.Stop();
+                    if (_listener != null)
                     {
-                        exception = ex;
+                        _listener.ConnectionAfterSendingMessages(_connectionId, messagesToSend, buffer.Length, stopwatch.Elapsed);
                     }
                 }
             }
-
-            OnSentMessages(sentMessages, exception);
-            if (exception != null)
+            catch (Exception ex)
             {
-                throw exception;
-            }
+                if (_listener != null)
+                {
+                    _listener.ConnectionErrorSendingMessages(_connectionId, messagesToSend, ex);
+                }
 
-            foreach (var requestId in substituteReplies.Keys)
-            {
-                _inboundDropbox.Post(requestId, new InboundDropboxEntry(substituteReplies[requestId]));
+                throw;
             }
         }
 
         private void StartBackgroundTasks()
         {
             AsyncBackgroundTask.Start(SendBackgroundTask, TimeSpan.FromMilliseconds(0), _backgroundTaskCancellationTokenSource.Token)
-                .LogUnobservedExceptions();
+                .RunInBackground(ConnectionFailed);
             AsyncBackgroundTask.Start(ReceiveBackgroundTask, TimeSpan.FromMilliseconds(0), _backgroundTaskCancellationTokenSource.Token)
-                .LogUnobservedExceptions();
+                .RunInBackground(ConnectionFailed);
         }
 
         private void ThrowIfDisposed()
@@ -375,35 +404,6 @@ namespace MongoDB.Driver.Core.Connections
             public static int Open = 3;
             public static int Failed = 4;
             public static int Disposed = 5;
-        }
-
-        private class InboundDropboxEntry
-        {
-            // fields
-            private readonly IByteBuffer _buffer;
-            private readonly ReplyMessage _reply;
-
-            // constructors
-            public InboundDropboxEntry(IByteBuffer buffer)
-            {
-                _buffer = buffer;
-            }
-
-            public InboundDropboxEntry(ReplyMessage reply)
-            {
-                _reply = reply;
-            }
-
-            // properties
-            public IByteBuffer Buffer
-            {
-                get { return _buffer; }
-            }
-
-            public ReplyMessage Reply
-            {
-                get { return _reply; }
-            }
         }
 
         private class OutboundQueueEntry

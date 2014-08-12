@@ -33,20 +33,25 @@ namespace MongoDB.Driver.Core.Connections
     {
         // fields
         private readonly ServerId _serverId;
-        private readonly ConnectionIdSource _source;
-        private readonly int _value;
+        private readonly int _localValue;
+        private readonly int? _serverValue;
 
         // constructors
         public ConnectionId(ServerId serverId)
-            : this(serverId, IdGenerator<ConnectionId>.GetNextId(), ConnectionIdSource.Driver)
+            : this(serverId, IdGenerator<ConnectionId>.GetNextId())
         {
         }
 
-        public ConnectionId(ServerId serverId, int value, ConnectionIdSource source)
+        public ConnectionId(ServerId serverId, int localValue)
         {
             _serverId = Ensure.IsNotNull(serverId, "serverId");
-            _value = Ensure.IsGreaterThanOrEqualToZero(value, "value");
-            _source = source;
+            _localValue = Ensure.IsGreaterThanOrEqualToZero(localValue, "localValue");
+        }
+
+        private ConnectionId(ServerId serverId, int localValue, int serverValue)
+            : this(serverId, localValue)
+        {
+            _serverValue = Ensure.IsGreaterThanOrEqualToZero(serverValue, "serverValue");
         }
 
         // properties
@@ -55,14 +60,14 @@ namespace MongoDB.Driver.Core.Connections
             get { return _serverId; }
         }
 
-        public ConnectionIdSource Source
+        public int LocalValue
         {
-            get { return _source; }
+            get { return _localValue; }
         }
 
-        public int Value
+        public int? ServerValue
         {
-            get { return _value; }
+            get { return _serverValue; }
         }
 
         // methods
@@ -75,8 +80,7 @@ namespace MongoDB.Driver.Core.Connections
 
             return
                 _serverId.Equals(other._serverId) &&
-                _source == other._source &&
-                _value == other._value;
+                _localValue == other._localValue;
         }
 
         public override bool Equals(object obj)
@@ -88,21 +92,25 @@ namespace MongoDB.Driver.Core.Connections
         {
             return new Hasher()
                 .Hash(_serverId)
-                .Hash(_source)
-                .Hash(_value)
+                .Hash(_localValue)
                 .GetHashCode();
         }
 
         public override string ToString()
         {
-            if (_source == ConnectionIdSource.Server)
+            if (_serverValue == null)
             {
-                return string.Format("{{ ServerId : {0}, Value : {1} }}", _serverId, _value);
+                return string.Format("{{ ServerId : {0}, LocalValue : {1} }}", _serverId, _localValue);
             }
             else
             {
-                return string.Format("{{ ServerId : {0}, Value : {1}, Source : \"{2}\" }}", _serverId, _value, _source);
+                return string.Format("{{ ServerId : {0}, LocalValue : {1}, ServerValue : \"{2}\" }}", _serverId, _localValue, _serverValue);
             }
+        }
+
+        public ConnectionId WithServerValue(int serverValue)
+        {
+            return new ConnectionId(_serverId, _localValue, serverValue);
         }
     }
 }

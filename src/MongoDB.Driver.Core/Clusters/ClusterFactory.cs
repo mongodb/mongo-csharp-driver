@@ -61,11 +61,8 @@ namespace MongoDB.Driver.Core.Clusters
                 case ClusterConnectionMode.Direct:
                 case ClusterConnectionMode.Standalone:
                     return CreateSingleServerCluster();
-                case ClusterConnectionMode.ReplicaSet:
-                case ClusterConnectionMode.Sharded:
-                    return CreateMultiServerCluster();
                 default:
-                    throw new NotSupportedException();
+                    return CreateMultiServerCluster();
             }
         }
 

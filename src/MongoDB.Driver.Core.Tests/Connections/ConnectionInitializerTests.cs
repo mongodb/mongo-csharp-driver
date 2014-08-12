@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
     public class ConnectionInitializerTests
     {
         private static readonly ServerId __serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
-
+        private static readonly ConnectionId __connectionId = new ConnectionId(__serverId);
         private ConnectionInitializer _subject;
 
         [SetUp]
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         [Test]
         public void InitializeConnectionAsync_should_throw_an_ArgumentNullException_if_the_connection_is_null()
         {
-            Action act = () => _subject.InitializeConnectionAsync(null, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.InitializeConnectionAsync(null, __connectionId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -81,11 +81,10 @@ namespace MongoDB.Driver.Core.Tests.Connections
             connection.EnqueueReplyMessage(buildInfoReply);
             connection.EnqueueReplyMessage(gleReply);
 
-            var result = _subject.InitializeConnectionAsync(connection, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var result = _subject.InitializeConnectionAsync(connection, __connectionId, Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
 
             result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
-            result.ConnectionId.Source.Should().Be(ConnectionIdSource.Server);
-            result.ConnectionId.Value.Should().Be(10);
+            result.ConnectionId.ServerValue.Should().Be(10);
         }
 
         [Test]
@@ -106,7 +105,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
             connection.Settings = new ConnectionSettings()
                 .WithAuthenticators(new[] { authenticator });
 
-            _subject.InitializeConnectionAsync(connection, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            _subject.InitializeConnectionAsync(connection, __connectionId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             authenticator.ReceivedWithAnyArgs().AuthenticateAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
         }
@@ -129,7 +128,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
             connection.Settings = new ConnectionSettings()
                 .WithAuthenticators(new[] { authenticator });
 
-            _subject.InitializeConnectionAsync(connection, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            _subject.InitializeConnectionAsync(connection, __connectionId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             authenticator.DidNotReceiveWithAnyArgs().AuthenticateAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
         }

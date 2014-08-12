@@ -28,10 +28,10 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
-        public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, ConnectionId connectionId, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
-            Ensure.IsNotNull(serverId, "serverId");
+            Ensure.IsNotNull(connectionId, "connectionId");
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
 
             var slidingTimeout = new SlidingTimeout(timeout);
@@ -58,14 +58,9 @@ namespace MongoDB.Driver.Core.Connections
             var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
 
             BsonValue connectionIdBsonValue;
-            ConnectionId connectionId;
             if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))
             {
-                connectionId = new ConnectionId(serverId, connectionIdBsonValue.ToInt32(), ConnectionIdSource.Server);
-            }
-            else
-            {
-                connectionId = new ConnectionId(serverId);
+                connectionId = connectionId.WithServerValue(connectionIdBsonValue.ToInt32());
             }
 
             return new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);

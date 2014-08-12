@@ -35,14 +35,12 @@ namespace MongoDB.Driver.Core.Clusters
             return new ClusterDescription(
                 clusterId,
                 clusterType,
-                Enumerable.Empty<ServerDescription>(),
-                null);
+                Enumerable.Empty<ServerDescription>());
         }
         #endregion
 
         // fields
         private readonly ClusterId _clusterId;
-        private readonly ReplicaSetConfig _replicaSetConfig;
         private readonly IReadOnlyList<ServerDescription> _servers;
         private readonly ClusterType _type;
 
@@ -50,24 +48,17 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterDescription(
             ClusterId clusterId,
             ClusterType type,
-            IEnumerable<ServerDescription> servers,
-            ReplicaSetConfig replicaSetConfig)
+            IEnumerable<ServerDescription> servers)
         {
             _clusterId = Ensure.IsNotNull(clusterId, "clusterId");
             _type = type;
             _servers = (servers ?? new ServerDescription[0]).OrderBy(n => n.EndPoint, new ToStringComparer<EndPoint>()).ToList();
-            _replicaSetConfig = replicaSetConfig; // can be null
         }
 
         // properties
         public ClusterId ClusterId
         {
             get { return _clusterId; }
-        }
-
-        public ReplicaSetConfig ReplicaSetConfig
-        {
-            get { return _replicaSetConfig; }
         }
 
         public IReadOnlyList<ServerDescription> Servers
@@ -95,7 +86,6 @@ namespace MongoDB.Driver.Core.Clusters
 
             return
                 _clusterId.Equals(other._clusterId) &&
-                object.Equals(_replicaSetConfig, other.ReplicaSetConfig) &&
                 _servers.SequenceEqual(other._servers) &&
                 _type == other._type;
         }
@@ -110,7 +100,6 @@ namespace MongoDB.Driver.Core.Clusters
             // ignore _revision
             return new Hasher()
                 .Hash(_clusterId)
-                .Hash(_replicaSetConfig)
                 .HashElements(_servers)
                 .Hash(_type)
                 .GetHashCode();
@@ -120,12 +109,11 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var servers = string.Join(", ", _servers.Select(n => n.ToString()).ToArray());
             return string.Format(
-                "{{ ClusterId : {0}, Type : {1}, State : {2}, Servers : [{3}], ReplicaSetConfig : {4} }}",
+                "{{ ClusterId : {0}, Type : {1}, State : {2}, Servers : [{3}] }}",
                 _clusterId,
                 _type,
                 State,
-                servers,
-                _replicaSetConfig == null ? "null" : _replicaSetConfig.ToString());
+                servers);
         }
 
         public ClusterDescription WithServerDescription(ServerDescription value)
@@ -152,8 +140,7 @@ namespace MongoDB.Driver.Core.Clusters
             return new ClusterDescription(
                 _clusterId,
                 _type,
-                replacementServers,
-                _replicaSetConfig);
+                replacementServers);
         }
 
         public ClusterDescription WithoutServerDescription(EndPoint endPoint)
@@ -167,13 +154,12 @@ namespace MongoDB.Driver.Core.Clusters
             return new ClusterDescription(
                     _clusterId,
                     _type,
-                    _servers.Where(s => !s.EndPoint.Equals(endPoint)),
-                    _replicaSetConfig);
+                    _servers.Where(s => !s.EndPoint.Equals(endPoint)));
         }
 
         public ClusterDescription WithType(ClusterType value)
         {
-            return _type == value ? this : new ClusterDescription(_clusterId, value, _servers, _replicaSetConfig);
+            return _type == value ? this : new ClusterDescription(_clusterId, value, _servers);
         }
     }
 }

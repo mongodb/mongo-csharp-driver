@@ -15,6 +15,7 @@
 
 using System.Net.Sockets;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -105,6 +106,18 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             return configuration;
+        }
+
+        public static ClusterBuilder UsePerformanceCounters(this ClusterBuilder configuration, string applicationName, bool install = false)
+        {
+            Ensure.IsNotNull(configuration, "configuration");
+
+            if (install)
+            {
+                PerformanceCounterListener.Install();
+            }
+
+            return configuration.AddListener(new PerformanceCounterListener(applicationName));
         }
     }
 }

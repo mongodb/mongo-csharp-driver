@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Clusters
         public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
-        protected ClusterId ClusterId
+        public ClusterId ClusterId
         {
             get { return _clusterId; }
         }
@@ -108,8 +108,7 @@ namespace MongoDB.Driver.Core.Clusters
                 var newClusterDescription = new ClusterDescription(
                     _clusterId,
                     ClusterType.Unknown,
-                    Enumerable.Empty<ServerDescription>(),
-                    null);
+                    Enumerable.Empty<ServerDescription>());
 
                 UpdateClusterDescription(newClusterDescription);
             }
@@ -125,21 +124,15 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
         {
-            ClusterDescriptionChangedEventArgs args = null;
-
             if (_listener != null)
             {
-                args = new ClusterDescriptionChangedEventArgs(oldDescription, newDescription);
-                _listener.ClusterDescriptionChanged(args);
+                _listener.ClusterDescriptionChanged(oldDescription, newDescription);
             }
 
             var handler = DescriptionChanged;
             if (handler != null)
             {
-                if (args == null)
-                {
-                    args = new ClusterDescriptionChangedEventArgs(oldDescription, newDescription);
-                }
+                var args = new ClusterDescriptionChangedEventArgs(oldDescription, newDescription);
                 handler(this, args);
             }
         }

@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Connections
         #endregion
 
         // fields
-        private readonly IMessageListener _listener;
+        private readonly IConnectionListener _listener;
         private readonly ConnectionSettings _settings;
         private readonly IStreamFactory _streamFactory;
 
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Connections
         {
         }
 
-        public BinaryConnectionFactory(ConnectionSettings settings, IStreamFactory streamFactory, IMessageListener listener)
+        public BinaryConnectionFactory(ConnectionSettings settings, IStreamFactory streamFactory, IConnectionListener listener)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");

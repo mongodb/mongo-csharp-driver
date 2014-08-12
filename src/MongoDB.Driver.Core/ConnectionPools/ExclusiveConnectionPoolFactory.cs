@@ -16,6 +16,7 @@
 using System.Net;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -25,17 +26,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
     {
         // fields
         private readonly IConnectionFactory _connectionFactory;
+        private readonly IConnectionPoolListener _listener;
         private readonly ConnectionPoolSettings _settings;
 
         public ExclusiveConnectionPoolFactory()
-            : this(new ConnectionPoolSettings(), new BinaryConnectionFactory())
+            : this(new ConnectionPoolSettings(), new BinaryConnectionFactory(), null)
         {
         }
 
-        public ExclusiveConnectionPoolFactory(ConnectionPoolSettings settings, IConnectionFactory connectionFactory)
+        public ExclusiveConnectionPoolFactory(ConnectionPoolSettings settings, IConnectionFactory connectionFactory, IConnectionPoolListener listener)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _connectionFactory = Ensure.IsNotNull(connectionFactory, "connectionFactory");
+            _listener = listener;
         }
 
         public IConnectionPool CreateConnectionPool(ServerId serverId, EndPoint endPoint)
@@ -43,7 +46,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             Ensure.IsNotNull(serverId, "serverId");
             Ensure.IsNotNull(endPoint, "endPoint");
 
-            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory);
+            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, _listener);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         public void Constructor_should_throw_an_ArgumentNullException_when_connectionSettings_is_null()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
-            var listener = Substitute.For<IMessageListener>();
+            var listener = Substitute.For<IConnectionListener>();
 
             Action act = () => new BinaryConnectionFactory(
                 null,
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         [Test]
         public void Constructor_should_throw_an_ArgumentNullException_when_streamFactory_is_null()
         {
-            var listener = Substitute.For<IMessageListener>();
+            var listener = Substitute.For<IConnectionListener>();
             
             Action act = () => new BinaryConnectionFactory(
                 new ConnectionSettings(),
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         public void CreateConnection_should_throw_an_ArgumentNullException_when_serverId_is_null()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
-            var listener = Substitute.For<IMessageListener>();
+            var listener = Substitute.For<IConnectionListener>();
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         public void CreateConnection_should_throw_an_ArgumentNullException_when_endPoint_is_null()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
-            var listener = Substitute.For<IMessageListener>();
+            var listener = Substitute.For<IConnectionListener>();
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         public void CreateConnection_should_return_a_BinaryConnection()
         {
             var streamFactory = Substitute.For<IStreamFactory>();
-            var listener = Substitute.For<IMessageListener>();
+            var listener = Substitute.For<IConnectionListener>();
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,

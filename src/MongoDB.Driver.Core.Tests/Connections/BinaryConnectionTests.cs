@@ -44,12 +44,14 @@ namespace MongoDB.Driver.Core.Tests.Connections
     {
         private IConnectionInitializer _connectionInitializer;
         private DnsEndPoint _endPoint;
+        private IConnectionListener _listener;
         private IStreamFactory _streamFactory;
         private BinaryConnection _subject;
 
         [SetUp]
         public void Setup()
         {
+            _listener = Substitute.For<IConnectionListener>();
             _streamFactory = Substitute.For<IStreamFactory>();
 
             _endPoint = new DnsEndPoint("localhost", 27017);
@@ -68,7 +70,16 @@ namespace MongoDB.Driver.Core.Tests.Connections
                 settings: new ConnectionSettings(),
                 streamFactory: _streamFactory,
                 connectionInitializer: _connectionInitializer,
-                listener: new NoOpMessageListener());
+                listener: _listener);
+        }
+
+        [Test]
+        public void Dispose_should_raise_the_correct_events()
+        {
+            _subject.Dispose();
+
+            _listener.ReceivedWithAnyArgs().ConnectionBeforeClosing(null);
+            _listener.ReceivedWithAnyArgs().ConnectionAfterClosing(null);
         }
 
         [Test]
@@ -92,11 +103,37 @@ namespace MongoDB.Driver.Core.Tests.Connections
         }
 
         [Test]
+        public void OpenAsync_should_raise_the_correct_events_upon_failure()
+        {
+            var result = new TaskCompletionSource<ConnectionDescription>();
+            result.SetException(new SocketException());
+            _connectionInitializer.InitializeConnectionAsync(null, null, default(TimeSpan), default(CancellationToken))
+                .ReturnsForAnyArgs(result.Task);
+
+            Action act = () => _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+
+            act.ShouldThrow<SocketException>();
+
+            _listener.ReceivedWithAnyArgs().ConnectionBeforeOpening(null, null);
+            _listener.ReceivedWithAnyArgs().ConnectionErrorOpening(null, null);
+            _listener.ReceivedWithAnyArgs().ConnectionFailed(null, null);
+        }
+
+        [Test]
         public void OpenAsync_should_setup_the_description()
         {
             _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             _subject.Description.Should().NotBeNull();
+        }
+
+        [Test]
+        public void OpenAsync_should_raise_the_correct_events_on_success()
+        {
+            _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+
+            _listener.ReceivedWithAnyArgs().ConnectionBeforeOpening(null, null);
+            _listener.ReceivedWithAnyArgs().ConnectionAfterOpening(null, null, default(TimeSpan));
         }
 
         [Test]
@@ -180,6 +217,9 @@ namespace MongoDB.Driver.Core.Tests.Connections
                 var actual = MessageHelper.TranslateMessagesToBsonDocuments(new[] { received });
 
                 actual.Should().BeEquivalentTo(expected);
+
+                _listener.ReceivedWithAnyArgs().ConnectionBeforeReceivingMessage(null, default(int));
+                _listener.ReceivedWithAnyArgs().ConnectionAfterReceivingMessage<BsonDocument>(null, null, default(int), default(TimeSpan));
             }
         }
 
@@ -264,6 +304,9 @@ namespace MongoDB.Driver.Core.Tests.Connections
 
                 Action act2 = () => task2.GetAwaiter().GetResult();
                 act2.ShouldThrow<SocketException>();
+
+                _listener.ReceivedWithAnyArgs(2).ConnectionBeforeReceivingMessage(null, default(int));
+                _listener.ReceivedWithAnyArgs(2).ConnectionErrorReceivingMessage(null, default(int), null);
             }
         }
 
@@ -296,6 +339,9 @@ namespace MongoDB.Driver.Core.Tests.Connections
 
                 Action act2 = () => task2.GetAwaiter().GetResult();
                 act2.ShouldThrow<ConnectionFailedException>();
+
+                _listener.ReceivedWithAnyArgs().ConnectionBeforeReceivingMessage(null, default(int));
+                _listener.ReceivedWithAnyArgs().ConnectionErrorReceivingMessage(null, default(int), null);
             }
         }
 
@@ -339,7 +385,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         }
 
         [Test]
-        public void SendMessagesAsync_should_put_the_messages_on_the_stream()
+        public void SendMessagesAsync_should_put_the_messages_on_the_stream_and_raise_the_correct_events()
         {
             using (var stream = new MemoryStream())
             {
@@ -356,6 +402,8 @@ namespace MongoDB.Driver.Core.Tests.Connections
                 var sentRequests = MessageHelper.TranslateMessagesToBsonDocuments(stream.ToArray());
 
                 sentRequests.Should().BeEquivalentTo(expectedRequests);
+                _listener.ReceivedWithAnyArgs().ConnectionBeforeSendingMessages(null, null);
+                _listener.ReceivedWithAnyArgs().ConnectionAfterSendingMessages(null, null, default(int), default(TimeSpan));
             }
         }
 
@@ -390,6 +438,10 @@ namespace MongoDB.Driver.Core.Tests.Connections
 
                 Action act2 = () => task2.GetAwaiter().GetResult();
                 act2.ShouldThrow<MessageNotSentException>();
+
+                _listener.ReceivedWithAnyArgs().ConnectionBeforeSendingMessages(null, null);
+                _listener.ReceivedWithAnyArgs().ConnectionErrorSendingMessages(null, null, null);
+                _listener.ReceivedWithAnyArgs().ConnectionFailed(null, null);
             }
         }
     }

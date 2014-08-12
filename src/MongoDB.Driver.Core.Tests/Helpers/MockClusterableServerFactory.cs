@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Tests.Helpers
                 _servers[endPoint] = result = Substitute.For<IClusterableServer>();
                 result.Description.Returns(description);
                 result.EndPoint.Returns(endPoint);
+                result.ServerId.Returns(new ServerId(clusterId, endPoint));
             }
 
             return result;

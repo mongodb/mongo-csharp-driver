@@ -64,7 +64,6 @@ namespace MongoDB.Driver.Core.Async
                 delayTask = ct => Task.Delay(delay, ct);
             }
             
-
             return Start(action, delayTask, cancellationToken);
         }
     }

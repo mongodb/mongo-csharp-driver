@@ -87,11 +87,21 @@ namespace MongoDB.Driver.Core.Servers
             get { return _endPoint; }
         }
 
+        public ServerId ServerId
+        {
+            get { return _serverId; }
+        }
+
         // methods
         public void Initialize()
         {
             if (_state.TryChange(State.Initial, State.Open))
             {
+                if(_listener != null)
+                {
+                    _listener.ServerBeforeOpening(_serverId, _settings);
+                }
+                var stopwatch = Stopwatch.StartNew();
                 _connectionPool.Initialize();
                 var metronome = new Metronome(_settings.HeartbeatInterval);
                 AsyncBackgroundTask.Start(
@@ -103,14 +113,24 @@ namespace MongoDB.Driver.Core.Servers
                         return newDelay.Task;
                     },
                     _heartbeatCancellationTokenSource.Token)
-                    .LogUnobservedExceptions();
+                    .RunInBackground(ex => { }); // TODO: do we need to do anything here?
+
+                stopwatch.Stop();
+                if(_listener != null)
+                {
+                    _listener.ServerAfterOpening(_serverId, _settings, stopwatch.Elapsed);
+                }
             }
         }
 
         public void Invalidate()
         {
             ThrowIfNotOpen();
-            Interlocked.CompareExchange(ref _heartbeatDelay, null, null).Interrupt();
+            var delay = Interlocked.CompareExchange(ref _heartbeatDelay, null, null);
+            if(delay != null)
+            {
+                delay.Interrupt();
+            }
         }
 
         public void Dispose()
@@ -125,9 +145,21 @@ namespace MongoDB.Driver.Core.Servers
             {
                 if (disposing)
                 {
+                    if(_listener != null)
+                    {
+                        _listener.ServerBeforeClosing(_serverId);
+                    }
                     _heartbeatCancellationTokenSource.Cancel();
                     _heartbeatCancellationTokenSource.Dispose();
                     _connectionPool.Dispose();
+                    if(_heartbeatConnection != null)
+                    {
+                        _heartbeatConnection.Dispose();
+                    }
+                    if (_listener != null)
+                    {
+                        _listener.ServerAfterClosing(_serverId);
+                    }
                 }
             }
         }
@@ -211,8 +243,7 @@ namespace MongoDB.Driver.Core.Servers
             cancellationToken.ThrowIfCancellationRequested();
             if (_listener != null)
             {
-                var args = new SendingHeartbeatEventArgs(_endPoint);
-                _listener.SendingHeartbeat(args);
+                _listener.ServerBeforeHeartbeating(connection.ConnectionId);
             }
 
             try
@@ -239,8 +270,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 if (_listener != null)
                 {
-                    var args = new SentHeartbeatEventArgs(_endPoint, isMasterResult, buildInfoResult);
-                    _listener.SentHeartbeat(args);
+                    _listener.ServerAfterHeartbeating(connection.ConnectionId, stopwatch.Elapsed);
                 }
 
                 return new HeartbeatInfo
@@ -250,12 +280,11 @@ namespace MongoDB.Driver.Core.Servers
                     BuildInfoResult = buildInfoResult
                 };
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
                 if (_listener != null)
                 {
-                    var args = new SentHeartbeatEventArgs(_endPoint, exception);
-                    _listener.SentHeartbeat(args);
+                    _listener.ServerErrorHeartbeating(connection.ConnectionId, ex);
                 }
                 throw;
             }
@@ -274,7 +303,7 @@ namespace MongoDB.Driver.Core.Servers
 
             if (_listener != null)
             {
-                _listener.ServerDescriptionChanged(args);
+                _listener.ServerAfterDescriptionChanged(oldDescription, newDescription);
             }
 
             var handler = DescriptionChanged;

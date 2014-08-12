@@ -13,21 +13,13 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.Events
+
+namespace MongoDB.Driver.Core.Events.Diagnostics
 {
-    public class NoOpServerListener : IServerListener
+    public enum LogLevel
     {
-        // methods
-        public void SendingHeartbeat(SendingHeartbeatEventArgs args)
-        {
-        }
-
-        public void SentHeartbeat(SentHeartbeatEventArgs args)
-        {
-        }
-
-        public void ServerDescriptionChanged(ServerDescriptionChangedEventArgs args)
-        {
-        }
+        Debug,
+        Info,
+        Error
     }
 }

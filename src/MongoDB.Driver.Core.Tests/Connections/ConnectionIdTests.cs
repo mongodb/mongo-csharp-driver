@@ -42,54 +42,44 @@ namespace MongoDB.Driver.Core.Tests.Connections
         {
             var serverId1 = __serverId;
             var serverId2 = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018));
-            var value1 = 10;
-            var value2 = 11;
-            var source1 = ConnectionIdSource.Driver;
-            var source2 = ConnectionIdSource.Server;
+            var localValue1 = 10;
+            var localValue2 = 11;
 
-            var subject1 = new ConnectionId(serverId1, value1, source1);
-            var subject2 = new ConnectionId(serverId1, value1, source1);
-            var subject3 = new ConnectionId(serverId1, value1, source2);
-            var subject4 = new ConnectionId(serverId1, value2, source1);
-            var subject5 = new ConnectionId(serverId2, value1, source1);
+            var subject1 = new ConnectionId(serverId1, localValue1);
+            var subject2 = new ConnectionId(serverId1, localValue1);
+            var subject3 = new ConnectionId(serverId1, localValue2);
+            var subject4 = new ConnectionId(serverId2, localValue1);
 
             subject1.Equals(subject2).Should().BeTrue();
             subject1.Equals(subject3).Should().BeFalse();
             subject1.Equals(subject4).Should().BeFalse();
-            subject1.Equals(subject5).Should().BeFalse();
         }
 
         [Test]
-        public void IdSource_should_be_driver_when_using_the_single_argument_constructor()
-        {
-            var subject = new ConnectionId(__serverId);
-
-            subject.Source.Should().Be(ConnectionIdSource.Driver);
-        }
-
-        [Test]
-        public void Values_of_2_ids_should_not_be_the_same_when_automically_constructed()
+        public void LocalValues_of_2_ids_should_not_be_the_same_when_automically_constructed()
         {
             var subject = new ConnectionId(__serverId);
             var subject2 = new ConnectionId(__serverId);
 
-            subject.Value.Should().NotBe(subject2.Value);
+            subject.LocalValue.Should().NotBe(subject2.LocalValue);
         }
 
         [Test]
-        public void IdSource_should_be_what_was_specified_in_the_constructor()
+        public void LocalValue_should_be_what_was_specified_in_the_constructor()
         {
-            var subject = new ConnectionId(__serverId, 10, ConnectionIdSource.Server);
+            var subject = new ConnectionId(__serverId, 10);
 
-            subject.Source.Should().Be(ConnectionIdSource.Server);
+            subject.LocalValue.Should().Be(10);
         }
 
         [Test]
-        public void Value_should_be_what_was_specified_in_the_constructor()
+        public void WithServerValue_should_set_the_server_value_and_leave_the_LocalValue_alone()
         {
-            var subject = new ConnectionId(__serverId, 10, ConnectionIdSource.Server);
+            var subject = new ConnectionId(__serverId, 10)
+                .WithServerValue(11);
 
-            subject.Value.Should().Be(10);
+            subject.LocalValue.Should().Be(10);
+            subject.ServerValue.Should().Be(11);
         }
     }
 }

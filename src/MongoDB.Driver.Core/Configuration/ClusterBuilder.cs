@@ -26,11 +26,12 @@ namespace MongoDB.Driver.Core.Configuration
     public class ClusterBuilder
     {
         // fields
-        private IClusterListener _clusterListener;
+        private IClusterListener _clusterListener = null;
         private ClusterSettings _clusterSettings;
+        private IConnectionListener _connectionListener;
+        private IConnectionPoolListener _connectionPoolListener;
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
-        private IMessageListener _messageListener;
         private IServerListener _serverListener;
         private ServerSettings _serverSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
@@ -58,11 +59,12 @@ namespace MongoDB.Driver.Core.Configuration
             var connectionFactory = new BinaryConnectionFactory(
                 _connectionSettings,
                 streamFactory,
-                _messageListener);
+                _connectionListener);
 
             var connectionPoolFactory = new ExclusiveConnectionPoolFactory(
                 _connectionPoolSettings,
-                connectionFactory);
+                connectionFactory,
+                _connectionPoolListener);
 
             var serverFactory = new ServerFactory(
                 _serverSettings,
@@ -124,21 +126,32 @@ namespace MongoDB.Driver.Core.Configuration
             return this;
         }
 
-        public ClusterBuilder SetClusterListener(IClusterListener clusterListener)
+        public ClusterBuilder AddListener(IListener listener)
         {
-            _clusterListener = clusterListener;
-            return this;
-        }
+            var clusterListener = listener as IClusterListener;
+            if(clusterListener != null)
+            {
+                _clusterListener = ClusterListenerPair.Create(_clusterListener, clusterListener);
+            }
 
-        public ClusterBuilder SetMessageListener(IMessageListener messageListener)
-        {
-            _messageListener = messageListener;
-            return this;
-        }
+            var serverListener = listener as IServerListener;
+            if(serverListener != null)
+            {
+                _serverListener = ServerListenerPair.Create(_serverListener, serverListener);
+            }
 
-        public ClusterBuilder SetServerListener(IServerListener serverListener)
-        {
-            _serverListener = serverListener;
+            var connectionPoolListener = listener as IConnectionPoolListener;
+            if(connectionPoolListener != null)
+            {
+                _connectionPoolListener = ConnectionPoolListenerPair.Create(_connectionPoolListener, connectionPoolListener);
+            }
+
+            var connectionListener = listener as IConnectionListener;
+            if(connectionListener != null)
+            {
+                _connectionListener = ConnectionListenerPair.Create(_connectionListener, connectionListener);
+            }
+
             return this;
         }
     }

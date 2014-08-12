@@ -65,8 +65,8 @@ namespace MongoDB.Driver.Core.Tests.Connections
         [Test]
         public void Equals_should_return_correct_results()
         {
-            var connectionId1 = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018)), 10, ConnectionIdSource.Driver);
-            var connectionId2 = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018)), 10, ConnectionIdSource.Driver);
+            var connectionId1 = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018)), 10);
+            var connectionId2 = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018)), 10);
             var isMasterResult1 = new IsMasterResult(new BsonDocument("x", 1));
             var isMasterResult2 = new IsMasterResult(new BsonDocument("x", 2));
             var buildInfoResult1 = new BuildInfoResult(new BsonDocument("version", "2.6.3"));

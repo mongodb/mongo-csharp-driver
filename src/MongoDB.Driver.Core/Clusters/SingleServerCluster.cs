@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Net;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -73,10 +74,20 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (disposing)
                 {
+                    if(Listener != null)
+                    {
+                        Listener.ClusterBeforeClosing(ClusterId);
+                    }
+                    var stopwatch = Stopwatch.StartNew();
                     if (_server != null)
                     {
                         _server.DescriptionChanged -= ServerDescriptionChanged;
                         _server.Dispose();
+                    }
+                    stopwatch.Stop();
+                    if(Listener != null)
+                    {
+                        Listener.ClusterAfterClosing(ClusterId, stopwatch.Elapsed);
                     }
                 }
             }
@@ -88,9 +99,21 @@ namespace MongoDB.Driver.Core.Clusters
             base.Initialize();
             if (_state.TryChange(State.Initial, State.Open))
             {
+                if(Listener != null)
+                {
+                    Listener.ClusterBeforeOpening(ClusterId, Settings);
+                    Listener.ClusterBeforeAddingServer(ClusterId, Settings.EndPoints[0]);
+                }
+                var stopwatch = Stopwatch.StartNew();
                 _server = CreateServer(Settings.EndPoints[0]);
                 _server.DescriptionChanged += ServerDescriptionChanged;
                 _server.Initialize();
+                stopwatch.Stop();
+                if(Listener != null)
+                {
+                    Listener.ClusterAfterAddingServer(_server.ServerId, stopwatch.Elapsed);
+                    Listener.ClusterAfterOpening(ClusterId, Settings, stopwatch.Elapsed);
+                }
             }
         }
 
@@ -102,7 +125,7 @@ namespace MongoDB.Driver.Core.Clusters
         private void ServerDescriptionChanged(object sender, ServerDescriptionChangedEventArgs args)
         {
             var oldClusterDescription = Description;
-            ClusterDescription newClusterDescription;
+            ClusterDescription newClusterDescription = oldClusterDescription;
 
             var newServerDescription = args.NewServerDescription;
             if (newServerDescription.State == ServerState.Disconnected)
@@ -113,20 +136,20 @@ namespace MongoDB.Driver.Core.Clusters
             else
             {
                 var determinedClusterType = DetermineClusterType(newServerDescription);
-                var clusterType = oldClusterDescription.Type;
-                if (clusterType == ClusterType.Unknown)
+                if (oldClusterDescription.Type == ClusterType.Unknown)
                 {
-                    clusterType = determinedClusterType;
+                    newClusterDescription = newClusterDescription
+                        .WithType(determinedClusterType)
+                        .WithServerDescription(newServerDescription);
                 }
-
-                if (determinedClusterType != clusterType)
+                else if (determinedClusterType != oldClusterDescription.Type)
                 {
-                    newClusterDescription = Description
-                        .WithoutServerDescription(args.NewServerDescription.EndPoint);
+                    newClusterDescription = newClusterDescription
+                        .WithoutServerDescription(newServerDescription.EndPoint);
                 }
                 else
                 {
-                    newClusterDescription = Description
+                    newClusterDescription = newClusterDescription
                         .WithServerDescription(newServerDescription);
                 }
             }

@@ -36,6 +36,9 @@ namespace MongoDB.Driver.Core.Configuration
         // constructors
         public ConnectionSettings()
         {
+            _authenticators = new List<IAuthenticator>();
+            _maxIdleTime = TimeSpan.FromMinutes(10);
+            _maxLifeTime = TimeSpan.FromMinutes(30);
         }
 
         private ConnectionSettings(
@@ -44,8 +47,8 @@ namespace MongoDB.Driver.Core.Configuration
             TimeSpan maxLifeTime)
         {
             _authenticators = authenticators;
-            _maxIdleTime = TimeSpan.FromMinutes(10);
-            _maxLifeTime = TimeSpan.FromMinutes(30);
+            _maxIdleTime = maxIdleTime;
+            _maxLifeTime = maxLifeTime;
         }
 
         // properties

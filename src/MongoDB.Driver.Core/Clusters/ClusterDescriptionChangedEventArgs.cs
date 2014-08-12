@@ -14,10 +14,9 @@
 */
 
 using System;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Events
+namespace MongoDB.Driver.Core.Clusters
 {
     public class ClusterDescriptionChangedEventArgs : EventArgs
     {
