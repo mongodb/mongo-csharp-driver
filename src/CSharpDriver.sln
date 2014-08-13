@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Core.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Core.TestConsoleApplication", "MongoDB.Driver.Core.TestConsoleApplication\MongoDB.Driver.Core.TestConsoleApplication.csproj", "{0FCD608D-154F-40CF-A475-EB92C8249E57}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Core.FunctionalTests", "MongoDB.Driver.Core.FunctionalTests\MongoDB.Driver.Core.FunctionalTests.csproj", "{B00120D4-34CA-402A-B7D1-980C5FD8C438}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{0FCD608D-154F-40CF-A475-EB92C8249E57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FCD608D-154F-40CF-A475-EB92C8249E57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FCD608D-154F-40CF-A475-EB92C8249E57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B00120D4-34CA-402A-B7D1-980C5FD8C438}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B00120D4-34CA-402A-B7D1-980C5FD8C438}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B00120D4-34CA-402A-B7D1-980C5FD8C438}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B00120D4-34CA-402A-B7D1-980C5FD8C438}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

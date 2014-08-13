@@ -34,13 +34,7 @@ namespace MongoDB.Driver.Core.Bindings
         // methods
         protected override void Dispose(bool disposing)
         {
-            if (!Disposed)
-            {
-                if (disposing)
-                {
-                    _wrapped.DecrementReferenceCount();
-                }
-            }
+            // let the base class dispose of _wrapped
             base.Dispose(disposing);
         }
 
