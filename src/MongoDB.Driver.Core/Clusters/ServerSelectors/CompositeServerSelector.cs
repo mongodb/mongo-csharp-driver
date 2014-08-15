@@ -35,12 +35,6 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             _selectors = selectors.ToList();
         }
 
-        // properties
-        public ReadPreference ReadPreference
-        {
-            get { return _selectors.Select(s => s.ReadPreference).SingleOrDefault(r => r != null); }
-        }
-
         // methods
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {

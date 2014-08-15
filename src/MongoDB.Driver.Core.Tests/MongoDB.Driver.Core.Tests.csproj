@@ -54,6 +54,22 @@
   <ItemGroup>
     <Compile Include="AssertionExtensions.cs" />
     <Compile Include="Async\AsyncDropboxTests.cs" />
+    <Compile Include="Bindings\ReadBindingHandleTests.cs" />
+    <Compile Include="Bindings\WriteBindingHandleTests - Copy.cs" />
+    <Compile Include="Bindings\ReadWriteBindingHandleTests.cs" />
+    <Compile Include="Bindings\ReadBindingTests.cs" />
+    <Compile Include="Bindings\WriteBindingTests.cs" />
+    <Compile Include="Bindings\ReadWriteBindingTests.cs" />
+    <Compile Include="Bindings\ConnectionSourceReadWriteBindingAdapterTests.cs" />
+    <Compile Include="Bindings\ConnectionSourceHandleTests.cs" />
+    <Compile Include="Misc\ReferenceCountedTests.cs" />
+    <Compile Include="Bindings\ServerConnectionSourceTests.cs" />
+    <Compile Include="Helpers\BlockingMemoryStream.cs" />
+    <Compile Include="Helpers\MessageHelper.cs" />
+    <Compile Include="Helpers\MockClusterableServerFactory.cs" />
+    <Compile Include="Helpers\MockConnection.cs" />
+    <Compile Include="Helpers\RawBsonDocumentHelper.cs" />
+    <Compile Include="Helpers\ServerDescriptionHelper.cs" />
     <Compile Include="Misc\BatchableSourceTests.cs" />
     <Compile Include="Misc\MetronomeTests.cs" />
     <Compile Include="Async\AsyncQueueTests.cs" />
@@ -93,11 +109,6 @@
     <Compile Include="Exceptions\MongoDBExceptionTests.cs" />
     <Compile Include="Exceptions\QueryExceptionTests.cs" />
     <Compile Include="Exceptions\WriteExceptionTests.cs" />
-    <Compile Include="Helpers\BlockingMemoryStream.cs" />
-    <Compile Include="Helpers\MockClusterableServerFactory.cs" />
-    <Compile Include="Helpers\MockConnection.cs" />
-    <Compile Include="Helpers\RawBsonDocumentHelper.cs" />
-    <Compile Include="Helpers\ServerDescriptionHelper.cs" />
     <Compile Include="Misc\ConstantRandomStringGenerator.cs" />
     <Compile Include="Misc\EndPointParserTests.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverageTests.cs" />
@@ -135,7 +146,6 @@
     <Compile Include="WireProtocol\Messages\InsertMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\KillCursorsMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\QueryMessageTests.cs" />
-    <Compile Include="Helpers\MessageHelper.cs" />
     <Compile Include="WireProtocol\Messages\ReplyMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\UpdateMessageTests.cs" />
   </ItemGroup>

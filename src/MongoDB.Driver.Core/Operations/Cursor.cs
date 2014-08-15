@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<CursorBatch<TDocument>> GetNextBatchAsync()
         {
-            using (var connection = await _connectionSource.GetConnectionAsync())
+            using (var connection = await _connectionSource.GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None))
             {
                 var protocol = CreateGetMoreProtocol();
                 return await protocol.ExecuteAsync(connection, _timeout, _cancellationToken);

@@ -16,40 +16,45 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    internal sealed class ServerConnectionSource : IConnectionSource
+    public sealed class ReadBinding : IReadBinding
     {
         // fields
+        private readonly ICluster _cluster;
         private bool _disposed;
-        private readonly IServer _server;
+        private readonly ReadPreference _readPreference;
+        private readonly IServerSelector _serverSelector;
 
         // constructors
-        public ServerConnectionSource(IServer server)
+        public ReadBinding(ICluster cluster, ReadPreference readPreference)
         {
-            _server = Ensure.IsNotNull(server, "server");
+            _cluster = Ensure.IsNotNull(cluster, "cluster");
+            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
+            _serverSelector = new ReadPreferenceServerSelector(readPreference);
         }
 
         // properties
-        public ServerDescription ServerDescription
+        public ReadPreference ReadPreference
         {
-            get { return _server.Description; }
+            get { return _readPreference; }
         }
 
         // methods
-        public Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _server.GetConnectionAsync(timeout, cancellationToken);
+            var server = await _cluster.SelectServerAsync(_serverSelector, timeout, cancellationToken);
+            return new ConnectionSourceHandle(new ServerConnectionSource(server));
         }
 
         public void Dispose()
         {
-            if (!_disposed)
+            if(!_disposed)
             {
                 _disposed = true;
                 GC.SuppressFinalize(this);

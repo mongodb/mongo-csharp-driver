@@ -15,30 +15,27 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
-    /// <summary>
-    /// Represents a selector that selects servers based on an end point.
-    /// </summary>
-    public class EndPointServerSelector : IServerSelector
+    public class WritableServerSelector : IServerSelector
     {
-        // fields
-        private readonly EndPoint _endPoint;
+        // static fields
+        public static WritableServerSelector Instance = new WritableServerSelector();
 
         // constructors
-        public EndPointServerSelector(EndPoint endPoint)
+        private WritableServerSelector()
         {
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }
 
         // methods
-        public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
+        public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<Servers.ServerDescription> servers)
         {
-            return servers.Where(server => server.EndPoint.Equals(_endPoint));
+            return servers.Where(x =>
+                x.Type == ServerType.ReplicaSetPrimary ||
+                x.Type == ServerType.ShardRouter ||
+                x.Type == ServerType.Standalone);
         }
     }
 }

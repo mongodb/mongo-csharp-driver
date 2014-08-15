@@ -8,33 +8,28 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    public sealed class ReadBindingHandle : IReadBindingHandle
+    public sealed class WriteBindingHandle : IWriteBindingHandle
     {
         // fields
         private bool _disposed;
-        private readonly ReferenceCounted<IReadBinding> _reference;
+        private readonly ReferenceCounted<IWriteBinding> _reference;
 
         // constructors
-        public ReadBindingHandle(IReadBinding readBinding)
-            : this(new ReferenceCounted<IReadBinding>(readBinding))
+        public WriteBindingHandle(IWriteBinding writeBinding)
+            : this(new ReferenceCounted<IWriteBinding>(writeBinding))
         {
         }
 
-        private ReadBindingHandle(ReferenceCounted<IReadBinding> reference)
+        private WriteBindingHandle(ReferenceCounted<IWriteBinding> reference)
         {
             _reference = reference;
             _reference.IncrementReferenceCount();
         }
 
-        public ReadPreference ReadPreference
-        {
-            get { return _reference.Instance.ReadPreference; }
-        }
-
-        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, System.Threading.CancellationToken cancellationToken)
+        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(TimeSpan timeout, System.Threading.CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadConnectionSourceAsync(timeout, cancellationToken);
+            return _reference.Instance.GetWriteConnectionSourceAsync(timeout, cancellationToken);
         }
 
         public void Dispose()
@@ -47,10 +42,10 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        public IReadBindingHandle Fork()
+        public IWriteBindingHandle Fork()
         {
             ThrowIfDisposed();
-            return new ReadBindingHandle(_reference);
+            return new WriteBindingHandle(_reference);
         }
 
         private void ThrowIfDisposed()

@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
     public static class IOperationExtensionMethods
     {
         // static methods
-        public static TResult Execute<TResult>(this IReadOperation<TResult> operation, IConnectionSource connectionSource, ReadPreference readPreference, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public static TResult Execute<TResult>(this IReadOperation<TResult> operation, IConnectionSourceHandle connectionSource, ReadPreference readPreference, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             return operation.ExecuteAsync(connectionSource, readPreference, timeout, cancellationToken).GetAwaiter().GetResult();
         }
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
             return operation.ExecuteAsync(binding, timeout, cancellationToken).GetAwaiter().GetResult();
         }
 
-        public static TResult Execute<TResult>(this IWriteOperation<TResult> operation, IConnectionSource connectionSource, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public static TResult Execute<TResult>(this IWriteOperation<TResult> operation, IConnectionSourceHandle connectionSource, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             return operation.ExecuteAsync(connectionSource, timeout, cancellationToken).GetAwaiter().GetResult();
         }

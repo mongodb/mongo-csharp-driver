@@ -13,35 +13,46 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 
-namespace MongoDB.Driver.Core.Bindings
+namespace MongoDB.Driver.Core.Misc
 {
-    public class ReferenceCountedReadBinding : ReadBindingWrapper
+    internal sealed class ReferenceCounted<T> where T : class, IDisposable
     {
         // fields
-        private int _referenceCount = 1;
-
+        private readonly T _instance;
+        private int _referenceCount;
+        
         // constructors
-        public ReferenceCountedReadBinding(IReadBinding wrapped)
-            : base(wrapped)
+        public ReferenceCounted(T instance)
         {
+            _instance = Ensure.IsNotNull(instance, "instance");
+        }
+
+        // properties
+        public int ReferenceCount
+        {
+            get { return Interlocked.CompareExchange(ref _referenceCount, 0, 0); }
+        }
+
+        public T Instance
+        {
+            get { return _instance; }
         }
 
         // methods
         public void DecrementReferenceCount()
         {
-            ThrowIfDisposed();
-            var referenceCount = Interlocked.Decrement(ref _referenceCount);
-            if (referenceCount == 0)
+            var value = Interlocked.Decrement(ref _referenceCount);
+            if(value == 0)
             {
-                Dispose();
+                _instance.Dispose();
             }
         }
 
         public void IncrementReferenceCount()
         {
-            ThrowIfDisposed();
             Interlocked.Increment(ref _referenceCount);
         }
     }

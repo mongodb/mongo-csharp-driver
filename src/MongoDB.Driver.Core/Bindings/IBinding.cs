@@ -22,32 +22,33 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    public interface IBinding : IDisposable
-    {
-    }
-
-    public interface IReadBinding : IBinding
+    public interface IReadBinding : IDisposable
     {
         ReadPreference ReadPreference { get; }
-        IReadBinding Fork();
-        Task<IConnectionSource> GetReadConnectionSourceAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
+        Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken);
     }
 
-    public interface IWriteBinding : IBinding
+    public interface IWriteBinding : IDisposable
     {
-        IWriteBinding Fork();
-        Task<IConnectionSource> GetWriteConnectionSourceAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
+        Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken);
     }
 
     public interface IReadWriteBinding : IReadBinding, IWriteBinding
     {
-        new IReadWriteBinding Fork();
     }
 
-    public interface IConnectionSource : IDisposable
+    public interface IReadBindingHandle : IReadBinding
     {
-        ServerDescription ServerDescription { get; }
-        IConnectionSource Fork();
-        Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
+        IReadBindingHandle Fork();
+    }
+
+    public interface IWriteBindingHandle : IWriteBinding
+    {
+        IWriteBindingHandle Fork();
+    }
+
+    public interface IReadWriteBindingHandle : IReadWriteBinding, IReadBindingHandle, IWriteBindingHandle
+    {
+        new IReadWriteBindingHandle Fork();
     }
 }

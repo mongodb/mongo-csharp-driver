@@ -13,39 +13,68 @@
 * limitations under the License.
 */
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
+
 namespace MongoDB.Driver.Core.Bindings
 {
-    public abstract class ConnectionSourceHandle : ConnectionSourceWrapper
+    internal sealed class ConnectionSourceHandle : IConnectionSourceHandle
     {
         // fields
-        private readonly ReferenceCountedConnectionSource _wrapped;
+        private bool _disposed;
+        private readonly ReferenceCounted<IConnectionSource> _reference;
 
         // constructors
-        protected ConnectionSourceHandle(ReferenceCountedConnectionSource wrapped)
-            : base(wrapped, ownsWrapped: false)
+        public ConnectionSourceHandle(IConnectionSource connectionSource)
+            : this(new ReferenceCounted<IConnectionSource>(connectionSource))
         {
-            _wrapped = wrapped;
+        }
+
+        private ConnectionSourceHandle(ReferenceCounted<IConnectionSource> reference)
+        {
+            _reference = reference;
+            _reference.IncrementReferenceCount();
+        }
+
+        // properties
+        public ServerDescription ServerDescription
+        {
+            get { return _reference.Instance.ServerDescription; }
         }
 
         // methods
-        protected abstract ConnectionSourceHandle CreateNewHandle(ReferenceCountedConnectionSource wrapped);
-
-        protected override void Dispose(bool disposing)
+        public Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            if (!Disposed)
-            {
-                if (disposing)
-                {
-                    _wrapped.DecrementReferenceCount();
-                }
-            }
-            base.Dispose(disposing);
+            ThrowIfDisposed();
+            return _reference.Instance.GetConnectionAsync(timeout, cancellationToken);
         }
 
-        public override IConnectionSource Fork()
+        public void Dispose()
         {
-            _wrapped.IncrementReferenceCount();
-            return CreateNewHandle(_wrapped);
+            if(!_disposed)
+            {
+                _reference.DecrementReferenceCount();
+                _disposed = true;
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        public IConnectionSourceHandle Fork()
+        {
+            ThrowIfDisposed();
+            return new ConnectionSourceHandle(_reference);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if(_disposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
         }
     }
 }

@@ -26,13 +26,13 @@ namespace MongoDB.Driver.Core.Operations
     {
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IReadOperation<TResult> operation,
-            IConnectionSource connectionSource,
+            IConnectionSourceHandle connectionSource,
             ReadPreference readPreference,
             TimeSpan timeout,
             CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(operation, "operation");
-            using (var readBinding = new ConnectionSourceReadBinding(connectionSource.Fork(), readPreference))
+            using (var readBinding = new ConnectionSourceReadWriteBindingAdapter(connectionSource, readPreference))
             {
                 return await operation.ExecuteAsync(readBinding, timeout, cancellationToken);
             }
@@ -40,12 +40,12 @@ namespace MongoDB.Driver.Core.Operations
 
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IWriteOperation<TResult> operation,
-            IConnectionSource connectionSource,
+            IConnectionSourceHandle connectionSource,
             TimeSpan timeout,
             CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(operation, "operation");
-            using (var writeBinding = new ConnectionSourceReadWriteBinding(connectionSource.Fork()))
+            using (var writeBinding = new ConnectionSourceReadWriteBindingAdapter(connectionSource, ReadPreference.Primary))
             {
                 return await operation.ExecuteAsync(writeBinding, timeout, cancellationToken);
             }

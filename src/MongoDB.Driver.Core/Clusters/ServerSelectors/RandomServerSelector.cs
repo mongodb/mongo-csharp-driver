@@ -30,12 +30,6 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
         }
 
-        // properties
-        public ReadPreference ReadPreference
-        {
-            get { return null; }
-        }
-
         // methods
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {

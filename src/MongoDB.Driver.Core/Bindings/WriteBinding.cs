@@ -16,35 +16,30 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    internal sealed class ServerConnectionSource : IConnectionSource
+    public sealed class WriteBinding : IWriteBinding
     {
         // fields
+        private readonly ICluster _cluster;
         private bool _disposed;
-        private readonly IServer _server;
 
         // constructors
-        public ServerConnectionSource(IServer server)
+        public WriteBinding(ICluster cluster)
         {
-            _server = Ensure.IsNotNull(server, "server");
-        }
-
-        // properties
-        public ServerDescription ServerDescription
-        {
-            get { return _server.Description; }
+            _cluster = Ensure.IsNotNull(cluster, "cluster");
         }
 
         // methods
-        public Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _server.GetConnectionAsync(timeout, cancellationToken);
+            var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, timeout, cancellationToken);
+            return new ConnectionSourceHandle(new ServerConnectionSource(server));
         }
 
         public void Dispose()

@@ -16,47 +16,55 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    internal sealed class ServerConnectionSource : IConnectionSource
+    internal sealed class ConnectionSourceReadWriteBindingAdapter : IReadWriteBinding
     {
         // fields
+        private readonly IConnectionSourceHandle _connectionSource;
         private bool _disposed;
-        private readonly IServer _server;
+        private readonly ReadPreference _readPreference;
 
         // constructors
-        public ServerConnectionSource(IServer server)
+        public ConnectionSourceReadWriteBindingAdapter(IConnectionSourceHandle connectionSource, ReadPreference readPreference)
         {
-            _server = Ensure.IsNotNull(server, "server");
+            _connectionSource = Ensure.IsNotNull(connectionSource, "connectionSource").Fork();
+            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
         }
 
         // properties
-        public ServerDescription ServerDescription
+        public ReadPreference ReadPreference
         {
-            get { return _server.Description; }
+            get { return _readPreference; }
         }
 
         // methods
-        public Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _server.GetConnectionAsync(timeout, cancellationToken);
+            return Task.FromResult(_connectionSource.Fork());
+        }
+
+        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return Task.FromResult(_connectionSource.Fork());
         }
 
         public void Dispose()
         {
             if (!_disposed)
             {
+                _connectionSource.Dispose();
                 _disposed = true;
                 GC.SuppressFinalize(this);
             }
         }
 
-        private void ThrowIfDisposed()
+        public void ThrowIfDisposed()
         {
             if(_disposed)
             {

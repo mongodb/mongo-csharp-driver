@@ -13,16 +13,23 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.Clusters.ServerSelectors
+namespace MongoDB.Driver.Core.Bindings
 {
-    /// <summary>
-    /// Represents a selector that selects servers.
-    /// </summary>
-    public interface IServerSelector
+    public interface IConnectionSource : IDisposable
     {
-        IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers);
+        ServerDescription ServerDescription { get; }
+        Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken);
+    }
+
+    public interface IConnectionSourceHandle : IConnectionSource
+    {
+        IConnectionSourceHandle Fork();
     }
 }

@@ -18,7 +18,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
     {
         private static string _database = "foo";
         private static string _collection = "bar";
-        private static int _numConcurrentWorkers = 100;
+        private static int _numConcurrentWorkers = 8;
 
         public static void Main(string[] args)
         {
@@ -85,14 +85,14 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 
         private async static Task ClearData(ICluster cluster)
         {
-            var binding = new CurrentPrimaryBinding(cluster);
+            var binding = new WriteBinding(cluster);
             var commandOp = new DropDatabaseOperation(_database);
             await commandOp.ExecuteAsync(binding);
         }
 
         private async static Task InsertData(ICluster cluster)
         {
-            var binding = new CurrentPrimaryBinding(cluster);
+            var binding = new WriteBinding(cluster);
             for (int i = 0; i < 100; i++)
             {
                 await Insert(binding, new BsonDocument("i", i)).ConfigureAwait(false);
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         private async static Task DoWork(ICluster cluster, CancellationToken cancellationToken)
         {
             var rand = new Random();
-            var binding = new ConsistentPrimaryBinding(cluster);
+            using(var binding = new ReadWriteBinding(cluster, ReadPreference.Primary))
             while (!cancellationToken.IsCancellationRequested)
             {
                 var i = rand.Next(0, 10000);

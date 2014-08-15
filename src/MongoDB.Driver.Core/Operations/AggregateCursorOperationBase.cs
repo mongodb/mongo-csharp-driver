@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        protected Cursor<BsonDocument> CreateCursor(IConnectionSource connectionSource, BsonDocument command, BsonDocument result, TimeSpan timeout, CancellationToken cancellationToken)
+        protected Cursor<BsonDocument> CreateCursor(IConnectionSourceHandle connectionSource, BsonDocument command, BsonDocument result, TimeSpan timeout, CancellationToken cancellationToken)
         {
             switch (_resultMode)
             {
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private Cursor<BsonDocument> CreateCursorFromCursorResult(IConnectionSource connectionSource, BsonDocument command, BsonDocument result, TimeSpan timeout, CancellationToken cancellationToken)
+        private Cursor<BsonDocument> CreateCursorFromCursorResult(IConnectionSourceHandle connectionSource, BsonDocument command, BsonDocument result, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var firstBatch = ((BsonArray)result["cursor"]["firstBatch"]).Cast<BsonDocument>().ToList();
             var cursorId = result["cursor"]["id"].ToInt64();
