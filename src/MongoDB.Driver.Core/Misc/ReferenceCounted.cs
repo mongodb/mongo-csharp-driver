@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Misc
         public ReferenceCounted(T instance)
         {
             _instance = Ensure.IsNotNull(instance, "instance");
+            _referenceCount = 1;
         }
 
         // properties
@@ -45,15 +46,16 @@ namespace MongoDB.Driver.Core.Misc
         public void DecrementReferenceCount()
         {
             var value = Interlocked.Decrement(ref _referenceCount);
-            if(value == 0)
+            if (value == 0)
             {
                 _instance.Dispose();
             }
         }
 
-        public void IncrementReferenceCount()
+        public ReferenceCounted<T> IncrementReferenceCount()
         {
             Interlocked.Increment(ref _referenceCount);
+            return this;
         }
     }
 }

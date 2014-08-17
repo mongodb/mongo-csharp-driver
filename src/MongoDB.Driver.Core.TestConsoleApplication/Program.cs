@@ -85,24 +85,28 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 
         private async static Task ClearData(ICluster cluster)
         {
-            var binding = new WriteBinding(cluster);
-            var commandOp = new DropDatabaseOperation(_database);
-            await commandOp.ExecuteAsync(binding);
+            using (var binding = new WritableServerBinding(cluster))
+            {
+                var commandOp = new DropDatabaseOperation(_database);
+                await commandOp.ExecuteAsync(binding);
+            }
         }
 
         private async static Task InsertData(ICluster cluster)
         {
-            var binding = new WriteBinding(cluster);
-            for (int i = 0; i < 100; i++)
+            using (var binding = new WritableServerBinding(cluster))
             {
-                await Insert(binding, new BsonDocument("i", i)).ConfigureAwait(false);
+                for (int i = 0; i < 100; i++)
+                {
+                    await Insert(binding, new BsonDocument("i", i)).ConfigureAwait(false);
+                }
             }
         }
 
         private async static Task DoWork(ICluster cluster, CancellationToken cancellationToken)
         {
             var rand = new Random();
-            using(var binding = new ReadWriteBinding(cluster, ReadPreference.Primary))
+            using (var binding = new WritableServerBinding(cluster))
             while (!cancellationToken.IsCancellationRequested)
             {
                 var i = rand.Next(0, 10000);

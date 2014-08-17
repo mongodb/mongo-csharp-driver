@@ -17,56 +17,59 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    internal sealed class ConnectionSourceReadWriteBindingAdapter : IReadWriteBinding
+    public sealed class WritableServerBinding : IReadWriteBinding
     {
         // fields
-        private readonly IConnectionSourceHandle _connectionSource;
+        private readonly ICluster _cluster;
         private bool _disposed;
-        private readonly ReadPreference _readPreference;
 
         // constructors
-        public ConnectionSourceReadWriteBindingAdapter(IConnectionSourceHandle connectionSource, ReadPreference readPreference)
+        public WritableServerBinding(ICluster cluster)
         {
-            _connectionSource = Ensure.IsNotNull(connectionSource, "connectionSource").Fork();
-            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
+            _cluster = Ensure.IsNotNull(cluster, "cluster");
         }
 
         // properties
         public ReadPreference ReadPreference
         {
-            get { return _readPreference; }
+            get { return ReadPreference.Primary; }
         }
 
         // methods
-        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<IConnectionSourceHandle> GetConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return Task.FromResult(_connectionSource.Fork());
+            var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, timeout, cancellationToken);
+            return new ConnectionSourceHandle(new ServerConnectionSource(server));
+        }
+
+        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            return GetConnectionSourceAsync(timeout, cancellationToken);
         }
 
         public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            ThrowIfDisposed();
-            return Task.FromResult(_connectionSource.Fork());
+            return GetConnectionSourceAsync(timeout, cancellationToken);
         }
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                _connectionSource.Dispose();
                 _disposed = true;
                 GC.SuppressFinalize(this);
             }
         }
 
-        public void ThrowIfDisposed()
+        private void ThrowIfDisposed()
         {
-            if(_disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }

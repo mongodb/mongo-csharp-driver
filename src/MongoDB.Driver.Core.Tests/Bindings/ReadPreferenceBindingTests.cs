@@ -18,13 +18,14 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using NSubstitute;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Tests.Bindings
 {
     [TestFixture]
-    public class ReadBindingTests
+    public class ReadPreferenceBindingTests
     {
         private ICluster _cluster;
 
@@ -37,7 +38,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void Constructor_should_throw_if_cluster_is_null()
         {
-            Action act = () => new ReadBinding(null, ReadPreference.Primary);
+            Action act = () => new ReadPreferenceBinding(null, ReadPreference.Primary);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -45,7 +46,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
-            Action act = () => new ReadWriteBinding(_cluster, null);
+            Action act = () => new ReadPreferenceBinding(_cluster, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -53,7 +54,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void GetReadConnectionSourceAsync_should_throw_if_disposed()
         {
-            var subject = new ReadBinding(_cluster, ReadPreference.Primary);
+            var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
             subject.Dispose();
 
             Action act = () => subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
@@ -62,19 +63,19 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         }
 
         [Test]
-        public void GetReadConnectionSourceAsync_should_get_the_connection_source_from_the_read_binding()
+        public void GetReadConnectionSourceAsync_should_use_a_read_preference_server_selector_to_select_the_server_from_the_cluster()
         {
-            var subject = new ReadBinding(_cluster, ReadPreference.Primary);
+            var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
 
             subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
-            _cluster.ReceivedWithAnyArgs().SelectServerAsync(null, default(TimeSpan), default(CancellationToken));
+            _cluster.Received().SelectServerAsync(Arg.Any<ReadPreferenceServerSelector>(), Timeout.InfiniteTimeSpan, CancellationToken.None);
         }
 
         [Test]
         public void Dispose_should_not_call_dispose_on_the_cluster()
         {
-            var subject = new ReadBinding(_cluster, ReadPreference.Primary);
+            var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
 
             subject.Dispose();
 

@@ -21,11 +21,19 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
     public class WritableServerSelector : IServerSelector
     {
+        #region static
         // static fields
-        public static WritableServerSelector Instance = new WritableServerSelector();
+        private readonly static WritableServerSelector __instance = new WritableServerSelector();
+
+        // static properties
+        public static WritableServerSelector Instance
+        {
+            get { return __instance; }
+        }
+        #endregion
 
         // constructors
-        private WritableServerSelector()
+        public WritableServerSelector()
         {
         }
 

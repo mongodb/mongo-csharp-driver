@@ -23,7 +23,6 @@ namespace MongoDB.Driver.Core.Bindings
         private ReadWriteBindingHandle(ReferenceCounted<IReadWriteBinding> reference)
         {
             _reference = reference;
-            _reference.IncrementReferenceCount();
         }
 
         // properties
@@ -58,7 +57,7 @@ namespace MongoDB.Driver.Core.Bindings
         public IReadWriteBindingHandle Fork()
         {
             ThrowIfDisposed();
-            return new ReadWriteBindingHandle(_reference);
+            return new ReadWriteBindingHandle(_reference.IncrementReferenceCount());
         }
 
         IReadBindingHandle IReadBindingHandle.Fork()

@@ -37,7 +37,6 @@ namespace MongoDB.Driver.Core.Bindings
         private ConnectionSourceHandle(ReferenceCounted<IConnectionSource> reference)
         {
             _reference = reference;
-            _reference.IncrementReferenceCount();
         }
 
         // properties
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         public void Dispose()
         {
-            if(!_disposed)
+            if (!_disposed)
             {
                 _reference.DecrementReferenceCount();
                 _disposed = true;
@@ -66,7 +65,7 @@ namespace MongoDB.Driver.Core.Bindings
         public IConnectionSourceHandle Fork()
         {
             ThrowIfDisposed();
-            return new ConnectionSourceHandle(_reference);
+            return new ConnectionSourceHandle(_reference.IncrementReferenceCount());
         }
 
         private void ThrowIfDisposed()

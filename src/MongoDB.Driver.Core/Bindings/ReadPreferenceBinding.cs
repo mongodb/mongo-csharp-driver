@@ -22,23 +22,33 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    public sealed class WriteBinding : IWriteBinding
+    public sealed class ReadPreferenceBinding : IReadBinding
     {
         // fields
         private readonly ICluster _cluster;
         private bool _disposed;
+        private readonly ReadPreference _readPreference;
+        private readonly IServerSelector _serverSelector;
 
         // constructors
-        public WriteBinding(ICluster cluster)
+        public ReadPreferenceBinding(ICluster cluster, ReadPreference readPreference)
         {
             _cluster = Ensure.IsNotNull(cluster, "cluster");
+            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
+            _serverSelector = new ReadPreferenceServerSelector(readPreference);
+        }
+
+        // properties
+        public ReadPreference ReadPreference
+        {
+            get { return _readPreference; }
         }
 
         // methods
-        public async Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, timeout, cancellationToken);
+            var server = await _cluster.SelectServerAsync(_serverSelector, timeout, cancellationToken);
             return new ConnectionSourceHandle(new ServerConnectionSource(server));
         }
 
@@ -53,7 +63,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         private void ThrowIfDisposed()
         {
-            if(_disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }

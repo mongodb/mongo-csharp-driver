@@ -47,14 +47,22 @@ namespace MongoDB.Driver.Core.Tests.Misc
         }
 
         [Test]
+        public void Initial_reference_count_should_be_one()
+        {
+            var subject = new ReferenceCounted<IDisposable>(_disposable);
+
+            subject.ReferenceCount.Should().Be(1);
+        }
+
+        [Test]
         public void Decrement_should_not_call_dispose_when_reference_count_is_greater_than_zero()
         {
             var subject = new ReferenceCounted<IDisposable>(_disposable);
 
             subject.IncrementReferenceCount();
-            subject.IncrementReferenceCount();
             subject.DecrementReferenceCount();
 
+            subject.ReferenceCount.Should().Be(1);
             _disposable.DidNotReceive().Dispose();
         }
 
@@ -63,11 +71,9 @@ namespace MongoDB.Driver.Core.Tests.Misc
         {
             var subject = new ReferenceCounted<IDisposable>(_disposable);
 
-            subject.IncrementReferenceCount();
-            subject.IncrementReferenceCount();
-            subject.DecrementReferenceCount();
             subject.DecrementReferenceCount();
 
+            subject.ReferenceCount.Should().Be(0);
             _disposable.Received().Dispose();
         }
     }

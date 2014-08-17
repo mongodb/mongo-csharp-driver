@@ -24,7 +24,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Tests.Bindings
 {
     [TestFixture]
-    public class ConnectionSourceReadWriteBindingAdapterTests
+    public class ConnectionSourceReadWriteBindingTests
     {
         private IConnectionSourceHandle _connectionSource;
 
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void Constructor_should_throw_if_connectionSource_is_null()
         {
-            Action act = () => new ConnectionSourceReadWriteBindingAdapter(null, ReadPreference.Primary);
+            Action act = () => new ConnectionSourceReadWriteBinding(null, ReadPreference.Primary);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -45,23 +45,23 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
-            Action act = () => new ConnectionSourceReadWriteBindingAdapter(_connectionSource, null);
+            Action act = () => new ConnectionSourceReadWriteBinding(_connectionSource, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void Constructor_should_fork_connectionSource()
+        public void Constructor_should_not_fork_connectionSource()
         {
-            var subject = new ConnectionSourceReadWriteBindingAdapter(_connectionSource, ReadPreference.Primary);
+            var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
 
-            _connectionSource.Received().Fork();
+            _connectionSource.DidNotReceive().Fork();
         }
 
         [Test]
         public void GetReadConnectionSourceAsync_should_throw_if_disposed()
         {
-            var subject = new ConnectionSourceReadWriteBindingAdapter(_connectionSource, ReadPreference.Primary);
+            var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
             subject.Dispose();
 
             Action act = () => subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void GetReadConnectionSourceAsync_should_fork_the_connectionSource()
         {
-            var subject = new ConnectionSourceReadWriteBindingAdapter(_connectionSource, ReadPreference.Primary);
+            var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
 
             subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
 
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void GetWriteConnectionSourceAsync_should_throw_if_disposed()
         {
-            var subject = new ConnectionSourceReadWriteBindingAdapter(_connectionSource, ReadPreference.Primary);
+            var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
             subject.Dispose();
 
             Action act = () => subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void GetWriteConnectionSourceAsync_should_fork_the_connectionSource()
         {
-            var subject = new ConnectionSourceReadWriteBindingAdapter(_connectionSource, ReadPreference.Primary);
+            var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
 
             subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
 
@@ -103,14 +103,11 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void Dispose_should_call_dispose_on_connection_source()
         {
-            var fork = Substitute.For<IConnectionSourceHandle>();
-            _connectionSource.Fork().Returns(fork);
-            var subject = new ConnectionSourceReadWriteBindingAdapter(_connectionSource, ReadPreference.Primary);
+            var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
 
             subject.Dispose();
 
-            fork.Received().Dispose();
-            _connectionSource.DidNotReceive().Dispose();
+            _connectionSource.Received().Dispose();
         }
     }
 }

@@ -49,15 +49,14 @@
     </Compile>
     <Compile Include="Async\AsyncBackgroundTask.cs" />
     <Compile Include="Async\AsyncDropbox.cs" />
-    <Compile Include="Bindings\ConnectionSourceReadWriteBindingAdapter.cs" />
+    <Compile Include="Bindings\ConnectionSourceReadWriteBinding.cs" />
     <Compile Include="Bindings\ReadWriteBindingHandle.cs" />
-    <Compile Include="Bindings\WriteBindingHandle.cs" />
     <Compile Include="Bindings\ReadBindingHandle.cs" />
-    <Compile Include="Bindings\ReadWriteBinding.cs" />
+    <Compile Include="Bindings\SplitReadWriteBinding.cs" />
     <Compile Include="Bindings\IConnectionSource.cs" />
-    <Compile Include="Bindings\ReadBinding.cs" />
+    <Compile Include="Bindings\ReadPreferenceBinding.cs" />
     <Compile Include="Misc\ReferenceCounted.cs" />
-    <Compile Include="Bindings\WriteBinding.cs" />
+    <Compile Include="Bindings\WritableServerBinding.cs" />
     <Compile Include="Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="Misc\BatchableSource.cs" />
     <Compile Include="Misc\Metronome.cs" />

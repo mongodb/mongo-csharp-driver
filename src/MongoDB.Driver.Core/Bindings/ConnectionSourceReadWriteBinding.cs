@@ -14,62 +14,57 @@
 */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    public sealed class ReadWriteBinding : IReadWriteBinding
+    internal sealed class ConnectionSourceReadWriteBinding : IReadWriteBinding
     {
         // fields
+        private readonly IConnectionSourceHandle _connectionSource;
         private bool _disposed;
-        private readonly IReadBinding _readBinding;
-        private readonly IWriteBinding _writeBinding;
+        private readonly ReadPreference _readPreference;
 
         // constructors
-        public ReadWriteBinding(IReadBinding readBinding, IWriteBinding writeBinding)
+        public ConnectionSourceReadWriteBinding(IConnectionSourceHandle connectionSource, ReadPreference readPreference)
         {
-            _readBinding = Ensure.IsNotNull(readBinding, "readBinding");
-            _writeBinding = Ensure.IsNotNull(writeBinding, "writeBinding");
-        }
-
-        public ReadWriteBinding(ICluster cluster, ReadPreference readPreference)
-            : this(new ReadBinding(cluster, readPreference), new WriteBinding(cluster))
-        {
+            _connectionSource = Ensure.IsNotNull(connectionSource, "connectionSource");
+            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
         }
 
         // properties
         public ReadPreference ReadPreference
         {
-            get { return _readBinding.ReadPreference; }
+            get { return _readPreference; }
         }
 
         // methods
-        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, System.Threading.CancellationToken cancellationToken)
+        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _readBinding.GetReadConnectionSourceAsync(timeout, cancellationToken);
+            return Task.FromResult(_connectionSource.Fork());
         }
 
-        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(TimeSpan timeout, System.Threading.CancellationToken cancellationToken)
+        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _writeBinding.GetWriteConnectionSourceAsync(timeout, cancellationToken);
+            return Task.FromResult(_connectionSource.Fork());
         }
 
         public void Dispose()
         {
-            if(!_disposed)
+            if (!_disposed)
             {
-                _readBinding.Dispose();
-                _writeBinding.Dispose();
+                _connectionSource.Dispose();
                 _disposed = true;
                 GC.SuppressFinalize(this);
             }
         }
 
-        private void ThrowIfDisposed()
+        public void ThrowIfDisposed()
         {
             if(_disposed)
             {

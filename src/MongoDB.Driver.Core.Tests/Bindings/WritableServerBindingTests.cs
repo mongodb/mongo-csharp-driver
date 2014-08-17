@@ -18,13 +18,14 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using NSubstitute;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Tests.Bindings
 {
     [TestFixture]
-    public class WriteBindingTests
+    public class WritableServerBindingTests
     {
         private ICluster _cluster;
 
@@ -37,15 +38,44 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void Constructor_should_throw_if_cluster_is_null()
         {
-            Action act = () => new WriteBinding(null);
+            Action act = () => new WritableServerBinding(null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
+        public void ReadPreference_should_be_primary()
+        {
+            var subject = new WritableServerBinding(_cluster);
+
+            subject.ReadPreference.Should().Be(ReadPreference.Primary);
+        }
+
+        [Test]
+        public void GetReadConnectionSourceAsync_should_throw_if_disposed()
+        {
+            var subject = new WritableServerBinding(_cluster);
+            subject.Dispose();
+
+            Action act = () => subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
+
+            act.ShouldThrow<ObjectDisposedException>();
+        }
+
+        [Test]
+        public void GetReadConnectionSourceAsync_should_use_a_writable_server_selector_to_select_the_server_from_the_cluster()
+        {
+            var subject = new WritableServerBinding(_cluster);
+
+            subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+
+            _cluster.Received().SelectServerAsync(Arg.Any<WritableServerSelector>(), Timeout.InfiniteTimeSpan, CancellationToken.None);
+        }
+
+        [Test]
         public void GetWriteConnectionSourceAsync_should_throw_if_disposed()
         {
-            var subject = new WriteBinding(_cluster);
+            var subject = new WritableServerBinding(_cluster);
             subject.Dispose();
 
             Action act = () => subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
@@ -54,19 +84,19 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         }
 
         [Test]
-        public void GetReadConnectionSourceAsync_should_get_the_connection_source_from_the_read_binding()
+        public void GetWriteConnectionSourceAsync_should_use_a_writable_server_selector_to_select_the_server_from_the_cluster()
         {
-            var subject = new WriteBinding(_cluster);
+            var subject = new WritableServerBinding(_cluster);
 
             subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
-            _cluster.ReceivedWithAnyArgs().SelectServerAsync(null, default(TimeSpan), default(CancellationToken));
+            _cluster.Received().SelectServerAsync(Arg.Any<WritableServerSelector>(), Timeout.InfiniteTimeSpan, CancellationToken.None);
         }
 
         [Test]
         public void Dispose_should_call_dispose_on_read_binding_and_write_binding()
         {
-            var subject = new WriteBinding(_cluster);
+            var subject = new WritableServerBinding(_cluster);
 
             subject.Dispose();
 

@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.FunctionalTests.Helpers
 
         protected Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = new WriteBinding(_cluster))
+            using (var binding = new WritableServerBinding(_cluster))
             {
                 return operation.ExecuteAsync(binding, timeout, cancellationToken);
             }

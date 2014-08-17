@@ -55,12 +55,11 @@
     <Compile Include="AssertionExtensions.cs" />
     <Compile Include="Async\AsyncDropboxTests.cs" />
     <Compile Include="Bindings\ReadBindingHandleTests.cs" />
-    <Compile Include="Bindings\WriteBindingHandleTests - Copy.cs" />
     <Compile Include="Bindings\ReadWriteBindingHandleTests.cs" />
-    <Compile Include="Bindings\ReadBindingTests.cs" />
-    <Compile Include="Bindings\WriteBindingTests.cs" />
-    <Compile Include="Bindings\ReadWriteBindingTests.cs" />
-    <Compile Include="Bindings\ConnectionSourceReadWriteBindingAdapterTests.cs" />
+    <Compile Include="Bindings\ReadPreferenceBindingTests.cs" />
+    <Compile Include="Bindings\WritableServerBindingTests.cs" />
+    <Compile Include="Bindings\SplitReadWriteBindingTests.cs" />
+    <Compile Include="Bindings\ConnectionSourceReadWriteBindingTests.cs" />
     <Compile Include="Bindings\ConnectionSourceHandleTests.cs" />
     <Compile Include="Misc\ReferenceCountedTests.cs" />
     <Compile Include="Bindings\ServerConnectionSourceTests.cs" />

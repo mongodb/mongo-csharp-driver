@@ -23,14 +23,15 @@ namespace MongoDB.Driver.Core.Bindings
         private ReadBindingHandle(ReferenceCounted<IReadBinding> reference)
         {
             _reference = reference;
-            _reference.IncrementReferenceCount();
         }
 
+        // properties
         public ReadPreference ReadPreference
         {
             get { return _reference.Instance.ReadPreference; }
         }
 
+        // methods
         public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, System.Threading.CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -39,7 +40,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         public void Dispose()
         {
-            if(!_disposed)
+            if (!_disposed)
             {
                 _reference.DecrementReferenceCount();
                 _disposed = true;
@@ -50,12 +51,12 @@ namespace MongoDB.Driver.Core.Bindings
         public IReadBindingHandle Fork()
         {
             ThrowIfDisposed();
-            return new ReadBindingHandle(_reference);
+            return new ReadBindingHandle(_reference.IncrementReferenceCount());
         }
 
         private void ThrowIfDisposed()
         {
-            if(_disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }

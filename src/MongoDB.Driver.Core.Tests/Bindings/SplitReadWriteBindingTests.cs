@@ -24,7 +24,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Tests.Bindings
 {
     [TestFixture]
-    public class ReadWriteBindingTests
+    public class SplitReadWriteBindingTests
     {
         private IReadBinding _readBinding;
         private IWriteBinding _writeBinding;
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void Constructor_should_throw_if_readBinding_is_null()
         {
-            Action act = () => new ReadWriteBinding(null, _writeBinding);
+            Action act = () => new SplitReadWriteBinding(null, _writeBinding);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
-            Action act = () => new ReadWriteBinding(_readBinding, null);
+            Action act = () => new SplitReadWriteBinding(_readBinding, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void GetReadConnectionSourceAsync_should_throw_if_disposed()
         {
-            var subject = new ReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
             subject.Dispose();
 
             Action act = () => subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void GetReadConnectionSourceAsync_should_get_the_connection_source_from_the_read_binding()
         {
-            var subject = new ReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
 
             subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
 
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void GetWriteConnectionSourceAsync_should_throw_if_disposed()
         {
-            var subject = new ReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
             subject.Dispose();
 
             Action act = () => subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void GetWriteConnectionSourceAsync_should_get_the_connection_source_from_the_write_binding()
         {
-            var subject = new ReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
 
             subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
 
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Tests.Bindings
         [Test]
         public void Dispose_should_call_dispose_on_read_binding_and_write_binding()
         {
-            var subject = new ReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
 
             subject.Dispose();
 
