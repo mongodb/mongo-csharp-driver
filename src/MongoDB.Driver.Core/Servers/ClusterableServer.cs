@@ -225,7 +225,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 newDescription = _baseDescription.WithHeartbeatInfo(
                     averageRoundTripTimeRounded,
-                    isMasterResult.GetReplicaSetConfig(_settings.AddressFamily),
+                    isMasterResult.GetReplicaSetConfig(),
                     isMasterResult.Tags,
                     isMasterResult.ServerType,
                     buildInfoResult.ServerVersion,

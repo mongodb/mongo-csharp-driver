@@ -186,46 +186,46 @@ namespace MongoDB.Driver.Core.Connections
             return _wrapped.GetHashCode();
         }
 
-        private List<EndPoint> GetMembers(AddressFamily addressFamily)
+        private List<EndPoint> GetMembers()
         {
-            var hosts = GetMembers(addressFamily, "hosts");
-            var passives = GetMembers(addressFamily, "passives");
-            var arbiters = GetMembers(addressFamily, "arbiters");
+            var hosts = GetMembers("hosts");
+            var passives = GetMembers("passives");
+            var arbiters = GetMembers("arbiters");
             return hosts.Concat(passives).Concat(arbiters).ToList();
         }
 
-        private IEnumerable<EndPoint> GetMembers(AddressFamily addressFamily, string elementName)
+        private IEnumerable<EndPoint> GetMembers(string elementName)
         {
             if (!_wrapped.Contains(elementName))
             {
                 return new EndPoint[0];
             }
 
-            return ((BsonArray)_wrapped[elementName]).Select(v => EndPointParser.Parse((string)v, addressFamily));
+            return ((BsonArray)_wrapped[elementName]).Select(v => EndPointParser.Parse((string)v));
         }
 
-        private EndPoint GetPrimary(AddressFamily addressFamily)
+        private EndPoint GetPrimary()
         {
             BsonValue primary;
             if (_wrapped.TryGetValue("primary", out primary))
             {
                 // TODO: what does primary look like when there is no current primary (null, empty string)?
-                return EndPointParser.Parse((string)primary, addressFamily);
+                return EndPointParser.Parse((string)primary);
             }
 
             return null;
         }
 
-        public ReplicaSetConfig GetReplicaSetConfig(AddressFamily addressFamily)
+        public ReplicaSetConfig GetReplicaSetConfig()
         {
             if (!IsReplicaSetMember)
             {
                 return null;
             }
 
-            var members = GetMembers(addressFamily);
+            var members = GetMembers();
             var name = (string)_wrapped.GetValue("setName", null);
-            var primary = GetPrimary(addressFamily);
+            var primary = GetPrimary();
             var version = _wrapped.Contains("version") ? (int?)_wrapped["version"].ToInt32() : null;
 
             return new ReplicaSetConfig(members, name, primary, version);

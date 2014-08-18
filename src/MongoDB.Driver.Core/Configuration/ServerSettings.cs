@@ -24,34 +24,25 @@ namespace MongoDB.Driver.Core.Configuration
     public class ServerSettings
     {
         // fields
-        private readonly AddressFamily _addressFamily;
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
 
         // constructors
         public ServerSettings()
         {
-            _addressFamily = AddressFamily.Unspecified;
             _heartbeatInterval = TimeSpan.FromSeconds(10);
             _heartbeatTimeout = TimeSpan.FromSeconds(10);
         }
 
         internal ServerSettings(
-            AddressFamily addressFamily,
             TimeSpan heartbeatInterval,
             TimeSpan heartbeatTimeout)
         {
-            _addressFamily = addressFamily;
             _heartbeatInterval = heartbeatInterval;
             _heartbeatTimeout = heartbeatTimeout;
         }
 
         // properties
-        public AddressFamily AddressFamily
-        {
-            get { return _addressFamily; }
-        }
-
         public TimeSpan HeartbeatInterval
         {
             get { return _heartbeatInterval; }
@@ -63,11 +54,6 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // methods
-        public ServerSettings WithAddressFamily(AddressFamily value)
-        {
-            return (_addressFamily == value) ? this : new Builder(this) { _addressFamily = value }.Build();
-        }
-
         public ServerSettings WithHeartbeatInterval(TimeSpan value)
         {
             return (_heartbeatInterval == value) ? this : new Builder(this) { _heartbeatInterval = value }.Build();
@@ -82,14 +68,12 @@ namespace MongoDB.Driver.Core.Configuration
         private struct Builder
         {
             // fields
-            public AddressFamily _addressFamily;
             public TimeSpan _heartbeatInterval;
             public TimeSpan _heartbeatTimeout;
 
             // constructors
             public Builder(ServerSettings other)
             {
-                _addressFamily = other._addressFamily;
                 _heartbeatInterval = other._heartbeatInterval;
                 _heartbeatTimeout = other._heartbeatTimeout;
             }
@@ -98,7 +82,6 @@ namespace MongoDB.Driver.Core.Configuration
             public ServerSettings Build()
             {
                 return new ServerSettings(
-                    _addressFamily,
                     _heartbeatInterval,
                     _heartbeatTimeout);
             }

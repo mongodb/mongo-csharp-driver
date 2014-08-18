@@ -349,17 +349,11 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ExtractHosts(Match match)
         {
-            var addressFamily = AddressFamily.Unspecified;
-            if (_ipv6.HasValue)
-            {
-                addressFamily = _ipv6.Value ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
-            }
-
             List<EndPoint> endPoints = new List<EndPoint>();
             foreach (Capture host in match.Groups["host"].Captures)
             {
                 EndPoint endPoint;
-                if (EndPointParser.TryParse(host.Value, addressFamily, out endPoint))
+                if (EndPointParser.TryParse(host.Value, out endPoint))
                 {
                     endPoints.Add(endPoint);
                 }

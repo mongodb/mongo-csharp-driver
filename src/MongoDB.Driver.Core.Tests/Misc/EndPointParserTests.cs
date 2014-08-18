@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Tests.Misc
         [Test]
         public void Parse_should_throw_an_ArgumentNullException_when_value_is_null()
         {
-            Action act = () => EndPointParser.Parse(null, AddressFamily.Unspecified);
+            Action act = () => EndPointParser.Parse(null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Tests.Misc
         [TestCase(":21")]
         public void Parse_should_throw_an_ArgumentException_when_value_is_not_a_valid_end_point(string value)
         {
-            Action act = () => EndPointParser.Parse(value, AddressFamily.Unspecified);
+            Action act = () => EndPointParser.Parse(value);
 
             act.ShouldThrow<ArgumentException>();
         }
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Tests.Misc
         public void TryParse_should_return_false_when_the_end_point_is_invalid(string value)
         {
             EndPoint result;
-            var success = EndPointParser.TryParse(value, AddressFamily.Unspecified, out result);
+            var success = EndPointParser.TryParse(value, out result);
 
             success.Should().BeFalse();
         }
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Tests.Misc
         public void TryParse_should_parse_a_hostname(string value, string expectedHost, int expectedPort)
         {
             EndPoint result;
-            var success = EndPointParser.TryParse(value, AddressFamily.Unspecified, out result);
+            var success = EndPointParser.TryParse(value, out result);
 
             success.Should().BeTrue();
             result.Should().Be(new DnsEndPoint(expectedHost, expectedPort));
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Tests.Misc
         public void TryParse_should_parse_an_ipv4_address(string value, string expectedAddress, int expectedPort)
         {
             EndPoint result;
-            var success = EndPointParser.TryParse(value, AddressFamily.Unspecified, out result);
+            var success = EndPointParser.TryParse(value, out result);
 
             success.Should().BeTrue();
             result.Should().Be(new IPEndPoint(IPAddress.Parse(expectedAddress), expectedPort));
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Tests.Misc
         public void TryParse_should_parse_an_ipv6_address(string value, string expectedAddress, int expectedPort)
         {
             EndPoint result;
-            var success = EndPointParser.TryParse(value, AddressFamily.Unspecified, out result);
+            var success = EndPointParser.TryParse(value, out result);
 
             success.Should().BeTrue();
             result.Should().Be(new IPEndPoint(IPAddress.Parse(expectedAddress), expectedPort));

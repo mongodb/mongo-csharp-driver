@@ -28,28 +28,8 @@ namespace MongoDB.Driver.Core.Tests.Configuration
         public void Constructor_initializes_instance()
         {
             var subject = new ServerSettings();
-            subject.AddressFamily.Should().Be(AddressFamily.Unspecified);
             subject.HeartbeatInterval.Should().Be(TimeSpan.FromSeconds(10));
             subject.HeartbeatTimeout.Should().Be(TimeSpan.FromSeconds(10));
-        }
-
-        [Test]
-        public void WithAddress_returns_new_instance_if_value_is_not_equal()
-        {
-            var oldAddressFamily = AddressFamily.InterNetwork;
-            var newAddressFamily = AddressFamily.InterNetworkV6;
-            var subject1 = new ServerSettings().WithAddressFamily(oldAddressFamily);
-            var subject2 = subject1.WithAddressFamily(newAddressFamily);
-            subject2.Should().NotBeSameAs(subject1);
-            subject2.AddressFamily.Should().Be(newAddressFamily);
-        }
-
-        [Test]
-        public void WithAddress_returns_same_instance_if_value_is_equal()
-        {
-            var subject1 = new ServerSettings();
-            var subject2 = subject1.WithAddressFamily(subject1.AddressFamily);
-            subject2.Should().BeSameAs(subject1);
         }
 
         [Test]

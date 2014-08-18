@@ -28,12 +28,12 @@ namespace MongoDB.Driver.Core.Misc
     public static class EndPointParser
     {
         // static methods
-        public static EndPoint Parse(string value, AddressFamily addressFamily)
+        public static EndPoint Parse(string value)
         {
             Ensure.IsNotNull(value, "value");
 
             EndPoint endPoint;
-            if (!TryParse(value, addressFamily, out endPoint))
+            if (!TryParse(value, out endPoint))
             {
                 var message = string.Format("'{0}' is not a valid end point.", value);
                 throw new ArgumentException(message, "value");
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Misc
             return endPoint;
         }
 
-        public static bool TryParse(string value, AddressFamily addressFamily, out EndPoint endPoint)
+        public static bool TryParse(string value, out EndPoint endPoint)
         {
             endPoint = null;
 
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Misc
 
                     try
                     {
-                        endPoint = new DnsEndPoint(host, port, addressFamily);
+                        endPoint = new DnsEndPoint(host, port);
                         return true;
                     }
                     catch (ArgumentException)

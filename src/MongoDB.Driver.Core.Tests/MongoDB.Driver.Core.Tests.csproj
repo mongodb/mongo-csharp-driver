@@ -61,6 +61,7 @@
     <Compile Include="Bindings\SplitReadWriteBindingTests.cs" />
     <Compile Include="Bindings\ConnectionSourceReadWriteBindingTests.cs" />
     <Compile Include="Bindings\ConnectionSourceHandleTests.cs" />
+    <Compile Include="Configuration\TcpStreamSettingsTests.cs" />
     <Compile Include="Misc\ReferenceCountedTests.cs" />
     <Compile Include="Bindings\ServerConnectionSourceTests.cs" />
     <Compile Include="Helpers\BlockingMemoryStream.cs" />

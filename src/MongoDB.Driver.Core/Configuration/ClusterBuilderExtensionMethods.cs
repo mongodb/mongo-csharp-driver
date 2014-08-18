@@ -41,6 +41,10 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 // TODO: nowhere to set this
             }
+            if (connectionString.Ipv6.HasValue && connectionString.Ipv6.Value)
+            {
+                configuration.ConfigureTcp(s => s.WithAddressFamily(AddressFamily.InterNetworkV6));
+            }
 
             if (connectionString.SocketTimeout != null)
             {
@@ -87,12 +91,6 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             // Server
-            var addressFamily = AddressFamily.Unspecified;
-            if (connectionString.Ipv6.HasValue)
-            {
-                addressFamily = connectionString.Ipv6.Value ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
-            }
-            configuration.ConfigureServer(s => s.WithAddressFamily(addressFamily));
 
             // Cluster
             if (connectionString.Hosts.Count > 0)

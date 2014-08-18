@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
             };
 
             var subject = new IsMasterResult(doc);
-            var config = subject.GetReplicaSetConfig(AddressFamily.Unspecified);
+            var config = subject.GetReplicaSetConfig();
 
             config.Name.Should().Be("funny");
             config.Primary.Should().Be(new DnsEndPoint("localhost", 1000));

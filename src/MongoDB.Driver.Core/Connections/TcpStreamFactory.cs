@@ -48,13 +48,18 @@ namespace MongoDB.Driver.Core.Connections
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
-            var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            var addressFamily = endPoint.AddressFamily;
+            if(addressFamily == AddressFamily.Unspecified || addressFamily == AddressFamily.Unknown)
+            {
+                addressFamily = _settings.AddressFamily;
+            }
+            var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
             await ConnectAsync(socket, endPoint, slidingTimeout, cancellationToken);
             socket.NoDelay = true;
             socket.ReceiveBufferSize = _settings.ReceiveBufferSize;
             socket.SendBufferSize = _settings.SendBufferSize;
 
-            var stream = new NetworkStream(socket, ownsSocket: true);
+            var stream = new NetworkStream(socket, true);
 
             if (_settings.ReadTimeout.HasValue)
             {

@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace MongoDB.Driver.Core.Configuration
     public class TcpStreamSettings
     {
         // fields
+        private readonly AddressFamily _addressFamily;
         private readonly TimeSpan? _readTimeout;
         private readonly int _receiveBufferSize;
         private readonly int _sendBufferSize;
@@ -37,16 +39,19 @@ namespace MongoDB.Driver.Core.Configuration
         // constructors
         public TcpStreamSettings()
         {
+            _addressFamily = AddressFamily.InterNetwork;
             _receiveBufferSize = 64 * 1024;
             _sendBufferSize = 64 * 1024;
         }
 
         private TcpStreamSettings(
+            AddressFamily addressFamily,
             TimeSpan? readTimeout,
             int receiveBufferSize,
             int sendBufferSize,
             TimeSpan? writeTimeout)
         {
+            _addressFamily = addressFamily;
             _readTimeout = readTimeout;
             _receiveBufferSize = receiveBufferSize;
             _sendBufferSize = sendBufferSize;
@@ -54,6 +59,11 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // properties
+        public AddressFamily AddressFamily
+        {
+            get { return _addressFamily; }
+        }
+
         public TimeSpan? ReadTimeout
         {
             get { return _readTimeout; }
@@ -75,6 +85,11 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // methods
+        public TcpStreamSettings WithAddressFamily(AddressFamily value)
+        {
+            return _addressFamily == value ? this : new Builder(this) { _addressFamily = value }.Build();
+        }
+
         public TcpStreamSettings WithReadTimeout(TimeSpan? value)
         {
             Ensure.IsNullOrValidTimeout(value, "value");
@@ -103,6 +118,7 @@ namespace MongoDB.Driver.Core.Configuration
         private struct Builder
         {
             // fields
+            public AddressFamily _addressFamily;
             public TimeSpan? _readTimeout;
             public int _receiveBufferSize;
             public int _sendBufferSize;
@@ -111,6 +127,7 @@ namespace MongoDB.Driver.Core.Configuration
             // constructors
             public Builder(TcpStreamSettings other)
             {
+                _addressFamily = other._addressFamily;
                 _readTimeout = other._readTimeout;
                 _receiveBufferSize = other._receiveBufferSize;
                 _sendBufferSize = other._sendBufferSize;
@@ -121,6 +138,7 @@ namespace MongoDB.Driver.Core.Configuration
             public TcpStreamSettings Build()
             {
                 return new TcpStreamSettings(
+                    _addressFamily,
                     _readTimeout,
                     _receiveBufferSize,
                     _sendBufferSize,
