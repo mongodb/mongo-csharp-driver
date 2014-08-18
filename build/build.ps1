@@ -1,4 +1,4 @@
-Properties {
+properties {
     if(-not (Test-Path variable:base_version)) {
         $base_version = "2.0.0"
     }
@@ -111,6 +111,8 @@ Task Build -Depends Clean, OutputVersion {
             -version $version `
             -config $config `
             -sem_version $sem_version `
+
+        Exec { &$nuget_tool restore $sln_file }
 
         mkdir -path $45_bin_dir | out-null
         Write-Host "Building $sln_file for .NET 4.5" -ForegroundColor Green
