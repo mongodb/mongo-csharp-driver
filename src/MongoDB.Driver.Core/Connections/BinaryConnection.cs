@@ -325,7 +325,6 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
             ThrowIfDisposedOrNotOpen();
 
-            var slidingTimeout = new SlidingTimeout(timeout);
             var messagesToSend = messages.ToList();
 
             try
