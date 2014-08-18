@@ -51,7 +51,8 @@ namespace MongoDB.Driver.Core.Bindings
         public IReadBindingHandle Fork()
         {
             ThrowIfDisposed();
-            return new ReadBindingHandle(_reference.IncrementReferenceCount());
+            _reference.IncrementReferenceCount();
+            return new ReadBindingHandle(_reference);
         }
 
         private void ThrowIfDisposed()

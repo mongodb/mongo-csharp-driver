@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         #endregion
 
         // constructors
-        public WritableServerSelector()
+        private WritableServerSelector()
         {
         }
 

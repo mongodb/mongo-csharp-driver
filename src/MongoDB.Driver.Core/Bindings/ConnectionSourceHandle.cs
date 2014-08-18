@@ -65,7 +65,8 @@ namespace MongoDB.Driver.Core.Bindings
         public IConnectionSourceHandle Fork()
         {
             ThrowIfDisposed();
-            return new ConnectionSourceHandle(_reference.IncrementReferenceCount());
+            _reference.IncrementReferenceCount();
+            return new ConnectionSourceHandle(_reference);
         }
 
         private void ThrowIfDisposed()

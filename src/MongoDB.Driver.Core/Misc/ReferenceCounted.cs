@@ -52,10 +52,9 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public ReferenceCounted<T> IncrementReferenceCount()
+        public void IncrementReferenceCount()
         {
             Interlocked.Increment(ref _referenceCount);
-            return this;
         }
     }
 }
