@@ -2,45 +2,8 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
     <DirectoryRef Id="INSTALLDIR">
-      <Directory Id="net40Folder" Name="net40" />
       <Directory Id="net45Folder" Name="net45" />
     </DirectoryRef>
-
-    <DirectoryRef Id="net40Folder">
-      <Component Id="c_net40BsonDll" Guid="*">
-        <File Id="f_net40BsonDll" Name="MongoDB.Bson.dll" Source="$(var.BinDir)\net40\MongoDB.Bson.dll"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_net40BsonPdb" Guid="*">
-        <File Id="f_net40BsonPdb" Name="MongoDB.Bson.pdb" Source="$(var.BinDir)\net40\MongoDB.Bson.pdb"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_net40BsonXml" Guid="*">
-        <File Id="f_net40BsonXml" Name="MongoDB.Bson.xml" Source="$(var.BinDir)\net40\MongoDB.Bson.XML"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_net40DriverDll" Guid="*">
-        <File Id="f_net40DriverDll" Name="MongoDB.Driver.dll" Source="$(var.BinDir)\net40\MongoDB.Driver.dll"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_net40DriverPdb" Guid="*">
-        <File Id="f_net40DriverPdb" Name="MongoDB.Driver.pdb" Source="$(var.BinDir)\net40\MongoDB.Driver.pdb"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_net40DriverXml" Guid="*">
-        <File Id="f_net40DriverXml" Name="MongoDB.Driver.XML" Source="$(var.BinDir)\net40\MongoDB.Driver.XML"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-    </DirectoryRef>
-
-    <ComponentGroup Id="cg_net40">
-      <ComponentRef Id="c_net40BsonDll"/>
-      <ComponentRef Id="c_net40BsonPdb"/>
-      <ComponentRef Id="c_net40BsonXml"/>
-      <ComponentRef Id="c_net40DriverDll"/>
-      <ComponentRef Id="c_net40DriverPdb"/>
-      <ComponentRef Id="c_net40DriverXml"/>
-    </ComponentGroup>
 
     <DirectoryRef Id="net45Folder">
       <Component Id="c_net45BsonDll" Guid="*">
@@ -83,13 +46,6 @@
              Description="The supported frameworks."
              Level ="1"
              AllowAdvertise="no">
-      <Feature Id="net40Feature"
-               Title =".NET 4.0"
-               Description="Install support for .NET 4.0."
-               Level ="1"
-               AllowAdvertise="no">
-        <ComponentGroupRef Id="cg_net40" />
-      </Feature>
       <Feature Id="net45Feature"
                Title =".NET 4.5"
                Description="Install support for .NET 4.5."

@@ -22,5 +22,5 @@ script:
 - xbuild ./src/CSharpDriver-Mono.sln
 - brew install mongodb
 - mkdir -p ./build/db/data
-- mongod --dbpath ./build/db/data --logpath ./build/db/log.log --fork --setParameter textSearchEnabled=true
-- mono --runtime=v4.0.30319 ./Tools/NUnit/nunit-console.exe ./src/MongoDB.Bson.Tests/bin/Debug/MongoDB.Bson.Tests.dll ./src/MongoDB.Driver.Tests/bin/Debug/MongoDB.Driver.Tests.dll
+- mongod --dbpath ./build/db/data --logpath ./build/db/log.log --fork --setParameter enableTestCommands=1
+- mono --runtime=v4.0.30319 ./Tools/NUnit/nunit-console.exe ./src/MongoDB.Bson.Tests/bin/Debug/MongoDB.Bson.Tests.dll ./src/MongoDB.Driver.Tests/bin/Debug/MongoDB.Driver.Core.Tests.dll ./src/MongoDB.Driver.Tests/bin/Debug/MongoDB.Driver.Tests.dll
