@@ -436,9 +436,6 @@
     <Compile Include="Communication\Messages\MessageOpcode.cs" />
     <Compile Include="ResponseFlags.cs" />
     <Compile Include="MongoCollection.cs" />
-    <Compile Include="MongoConnectionStringBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="MongoCredential.cs" />
     <Compile Include="CommandResults\MapReduceResult.cs" />
     <Compile Include="MongoServer.cs" />

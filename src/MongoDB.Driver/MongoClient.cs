@@ -94,8 +94,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                var builder = new MongoConnectionStringBuilder(connectionString);
-                return MongoClientSettings.FromConnectionStringBuilder(builder);
+                throw new ArgumentException("Connection string does not start with mongodb://");
             }
         }
 

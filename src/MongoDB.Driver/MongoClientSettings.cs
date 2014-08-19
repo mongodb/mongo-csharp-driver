@@ -445,52 +445,6 @@ namespace MongoDB.Driver
 
         // public static methods
         /// <summary>
-        /// Gets a MongoClientSettings object intialized with values from a connection string builder.
-        /// </summary>
-        /// <param name="builder">The connection string builder.</param>
-        /// <returns>A MongoClientSettings.</returns>
-        public static MongoClientSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder)
-        {
-            var credential = MongoCredential.FromComponents(
-                builder.AuthenticationMechanism,
-                builder.AuthenticationSource ?? builder.DatabaseName,
-                builder.Username,
-                builder.Password);
-
-            var clientSettings = new MongoClientSettings();
-            clientSettings.ConnectionMode = builder.ConnectionMode;
-            clientSettings.ConnectTimeout = builder.ConnectTimeout;
-            if (credential != null)
-            {
-                if (!string.IsNullOrEmpty(builder.GssapiServiceName))
-                {
-                    credential = credential.WithMechanismProperty("SERVICE_NAME", builder.GssapiServiceName);
-                }
-                clientSettings.Credentials = new[] { credential };
-            }
-            clientSettings.GuidRepresentation = builder.GuidRepresentation;
-            clientSettings.IPv6 = builder.IPv6;
-            clientSettings.MaxConnectionIdleTime = builder.MaxConnectionIdleTime;
-            clientSettings.MaxConnectionLifeTime = builder.MaxConnectionLifeTime;
-            clientSettings.MaxConnectionPoolSize = builder.MaxConnectionPoolSize;
-            clientSettings.MinConnectionPoolSize = builder.MinConnectionPoolSize;
-            clientSettings.ReadEncoding = null; // ReadEncoding must be provided in code
-            clientSettings.ReadPreference = (builder.ReadPreference == null) ? ReadPreference.Primary : builder.ReadPreference.Clone();
-            clientSettings.ReplicaSetName = builder.ReplicaSetName;
-            clientSettings.SecondaryAcceptableLatency = builder.SecondaryAcceptableLatency;
-            clientSettings.Servers = new List<MongoServerAddress>(builder.Servers);
-            clientSettings.SocketTimeout = builder.SocketTimeout;
-            clientSettings.SslSettings = null; // SSL settings must be provided in code
-            clientSettings.UseSsl = builder.UseSsl;
-            clientSettings.VerifySslCertificate = builder.VerifySslCertificate;
-            clientSettings.WaitQueueSize = builder.ComputedWaitQueueSize;
-            clientSettings.WaitQueueTimeout = builder.WaitQueueTimeout;
-            clientSettings.WriteConcern = builder.GetWriteConcern(true); // WriteConcern is enabled by default for MongoClient
-            clientSettings.WriteEncoding = null; // WriteEncoding must be provided in code
-            return clientSettings;
-        }
-
-        /// <summary>
         /// Gets a MongoClientSettings object intialized with values from a MongoURL.
         /// </summary>
         /// <param name="url">The MongoURL.</param>

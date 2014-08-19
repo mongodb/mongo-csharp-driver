@@ -90,20 +90,6 @@ namespace MongoDB.Driver
         /// Creates a new instance or returns an existing instance of MongoServer. Only one instance
         /// is created for each combination of server settings.
         /// </summary>
-        /// <param name="builder">Server settings in the form of a MongoConnectionStringBuilder.</param>
-        /// <returns>
-        /// A new or existing instance of MongoServer.
-        /// </returns>
-        [Obsolete("Use MongoClient.GetServer instead.")]
-        public static MongoServer Create(MongoConnectionStringBuilder builder)
-        {
-            return Create(MongoServerSettings.FromConnectionStringBuilder(builder));
-        }
-
-        /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoServer. Only one instance
-        /// is created for each combination of server settings.
-        /// </summary>
         /// <param name="settings">Server settings.</param>
         /// <returns>
         /// A new or existing instance of MongoServer.
@@ -160,8 +146,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                var builder = new MongoConnectionStringBuilder(connectionString);
-                return Create(builder);
+                throw new ArgumentException("Connection string does not start with mongodb://");
             }
         }
 

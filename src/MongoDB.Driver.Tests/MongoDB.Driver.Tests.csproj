@@ -168,7 +168,6 @@
     <Compile Include="ReadPreferenceTests.cs" />
     <Compile Include="MongoCollectionSettingsTests.cs" />
     <Compile Include="MongoCollectionTests.cs" />
-    <Compile Include="MongoConnectionStringBuilderTests.cs" />
     <Compile Include="MongoCredentialTests.cs" />
     <Compile Include="MongoDatabaseSettingsTests.cs" />
     <Compile Include="MongoDatabaseTests.cs" />

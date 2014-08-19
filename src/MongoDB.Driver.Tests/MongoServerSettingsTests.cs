@@ -282,48 +282,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestFromMongoConnectionStringBuilder()
-        {
-            // set everything to non default values to test that all settings are converted
-            var connectionString =
-                "server=somehost;username=user1;password=password1;" +
-                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
-                "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
-                "readPreference=secondary;readPreferenceTags=a:1,b:2|c:3,d:4;secondaryAcceptableLatency=128;socketTimeout=129;" +
-                "ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
-                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
-            var builder = new MongoConnectionStringBuilder(connectionString);
-
-            var settings = MongoServerSettings.FromConnectionStringBuilder(builder);
-            Assert.AreEqual(builder.ConnectionMode, settings.ConnectionMode);
-            Assert.AreEqual(builder.ConnectTimeout, settings.ConnectTimeout);
-            Assert.AreEqual(1, settings.Credentials.Count());
-            Assert.AreEqual(builder.Username, settings.Credentials.Single().Username);
-            Assert.AreEqual("admin", settings.Credentials.Single().Source);
-            Assert.AreEqual(new PasswordEvidence(builder.Password), settings.Credentials.Single().Evidence);
-            Assert.AreEqual(builder.GssapiServiceName, settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", "other"));
-            Assert.AreEqual(builder.GuidRepresentation, settings.GuidRepresentation);
-            Assert.AreEqual(builder.IPv6, settings.IPv6);
-            Assert.AreEqual(builder.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
-            Assert.AreEqual(builder.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
-            Assert.AreEqual(builder.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
-            Assert.AreEqual(builder.MinConnectionPoolSize, settings.MinConnectionPoolSize);
-            Assert.AreEqual(builder.ReadPreference, settings.ReadPreference);
-            Assert.AreEqual(builder.ReplicaSetName, settings.ReplicaSetName);
-            Assert.AreEqual(builder.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
-            Assert.IsTrue(builder.Servers.SequenceEqual(settings.Servers));
-            Assert.AreEqual(builder.SocketTimeout, settings.SocketTimeout);
-            Assert.AreEqual(null, settings.SslSettings);
-            Assert.AreEqual(builder.UseSsl, settings.UseSsl);
-            Assert.AreEqual(builder.VerifySslCertificate, settings.VerifySslCertificate);
-            Assert.AreEqual(builder.ComputedWaitQueueSize, settings.WaitQueueSize);
-            Assert.AreEqual(builder.WaitQueueTimeout, settings.WaitQueueTimeout);
-#pragma warning disable 618
-            Assert.AreEqual(builder.GetWriteConcern(MongoDefaults.SafeMode.Enabled), settings.WriteConcern);
-#pragma warning restore
-        }
-
-        [Test]
         public void TestFromUrl()
         {
             // set everything to non default values to test that all settings are converted

@@ -79,22 +79,6 @@ namespace MongoDB.Driver
         /// Creates an instance of a MongoDatabase.
         /// Automatically creates an instance of MongoServer if needed.
         /// </summary>
-        /// <param name="builder">Server and database settings in the form of a MongoConnectionStringBuilder.</param>
-        /// <returns>
-        /// A new or existing instance of MongoDatabase.
-        /// </returns>
-        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
-        public static MongoDatabase Create(MongoConnectionStringBuilder builder)
-        {
-            var serverSettings = MongoServerSettings.FromConnectionStringBuilder(builder);
-            var databaseName = builder.DatabaseName;
-            return Create(serverSettings, databaseName);
-        }
-
-        /// <summary>
-        /// Creates an instance of a MongoDatabase.
-        /// Automatically creates an instance of MongoServer if needed.
-        /// </summary>
         /// <param name="serverSettings">The server settings for the server that contains this database.</param>
         /// <param name="databaseName">The name of this database (will be accessed using default settings).</param>
         /// <returns>
@@ -145,8 +129,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
-                return Create(builder);
+                throw new ArgumentException("Connection string does not start with mongodb://");
             }
         }
 
