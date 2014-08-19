@@ -43,18 +43,6 @@ namespace MongoDB.Driver
         /// of MongoServer instead.
         /// </summary>
         /// <param name="server">The server that contains this database.</param>
-        /// <param name="settings">The settings to use to access this database.</param>
-        [Obsolete("Use MongoDatabase(MongoServer server, string name, MongoDatabaseSettings settings) instead.")]
-        public MongoDatabase(MongoServer server, MongoDatabaseSettings settings)
-            : this(server, settings.DatabaseName, settings)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new instance of MongoDatabase. Normally you would call one of the indexers or GetDatabase methods
-        /// of MongoServer instead.
-        /// </summary>
-        /// <param name="server">The server that contains this database.</param>
         /// <param name="name">The name of the database.</param>
         /// <param name="settings">The settings to use to access this database.</param>
         public MongoDatabase(MongoServer server, string name, MongoDatabaseSettings settings)
@@ -309,38 +297,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an instance of MongoCollectionSettings for the named collection with the rest of the settings inherited.
-        /// You can override some of these settings before calling GetCollection.
-        /// </summary>
-        /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
-        /// <param name="collectionName">The name of this collection.</param>
-        /// <returns>A MongoCollectionSettings.</returns>
-        [Obsolete("Use new MongoCollectionSettings() instead.")]
-        public virtual MongoCollectionSettings<TDefaultDocument> CreateCollectionSettings<TDefaultDocument>(
-            string collectionName)
-        {
-            return new MongoCollectionSettings<TDefaultDocument>(this, collectionName);
-        }
-
-        /// <summary>
-        /// Creates an instance of MongoCollectionSettings for the named collection with the rest of the settings inherited.
-        /// You can override some of these settings before calling GetCollection.
-        /// </summary>
-        /// <param name="defaultDocumentType">The default document type for this collection.</param>
-        /// <param name="collectionName">The name of this collection.</param>
-        /// <returns>A MongoCollectionSettings.</returns>
-        [Obsolete("Use new MongoCollectionSettings() instead.")]
-        public virtual MongoCollectionSettings CreateCollectionSettings(
-            Type defaultDocumentType,
-            string collectionName)
-        {
-            var settingsDefinition = typeof(MongoCollectionSettings<>);
-            var settingsType = settingsDefinition.MakeGenericType(defaultDocumentType);
-            var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string) });
-            return (MongoCollectionSettings)constructorInfo.Invoke(new object[] { this, collectionName });
-        }
-
-        /// <summary>
         /// Drops a database.
         /// </summary>
         public virtual void Drop()
@@ -503,20 +459,6 @@ namespace MongoDB.Driver
         /// with a default document type of TDefaultDocument.
         /// </summary>
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
-        /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
-        /// <returns>An instance of MongoCollection.</returns>
-        [Obsolete("Use GetCollection<TDefaultDocument>(string collectionName, MongoCollectionSettings collectionSettings) instead.")]
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
-            MongoCollectionSettings<TDefaultDocument> collectionSettings)
-        {
-            return GetCollection<TDefaultDocument>(collectionSettings.CollectionName, collectionSettings);
-        }
-
-        /// <summary>
-        /// Gets a MongoCollection instance representing a collection on this database
-        /// with a default document type of TDefaultDocument.
-        /// </summary>
-        /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName)
@@ -553,18 +495,6 @@ namespace MongoDB.Driver
         {
             var collectionSettings = new MongoCollectionSettings { WriteConcern = writeConcern };
             return GetCollection<TDefaultDocument>(collectionName, collectionSettings);
-        }
-
-        /// <summary>
-        /// Gets a MongoCollection instance representing a collection on this database
-        /// with a default document type of TDefaultDocument.
-        /// </summary>
-        /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
-        /// <returns>An instance of MongoCollection.</returns>
-        [Obsolete("Use GetCollection(Type defaultDocumentType, string collectionName, MongoCollectionSettings settings) instead.")]
-        public virtual MongoCollection GetCollection(MongoCollectionSettings collectionSettings)
-        {
-            return GetCollection(collectionSettings.DefaultDocumentType, collectionSettings.CollectionName, collectionSettings);
         }
 
         /// <summary>

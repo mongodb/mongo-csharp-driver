@@ -26,7 +26,6 @@ namespace MongoDB.Driver
     public class MongoDatabaseSettings
     {
         // private fields
-        private Setting<string> _databaseName;
         private Setting<GuidRepresentation> _guidRepresentation;
         private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
@@ -46,42 +45,7 @@ namespace MongoDB.Driver
         {
         }
 
-        /// <summary>
-        /// Creates a new instance of MongoDatabaseSettings.
-        /// </summary>
-        /// <param name="server">The server to inherit settings from.</param>
-        /// <param name="databaseName">The name of the database.</param>
-        [Obsolete("Use MongoDatabaseSettings() instead.")]
-        public MongoDatabaseSettings(MongoServer server, string databaseName)
-        {
-            if (server == null)
-            {
-                throw new ArgumentNullException("server");
-            }
-            if (databaseName == null)
-            {
-                throw new ArgumentNullException("databaseName");
-            }
-
-            var serverSettings = server.Settings;
-            _databaseName.Value = databaseName;
-            _guidRepresentation.Value = serverSettings.GuidRepresentation;
-            _readEncoding.Value = serverSettings.ReadEncoding;
-            _readPreference.Value = serverSettings.ReadPreference;
-            _writeConcern.Value = serverSettings.WriteConcern;
-            _writeEncoding.Value = serverSettings.WriteEncoding;
-        }
-
         // public properties
-        /// <summary>
-        /// Gets the name of the database.
-        /// </summary>
-        [Obsolete("Provide the database name on the call to GetDatabase instead.")]
-        public string DatabaseName
-        {
-            get { return _databaseName.Value; }
-        }
-
         /// <summary>
         /// Gets or sets the representation to use for Guids.
         /// </summary>
@@ -206,7 +170,6 @@ namespace MongoDB.Driver
         public MongoDatabaseSettings Clone()
         {
             var clone =  new MongoDatabaseSettings();
-            clone._databaseName = _databaseName.Clone();
             clone._guidRepresentation = _guidRepresentation.Clone();
             clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
@@ -236,7 +199,6 @@ namespace MongoDB.Driver
                 else
                 {
                     return
-                        _databaseName.Value == rhs._databaseName.Value &&
                         _guidRepresentation.Value == rhs._guidRepresentation.Value &&
                         object.Equals(_readEncoding, rhs._readEncoding) &&
                         _readPreference.Value == rhs._readPreference.Value &&
@@ -292,7 +254,6 @@ namespace MongoDB.Driver
 
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + ((_databaseName.Value == null) ? 0 : _databaseName.GetHashCode());
             hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
             hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.GetHashCode());
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
@@ -313,10 +274,6 @@ namespace MongoDB.Driver
             }
 
             var parts = new List<string>();
-            if (_databaseName.HasBeenSet)
-            {
-                parts.Add(string.Format("DatabaseName={0}", _databaseName.Value));
-            }
             parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation.Value));
             if (_readEncoding.HasBeenSet)
             {

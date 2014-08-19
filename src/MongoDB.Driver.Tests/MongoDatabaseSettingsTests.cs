@@ -52,26 +52,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestAllObsolete()
-        {
-#pragma warning disable 618
-            var settings = new MongoDatabaseSettings(_server, "database")
-            {
-                GuidRepresentation = GuidRepresentation.PythonLegacy,
-                ReadPreference = ReadPreference.Primary,
-                WriteConcern = WriteConcern.Acknowledged
-            };
-
-            Assert.AreEqual("database", settings.DatabaseName);
-            Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
-            Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
-            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
-            Assert.AreEqual(false, settings.SlaveOk);
-            Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
-#pragma warning restore
-        }
-
-        [Test]
         public void TestClone()
         {
             // set everything to non default values to test that all settings are cloned
@@ -95,32 +75,6 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(null, settings.SafeMode);
 #pragma warning restore
             Assert.AreEqual(null, settings.WriteConcern);
-        }
-
-        [Test]
-        public void TestConstructorObsolete()
-        {
-#pragma warning disable 618
-            var settings = new MongoDatabaseSettings(_server, "database");
-            Assert.AreEqual("database", settings.DatabaseName);
-            Assert.AreEqual(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
-            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
-            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
-            Assert.AreEqual(false, settings.SlaveOk);
-            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
-#pragma warning restore
-        }
-
-        [Test]
-        public void TestDatabaseNameObsolete()
-        {
-#pragma warning disable 618
-            var settings = new MongoDatabaseSettings(_server, "database");
-            Assert.AreEqual("database", settings.DatabaseName);
-
-            settings.Freeze();
-            Assert.AreEqual("database", settings.DatabaseName);
-#pragma warning restore
         }
 
         [Test]
@@ -246,7 +200,7 @@ namespace MongoDB.Driver.Tests
         public void TestSlaveOk()
         {
 #pragma warning disable 618
-            var settings = new MongoDatabaseSettings(_server, "database");
+            var settings = new MongoDatabaseSettings();
             Assert.AreEqual(false, settings.SlaveOk);
 
             var slaveOk = true;

@@ -53,27 +53,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestAllObsolete()
-        {
-#pragma warning disable 618
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection")
-            {
-                AssignIdOnInsert = true,
-                GuidRepresentation = GuidRepresentation.PythonLegacy,
-                ReadPreference = ReadPreference.Primary,
-                WriteConcern = WriteConcern.Acknowledged
-            };
-
-            Assert.AreEqual("collection", settings.CollectionName);
-            Assert.AreEqual(typeof(BsonDocument), settings.DefaultDocumentType);
-            Assert.AreEqual(true, settings.AssignIdOnInsert);
-            Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
-            Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
-            Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
-#pragma warning restore
-        }
-
-        [Test]
         public void TestAssignIdOnInsert()
         {
             var settings = new MongoCollectionSettings();
@@ -104,18 +83,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestCollectionNameObsolete()
-        {
-#pragma warning disable 618
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
-            Assert.AreEqual("collection", settings.CollectionName);
-
-            settings.Freeze();
-            Assert.AreEqual("collection", settings.CollectionName);
-#pragma warning restore
-        }
-
-        [Test]
         public void TestConstructor()
         {
             var settings = new MongoCollectionSettings();
@@ -123,32 +90,6 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(GuidRepresentation.Unspecified, settings.GuidRepresentation);
             Assert.AreEqual(null, settings.ReadPreference);
             Assert.AreEqual(null, settings.WriteConcern);
-        }
-
-        [Test]
-        public void TestConstructorObsolete()
-        {
-#pragma warning disable 618
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
-            Assert.AreEqual("collection", settings.CollectionName);
-            Assert.AreEqual(typeof(BsonDocument), settings.DefaultDocumentType);
-            Assert.AreEqual(MongoDefaults.AssignIdOnInsert, settings.AssignIdOnInsert);
-            Assert.AreEqual(_database.Settings.GuidRepresentation, settings.GuidRepresentation);
-            Assert.AreEqual(_database.Settings.ReadPreference, settings.ReadPreference);
-            Assert.AreEqual(_database.Settings.WriteConcern, settings.WriteConcern);
-#pragma warning restore
-        }
-
-        [Test]
-        public void TestDefaultDocumentTypeObsolete()
-        {
-#pragma warning disable 618
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
-            Assert.AreEqual(typeof(BsonDocument), settings.DefaultDocumentType);
-
-            settings.Freeze();
-            Assert.AreEqual(typeof(BsonDocument), settings.DefaultDocumentType);
-#pragma warning restore
         }
 
         [Test]
@@ -278,7 +219,7 @@ namespace MongoDB.Driver.Tests
         public void TestSlaveOk()
         {
 #pragma warning disable 618
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
+            var settings = new MongoCollectionSettings();
             Assert.AreEqual(false, settings.SlaveOk);
 
             var slaveOk = true;

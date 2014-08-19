@@ -2501,18 +2501,6 @@ namespace MongoDB.Driver
         {
         }
 
-        /// <summary>
-        /// Creates a new instance of MongoCollection. Normally you would call one of the indexers or GetCollection methods
-        /// of MongoDatabase instead.
-        /// </summary>
-        /// <param name="database">The database that contains this collection.</param>
-        /// <param name="settings">The settings to use to access this collection.</param>
-        [Obsolete("Use MongoCollection(MongoDatabase database, string name, MongoCollectionSettings settings) instead.")]
-        public MongoCollection(MongoDatabase database, MongoCollectionSettings<TDefaultDocument> settings)
-            : this(database, settings.CollectionName, settings)
-        {
-        }
-
         // public methods
         /// <summary>
         /// Returns a cursor that can be used to find all documents in this collection that match the query as TDefaultDocuments.

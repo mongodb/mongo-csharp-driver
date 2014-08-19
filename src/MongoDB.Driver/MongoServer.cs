@@ -454,17 +454,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a MongoDatabase instance representing a database on this server.
         /// </summary>
-        /// <param name="databaseSettings">The settings to use with this database.</param>
-        /// <returns>A new or existing instance of MongoDatabase.</returns>
-        [Obsolete("Use GetDatabase instead.")]
-        public virtual MongoDatabase this[MongoDatabaseSettings databaseSettings]
-        {
-            get { return GetDatabase(databaseSettings); }
-        }
-
-        /// <summary>
-        /// Gets a MongoDatabase instance representing a database on this server.
-        /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="writeConcern">The write concern to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
@@ -549,22 +538,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an instance of MongoDatabaseSettings for the named database with the rest of the settings inherited.
-        /// You can override some of these settings before calling GetDatabase.
-        /// </summary>
-        /// <param name="databaseName">The name of the database.</param>
-        /// <returns>An instance of MongoDatabase for <paramref name="databaseName"/>.</returns>
-        [Obsolete("Use new MongoDatabaseSettings() instead.")]
-        public virtual MongoDatabaseSettings CreateDatabaseSettings(string databaseName)
-        {
-            if (databaseName == null)
-            {
-                throw new ArgumentNullException("databaseName");
-            }
-            return new MongoDatabaseSettings(this, databaseName);
-        }
-
-        /// <summary>
         /// Tests whether a database exists.
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
@@ -633,17 +606,6 @@ namespace MongoDB.Driver
 
             var database = GetDatabase(dbRef.DatabaseName);
             return database.FetchDBRefAs(documentType, dbRef);
-        }
-
-        /// <summary>
-        /// Gets a MongoDatabase instance representing a database on this server.
-        /// </summary>
-        /// <param name="databaseSettings">The settings to use with this database.</param>
-        /// <returns>A new or existing instance of MongoDatabase.</returns>
-        [Obsolete("Use GetDatabase(string databaseName, MongoDatabaseSettings settings) instead.")]
-        public virtual MongoDatabase GetDatabase(MongoDatabaseSettings databaseSettings)
-        {
-            return GetDatabase(databaseSettings.DatabaseName, databaseSettings);
         }
 
         /// <summary>
