@@ -182,8 +182,10 @@
     <Compile Include="Serialization\Conventions\StringObjectIdIdGeneratorConvention.cs" />
     <Compile Include="Serialization\CreatorMapDelegateCompiler.cs" />
     <Compile Include="Serialization\ExpressionVisitor.cs" />
+    <Compile Include="Serialization\GlobalBsonSerializerRegistry.cs" />
     <Compile Include="Serialization\IBsonDictionarySerializer.cs" />
     <Compile Include="Serialization\IBsonPolymorphicSerializer.cs" />
+    <Compile Include="Serialization\IBsonSerializerRegistry.cs" />
     <Compile Include="Serialization\IChildSerializerConfigurable.cs" />
     <Compile Include="Serialization\ICreatorSelector.cs" />
     <Compile Include="Serialization\IdGenerators\AscendingGuidGenerator.cs" />
