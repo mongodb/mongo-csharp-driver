@@ -87,15 +87,8 @@ namespace MongoDB.Driver
         // private static methods
         private static MongoClientSettings ParseConnectionString(string connectionString)
         {
-            if (connectionString.StartsWith("mongodb://"))
-            {
-                var url = new MongoUrl(connectionString);
-                return MongoClientSettings.FromUrl(url);
-            }
-            else
-            {
-                throw new ArgumentException("Connection string does not start with mongodb://");
-            }
+            var url = new MongoUrl(connectionString);
+            return MongoClientSettings.FromUrl(url);
         }
 
         // public methods

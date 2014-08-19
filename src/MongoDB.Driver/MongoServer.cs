@@ -139,15 +139,8 @@ namespace MongoDB.Driver
         [Obsolete("Use MongoClient.GetServer instead.")]
         public static MongoServer Create(string connectionString)
         {
-            if (connectionString.StartsWith("mongodb://", StringComparison.Ordinal))
-            {
-                var url = MongoUrl.Create(connectionString);
-                return Create(url);
-            }
-            else
-            {
-                throw new ArgumentException("Connection string does not start with mongodb://");
-            }
+            var url = MongoUrl.Create(connectionString);
+            return Create(url);
         }
 
         /// <summary>
