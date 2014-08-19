@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Communication
         public IReadOnlyList<MongoCredential> Credentials { get { return _credentials; } }
         public TimeSpan HeartbeatInterval { get { return _heartbeatInterval; } }
         public TimeSpan HeartbeatTimeout { get { return _heartbeatTimeout; } }
-        public bool Ipv6 { get { return _ipv6; } }
+        public bool IPv6 { get { return _ipv6; } }
         public TimeSpan MaxConnectionIdleTime { get { return _maxConnectionIdleTime; } }
         public TimeSpan MaxConnectionLifeTime { get { return _maxConnectionLifeTime; } }
         public int MaxConnectionPoolSize { get { return _maxConnectionPoolSize; } }
