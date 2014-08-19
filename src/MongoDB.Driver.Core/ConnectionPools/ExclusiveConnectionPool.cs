@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _connectionHolder = new ListConnectionHolder(_listener);
             _poolQueue = new WaitQueue(settings.MaxConnections);
-            _waitQueue = new SemaphoreSlim(settings.MaxWaitQueueSize);
+            _waitQueue = new SemaphoreSlim(settings.WaitQueueSize);
             _maintenanceCancellationTokenSource = new CancellationTokenSource();
             _state = new InterlockedInt32(State.Initial);
         }

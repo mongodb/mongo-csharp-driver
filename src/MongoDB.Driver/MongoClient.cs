@@ -13,6 +13,9 @@
 * limitations under the License.
 */
 
+using System;
+using MongoDB.Driver.Communication;
+using MongoDB.Driver.Core.Clusters;
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -21,6 +24,7 @@ namespace MongoDB.Driver
     public class MongoClient
     {
         // private fields
+        private readonly ICluster _cluster;
         private readonly MongoClientSettings _settings;
 
         // constructors
@@ -39,6 +43,7 @@ namespace MongoDB.Driver
         public MongoClient(MongoClientSettings settings)
         {
             _settings = settings.FrozenCopy();
+            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings);
         }
 
         /// <summary>
@@ -60,6 +65,17 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets the cluster.
+        /// </summary>
+        /// <value>
+        /// The cluster.
+        /// </value>
+        internal ICluster Cluster
+        {
+            get { return _cluster; }
+        }
+
         /// <summary>
         /// Gets the client settings.
         /// </summary>

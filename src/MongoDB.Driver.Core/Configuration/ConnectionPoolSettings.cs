@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan _maintenanceInterval;
         private readonly int _maxConnections;
         private readonly int _minConnections;
-        private readonly int _waitQueueMultiple;
+        private readonly int _waitQueueSize;
         private readonly TimeSpan _waitQueueTimeout;
 
         // constructors
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Configuration
             _maintenanceInterval = TimeSpan.FromMinutes(1);
             _maxConnections = 100;
             _minConnections = 0;
-            _waitQueueMultiple = 5;
+            _waitQueueSize = _maxConnections * 5;
             _waitQueueTimeout = TimeSpan.FromMinutes(2);
         }
 
@@ -43,13 +43,13 @@ namespace MongoDB.Driver.Core.Configuration
             TimeSpan maintenanceInterval,
             int maxConnections,
             int minConnections,
-            int maxWaitQueueSize,
+            int waitQueueSize,
             TimeSpan waitQueueTimeout)
         {
             _maintenanceInterval = maintenanceInterval;
             _maxConnections = maxConnections;
             _minConnections = minConnections;
-            _waitQueueMultiple = maxWaitQueueSize;
+            _waitQueueSize = waitQueueSize;
             _waitQueueTimeout = waitQueueTimeout;
         }
 
@@ -64,19 +64,14 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _maxConnections; }
         }
 
-        public int MaxWaitQueueSize
-        {
-            get { return _maxConnections * _waitQueueMultiple; }
-        }
-
         public int MinConnections
         {
             get { return _minConnections; }
         }
 
-        public int WaitQueueMultiple
+        public int WaitQueueSize
         {
-            get { return _waitQueueMultiple; }
+            get { return _waitQueueSize; }
         }
 
         public TimeSpan WaitQueueTimeout
@@ -100,9 +95,9 @@ namespace MongoDB.Driver.Core.Configuration
             return (_minConnections == value) ? this : new Builder(this) { _minConnections = value }.Build();
         }
 
-        public ConnectionPoolSettings WithWaitQueueMultiple(int value)
+        public ConnectionPoolSettings WithWaitQueueSize(int value)
         {
-            return (_waitQueueMultiple == value) ? this : new Builder(this) { _waitQueueMultiple = value }.Build();
+            return (_waitQueueSize == value) ? this : new Builder(this) { _waitQueueSize = value }.Build();
         }
 
         public ConnectionPoolSettings WithWaitQueueTimeout(TimeSpan value)
@@ -117,7 +112,7 @@ namespace MongoDB.Driver.Core.Configuration
             public TimeSpan _maintenanceInterval;
             public int _maxConnections;
             public int _minConnections;
-            public int _waitQueueMultiple;
+            public int _waitQueueSize;
             public TimeSpan _waitQueueTimeout;
 
             // constructors
@@ -126,7 +121,7 @@ namespace MongoDB.Driver.Core.Configuration
                 _maintenanceInterval = other._maintenanceInterval;
                 _maxConnections = other._maxConnections;
                 _minConnections = other._minConnections;
-                _waitQueueMultiple = other._waitQueueMultiple;
+                _waitQueueSize = other._waitQueueSize;
                 _waitQueueTimeout = other._waitQueueTimeout;
             }
 
@@ -137,7 +132,7 @@ namespace MongoDB.Driver.Core.Configuration
                     _maintenanceInterval,
                     _maxConnections,
                     _minConnections,
-                    _waitQueueMultiple,
+                    _waitQueueSize,
                     _waitQueueTimeout);
             }
         }

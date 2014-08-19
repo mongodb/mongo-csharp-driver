@@ -28,6 +28,17 @@ namespace MongoDB.Driver.Core.Events
 {
     public class EmptyListener : IClusterListener, IServerListener, IConnectionPoolListener, IConnectionListener
     {
+        #region static
+        // static fields
+        private static readonly EmptyListener __instance = new EmptyListener();
+
+        // static properties
+        public static EmptyListener Instance
+        {
+            get { return __instance; }
+        }
+        #endregion static
+
         #region Clusters
         public virtual void ClusterBeforeClosing(ClusterId clusterId)
         {

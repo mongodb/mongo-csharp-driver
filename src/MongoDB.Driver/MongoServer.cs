@@ -20,6 +20,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Driver.Communication;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
@@ -37,6 +39,7 @@ namespace MongoDB.Driver
         private static HashSet<char> __invalidDatabaseNameChars;
 
         // private fields
+        private ICluster _cluster;
         private readonly object _serverLock = new object();
         private readonly IMongoServerProxy _serverProxy;
         private readonly MongoServerSettings _settings;
@@ -66,6 +69,7 @@ namespace MongoDB.Driver
             // Console.WriteLine("MongoServer[{0}]: {1}", sequentialId, settings);
 
             _serverProxy = new MongoServerProxyFactory().Create(_settings);
+            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings);
         }
 
         // factory methods
@@ -218,6 +222,17 @@ namespace MongoDB.Driver
         public virtual MongoServerBuildInfo BuildInfo
         {
             get { return _serverProxy.BuildInfo; }
+        }
+
+        /// <summary>
+        /// Gets the cluster.
+        /// </summary>
+        /// <value>
+        /// The cluster.
+        /// </value>
+        internal virtual ICluster Cluster
+        {
+            get { return _cluster; }
         }
 
         /// <summary>
