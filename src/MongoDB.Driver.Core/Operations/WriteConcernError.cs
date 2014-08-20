@@ -13,61 +13,65 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a request to delete one or more documents.
+    /// Represents the details of a write concern error.
     /// </summary>
-    public class DeleteRequest : WriteRequest
+    public class WriteConcernError
     {
         // fields
-        private int _limit = 1;
-        private BsonDocument _query;
+        private readonly int _code;
+        private readonly BsonDocument _details;
+        private readonly string _message;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRequest"/> class.
-        /// </summary>
-        public DeleteRequest()
-            : this(null)
+        internal WriteConcernError(int code, string message, BsonDocument details)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRequest"/> class.
-        /// </summary>
-        /// <param name="query">The query.</param>
-        public DeleteRequest(BsonDocument query)
-            : base(WriteRequestType.Delete)
-        {
-            _query = query;
+            _code = code;
+            _details = details;
+            _message = message;
         }
 
         // properties
         /// <summary>
-        /// Gets or sets the limit.
+        /// Gets the error code.
         /// </summary>
         /// <value>
-        /// The limit.
+        /// The error code.
         /// </value>
-        public int Limit
+        public int Code
         {
-            get { return _limit; }
-            set { _limit = value; }
+            get { return _code; }
         }
 
         /// <summary>
-        /// Gets or sets the query.
+        /// Gets the error information.
         /// </summary>
         /// <value>
-        /// The query.
+        /// The error information.
         /// </value>
-        public BsonDocument Query
+        public BsonDocument Details
         {
-            get { return _query; }
-            set { _query = value; }
+            get { return _details; }
+        }
+
+        /// <summary>
+        /// Gets the error message.
+        /// </summary>
+        /// <value>
+        /// The error message.
+        /// </value>
+        public string Message
+        {
+            get { return _message; }
         }
     }
 }

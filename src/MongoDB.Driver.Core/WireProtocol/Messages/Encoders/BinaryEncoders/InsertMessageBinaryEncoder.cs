@@ -181,11 +181,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var message = state.Message;
             var documentSource = message.DocumentSource;
 
-            var overflow = (Overflow)documentSource.StartBatch();
+            var overflow = documentSource.StartBatch();
             if (overflow != null)
             {
-                batch.Add(overflow.Document);
-                AddDocument(state, overflow.SerializedDocument);
+                batch.Add(overflow.Item);
+                AddDocument(state, (byte[])overflow.State);
             }
 
             // always go one document too far so that we can detect when the docuemntSource runs out of documents
@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 if ((state.BatchCount > message.MaxBatchCount || state.MessageSize > message.MaxMessageSize) && state.BatchCount > 1)
                 {
                     var serializedDocument = RemoveLastDocument(state, documentStartPosition);
-                    overflow = new Overflow { Document = document, SerializedDocument = serializedDocument };
+                    overflow = new BatchableSource<TDocument>.Overflow { Item = document, State = serializedDocument };
                     documentSource.EndBatch(batch, overflow);
                     return;
                 }
@@ -223,12 +223,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // nested types
-        private class Overflow
-        {
-            public TDocument Document;
-            public byte[] SerializedDocument;
-        }
-
         [Flags]
         private enum InsertFlags
         {

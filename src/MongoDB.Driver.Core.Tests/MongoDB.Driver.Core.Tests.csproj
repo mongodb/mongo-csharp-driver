@@ -72,6 +72,7 @@
     <Compile Include="Helpers\MockConnection.cs" />
     <Compile Include="Helpers\RawBsonDocumentHelper.cs" />
     <Compile Include="Helpers\ServerDescriptionHelper.cs" />
+    <Compile Include="Exceptions\BulkWriteExceptionTests.cs" />
     <Compile Include="Misc\BatchableSourceTests.cs" />
     <Compile Include="Misc\MetronomeTests.cs" />
     <Compile Include="Async\AsyncQueueTests.cs" />

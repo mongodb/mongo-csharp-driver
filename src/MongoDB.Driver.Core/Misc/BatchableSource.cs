@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Misc
         private IReadOnlyList<T> _batch;
         private IEnumerator<T> _enumerator;
         private bool _hasMore;
-        private object _overflow;
+        private Overflow _overflow;
 
         // constructors
         public BatchableSource(IEnumerable<T> batch)
@@ -67,7 +67,19 @@ namespace MongoDB.Driver.Core.Misc
             _hasMore = false;
         }
 
-        public void EndBatch(IReadOnlyList<T> batch, object overflow)
+        public IEnumerable<T> GetRemainingItems()
+        {
+            if (_overflow != null)
+            {
+                yield return _overflow.Item;
+            }
+            while (_enumerator.MoveNext())
+            {
+                yield return _enumerator.Current;
+            }
+        }
+
+        public void EndBatch(IReadOnlyList<T> batch, Overflow overflow)
         {
             _batch = batch;
             _overflow = overflow;
@@ -79,11 +91,18 @@ namespace MongoDB.Driver.Core.Misc
             return _enumerator.MoveNext();
         }
 
-        public object StartBatch()
+        public Overflow StartBatch()
         {
             var overflow = _overflow;
             _overflow = null;
             return overflow;
+        }
+
+        // nested types
+        public class Overflow
+        {
+            public T Item;
+            public object State;
         }
     }
 }

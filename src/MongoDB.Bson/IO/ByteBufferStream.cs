@@ -779,7 +779,7 @@ namespace MongoDB.Bson.IO
             if (segment.Count >= maxLength)
             {
                 actualLength = encoding.GetBytes(value, 0, value.Length, segment.Array, segment.Offset + 4);
-                if (Array.IndexOf<byte>(segment.Array, 0, segment.Offset, actualLength) != -1)
+                if (Array.IndexOf<byte>(segment.Array, 0, segment.Offset + 4, actualLength) != -1)
                 {
                     throw new ArgumentException("UTF8 representation of a CString cannot contain null bytes.");
                 }
@@ -802,8 +802,8 @@ namespace MongoDB.Bson.IO
                 var lengthPlusOneBytes = BitConverter.GetBytes(actualLength + 1);
 
                 _byteBuffer.WriteBytes(_position, lengthPlusOneBytes, 0, 4);
-                _byteBuffer.WriteBytes(_position, bytes, 4, actualLength);
-                _byteBuffer.WriteByte(_position + actualLength, 0);
+                _byteBuffer.WriteBytes(_position + 4, bytes, 0, actualLength);
+                _byteBuffer.WriteByte(_position + 4 + actualLength, 0);
             }
 
             SetPositionAfterWrite(_position + actualLength + 5);

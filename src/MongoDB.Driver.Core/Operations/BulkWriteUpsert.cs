@@ -13,61 +13,64 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a request to delete one or more documents.
+    /// Represents the information about one Upsert.
     /// </summary>
-    public class DeleteRequest : WriteRequest
+    public class BulkWriteUpsert
     {
         // fields
-        private int _limit = 1;
-        private BsonDocument _query;
+        private readonly BsonValue _id;
+        private readonly int _index;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRequest"/> class.
-        /// </summary>
-        public DeleteRequest()
-            : this(null)
+        internal BulkWriteUpsert(
+            int index,
+            BsonValue id)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRequest"/> class.
-        /// </summary>
-        /// <param name="query">The query.</param>
-        public DeleteRequest(BsonDocument query)
-            : base(WriteRequestType.Delete)
-        {
-            _query = query;
+            _index = index;
+            _id = id;
         }
 
         // properties
         /// <summary>
-        /// Gets or sets the limit.
+        /// Gets the identifier.
         /// </summary>
         /// <value>
-        /// The limit.
+        /// The identifier.
         /// </value>
-        public int Limit
+        public BsonValue Id
         {
-            get { return _limit; }
-            set { _limit = value; }
+            get { return _id; }
         }
 
         /// <summary>
-        /// Gets or sets the query.
+        /// Gets the index.
         /// </summary>
         /// <value>
-        /// The query.
+        /// The index.
         /// </value>
-        public BsonDocument Query
+        public int Index
         {
-            get { return _query; }
-            set { _query = value; }
+            get { return _index; }
+        }
+
+        // methods
+        internal BulkWriteUpsert WithMappedIndex(IndexMap indexMap)
+        {
+            var mappedIndex = indexMap.Map(_index);
+            return (_index == mappedIndex) ? this : new BulkWriteUpsert(mappedIndex, _id);
         }
     }
 }
+

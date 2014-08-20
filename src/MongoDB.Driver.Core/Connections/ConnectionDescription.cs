@@ -74,6 +74,11 @@ namespace MongoDB.Driver.Core.Connections
             get { return _maxMessageSize; }
         }
 
+        public int MaxWireDocumentSize
+        {
+            get { return _maxDocumentSize + 16 * 1024; }
+        }
+
         public SemanticVersion ServerVersion
         {
             get { return _serverVersion; }

@@ -86,11 +86,11 @@ namespace MongoDB.Driver.Core.Tests.Misc
             subject.Batch.Should().BeNull();
             subject.HasMore.Should().BeTrue();
             var batch = new int[] { 1, 2 };
-            var overflow = (object)3;
+            var overflow = new BatchableSource<int>.Overflow { Item = 3, State = 4 };
             subject.EndBatch(batch, overflow);
             subject.Batch.Should().BeSameAs(batch);
             subject.HasMore.Should().BeTrue();
-            subject.StartBatch().Should().Be(overflow);
+            subject.StartBatch().Should().BeSameAs(overflow);
         }
 
         [Test]
@@ -113,9 +113,9 @@ namespace MongoDB.Driver.Core.Tests.Misc
         {
             var subject = new BatchableSource<int>(Enumerable.Empty<int>().GetEnumerator());
             var batch = new int[0];
-            var overflow = (object)1;
+            var overflow = new BatchableSource<int>.Overflow { Item = 1, State = null };
             subject.EndBatch(batch, overflow);
-            subject.StartBatch().Should().Be(overflow);
+            subject.StartBatch().Should().BeSameAs(overflow);
             subject.StartBatch().Should().BeNull();
         }
     }

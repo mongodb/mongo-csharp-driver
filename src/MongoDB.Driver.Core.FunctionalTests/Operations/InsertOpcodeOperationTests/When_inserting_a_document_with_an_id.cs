@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.FunctionalTests.Operations.InsertOpcodeOperation
+namespace MongoDB.Driver.Core.FunctionalTests.Operations.InsertOpcodeOperationTests
 {
     [TestFixture]
     public class When_inserting_a_document_with_an_id : CollectionUsingSpecification

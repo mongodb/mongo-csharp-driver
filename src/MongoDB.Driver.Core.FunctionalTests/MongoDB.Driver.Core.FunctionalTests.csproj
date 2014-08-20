@@ -49,12 +49,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\BulkWriteUpsertEqualityComparer.cs" />
     <Compile Include="Helpers\ClusterUsingTest.cs" />
     <Compile Include="Helpers\CollectionUsingSpecification.cs" />
     <Compile Include="Helpers\CollectionUsingTest.cs" />
     <Compile Include="Helpers\DatabaseUsingTest.cs" />
+    <Compile Include="Helpers\SameAs.cs" />
     <Compile Include="Helpers\SuiteConfiguration.cs" />
-    <Compile Include="Operations\InsertOpcodeOperation\When_inserting_a_document_with_an_id.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_first_batch_has_an_error_and_is_ordered_is_false.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_first_batch_has_an_error_and_is_ordered_is_true.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_fewer_deletes_than_maxBatchCount.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_fewer_inserts_than_maxBatchCount.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_fewer_updates_than_maxBatchCount.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_mixed_operations_and_is_ordered_is_false.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_mixed_operations_and_is_ordered_is_true.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_mixed_upserts_and_is_ordered_is_false.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_mixed_upserts_and_is_ordered_is_true.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_more_deletes_than_maxBatchCount.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_more_inserts_than_maxBatchCount.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_second_batch_has_an_error_and_isOrdered_is_false.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_second_batch_has_an_error_and_isOrdered_is_true.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_more_updates_than_maxBatchSize.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_multiple_deletes.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_are_zero_requests.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_is_one_delete.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_is_one_insert.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_is_one_update.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_there_is_one_very_large_upsert.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_upsert_matches_multiple_documents.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_upsert_matches_no_documents.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperationTests\When_upsert_matches_one_document.cs" />
+    <Compile Include="Operations\InsertOpcodeOperationTests\When_inserting_a_document_with_an_id.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +98,7 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

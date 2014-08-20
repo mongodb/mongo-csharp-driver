@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2010-2014 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,50 +13,84 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
-
 namespace MongoDB.Driver.Core.Operations
 {
-    public class UpdateRequest
+    /// <summary>
+    /// Represents a request to update one or more documents.
+    /// </summary>
+    public class UpdateRequest : WriteRequest
     {
         // fields
-        private bool? _isMulti;
+        private bool? _isMultiUpdate;
         private bool? _isUpsert;
         private BsonDocument _query;
         private BsonDocument _update;
 
         // constructors
-        public UpdateRequest(BsonDocument query, BsonDocument update)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UpdateRequest"/> class.
+        /// </summary>
+        public UpdateRequest()
+            : this(null, null)
         {
-            _query = Ensure.IsNotNull(query, "query");
-            _update = Ensure.IsNotNull(update, "update");
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UpdateRequest"/> class.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="update">The update.</param>
+        public UpdateRequest(BsonDocument query, BsonDocument update)
+            : base(WriteRequestType.Update)
+        {
+            _query = query;
+            _update = update;
         }
 
         // properties
-        public bool? IsMulti
+        /// <summary>
+        /// Gets or sets a value indicating whether this update request should affect multiple documents.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this request should affect multiple documents; otherwise, <c>false</c>.
+        /// </value>
+        public bool? IsMultiUpdate
         {
-            get { return _isMulti; }
-            set { _isMulti = value; }
+            get { return _isMultiUpdate; }
+            set { _isMultiUpdate = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this update request should insert the record if it doesn't already exist.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this update request should insert the record if it doesn't already exis; otherwise, <c>false</c>.
+        /// </value>
         public bool? IsUpsert
         {
             get { return _isUpsert; }
             set { _isUpsert = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the query.
+        /// </summary>
+        /// <value>
+        /// The query.
+        /// </value>
         public BsonDocument Query
         {
             get { return _query; }
             set { _query = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the update.
+        /// </summary>
+        /// <value>
+        /// The update.
+        /// </value>
         public BsonDocument Update
         {
             get { return _update; }

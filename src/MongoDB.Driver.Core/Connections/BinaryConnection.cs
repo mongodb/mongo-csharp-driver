@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: false))
                     {
-                        var writerSettings = BsonBinaryWriterSettings.Defaults;
+                        var writerSettings = BsonBinaryWriterSettings.Defaults; // TODO: where are writer settings supposed to come from?
                         var binaryWriter = new BsonBinaryWriter(stream, writerSettings);
                         var encoderFactory = new BinaryMessageEncoderFactory(binaryWriter);
                         foreach (var message in messagesToSend)

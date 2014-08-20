@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
+using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.FunctionalTests.Helpers
@@ -50,6 +52,19 @@ namespace MongoDB.Driver.Core.FunctionalTests.Helpers
         public void DatabaseUsingTestTearDown()
         {
             DropDatabase();
+        }
+
+        protected List<T> ReadCursorToEnd<T>(Cursor<T> cursor)
+        {
+            var documents = new List<T>();
+            while (cursor.MoveNextAsync().GetAwaiter().GetResult())
+            {
+                foreach (var document in cursor.Current)
+                {
+                    documents.Add(document);
+                }
+            }
+            return documents;
         }
     }
 }

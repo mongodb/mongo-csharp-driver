@@ -13,7 +13,12 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.FunctionalTests.Helpers
@@ -45,7 +50,16 @@ namespace MongoDB.Driver.Core.FunctionalTests.Helpers
             var type = GetType();
             var specificationFolder = type.Namespace.Split('.').Last();
             var specificationName = type.Name;
-            return string.Format("{0}_{1}", specificationFolder, specificationName);
+            var collectionName = string.Format("{0}_{1}", specificationFolder, specificationName);
+            var namespaceLength = DatabaseName.Length + collectionName.Length + 1;
+            const int maxNamespaceLength = 120;
+            if (namespaceLength > maxNamespaceLength)
+            {
+                var excessLength = namespaceLength - maxNamespaceLength;
+                var trimmedCollectionNameLength = collectionName.Length - excessLength;
+                collectionName = collectionName.Substring(0, trimmedCollectionNameLength);
+            }
+            return collectionName;
         }
 
         [TestFixtureSetUp]
@@ -59,6 +73,30 @@ namespace MongoDB.Driver.Core.FunctionalTests.Helpers
         public void CollectionUsingTestTearDown()
         {
             DropCollection();
+        }
+
+        protected void Insert<T>(IEnumerable<T> documents, IBsonSerializer<T> serializer)
+        {
+            var requests = documents.Select(d => new InsertRequest(d, serializer));
+            var operation = new BulkInsertOperation(DatabaseName, CollectionName, requests);
+            ExecuteOperationAsync(operation).GetAwaiter().GetResult();
+        }
+
+        protected void Insert(IEnumerable<BsonDocument> documents)
+        {
+            Insert(documents, BsonDocumentSerializer.Instance);
+        }
+
+        protected List<T> ReadAll<T>(IBsonSerializer<T> serializer)
+        {
+            var operation = new FindOperation<T>(DatabaseName, _collectionName, serializer);
+            var cursor = ExecuteOperationAsync(operation).GetAwaiter().GetResult();
+            return ReadCursorToEnd(cursor);
+        }
+
+        protected List<BsonDocument> ReadAll()
+        {
+            return ReadAll<BsonDocument>(BsonDocumentSerializer.Instance);
         }
     }
 }

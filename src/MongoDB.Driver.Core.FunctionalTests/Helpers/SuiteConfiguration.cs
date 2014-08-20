@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.FunctionalTests
 
             __cluster = CreateCluster();
 
-            __databaseName = string.Format("MongoDB-Driver-Core-FunctionalTests-{0}", DateTime.Now.ToString("s").Replace(':', '-'));
+            __databaseName = string.Format("FunctionalTests-{0}", DateTime.Now.ToString("s").Replace(':', '-'));
         }
 
         [TearDown]

@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // properties
-        public IReadOnlyCollection<EndPoint> Members
+        public IReadOnlyList<EndPoint> Members
         {
             get { return _members; }
         }

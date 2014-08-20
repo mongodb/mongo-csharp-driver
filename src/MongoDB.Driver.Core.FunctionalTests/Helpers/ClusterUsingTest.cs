@@ -29,14 +29,14 @@ namespace MongoDB.Driver.Core.FunctionalTests.Helpers
         protected ICluster _cluster;
 
         // methods
-        protected Exception Catch(Action action)
+        protected TException Catch<TException>(Action action) where TException : Exception
         {
             try
             {
                 action();
                 return null;
             }
-            catch (Exception ex)
+            catch (TException ex)
             {
                 return ex;
             }
@@ -63,6 +63,14 @@ namespace MongoDB.Driver.Core.FunctionalTests.Helpers
         protected virtual void DisposeCluster()
         {
             // override if you overrode CreateCluster
+        }
+
+        protected Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var binding = new WritableServerBinding(_cluster))
+            {
+                return operation.ExecuteAsync(binding, timeout, cancellationToken);
+            }
         }
 
         protected Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
