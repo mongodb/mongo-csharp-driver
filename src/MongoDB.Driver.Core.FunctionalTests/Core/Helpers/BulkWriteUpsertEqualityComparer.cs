@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Operations;
 
-namespace MongoDB.Driver.Core.FunctionalTests.Helpers
+namespace MongoDB.Driver.Core.Helpers
 {
     public static class BulkWriteUpsertEqualityComparer
     {

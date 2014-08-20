@@ -15,7 +15,7 @@
 
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.FunctionalTests.Helpers
+namespace MongoDB.Driver
 {
     public abstract class CollectionUsingSpecification : CollectionUsingTest
     {

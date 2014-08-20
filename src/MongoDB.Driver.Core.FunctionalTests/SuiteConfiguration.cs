@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.FunctionalTests
+namespace MongoDB.Driver
 {
     [SetUpFixture]
     public class SuiteConfiguration

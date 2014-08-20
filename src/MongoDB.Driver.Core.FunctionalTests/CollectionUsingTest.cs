@@ -21,7 +21,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.FunctionalTests.Helpers
+namespace MongoDB.Driver
 {
     public abstract class CollectionUsingTest : DatabaseUsingTest
     {

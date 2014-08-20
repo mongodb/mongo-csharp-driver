@@ -49,13 +49,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\BulkWriteUpsertEqualityComparer.cs" />
-    <Compile Include="Helpers\ClusterUsingTest.cs" />
-    <Compile Include="Helpers\CollectionUsingSpecification.cs" />
-    <Compile Include="Helpers\CollectionUsingTest.cs" />
-    <Compile Include="Helpers\DatabaseUsingTest.cs" />
-    <Compile Include="Helpers\SameAs.cs" />
-    <Compile Include="Helpers\SuiteConfiguration.cs" />
+    <Compile Include="Core\Helpers\BulkWriteUpsertEqualityComparer.cs" />
+    <Compile Include="ClusterUsingTest.cs" />
+    <Compile Include="CollectionUsingSpecification.cs" />
+    <Compile Include="CollectionUsingTest.cs" />
+    <Compile Include="DatabaseUsingTest.cs" />
+    <Compile Include="Core\Helpers\SameAs.cs" />
+    <Compile Include="SuiteConfiguration.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_first_batch_has_an_error_and_is_ordered_is_false.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_first_batch_has_an_error_and_is_ordered_is_true.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_fewer_deletes_than_maxBatchCount.cs" />

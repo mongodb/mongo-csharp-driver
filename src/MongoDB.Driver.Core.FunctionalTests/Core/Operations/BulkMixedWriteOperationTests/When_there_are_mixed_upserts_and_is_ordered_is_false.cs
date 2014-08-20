@@ -16,11 +16,11 @@
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.FunctionalTests.Helpers;
+using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.FunctionalTests.Operations.BulkMixedWriteOperationTests
+namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 {
     [TestFixture]
     public class When_there_are_mixed_upserts_and_is_ordered_is_false : CollectionUsingSpecification

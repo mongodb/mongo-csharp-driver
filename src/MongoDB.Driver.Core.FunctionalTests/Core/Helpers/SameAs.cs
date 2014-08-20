@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.FunctionalTests.Helpers
+namespace MongoDB.Driver.Core.Helpers
 {
     public static class SameAs
     {
