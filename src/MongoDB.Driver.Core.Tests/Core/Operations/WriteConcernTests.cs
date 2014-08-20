@@ -23,7 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Operations
+namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
     public class WriteConcernTests

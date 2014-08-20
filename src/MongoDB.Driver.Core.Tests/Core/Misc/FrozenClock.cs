@@ -16,7 +16,7 @@
 using System;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Tests.Misc
+namespace MongoDB.Driver.Core.Misc
 {
     public class FrozenClock : IClock
     {

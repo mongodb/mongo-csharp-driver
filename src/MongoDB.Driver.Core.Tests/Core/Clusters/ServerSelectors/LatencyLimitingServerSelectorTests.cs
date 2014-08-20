@@ -20,10 +20,10 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.Tests.Helpers;
+using MongoDB.Driver.Core.Helpers;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Clusters.ServerSelectors
+namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
     [TestFixture]
     public class LatencyLimitingServerSelectorTests

@@ -16,7 +16,7 @@
 using System;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests
+namespace MongoDB.Driver.Core
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RequiresServerAttribute : CategoryAttribute

@@ -24,11 +24,11 @@ using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.Tests.Helpers;
+using MongoDB.Driver.Core.Helpers;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.ConnectionPools
+namespace MongoDB.Driver.Core.ConnectionPools
 {
     [TestFixture]
     public class ExclusiveConnectionPoolTests

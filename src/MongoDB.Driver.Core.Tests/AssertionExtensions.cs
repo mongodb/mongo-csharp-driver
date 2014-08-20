@@ -19,7 +19,7 @@ using FluentAssertions;
 using FluentAssertions.Numeric;
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Core.Tests
+namespace MongoDB.Driver.Core
 {
     [DebuggerNonUserCode]
     public static class AssertionExtensions

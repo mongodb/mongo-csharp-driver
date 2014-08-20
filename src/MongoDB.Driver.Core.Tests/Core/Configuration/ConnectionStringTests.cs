@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Configuration
+namespace MongoDB.Driver.Core.Configuration
 {
     [TestFixture]
     public class ConnectionStringTests

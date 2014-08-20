@@ -22,7 +22,7 @@ using System.IO;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
 
-namespace MongoDB.Driver.Core.Tests.Exceptions
+namespace MongoDB.Driver.Core.Exceptions
 {
     [TestFixture]
     public class BulkWriteExceptionTests

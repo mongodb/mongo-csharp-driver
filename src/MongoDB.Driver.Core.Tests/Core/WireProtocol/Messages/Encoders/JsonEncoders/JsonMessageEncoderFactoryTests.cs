@@ -22,7 +22,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.JsonEncoders
+namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
     [TestFixture]
     public class JsonMessageEncoderFactoryTests

@@ -26,11 +26,11 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.Tests.Helpers;
+using MongoDB.Driver.Core.Helpers;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Clusters
+namespace MongoDB.Driver.Core.Clusters
 {
     [TestFixture]
     public class ClusterTests

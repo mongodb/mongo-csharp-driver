@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
+namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
     [TestFixture]
     public class KillCursorsMessageTests

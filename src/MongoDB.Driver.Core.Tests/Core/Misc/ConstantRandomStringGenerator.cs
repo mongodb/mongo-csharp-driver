@@ -15,7 +15,7 @@
 
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Tests.Misc
+namespace MongoDB.Driver.Core.Misc
 {
     internal class ConstantRandomStringGenerator : IRandomStringGenerator
     {

@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Bindings;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Bindings
+namespace MongoDB.Driver.Core.Bindings
 {
     [TestFixture]
     public class ReadWriteBindingHandleTests

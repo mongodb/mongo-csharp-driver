@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages.Encoders.BinaryEncoders
+namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     [TestFixture]
     public class InsertMessageBinaryEncoderTests

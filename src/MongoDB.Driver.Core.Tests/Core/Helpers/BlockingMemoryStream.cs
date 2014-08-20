@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.Tests.Helpers
+namespace MongoDB.Driver.Core.Helpers
 {
     public class BlockingMemoryStream : MemoryStream
     {

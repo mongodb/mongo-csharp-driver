@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.Tests.Helpers
+namespace MongoDB.Driver.Core.Helpers
 {
     public class ServerDescriptionHelper
     {

@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using NSubstitute;
 
-namespace MongoDB.Driver.Core.Tests.Helpers
+namespace MongoDB.Driver.Core.Helpers
 {
     public class MockClusterableServerFactory : IClusterableServerFactory
     {

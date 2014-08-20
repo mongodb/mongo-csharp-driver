@@ -22,7 +22,7 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Clusters
+namespace MongoDB.Driver.Core.Clusters
 {
     [TestFixture]
     public class ReadPreferenceTests

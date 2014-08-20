@@ -20,7 +20,7 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Async;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Async
+namespace MongoDB.Driver.Core.Async
 {
     [TestFixture]
     public class AsyncBackgroundTasksTests

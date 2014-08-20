@@ -22,10 +22,10 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.Tests.Helpers;
+using MongoDB.Driver.Core.Helpers;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Clusters
+namespace MongoDB.Driver.Core.Clusters
 {
     [TestFixture]
     public class ClusterDescriptionTests

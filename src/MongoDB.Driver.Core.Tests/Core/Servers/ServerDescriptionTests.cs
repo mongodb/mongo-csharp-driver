@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Servers
+namespace MongoDB.Driver.Core.Servers
 {
     [TestFixture]
     class ServerDescriptionTests

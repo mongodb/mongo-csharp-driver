@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders;
 using NSubstitute;
 
-namespace MongoDB.Driver.Core.Tests.Helpers
+namespace MongoDB.Driver.Core.Helpers
 {
     public class MessageHelper
     {

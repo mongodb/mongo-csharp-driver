@@ -19,7 +19,7 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Configuration;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Configuration
+namespace MongoDB.Driver.Core.Configuration
 {
     [TestFixture]
     public class TcpStreamSettingsTests

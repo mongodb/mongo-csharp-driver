@@ -22,7 +22,7 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Misc
+namespace MongoDB.Driver.Core.Misc
 {
     public class RangeTests
     {

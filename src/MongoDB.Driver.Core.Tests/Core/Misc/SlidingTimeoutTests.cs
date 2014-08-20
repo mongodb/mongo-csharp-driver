@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Misc
+namespace MongoDB.Driver.Core.Misc
 {
     [TestFixture]
     public class SlidingTimeoutTests

@@ -21,10 +21,10 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.Tests.Helpers;
+using MongoDB.Driver.Core.Helpers;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Authentication
+namespace MongoDB.Driver.Core.Authentication
 {
     [TestFixture]
     public class MongoDBX509AuthenticatorTests

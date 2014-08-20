@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Connections
+namespace MongoDB.Driver.Core.Connections
 {
     [TestFixture]
     public class IsMasterResultTests

@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Servers;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Misc
+namespace MongoDB.Driver.Core.Misc
 {
     [TestFixture]
     public class ReferenceCountedTests

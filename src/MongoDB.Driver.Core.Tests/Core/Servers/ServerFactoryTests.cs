@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Servers;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Tests.Servers
+namespace MongoDB.Driver.Core.Servers
 {
     [TestFixture]
     public class ServerFactoryTests

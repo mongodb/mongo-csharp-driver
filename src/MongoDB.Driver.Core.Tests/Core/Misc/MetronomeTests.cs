@@ -19,11 +19,10 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Tests.Misc;
 using NUnit.Framework;
 
 
-namespace MongoDB.Driver.Core.Tests.Async
+namespace MongoDB.Driver.Core.Async
 {
     [TestFixture]
     public class MetronomeTests
