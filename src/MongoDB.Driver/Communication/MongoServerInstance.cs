@@ -14,16 +14,9 @@
 */
 
 using System;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Communication.FeatureDetection;
 using MongoDB.Driver.Internal;
-using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver
 {
@@ -34,7 +27,6 @@ namespace MongoDB.Driver
     {
         // private static fields
         private static int __nextSequentialId;
-        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(0, 2);
 
         // public events
         /// <summary>
@@ -42,23 +34,11 @@ namespace MongoDB.Driver
         /// </summary>
         public event EventHandler StateChanged;
 
-        //internal events
-        internal event EventHandler AveragePingTimeChanged;
-
         // private fields
-        private readonly object _serverInstanceLock = new object();
         private readonly MongoServerSettings _settings;
         private readonly MongoConnectionPool _connectionPool;
-        private readonly PingTimeAggregator _pingTimeAggregator;
-        private MongoServerAddress _address;
-        private Exception _connectException;
-        private bool _inStateVerification;
-        private ServerInformation _serverInfo;
-        private bool _permanentlyDisconnected;
-        private int _sequentialId;
-        private MongoServerState _state;
-        private Timer _stateVerificationTimer;
-        private MongoConnectionPool.AcquireConnectionOptions _stateVerificationAcquireConnectionOptions;
+        private readonly MongoServerAddress _address;
+        private readonly int _sequentialId;
 
         // constructors
         /// <summary>
@@ -71,51 +51,10 @@ namespace MongoDB.Driver
             _settings = settings;
             _address = address;
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
-            _state = MongoServerState.Disconnected;
-            _serverInfo = new ServerInformation
-            {
-                MaxBatchCount = MongoDefaults.MaxBatchCount,
-                MaxDocumentSize = MongoDefaults.MaxDocumentSize,
-                MaxMessageLength = MongoDefaults.MaxMessageLength,
-                InstanceType = MongoServerInstanceType.Unknown
-            };
             _connectionPool = new MongoConnectionPool(this);
-            _pingTimeAggregator = new PingTimeAggregator(5);
-            _permanentlyDisconnected = false;
-            // Console.WriteLine("MongoServerInstance[{0}]: {1}", sequentialId, address);
-
-            _stateVerificationAcquireConnectionOptions = new MongoConnectionPool.AcquireConnectionOptions
-            {
-                OkToAvoidWaitingByCreatingNewConnection = false,
-                OkToExceedMaxConnectionPoolSize = true,
-                OkToExceedWaitQueueSize = true,
-                WaitQueueTimeout = TimeSpan.FromSeconds(2)
-            };
         }
 
-        // internal properties
-        /// <summary>
-        /// Gets the average ping time.
-        /// </summary>
-        internal TimeSpan AveragePingTime
-        {
-            get { return _pingTimeAggregator.Average; }
-        }
-
-        /// <summary>
-        /// Gets the replica set information.
-        /// </summary>
-        internal ReplicaSetInformation ReplicaSetInformation
-        {
-            get
-            {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.ReplicaSetInformation;
-                }
-            }
-        }
-
+        // public properties
         /// <summary>
         /// Gets the instance type.
         /// </summary>
@@ -123,10 +62,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.InstanceType;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -138,17 +74,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _address;
-                }
-            }
-            internal set
-            {
-                lock (_serverInstanceLock)
-                {
-                    _address = value;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -159,10 +85,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.BuildInfo;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -173,10 +96,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _connectException;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -195,10 +115,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.IsArbiter;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -209,10 +126,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.IsMasterResult;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -223,10 +137,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.IsPassive;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -237,10 +148,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.IsPrimary;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -251,10 +159,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.IsSecondary;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -265,10 +170,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.MaxDocumentSize;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -279,10 +181,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.MaxMessageLength;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -296,10 +195,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.MaxWireDocumentSize;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -313,10 +209,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.MaxBatchCount;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -343,28 +236,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverInstanceLock)
-                {
-                    return _state;
-                }
-            }
-        }
-
-        // internal properties
-        /// <summary>
-        /// Gets a value indicating whether the server is compatible with the driver.
-        /// </summary>
-        internal bool IsCompatible
-        {
-            get
-            {
-                Range<int> serverRange;
-                lock (_serverInstanceLock)
-                {
-                    serverRange = _serverInfo.IsMasterResult.WireVersionRange;
-                }
-
-                return __supportedWireVersionRange.Overlaps(serverRange);
+                throw new NotImplementedException();
             }
         }
 
@@ -375,8 +247,7 @@ namespace MongoDB.Driver
         /// <returns>The IP end point of this server instance.</returns>
         public IPEndPoint GetIPEndPoint()
         {
-            var addressFamily = _settings.IPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
-            return _address.ToIPEndPoint(addressFamily);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -384,15 +255,7 @@ namespace MongoDB.Driver
         /// </summary>
         public void Ping()
         {
-            var connection = _connectionPool.AcquireConnection(_stateVerificationAcquireConnectionOptions);
-            try
-            {
-                Ping(connection);
-            }
-            finally
-            {
-                _connectionPool.ReleaseConnection(connection);
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -400,10 +263,7 @@ namespace MongoDB.Driver
         /// </summary>
         public void RefreshStateAsSoonAsPossible()
         {
-            if (_stateVerificationTimer != null)
-            {
-                _stateVerificationTimer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(10)); // verify state as soon as possible
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -413,12 +273,7 @@ namespace MongoDB.Driver
         /// <returns>True if this server instance supports the feature; otherwise, false.</returns>
         public bool Supports(FeatureId featureId)
         {
-            FeatureSet featureSet;
-            lock (_serverInstanceLock)
-            {
-                featureSet = _serverInfo.FeatureSet;
-            }
-            return featureSet.IsSupported(featureId);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -426,517 +281,23 @@ namespace MongoDB.Driver
         /// </summary>
         public void VerifyState()
         {
-            var connection = _connectionPool.AcquireConnection(_stateVerificationAcquireConnectionOptions);
-            try
-            {
-                try
-                {
-                    Ping(connection);
-                    LookupServerInformation(connection);
-                }
-                catch
-                {
-                    // ignore exceptions (if any occured state will already be set to Disconnected)
-                    // Console.WriteLine("MongoServerInstance[{0}]: VerifyState failed: {1}.", sequentialId, ex.Message);
-                }
-            }
-            finally
-            {
-                _connectionPool.ReleaseConnection(connection);
-            }
-        }
-
-        // internal methods
-        /// <summary>
-        /// Acquires the connection.
-        /// </summary>
-        /// <returns>A MongoConnection.</returns>
-        internal MongoConnection AcquireConnection()
-        {
-            lock (_serverInstanceLock)
-            {
-                if (_state != MongoServerState.Connected)
-                {
-                    var message = string.Format("Server instance {0} is no longer connected.", _address);
-                    throw new InvalidOperationException(message);
-                }
-            }
-
-            return _connectionPool.AcquireConnection();
-        }
-
-        /// <summary>
-        /// Connects this instance.
-        /// </summary>
-        internal void Connect()
-        {
-            // Console.WriteLine("MongoServerInstance[{0}]: Connect() called.", sequentialId);
-            lock (_serverInstanceLock)
-            {
-                if (_permanentlyDisconnected || _state == MongoServerState.Connecting || _state == MongoServerState.Connected)
-                {
-                    return;
-                }
-
-                _connectException = null;
-
-                // set the state manually here because SetState raises an event that shouldn't be raised
-                // while holding a lock.
-                _state = MongoServerState.Connecting;
-            }
-
-            // We know for certain that the state just changed
-            OnStateChanged();
-
-            try
-            {
-                var connection = _connectionPool.AcquireConnection();
-                try
-                {
-                    Ping(connection);
-                    LookupServerInformation(connection);
-                }
-                finally
-                {
-                    _connectionPool.ReleaseConnection(connection);
-                }
-                SetState(MongoServerState.Connected);
-            }
-            catch (Exception ex)
-            {
-                lock (_serverInstanceLock)
-                {
-                    _connectException = ex;
-                }
-                _connectionPool.Clear();
-                Interlocked.Exchange(ref _connectException, ex);
-                SetState(MongoServerState.Disconnected);
-                throw;
-            }
-            finally
-            {
-                lock (_serverInstanceLock)
-                {
-                    if (_stateVerificationTimer == null)
-                    {
-                        _stateVerificationTimer = new Timer(o => StateVerificationTimerCallback(), null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Disconnects this instance.
-        /// </summary>
-        internal void Disconnect()
-        {
-            // Console.WriteLine("MongoServerInstance[{0}]: Disconnect called.", sequentialId);
-            lock (_serverInstanceLock)
-            {
-                if (_stateVerificationTimer != null)
-                {
-                    _stateVerificationTimer.Dispose();
-                    _stateVerificationTimer = null;
-                }
-
-                if (_state == MongoServerState.Disconnecting || _state == MongoServerState.Disconnected)
-                {
-                    return;
-                }
-
-                // set the state here because SetState raises an event that should not be raised while holding a lock
-                _state = MongoServerState.Disconnecting;
-            }
-
-            // we know for certain state has just changed.
-            OnStateChanged();
-
-            try
-            {
-                _connectionPool.Clear();
-            }
-            finally
-            {
-                SetState(MongoServerState.Disconnected);
-            }
-        }
-
-        /// <summary>
-        /// Disconnects this instance permanently.
-        /// </summary>
-        internal void DisconnectPermanently()
-        {
-            lock (_serverInstanceLock)
-            {
-                _permanentlyDisconnected = true;
-            }
-
-            Disconnect();
-        }
-
-        /// <summary>
-        /// Releases the connection.
-        /// </summary>
-        /// <param name="connection">The connection.</param>
-        internal void ReleaseConnection(MongoConnection connection)
-        {
-            _connectionPool.ReleaseConnection(connection);
-        }
-
-        /// <summary>
-        /// Sets the state.
-        /// </summary>
-        /// <param name="state">The state.</param>
-        internal void SetState(MongoServerState state)
-        {
-            lock (_serverInstanceLock)
-            {
-                if (_state == state)
-                {
-                    return;
-                }
-
-                _state = state;
-            }
-
-            OnStateChanged();
-        }
-
-        /// <summary>
-        /// Unset the primary flag on this instance but retain all other information
-        /// </summary>
-        internal void UnsetPrimary()
-        {
-            lock (_serverInstanceLock)
-            {
-                _serverInfo.IsPrimary = false;
-                _stateVerificationTimer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(10)); // verify state as soon as possible
-            }
-        }
-
-        /// <summary>
-        /// Unset the primary flag on this instance but retain all other information
-        /// </summary>
-        internal void UnsetPrimarySecondary()
-        {
-            lock (_serverInstanceLock)
-            {
-                _serverInfo.IsPrimary = false;
-                _serverInfo.IsSecondary = false;
-            }
+            throw new NotImplementedException();
         }
 
         // private methods
-        private void LookupServerInformation(MongoConnection connection)
-        {
-            IsMasterResult isMasterResult = null;
-            bool ok = false;
-            try
-            {
-                var isMasterCommand = new CommandDocument("ismaster", 1);
-                isMasterResult = RunCommandAs<IsMasterResult>(connection, "admin", isMasterCommand);
-
-                MongoServerBuildInfo buildInfo;
-                try
-                {
-                    var buildInfoCommand = new CommandDocument("buildinfo", 1);
-                    var buildInfoResult = RunCommandAs<CommandResult>(connection, "admin", buildInfoCommand);
-                    buildInfo = MongoServerBuildInfo.FromCommandResult(buildInfoResult);
-                }
-                catch (MongoCommandException ex)
-                {
-                    var commandResult = new CommandResult(ex.Result);
-                    // short term fix: if buildInfo fails due to auth we don't know the server version; see CSHARP-324
-                    if (commandResult.ErrorMessage != "need to login")
-                    {
-                        throw;
-                    }
-                    buildInfo = null;
-                }
-
-                ReplicaSetInformation replicaSetInformation = null;
-                MongoServerInstanceType instanceType = MongoServerInstanceType.StandAlone;
-                if (isMasterResult.IsReplicaSet)
-                {
-                    var peers = isMasterResult.Hosts.Concat(isMasterResult.Passives).Concat(isMasterResult.Arbiters).ToList();
-                    replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers, isMasterResult.Tags, isMasterResult.ReplicaSetConfigVersion);
-                    instanceType = MongoServerInstanceType.ReplicaSetMember;
-                }
-                else if (isMasterResult.Message != null && isMasterResult.Message == "isdbgrid")
-                {
-                    instanceType = MongoServerInstanceType.ShardRouter;
-                }
-
-                var featureContext = new FeatureContext
-                {
-                    BuildInfo = buildInfo,
-                    Connection = connection,
-                    IsMasterResult = isMasterResult,
-                    ServerInstanceType = instanceType
-                };
-                var featureSet = new FeatureSetDetector().DetectFeatureSet(featureContext);
-
-                var newServerInfo = new ServerInformation
-                {
-                    BuildInfo = buildInfo,
-                    FeatureSet = featureSet,
-                    InstanceType = instanceType,
-                    IsArbiter = isMasterResult.IsArbiterOnly,
-                    IsMasterResult = isMasterResult,
-                    IsPassive = isMasterResult.IsPassive,
-                    IsPrimary = isMasterResult.IsPrimary,
-                    IsSecondary = isMasterResult.IsSecondary,
-                    MaxBatchCount = isMasterResult.MaxWriteBatchSize,
-                    MaxDocumentSize = isMasterResult.MaxBsonObjectSize,
-                    MaxMessageLength = isMasterResult.MaxMessageLength,
-                    ReplicaSetInformation = replicaSetInformation
-                };
-                MongoServerState currentState;
-                lock (_serverInstanceLock)
-                {
-                    currentState = _state;
-                }
-                SetState(currentState, newServerInfo);
-                ok = true;
-            }
-            finally
-            {
-                if (!ok)
-                {
-                    ServerInformation currentServerInfo;
-                    lock (_serverInstanceLock)
-                    {
-                        currentServerInfo = _serverInfo;
-                    }
-
-                    // keep the current instance type, build info, and replica set info
-                    // as these aren't relevent to state and are likely still correct.
-                    var newServerInfo = new ServerInformation
-                    {
-                        BuildInfo = currentServerInfo.BuildInfo,
-                        FeatureSet = currentServerInfo.FeatureSet,
-                        InstanceType = currentServerInfo.InstanceType,
-                        IsArbiter = false,
-                        IsMasterResult = isMasterResult,
-                        IsPassive = false,
-                        IsPrimary = false,
-                        IsSecondary = false,
-                        MaxDocumentSize = currentServerInfo.MaxDocumentSize,
-                        MaxMessageLength = currentServerInfo.MaxMessageLength,
-                        MaxBatchCount = currentServerInfo.MaxBatchCount,
-                        ReplicaSetInformation = currentServerInfo.ReplicaSetInformation
-                    };
-
-                    SetState(MongoServerState.Disconnected, newServerInfo);
-                }
-            }
-        }
-
-        private void OnAveragePingTimeChanged()
-        {
-            if (AveragePingTimeChanged != null)
-            {
-                try { AveragePingTimeChanged(this, EventArgs.Empty); }
-                catch { } // ignore exceptions
-            }
-        }
-
         private void OnStateChanged()
         {
-            if (StateChanged != null)
+            var handler = StateChanged;
+            if (handler != null)
             {
-                try { StateChanged(this, null); }
-                catch { } // ignore exceptions
-            }
-        }
-
-        private void Ping(MongoConnection connection)
-        {
-            try
-            {
-                var pingCommand = new CommandDocument("ping", 1);
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                RunCommandAs<CommandResult>(connection, "admin", pingCommand);
-                stopwatch.Stop();
-                var currentAverage = _pingTimeAggregator.Average;
-                _pingTimeAggregator.Include(stopwatch.Elapsed);
-                var newAverage = _pingTimeAggregator.Average;
-                if (currentAverage != newAverage)
-                {
-                    OnAveragePingTimeChanged();
-                }
-            }
-            catch
-            {
-                _pingTimeAggregator.Clear();
-                UnsetPrimarySecondary();
-                SetState(MongoServerState.Disconnected);
-                throw;
-            }
-        }
-
-        private TCommandResult RunCommandAs<TCommandResult>(MongoConnection connection, string databaseName, IMongoCommand command)
-            where TCommandResult : CommandResult
-        {
-            var readerSettings = new BsonBinaryReaderSettings();
-            var writerSettings = new BsonBinaryWriterSettings();
-            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
-
-            var commandOperation = new CommandOperation<TCommandResult>(
-                databaseName,
-                readerSettings,
-                writerSettings,
-                command,
-                QueryFlags.SlaveOk,
-                null, // options
-                null, // readPreference
-                resultSerializer);
-
-            return commandOperation.Execute(connection);
-        }
-
-        private void StateVerificationTimerCallback()
-        {
-            if (_inStateVerification)
-            {
-                return;
-            }
-
-            _inStateVerification = true;
-            try
-            {
-                var connection = _connectionPool.AcquireConnection(_stateVerificationAcquireConnectionOptions);
                 try
                 {
-                    Ping(connection);
-                    LookupServerInformation(connection);
-                    ThreadPool.QueueUserWorkItem(o => _connectionPool.MaintainPoolSize());
-                    SetState(MongoServerState.Connected);
+                    handler(this, EventArgs.Empty);
                 }
-                finally
+                catch
                 {
-                    _connectionPool.ReleaseConnection(connection);
+                    // ignore exceptions
                 }
-            }
-            catch { } // this is called in a timer thread and we don't want any exceptions escaping
-            finally
-            {
-                _inStateVerification = false;
-            }
-        }
-
-        /// <remarks>This method must be called outside of a lock.</remarks>
-        private void SetState(MongoServerState newState, ServerInformation newServerInfo)
-        {
-            bool raiseChangedEvent = false;
-            lock (_serverInstanceLock)
-            {
-                if (_state != newState)
-                {
-                    _state = newState;
-                    raiseChangedEvent = true;
-                }
-
-                if (newState == MongoServerState.Disconnected)
-                {
-                    _connectionPool.Clear();
-                }
-
-                if (_serverInfo != newServerInfo && _serverInfo.IsDifferentFrom(newServerInfo))
-                {
-                    _serverInfo = newServerInfo;
-                    raiseChangedEvent = true;
-                }
-            }
-
-            if (raiseChangedEvent)
-            {
-                OnStateChanged();
-            }
-        }
-
-        // NOTE: while all these properties are mutable, it is purely for ease of use.  This class is used as an immutable class.
-        private class ServerInformation
-        {
-            public MongoServerBuildInfo BuildInfo { get; set; }
-
-            public FeatureSet FeatureSet { get; set; }
-
-            public MongoServerInstanceType InstanceType { get; set; }
-
-            public bool IsArbiter { get; set; }
-
-            public IsMasterResult IsMasterResult { get; set; }
-
-            public bool IsPassive { get; set; }
-
-            public bool IsPrimary { get; set; }
-
-            public bool IsSecondary { get; set; }
-
-            public int MaxDocumentSize { get; set; }
-
-            public int MaxMessageLength { get; set; }
-
-            public int MaxWireDocumentSize { get { return MaxDocumentSize + 16 * 1024; } }
-
-            public int MaxBatchCount { get; set; }
-
-            public ReplicaSetInformation ReplicaSetInformation { get; set; }
-
-            public bool IsDifferentFrom(ServerInformation other)
-            {
-                if (InstanceType != other.InstanceType)
-                {
-                    return true;
-                }
-
-                if (IsPrimary != other.IsPrimary)
-                {
-                    return true;
-                }
-
-                if (IsSecondary != other.IsSecondary)
-                {
-                    return true;
-                }
-
-                if (IsPassive != other.IsPassive)
-                {
-                    return true;
-                }
-
-                if (IsArbiter != other.IsArbiter)
-                {
-                    return true;
-                }
-
-                if (MaxDocumentSize != other.MaxDocumentSize)
-                {
-                    return true;
-                }
-
-                if (MaxMessageLength != other.MaxMessageLength)
-                {
-                    return true;
-                }
-
-                if (MaxWireDocumentSize != other.MaxWireDocumentSize)
-                {
-                    return true;
-                }
-
-                if (MaxBatchCount != other.MaxBatchCount)
-                {
-                    return true;
-                }
-
-                if ((ReplicaSetInformation == null && other.ReplicaSetInformation != null) || (ReplicaSetInformation != other.ReplicaSetInformation))
-                {
-                    return true;
-                }
-
-                return false;
             }
         }
     }

@@ -18,12 +18,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GridFS;
-using MongoDB.Driver.Internal;
-using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver
 {
@@ -33,9 +30,9 @@ namespace MongoDB.Driver
     public class MongoDatabase
     {
         // private fields
-        private MongoServer _server;
-        private MongoDatabaseSettings _settings;
-        private string _name;
+        private readonly MongoServer _server;
+        private readonly MongoDatabaseSettings _settings;
+        private readonly string _name;
 
         // constructors
         /// <summary>
@@ -70,8 +67,8 @@ namespace MongoDB.Driver
             settings.Freeze();
 
             _server = server;
-            _settings = settings;
             _name = name;
+            _settings = settings;
         }
 
         // factory methods
@@ -264,12 +261,7 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult CreateCollection(string collectionName, IMongoCollectionOptions options)
         {
-            var command = new CommandDocument("create", collectionName);
-            if (options != null)
-            {
-                command.Merge(options.ToBsonDocument());
-            }
-            return RunCommandAs<CommandResult>(command);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -287,21 +279,7 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult DropCollection(string collectionName)
         {
-            try
-            {
-                var command = new CommandDocument("drop", collectionName);
-                var result = RunCommandAs<CommandResult>(command);
-                return result;
-            }
-            catch (MongoCommandException ex)
-            {
-                var commandResult = new CommandResult(ex.Result);
-                if (commandResult.ErrorMessage == "ns not found")
-                {
-                    return commandResult;
-                }
-                throw;
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -344,15 +322,7 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Code == null) { throw new ArgumentException("Code is null.", "args"); }
 
-            var command = new CommandDocument
-            {
-                { "$eval", args.Code },
-                { "args", () => new BsonArray(args.Args), args.Args != null }, // optional
-                { "nolock", () => !args.Lock.Value, args.Lock.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
-            };
-            var result = RunCommandAs<CommandResult>(command);
-            return result.Response["retval"];
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -604,11 +574,7 @@ namespace MongoDB.Driver
         /// <returns>The last error (<see cref=" GetLastErrorResult"/>)</returns>
         public virtual GetLastErrorResult GetLastError()
         {
-            if (Server.RequestNestingLevel == 0)
-            {
-                throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first.");
-            }
-            return RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
+            throw new NotImplementedException();
         }
 
         // TODO: mongo shell has GetPrevError at the database level?
@@ -633,8 +599,7 @@ namespace MongoDB.Driver
         /// <returns>The profiling level.</returns>
         public GetProfilingLevelResult GetProfilingLevel()
         {
-            var command = new CommandDocument("profile", -1);
-            return RunCommandAs<GetProfilingLevelResult>(command);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -653,7 +618,7 @@ namespace MongoDB.Driver
         /// <returns>An instance of DatabaseStatsResult.</returns>
         public virtual DatabaseStatsResult GetStats()
         {
-            return RunCommandAs<DatabaseStatsResult>("dbstats");
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -758,14 +723,7 @@ namespace MongoDB.Driver
                 throw new ArgumentOutOfRangeException("newCollectionName", message);
             }
 
-            var command = new CommandDocument
-            {
-                { "renameCollection", string.Format("{0}.{1}", _name, oldCollectionName) },
-                { "to", string.Format("{0}.{1}", _name, newCollectionName) },
-                { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
-            };
-            var adminDatabase = _server.GetDatabase("admin");
-            return adminDatabase.RunCommandAs<CommandResult>(command);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -1036,51 +994,10 @@ namespace MongoDB.Driver
 
         private TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command,
-            IBsonSerializer<TCommandResult> resultSerializer) where TCommandResult : CommandResult
+            IBsonSerializer<TCommandResult> resultSerializer)
+            where TCommandResult : CommandResult
         {
-            var readerSettings = new BsonBinaryReaderSettings
-            {
-                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-            var writerSettings = new BsonBinaryWriterSettings
-            {
-                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-            var readPreference = _settings.ReadPreference;
-            if (readPreference != ReadPreference.Primary)
-            {
-                if (_server.ProxyType == MongoServerProxyType.Unknown)
-                {
-                    _server.Connect();
-                }
-                if (_server.ProxyType == MongoServerProxyType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
-                {
-                    readPreference = ReadPreference.Primary;
-                }
-            }
-            var flags = (readPreference == ReadPreference.Primary) ? QueryFlags.None : QueryFlags.SlaveOk;
-
-            var commandOperation = new CommandOperation<TCommandResult>(
-                _name,
-                readerSettings,
-                writerSettings,
-                command,
-                flags,
-                null, // options
-                readPreference,
-                resultSerializer);
-
-            var connection = _server.AcquireConnection(readPreference);
-            try
-            {
-                return commandOperation.Execute(connection);
-            }
-            finally
-            {
-                _server.ReleaseConnection(connection);
-            }
+            throw new NotImplementedException();
         }
     }
 }

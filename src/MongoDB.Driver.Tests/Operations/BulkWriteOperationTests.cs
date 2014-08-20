@@ -124,10 +124,12 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.Drop();
             _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument("n", n)));
 
-            var result = _collection.BulkWrite(new BulkWriteArgs
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            for (var n = 0; n < count; n++)
             {
-                Requests = Enumerable.Range(0, count).Select(n => (WriteRequest)new DeleteRequest(Query.EQ("n", n)))
-            });
+                bulk.Find(Query.EQ("n", n)).RemoveOne();
+            }
+            var result = bulk.Execute();
 
             Assert.AreEqual(count, result.DeletedCount);
             Assert.AreEqual(0, _collection.Count());
@@ -141,10 +143,12 @@ namespace MongoDB.Driver.Tests.Operations
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
             _collection.Drop();
 
-            var result = _collection.BulkWrite(new BulkWriteArgs
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            for (var n = 0; n < count; n++)
             {
-                Requests = Enumerable.Range(0, count).Select(n => (WriteRequest)new InsertRequest(typeof(BsonDocument), new BsonDocument("n", n)))
-            });
+                bulk.Insert(new BsonDocument("n", n));
+            }
+            var result = bulk.Execute();
 
             Assert.AreEqual(count, result.InsertedCount);
             Assert.AreEqual(count, _collection.Count());
@@ -159,10 +163,12 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.Drop();
             _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument("n", n)));
 
-            var result = _collection.BulkWrite(new BulkWriteArgs
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            for (var n = 0; n < count; n++)
             {
-                Requests = Enumerable.Range(0, count).Select(n => (WriteRequest)new UpdateRequest(Query.EQ("n", n), Update.Set("n", -1)))
-            });
+                bulk.Find(Query.EQ("n", n)).UpdateOne(Update.Set("n", -1));
+            }
+            var result = bulk.Execute();
 
             if (_primary.Supports(FeatureId.WriteCommands))
             {

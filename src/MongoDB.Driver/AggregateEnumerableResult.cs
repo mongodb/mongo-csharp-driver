@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver
 {
@@ -44,41 +43,7 @@ namespace MongoDB.Driver
         // public methods
         public IEnumerator<BsonDocument> GetEnumerator()
         {
-            if (_outputCollectionName != null)
-            {
-                var database = _collection.Database;
-                var collectionSettings = new MongoCollectionSettings { ReadPreference = ReadPreference.Primary };
-                var collection = database.GetCollection<BsonDocument>(_outputCollectionName, collectionSettings);
-                return collection.FindAll().GetEnumerator();
-            }
-
-            var result = _collection.RunAggregateCommand(_args);
-            if (result.CursorId != 0)
-            {
-                var connectionProvider = new ServerInstanceConnectionProvider(result.ServerInstance);
-                var readerSettings = new BsonBinaryReaderSettings
-                {
-                    Encoding = _collection.Settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
-                    GuidRepresentation = _collection.Settings.GuidRepresentation
-                };
-                return new CursorEnumerator<BsonDocument>(
-                    connectionProvider,
-                    _collection.FullName,
-                    result.ResultDocuments,
-                    result.CursorId,
-                    _args.BatchSize ?? 0,
-                    0,
-                    readerSettings,
-                    BsonDocumentSerializer.Instance);
-            }
-            else if (result.ResultDocuments != null)
-            {
-                return result.ResultDocuments.GetEnumerator();
-            }
-            else
-            {
-                throw new NotSupportedException("Unexpected response to aggregate command.");
-            }
+            throw new NotImplementedException();
         }
 
         // explicit interface implementations

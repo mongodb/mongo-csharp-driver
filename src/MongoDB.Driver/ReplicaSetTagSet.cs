@@ -228,16 +228,7 @@ namespace MongoDB.Driver
                 return true;
             }
 
-            var tagSet = instance.ReplicaSetInformation.TagSet;
-            foreach (var tag in _tags)
-            {
-                if (!tagSet.Contains(tag))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            throw new NotImplementedException();
         }
 
         /// <summary>

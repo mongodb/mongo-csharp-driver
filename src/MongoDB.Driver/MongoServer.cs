@@ -41,10 +41,8 @@ namespace MongoDB.Driver
         // private fields
         private ICluster _cluster;
         private readonly object _serverLock = new object();
-        private readonly IMongoServerProxy _serverProxy;
         private readonly MongoServerSettings _settings;
-        private readonly Dictionary<int, Request> _requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
-        private int _sequentialId;
+        private readonly int _sequentialId;
 
         // static constructor
         static MongoServer()
@@ -68,7 +66,6 @@ namespace MongoDB.Driver
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
             // Console.WriteLine("MongoServer[{0}]: {1}", sequentialId, settings);
 
-            _serverProxy = new MongoServerProxyFactory().Create(_settings);
             _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings);
         }
 
@@ -190,7 +187,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                return _serverProxy.Instances.Where(i => i.IsArbiter).ToArray();
+                throw new NotImplementedException();
             }
         }
 
@@ -199,7 +196,10 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoServerBuildInfo BuildInfo
         {
-            get { return _serverProxy.BuildInfo; }
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -218,7 +218,10 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual int ConnectionAttempt
         {
-            get { return _serverProxy.ConnectionAttempt; }
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -228,14 +231,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var instances = _serverProxy.Instances;
-                switch (instances.Count)
-                {
-                    case 0: return null;
-                    case 1: return instances[0];
-                    default:
-                        throw new InvalidOperationException("Instance property cannot be used when there is more than one instance.");
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -246,7 +242,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                return _serverProxy.Instances.ToArray();
+                throw new NotImplementedException();
             }
         }
 
@@ -257,7 +253,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                return _serverProxy.Instances.Where(i => i.IsPassive).ToArray();
+                throw new NotImplementedException();
             }
         }
 
@@ -268,42 +264,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var serverProxy = _serverProxy;
-
-                var discoveringServerProxy = serverProxy as DiscoveringMongoServerProxy;
-                if (discoveringServerProxy != null)
-                {
-                    serverProxy = discoveringServerProxy.WrappedProxy;
-                    if (serverProxy == null)
-                    {
-                        return null;
-                    }
-                }
-
-                var directProxy = serverProxy as DirectMongoServerProxy;
-                if (directProxy != null)
-                {
-                    var instance = directProxy.Instances[0];
-                    if (instance.IsPrimary || instance.InstanceType == MongoServerInstanceType.ShardRouter)
-                    {
-                        return instance;
-                    }
-                    return null;
-                }
-
-                var replicaSetProxy = serverProxy as ReplicaSetMongoServerProxy;
-                if (replicaSetProxy != null)
-                {
-                    return replicaSetProxy.Primary;
-                }
-
-                var shardedProxy = serverProxy as ShardedMongoServerProxy;
-                if (shardedProxy != null)
-                {
-                    return shardedProxy.Instances.FirstOrDefault(x => x.State == MongoServerState.Connected);
-                }
-
-                return null;
+                throw new NotImplementedException();
             }
         }
 
@@ -314,19 +275,7 @@ namespace MongoDB.Driver
         {
             get 
             {
-                var replicaSetProxy = _serverProxy as ReplicaSetMongoServerProxy;
-                if (replicaSetProxy != null)
-                {
-                    return replicaSetProxy.ReplicaSetName;
-                }
-
-                var discoveringProxy = _serverProxy as DiscoveringMongoServerProxy;
-                if (discoveringProxy != null)
-                {
-                    return discoveringProxy.ReplicaSetName;
-                }
-
-                return null;
+                throw new NotImplementedException();
             }
         }
 
@@ -337,19 +286,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverLock)
-                {
-                    int threadId = Thread.CurrentThread.ManagedThreadId;
-                    Request request;
-                    if (_requests.TryGetValue(threadId, out request))
-                    {
-                        return request.Connection;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -360,19 +297,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_serverLock)
-                {
-                    int threadId = Thread.CurrentThread.ManagedThreadId;
-                    Request request;
-                    if (_requests.TryGetValue(threadId, out request))
-                    {
-                        return request.NestingLevel;
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -383,7 +308,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                return _serverProxy.Instances.Where(i => i.IsSecondary).ToArray();
+                throw new NotImplementedException();
             }
         }
 
@@ -408,13 +333,10 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoServerState State
         {
-            get { return _serverProxy.State; }
-        }
-
-        // internal properties
-        internal MongoServerProxyType ProxyType
-        {
-            get { return _serverProxy.ProxyType; }
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
 
         // public indexers
@@ -500,7 +422,7 @@ namespace MongoDB.Driver
         /// <param name="timeout">How long to wait before timing out.</param>
         public virtual void Connect(TimeSpan timeout)
         {
-            _serverProxy.Connect(timeout, _settings.ReadPreference);
+            throw new NotImplementedException();
         }
 
         // TODO: fromHost parameter?
@@ -532,7 +454,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Disconnect()
         {
-            _serverProxy.Disconnect();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -542,10 +464,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropDatabase(string databaseName)
         {
-            var database = GetDatabase(databaseName);
-            var command = new CommandDocument("dropDatabase", 1);
-            var result = database.RunCommand(command);
-            return result;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -638,16 +557,7 @@ namespace MongoDB.Driver
         /// <returns>A list of database names.</returns>
         public virtual IEnumerable<string> GetDatabaseNames()
         {
-            var adminDatabase = GetDatabase("admin");
-            var result = adminDatabase.RunCommand("listDatabases");
-            var databaseNames = new List<string>();
-            foreach (BsonDocument database in result.Response["databases"].AsBsonArray.Values)
-            {
-                string databaseName = database["name"].AsString;
-                databaseNames.Add(databaseName);
-            }
-            databaseNames.Sort();
-            return databaseNames;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -712,7 +622,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Ping()
         {
-            _serverProxy.Ping();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -722,11 +632,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Reconnect()
         {
-            lock (_serverLock)
-            {
-                Disconnect();
-                Connect();
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -735,30 +641,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void RequestDone()
         {
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-            MongoConnection connectionToRelease = null;
-
-            lock (_serverLock)
-            {
-                Request request;
-                if (_requests.TryGetValue(threadId, out request))
-                {
-                    if (--request.NestingLevel == 0)
-                    {
-                        _requests.Remove(threadId);
-                        connectionToRelease = request.Connection;
-                    }
-                }
-                else
-                {
-                    throw new InvalidOperationException("Thread is not in a request (did you call RequestStart?).");
-                }
-            }
-
-            if (connectionToRelease != null)
-            {
-                connectionToRelease.ServerInstance.ReleaseConnection(connectionToRelease);
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -798,32 +681,7 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase, ReadPreference readPreference)
         {
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-
-            lock (_serverLock)
-            {
-                Request request;
-                if (_requests.TryGetValue(threadId, out request))
-                {
-                    if (!readPreference.MatchesInstance(request.Connection.ServerInstance))
-                    {
-                        throw new InvalidOperationException("A nested call to RequestStart was made and the current instance does not match the nested read preference.");
-                    }
-                    request.NestingLevel++;
-                    return new RequestStartResult(this);
-                }
-
-            }
-
-            var serverInstance = _serverProxy.ChooseServerInstance(readPreference);
-            var connection = serverInstance.AcquireConnection();
-
-            lock (_serverLock)
-            {
-                var request = new Request(connection);
-                _requests.Add(threadId, request);
-                return new RequestStartResult(this);
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -836,30 +694,7 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase, MongoServerInstance serverInstance)
         {
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-
-            lock (_serverLock)
-            {
-                Request request;
-                if (_requests.TryGetValue(threadId, out request))
-                {
-                    if (serverInstance != request.Connection.ServerInstance)
-                    {
-                        throw new InvalidOperationException("The server instance passed to a nested call to RequestStart does not match the server instance of the current Request.");
-                    }
-                    request.NestingLevel++;
-                    return new RequestStartResult(this);
-                }
-            }
-
-            var connection = serverInstance.AcquireConnection();
-
-            lock (_serverLock)
-            {
-                var request = new Request(connection);
-                _requests.Add(threadId, request);
-                return new RequestStartResult(this);
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -867,18 +702,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Shutdown()
         {
-            lock (_serverLock)
-            {
-                try
-                {
-                    var adminDatabase = GetDatabase("admin");
-                    adminDatabase.RunCommand("shutdown");
-                }
-                catch (EndOfStreamException)
-                {
-                    // we expect an EndOfStreamException when the server shuts down so we ignore it
-                }
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -886,92 +710,15 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void VerifyState()
         {
-            _serverProxy.VerifyState();
+            throw new NotImplementedException();
         }
 
         // internal methods
-        internal MongoConnection AcquireConnection(ReadPreference readPreference)
-        {
-            MongoConnection requestConnection = null;
-            lock (_serverLock)
-            {
-                // if a thread has called RequestStart it wants all operations to take place on the same connection
-                int threadId = Thread.CurrentThread.ManagedThreadId;
-                Request request;
-                if (_requests.TryGetValue(threadId, out request))
-                {
-                    if (!readPreference.MatchesInstance(request.Connection.ServerInstance))
-                    {
-                        throw new InvalidOperationException("The thread is in a RequestStart and the current server instance is not a match for the supplied read preference.");
-                    }
-                    requestConnection = request.Connection;
-                }
-            }
-
-            // check authentication outside of lock
-            if (requestConnection != null)
-            {
-                return requestConnection;
-            }
-
-            var serverInstance = _serverProxy.ChooseServerInstance(readPreference);
-            return serverInstance.AcquireConnection();
-        }
-
-        internal MongoConnection AcquireConnection(MongoServerInstance serverInstance)
-        {
-            MongoConnection requestConnection = null;
-            lock (_serverLock)
-            {
-                // if a thread has called RequestStart it wants all operations to take place on the same connection
-                int threadId = Thread.CurrentThread.ManagedThreadId;
-                Request request;
-                if (_requests.TryGetValue(threadId, out request))
-                {
-                    if (request.Connection.ServerInstance != serverInstance)
-                    {
-                        var message = string.Format(
-                            "AcquireConnection called for server instance '{0}' but thread is in a RequestStart for server instance '{1}'.",
-                            serverInstance.Address, request.Connection.ServerInstance.Address);
-                        throw new MongoConnectionException(message);
-                    }
-                    requestConnection = request.Connection;
-                }
-            }
-
-            if (requestConnection != null)
-            {
-                return requestConnection;
-            }
-
-            return serverInstance.AcquireConnection();
-        }
-
-        internal void ReleaseConnection(MongoConnection connection)
-        {
-            lock (_serverLock)
-            {
-                // if the thread has called RequestStart just verify that the connection it is releasing is the right one
-                int threadId = Thread.CurrentThread.ManagedThreadId;
-                Request request;
-                if (_requests.TryGetValue(threadId, out request))
-                {
-                    if (connection != request.Connection)
-                    {
-                        throw new ArgumentException("Connection being released is not the one assigned to the thread by RequestStart.", "connection");
-                    }
-                    return; // hold on to the connection until RequestDone is called
-                }
-            }
-
-            connection.ServerInstance.ReleaseConnection(connection);
-        }
-
         // private nested classes
         private class Request
         {
             // private fields
-            private MongoConnection _connection;
+            private readonly MongoConnection _connection;
             private int _nestingLevel;
 
             // constructors

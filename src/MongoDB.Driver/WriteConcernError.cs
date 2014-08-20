@@ -13,13 +13,7 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {

@@ -111,13 +111,7 @@ namespace MongoDB.Driver
             }
             _hasBeenExecuted = true;
 
-            var args = new BulkWriteArgs
-            {
-                IsOrdered = _isOrdered,
-                WriteConcern = writeConcern,
-                Requests = _requests
-            };
-            return _collection.BulkWrite(args);
+            throw new NotImplementedException();
         }
     }
 }

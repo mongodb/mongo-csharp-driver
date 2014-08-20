@@ -14,16 +14,6 @@
 */
 
 using System;
-using System.IO;
-using System.Net.Security;
-using System.Net.Sockets;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Communication.Security;
-using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver.Internal
 {
@@ -52,31 +42,12 @@ namespace MongoDB.Driver.Internal
     public class MongoConnection
     {
         // private fields
-        private object _connectionLock = new object();
         private MongoServerInstance _serverInstance;
-        private MongoConnectionPool _connectionPool;
-        private int _generationId; // the generationId of the connection pool at the time this connection was created
-        private MongoConnectionState _state;
-        private TcpClient _tcpClient;
-        private Stream _stream; // either a NetworkStream or an SslStream wrapping a NetworkStream
-        private DateTime _createdAt;
-        private DateTime _lastUsedAt; // set every time the connection is Released
-        private int _messageCounter;
-        private int _requestId;
 
         // constructors
-        internal MongoConnection(MongoConnectionPool connectionPool)
-            : this(connectionPool.ServerInstance)
-        {
-            _connectionPool = connectionPool;
-            _generationId = connectionPool.GenerationId;
-        }
-
         internal MongoConnection(MongoServerInstance serverInstance)
         {
             _serverInstance = serverInstance;
-            _createdAt = DateTime.UtcNow;
-            _state = MongoConnectionState.Initial;
         }
 
         // public properties
@@ -85,7 +56,7 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public MongoConnectionPool ConnectionPool
         {
-            get { return _connectionPool; }
+            get { return _serverInstance.ConnectionPool; }
         }
 
         /// <summary>
@@ -93,7 +64,10 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public DateTime CreatedAt
         {
-            get { return _createdAt; }
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -101,7 +75,10 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public int GenerationId
         {
-            get { return _generationId; }
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -109,8 +86,10 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public DateTime LastUsedAt
         {
-            get { return _lastUsedAt; }
-            internal set { _lastUsedAt = value; }
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -118,7 +97,10 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public int MessageCounter
         {
-            get { return _messageCounter; }
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -126,7 +108,10 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public int RequestId
         {
-            get { return _requestId; }
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -142,240 +127,10 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public MongoConnectionState State
         {
-            get { return _state; }
-        }
-
-        // internal methods
-        internal void Close()
-        {
-            lock (_connectionLock)
+            get
             {
-                if (_state != MongoConnectionState.Closed)
-                {
-                    if (_stream != null)
-                    {
-                        try { _stream.Close(); } catch { } // ignore exceptions
-                        _stream = null;
-                    }
-                    if (_tcpClient != null)
-                    {
-                        if (_tcpClient.Connected)
-                        {
-                            // even though MSDN says TcpClient.Close doesn't close the underlying socket
-                            // it actually does (as proven by disassembling TcpClient and by experimentation)
-                            try { _tcpClient.Close(); } catch { } // ignore exceptions
-                        }
-                        _tcpClient = null;
-                    }
-                    _state = MongoConnectionState.Closed;
-                }
+                throw new NotImplementedException();
             }
-        }
-
-        internal bool IsExpired()
-        {
-            var now = DateTime.UtcNow;
-            return now > _createdAt + _serverInstance.Settings.MaxConnectionLifeTime
-                || now > _lastUsedAt + _serverInstance.Settings.MaxConnectionIdleTime;
-        }
-
-        internal void Open()
-        {
-            if (_state != MongoConnectionState.Initial)
-            {
-                throw new InvalidOperationException("Open called more than once.");
-            }
-
-            var ipEndPoint = _serverInstance.GetIPEndPoint();
-            var tcpClient = new TcpClient(ipEndPoint.AddressFamily);
-            tcpClient.NoDelay = true; // turn off Nagle
-            tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
-            tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;
-            tcpClient.Connect(ipEndPoint);
-
-            var stream = (Stream)tcpClient.GetStream();
-            if (_serverInstance.Settings.UseSsl)
-            {
-                var checkCertificateRevocation = true;
-                var clientCertificateCollection = (X509CertificateCollection)null;
-                var clientCertificateSelectionCallback = (LocalCertificateSelectionCallback)null;
-                var enabledSslProtocols = SslProtocols.Default;
-                var serverCertificateValidationCallback = (RemoteCertificateValidationCallback)null;
-
-                var sslSettings = _serverInstance.Settings.SslSettings;
-                if (sslSettings != null)
-                {
-                    checkCertificateRevocation = sslSettings.CheckCertificateRevocation;
-                    clientCertificateCollection = sslSettings.ClientCertificateCollection;
-                    clientCertificateSelectionCallback = sslSettings.ClientCertificateSelectionCallback;
-                    enabledSslProtocols = sslSettings.EnabledSslProtocols;
-                    serverCertificateValidationCallback = sslSettings.ServerCertificateValidationCallback;
-                }
-
-                if (serverCertificateValidationCallback == null && !_serverInstance.Settings.VerifySslCertificate)
-                {
-                    serverCertificateValidationCallback = AcceptAnyCertificate;
-                }
-
-                var sslStream = new SslStream(stream, false, serverCertificateValidationCallback, clientCertificateSelectionCallback);
-                try
-                {
-                    var targetHost = _serverInstance.Address.Host;
-                    sslStream.AuthenticateAsClient(targetHost, clientCertificateCollection, enabledSslProtocols, checkCertificateRevocation);
-                }
-                catch
-                {
-                    try { stream.Close(); }
-                    catch { } // ignore exceptions
-                    try { tcpClient.Close(); }
-                    catch { } // ignore exceptions
-                    throw;
-                }
-                stream = sslStream;
-            }
-
-            _tcpClient = tcpClient;
-            _stream = stream;
-            _state = MongoConnectionState.Open;
-
-            new Authenticator(this, _serverInstance.Settings.Credentials)
-                .Authenticate();
-        }
-
-        internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>(
-            BsonBinaryReaderSettings readerSettings,
-            IBsonSerializer<TDocument> serializer)
-        {
-            if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
-            lock (_connectionLock)
-            {
-                try
-                {
-                    _lastUsedAt = DateTime.UtcNow;
-                    var networkStream = GetNetworkStream();
-                    var readTimeout = (int)_serverInstance.Settings.SocketTimeout.TotalMilliseconds;
-                    if (readTimeout != 0)
-                    {
-                        networkStream.ReadTimeout = readTimeout;
-                    }
-
-                    using (var byteBuffer = ByteBufferFactory.LoadLengthPrefixedDataFrom(networkStream))
-                    using (var stream = new ByteBufferStream(byteBuffer, ownsByteBuffer: true))
-                    {
-                        var reply = new MongoReplyMessage<TDocument>(readerSettings, serializer);
-                        reply.ReadFrom(stream);
-                        return reply;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    HandleException(ex);
-                    throw;
-                }
-            }
-        }
-
-        internal void SendMessage(Stream stream, int requestId)
-        {
-            if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
-            lock (_connectionLock)
-            {
-                _lastUsedAt = DateTime.UtcNow;
-                _requestId = requestId;
-
-                try
-                {
-                    var networkStream = GetNetworkStream();
-                    var writeTimeout = (int)_serverInstance.Settings.SocketTimeout.TotalMilliseconds;
-                    if (writeTimeout != 0)
-                    {
-                        networkStream.WriteTimeout = writeTimeout;
-                    }
-                    stream.Position = 0;
-                    stream.CopyTo(networkStream);
-                    _messageCounter++;
-                }
-                catch (Exception ex)
-                {
-                    HandleException(ex);
-                    throw;
-                }
-            }
-        }
-
-        internal void SendMessage(MongoRequestMessage message)
-        {
-            using (var stream = new MemoryStream())
-            {
-                message.WriteTo(stream);
-                SendMessage(stream, message.RequestId);
-            }
-        }
-
-        // private methods
-        private bool AcceptAnyCertificate(
-            object sender,
-            X509Certificate certificate,
-            X509Chain chain,
-            SslPolicyErrors sslPolicyErrors
-        )
-        {
-            return true;
-        }
-
-        private Stream GetNetworkStream()
-        {
-            if (_state == MongoConnectionState.Initial)
-            {
-                Open();
-            }
-            return _stream;
-        }
-
-        private void HandleException(Exception ex)
-        {
-            // there are three possible situations:
-            // 1. we can keep using the connection
-            // 2. just this one connection needs to be closed
-            // 3. the whole connection pool needs to be cleared
-
-            switch (DetermineAction(ex))
-            {
-                case HandleExceptionAction.KeepConnection:
-                    break;
-                case HandleExceptionAction.CloseConnection:
-                    Close();
-                    break;
-                case HandleExceptionAction.ClearConnectionPool:
-                    Close();
-                    if (_connectionPool != null)
-                    {
-                        _connectionPool.Clear();
-                    }
-                    break;
-                default:
-                    throw new MongoInternalException("Invalid HandleExceptionAction");
-            }
-
-            _serverInstance.RefreshStateAsSoonAsPossible();
-        }
-
-        private enum HandleExceptionAction
-        {
-            KeepConnection,
-            CloseConnection,
-            ClearConnectionPool
-        }
-
-        private HandleExceptionAction DetermineAction(Exception ex)
-        {
-            // TODO: figure out when to return KeepConnection or ClearConnectionPool (if ever)
-
-            // don't return ClearConnectionPool unless you are *sure* it is the right action
-            // definitely don't make ClearConnectionPool the default action
-            // returning ClearConnectionPool frequently can result in Connect/Disconnect storms
-
-            return HandleExceptionAction.CloseConnection; // this should always be the default action
         }
     }
 }
