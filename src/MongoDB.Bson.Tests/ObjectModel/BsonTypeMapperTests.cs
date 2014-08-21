@@ -127,11 +127,26 @@ namespace MongoDB.Bson.Tests
         [Test]
         public void TestMapBsonDouble()
         {
-            var value = new BsonDouble(1.2);
-            var bsonValue = (BsonDouble)BsonTypeMapper.MapToBsonValue(value);
-            Assert.AreSame(value, bsonValue);
-            var bsonDouble = (BsonDouble)BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
-            Assert.AreSame(value, bsonDouble);
+            var value1 = new BsonDouble(1.2);
+            var bsonValue = (BsonDouble)BsonTypeMapper.MapToBsonValue(value1);
+            Assert.AreSame(value1, bsonValue);
+            var bsonDouble = (BsonDouble)BsonTypeMapper.MapToBsonValue(value1, BsonType.Double);
+            Assert.AreSame(value1, bsonDouble);
+
+            BsonDouble value2 = (BsonDouble)BsonTypeMapper.MapToBsonValue(1.3f);
+            BsonDouble value3 = 1.3f;
+            //We expect a well converted BsonDouble
+            BsonDouble expectedResult = 1.3d;
+
+            Assert.AreEqual(expectedResult, value2);
+            Assert.IsTrue(expectedResult == value2);
+            Assert.IsTrue(!(expectedResult != value2));
+            Assert.AreEqual(expectedResult, value3);
+            Assert.IsTrue(expectedResult == value3);
+            Assert.IsTrue(!(expectedResult != value3));
+            Assert.AreEqual(value2, value3);
+            Assert.IsTrue(value2 == value3);
+            Assert.IsTrue(!(value2 != value3));
         }
 
         [Test]
@@ -487,11 +502,11 @@ namespace MongoDB.Bson.Tests
         {
             var value = (float)1.2;
             var bsonValue = (BsonDouble)BsonTypeMapper.MapToBsonValue(value);
-            Assert.AreEqual(value, bsonValue.Value);
+            Assert.AreEqual(value, (float)bsonValue.Value); // A float with double comparison is always false (different types)
             var bsonBoolean = (BsonBoolean)BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
             Assert.AreEqual(true, bsonBoolean.Value);
             var bsonDouble = (BsonDouble)BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
-            Assert.AreEqual(value, bsonDouble.Value);
+            Assert.AreEqual(value, (float)bsonDouble.Value); // A float with double comparison is always false (different types)
         }
 
         [Test]

@@ -181,6 +181,8 @@ namespace MongoDB.Bson.Tests
             var e = new BsonDouble(2.0);
             var f = new BsonInt32(2);
             var g = new BsonInt64(2L);
+            var h = new BsonDouble(1.3f);
+            var i = new BsonDouble(1.3d);
             var n = (BsonDouble)null;
             var nan = new BsonDouble(double.NaN);
 
@@ -191,6 +193,7 @@ namespace MongoDB.Bson.Tests
             Assert.IsFalse(object.Equals(a, f));
             Assert.IsFalse(object.Equals(a, g));
             Assert.IsFalse(object.Equals(a, BsonNull.Value));
+            Assert.IsTrue(object.Equals(h, i));
             Assert.IsFalse(a.Equals(n));
             Assert.IsFalse(a.Equals(null));
             Assert.IsFalse(a.Equals(nan));
@@ -203,6 +206,7 @@ namespace MongoDB.Bson.Tests
             Assert.IsFalse(a == f);
             Assert.IsFalse(a == g);
             Assert.IsFalse(a == BsonNull.Value);
+            Assert.IsTrue(h == i);
             Assert.IsFalse(a == null);
             Assert.IsFalse(null == a);
             Assert.IsTrue(n == null);
@@ -219,6 +223,7 @@ namespace MongoDB.Bson.Tests
             Assert.IsTrue(a != f);
             Assert.IsTrue(a != g);
             Assert.IsTrue(a != BsonNull.Value);
+            Assert.IsFalse(h != i);
             Assert.IsTrue(a != null);
             Assert.IsTrue(null != a);
             Assert.IsFalse(n != null);
@@ -239,15 +244,18 @@ namespace MongoDB.Bson.Tests
             var e = (BsonValue)new BsonDouble(2.0);
             var f = (BsonValue)new BsonInt32(2);
             var g = (BsonValue)new BsonInt64(2L);
+            var h = (BsonValue)new BsonDouble(1.3f);
+            var i = (BsonValue)new BsonDouble(1.3d);
             var n = (BsonValue)null;
             var nan = (BsonValue)new BsonDouble(double.NaN);
 
             Assert.IsTrue(object.Equals(a, b));
-            Assert.IsFalse(object.Equals(a, c));
-            Assert.IsFalse(object.Equals(a, d));
+            Assert.IsFalse(object.Equals(a, c));// Doubt!
+            Assert.IsFalse(object.Equals(a, d));// Doubt!
             Assert.IsFalse(object.Equals(a, e));
             Assert.IsFalse(object.Equals(a, f));
             Assert.IsFalse(object.Equals(a, g));
+            Assert.IsTrue(object.Equals(h, i));
             Assert.IsFalse(object.Equals(a, BsonNull.Value));
             Assert.IsFalse(a.Equals(n));
             Assert.IsFalse(a.Equals(null));
@@ -260,6 +268,7 @@ namespace MongoDB.Bson.Tests
             Assert.IsFalse(a == e);
             Assert.IsFalse(a == f);
             Assert.IsFalse(a == g);
+            Assert.IsTrue(h == i);
             Assert.IsFalse(a == BsonNull.Value);
             Assert.IsFalse(a == null);
             Assert.IsFalse(null == a);

@@ -31,11 +31,22 @@ namespace MongoDB.Bson
         /// <summary>
         /// Initializes a new instance of the BsonDouble class.
         /// </summary>
-        /// <param name="value">The value.</param>
+        /// <param name="value">The double value.</param>
         public BsonDouble(double value)
             : base(BsonType.Double)
         {
             _value = value;
+        }
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDouble class.
+        /// </summary>
+        /// <param name="value">The float value.</param>
+        public BsonDouble(float value)
+            : base(BsonType.Double)
+        {
+            _value = (double)(decimal)value;
         }
 
         // public properties
@@ -65,6 +76,17 @@ namespace MongoDB.Bson
         public static implicit operator BsonDouble(double value)
         {
             return new BsonDouble(value);
+        }
+
+        // public operators
+        /// <summary>
+        /// Converts a float to a BsonDouble.
+        /// </summary>
+        /// <param name="value">A float.</param>
+        /// <returns>A BsonDouble.</returns>
+        public static implicit operator BsonDouble(float value) 
+        {
+            return new BsonDouble((double)(decimal)value);
         }
 
         /// <summary>
