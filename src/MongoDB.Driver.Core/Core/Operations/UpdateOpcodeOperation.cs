@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 
@@ -26,14 +27,14 @@ namespace MongoDB.Driver.Core.Operations
     public class UpdateOpcodeOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly bool _isMulti;
-        private readonly bool _isUpsert;
-        private readonly int? _maxDocumentSize;
-        private readonly BsonDocument _query;
-        private readonly BsonDocument _update;
-        private readonly WriteConcern _writeConcern;
+        private string _collectionName;
+        private string _databaseName;
+        private bool _isMulti;
+        private bool _isUpsert;
+        private int? _maxDocumentSize;
+        private BsonDocument _query;
+        private BsonDocument _update;
+        private WriteConcern _writeConcern;
 
         // constructors
         public UpdateOpcodeOperation(
@@ -49,65 +50,53 @@ namespace MongoDB.Driver.Core.Operations
             _writeConcern = WriteConcern.Acknowledged;
         }
 
-        private UpdateOpcodeOperation(
-            string collectionName,
-            string databaseName,
-            bool isMulti,
-            bool isUpsert,
-            int? maxDocumentSize,
-            BsonDocument query,
-            BsonDocument update,
-            WriteConcern writeConcern)
-        {
-            _collectionName = collectionName;
-            _databaseName = databaseName;
-            _isMulti = isMulti;
-            _isUpsert = isUpsert;
-            _maxDocumentSize = maxDocumentSize;
-            _query = query;
-            _update = update;
-            _writeConcern = writeConcern;
-        }
-
         // properties
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public bool IsMulti
         {
             get { return _isMulti; }
+            set { _isMulti = value; }
         }
 
         public bool IsUpsert
         {
             get { return _isUpsert; }
+            set { _isUpsert = value; }
         }
 
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
+            set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public BsonDocument Query
         {
             get { return _query; }
+            set { _query = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonDocument Update
         {
             get { return _update; }
+            set { _update = Ensure.IsNotNull(value, "value"); }
         }
 
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
+            set { _writeConcern = Ensure.IsNotNull(value, "value"); }
         }
 
         // methods
@@ -123,97 +112,36 @@ namespace MongoDB.Driver.Core.Operations
                 _isUpsert);
         }
 
+        public async Task<BsonDocument> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(connection, "connection");
+
+            if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
+            {
+                var emulator = new UpdateOpcodeOperationEmulator(_databaseName, _collectionName, _query, _update)
+                {
+                    IsMulti = _isMulti,
+                    IsUpsert = _isUpsert,
+                    MaxDocumentSize = _maxDocumentSize,
+                    WriteConcern = _writeConcern
+                };
+                return await emulator.ExecuteAsync(connection, timeout, cancellationToken);
+            }
+            else
+            {
+                var protocol = CreateProtocol();
+                return await protocol.ExecuteAsync(connection, timeout, cancellationToken);
+            }
+        }
+
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            var protocol = CreateProtocol();
-            return await protocol.ExecuteAsync(binding, timeout, cancellationToken);
-        }
-
-        public UpdateOpcodeOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public UpdateOpcodeOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public UpdateOpcodeOperation WithIsMulti(bool value)
-        {
-            return (_isMulti == value) ? this : new Builder(this) { _isMulti = value }.Build();
-        }
-
-        public UpdateOpcodeOperation WithIsUpsert(bool value)
-        {
-            return (_isUpsert == value) ? this : new Builder(this) { _isUpsert = value }.Build();
-        }
-
-        public UpdateOpcodeOperation WithMaxDocumentSize(int? value)
-        {
-            Ensure.IsNullOrGreaterThanZero(value, "value");
-            return (_maxDocumentSize == value) ? this : new Builder(this) { _maxDocumentSize = value }.Build();
-        }
-
-        public UpdateOpcodeOperation WithQuery(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_query, value) ? this : new Builder(this) { _query = value }.Build();
-        }
-
-        public UpdateOpcodeOperation WithUpdate(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_update, value) ? this : new Builder(this) { _update = value }.Build();
-        }
-
-        public UpdateOpcodeOperation WithWriteConcern(WriteConcern value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.Equals(_writeConcern, value) ? this : new Builder(this) { _writeConcern = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public string _collectionName;
-            public string _databaseName;
-            public bool _isMulti;
-            public bool _isUpsert;
-            public int? _maxDocumentSize;
-            public BsonDocument _query;
-            public BsonDocument _update;
-            public WriteConcern _writeConcern;
-
-            // constructors
-            public Builder(UpdateOpcodeOperation other)
+            var slidingTimeout = new SlidingTimeout(timeout);
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
+            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
             {
-                _collectionName = other.CollectionName;
-                _databaseName = other.DatabaseName;
-                _isMulti = other.IsMulti;
-                _isUpsert = other.IsUpsert;
-                _maxDocumentSize = other.MaxDocumentSize;
-                _query = other.Query;
-                _update = other.Update;
-                _writeConcern = other.WriteConcern;
-            }
-
-            // methods
-            public UpdateOpcodeOperation Build()
-            {
-                return new UpdateOpcodeOperation(
-                    _collectionName,
-                    _databaseName,
-                    _isMulti,
-                    _isUpsert,
-                    _maxDocumentSize,
-                    _query,
-                    _update,
-                    _writeConcern);
+                return await ExecuteAsync(connection, slidingTimeout, cancellationToken);
             }
         }
     }

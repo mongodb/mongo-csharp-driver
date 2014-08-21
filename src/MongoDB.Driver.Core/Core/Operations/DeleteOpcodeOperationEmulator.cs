@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DeleteOpcodeOperation : IWriteOperation<BsonDocument>
+    public class DeleteOpcodeOperationEmulator
     {
         // fields
         private string _collectionName;
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteConcern _writeConcern;
 
         // constructors
-        public DeleteOpcodeOperation(
+        public DeleteOpcodeOperationEmulator(
             string databaseName,
             string collectionName,
             BsonDocument query)
@@ -77,44 +77,46 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private DeleteWireProtocol CreateProtocol()
-        {
-            return new DeleteWireProtocol(
-                _databaseName,
-                _collectionName,
-                _writeConcern,
-                _query,
-                _isMulti);
-        }
-
         public async Task<BsonDocument> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(connection, "connection");
 
-            if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
+            Ensure.IsNotNull(connection, "connection");
+
+            var requests = new[] { new DeleteRequest(_query) };
+
+            var operation = new BulkDeleteOperation(_databaseName, _collectionName, requests)
             {
-                var emulator = new DeleteOpcodeOperationEmulator(_databaseName, _collectionName, _query)
-                {
-                    IsMulti = _isMulti,
-                    WriteConcern = _writeConcern
-                };
-                return await emulator.ExecuteAsync(connection, timeout, cancellationToken);
+                WriteConcern = _writeConcern
+            };
+
+            BulkWriteResult bulkWriteResult;
+            BulkWriteException bulkWriteException = null;
+            try
+            {
+                bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken);
+            }
+            catch (BulkWriteException ex)
+            {
+                bulkWriteResult = ex.Result;
+                bulkWriteException = ex;
+            }
+
+            var converter = new BulkWriteResultConverter();
+            if (bulkWriteException != null)
+            {
+                throw converter.ToWriteConcernException(bulkWriteException);
             }
             else
             {
-                var protocol = CreateProtocol();
-                return await protocol.ExecuteAsync(connection, timeout, cancellationToken);
-            }
-        }
-
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(binding, "binding");
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
-            {
-                return await ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                if (_writeConcern.IsAcknowledged)
+                {
+                    return converter.ToWriteConcernResult(bulkWriteResult).Response;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
     }

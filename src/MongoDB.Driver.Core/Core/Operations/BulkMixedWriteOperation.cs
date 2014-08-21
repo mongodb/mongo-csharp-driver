@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Core.Operations
                 throw new InvalidOperationException("Bulk write operation is empty.");
             }
 
-            var combiner = new BulkWriteBatchResultCombiner(batchResults, !_writeConcern.Equals(WriteConcern.Unacknowledged));
+            var combiner = new BulkWriteBatchResultCombiner(batchResults, _writeConcern.IsAcknowledged);
             return combiner.CreateResultOrThrowIfHasErrors(remainingRequests.ToList());
         }
 

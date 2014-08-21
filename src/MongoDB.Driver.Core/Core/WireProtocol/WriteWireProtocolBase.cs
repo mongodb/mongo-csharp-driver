@@ -97,17 +97,17 @@ namespace MongoDB.Driver.Core.WireProtocol
             var slidingTimeout = new SlidingTimeout(timeout);
 
             var writeMessage = CreateWriteMessage(connection);
-            if (_writeConcern.Equals(WriteConcern.Unacknowledged))
-            {
-                await connection.SendMessageAsync(writeMessage, slidingTimeout, cancellationToken);
-                return null;
-            }
-            else
+            if (_writeConcern.IsAcknowledged)
             {
                 var getLastErrorMessage = CreateGetLastErrorMessage();
                 await connection.SendMessagesAsync(new RequestMessage[] { writeMessage, getLastErrorMessage }, slidingTimeout, cancellationToken);
                 var reply = await connection.ReceiveMessageAsync<BsonDocument>(getLastErrorMessage.RequestId, BsonDocumentSerializer.Instance, slidingTimeout, cancellationToken);
                 return ProcessReply(reply);
+            }
+            else
+            {
+                await connection.SendMessageAsync(writeMessage, slidingTimeout, cancellationToken);
+                return null;
             }
         }
 

@@ -106,6 +106,18 @@ namespace MongoDB.Driver.Core.Operations
             get { return _fsync; }
         }
 
+        public bool IsAcknowledged
+        {
+            get
+            {
+                return
+                    _w != null && !_w.Equals((WValue)0) ||
+                    _wTimeout.HasValue ||
+                    _fsync.HasValue ||
+                    _journal.HasValue;
+            }
+        }
+
         public bool? Journal
         {
             get { return _journal; }

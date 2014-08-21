@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -26,19 +27,7 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class InsertOpcodeOperation : InsertOpcodeOperation<BsonDocument>
-    {
-        // constructors
-        public InsertOpcodeOperation(
-            string databaseName,
-            string collectionName,
-            BatchableSource<BsonDocument> documentSource)
-            : base(databaseName, collectionName, BsonDocumentSerializer.Instance, documentSource)
-        {
-        }
-    }
-
-    public class InsertOpcodeOperation<TDocument> : IWriteOperation<BsonDocument>
+    internal class InsertOpcodeOperationEmulator<TDocument>
     {
         // fields
         private string _collectionName;
@@ -52,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteConcern _writeConcern;
 
         // constructors
-        public InsertOpcodeOperation(
+        public InsertOpcodeOperationEmulator(
             string databaseName,
             string collectionName,
             IBsonSerializer<TDocument> serializer,
@@ -121,50 +110,49 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private InsertWireProtocol<TDocument> CreateProtocol()
-        {
-            return new InsertWireProtocol<TDocument>(
-                _databaseName,
-                _collectionName,
-                _writeConcern,
-                _serializer,
-                _documentSource,
-                _maxBatchCount,
-                _maxMessageSize,
-                _continueOnError);
-        }
-
         public async Task<BsonDocument> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(connection, "connection");
 
-            if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
+            var requests = _documentSource.GetRemainingItems().Select(d => new InsertRequest(d, _serializer));
+            var operation = new BulkInsertOperation(_databaseName, _collectionName, requests)
             {
-                var emulator = new InsertOpcodeOperationEmulator<TDocument>(_databaseName, _collectionName, _serializer, _documentSource)
-                {
-                    ContinueOnError = _continueOnError,
-                    MaxBatchCount = _maxBatchCount,
-                    MaxDocumentSize = _maxDocumentSize,
-                    MaxMessageSize = _maxMessageSize,
-                    WriteConcern = _writeConcern
-                };
-                return await emulator.ExecuteAsync(connection, timeout, cancellationToken);
+                // AssignId = ?
+                // CheckElementNames = ?
+                IsOrdered = !_continueOnError,
+                MaxBatchCount = _maxBatchCount ?? 0,
+                // ReaderSettings = ?
+                WriteConcern = _writeConcern,
+                // WriteSettings = ?
+            };
+
+            BulkWriteResult bulkWriteResult;
+            BulkWriteException bulkWriteException = null;
+            try
+            {
+                bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken);
+            }
+            catch (BulkWriteException ex)
+            {
+                bulkWriteResult = ex.Result;
+                bulkWriteException = ex;
+            }
+
+            var converter = new BulkWriteResultConverter();
+            if (bulkWriteException != null)
+            {
+                throw converter.ToWriteConcernException(bulkWriteException);
             }
             else
             {
-                var protocol = CreateProtocol();
-                return await protocol.ExecuteAsync(connection, timeout, cancellationToken);
-            }
-        }
-
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(binding, "binding");
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
-            {
-                return await ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                if (_writeConcern.IsAcknowledged)
+                {
+                    return converter.ToWriteConcernResult(bulkWriteResult).Response;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
     }

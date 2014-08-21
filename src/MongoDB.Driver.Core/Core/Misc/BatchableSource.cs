@@ -77,6 +77,7 @@ namespace MongoDB.Driver.Core.Misc
             {
                 yield return _enumerator.Current;
             }
+            _hasMore = false;
         }
 
         public void EndBatch(IReadOnlyList<T> batch, Overflow overflow)

@@ -1200,7 +1200,7 @@ namespace MongoDB.Driver
 
             var assignId = _settings.AssignIdOnInsert ? (Action<Core.Operations.InsertRequest>)AssignId : null;
             var checkElementNames = options.CheckElementNames;
-            var isOrdered = ((options.Flags & InsertFlags.ContinueOnError) == 0);
+            var continueOnError = options.Flags.HasFlag(InsertFlags.ContinueOnError);
             var readerSettings = GetBinaryReaderSettings();
             var serializer = BsonSerializer.LookupSerializer<TNominalType>();
             var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
@@ -1217,7 +1217,11 @@ namespace MongoDB.Driver
                     var documentSource = new BatchableSource<TNominalType>(enumerator);
                     while (documentSource.HasMore)
                     {
-                        var operation = new InsertOpcodeOperation<TNominalType>(_database.Name, _name, serializer, documentSource);
+                        var operation = new InsertOpcodeOperation<TNominalType>(_database.Name, _name, serializer, documentSource)
+                        {
+                            ContinueOnError = continueOnError,
+                            WriteConcern = writeConcern.ToCore()
+                        };
                         var response = operation.ExecuteAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
                         var writeConcernResult = new WriteConcernResult(response);
                         writeConcernResults.Add(writeConcernResult);

@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
                 originalIndex++;
             }
 
-            var combiner = new BulkWriteBatchResultCombiner(batchResults, !_writeConcern.Equals(WriteConcern.Unacknowledged));
+            var combiner = new BulkWriteBatchResultCombiner(batchResults, _writeConcern.IsAcknowledged);
             return combiner.CreateResultOrThrowIfHasErrors(remainingRequests);
         }
     }

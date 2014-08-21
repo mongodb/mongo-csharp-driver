@@ -24,24 +24,29 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DeleteOpcodeOperation : IWriteOperation<BsonDocument>
+    public class UpdateOpcodeOperationEmulator
     {
         // fields
         private string _collectionName;
         private string _databaseName;
         private bool _isMulti;
+        private bool _isUpsert;
+        private int? _maxDocumentSize;
         private BsonDocument _query;
+        private BsonDocument _update;
         private WriteConcern _writeConcern;
 
         // constructors
-        public DeleteOpcodeOperation(
+        public UpdateOpcodeOperationEmulator(
             string databaseName,
             string collectionName,
-            BsonDocument query)
+            BsonDocument query,
+            BsonDocument update)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _query = Ensure.IsNotNull(query, "query");
+            _update = Ensure.IsNotNull(update, "update");
             _writeConcern = WriteConcern.Acknowledged;
         }
 
@@ -64,10 +69,28 @@ namespace MongoDB.Driver.Core.Operations
             set { _isMulti = value; }
         }
 
+        public bool IsUpsert
+        {
+            get { return _isUpsert; }
+            set { _isUpsert = value; }
+        }
+
+        public int? MaxDocumentSize
+        {
+            get { return _maxDocumentSize; }
+            set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+        }
+
         public BsonDocument Query
         {
             get { return _query; }
             set { _query = Ensure.IsNotNull(value, "value"); }
+        }
+
+        public BsonDocument Update
+        {
+            get { return _update; }
+            set { _update = Ensure.IsNotNull(value, "value"); }
         }
 
         public WriteConcern WriteConcern
@@ -77,44 +100,44 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private DeleteWireProtocol CreateProtocol()
-        {
-            return new DeleteWireProtocol(
-                _databaseName,
-                _collectionName,
-                _writeConcern,
-                _query,
-                _isMulti);
-        }
-
         public async Task<BsonDocument> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(connection, "connection");
 
-            if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
+            var requests = new[] { new UpdateRequest(_query, _update) };
+
+            var operation = new BulkUpdateOperation(_databaseName, _collectionName, requests)
             {
-                var emulator = new DeleteOpcodeOperationEmulator(_databaseName, _collectionName, _query)
-                {
-                    IsMulti = _isMulti,
-                    WriteConcern = _writeConcern
-                };
-                return await emulator.ExecuteAsync(connection, timeout, cancellationToken);
+                // CheckElementNames = ?,
+            };
+
+            BulkWriteResult bulkWriteResult;
+            BulkWriteException bulkWriteException = null;
+            try
+            {
+                bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken);
+            }
+            catch (BulkWriteException ex)
+            {
+                bulkWriteResult = ex.Result;
+                bulkWriteException = ex;
+            }
+
+            var converter = new BulkWriteResultConverter();
+            if (bulkWriteException != null)
+            {
+                throw converter.ToWriteConcernException(bulkWriteException);
             }
             else
             {
-                var protocol = CreateProtocol();
-                return await protocol.ExecuteAsync(connection, timeout, cancellationToken);
-            }
-        }
-
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(binding, "binding");
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
-            {
-                return await ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                if (_writeConcern.IsAcknowledged)
+                {
+                    return converter.ToWriteConcernResult(bulkWriteResult).Response;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
     }

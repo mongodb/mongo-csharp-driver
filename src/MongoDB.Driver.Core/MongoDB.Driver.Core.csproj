@@ -58,12 +58,17 @@
     <Compile Include="Core\Bindings\SplitReadWriteBinding.cs" />
     <Compile Include="Core\Bindings\IConnectionSource.cs" />
     <Compile Include="Core\Bindings\ReadPreferenceBinding.cs" />
+    <Compile Include="Core\Misc\ExceptionMapper.cs" />
     <Compile Include="Core\Misc\ReferenceCounted.cs" />
     <Compile Include="Core\Bindings\WritableServerBinding.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="BulkWriteException.cs" />
     <Compile Include="Core\Operations\ICommandOperation.cs" />
     <Compile Include="ExecutionTimeoutException.cs" />
+    <Compile Include="Core\Operations\BulkWriteResultConverter.cs" />
+    <Compile Include="Core\Operations\DeleteOpcodeOperationEmulator.cs" />
+    <Compile Include="Core\Operations\InsertOpcodeOperationEmulator.cs" />
+    <Compile Include="Core\Operations\UpdateOpcodeOperationEmulator.cs" />
     <Compile Include="Core\Misc\BatchableSource.cs" />
     <Compile Include="Core\Misc\IndexMap.cs" />
     <Compile Include="Core\Misc\Metronome.cs" />
