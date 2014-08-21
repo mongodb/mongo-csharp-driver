@@ -224,9 +224,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public FindOneOperation<TDocument> WithHint(BsonDocument value)
         {
-            Ensure.IsNotNull(value, "value");
-            var indexName = CreateIndexOperation.GetDefaultIndexName(value);
-            return WithHint(indexName);
+            return value == null ? WithHint((string)null) : WithHint(CreateIndexOperation.GetDefaultIndexName(value));
         }
 
         public FindOneOperation<TDocument> WithHint(string value)

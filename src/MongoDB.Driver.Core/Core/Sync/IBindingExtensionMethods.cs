@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
     public static class IReadBindingExtensionMethods
     {
         // static methods
-        public static IConnectionSource GetReadConnectionSource(this IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public static IConnectionSourceHandle GetReadConnectionSource(this IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             return binding.GetReadConnectionSourceAsync(timeout, cancellationToken).GetAwaiter().GetResult();
         }
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
     public static class IWriteBindingExtensionMethods
     {
         // static methods
-        public static IConnectionSource GetWriteConnectionSource(this IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public static IConnectionSourceHandle GetWriteConnectionSource(this IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             return binding.GetWriteConnectionSourceAsync(timeout, cancellationToken).GetAwaiter().GetResult();
         }

@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 
@@ -147,11 +148,22 @@ namespace MongoDB.Driver.Core.Operations
                 _continueOnError);
         }
 
+        public async Task<BsonDocument> ExecuteAsync(IConnection connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(connection, "connection");
+            var protocol = CreateProtocol();
+            return await protocol.ExecuteAsync(connection, timeout, cancellationToken);
+        }
+
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            var protocol = CreateProtocol();
-            return await protocol.ExecuteAsync(binding, timeout, cancellationToken);
+            var slidingTimeout = new SlidingTimeout(timeout);
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
+            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
+            {
+                return await ExecuteAsync(connection, slidingTimeout, cancellationToken);
+            }
         }
 
         public InsertOpcodeOperation<TDocument> WithCollectionName(string value)

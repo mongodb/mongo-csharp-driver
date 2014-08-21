@@ -14,8 +14,11 @@
 */
 
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
@@ -39,6 +42,8 @@ namespace MongoDB.Driver
         private readonly MongoConnectionPool _connectionPool;
         private readonly MongoServerAddress _address;
         private readonly int _sequentialId;
+        private readonly ICluster _cluster;
+        private readonly DnsEndPoint _endPoint;
 
         // constructors
         /// <summary>
@@ -46,12 +51,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="settings">The settings.</param>
         /// <param name="address">The address.</param>
-        internal MongoServerInstance(MongoServerSettings settings, MongoServerAddress address)
+        /// <param name="cluster">The cluster.</param>
+        internal MongoServerInstance(MongoServerSettings settings, MongoServerAddress address, ICluster cluster)
         {
             _settings = settings;
             _address = address;
+            _cluster = cluster;
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
             _connectionPool = new MongoConnectionPool(this);
+            _endPoint = new DnsEndPoint(address.Host, address.Port);
         }
 
         // public properties
@@ -62,7 +70,23 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                switch (serverDescription.Type)
+                {
+                    case ServerType.ReplicaSetArbiter:
+                    case ServerType.ReplicaSetPassive:
+                    case ServerType.ReplicaSetPrimary:
+                    case ServerType.ReplicaSetSecondary:
+                    case ServerType.ReplicaSetOther:
+                        return MongoServerInstanceType.ReplicaSetMember;
+                    case ServerType.ShardRouter:
+                        return MongoServerInstanceType.ShardRouter;
+                    case ServerType.Standalone:
+                        return MongoServerInstanceType.StandAlone;
+                    case ServerType.Unknown:
+                    default:
+                        return MongoServerInstanceType.Unknown;
+                }
             }
         }
 
@@ -72,10 +96,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoServerAddress Address
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get { return _address; }
         }
 
         /// <summary>
@@ -85,7 +106,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                return MongoServerBuildInfo.FromBsonDocument(serverDescription.BuildInfoResult.Wrapped);
             }
         }
 
@@ -115,7 +137,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                return serverDescription.Type == ServerType.ReplicaSetArbiter;
             }
         }
 
@@ -137,7 +160,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                return serverDescription.Type == ServerType.ReplicaSetPassive;
             }
         }
 
@@ -148,7 +172,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                return serverDescription.Type == ServerType.ReplicaSetPrimary;
             }
         }
 
@@ -159,7 +184,23 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                return serverDescription.Type == ServerType.ReplicaSetSecondary;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is writable.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is writable; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsWritable
+        {
+            get
+            {
+                // TODO: implement IsWritable
+                return true;
             }
         }
 
@@ -236,7 +277,15 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                switch (serverDescription.State)
+                {
+                    case ServerState.Connected:
+                        return MongoServerState.Connected;
+                    case ServerState.Disconnected:
+                    default:
+                        return MongoServerState.Disconnected;
+                }
             }
         }
 
@@ -273,7 +322,36 @@ namespace MongoDB.Driver
         /// <returns>True if this server instance supports the feature; otherwise, false.</returns>
         public bool Supports(FeatureId featureId)
         {
-            throw new NotImplementedException();
+            switch (featureId)
+            {
+                // supported in all versions
+                case FeatureId.WriteOpcodes:
+                    return true;
+
+                // supported in 2.4.0 and newer
+                case FeatureId.GeoJson:
+                case FeatureId.TextSearchCommand:
+                    return BuildInfo.Version >= new Version(2, 4, 0);
+
+                // supported in 2.6.0 and newer
+                case FeatureId.AggregateAllowDiskUse:
+                case FeatureId.AggregateCursor:
+                case FeatureId.AggregateExplain:
+                case FeatureId.AggregateOutputToCollection:
+                case FeatureId.CreateIndexCommand:
+                case FeatureId.MaxTime:
+                case FeatureId.TextSearchQuery:
+                case FeatureId.UserManagementCommands:
+                case FeatureId.WriteCommands:
+                    return BuildInfo.Version >= new Version(2, 6, 0);
+
+                // supported in 2.6.0 and newer but not on mongos
+                case FeatureId.ParallelScanCommand:
+                    return BuildInfo.Version >= new Version(2, 6, 0) && InstanceType != MongoServerInstanceType.ShardRouter;
+
+                default:
+                    return false;
+            }
         }
 
         /// <summary>
@@ -285,6 +363,18 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private ServerDescription GetServerDescription()
+        {
+            var serverDescription = _cluster.Description.Servers.FirstOrDefault(s => s.EndPoint.Equals(_endPoint));
+            if (serverDescription == null)
+            {
+                throw new InvalidOperationException(string.Format(
+                    "Cluster does not contain a server with end point: '{0}'.",
+                    _endPoint));
+            }
+            return serverDescription;
+        }
+
         private void OnStateChanged()
         {
             var handler = StateChanged;

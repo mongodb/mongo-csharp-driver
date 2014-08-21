@@ -371,6 +371,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// To the core.
+        /// </summary>
+        /// <returns></returns>
+        public Core.Operations.WriteConcern ToCore()
+        {
+            return new Core.Operations.WriteConcern(_w.ToCore(), _wTimeout, _fsync, _journal);
+        }
+
+        /// <summary>
         /// Returns a string representation of the WriteConcern.
         /// </summary>
         /// <returns>A string representation of the WriteConcern.</returns>
@@ -504,6 +513,12 @@ namespace MongoDB.Driver
                 throw new NotImplementedException("Must be implemented by subclasses.");
             }
 
+            /// <summary>
+            /// Converts the WValue to a Core WValue.
+            /// </summary>
+            /// <returns>The Core WValue.</returns>
+            public abstract Core.Operations.WriteConcern.WValue ToCore();
+
             // internal methods
             internal virtual BsonValue ToGetLastErrorWValue()
             {
@@ -561,6 +576,17 @@ namespace MongoDB.Driver
             public override int GetHashCode()
             {
                 return _value.GetHashCode();
+            }
+
+            /// <summary>
+            /// Converts the WValue to a Core WValue.
+            /// </summary>
+            /// <returns>
+            /// The Core WValue.
+            /// </returns>
+            public override Core.Operations.WriteConcern.WValue ToCore()
+            {
+                return _value;
             }
 
             /// <summary>
@@ -629,6 +655,17 @@ namespace MongoDB.Driver
             public override int GetHashCode()
             {
                 return _value.GetHashCode();
+            }
+
+            /// <summary>
+            /// Converts the WValue to a Core WValue.
+            /// </summary>
+            /// <returns>
+            /// The Core WValue.
+            /// </returns>
+            public override Core.Operations.WriteConcern.WValue ToCore()
+            {
+                return _value;
             }
 
             /// <summary>

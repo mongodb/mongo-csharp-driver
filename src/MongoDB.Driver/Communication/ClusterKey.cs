@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Communication
         static ClusterKey()
         {
             var defaultServerSettings = new ServerSettings();
-            __defaultHeartbeatInterval = defaultServerSettings.HeartbeatTimeout;
+            __defaultHeartbeatInterval = defaultServerSettings.HeartbeatInterval;
             __defaultHeartbeatTimeout = defaultServerSettings.HeartbeatTimeout;
 
             var defaultTcpStreamSettings = new TcpStreamSettings();

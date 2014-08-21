@@ -49,6 +49,9 @@
     </Compile>
     <Compile Include="Core\Async\AsyncBackgroundTask.cs" />
     <Compile Include="Core\Async\AsyncDropbox.cs" />
+    <Compile Include="Core\Bindings\ConnectionConnectionSource.cs" />
+    <Compile Include="Core\Bindings\ConnectionReadBinding.cs" />
+    <Compile Include="Core\Bindings\ConnectionReadWriteBinding.cs" />
     <Compile Include="Core\Bindings\ConnectionSourceReadWriteBinding.cs" />
     <Compile Include="Core\Bindings\ReadWriteBindingHandle.cs" />
     <Compile Include="Core\Bindings\ReadBindingHandle.cs" />
@@ -211,7 +214,6 @@
     <Compile Include="Core\Operations\CreateIndexOperation.cs" />
     <Compile Include="Core\Operations\Cursor.cs" />
     <Compile Include="Core\Operations\DatabaseExistsOperation.cs" />
-    <Compile Include="Core\Operations\DeleteCommandOperation.cs" />
     <Compile Include="Core\Operations\DeleteOpcodeOperation.cs" />
     <Compile Include="Core\Operations\DeleteRequest.cs" />
     <Compile Include="Core\Operations\DistinctOperation.cs" />
@@ -228,7 +230,6 @@
     <Compile Include="Core\Operations\FindOperation.cs" />
     <Compile Include="Core\Operations\GroupOperation.cs" />
     <Compile Include="Core\Operations\IndexExistsOperation.cs" />
-    <Compile Include="Core\Operations\InsertCommandOperation.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperation.cs" />
     <Compile Include="Core\Operations\IOperation.cs" />
     <Compile Include="Core\Operations\ListCollectionNamesOperation.cs" />
@@ -242,7 +243,6 @@
     <Compile Include="Core\Operations\QueryOperationBase.cs" />
     <Compile Include="Core\Operations\ReadCommandOperation.cs" />
     <Compile Include="Core\Operations\RenameCollectionOperation.cs" />
-    <Compile Include="Core\Operations\UpdateCommandOperation.cs" />
     <Compile Include="Core\Operations\UpdateOpcodeOperation.cs" />
     <Compile Include="Core\Operations\UpdateRequest.cs" />
     <Compile Include="Core\Operations\WriteCommandOperation.cs" />

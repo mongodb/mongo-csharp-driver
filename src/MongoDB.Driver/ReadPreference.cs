@@ -49,6 +49,30 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
+    /// Extension methods on ReadPreferenceMode.
+    /// </summary>
+    public static class ReadPreferenceModeExtensionMethods
+    {
+        /// <summary>
+        /// Converts a high level ReadPreferenceMode to a Core ReadPreferenceMode.
+        /// </summary>
+        /// <param name="mode">The high level mode.</param>
+        /// <returns>The core mode.</returns>
+        public static Core.Clusters.ReadPreferenceMode ToCore(this ReadPreferenceMode mode)
+        {
+            switch (mode)
+            {
+                case ReadPreferenceMode.Nearest: return Core.Clusters.ReadPreferenceMode.Nearest;
+                case ReadPreferenceMode.Primary: return Core.Clusters.ReadPreferenceMode.Primary;
+                case ReadPreferenceMode.PrimaryPreferred: return Core.Clusters.ReadPreferenceMode.PrimaryPreferred;
+                case ReadPreferenceMode.Secondary: return Core.Clusters.ReadPreferenceMode.Secondary;
+                case ReadPreferenceMode.SecondaryPreferred: return Core.Clusters.ReadPreferenceMode.SecondaryPreferred;
+                default: throw new MongoInternalException("Invalid ReadPreferenceMode.");
+            }
+        }
+    }
+
+    /// <summary>
     /// Represents read preferences.
     /// </summary>
     public class ReadPreference : IEquatable<ReadPreference>
@@ -370,6 +394,15 @@ namespace MongoDB.Driver
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// To the core.
+        /// </summary>
+        /// <returns></returns>
+        public Core.Clusters.ReadPreference ToCore()
+        {
+            return new Core.Clusters.ReadPreference(_readPreferenceMode.ToCore(), _tagSets.ToCore());
         }
 
         /// <summary>

@@ -20,12 +20,15 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
-using MongoDB.Driver.Internal;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver
@@ -197,7 +200,27 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult.</returns>
         public virtual WriteConcernResult CreateIndex(IMongoIndexKeys keys, IMongoIndexOptions options)
         {
-            throw new NotImplementedException();
+            using (_database.RequestStart(ReadPreference.Primary))
+            {
+                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.CreateIndexCommand))
+                {
+                    try
+                    {
+                        CreateIndexWithCommand(keys, options);
+                        var fakeResponse = new BsonDocument { { "ok", 1 }, { "n", 0 } };
+                        return new WriteConcernResult(fakeResponse);
+                    }
+                    catch (MongoCommandException ex)
+                    {
+                        var translatedResult = new WriteConcernResult(ex.Result);
+                        throw new WriteConcernException(ex.Message, translatedResult);
+                    }
+                }
+                else
+                {
+                    return CreateIndexWithInsert(keys, options);
+                }
+            }
         }
 
         /// <summary>
@@ -556,7 +579,17 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>(FindOneArgs args)
         {
-            throw new NotImplementedException();
+            var serializer = BsonSerializer.LookupSerializer<TDocument>();
+            var operation = new FindOneOperation<TDocument>(_database.Name, _name, serializer, args.Query.ToBsonDocument())
+                .WithFields(args.Fields.ToBsonDocument())
+                .WithHint(args.Hint)
+                .WithSkip(args.Skip)
+                .WithSort(args.SortBy.ToBsonDocument());
+
+            using (var binding = _server.GetReadBinding(args.ReadPreference ?? _settings.ReadPreference))
+            {
+                return operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            }
         }
 
         /// <summary>
@@ -1057,7 +1090,8 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Insert<TNominalType>(TNominalType document)
         {
-            return Insert(typeof(TNominalType), document);
+             var options = new MongoInsertOptions();
+             return Insert(document, options);
         }
 
         /// <summary>
@@ -1069,7 +1103,12 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Insert<TNominalType>(TNominalType document, MongoInsertOptions options)
         {
-            return Insert(typeof(TNominalType), document, options);
+            if (document == null)
+            {
+                throw new ArgumentNullException("document");
+            }
+            var results = InsertBatch(new[] { document }, options);
+            return (results == null) ? null : results.Single();
         }
 
         /// <summary>
@@ -1081,7 +1120,8 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Insert<TNominalType>(TNominalType document, WriteConcern writeConcern)
         {
-            return Insert(typeof(TNominalType), document, writeConcern);
+            var options = new MongoInsertOptions { WriteConcern = writeConcern };
+            return Insert(document, options);
         }
 
         /// <summary>
@@ -1109,7 +1149,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("document");
             }
-            var results = InsertBatch(nominalType, new object[] { document }, options);
+            var results = InsertBatch(nominalType, new[] { document }, options);
             return (results == null) ? null : results.Single();
         }
 
@@ -1134,11 +1174,8 @@ namespace MongoDB.Driver
         /// <returns>A list of WriteConcernResults (or null if WriteConcern is disabled).</returns>
         public virtual IEnumerable<WriteConcernResult> InsertBatch<TNominalType>(IEnumerable<TNominalType> documents)
         {
-            if (documents == null)
-            {
-                throw new ArgumentNullException("documents");
-            }
-            return InsertBatch(typeof(TNominalType), documents.Cast<object>());
+            var options = new MongoInsertOptions();
+            return InsertBatch(documents, options);
         }
 
         /// <summary>
@@ -1156,7 +1193,40 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("documents");
             }
-            return InsertBatch(typeof(TNominalType), documents.Cast<object>(), options);
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
+
+            var assignId = _settings.AssignIdOnInsert ? (Action<Core.Operations.InsertRequest>)AssignId : null;
+            var checkElementNames = options.CheckElementNames;
+            var isOrdered = ((options.Flags & InsertFlags.ContinueOnError) == 0);
+            var readerSettings = GetBinaryReaderSettings();
+            var serializer = BsonSerializer.LookupSerializer<TNominalType>();
+            var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
+            var writerSettings = GetBinaryWriterSettings();
+
+            using (var binding = _server.GetWriteBinding())
+            using (var connectionSource = binding.GetWriteConnectionSource())
+            using (var connection = connectionSource.GetConnection())
+            {
+                var writeConcernResults = new List<WriteConcernResult>();
+
+                using (var enumerator = documents.GetEnumerator())
+                {
+                    var documentSource = new BatchableSource<TNominalType>(enumerator);
+                    while (documentSource.HasMore)
+                    {
+                        var operation = new InsertOpcodeOperation<TNominalType>(_database.Name, _name, serializer, documentSource);
+                        var response = operation.ExecuteAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
+                        var writeConcernResult = new WriteConcernResult(response);
+                        writeConcernResults.Add(writeConcernResult);
+                        documentSource.ClearBatch();
+                    }
+                }
+
+                return writeConcernResults;
+            }
         }
 
         /// <summary>
@@ -1170,11 +1240,8 @@ namespace MongoDB.Driver
             IEnumerable<TNominalType> documents,
             WriteConcern writeConcern)
         {
-            if (documents == null)
-            {
-                throw new ArgumentNullException("documents");
-            }
-            return InsertBatch(typeof(TNominalType), documents.Cast<object>(), writeConcern);
+            var options = new MongoInsertOptions { WriteConcern = writeConcern };
+            return InsertBatch(documents, writeConcern);
         }
 
         /// <summary>
@@ -1220,14 +1287,6 @@ namespace MongoDB.Driver
             if (nominalType == null)
             {
                 throw new ArgumentNullException("nominalType");
-            }
-            if (documents == null)
-            {
-                throw new ArgumentNullException("documents");
-            }
-            if (options == null)
-            {
-                throw new ArgumentNullException("options");
             }
 
             throw new NotImplementedException();
@@ -1696,6 +1755,74 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private void AssignId(Core.Operations.InsertRequest request)
+        {
+            var document = request.Document;
+            if (document != null)
+            {
+                var actualType = document.GetType();
+                var serializer = request.Serializer ?? BsonSerializer.LookupSerializer(actualType);
+                var idProvider = serializer as IBsonIdProvider;
+                if (idProvider != null)
+                {
+                    object id;
+                    Type idNominalType;
+                    IIdGenerator idGenerator;
+                    if (idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator))
+                    {
+                        if (idGenerator != null && idGenerator.IsEmpty(id))
+                        {
+                            id = idGenerator.GenerateId((MongoCollection)this, document);
+                            idProvider.SetDocumentId(document, id);
+                        }
+                    }
+                }
+            }
+        }
+
+        private BsonDocument CreateIndexDocument(IMongoIndexKeys keys, IMongoIndexOptions options)
+        {
+            var keysDocument = keys.ToBsonDocument();
+            var optionsDocument = options.ToBsonDocument();
+            var indexName = GetIndexName(keysDocument, optionsDocument);
+            var index = new BsonDocument
+            {
+                { "ns", FullName },
+                { "name", indexName },
+                { "key", keysDocument }
+            };
+            if (optionsDocument != null)
+            {
+                index.Merge(optionsDocument);
+            }
+
+            return index;
+        }
+
+        private CommandResult CreateIndexWithCommand(IMongoIndexKeys keys, IMongoIndexOptions options)
+        {
+            var command = new CommandDocument
+            {
+                { "createIndexes", Name },
+                { "indexes", new BsonArray { CreateIndexDocument(keys, options) } }
+            };
+
+            return RunCommandAs<CommandResult>(command);
+        }
+
+        private WriteConcernResult CreateIndexWithInsert(IMongoIndexKeys keys, IMongoIndexOptions options)
+        {
+            var index = CreateIndexDocument(keys, options);
+            var insertOptions = new MongoInsertOptions
+            {
+                CheckElementNames = false,
+                WriteConcern = WriteConcern.Acknowledged
+            };
+            var indexes = _database.GetCollection("system.indexes");
+            var result = indexes.Insert(index, insertOptions);
+            return result;
+        }
+
         private MongoCursor FindAs(Type documentType, IMongoQuery query, IBsonSerializer serializer)
         {
             return MongoCursor.Create(documentType, this, query, _settings.ReadPreference, serializer);
@@ -1704,6 +1831,24 @@ namespace MongoDB.Driver
         private MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query, IBsonSerializer serializer)
         {
             return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer);
+        }
+
+        private BsonBinaryReaderSettings GetBinaryReaderSettings()
+        {
+            return new BsonBinaryReaderSettings
+            {
+                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+        }
+
+        private BsonBinaryWriterSettings GetBinaryWriterSettings()
+        {
+            return new BsonBinaryWriterSettings
+            {
+                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
         }
 
         private string GetIndexName(BsonDocument keys, BsonDocument options)
@@ -1848,6 +1993,19 @@ namespace MongoDB.Driver
             }
 
             return args;
+        }
+
+        private TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult
+        {
+            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
+            return RunCommandAs<TCommandResult>(command, resultSerializer);
+        }
+
+        private TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command,
+            IBsonSerializer<TCommandResult> resultSerializer) where TCommandResult : CommandResult
+        {
+            return _database.RunCommandAs<TCommandResult>(command, resultSerializer, _settings.ReadPreference);
         }
     }
 

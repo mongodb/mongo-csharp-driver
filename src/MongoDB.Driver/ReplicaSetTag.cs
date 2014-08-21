@@ -14,9 +14,37 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Extension methods for ReplicaSetTag.
+    /// </summary>
+    public static class ReplicaSetTagExtensionMethods
+    {
+        /// <summary>
+        /// To the core.
+        /// </summary>
+        /// <param name="tags">The tags.</param>
+        /// <returns></returns>
+        public static IEnumerable<Core.Clusters.Tag> ToCore(this IEnumerable<ReplicaSetTag> tags)
+        {
+            return tags.Select(t => t.ToCore());
+        }
+
+        /// <summary>
+        /// To the core.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
+        /// <returns></returns>
+        public static Core.Clusters.Tag ToCore(this ReplicaSetTag tag)
+        {
+            return new Core.Clusters.Tag(tag.Name, tag.Value);
+        }
+    }
+
     /// <summary>
     /// Represents a replica set tag.
     /// </summary>

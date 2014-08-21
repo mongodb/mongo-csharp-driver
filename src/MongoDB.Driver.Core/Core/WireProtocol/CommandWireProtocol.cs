@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 if (!rawDocument.GetValue("ok", false).ToBoolean())
                 {
-                    var materializedDocument = rawDocument.ToBsonDocument();
+                    var materializedDocument = new BsonDocument(rawDocument);
                     throw new MongoCommandException("Command failed.", _command, materializedDocument);
                 }
 

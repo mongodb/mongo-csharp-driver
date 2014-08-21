@@ -23,6 +23,34 @@ using MongoDB.Shared;
 namespace MongoDB.Driver
 {
     /// <summary>
+    /// Extension methods for ReplicaSetTagSet.
+    /// </summary>
+    public static class ReplicaSetTagSetExtensionMethods
+    {
+        /// <summary>
+        /// To the core.
+        /// </summary>
+        /// <param name="tagSets">The tag sets.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public static IEnumerable<Core.Clusters.TagSet> ToCore(this IEnumerable<ReplicaSetTagSet> tagSets)
+        {
+            return tagSets == null ? Enumerable.Empty<Core.Clusters.TagSet>() : tagSets.Select(s => s.ToCore());
+        }
+
+        /// <summary>
+        /// To the core.
+        /// </summary>
+        /// <param name="tagSet">The tag set.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public static Core.Clusters.TagSet ToCore(this ReplicaSetTagSet tagSet)
+        {
+            return new Core.Clusters.TagSet(tagSet.Tags.ToCore());
+        }
+    }
+
+    /// <summary>
     /// Represents a set of replica set tags.
     /// </summary>
     public class ReplicaSetTagSet : IEnumerable<ReplicaSetTag>, IEquatable<ReplicaSetTagSet>

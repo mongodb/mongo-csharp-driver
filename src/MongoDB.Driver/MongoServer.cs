@@ -17,11 +17,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Communication;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
@@ -37,12 +42,15 @@ namespace MongoDB.Driver
         private static int __nextSequentialId;
         private static int __maxServerCount = 100;
         private static HashSet<char> __invalidDatabaseNameChars;
+        [ThreadStatic]
+        private static Request __threadStaticRequest;
 
         // private fields
         private ICluster _cluster;
         private readonly object _serverLock = new object();
         private readonly MongoServerSettings _settings;
         private readonly int _sequentialId;
+        private readonly List<MongoServerInstance> _serverInstances = new List<MongoServerInstance>();
 
         // static constructor
         static MongoServer()
@@ -67,6 +75,7 @@ namespace MongoDB.Driver
             // Console.WriteLine("MongoServer[{0}]: {1}", sequentialId, settings);
 
             _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings);
+            StartTrackingServerInstances();
         }
 
         // factory methods
@@ -187,7 +196,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                lock (_serverLock)
+                {
+                    return _serverInstances.Where(i => i.IsArbiter).ToArray();
+                }
             }
         }
 
@@ -242,7 +254,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                lock (_serverLock)
+                {
+                    return _serverInstances.ToArray();
+                }
             }
         }
 
@@ -253,7 +268,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                lock (_serverLock)
+                {
+                    return _serverInstances.Where(i => i.IsPassive).ToArray();
+                }
             }
         }
 
@@ -264,7 +282,20 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                lock (_serverLock)
+                {
+                    switch (_cluster.Description.Type)
+                    {
+                        case ClusterType.Standalone:
+                            return _serverInstances.First();
+                        case ClusterType.ReplicaSet:
+                            return _serverInstances.Where(i => i.IsPrimary).SingleOrDefault();
+                        case ClusterType.Sharded:
+                            return _serverInstances.Where(i => i.State == MongoServerState.Connected).FirstOrDefault();
+                        default:
+                            return null;
+                    }
+                }
             }
         }
 
@@ -286,7 +317,15 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var request = __threadStaticRequest;
+                if (request != null)
+                {
+                    return request.Connection;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
@@ -297,7 +336,15 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var request = __threadStaticRequest;
+                if (request != null)
+                {
+                    return request.NestingLevel;
+                }
+                else
+                {
+                    return 0;
+                }
             }
         }
 
@@ -308,7 +355,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                lock (_serverLock)
+                {
+                    return _serverInstances.Where(i => i.IsSecondary).ToArray();
+                }
             }
         }
 
@@ -422,7 +472,9 @@ namespace MongoDB.Driver
         /// <param name="timeout">How long to wait before timing out.</param>
         public virtual void Connect(TimeSpan timeout)
         {
-            throw new NotImplementedException();
+            var readPreference = _settings.ReadPreference;
+            var readPreferenceServerSelector = new ReadPreferenceServerSelector(readPreference.ToCore());
+            _cluster.SelectServerAsync(readPreferenceServerSelector, timeout, CancellationToken.None).GetAwaiter().GetResult();
         }
 
         // TODO: fromHost parameter?
@@ -454,7 +506,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Disconnect()
         {
-            throw new NotImplementedException();
+            // do nothing
         }
 
         /// <summary>
@@ -571,6 +623,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the server instance.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <returns>The server instance.</returns>
+        public virtual MongoServerInstance GetServerInstance(MongoServerAddress address)
+        {
+            lock (_serverLock)
+            {
+                return _serverInstances.FirstOrDefault(i => i.Address.Equals(address));
+            }
+        }
+
+        /// <summary>
         /// Checks whether a given database name is valid on this server.
         /// </summary>
         /// <param name="databaseName">The database name.</param>
@@ -641,7 +706,19 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void RequestDone()
         {
-            throw new NotImplementedException();
+            var request = __threadStaticRequest;
+            if (request != null)
+            {
+                if (--request.NestingLevel == 0)
+                {
+                    request.Binding.Dispose();
+                    __threadStaticRequest = null;
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("Thread is not in a request (did you call RequestStart?).");
+            }
         }
 
         /// <summary>
@@ -681,7 +758,9 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase, ReadPreference readPreference)
         {
-            throw new NotImplementedException();
+            var coreReadPreference = readPreference.ToCore();
+            var serverSelector = new ReadPreferenceServerSelector(coreReadPreference);
+            return RequestStart(serverSelector, coreReadPreference);
         }
 
         /// <summary>
@@ -694,7 +773,11 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase, MongoServerInstance serverInstance)
         {
-            throw new NotImplementedException();
+            var address = serverInstance.Address;
+            var endPoint = new DnsEndPoint(address.Host, address.Port);
+            var serverSelector = new EndPointServerSelector(endPoint);
+            var coreReadPreference = serverInstance.IsWritable ? Core.Clusters.ReadPreference.Primary : Core.Clusters.ReadPreference.Secondary;
+            return RequestStart(serverSelector, coreReadPreference);
         }
 
         /// <summary>
@@ -714,21 +797,154 @@ namespace MongoDB.Driver
         }
 
         // internal methods
+        internal virtual IReadBindingHandle GetReadBinding(ReadPreference readPreference)
+        {
+            var request = __threadStaticRequest;
+            if (request != null)
+            {
+                return request.Binding.Fork();
+            }
+
+            if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
+            {
+                return new ReadWriteBindingHandle(new WritableServerBinding(_cluster));
+            }
+            else
+            {
+                return new ReadBindingHandle(new ReadPreferenceBinding(_cluster, readPreference.ToCore()));
+            }
+
+        }
+
+        internal virtual IWriteBindingHandle GetWriteBinding()
+        {
+            var request = __threadStaticRequest;
+            if (request != null)
+            {
+                return ToWriteBinding(request.Binding).Fork();
+            }
+
+            return new ReadWriteBindingHandle(new WritableServerBinding(_cluster));
+        }
+
+        // private methods
+        private void OnClusterDescriptionChanged(object sender, EventArgs args)
+        {
+            var clusterDescription = _cluster.Description;
+            var endPoints = clusterDescription.Servers.Select(s => s.EndPoint).Cast<DnsEndPoint>();
+            var addresses = endPoints.Select(e => new MongoServerAddress(e.Host, e.Port)).ToList();
+
+            lock (_serverLock)
+            {
+                var numberRemoved = _serverInstances.RemoveAll(instance => !addresses.Contains(instance.Address));
+                var newAddresses = addresses.Where(address => !_serverInstances.Any(i => i.Address == address)).ToList();
+                if (newAddresses.Count > 0)
+                {
+                    _serverInstances.AddRange(addresses.Select(address => new MongoServerInstance(_settings, address, _cluster)));
+                    _serverInstances.Sort(ServerInstanceAddressComparer.Instance);
+                }
+            }
+        }
+
+        private IDisposable RequestStart(IServerSelector serverSelector, Core.Clusters.ReadPreference readPreference)
+        {
+            var request = __threadStaticRequest;
+            if (request != null)
+            {
+                var selected = serverSelector.SelectServers(_cluster.Description, new[] { request.ServerDescription }).ToList();
+                if (selected.Count == 0)
+                {
+                    throw new InvalidOperationException("A nested call to RequestStart was made that is not compatible with the existing request.");
+                }
+                request.NestingLevel++;
+                return new RequestStartResult(this);
+            }
+
+            IReadBindingHandle connectionBinding;
+            var server = _cluster.SelectServer(serverSelector);
+            using (var connection = server.GetConnection())
+            {
+                if (readPreference.Mode == Core.Clusters.ReadPreferenceMode.Primary)
+                {
+                    connectionBinding = new ReadWriteBindingHandle(new ConnectionReadWriteBinding(server, connection.Fork()));
+                }
+                else
+                {
+                    connectionBinding = new ReadBindingHandle(new ConnectionReadBinding(server, connection.Fork(), readPreference));
+                }
+            }
+
+            var serverDescription = server.Description;
+            var endPoint = (DnsEndPoint)serverDescription.EndPoint;
+            var serverAddress = new MongoServerAddress(endPoint.Host, endPoint.Port);
+            var serverInstance = _serverInstances.Single(i => i.Address == serverAddress);
+            var mongoConnection = new MongoConnection(serverInstance);
+            __threadStaticRequest = new Request(serverDescription, mongoConnection, connectionBinding);
+
+            return new RequestStartResult(this);
+        }
+
+        private void StartTrackingServerInstances()
+        {
+            _serverInstances.AddRange(_cluster.Description.Servers.Select(serverDescription =>
+            {
+                var endPoint = (DnsEndPoint)serverDescription.EndPoint;
+                var address = new MongoServerAddress(endPoint.Host, endPoint.Port);
+                return new MongoServerInstance(_settings, address, _cluster);
+            }));
+            _serverInstances.Sort(ServerInstanceAddressComparer.Instance);
+            _cluster.DescriptionChanged += OnClusterDescriptionChanged;
+        }
+
+        private IWriteBindingHandle ToWriteBinding(IReadBindingHandle binding)
+        {
+            var writeBinding = binding as IWriteBindingHandle;
+            if (writeBinding == null)
+            {
+                throw new InvalidOperationException("The current binding cannot be used for writing.");
+            }
+            return writeBinding;
+        }
+
         // private nested classes
+        private class ServerInstanceAddressComparer : IComparer<MongoServerInstance>
+        {
+            public static readonly ServerInstanceAddressComparer Instance = new ServerInstanceAddressComparer();
+
+            public int Compare(MongoServerInstance x, MongoServerInstance y)
+            {
+                var result = x.Address.Host.CompareTo(y.Address.Host);
+                if (result != 0)
+                {
+                    return result;
+                }
+                return x.Address.Port.CompareTo(y.Address.Port);
+            }
+        }
+
         private class Request
         {
             // private fields
+            private readonly IReadBindingHandle _binding;
             private readonly MongoConnection _connection;
             private int _nestingLevel;
+            private readonly ServerDescription _serverDescription;
 
             // constructors
-            public Request(MongoConnection connection)
+            public Request(ServerDescription serverDescription, MongoConnection connection, IReadBindingHandle binding)
             {
+                _serverDescription = serverDescription;
                 _connection = connection;
+                _binding = binding;
                 _nestingLevel = 1;
             }
 
             // public properties
+            public IReadBindingHandle Binding
+            {
+                get { return _binding; }
+            }
+
             public MongoConnection Connection
             {
                 get { return _connection; }
@@ -738,6 +954,11 @@ namespace MongoDB.Driver
             {
                 get { return _nestingLevel; }
                 set { _nestingLevel = value; }
+            }
+
+            public ServerDescription ServerDescription
+            {
+                get { return _serverDescription; }
             }
         }
 

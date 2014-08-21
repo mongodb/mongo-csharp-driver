@@ -16,10 +16,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.GridFS;
 
 namespace MongoDB.Driver
@@ -279,7 +287,21 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult DropCollection(string collectionName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var command = new CommandDocument("drop", collectionName);
+                var result = RunCommandAs<CommandResult>(command);
+                return result;
+            }
+            catch (MongoCommandException ex)
+            {
+                var commandResult = new CommandResult(ex.Result);
+                if (commandResult.ErrorMessage == "ns not found")
+                {
+                    return commandResult;
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -992,12 +1014,91 @@ namespace MongoDB.Driver
         }
         #pragma warning restore
 
-        private TCommandResult RunCommandAs<TCommandResult>(
+        internal TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command,
             IBsonSerializer<TCommandResult> resultSerializer)
             where TCommandResult : CommandResult
         {
-            throw new NotImplementedException();
+            return RunCommandAs<TCommandResult>(command, resultSerializer, _settings.ReadPreference);
+        }
+
+        internal TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            ReadPreference readPreference)
+            where TCommandResult : CommandResult
+        {
+            if (readPreference != ReadPreference.Primary)
+            {
+                var slidingTimeout = new SlidingTimeout(_server.Settings.ConnectTimeout);
+                var cluster = _server.Cluster;
+
+                var clusterType = cluster.Description.Type;
+                while (clusterType == ClusterType.Unknown)
+                {
+                    // TODO: find a way to block until the cluster description changes
+                    Thread.Sleep(TimeSpan.FromMilliseconds(20));
+                    clusterType = cluster.Description.Type;
+                }
+
+
+                if (clusterType == ClusterType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
+                {
+                    readPreference = ReadPreference.Primary;
+                }
+            }
+
+            TCommandResult commandResult;
+            var wrappedCommand = new BsonDocumentWrapper(command);
+            MongoServerInstance serverInstance;
+            if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
+            {
+                commandResult = RunWriteCommandAs<TCommandResult>(wrappedCommand, resultSerializer, out serverInstance);
+            }
+            else
+            {
+                commandResult = RunReadCommandAs<TCommandResult>(wrappedCommand, resultSerializer, readPreference, out serverInstance);
+            }
+
+            commandResult.Command = command.ToBsonDocument();
+            commandResult.ServerInstance = serverInstance;
+
+            return commandResult;
+        }
+
+        private TCommandResult RunReadCommandAs<TCommandResult>(
+            BsonDocument command,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            ReadPreference readPreference,
+            out MongoServerInstance serverInstance)
+            where TCommandResult : CommandResult
+        {
+            var operation = new ReadCommandOperation<TCommandResult>(_name, command, resultSerializer);
+            using (var binding = _server.GetReadBinding(readPreference))
+            using (var connectionSource = binding.GetReadConnectionSource())
+            {
+                var endPoint = (DnsEndPoint)connectionSource.ServerDescription.EndPoint;
+                var address = new MongoServerAddress(endPoint.Host, endPoint.Port);
+                serverInstance = _server.GetServerInstance(address);
+                return operation.Execute(connectionSource, readPreference.ToCore(), Timeout.InfiniteTimeSpan, CancellationToken.None);
+            }
+        }
+
+        private TCommandResult RunWriteCommandAs<TCommandResult>(
+            BsonDocument command,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            out MongoServerInstance serverInstance)
+            where TCommandResult : CommandResult
+        {
+            var operation = new WriteCommandOperation<TCommandResult>(_name, command, resultSerializer);
+            using (var binding = _server.GetWriteBinding())
+            using (var connectionSource = binding.GetWriteConnectionSource())
+            {
+                var endPoint = (DnsEndPoint)connectionSource.ServerDescription.EndPoint;
+                var address = new MongoServerAddress(endPoint.Host, endPoint.Port);
+                serverInstance = _server.GetServerInstance(address);
+                return operation.Execute(connectionSource, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            }
         }
     }
 }

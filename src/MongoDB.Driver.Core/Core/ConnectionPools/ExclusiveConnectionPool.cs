@@ -518,6 +518,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public IConnectionHandle Fork()
             {
+                ThrowIfDisposed();
                 return new AcquiredConnection(_connectionPool, _pooledConnection);
             }
         }

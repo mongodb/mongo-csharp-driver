@@ -15,6 +15,7 @@
 
 using System;
 using System.Text.RegularExpressions;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -104,17 +105,26 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a new instance of MongoServerBuildInfo initialized from the result of a buildinfo command.
         /// </summary>
-        /// <param name="result">A CommandResult.</param>
+        /// <param name="document">A BsonDocument.</param>
         /// <returns>A MongoServerBuildInfo.</returns>
-        public static MongoServerBuildInfo FromCommandResult(CommandResult result)
+        public static MongoServerBuildInfo FromBsonDocument(BsonDocument document)
         {
-            var document = result.Response;
             return new MongoServerBuildInfo(
                 document["bits"].ToInt32(),
                 document["gitVersion"].AsString,
                 document["sysInfo"].AsString,
                 document["version"].AsString
             );
+        }
+
+        /// <summary>
+        /// Creates a new instance of MongoServerBuildInfo initialized from the result of a buildinfo command.
+        /// </summary>
+        /// <param name="result">A CommandResult.</param>
+        /// <returns>A MongoServerBuildInfo.</returns>
+        public static MongoServerBuildInfo FromCommandResult(CommandResult result)
+        {
+            return FromBsonDocument(result.Response);
         }
     }
 }
