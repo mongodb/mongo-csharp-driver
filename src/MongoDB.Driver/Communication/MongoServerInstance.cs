@@ -191,21 +191,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a value indicating whether this instance is writable.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is writable; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsWritable
-        {
-            get
-            {
-                // TODO: implement IsWritable
-                return true;
-            }
-        }
-
-        /// <summary>
         /// Gets the max document size for this server instance.
         /// </summary>
         public int MaxDocumentSize
@@ -301,6 +286,22 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the server description.
+        /// </summary>
+        /// <returns>The server description.</returns>
+        public ServerDescription GetServerDescription()
+        {
+            var serverDescription = _cluster.Description.Servers.FirstOrDefault(s => s.EndPoint.Equals(_endPoint));
+            if (serverDescription == null)
+            {
+                throw new InvalidOperationException(string.Format(
+                    "Cluster does not contain a server with end point: '{0}'.",
+                    _endPoint));
+            }
+            return serverDescription;
+        }
+
+        /// <summary>
         /// Checks whether the server is alive (throws an exception if not).
         /// </summary>
         public void Ping()
@@ -364,18 +365,6 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        private ServerDescription GetServerDescription()
-        {
-            var serverDescription = _cluster.Description.Servers.FirstOrDefault(s => s.EndPoint.Equals(_endPoint));
-            if (serverDescription == null)
-            {
-                throw new InvalidOperationException(string.Format(
-                    "Cluster does not contain a server with end point: '{0}'.",
-                    _endPoint));
-            }
-            return serverDescription;
-        }
-
         private void OnStateChanged()
         {
             var handler = StateChanged;

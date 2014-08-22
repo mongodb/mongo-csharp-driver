@@ -42,6 +42,20 @@ namespace MongoDB.Driver.Core.Servers
             return ToClusterType(serverType) == ClusterType.ReplicaSet;
         }
 
+        public static bool IsWritable(this ServerType serverType)
+        {
+            switch (serverType)
+            {
+                case ServerType.ReplicaSetPrimary:
+                case ServerType.ShardRouter:
+                case ServerType.Standalone:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
         public static ClusterType ToClusterType(this ServerType serverType)
         {
             switch(serverType)

@@ -776,7 +776,7 @@ namespace MongoDB.Driver
             var address = serverInstance.Address;
             var endPoint = new DnsEndPoint(address.Host, address.Port);
             var serverSelector = new EndPointServerSelector(endPoint);
-            var coreReadPreference = serverInstance.IsWritable ? Core.Clusters.ReadPreference.Primary : Core.Clusters.ReadPreference.Secondary;
+            var coreReadPreference = serverInstance.GetServerDescription().Type.IsWritable() ? Core.Clusters.ReadPreference.Primary : Core.Clusters.ReadPreference.Secondary;
             return RequestStart(serverSelector, coreReadPreference);
         }
 
