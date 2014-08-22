@@ -157,26 +157,24 @@ namespace MongoDB.Driver.Core.Operations
             var limit = -1;
             var noCursorTimeout = false;
             var snapshot = false;
-            var tailable = false;
+            var tailableCursor = false;
 
-            var operation = new FindOperation<TDocument>(
-                _additionalOptions,
-                awaitData,
-                batchSize,
-                _collectionName,
-                _comment,
-                _databaseName,
-                _fields,
-                _hint,
-                limit,
-                noCursorTimeout,
-                _partialOk,
-                _query,
-                _serializer,
-                _skip,
-                snapshot,
-                _sort,
-                tailable);
+            var operation = new FindOperation<TDocument>(_databaseName, _collectionName, _serializer, _query)
+            {
+                AdditionalOptions = _additionalOptions,
+                AwaitData = awaitData,
+                BatchSize = batchSize,
+                Comment = _comment,
+                Fields = _fields,
+                Hint = _hint,
+                Limit = limit,
+                NoCursorTimeout = noCursorTimeout,
+                PartialOk = _partialOk,
+                Skip = _skip,
+                Snapshot = snapshot,
+                Sort = _sort,
+                TailableCursor = tailableCursor
+            };
 
             var cursor = await operation.ExecuteAsync(binding, timeout, cancellationToken);
             if (await cursor.MoveNextAsync())

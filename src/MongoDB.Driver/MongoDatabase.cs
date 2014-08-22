@@ -1062,6 +1062,7 @@ namespace MongoDB.Driver
                 while (clusterType == ClusterType.Unknown)
                 {
                     // TODO: find a way to block until the cluster description changes
+                    slidingTimeout.ThrowIfExpired();
                     Thread.Sleep(TimeSpan.FromMilliseconds(20));
                     clusterType = cluster.Description.Type;
                 }

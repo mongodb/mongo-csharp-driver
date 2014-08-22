@@ -180,11 +180,10 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 
         private static Task<Cursor<BsonDocument>> Query(IReadBinding binding, BsonDocument query)
         {
-            var queryOp = new FindOperation<BsonDocument>(
-                _database,
-                _collection,
-                BsonDocumentSerializer.Instance,
-                query).WithLimit(1);
+            var queryOp = new FindOperation<BsonDocument>(_database, _collection, BsonDocumentSerializer.Instance, query)
+            {
+                Limit = 1
+            };
 
             return queryOp.ExecuteAsync(binding);
         }

@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 if (!rawDocument.GetValue("ok", false).ToBoolean())
                 {
                     var materializedDocument = new BsonDocument(rawDocument);
-                    throw new MongoCommandException("Command failed.", _command, materializedDocument);
+                    throw ExceptionMapper.Map(materializedDocument) ?? new MongoCommandException("Command failed.", _command, materializedDocument);
                 }
 
                 using (var stream = new ByteBufferStream(rawDocument.Slice, ownsByteBuffer: false))

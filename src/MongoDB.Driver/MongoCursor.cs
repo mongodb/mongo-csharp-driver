@@ -17,10 +17,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Sync;
+using MongoDB.Driver.Core.SyncExtensionMethods;
 
 namespace MongoDB.Driver
 {
@@ -703,7 +709,42 @@ namespace MongoDB.Driver
         public virtual IEnumerator<TDocument> GetEnumerator()
         {
             IsFrozen = true;
-            throw new NotImplementedException();
+
+            var readPreference = ReadPreference;
+            if (readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && Collection.Name == "$cmd")
+            {
+                var slidingTimeout = new SlidingTimeout(Server.Settings.ConnectTimeout);
+                var cluster = Server.Cluster;
+
+                var clusterType = cluster.Description.Type;
+                while (clusterType == ClusterType.Unknown)
+                {
+                    // TODO: find a way to block until the cluster description changes
+                    slidingTimeout.ThrowIfExpired();
+                    Thread.Sleep(TimeSpan.FromMilliseconds(20));
+                    clusterType = cluster.Description.Type;
+                }
+
+                if (clusterType == ClusterType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(Query.ToBsonDocument()))
+                {
+                    readPreference = ReadPreference.Primary;
+                }
+            }
+
+            var operation = new FindOperation<TDocument>(Database.Name, Collection.Name, Serializer, Query.ToBsonDocument())
+            {
+                AdditionalOptions = Options,
+                BatchSize = BatchSize,
+                Fields = Fields.ToBsonDocument(),
+                Limit = Limit,
+                Skip = Skip
+            };
+
+            using (var binding = Server.GetReadBinding(readPreference))
+            {
+                var cursor = operation.Execute(binding);
+                return new SynchronousDocumentCursorAdapter<TDocument>(cursor).GetEnumerator();
+            }
         }
 
         /// <summary>
