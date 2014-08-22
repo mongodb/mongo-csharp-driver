@@ -20,16 +20,16 @@ using NUnit.Framework;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
-namespace MongoDB.Driver.Core.Exceptions
+namespace MongoDB.Driver
 {
     [TestFixture]
-    public class MongoDBExceptionTests
+    public class MongoExceptionTests
     {
         [Test]
         public void Constructor_should_work()
         {
             var innerException = new Exception("inner");
-            var exception = new MongoDBException("message", innerException);
+            var exception = new MongoException("message", innerException);
             exception.Message.Should().Be("message");
             exception.InnerException.Message.Should().Be("inner");
         }
@@ -38,13 +38,13 @@ namespace MongoDB.Driver.Core.Exceptions
         public void Serialization_should_work()
         {
             var innerException = new Exception("inner");
-            var exception = new MongoDBException("message", innerException);
+            var exception = new MongoException("message", innerException);
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, exception);
                 stream.Position = 0;
-                var rehydrated = (MongoDBException)formatter.Deserialize(stream);
+                var rehydrated = (MongoException)formatter.Deserialize(stream);
                 rehydrated.Message.Should().Be("message");
                 rehydrated.InnerException.Message.Should().Be("inner");
             }

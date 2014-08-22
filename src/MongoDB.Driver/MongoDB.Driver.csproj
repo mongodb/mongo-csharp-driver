@@ -124,7 +124,6 @@
     <Compile Include="Communication\FeatureDetection\ServerVersionDependency.cs" />
     <Compile Include="Communication\Security\X509AuthenticationProtocol.cs" />
     <Compile Include="DistinctArgs.cs" />
-    <Compile Include="Exceptions\MongoDuplicateKeyException.cs" />
     <Compile Include="FeatureId.cs" />
     <Compile Include="Communication\FeatureDetection\FeatureSet.cs" />
     <Compile Include="Operations\BulkWriteArgs.cs" />
@@ -132,7 +131,6 @@
     <Compile Include="CountArgs.cs" />
     <Compile Include="EvalArgs.cs" />
     <Compile Include="Exceptions\ExceptionMapper.cs" />
-    <Compile Include="Exceptions\ExecutionTimeoutException.cs" />
     <Compile Include="FindAndModifyArgs.cs" />
     <Compile Include="AggregateArgs.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
@@ -159,11 +157,9 @@
     <Compile Include="CommandResults\FindAndModifyResult.cs" />
     <Compile Include="CommandResults\GeoHaystackSearchResult.cs" />
     <Compile Include="CommandResults\GeoNearResult.cs" />
-    <Compile Include="CommandResults\WriteConcernResult.cs" />
     <Compile Include="CommandResults\GetLastErrorResult.cs" />
     <Compile Include="CommandResults\GetProfilingLevelResult.cs" />
     <Compile Include="CommandResults\IsMasterResult.cs" />
-    <Compile Include="CommandResults\SafeModeResult.cs" />
     <Compile Include="CommandResults\ValidateCollectionResult.cs" />
     <Compile Include="Communication\Proxies\MongoServerProxyType.cs" />
     <Compile Include="Communication\Security\Authenticator.cs" />
@@ -370,14 +366,7 @@
     <Compile Include="Wrappers\UpdateDocument.cs" />
     <Compile Include="Wrappers\UpdateWrapper.cs" />
     <Compile Include="WriteConcern.cs" />
-    <Compile Include="Exceptions\MongoAuthenticationException.cs" />
-    <Compile Include="Exceptions\MongoCommandException.cs" />
-    <Compile Include="Exceptions\MongoConnectionException.cs" />
-    <Compile Include="Exceptions\WriteConcernException.cs" />
     <Compile Include="GridFS\MongoGridFSException.cs" />
-    <Compile Include="Exceptions\MongoInternalException.cs" />
-    <Compile Include="Exceptions\MongoQueryException.cs" />
-    <Compile Include="Exceptions\MongoSafeModeException.cs" />
     <Compile Include="GridFS\MongoGridFSCreateOptions.cs" />
     <Compile Include="Communication\Proxies\MultipleInstanceMongoServerProxy.cs" />
     <Compile Include="Communication\Proxies\ShardedMongoServerProxy.cs" />
@@ -441,7 +430,6 @@
     <Compile Include="MongoServer.cs" />
     <Compile Include="MongoCursor.cs" />
     <Compile Include="MongoDatabase.cs" />
-    <Compile Include="Exceptions\MongoException.cs" />
     <Compile Include="MongoServerAddress.cs" />
     <Compile Include="MongoUrl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

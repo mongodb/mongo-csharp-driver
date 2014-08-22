@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             Action act = () => subject.SelectServerAsync(selector, TimeSpan.FromMilliseconds(50), CancellationToken.None).Wait();
 
-            act.ShouldThrow<MongoDBException>();
+            act.ShouldThrow<MongoException>();
         }
 
         [Test]

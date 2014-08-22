@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
-            act.ShouldThrow<AuthenticationException>();
+            act.ShouldThrow<MongoAuthenticationException>();
         }
 
         [Test]

@@ -172,12 +172,10 @@ namespace MongoDB.Driver.Tests.CommandResults
                     if (instance.InstanceType == MongoServerInstanceType.ShardRouter && instance.BuildInfo.Version < new Version(2, 4, 0))
                     {
                         Assert.IsInstanceOf<MongoQueryException>(ex);
-                        Assert.IsTrue(ex.Message.StartsWith("QueryFailure flag was unrecognized command: ", StringComparison.Ordinal));
                     }
                     else
                     {
                         Assert.IsInstanceOf<MongoCommandException>(ex);
-                        Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: no such cmd", StringComparison.Ordinal));
                     }
                 }
             }

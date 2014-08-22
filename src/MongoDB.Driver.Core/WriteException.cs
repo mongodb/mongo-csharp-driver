@@ -22,10 +22,10 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Core
+namespace MongoDB.Driver
 {
     [Serializable]
-    public class WriteException : MongoDBException
+    public class WriteException : MongoException
     {
         // fields
         private readonly BsonDocument _result;

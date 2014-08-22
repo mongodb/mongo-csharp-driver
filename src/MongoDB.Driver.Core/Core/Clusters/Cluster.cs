@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Core.Clusters
                 var message = string.Format(
                     "This version of the driver is incompatible with one or more of the " +
                     "servers to which it is connected: {0}.", description);
-                throw new MongoDBException(message);
+                throw new MongoException(message);
             }
         }
 

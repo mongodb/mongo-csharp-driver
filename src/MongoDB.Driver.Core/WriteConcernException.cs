@@ -20,13 +20,13 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 
-namespace MongoDB.Driver.Core
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a get last error exception.
     /// </summary>
     [Serializable]
-    public class WriteConcernException : Exception
+    public class WriteConcernException : MongoCommandException
     {
         // fields
         private readonly WriteConcernResult _writeConcernResult;
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core
         /// <param name="message">The error message.</param>
         /// <param name="writeConcernResult">The command result.</param>
         public WriteConcernException(string message, WriteConcernResult writeConcernResult)
-            : base(message)
+            : base(message, null, writeConcernResult.Response)
         {
             _writeConcernResult = Ensure.IsNotNull(writeConcernResult, "writeConcernResult");
         }
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Core
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("_writeConcernResult", _writeConcernResult.Wrapped.ToBson());
+            info.AddValue("_writeConcernResult", _writeConcernResult.Response.ToBson());
         }
     }
 }

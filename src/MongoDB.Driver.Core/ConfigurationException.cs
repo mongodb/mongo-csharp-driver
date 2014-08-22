@@ -20,10 +20,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core
+namespace MongoDB.Driver
 {
     [Serializable]
-    public class ConfigurationException : MongoDBException
+    public class ConfigurationException : MongoException
     {
         // constructors
         public ConfigurationException(string message)

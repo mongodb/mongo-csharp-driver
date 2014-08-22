@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return await operation.ExecuteAsync(binding, timeout, cancellationToken);
             }
-            catch (CommandException ex)
+            catch (MongoCommandException ex)
             {
                 var result = ex.Result;
                 if ((string)result["errmsg"] == "ns not found")

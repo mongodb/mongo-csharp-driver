@@ -109,8 +109,8 @@
     <Compile Include="Core\Connections\BuildInfoResultTests.cs" />
     <Compile Include="Core\Connections\IsMasterResultTests.cs" />
     <Compile Include="CommandExceptionTests.cs" />
-    <Compile Include="MongoDBExceptionTests.cs" />
-    <Compile Include="QueryExceptionTests.cs" />
+    <Compile Include="MongoExceptionTests.cs" />
+    <Compile Include="MongoQueryExceptionTests.cs" />
     <Compile Include="WriteExceptionTests.cs" />
     <Compile Include="Core\Misc\ConstantRandomStringGenerator.cs" />
     <Compile Include="Core\Misc\EndPointParserTests.cs" />

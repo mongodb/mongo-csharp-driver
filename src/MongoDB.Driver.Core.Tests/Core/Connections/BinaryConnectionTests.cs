@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Core.Connections
                 var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
                 Action act2 = () => task2.GetAwaiter().GetResult();
-                act2.ShouldThrow<ConnectionFailedException>();
+                act2.ShouldThrow<MongoConnectionException>();
 
                 _listener.ReceivedWithAnyArgs().ConnectionBeforeReceivingMessage(null, default(int));
                 _listener.ReceivedWithAnyArgs().ConnectionErrorReceivingMessage(null, default(int), null);

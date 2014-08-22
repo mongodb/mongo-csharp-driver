@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (writeConcernException != null)
             {
-                var getLastErrorResponse = writeConcernResult.Wrapped;
+                var getLastErrorResponse = writeConcernResult.Response;
                 if (IsGetLasterrorResponseAWriteConcernError(getLastErrorResponse))
                 {
                     writeConcernError = CreateWriteConcernErrorFromGetLastErrorResponse(getLastErrorResponse);

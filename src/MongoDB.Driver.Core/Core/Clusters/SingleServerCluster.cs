@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Clusters
                     return ClusterType.Unknown;
 
                 default:
-                    throw new MongoDBException("Unexpected ServerTypes.");
+                    throw new MongoException("Unexpected ServerTypes.");
             }
         }
 

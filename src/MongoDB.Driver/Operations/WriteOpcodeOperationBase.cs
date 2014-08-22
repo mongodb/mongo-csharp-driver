@@ -47,10 +47,9 @@ namespace MongoDB.Driver.Operations
             var replyMessage = connection.ReceiveMessage<WriteConcernResult>(ReaderSettings, writeConcernResultSerializer);
             if (replyMessage.NumberReturned == 0)
             {
-                throw new MongoCommandException("Command 'getLastError' failed. No response returned");
+                throw new MongoCommandException("Command 'getLastError' failed. No response returned", new BsonDocument("getLastError", 1));
             }
             var writeConcernResult = replyMessage.Documents[0];
-            writeConcernResult.Command = sendMessageResult.GetLastErrorCommand;
 
             var mappedException = ExceptionMapper.Map(writeConcernResult);
             if (mappedException != null)

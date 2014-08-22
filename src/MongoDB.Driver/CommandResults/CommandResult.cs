@@ -28,7 +28,7 @@ namespace MongoDB.Driver
     {
         // private fields
         private MongoServerInstance _serverInstance;
-        private IMongoCommand _command;
+        private BsonDocument _command;
         private BsonDocument _response;
 
         // constructors
@@ -53,7 +53,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the command.
         /// </summary>
-        public IMongoCommand Command
+        public BsonDocument Command
         {
             get { return _command; }
             set
@@ -124,7 +124,7 @@ namespace MongoDB.Driver
                 else
                 {
                     var message = string.Format("Command '{0}' failed. Response has no ok element (response was {1}).", CommandName, _response.ToJson());
-                    throw new MongoCommandException(message, this);
+                    throw new MongoCommandException(message, _command, _response);
                 }
             }
         }

@@ -59,7 +59,7 @@
     <Compile Include="Core\Bindings\WritableServerBinding.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="BulkWriteException.cs" />
-    <Compile Include="InternalException.cs" />
+    <Compile Include="ExecutionTimeoutException.cs" />
     <Compile Include="Core\Misc\BatchableSource.cs" />
     <Compile Include="Core\Misc\IndexMap.cs" />
     <Compile Include="Core\Misc\Metronome.cs" />
@@ -88,7 +88,6 @@
     <Compile Include="Core\Configuration\ClusterSettings.cs" />
     <Compile Include="Core\Clusters\ClusterState.cs" />
     <Compile Include="Core\Clusters\ClusterType.cs" />
-    <Compile Include="ConnectionFailedException.cs" />
     <Compile Include="Core\ConnectionPools\ExclusiveConnectionPool.cs" />
     <Compile Include="Core\ConnectionPools\ExclusiveConnectionPoolFactory.cs" />
     <Compile Include="Core\Connections\ConnectionHandle.cs" />
@@ -151,13 +150,11 @@
     <Compile Include="Core\Configuration\TcpStreamSettings.cs" />
     <Compile Include="Core\Configuration\ConnectionString.cs" />
     <Compile Include="ConfigurationException.cs" />
-    <Compile Include="AuthenticationException.cs" />
     <Compile Include="MessageNotSentException.cs" />
     <Compile Include="Core\Misc\Range.cs" />
     <Compile Include="Core\Misc\ToStringComparer.cs" />
     <Compile Include="Core\Misc\IdGenerator.cs" />
     <Compile Include="Core\Misc\InterlockedInt32.cs" />
-    <Compile Include="MongoDBException.cs" />
     <Compile Include="Core\Operations\AcknowledgedBulkWriteResult.cs" />
     <Compile Include="Core\Operations\BulkDeleteOperation.cs" />
     <Compile Include="Core\Operations\BulkDeleteOperationEmulator.cs" />
@@ -176,10 +173,15 @@
     <Compile Include="Core\Operations\InsertRequest.cs" />
     <Compile Include="Core\Operations\UnacknowledgedBulkWriteResult.cs" />
     <Compile Include="Core\Operations\WriteConcernError.cs" />
-    <Compile Include="Core\Operations\WriteConcernResult.cs" />
+    <Compile Include="WriteConcernResult.cs" />
     <Compile Include="Core\Operations\WriteRequest.cs" />
-    <Compile Include="QueryException.cs" />
+    <Compile Include="MongoAuthenticationException.cs" />
+    <Compile Include="MongoConnectionException.cs" />
+    <Compile Include="MongoDuplicateKeyException.cs" />
+    <Compile Include="MongoException.cs" />
+    <Compile Include="MongoInternalException.cs" />
     <Compile Include="Core\Servers\ServerId.cs" />
+    <Compile Include="MongoQueryException.cs" />
     <Compile Include="WriteConcernException.cs" />
     <Compile Include="WriteException.cs" />
     <Compile Include="Core\Misc\EndPointParser.cs" />
@@ -194,7 +196,7 @@
     <Compile Include="Core\Misc\SystemClock.cs" />
     <Compile Include="Core\Misc\ThreadStaticRandom.cs" />
     <Compile Include="Core\Misc\TimeSpanParser.cs" />
-    <Compile Include="CommandException.cs" />
+    <Compile Include="MongoCommandException.cs" />
     <Compile Include="Core\Operations\AggregateCursorOperationBase.cs" />
     <Compile Include="Core\Operations\AggregateOperation.cs" />
     <Compile Include="Core\Operations\AggregateOperationBase.cs" />

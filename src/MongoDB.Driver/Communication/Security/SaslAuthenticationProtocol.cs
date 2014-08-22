@@ -76,13 +76,6 @@ namespace MongoDB.Driver.Communication.Security
                     catch (MongoCommandException ex)
                     {
                         var message = "Unknown error occured during authentication.";
-                        var code = ex.CommandResult.Code;
-                        var errmsg = ex.CommandResult.ErrorMessage;
-                        if(code.HasValue && errmsg != null)
-                        {
-                            message = string.Format("Error: {0} - {1}", code, errmsg);
-                        }
-
                         throw new MongoSecurityException(message, ex);
                     }
 

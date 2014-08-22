@@ -16,10 +16,10 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace MongoDB.Driver.Core
+namespace MongoDB.Driver
 {
     [Serializable]
-    public class MessageNotSentException : MongoDBException
+    public class MessageNotSentException : MongoException
     {
         // constructors
         public MessageNotSentException()

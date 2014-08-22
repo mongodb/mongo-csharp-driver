@@ -30,11 +30,11 @@ namespace MongoDB.Driver.Core.Exceptions
         public void Constructor_with_2_arguments_should_work()
         {
             var query = new BsonDocument("query", 1);
-            var exception = new QueryException("message", query);
+            var exception = new MongoQueryException("message", query);
             exception.Message.Should().Be("message");
             exception.InnerException.Should().BeNull();
             exception.Query.Equals(query).Should().BeTrue();
-            exception.Result.Should().BeNull();
+            exception.QueryResult.Should().BeNull();
         }
 
         [Test]
@@ -42,11 +42,11 @@ namespace MongoDB.Driver.Core.Exceptions
         {
             var query = new BsonDocument("query", 1);
             var result = new BsonDocument("result", 2);
-            var exception = new QueryException("message", query, result);
+            var exception = new MongoQueryException("message", query, result);
             exception.Message.Should().Be("message");
             exception.InnerException.Should().BeNull();
             exception.Query.Equals(query).Should().BeTrue();
-            exception.Result.Equals(result).Should().BeTrue();
+            exception.QueryResult.Equals(result).Should().BeTrue();
         }
 
         [Test]
@@ -55,18 +55,11 @@ namespace MongoDB.Driver.Core.Exceptions
             var query = new BsonDocument("query", 1);
             var result = new BsonDocument("result", 2);
             var innerException = new Exception("inner");
-            var exception = new QueryException("message", query, result, innerException);
+            var exception = new MongoQueryException("message", query, result, innerException);
             exception.Message.Should().Be("message");
             exception.InnerException.Message.Should().Be("inner");
             exception.Query.Equals(query).Should().BeTrue();
-            exception.Result.Equals(result).Should().BeTrue();
-        }
-
-        [Test]
-        public void Constructor_with_null_query_should_throw()
-        {
-            Action action = () => new QueryException("message", null);
-            action.ShouldThrow<ArgumentNullException>();
+            exception.QueryResult.Equals(result).Should().BeTrue();
         }
 
         [Test]
@@ -75,18 +68,18 @@ namespace MongoDB.Driver.Core.Exceptions
             var query = new BsonDocument("query", 1);
             var result = new BsonDocument("result", 2);
             var innerException = new Exception("inner");
-            var exception = new QueryException("message", query, result, innerException);
+            var exception = new MongoQueryException("message", query, result, innerException);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, exception);
                 stream.Position = 0;
-                var rehydrated = (QueryException)formatter.Deserialize(stream);
+                var rehydrated = (MongoQueryException)formatter.Deserialize(stream);
                 rehydrated.Message.Should().Be("message");
                 rehydrated.InnerException.Message.Should().Be("inner");
                 rehydrated.Query.Equals(query).Should().BeTrue();
-                rehydrated.Result.Equals(result).Should().BeTrue();
+                rehydrated.QueryResult.Equals(result).Should().BeTrue();
             }
         }
     }

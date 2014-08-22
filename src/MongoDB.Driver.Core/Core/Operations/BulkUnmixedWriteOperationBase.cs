@@ -302,7 +302,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 if ((BsonType)lastRequest[0] != BsonType.Document)
                 {
-                    throw new InternalException("Expected overflow item to be a BsonDocument.");
+                    throw new MongoInternalException("Expected overflow item to be a BsonDocument.");
                 }
                 var sliceOffset = Array.IndexOf<byte>(lastRequest, 0) + 1; // skip over type and array index
                 return new ByteArrayBuffer(lastRequest, sliceOffset, lastRequest.Length - sliceOffset, true);

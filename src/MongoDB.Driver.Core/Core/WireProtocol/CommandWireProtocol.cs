@@ -91,15 +91,15 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             if (reply.NumberReturned == 0)
             {
-                throw new CommandException("Command returned no documents.", _command);
+                throw new MongoCommandException("Command returned no documents.", _command);
             }
             if (reply.NumberReturned > 1)
             {
-                throw new CommandException("Command returned multiple documents.", _command);
+                throw new MongoCommandException("Command returned multiple documents.", _command);
             }
             if (reply.QueryFailure)
             {
-                throw new CommandException("Command reply had QueryFailure flag set.", _command, reply.QueryFailureDocument);
+                throw new MongoCommandException("Command reply had QueryFailure flag set.", _command, reply.QueryFailureDocument);
             }
 
             using (var rawDocument = reply.Documents[0])
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 if (!rawDocument.GetValue("ok", false).ToBoolean())
                 {
                     var materializedDocument = rawDocument.ToBsonDocument();
-                    throw new CommandException("Command failed.", _command, materializedDocument);
+                    throw new MongoCommandException("Command failed.", _command, materializedDocument);
                 }
 
                 using (var stream = new ByteBufferStream(rawDocument.Slice, ownsByteBuffer: false))

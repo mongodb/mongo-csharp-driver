@@ -295,9 +295,10 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-                if (ex.CommandResult.ErrorMessage == "ns not found")
+                var commandResult = new CommandResult(ex.Result);
+                if (commandResult.ErrorMessage == "ns not found")
                 {
-                    return ex.CommandResult;
+                    return commandResult;
                 }
                 throw;
             }

@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.Operations
                         result = await ExecuteUpdatesAsync(connection, run.Requests.Cast<UpdateRequest>(), timeout, cancellationToken);
                         break;
                     default:
-                        throw new InternalException("Unrecognized RequestType.");
+                        throw new MongoInternalException("Unrecognized RequestType.");
                 }
             }
             catch (BulkWriteException ex)

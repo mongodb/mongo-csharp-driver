@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Exceptions
         public void Constructor_with_2_arguments_should_work()
         {
             var command = new BsonDocument("command", 1);
-            var exception = new CommandException("message", command);
+            var exception = new MongoCommandException("message", command);
             exception.Message.Should().Be("message");
             exception.InnerException.Should().BeNull();
             exception.Command.Equals(command).Should().BeTrue();
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Exceptions
         {
             var command = new BsonDocument("command", 1);
             var result = new BsonDocument("result", 2);
-            var exception = new CommandException("message", command, result);
+            var exception = new MongoCommandException("message", command, result);
             exception.Message.Should().Be("message");
             exception.InnerException.Should().BeNull();
             exception.Command.Equals(command).Should().BeTrue();
@@ -55,18 +55,11 @@ namespace MongoDB.Driver.Core.Exceptions
             var command = new BsonDocument("command", 1);
             var result = new BsonDocument("result", 2);
             var innerException = new Exception("inner");
-            var exception = new CommandException("message", command, result, innerException);
+            var exception = new MongoCommandException("message", command, result, innerException);
             exception.Message.Should().Be("message");
             exception.InnerException.Message.Should().Be("inner");
             exception.Command.Equals(command).Should().BeTrue();
             exception.Result.Equals(result).Should().BeTrue();
-        }
-
-        [Test]
-        public void Constructor_with_null_command_should_throw()
-        {
-            Action action = () => new CommandException("message", null);
-            action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
@@ -75,14 +68,14 @@ namespace MongoDB.Driver.Core.Exceptions
             var command = new BsonDocument("command", 1);
             var result = new BsonDocument("result", 2);
             var innerException = new Exception("inner");
-            var exception = new CommandException("message", command, result, innerException);
+            var exception = new MongoCommandException("message", command, result, innerException);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, exception);
                 stream.Position = 0;
-                var rehydrated = (CommandException)formatter.Deserialize(stream);
+                var rehydrated = (MongoCommandException)formatter.Deserialize(stream);
                 rehydrated.Message.Should().Be("message");
                 rehydrated.InnerException.Message.Should().Be("inner");
                 rehydrated.Command.Equals(command).Should().BeTrue();

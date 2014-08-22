@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core
     /// Represents a bulk write exception.
     /// </summary>
     [Serializable]
-    public class BulkWriteException : MongoDBException
+    public class BulkWriteException : MongoException
     {
         // fields
         private BulkWriteResult _result;

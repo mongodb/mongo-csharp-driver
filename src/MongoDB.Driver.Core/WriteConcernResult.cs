@@ -18,7 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Operations
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents the results of an operation performed with WriteConcern enabled.
@@ -26,16 +26,16 @@ namespace MongoDB.Driver.Core.Operations
     public class WriteConcernResult
     {
         // fields
-        private readonly BsonDocument _wrapped;
+        private readonly BsonDocument _response;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteConcernResult"/> class.
         /// </summary>
         /// <param name="response">The response.</param>
-        public WriteConcernResult(BsonDocument wrapped)
+        public WriteConcernResult(BsonDocument response)
         {
-            _wrapped = Ensure.IsNotNull(wrapped, "wrapped");
+            _response = Ensure.IsNotNull(response, "response");
         }
 
         // properties
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Operations
         /// </summary>
         public long DocumentsAffected
         {
-            get { return _wrapped["n"].ToInt64(); }
+            get { return _response["n"].ToInt64(); }
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
         /// </summary>
         public bool HasLastErrorMessage
         {
-            get { return _wrapped.GetValue("err", false).ToBoolean(); }
+            get { return _response.GetValue("err", false).ToBoolean(); }
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             get
             {
-                var err = _wrapped.GetValue("err", false);
+                var err = _response.GetValue("err", false);
                 return (err.ToBoolean()) ? err.ToString() : null;
             }
         }
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             get
             {
-                return _wrapped.GetValue("upserted", null);
+                return _response.GetValue("upserted", null);
             }
         }
 
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             get
             {
-                var updatedExisting = _wrapped.GetValue("updatedExisting", false);
+                var updatedExisting = _response.GetValue("updatedExisting", false);
                 return updatedExisting.ToBoolean();
             }
         }
@@ -93,9 +93,9 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Gets the wrapped result.
         /// </summary>
-        public BsonDocument Wrapped
+        public BsonDocument Response
         {
-            get { return _wrapped; }
+            get { return _response; }
         }
     }
 }

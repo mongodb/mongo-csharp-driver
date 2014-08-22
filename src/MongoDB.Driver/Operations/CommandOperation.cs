@@ -61,15 +61,15 @@ namespace MongoDB.Driver.Operations
                 var commandDocument = _command.ToBsonDocument();
                 var commandName = (commandDocument.ElementCount == 0) ? "(no name)" : commandDocument.GetElement(0).Name;
                 var message = string.Format("Command '{0}' failed. No response returned.", commandName);
-                throw new MongoCommandException(message);
+                throw new MongoCommandException(message, _command.ToBsonDocument());
             }
             var commandResult = reply.Documents[0];
             commandResult.ServerInstance = connection.ServerInstance;
-            commandResult.Command = _command;
+            commandResult.Command = _command.ToBsonDocument();
 
             if (!commandResult.Ok)
             {
-                throw ExceptionMapper.Map(commandResult.Response) ?? new MongoCommandException(commandResult);
+                throw ExceptionMapper.Map(commandResult.Response) ?? new MongoCommandException("Command failed.", _command.ToBsonDocument(), commandResult.Response);
             }
 
             return commandResult;

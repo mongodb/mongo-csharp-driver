@@ -52,10 +52,10 @@ namespace MongoDB.Driver.Core.Authentication
                         var protocol = new CommandWireProtocol(DatabaseName, command, true);
                         result = await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
                     }
-                    catch(CommandException ex)
+                    catch(MongoCommandException ex)
                     {
                         var message = string.Format("Unable to authenticate using sasl protocol mechanism {0}.", Name);
-                        throw new AuthenticationException(message, ex);
+                        throw new MongoAuthenticationException(message, ex);
                     }
 
                     // we might be done here if the client is not expecting a reply from the server

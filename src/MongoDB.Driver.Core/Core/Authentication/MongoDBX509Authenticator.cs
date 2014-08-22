@@ -56,10 +56,10 @@ namespace MongoDB.Driver.Core.Authentication
                 var protocol = new CommandWireProtocol("$external", command, true);
                 await protocol.ExecuteAsync(connection, timeout, cancellationToken);
             }
-            catch (CommandException ex)
+            catch (MongoCommandException ex)
             {
                 var message = string.Format("Unable to authenticate username '{0}' using protocol '{1}'.", _username, Name);
-                throw new AuthenticationException(message, ex);
+                throw new MongoAuthenticationException(message, ex);
             }
         }
     }

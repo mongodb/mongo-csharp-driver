@@ -77,16 +77,18 @@ namespace MongoDB.Driver
                     case 12582:
                         var errorMessage = string.Format(
                             "WriteConcern detected an error '{0}'. (Response was {1}).",
-                            writeConcernResult.ErrorMessage, writeConcernResult.Response.ToJson());
+                            writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
                         return new MongoDuplicateKeyException(errorMessage, writeConcernResult);
                 }
             }
 
-            if (!writeConcernResult.Ok)
+            bool ok = writeConcernResult.Response.GetValue("ok", false).ToBoolean();
+
+            if (!ok)
             {
                 var errorMessage = string.Format(
                     "WriteConcern detected an error '{0}'. (Response was {1}).",
-                    writeConcernResult.ErrorMessage, writeConcernResult.Response.ToJson());
+                    writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
                 return new WriteConcernException(errorMessage, writeConcernResult);
             }
 

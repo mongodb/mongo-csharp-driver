@@ -293,8 +293,7 @@ namespace MongoDB.Driver
                     }
                     catch (MongoCommandException ex)
                     {
-                        var translatedResult = new WriteConcernResult(ex.CommandResult.Response);
-                        translatedResult.Command = ex.CommandResult.Command;
+                        var translatedResult = new WriteConcernResult(ex.Result);
                         throw new WriteConcernException(ex.Message, translatedResult);
                     }
                 }
@@ -466,9 +465,10 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-                if (ex.CommandResult.ErrorMessage == "ns not found")
+                var commandResult = new CommandResult(ex.Result);
+                if (commandResult.ErrorMessage == "ns not found")
                 {
-                    return ex.CommandResult;
+                    return commandResult;
                 }
                 throw;
             }
@@ -641,7 +641,8 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-                if (ex.CommandResult.ErrorMessage == "No matching object found")
+                var commandResult = new CommandResult(ex.Result);
+                if (commandResult.ErrorMessage == "No matching object found")
                 {
                     // create a new command result with what the server should have responded
                     var response = new BsonDocument
@@ -692,7 +693,8 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-                if (ex.CommandResult.ErrorMessage == "No matching object found")
+                var commandResult = new CommandResult(ex.Result);
+                if (commandResult.ErrorMessage == "No matching object found")
                 {
                     // create a new command result with what the server should have responded
                     var response = new BsonDocument

@@ -645,8 +645,9 @@ namespace MongoDB.Driver
                 }
                 catch (MongoCommandException ex)
                 {
+                    var commandResult = new CommandResult(ex.Result);
                     // short term fix: if buildInfo fails due to auth we don't know the server version; see CSHARP-324
-                    if (ex.CommandResult.ErrorMessage != "need to login")
+                    if (commandResult.ErrorMessage != "need to login")
                     {
                         throw;
                     }

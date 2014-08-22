@@ -47,10 +47,10 @@ namespace MongoDB.Driver.Core.Authentication
                 var nonce = await GetNonceAsync(connection, slidingTimeout, cancellationToken);
                 await AuthenticateAsync(connection, nonce, slidingTimeout, cancellationToken);
             }
-            catch(CommandException ex)
+            catch(MongoCommandException ex)
             {
                 var message = string.Format("Unable to authenticate username '{0}' on database '{1}'.", _credential.Username, _credential.Source);
-                throw new AuthenticationException(message, ex);
+                throw new MongoAuthenticationException(message, ex);
             }
         }
 

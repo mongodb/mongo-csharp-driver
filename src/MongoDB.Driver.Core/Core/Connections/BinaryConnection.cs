@@ -393,7 +393,7 @@ namespace MongoDB.Driver.Core.Connections
             ThrowIfDisposed();
             if (_state.Value == State.Failed)
             {
-                throw new ConnectionFailedException();
+                throw new MongoConnectionException("Connection failed.");
             }
             if (_state.Value != State.Open && _state.Value != State.Initializing)
             {

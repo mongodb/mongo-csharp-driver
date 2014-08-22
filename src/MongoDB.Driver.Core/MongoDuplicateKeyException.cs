@@ -19,44 +19,29 @@ using System.Runtime.Serialization;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents a get last error exception.
+    /// Thrown when a duplicate key is inserted into a collection.
     /// </summary>
     [Serializable]
-#pragma warning disable 618
-    public class WriteConcernException : MongoSafeModeException
-#pragma warning restore
+    public class MongoDuplicateKeyException : WriteConcernException
     {
-        // constructors
         /// <summary>
-        /// Initializes a new instance of the WriteConcernException class.
+        /// Initializes a new instance of the <see cref="MongoDuplicateKeyException"/> class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        /// <param name="writeConcernResult">The command result.</param>
-        public WriteConcernException(string message, WriteConcernResult writeConcernResult)
-            : base(message, writeConcernResult)
+        /// <param name="commandResult">The command result.</param>
+        public MongoDuplicateKeyException(string message, WriteConcernResult commandResult)
+            : base(message, commandResult)
         {
         }
-
+        
         /// <summary>
         /// Initializes a new instance of the WriteConcernException class (this overload supports deserialization).
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public WriteConcernException(SerializationInfo info, StreamingContext context)
+        public MongoDuplicateKeyException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-        }
-
-        // public properties
-        /// <summary>
-        /// Gets the write concern result.
-        /// </summary>
-        /// <value>
-        /// The write concern result.
-        /// </value>
-        public WriteConcernResult WriteConcernResult
-        {
-            get { return (WriteConcernResult)CommandResult; }
         }
     }
 }
