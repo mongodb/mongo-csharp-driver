@@ -828,18 +828,6 @@ namespace MongoDB.Driver
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Verifies the state of the server (in the case of a replica set all members are contacted one at a time).
-        /// </summary>
-        public virtual void VerifyState()
-        {
-            var instances = Instances;
-            foreach (var instance in instances)
-            {
-                instance.VerifyState();
-            }
-        }
-
         // internal methods
         internal virtual IReadBindingHandle GetReadBinding(ReadPreference readPreference)
         {

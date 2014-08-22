@@ -328,14 +328,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Refreshes the state as soon as possible.
-        /// </summary>
-        public void RefreshStateAsSoonAsPossible()
-        {
-            // TODO: implement RefreshStateAsSoonAsPossible
-        }
-
-        /// <summary>
         /// Checks whether this server instance supports a feature.
         /// </summary>
         /// <param name="featureId">The id of the feature.</param>
@@ -372,14 +364,6 @@ namespace MongoDB.Driver
                 default:
                     return false;
             }
-        }
-
-        /// <summary>
-        /// Verifies the state of the server instance.
-        /// </summary>
-        public void VerifyState()
-        {
-            // TODO: implement VerifyState
         }
 
         // private methods
