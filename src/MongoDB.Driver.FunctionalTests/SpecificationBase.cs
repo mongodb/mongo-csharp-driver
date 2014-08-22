@@ -14,8 +14,13 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
@@ -23,46 +28,42 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver
 {
-    public abstract class ClusterUsingTest
+    public abstract class SpecificationBase
     {
-        // fields
-        protected ICluster _cluster;
-
-        // methods
-        protected TException Catch<TException>(Action action) where TException : Exception
-        {
-            try
-            {
-                action();
-                return null;
-            }
-            catch (TException ex)
-            {
-                return ex;
-            }
-        }
+        private ICluster _cluster;
+        protected MongoClient _client;
+        protected IMongoDatabase _database;
+        protected string _collectionName;
 
         [TestFixtureSetUp]
-        public void ClusterUsingTestSetUp()
+        public void SetUpFixtureAsync()
         {
-            _cluster = CreateCluster();
+            _client = SuiteConfiguration.Client;
+            _cluster = _client.Cluster;
+            _database = _client.GetDatabase(SuiteConfiguration.DatabaseName);
+            _collectionName = GetType().Name;
+
+            Given();
+            When();
         }
 
-        [TestFixtureTearDown]
-        public void ClusterUsingTestTearDown()
-        {
-            DisposeCluster();
-        }
+        protected virtual void Given()
+        { }
 
-        protected virtual ICluster CreateCluster()
-        {
-            // override if you want to use a new cluster just for this test
-            return SuiteConfiguration.Cluster;
-        }
+        protected abstract void When();
 
-        protected virtual void DisposeCluster()
+        protected Exception Catch(Func<Task> action)
         {
-            // override if you overrode CreateCluster
+            Exception result = null;
+            try
+            {
+                action().GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                result = ex;
+            }
+            return result;
         }
 
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
@@ -89,6 +90,18 @@ namespace MongoDB.Driver
             {
                 return operation.ExecuteAsync(binding, timeout, cancellationToken);
             }
+        }
+
+        protected void Insert<T>(IEnumerable<T> documents, IBsonSerializer<T> serializer)
+        {
+            var requests = documents.Select(d => new MongoDB.Driver.Core.Operations.InsertRequest(d, serializer));
+            var operation = new BulkMixedWriteOperation(_database.DatabaseName, _collectionName, requests);
+            ExecuteOperation(operation);
+        }
+
+        protected void Insert(IEnumerable<BsonDocument> documents)
+        {
+            Insert(documents, BsonDocumentSerializer.Instance);
         }
     }
 }

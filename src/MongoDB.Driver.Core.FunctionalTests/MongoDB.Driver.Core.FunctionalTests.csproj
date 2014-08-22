@@ -53,6 +53,12 @@
     <Compile Include="ClusterUsingTest.cs" />
     <Compile Include="CollectionUsingSpecification.cs" />
     <Compile Include="CollectionUsingTest.cs" />
+    <Compile Include="Core\Operations\DatabaseExistsOperationTests\When_a_database_does_not_exist.cs" />
+    <Compile Include="Core\Operations\DatabaseExistsOperationTests\When_a_database_exists.cs" />
+    <Compile Include="Core\Operations\DropDatabaseOperationTests\When_dropping_an_existing_database.cs" />
+    <Compile Include="Core\Operations\ListCollectionNamesOperationTests\When_listing_collection_names_on_database_that_does_not_exist.cs" />
+    <Compile Include="Core\Operations\ListCollectionNamesOperationTests\When_listing_collection_names_on_an_existing_database.cs" />
+    <Compile Include="Core\Operations\ListsDatabaseNamesOperationTests\When_listing_database_names.cs" />
     <Compile Include="DatabaseUsingTest.cs" />
     <Compile Include="Core\Helpers\SameAs.cs" />
     <Compile Include="SuiteConfiguration.cs" />

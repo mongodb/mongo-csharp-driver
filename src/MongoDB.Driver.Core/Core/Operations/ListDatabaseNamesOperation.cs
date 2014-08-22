@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class ListDatabasesOperation : IReadOperation<BsonDocument>
+    public class ListDatabaseNamesOperation : IReadOperation<IReadOnlyList<string>>, ICommandOperation
     {
         // methods
         public BsonDocument CreateCommand()
@@ -33,12 +33,14 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument { { "listDatabases", 1 } };
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyList<string>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new ReadCommandOperation("admin", command);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            var databases = result["databases"];
+            return databases.AsBsonArray.Select(x => x["name"].ToString()).ToList();
         }
     }
 }

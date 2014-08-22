@@ -23,14 +23,13 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class ListCollectionsOperation : IReadOperation<IReadOnlyList<string>>
+    public class ListCollectionNamesOperation : IReadOperation<IReadOnlyList<string>>
     {
         // fields
-        private readonly string _databaseName;
+        private string _databaseName;
 
         // constructors
-        public ListCollectionsOperation(
-            string databaseName)
+        public ListCollectionNamesOperation(string databaseName)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
         }
@@ -39,10 +38,11 @@ namespace MongoDB.Driver.Core.Operations
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         // methods
-        public async Task<IReadOnlyList<string>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyList<string>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var operation = new FindOperation(_databaseName, "system.namespaces");
@@ -68,12 +68,6 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return result;
-        }
-
-        public ListCollectionsOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new ListCollectionsOperation(value);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Operations
     public class DatabaseExistsOperation : IReadOperation<bool>
     {
         // fields
-        private readonly string _databaseName;
+        private string _databaseName;
 
         // constructors
         public DatabaseExistsOperation(string databaseName)
@@ -37,21 +37,16 @@ namespace MongoDB.Driver.Core.Operations
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         // methods
-        public async Task<bool> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<bool> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            var operation = new ListDatabasesOperation();
+            var operation = new ListDatabaseNamesOperation();
             var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
-            return result["databases"].AsBsonArray.Any(i => (string)i["name"] == _databaseName);
-        }
-
-        public DatabaseExistsOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new DatabaseExistsOperation(value);
+            return result.Contains(_databaseName);
         }
     }
 }

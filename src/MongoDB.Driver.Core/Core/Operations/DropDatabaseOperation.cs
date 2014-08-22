@@ -22,14 +22,13 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DropDatabaseOperation : IWriteOperation<BsonDocument>
+    public class DropDatabaseOperation : IWriteOperation<BsonDocument>, ICommandOperation
     {
         // fields
-        private readonly string _databaseName;
+        private string _databaseName;
 
         // constructors
-        public DropDatabaseOperation(
-            string databaseName)
+        public DropDatabaseOperation(string databaseName)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
         }
@@ -38,6 +37,7 @@ namespace MongoDB.Driver.Core.Operations
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         // methods
@@ -46,18 +46,12 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument { { "dropDatabase", 1 } };
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new WriteCommandOperation(_databaseName, command);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
-        }
-
-        public DropDatabaseOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new DropDatabaseOperation(value);
         }
     }
 }

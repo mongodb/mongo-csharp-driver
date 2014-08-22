@@ -59,6 +59,7 @@
     <Compile Include="Core\Bindings\WritableServerBinding.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="BulkWriteException.cs" />
+    <Compile Include="Core\Operations\ICommandOperation.cs" />
     <Compile Include="ExecutionTimeoutException.cs" />
     <Compile Include="Core\Misc\BatchableSource.cs" />
     <Compile Include="Core\Misc\IndexMap.cs" />
@@ -230,8 +231,8 @@
     <Compile Include="Core\Operations\InsertCommandOperation.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperation.cs" />
     <Compile Include="Core\Operations\IOperation.cs" />
-    <Compile Include="Core\Operations\ListCollectionsOperation.cs" />
-    <Compile Include="Core\Operations\ListDatabasesOperation.cs" />
+    <Compile Include="Core\Operations\ListCollectionNamesOperation.cs" />
+    <Compile Include="Core\Operations\ListDatabaseNamesOperation.cs" />
     <Compile Include="Core\Operations\MapReduceOperation.cs" />
     <Compile Include="Core\Operations\MapReduceOperationBase.cs" />
     <Compile Include="Core\Operations\MapReduceOutputMode.cs" />

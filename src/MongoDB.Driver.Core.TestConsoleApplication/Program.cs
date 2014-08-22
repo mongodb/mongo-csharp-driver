@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             using (var binding = new WritableServerBinding(cluster))
             {
                 var commandOp = new DropDatabaseOperation(_database);
-                await commandOp.ExecuteAsync(binding);
+                await commandOp.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
             }
         }
 

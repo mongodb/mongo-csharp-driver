@@ -159,6 +159,7 @@
     <Compile Include="FailPoint.cs" />
     <Compile Include="Jira\CSharp900Tests.cs" />
     <Compile Include="MongoClientSettingsTests.cs" />
+    <Compile Include="MongoDatabaseImplTests.cs" />
     <Compile Include="MongoServerBuildInfoTests.cs" />
     <Compile Include="MongoClientTests.cs" />
     <Compile Include="Operations\BulkWriteBatchResultCombinerTests.cs" />

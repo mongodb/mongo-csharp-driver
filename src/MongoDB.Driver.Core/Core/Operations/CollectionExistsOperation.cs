@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<bool> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            var operation = new ListCollectionsOperation(_databaseName);
+            var operation = new ListCollectionNamesOperation(_databaseName);
             var collectionNames = await operation.ExecuteAsync(binding, timeout, cancellationToken);
             return collectionNames.Contains(_collectionName);
         }

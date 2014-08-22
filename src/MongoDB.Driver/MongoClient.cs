@@ -14,14 +14,20 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Driver.Communication;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Operations;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a client to MongoDB.
     /// </summary>
-    public class MongoClient
+    public class MongoClient : IMongoClient
     {
         // private fields
         private readonly ICluster _cluster;
@@ -92,6 +98,46 @@ namespace MongoDB.Driver
         }
 
         // public methods
+        /// <summary>
+        /// Gets the database.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>An implementation of a database.</returns>
+        public IMongoDatabase GetDatabase(string name)
+        {
+            var settings = new MongoDatabaseSettings();
+            settings.ApplyDefaultValues(MongoServerSettings.FromClientSettings(_settings));
+            return GetDatabase(name, settings);
+        }
+
+        /// <summary>
+        /// Gets the database.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="settings">The settings.</param>
+        /// <returns>An implementation of a database.</returns>
+        public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings)
+        {
+            return new MongoDatabaseImpl(_cluster, name, settings);
+        }
+
+        /// <summary>
+        /// Gets the database names.
+        /// </summary>
+        /// <param name="timeout">The timeout.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A list of the database on the server.</returns>
+        public async Task<IReadOnlyList<string>> GetDatabaseNamesAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var operation = new ListDatabaseNamesOperation();
+
+            // TODO: use settings.ReadPreference
+            using(var binding = new ReadPreferenceBinding(_cluster, Core.Clusters.ReadPreference.Primary))
+            {
+                return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            }
+        }
+
         /// <summary>
         /// Gets a MongoServer object using this client's settings.
         /// </summary>

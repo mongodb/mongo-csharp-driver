@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -113,6 +114,14 @@ namespace MongoDB.Driver
                 }
                 _writeConcern.Value = value.WriteConcern;
             }
+        }
+
+        /// <summary>
+        /// Gets the serializer registry.
+        /// </summary>
+        public IBsonSerializerRegistry SerializerRegistry
+        {
+            get { return GlobalBsonSerializerRegistry.Instance; }
         }
 
         /// <summary>
