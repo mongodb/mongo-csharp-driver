@@ -15,7 +15,6 @@
 
 using System;
 using System.Text.RegularExpressions;
-using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -25,9 +24,6 @@ namespace MongoDB.Driver
     public class MongoServerBuildInfo
     {
         // private fields
-        private int _bits;
-        private string _gitVersion;
-        private string _sysInfo;
         private Version _version;
         private string _versionString;
 
@@ -35,44 +31,14 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a new instance of MongoServerBuildInfo.
         /// </summary>
-        /// <param name="bits">The number of bits (32 or 64).</param>
-        /// <param name="gitVersion">The GIT version.</param>
-        /// <param name="sysInfo">The sysInfo.</param>
         /// <param name="versionString">The version string.</param>
-        public MongoServerBuildInfo(int bits, string gitVersion, string sysInfo, string versionString)
+        public MongoServerBuildInfo(string versionString)
         {
-            _bits = bits;
-            _gitVersion = gitVersion;
-            _sysInfo = sysInfo;
             _version = ParseVersion(versionString);
             _versionString = versionString;
         }
 
         // public properties
-        /// <summary>
-        /// Gets the number of bits (32 or 64).
-        /// </summary>
-        public int Bits
-        {
-            get { return _bits; }
-        }
-
-        /// <summary>
-        /// Gets the GIT version.
-        /// </summary>
-        public string GitVersion
-        {
-            get { return _gitVersion; }
-        }
-
-        /// <summary>
-        /// Gets the sysInfo.
-        /// </summary>
-        public string SysInfo
-        {
-            get { return _sysInfo; }
-        }
-
         /// <summary>
         /// Gets the version.
         /// </summary>
@@ -105,26 +71,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a new instance of MongoServerBuildInfo initialized from the result of a buildinfo command.
         /// </summary>
-        /// <param name="document">A BsonDocument.</param>
-        /// <returns>A MongoServerBuildInfo.</returns>
-        public static MongoServerBuildInfo FromBsonDocument(BsonDocument document)
-        {
-            return new MongoServerBuildInfo(
-                document["bits"].ToInt32(),
-                document["gitVersion"].AsString,
-                document["sysInfo"].AsString,
-                document["version"].AsString
-            );
-        }
-
-        /// <summary>
-        /// Creates a new instance of MongoServerBuildInfo initialized from the result of a buildinfo command.
-        /// </summary>
         /// <param name="result">A CommandResult.</param>
         /// <returns>A MongoServerBuildInfo.</returns>
         public static MongoServerBuildInfo FromCommandResult(CommandResult result)
         {
-            return FromBsonDocument(result.Response);
+            var document = result.Response;
+            return new MongoServerBuildInfo(document["version"].AsString);
         }
     }
 }

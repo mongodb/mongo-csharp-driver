@@ -117,21 +117,6 @@ namespace MongoDB.Driver.Core.Servers
             get { return _averageRoundTripTime; }
         }
 
-        public BuildInfoResult BuildInfoResult
-        {
-            get
-            {
-                var fakeBuildInfo = new BsonDocument
-                {
-                    { "version", "2.6.0" },
-                    { "gitVersion", "" },
-                    { "sysInfo", "" },
-                    { "bits", 64 }
-                };
-                return new BuildInfoResult(fakeBuildInfo);
-            }
-        }
-
         public EndPoint EndPoint
         {
             get { return _endPoint; }

@@ -65,7 +65,6 @@ namespace MongoDB.Driver.Tests
         {
             var versionZero = new Version(0, 0, 0);
             var buildInfo = _server.BuildInfo;
-            Assert.IsTrue(buildInfo.Bits == 32 || buildInfo.Bits == 64);
             Assert.AreNotEqual(versionZero, buildInfo.Version);
         }
 

@@ -107,7 +107,8 @@ namespace MongoDB.Driver
             get
             {
                 var serverDescription = GetServerDescription();
-                return MongoServerBuildInfo.FromBsonDocument(serverDescription.BuildInfoResult.Wrapped);
+                var versionString = serverDescription.Version.ToString();
+                return new MongoServerBuildInfo(versionString);
             }
         }
 
