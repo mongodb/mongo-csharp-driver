@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    internal sealed class ServerConnectionSource : IConnectionSource
+    public sealed class ServerConnectionSource : IConnectionSource
     {
         // fields
         private bool _disposed;

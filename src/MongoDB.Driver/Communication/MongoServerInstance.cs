@@ -17,8 +17,12 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
@@ -174,7 +178,7 @@ namespace MongoDB.Driver
             get
             {
                 var serverDescription = GetServerDescription();
-                return serverDescription.Type == ServerType.ReplicaSetPrimary;
+                return serverDescription.Type.IsWritable();
             }
         }
 
@@ -285,6 +289,13 @@ namespace MongoDB.Driver
             throw new NotImplementedException();
         }
 
+        private IServer GetServer()
+        {
+            var serverSelector = new EndPointServerSelector(_endPoint);
+            var server = _cluster.SelectServer(serverSelector, _settings.ConnectTimeout, CancellationToken.None);
+            return server;
+        }
+
         /// <summary>
         /// Gets the server description.
         /// </summary>
@@ -306,7 +317,14 @@ namespace MongoDB.Driver
         /// </summary>
         public void Ping()
         {
-            throw new NotImplementedException();
+            var operation = new PingOperation();
+
+            var server = GetServer();
+            using (var connectionSource = new ConnectionSourceHandle(new ServerConnectionSource(server)))
+            using (var connectionSourceBinding = new ConnectionSourceReadWriteBinding(connectionSource, Core.Clusters.ReadPreference.PrimaryPreferred))
+            {
+                operation.Execute(connectionSourceBinding, _settings.ConnectTimeout, CancellationToken.None);
+            }
         }
 
         /// <summary>
@@ -314,7 +332,7 @@ namespace MongoDB.Driver
         /// </summary>
         public void RefreshStateAsSoonAsPossible()
         {
-            throw new NotImplementedException();
+            // TODO: implement RefreshStateAsSoonAsPossible
         }
 
         /// <summary>
@@ -361,7 +379,7 @@ namespace MongoDB.Driver
         /// </summary>
         public void VerifyState()
         {
-            throw new NotImplementedException();
+            // TODO: implement VerifyState
         }
 
         // private methods

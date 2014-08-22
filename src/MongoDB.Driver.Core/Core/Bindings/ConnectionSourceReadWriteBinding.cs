@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    internal sealed class ConnectionSourceReadWriteBinding : IReadWriteBinding
+    public sealed class ConnectionSourceReadWriteBinding : IReadWriteBinding
     {
         // fields
         private readonly IConnectionSourceHandle _connectionSource;

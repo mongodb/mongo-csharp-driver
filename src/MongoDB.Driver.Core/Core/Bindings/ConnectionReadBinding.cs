@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             _server = Ensure.IsNotNull(server, "server");
             _connection = Ensure.IsNotNull(connection, "connection");
-            _readPreference = Ensure.IsNotNull(ReadPreference, "readPreference");
+            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
         }
 
         // properties

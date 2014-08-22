@@ -210,7 +210,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                return Primary.BuildInfo;
             }
         }
 
@@ -243,7 +243,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var instances = Instances;
+                switch (instances.Length)
+                {
+                    case 0: return null;
+                    case 1: return instances[0];
+                    default:
+                        throw new InvalidOperationException("Instance property cannot be used when there is more than one instance.");
+                }
             }
         }
 
@@ -306,7 +313,23 @@ namespace MongoDB.Driver
         {
             get 
             {
-                throw new NotImplementedException();
+                var replicaSetName = _cluster.Settings.ReplicaSetName;
+                if (replicaSetName != null)
+                {
+                    return replicaSetName;
+                }
+
+                var primary = _cluster.Description.Servers.FirstOrDefault(s => s.Type == ServerType.ReplicaSetPrimary);
+                if (primary != null)
+                {
+                    var replicaSetConfig = primary.ReplicaSetConfig;
+                    if (replicaSetConfig != null)
+                    {
+                        return replicaSetConfig.Name;
+                    }
+                }
+
+                return null;
             }
         }
 
@@ -699,7 +722,12 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Ping()
         {
-            throw new NotImplementedException();
+            var primary = Primary;
+            if (primary == null)
+            {
+                throw new InvalidOperationException("There is no current primary.");
+            }
+            primary.Ping();
         }
 
         /// <summary>
@@ -805,7 +833,11 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void VerifyState()
         {
-            throw new NotImplementedException();
+            var instances = Instances;
+            foreach (var instance in instances)
+            {
+                instance.VerifyState();
+            }
         }
 
         // internal methods
