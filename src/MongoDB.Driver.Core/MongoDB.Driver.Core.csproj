@@ -64,6 +64,7 @@
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="BulkWriteException.cs" />
     <Compile Include="Core\Operations\ICommandOperation.cs" />
+    <Compile Include="Core\Sync\SynchronousDocumentCursorAdapter.cs" />
     <Compile Include="ExecutionTimeoutException.cs" />
     <Compile Include="Core\Operations\BulkWriteResultConverter.cs" />
     <Compile Include="Core\Operations\DeleteOpcodeOperationEmulator.cs" />

@@ -115,7 +115,6 @@
     <Compile Include="AcknowledgedBulkWriteResult.cs" />
     <Compile Include="CountArgs.cs" />
     <Compile Include="EvalArgs.cs" />
-    <Compile Include="Exceptions\ExceptionMapper.cs" />
     <Compile Include="FindAndModifyArgs.cs" />
     <Compile Include="AggregateArgs.cs" />
     <Compile Include="Builders\BuilderBase.cs" />

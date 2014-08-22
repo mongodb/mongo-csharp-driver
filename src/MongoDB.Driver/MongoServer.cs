@@ -516,7 +516,10 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropDatabase(string databaseName)
         {
-            throw new NotImplementedException();
+            var database = GetDatabase(databaseName);
+            var command = new CommandDocument("dropDatabase", 1);
+            var result = database.RunCommand(command);
+            return result;
         }
 
         /// <summary>
@@ -609,7 +612,16 @@ namespace MongoDB.Driver
         /// <returns>A list of database names.</returns>
         public virtual IEnumerable<string> GetDatabaseNames()
         {
-            throw new NotImplementedException();
+            var adminDatabase = GetDatabase("admin");
+            var result = adminDatabase.RunCommand("listDatabases");
+            var databaseNames = new List<string>();
+            foreach (BsonDocument database in result.Response["databases"].AsBsonArray.Values)
+            {
+                string databaseName = database["name"].AsString;
+                databaseNames.Add(databaseName);
+            }
+            databaseNames.Sort();
+            return databaseNames;
         }
 
         /// <summary>
@@ -697,7 +709,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Reconnect()
         {
-            throw new NotImplementedException();
+            // do nothing
         }
 
         /// <summary>

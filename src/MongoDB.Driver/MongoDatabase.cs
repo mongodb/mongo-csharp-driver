@@ -269,7 +269,12 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult CreateCollection(string collectionName, IMongoCollectionOptions options)
         {
-            throw new NotImplementedException();
+            var command = new CommandDocument("create", collectionName);
+            if (options != null)
+            {
+                command.Merge(options.ToBsonDocument());
+            }
+            return RunCommandAs<CommandResult>(command);
         }
 
         /// <summary>
@@ -344,7 +349,15 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Code == null) { throw new ArgumentException("Code is null.", "args"); }
 
-            throw new NotImplementedException();
+            var command = new CommandDocument
+            {
+                { "$eval", args.Code },
+                { "args", () => new BsonArray(args.Args), args.Args != null }, // optional
+                { "nolock", () => !args.Lock.Value, args.Lock.HasValue }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+            };
+            var result = RunCommandAs<CommandResult>(command);
+            return result.Response["retval"];
         }
 
         /// <summary>
@@ -596,7 +609,11 @@ namespace MongoDB.Driver
         /// <returns>The last error (<see cref=" GetLastErrorResult"/>)</returns>
         public virtual GetLastErrorResult GetLastError()
         {
-            throw new NotImplementedException();
+            if (Server.RequestNestingLevel == 0)
+            {
+                throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first.");
+            }
+            return RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
         }
 
         // TODO: mongo shell has GetPrevError at the database level?
@@ -621,7 +638,8 @@ namespace MongoDB.Driver
         /// <returns>The profiling level.</returns>
         public GetProfilingLevelResult GetProfilingLevel()
         {
-            throw new NotImplementedException();
+            var command = new CommandDocument("profile", -1);
+            return RunCommandAs<GetProfilingLevelResult>(command);
         }
 
         /// <summary>
@@ -640,7 +658,7 @@ namespace MongoDB.Driver
         /// <returns>An instance of DatabaseStatsResult.</returns>
         public virtual DatabaseStatsResult GetStats()
         {
-            throw new NotImplementedException();
+            return RunCommandAs<DatabaseStatsResult>("dbstats");
         }
 
         /// <summary>
@@ -745,7 +763,14 @@ namespace MongoDB.Driver
                 throw new ArgumentOutOfRangeException("newCollectionName", message);
             }
 
-            throw new NotImplementedException();
+            var command = new CommandDocument
+            {
+                { "renameCollection", string.Format("{0}.{1}", _name, oldCollectionName) },
+                { "to", string.Format("{0}.{1}", _name, newCollectionName) },
+                { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
+            };
+            var adminDatabase = _server.GetDatabase("admin");
+            return adminDatabase.RunCommandAs<CommandResult>(command);
         }
 
         /// <summary>

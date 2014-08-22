@@ -16,9 +16,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Sync;
+using MongoDB.Driver.Core.SyncExtensionMethods;
 
 namespace MongoDB.Driver
 {
@@ -43,7 +48,50 @@ namespace MongoDB.Driver
         // public methods
         public IEnumerator<BsonDocument> GetEnumerator()
         {
-            throw new NotImplementedException();
+            if (_outputCollectionName != null)
+            {
+                var database = _collection.Database;
+                var collectionSettings = new MongoCollectionSettings { ReadPreference = ReadPreference.Primary };
+                var collection = database.GetCollection<BsonDocument>(_outputCollectionName, collectionSettings);
+                return collection.FindAll().GetEnumerator();
+            }
+
+            var result = _collection.RunAggregateCommand(_args);
+            if (result.CursorId != 0)
+            {
+                var batchSize = _args.BatchSize ?? 0;
+                var cursorId = result.CursorId;
+                var firstBatch = result.ResultDocuments.ToList();
+                var query = new BsonDocument(); // TODO: what should the query be?
+                var readPreference = _collection.Settings.ReadPreference ?? ReadPreference.Primary;
+                var serializer = BsonDocumentSerializer.Instance;
+
+                using (var binding = _collection.Database.Server.GetReadBinding(readPreference))
+                using (var connectionSource = binding.GetReadConnectionSource(Timeout.InfiniteTimeSpan, CancellationToken.None))
+                {
+                    var cursor = new Cursor<BsonDocument>(
+                        connectionSource.Fork(),
+                        _collection.Database.Name,
+                        _collection.Name,
+                        query,
+                        firstBatch,
+                        cursorId,
+                        batchSize,
+                        serializer,
+                        Timeout.InfiniteTimeSpan,
+                        CancellationToken.None);
+
+                    return new SynchronousDocumentCursorAdapter<BsonDocument>(cursor).GetEnumerator();
+                }
+            }
+            else if (result.ResultDocuments != null)
+            {
+                return result.ResultDocuments.GetEnumerator();
+            }
+            else
+            {
+                throw new NotSupportedException("Unexpected response to aggregate command.");
+            }
         }
 
         // explicit interface implementations

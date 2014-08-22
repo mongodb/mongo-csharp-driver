@@ -14,10 +14,9 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Driver;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Tests.Exceptions
+namespace MongoDB.Driver.Core.Misc
 {
     [TestFixture]
     public class ExceptionMapperTests
