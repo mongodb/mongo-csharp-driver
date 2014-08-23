@@ -1404,7 +1404,7 @@ namespace MongoDB.Driver
             using (var connectionSource = binding.GetWriteConnectionSource())
             using (var connection = connectionSource.GetConnection())
             {
-                var writeConcernResults = new List<WriteConcernResult>();
+                var writeConcernResults = writeConcern.Enabled ? new List<WriteConcernResult>() : null;
 
                 using (var enumerator = documents.GetEnumerator())
                 {
@@ -1417,8 +1417,11 @@ namespace MongoDB.Driver
                             WriteConcern = writeConcern.ToCore()
                         };
                         var response = operation.ExecuteAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
-                        var writeConcernResult = new WriteConcernResult(response);
-                        writeConcernResults.Add(writeConcernResult);
+                        if (writeConcern.Enabled)
+                        {
+                            var writeConcernResult = new WriteConcernResult(response);
+                            writeConcernResults.Add(writeConcernResult);
+                        }
                         documentSource.ClearBatch();
                     }
                 }

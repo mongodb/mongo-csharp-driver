@@ -437,13 +437,14 @@ namespace MongoDB.Driver.Core.Clusters
                 primary,
                 null);
 
-            var description = current.WithHeartbeatInfo(
-                TimeSpan.FromMilliseconds(10),
-                serverType.IsReplicaSetMember() ? config : null,
-                null,
-                serverType,
-                new SemanticVersion(2, 6, 3),
-                new Range<int>(0, int.MaxValue));
+            var description = current.With(
+                averageRoundTripTime: TimeSpan.FromMilliseconds(10),
+                replicaSetConfig: serverType.IsReplicaSetMember() ? config : null,
+                state: ServerState.Connected,
+                tags: null,
+                type: serverType,
+                version: new SemanticVersion(2, 6, 3),
+                wireVersionRange: new Range<int>(0, int.MaxValue));
 
             _serverFactory.PublishDescription(description);
         }

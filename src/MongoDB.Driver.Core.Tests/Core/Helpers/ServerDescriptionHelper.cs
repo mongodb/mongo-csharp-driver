@@ -36,13 +36,14 @@ namespace MongoDB.Driver.Core.Helpers
         public static ServerDescription Connected(ClusterId clusterId, EndPoint endPoint = null, ServerType serverType = ServerType.Standalone, TagSet tags = null, TimeSpan? averageRoundTripTime = null, Range<int> wireVersionRange = null)
         {
             return Disconnected(clusterId, endPoint)
-                .WithHeartbeatInfo(
-                    averageRoundTripTime ?? TimeSpan.FromMilliseconds(1),
-                    null,
-                    tags,
-                    serverType,
-                    new SemanticVersion(2, 6, 3),
-                    wireVersionRange ?? new Range<int>(0, 2));
+                .With(
+                    averageRoundTripTime: averageRoundTripTime ?? TimeSpan.FromMilliseconds(1),
+                    replicaSetConfig: null,
+                    state: ServerState.Connected,
+                    tags: tags,
+                    type: serverType,
+                    version: new SemanticVersion(2, 6, 3),
+                    wireVersionRange: wireVersionRange ?? new Range<int>(0, 2));
         }
     }
 }

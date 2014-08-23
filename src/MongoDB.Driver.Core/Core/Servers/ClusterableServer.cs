@@ -223,13 +223,17 @@ namespace MongoDB.Driver.Core.Servers
                 var isMasterResult = heartbeatInfo.IsMasterResult;
                 var buildInfoResult = heartbeatInfo.BuildInfoResult;
 
-                newDescription = _baseDescription.WithHeartbeatInfo(
-                    averageRoundTripTimeRounded,
-                    isMasterResult.GetReplicaSetConfig(),
-                    isMasterResult.Tags,
-                    isMasterResult.ServerType,
-                    buildInfoResult.ServerVersion,
-                    new Range<int>(isMasterResult.MinWireVersion, isMasterResult.MaxWireVersion));
+                newDescription = _baseDescription.With(
+                    averageRoundTripTime: averageRoundTripTimeRounded,
+                    maxBatchCount: isMasterResult.MaxBatchCount,
+                    maxDocumentSize: isMasterResult.MaxDocumentSize,
+                    maxMessageSize: isMasterResult.MaxMessageSize,
+                    replicaSetConfig: isMasterResult.GetReplicaSetConfig(),
+                    state: ServerState.Connected,
+                    tags: isMasterResult.Tags,
+                    type: isMasterResult.ServerType,
+                    version: buildInfoResult.ServerVersion,
+                    wireVersionRange: new Range<int>(isMasterResult.MinWireVersion, isMasterResult.MaxWireVersion));
             }
             else
             {

@@ -36,6 +36,10 @@ namespace MongoDB.Driver.Core.Servers
         // fields
         private readonly TimeSpan _averageRoundTripTime;
         private readonly EndPoint _endPoint;
+        private readonly int _maxBatchCount;
+        private readonly int _maxDocumentSize;
+        private readonly int _maxMessageSize;
+        private readonly int _maxWireDocumentSize;
         private readonly ReplicaSetConfig _replicaSetConfig;
         private readonly ServerId _serverId;
         private readonly ServerState _state;
@@ -45,53 +49,20 @@ namespace MongoDB.Driver.Core.Servers
         private readonly Range<int> _wireVersionRange;
 
         // constructors
-        public ServerDescription(ServerId serverId, EndPoint endPoint)
-            : this(
-                TimeSpan.Zero,
-                endPoint,
-                null,
-                serverId,
-                ServerState.Disconnected,
-                null,
-                ServerType.Unknown,
-                null,
-                null)
-        {
-        }
-
         public ServerDescription(
             ServerId serverId,
             EndPoint endPoint,
-            ServerState state,
-            ServerType type,
-            TimeSpan averageRoundTripTime,
-            ReplicaSetConfig replicaSetConfig,
-            TagSet tags,
-            SemanticVersion version,
-            Range<int> wireVersionRange)
-            : this(
-                averageRoundTripTime,
-                endPoint,
-                replicaSetConfig,
-                serverId,
-                state,
-                tags,
-                type,
-                version,
-                wireVersionRange)
-        {
-        }
-
-        private ServerDescription(
-            TimeSpan averageRoundTripTime,
-            EndPoint endPoint,
-            ReplicaSetConfig replicaSetConfig,
-            ServerId serverId,
-            ServerState state,
-            TagSet tags,
-            ServerType type,
-            SemanticVersion version,
-            Range<int> wireVersionRange)
+            Optional<TimeSpan> averageRoundTripTime = default(Optional<TimeSpan>),
+            Optional<int> maxBatchCount = default(Optional<int>),
+            Optional<int> maxDocumentSize = default(Optional<int>),
+            Optional<int> maxMessageSize = default(Optional<int>),
+            Optional<int> maxWireDocumentSize = default(Optional<int>),
+            Optional<ReplicaSetConfig> replicaSetConfig = default(Optional<ReplicaSetConfig>),
+            Optional<ServerState> state = default(Optional<ServerState>),
+            Optional<TagSet> tags = default(Optional<TagSet>),
+            Optional<ServerType> type = default(Optional<ServerType>),
+            Optional<SemanticVersion> version = default(Optional<SemanticVersion>),
+            Optional<Range<int>> wireVersionRange = default(Optional<Range<int>>))
         {
             Ensure.IsNotNull(endPoint, "endPoint");
             Ensure.IsNotNull(serverId, "serverId");
@@ -100,15 +71,19 @@ namespace MongoDB.Driver.Core.Servers
                 throw new ArgumentException("EndPoint and ServerId.EndPoint must match.");
             }
 
-            _averageRoundTripTime = averageRoundTripTime;
+            _averageRoundTripTime = averageRoundTripTime.WithDefault(TimeSpan.Zero);
             _endPoint = endPoint;
-            _replicaSetConfig = replicaSetConfig;
+            _maxBatchCount = maxBatchCount.WithDefault(1000);
+            _maxDocumentSize = maxDocumentSize.WithDefault(4 * 1024 * 1024);
+            _maxMessageSize = maxMessageSize.WithDefault(Math.Max(_maxDocumentSize + 1024, 16000000));
+            _maxWireDocumentSize = maxWireDocumentSize.WithDefault(_maxDocumentSize + 16 * 1024);
+            _replicaSetConfig = replicaSetConfig.WithDefault(null);
             _serverId = serverId;
-            _state = state;
-            _tags = tags;
-            _type = type;
-            _version = version;
-            _wireVersionRange = wireVersionRange;
+            _state = state.WithDefault(ServerState.Disconnected);
+            _tags = tags.WithDefault(null);
+            _type = type.WithDefault(ServerType.Unknown);
+            _version = version.WithDefault(null);
+            _wireVersionRange = wireVersionRange.WithDefault(null);
         }
 
         // properties
@@ -120,6 +95,26 @@ namespace MongoDB.Driver.Core.Servers
         public EndPoint EndPoint
         {
             get { return _endPoint; }
+        }
+
+        public int MaxBatchCount
+        {
+            get { return _maxBatchCount; }
+        }
+
+        public int MaxDocumentSize
+        {
+            get { return _maxDocumentSize; }
+        }
+
+        public int MaxMessageSize
+        {
+            get { return _maxMessageSize; }
+        }
+
+        public int MaxWireDocumentSize
+        {
+            get { return _maxWireDocumentSize; }
         }
 
         public ReplicaSetConfig ReplicaSetConfig
@@ -174,6 +169,10 @@ namespace MongoDB.Driver.Core.Servers
             return
                 _averageRoundTripTime == rhs._averageRoundTripTime &&
                 _endPoint.Equals(rhs._endPoint) &&
+                _maxBatchCount == rhs._maxBatchCount &&
+                _maxDocumentSize == rhs._maxDocumentSize &&
+                _maxMessageSize == rhs._maxMessageSize &&
+                _maxWireDocumentSize == rhs._maxWireDocumentSize &&
                 object.Equals(_replicaSetConfig, rhs._replicaSetConfig) &&
                 _serverId.Equals(rhs._serverId) &&
                 _state == rhs._state &&
@@ -189,6 +188,10 @@ namespace MongoDB.Driver.Core.Servers
             return new Hasher()
                 .Hash(_averageRoundTripTime)
                 .Hash(_endPoint)
+                .Hash(_maxBatchCount)
+                .Hash(_maxDocumentSize)
+                .Hash(_maxMessageSize)
+                .Hash(_maxWireDocumentSize)
                 .Hash(_replicaSetConfig)
                 .Hash(_serverId)
                 .Hash(_state)
@@ -211,36 +214,50 @@ namespace MongoDB.Driver.Core.Servers
                 _wireVersionRange);
         }
 
-        public ServerDescription WithHeartbeatInfo(
-            TimeSpan averageRoundTripTime,
-            ReplicaSetConfig replicaSetConfig,
-            TagSet tags,
-            ServerType type,
-            SemanticVersion version,
-            Range<int> wireVersionRange)
+        public ServerDescription With(
+            Optional<TimeSpan> averageRoundTripTime = default(Optional<TimeSpan>),
+            Optional<int> maxBatchCount = default(Optional<int>),
+            Optional<int> maxDocumentSize = default(Optional<int>),
+            Optional<int> maxMessageSize = default(Optional<int>),
+            Optional<int> maxWireDocumentSize = default(Optional<int>),
+            Optional<ReplicaSetConfig> replicaSetConfig = default(Optional<ReplicaSetConfig>),
+            Optional<ServerState> state = default(Optional<ServerState>),
+            Optional<TagSet> tags = default(Optional<TagSet>),
+            Optional<ServerType> type = default(Optional<ServerType>),
+            Optional<SemanticVersion> version = default(Optional<SemanticVersion>),
+            Optional<Range<int>> wireVersionRange = default(Optional<Range<int>>))
         {
-            if (_state == ServerState.Connected && 
-                _averageRoundTripTime == averageRoundTripTime &&
-                object.Equals(_replicaSetConfig, replicaSetConfig) &&                
-                object.Equals(_tags, tags) &&
-                _type == type &&
-                object.Equals(_version, version) &&
-                object.Equals(_wireVersionRange, wireVersionRange))
+            if (
+                averageRoundTripTime.Replaces(_averageRoundTripTime) ||
+                maxBatchCount.Replaces(_maxBatchCount) ||
+                maxDocumentSize.Replaces(_maxDocumentSize) ||
+                maxMessageSize.Replaces(_maxMessageSize) ||
+                maxWireDocumentSize.Replaces(_maxWireDocumentSize) ||
+                replicaSetConfig.Replaces(_replicaSetConfig) ||
+                state.Replaces(_state) ||
+                tags.Replaces(_tags) ||
+                type.Replaces(_type) ||
+                version.Replaces(_version) ||
+                wireVersionRange.Replaces(_wireVersionRange))
             {
-                return this;
+                return new ServerDescription(
+                    _serverId,
+                    _endPoint,
+                    averageRoundTripTime: averageRoundTripTime.WithDefault(_averageRoundTripTime),
+                    maxBatchCount: maxBatchCount.WithDefault(_maxBatchCount),
+                    maxDocumentSize: maxDocumentSize.WithDefault(_maxDocumentSize),
+                    maxMessageSize: maxMessageSize.WithDefault(_maxMessageSize),
+                    maxWireDocumentSize: maxWireDocumentSize.WithDefault(_maxWireDocumentSize),
+                    replicaSetConfig: replicaSetConfig.WithDefault(_replicaSetConfig),
+                    state: state.WithDefault(_state),
+                    tags: tags.WithDefault(_tags),
+                    type: type.WithDefault(_type),
+                    version: version.WithDefault(_version),
+                    wireVersionRange: wireVersionRange.WithDefault(_wireVersionRange));
             }
             else
             {
-                return new ServerDescription(
-                    averageRoundTripTime,
-                    _endPoint,
-                    replicaSetConfig,
-                    _serverId,
-                    ServerState.Connected,
-                    tags,
-                    type,
-                    version,
-                    wireVersionRange);
+                return this;
             }
         }
     }

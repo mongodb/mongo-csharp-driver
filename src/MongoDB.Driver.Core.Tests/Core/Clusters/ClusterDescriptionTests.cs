@@ -145,13 +145,8 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var subject1 = CreateSubject();
             var oldServerDescription = subject1.Servers[0];
-            var newServerDescription = oldServerDescription.WithHeartbeatInfo(
-                oldServerDescription.AverageRoundTripTime.Add(TimeSpan.FromSeconds(1)),
-                oldServerDescription.ReplicaSetConfig,
-                oldServerDescription.Tags,
-                oldServerDescription.Type,
-                oldServerDescription.Version,
-                oldServerDescription.WireVersionRange);
+            var newServerDescription = oldServerDescription.With(
+                averageRoundTripTime: oldServerDescription.AverageRoundTripTime.Add(TimeSpan.FromSeconds(1)));
             var subject2 = subject1.WithServerDescription(newServerDescription);
             subject2.Should().NotBeSameAs(subject1);
             subject2.Should().NotBe(subject1);

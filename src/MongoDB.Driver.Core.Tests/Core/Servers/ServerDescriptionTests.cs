@@ -44,13 +44,11 @@ namespace MongoDB.Driver.Core.Servers
             __subject = new ServerDescription(
                 __serverId,
                 __endPoint,
-                ServerState.Connected,
-                ServerType.Standalone,
-                TimeSpan.FromSeconds(1),
-                null,
-                null,
-                new SemanticVersion(2, 6, 3),
-                new Range<int>(0, 2));
+                state: ServerState.Connected,
+                type: ServerType.Standalone,
+                averageRoundTripTime: TimeSpan.FromSeconds(1),
+                version: new SemanticVersion(2, 6, 3),
+                wireVersionRange:  new Range<int>(0, 2));
         }
         #endregion
 
@@ -87,13 +85,13 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerDescription(
                 __serverId,
                 __endPoint,
-                state,
-                type,
-                averageRoundTripTime,
-                replicaSetConfig,
-                tags,
-                version,
-                wireVersionRange);
+                state: state,
+                type: type,
+                averageRoundTripTime: averageRoundTripTime,
+                replicaSetConfig: replicaSetConfig,
+                tags: tags,
+                version: version,
+                wireVersionRange: wireVersionRange);
 
             subject.AverageRoundTripTime.Should().Be(TimeSpan.FromSeconds(1));
             subject.EndPoint.Should().Be(__endPoint);
@@ -133,13 +131,13 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerDescription(
                 serverId,
                 endPoint,
-                state,
-                type,
-                averageRoundTripTime,
-                replicaSetConfig,
-                tags,
-                version,
-                wireVersionRange);
+                state: state,
+                type: type,
+                averageRoundTripTime: averageRoundTripTime,
+                replicaSetConfig: replicaSetConfig,
+                tags: tags,
+                version: version,
+                wireVersionRange: wireVersionRange);
 
             switch (notEqualField)
             {
@@ -157,13 +155,13 @@ namespace MongoDB.Driver.Core.Servers
             var serverDescription2 = new ServerDescription(
                 serverId,
                 endPoint,
-                state,
-                type,
-                averageRoundTripTime,
-                replicaSetConfig,
-                tags,
-                version,
-                wireVersionRange);
+                state: state,
+                type: type,
+                averageRoundTripTime: averageRoundTripTime,
+                replicaSetConfig: replicaSetConfig,
+                tags: tags,
+                version: version,
+                wireVersionRange: wireVersionRange);
 
             subject.Equals(serverDescription2).Should().BeFalse();
             subject.Equals((object)serverDescription2).Should().BeFalse();
@@ -203,13 +201,13 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerDescription(
                 __serverId,
                 __endPoint,
-                state,
-                type,
-                averageRoundTripTime,
-                replicaSetConfig,
-                tags,
-                version,
-                wireVersionRange);
+                state: state,
+                type: type,
+                averageRoundTripTime: averageRoundTripTime,
+                replicaSetConfig: replicaSetConfig,
+                tags: tags,
+                version: version,
+                wireVersionRange: wireVersionRange);
 
             switch (notEqualField)
             {
@@ -221,7 +219,14 @@ namespace MongoDB.Driver.Core.Servers
                 case "WireVersionRange": wireVersionRange = new Range<int>(0, 0); break;
             }
 
-            var serverDescription2 = subject.WithHeartbeatInfo(averageRoundTripTime, replicaSetConfig, tags, type, version, wireVersionRange);
+            var serverDescription2 = subject.With(
+                averageRoundTripTime: averageRoundTripTime,
+                replicaSetConfig: replicaSetConfig,
+                state: ServerState.Connected,
+                tags: tags,
+                type: type,
+                version: version,
+                wireVersionRange: wireVersionRange);
 
             subject.Equals(serverDescription2).Should().BeFalse();
             subject.Equals((object)serverDescription2).Should().BeFalse();
@@ -246,15 +251,23 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerDescription(
                 __serverId,
                 __endPoint,
-                state,
-                type,
-                averageRoundTripTime,
-                replicaSetConfig,
-                tags,
-                version,
-                wireVersionRange);
+                state: state,
+                type: type,
+                averageRoundTripTime: averageRoundTripTime,
+                replicaSetConfig: replicaSetConfig,
+                tags: tags,
+                version: version,
+                wireVersionRange: wireVersionRange);
 
-            var serverDescription2 = subject.WithHeartbeatInfo(averageRoundTripTime, replicaSetConfig, tags, type, version, wireVersionRange);
+            var serverDescription2 = subject.With(
+                averageRoundTripTime: averageRoundTripTime,
+                replicaSetConfig: replicaSetConfig,
+                state: ServerState.Connected,
+                tags: tags,
+                type: type,
+                version: version,
+                wireVersionRange: wireVersionRange);
+
             serverDescription2.Should().BeSameAs(subject);
         }
     }

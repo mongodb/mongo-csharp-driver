@@ -201,7 +201,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                return serverDescription.MaxDocumentSize;
             }
         }
 
@@ -212,7 +213,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                return serverDescription.MaxMessageSize;
             }
         }
 
@@ -226,7 +228,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                return serverDescription.MaxWireDocumentSize;
             }
         }
 
