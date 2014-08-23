@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
+
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -94,6 +96,16 @@ namespace MongoDB.Driver
         {
             get { return _update; }
             set { _update = value; }
+        }
+
+        // internal methods
+        internal override Core.Operations.WriteRequest ToCore()
+        {
+            return new Core.Operations.UpdateRequest(_query.ToBsonDocument(), _update.ToBsonDocument())
+            {
+                 IsMultiUpdate = _isMultiUpdate,
+                 IsUpsert = _isUpsert
+            };
         }
     }
 }

@@ -63,5 +63,39 @@ namespace MongoDB.Driver
         {
             get { return _requestType; }
         }
+
+        // internal static methods
+        internal static WriteRequest FromCore(Core.Operations.WriteRequest request)
+        {
+            var deleteRequest = request as Core.Operations.DeleteRequest;
+            if (deleteRequest != null)
+            {
+                return new DeleteRequest(new QueryDocument(deleteRequest.Query))
+                {
+                    Limit = deleteRequest.Limit
+                };
+            }
+
+            var insertRequest = request as Core.Operations.InsertRequest;
+            if (insertRequest != null)
+            {
+                return new InsertRequest(insertRequest.Document, insertRequest.Serializer);
+            }
+
+            var updateReqest = request as Core.Operations.UpdateRequest;
+            if (updateReqest != null)
+            {
+                return new UpdateRequest(new QueryDocument(updateReqest.Query), new UpdateDocument(updateReqest.Update))
+                {
+                    IsMultiUpdate = updateReqest.IsMultiUpdate,
+                    IsUpsert = updateReqest.IsUpsert
+                };
+            }
+
+            throw new MongoInternalException("Unexpected WriteRequest type.");
+        }
+
+        // internal methods
+        internal abstract Core.Operations.WriteRequest ToCore();
     }
 }

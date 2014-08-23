@@ -25,7 +25,6 @@ namespace MongoDB.Driver
     {
         // private fields
         private object _document;
-        private Type _nominalType;
         private IBsonSerializer _serializer;
 
         // constructors
@@ -33,30 +32,27 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the <see cref="InsertRequest"/> class.
         /// </summary>
         public InsertRequest()
-            : this(null, null)
+            : this(null)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InsertRequest" /> class.
         /// </summary>
-        /// <param name="nominalType">Type nominal type.</param>
         /// <param name="document">The document.</param>
-        public InsertRequest(Type nominalType, object document)
-            : this(nominalType, document, null)
+        public InsertRequest(object document)
+            : this(document, null)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InsertRequest" /> class.
         /// </summary>
-        /// <param name="nominalType">Type nominal type.</param>
         /// <param name="document">The document.</param>
         /// <param name="serializer">The serializer.</param>
-        public InsertRequest(Type nominalType, object document, IBsonSerializer serializer)
+        public InsertRequest(object document, IBsonSerializer serializer)
             : base(WriteRequestType.Insert)
         {
-            _nominalType = nominalType;
             _document = document;
             _serializer = serializer;
         }
@@ -75,18 +71,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the nominal type.
-        /// </summary>
-        /// <value>
-        /// The nominal type.
-        /// </value>
-        public Type NominalType
-        {
-            get { return _nominalType; }
-            set { _nominalType = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the serializer.
         /// </summary>
         /// <value>
@@ -96,6 +80,12 @@ namespace MongoDB.Driver
         {
             get { return _serializer; }
             set { _serializer = value; }
+        }
+
+        // internal methods
+        internal override Core.Operations.WriteRequest ToCore()
+        {
+            return new Core.Operations.InsertRequest(_document, _serializer);
         }
     }
 }

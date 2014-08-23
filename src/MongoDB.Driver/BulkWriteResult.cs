@@ -125,5 +125,32 @@ namespace MongoDB.Driver
         /// The list with information about each request that resulted in an upsert.
         /// </value>
         public abstract ReadOnlyCollection<BulkWriteUpsert> Upserts { get; }
+
+        // internal static methods
+        internal static BulkWriteResult FromCore(Core.Operations.BulkWriteResult result)
+        {
+            var acknowledgedResult = result as Core.Operations.AcknowledgedBulkWriteResult;
+            if (acknowledgedResult != null)
+            {
+                return new AcknowledgedBulkWriteResult(
+                    acknowledgedResult.RequestCount,
+                    acknowledgedResult.MatchedCount,
+                    acknowledgedResult.DeletedCount,
+                    acknowledgedResult.InsertedCount,
+                    acknowledgedResult.ModifiedCount,
+                    acknowledgedResult.ProcessedRequests.Select(r => WriteRequest.FromCore(r)),
+                    acknowledgedResult.Upserts.Select(u => BulkWriteUpsert.FromCore(u)));
+            }
+
+            var unacknowledgedResult = result as Core.Operations.UnacknowledgedBulkWriteResult;
+            if (unacknowledgedResult != null)
+            {
+                return new UnacknowledgedBulkWriteResult(
+                    unacknowledgedResult.RequestCount,
+                    unacknowledgedResult.ProcessedRequests.Select(r => WriteRequest.FromCore(r)));
+            }
+
+            throw new MongoInternalException("Unexpected BulkWriteResult type.");
+        }
     }
 }

@@ -81,9 +81,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(connection, "connection");
 
-            Ensure.IsNotNull(connection, "connection");
-
-            var requests = new[] { new DeleteRequest(_query) };
+            var limit = _isMulti ? 0 : 1;
+            var requests = new[] { new DeleteRequest(_query) { Limit = limit } };
 
             var operation = new BulkDeleteOperation(_databaseName, _collectionName, requests)
             {

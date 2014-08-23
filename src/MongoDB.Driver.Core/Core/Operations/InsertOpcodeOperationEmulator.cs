@@ -117,7 +117,6 @@ namespace MongoDB.Driver.Core.Operations
             var requests = _documentSource.GetRemainingItems().Select(d => new InsertRequest(d, _serializer));
             var operation = new BulkInsertOperation(_databaseName, _collectionName, requests)
             {
-                // AssignId = ?
                 // CheckElementNames = ?
                 IsOrdered = !_continueOnError,
                 MaxBatchCount = _maxBatchCount ?? 0,

@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _databaseName;
         private readonly FindAndModifyDocumentVersion? _documentVersionReturned;
         private readonly BsonDocument _fields;
+        private TimeSpan? _maxTime;
         private readonly BsonDocument _query;
         private readonly BsonDocument _sort;
         private readonly BsonDocument _update;
@@ -94,6 +95,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _fields; }
         }
 
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
+        }
+
         public BsonDocument Query
         {
             get { return _query; }
@@ -125,7 +132,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "update", _update },
                 { "new", () => _documentVersionReturned.Value == FindAndModifyDocumentVersion.Modified, _documentVersionReturned.HasValue },
                 { "field", _fields, _fields != null },
-                { "upsert", () => _upsert.Value, _upsert.HasValue }
+                { "upsert", () => _upsert.Value, _upsert.HasValue },
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
         }
 

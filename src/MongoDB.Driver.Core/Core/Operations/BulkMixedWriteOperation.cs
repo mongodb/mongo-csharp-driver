@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -35,7 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         #endregion
 
         // fields
-        private Action<InsertRequest> _assignId;
+        private Action<object, IBsonSerializer> _assignId;
         private bool _checkElementNames = true;
         private string _collectionName;
         private string _databaseName;
@@ -61,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public Action<InsertRequest> AssignId
+        public Action<object, IBsonSerializer> AssignId
         {
             get { return _assignId; }
             set { _assignId = value; }

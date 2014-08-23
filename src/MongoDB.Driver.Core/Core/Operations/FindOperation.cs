@@ -59,6 +59,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _fields;
         private string _hint;
         private int? _limit;
+        private TimeSpan? _maxTime;
         private bool _noCursorTimeout;
         private bool _partialOk;
         private BsonDocument _query;
@@ -134,6 +135,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _limit; }
             set { _limit = value; }
+        }
+
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
         }
 
         public bool NoCursorTimeout
@@ -226,6 +233,7 @@ namespace MongoDB.Driver.Core.Operations
                 Fields = _fields,
                 Hint = _hint,
                 Limit = _limit,
+                MaxTime = _maxTime,
                 NoCursorTimeout = _noCursorTimeout,
                 PartialOk = _partialOk,
                 Skip = _skip,
@@ -271,7 +279,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "$orderby", () =>_sort, _sort != null },
                 { "$hint", () => _hint, _hint != null },
                 { "$snapshot", () => _snapshot.Value, _snapshot.HasValue },
-                { "$comment", () => _comment, _comment != null }
+                { "$comment", () => _comment, _comment != null },
+                { "$maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
             if (_additionalOptions != null)
             {

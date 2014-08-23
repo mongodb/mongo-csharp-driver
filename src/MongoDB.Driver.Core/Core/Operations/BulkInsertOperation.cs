@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     internal class BulkInsertOperation : BulkUnmixedWriteOperationBase
     {
         // fields
-        private Action<InsertRequest> _assignId;
+        private Action<object, IBsonSerializer> _assignId;
         private bool _checkElementNames = true;
 
         // constructors
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public Action<InsertRequest> AssignId
+        public Action<object, IBsonSerializer> AssignId
         {
             get { return _assignId; }
             set { _assignId = value; }
@@ -98,7 +98,14 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (_assignId != null)
             {
-                return requests.Select(r => { _assignId((InsertRequest)r); return r; });
+                return requests.Select(request =>
+                {
+                    var insertRequest = (InsertRequest)request;
+                    var document = insertRequest.Document;
+                    var serializer = insertRequest.Serializer ?? BsonSerializer.LookupSerializer(document.GetType());
+                    _assignId(document, serializer);
+                    return request;
+                });
             }
             else
             {

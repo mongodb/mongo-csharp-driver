@@ -15,6 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.SyncExtensionMethods;
 
 namespace MongoDB.Driver
 {
@@ -43,7 +48,7 @@ namespace MongoDB.Driver
         /// <returns>A BulkWriteResult.</returns>
         public BulkWriteResult Execute()
         {
-            return ExecuteHelper(null);
+            return ExecuteHelper(_collection.Settings.WriteConcern ?? WriteConcern.Acknowledged);
         }
 
         /// <summary>
@@ -89,7 +94,8 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("document");
             }
-            var request = new InsertRequest(typeof(TDocument), document);
+            var serializer = BsonSerializer.LookupSerializer<TDocument>();
+            var request = new InsertRequest(document, serializer);
             AddRequest(request);
         }
 
@@ -111,7 +117,36 @@ namespace MongoDB.Driver
             }
             _hasBeenExecuted = true;
 
-            throw new NotImplementedException();
+            var assignId = _collection.Settings.AssignIdOnInsert ? (Action<object, IBsonSerializer>)_collection.AssignId : null;
+            var collectionSettings = _collection.Settings;
+            var checkElementNames = true;
+            var readerSettings = _collection.GetBinaryReaderSettings();
+            var writerSettings = _collection.GetBinaryWriterSettings();
+
+            var requests = _requests.Select(r => r.ToCore());
+
+            var operation = new BulkMixedWriteOperation(_collection.Database.Name, _collection.Name, requests)
+            {
+                AssignId = assignId,
+                CheckElementNames = checkElementNames,
+                IsOrdered = _isOrdered,
+                ReaderSettings = readerSettings,
+                WriteConcern = writeConcern.ToCore(),
+                WriterSettings = writerSettings
+            };
+
+            using (var binding = _collection.Database.Server.GetWriteBinding())
+            {
+                try
+                {
+                    var result = operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                    return BulkWriteResult.FromCore(result);
+                }
+                catch (Core.BulkWriteException ex)
+                {
+                    throw BulkWriteException.FromCore(ex);
+                }
+            }
         }
     }
 }

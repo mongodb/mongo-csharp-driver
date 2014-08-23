@@ -40,17 +40,18 @@ namespace MongoDB.Driver.Core.Operations
     public class FindOneOperation<TDocument> : IReadOperation<TDocument>
     {
         // fields
-        private readonly BsonDocument _additionalOptions;
-        private readonly string _collectionName;
-        private readonly string _comment;
-        private readonly string _databaseName;
-        private readonly BsonDocument _fields;
-        private readonly string _hint;
-        private readonly bool _partialOk;
-        private readonly BsonDocument _query;
-        private readonly IBsonSerializer<TDocument> _serializer;
-        private readonly int? _skip;
-        private readonly BsonDocument _sort;
+        private BsonDocument _additionalOptions;
+        private string _collectionName;
+        private string _comment;
+        private string _databaseName;
+        private BsonDocument _fields;
+        private string _hint;
+        private TimeSpan? _maxTime;
+        private bool _partialOk;
+        private BsonDocument _query;
+        private IBsonSerializer<TDocument> _serializer;
+        private int? _skip;
+        private BsonDocument _sort;
 
         // constructors
         public FindOneOperation(
@@ -65,86 +66,77 @@ namespace MongoDB.Driver.Core.Operations
             _query = query ?? new BsonDocument();
         }
 
-        internal FindOneOperation(
-            BsonDocument additionalOptions,
-            string collectionName,
-            string comment,
-            string databaseName,
-            BsonDocument fields,
-            string hint,
-            bool partialOk,
-            BsonDocument query,
-            IBsonSerializer<TDocument> serializer,
-            int? skip,
-            BsonDocument sort)
-        {
-            _additionalOptions = additionalOptions;
-            _collectionName = collectionName;
-            _comment = comment;
-            _databaseName = databaseName;
-            _fields = fields;
-            _hint = hint;
-            _partialOk = partialOk;
-            _query = query;
-            _serializer = serializer;
-            _skip = skip;
-            _sort = sort;
-        }
-
         // properties
         public BsonDocument AdditionalOptions
         {
             get { return _additionalOptions; }
+            set { _additionalOptions = value; }
         }
 
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string Comment
         {
             get { return _comment; }
+            set { _comment = value; }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public BsonDocument Fields
         {
             get { return _fields; }
+            set { _fields = value; }
+        }
+
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
         }
 
         public string Hint
         {
             get { return _hint; }
+            set { _hint = value; }
         }
 
         public bool PartialOk
         {
             get { return _partialOk; }
+            set { _partialOk = value; }
         }
 
         public BsonDocument Query
         {
             get { return _query; }
+            set { _query = value ?? new BsonDocument(); }
         }
 
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
+            set { _serializer = Ensure.IsNotNull(value, "value"); }
         }
 
         public int? Skip
         {
             get { return _skip; }
+            set { _skip = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
         public BsonDocument Sort
         {
             get { return _sort; }
+            set {_sort = value; }
         }
 
         // methods
@@ -168,6 +160,7 @@ namespace MongoDB.Driver.Core.Operations
                 Fields = _fields,
                 Hint = _hint,
                 Limit = limit,
+                MaxTime = _maxTime,
                 NoCursorTimeout = noCursorTimeout,
                 PartialOk = _partialOk,
                 Skip = _skip,
@@ -191,137 +184,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             throw new NotImplementedException();
-        }
-
-        public FindOneOperation<TDocument> WithAdditionalOptions(BsonDocument value)
-        {
-            return object.ReferenceEquals(_additionalOptions, value) ? this : new Builder(this) { _additionalOptions = value }.Build();
-        }
-
-        public FindOneOperation<TDocument> WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public FindOneOperation<TDocument> WithComment(string value)
-        {
-            return (_comment == value) ? this : new Builder(this) { _comment = value }.Build();
-        }
-
-        public FindOneOperation<TDocument> WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public FindOneOperation<TDocument> WithFields(BsonDocument value)
-        {
-            return object.ReferenceEquals(_fields, value) ? this : new Builder(this) { _fields = value }.Build();
-        }
-
-        public FindOneOperation<TDocument> WithHint(BsonDocument value)
-        {
-            return value == null ? WithHint((string)null) : WithHint(CreateIndexOperation.GetDefaultIndexName(value));
-        }
-
-        public FindOneOperation<TDocument> WithHint(string value)
-        {
-            return object.Equals(_hint, value) ? this : new Builder(this) { _hint = value }.Build();
-        }
-
-        public FindOneOperation<TDocument> WithPartialOk(bool value)
-        {
-            return (_partialOk == value) ? this : new Builder(this) { _partialOk = value }.Build();
-        }
-
-        public FindOneOperation<TDocument> WithQuery(BsonDocument value)
-        {
-            return object.ReferenceEquals(_query, value) ? this : new Builder(this) { _query = value ?? new BsonDocument() }.Build();
-        }
-
-        public FindOneOperation<TDocument> WithSerializer(IBsonSerializer<TDocument> value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_serializer, value) ? this : new Builder(this) { _serializer = value }.Build();
-        }
-
-        public FindOneOperation<TOther> WithSerializer<TOther>(IBsonSerializer<TOther> value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return new FindOneOperation<TOther>(
-                _additionalOptions,
-                _collectionName,
-                _comment,
-                _databaseName,
-                _fields,
-                _hint,
-                _partialOk,
-                _query,
-                value,
-                _skip,
-                _sort);
-        }
-
-        public FindOneOperation<TDocument> WithSkip(int? value)
-        {
-            Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value");
-            return (_skip == value) ? this : new Builder(this) { _skip = value }.Build();
-        }
-
-        public FindOneOperation<TDocument> WithSort(BsonDocument value)
-        {
-            return object.ReferenceEquals(_sort, value) ? this : new Builder(this) { _sort = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public BsonDocument _additionalOptions;
-            public string _collectionName;
-            public string _comment;
-            public string _databaseName;
-            public BsonDocument _fields;
-            public string _hint;
-            public bool _partialOk;
-            public BsonDocument _query;
-            public IBsonSerializer<TDocument> _serializer;
-            public int? _skip;
-            public BsonDocument _sort;
-
-            // constructors
-            public Builder(FindOneOperation<TDocument> other)
-            {
-                _additionalOptions = other.AdditionalOptions;
-                _collectionName = other.CollectionName;
-                _comment = other.Comment;
-                _databaseName = other.DatabaseName;
-                _fields = other.Fields;
-                _hint = other.Hint;
-                _partialOk = other.PartialOk;
-                _query = other.Query;
-                _serializer = other.Serializer;
-                _skip = other.Skip;
-                _sort = other.Sort;
-            }
-
-            // methods
-            public FindOneOperation<TDocument> Build()
-            {
-                return new FindOneOperation<TDocument>(
-                    _additionalOptions,
-                    _collectionName,
-                    _comment,
-                    _databaseName,
-                    _fields,
-                    _hint,
-                    _partialOk,
-                    _query,
-                    _serializer,
-                    _skip,
-                    _sort);
-            }
         }
     }
 }

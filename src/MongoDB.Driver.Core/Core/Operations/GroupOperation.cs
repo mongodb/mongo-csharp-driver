@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly BsonDocument _initial;
         private readonly BsonDocument _key;
         private readonly BsonJavaScript _keyFunction;
+        private TimeSpan? _maxTime;
         private readonly BsonDocument _query;
         private readonly BsonJavaScript _reduceFunction;
 
@@ -108,6 +109,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _keyFunction; }
         }
 
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
+        }
+
         public BsonDocument Query
         {
             get { return _query; }
@@ -134,7 +141,8 @@ namespace MongoDB.Driver.Core.Operations
                         { "finalize", _finalizeFunction, _finalizeFunction != null }
                     }
                 },
-            };
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+           };
         }
 
         public async Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))

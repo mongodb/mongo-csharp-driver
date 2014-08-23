@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
+
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -66,6 +68,15 @@ namespace MongoDB.Driver
         {
             get { return _query; }
             set { _query = value; }
+        }
+
+        // internal methods
+        internal override Core.Operations.WriteRequest ToCore()
+        {
+            return new Core.Operations.DeleteRequest(_query.ToBsonDocument())
+            {
+                Limit = _limit                
+            };
         }
     }
 }

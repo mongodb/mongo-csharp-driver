@@ -106,5 +106,15 @@ namespace MongoDB.Driver
         {
             get { return _writeErrors; }
         }
+
+        // internal static methods
+        internal static BulkWriteException FromCore(Core.BulkWriteException ex)
+        {
+            return new BulkWriteException(
+                BulkWriteResult.FromCore(ex.Result),
+                ex.WriteErrors.Select(e => BulkWriteError.FromCore(e)),
+                WriteConcernError.FromCore(ex.WriteConcernError),
+                ex.UnprocessedRequests.Select(r => WriteRequest.FromCore(r)));
+        }
     }
 }

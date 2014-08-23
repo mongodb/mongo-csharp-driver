@@ -68,5 +68,11 @@ namespace MongoDB.Driver
         {
             get { return _message; }
         }
+
+        // internal static methods
+        internal static WriteConcernError FromCore(Core.Operations.WriteConcernError error)
+        {
+            return new WriteConcernError(error.Code, error.Message, error.Details);
+        }
     }
 }

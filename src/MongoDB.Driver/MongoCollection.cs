@@ -703,12 +703,18 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>(FindOneArgs args)
         {
+            var fields = args.Fields == null ? null : args.Fields.ToBsonDocument();
+            var hint = args.Hint == null ? null : CreateIndexOperation.GetDefaultIndexName(args.Hint);
             var serializer = BsonSerializer.LookupSerializer<TDocument>();
+
             var operation = new FindOneOperation<TDocument>(_database.Name, _name, serializer, args.Query.ToBsonDocument())
-                .WithFields(args.Fields.ToBsonDocument())
-                .WithHint(args.Hint)
-                .WithSkip(args.Skip)
-                .WithSort(args.SortBy.ToBsonDocument());
+            {
+                Fields = fields,
+                Hint = hint,
+                MaxTime = args.MaxTime,
+                Skip = args.Skip,
+                Sort = args.SortBy.ToBsonDocument()
+            };
 
             using (var binding = _server.GetReadBinding(args.ReadPreference ?? _settings.ReadPreference))
             {
@@ -1382,13 +1388,17 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var assignId = _settings.AssignIdOnInsert ? (Action<Core.Operations.InsertRequest>)AssignId : null;
             var checkElementNames = options.CheckElementNames;
             var continueOnError = options.Flags.HasFlag(InsertFlags.ContinueOnError);
             var readerSettings = GetBinaryReaderSettings();
             var serializer = BsonSerializer.LookupSerializer<TNominalType>();
             var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
             var writerSettings = GetBinaryWriterSettings();
+
+            if (_settings.AssignIdOnInsert)
+            {
+                documents = documents.Select(d => { AssignId(d, serializer); return d; });
+            }
 
             using (var binding = _server.GetWriteBinding())
             using (var connectionSource = binding.GetWriteConnectionSource())
@@ -1705,7 +1715,20 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, RemoveFlags flags, WriteConcern writeConcern)
         {
-            throw new NotImplementedException();
+            var isMulti = !flags.HasFlag(RemoveFlags.Single);
+            var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
+
+            var operation = new DeleteOpcodeOperation(_database.Name, _name, queryDocument)
+            {
+                IsMulti = isMulti,
+                WriteConcern = _settings.WriteConcern.ToCore()
+            };
+
+            using (var binding = _server.GetWriteBinding())
+            {
+                var response = operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                return new WriteConcernResult(response);
+            }
         }
 
         /// <summary>
@@ -2011,13 +2034,11 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        private void AssignId(Core.Operations.InsertRequest request)
+        internal void AssignId(object document, IBsonSerializer serializer)
         {
-            var document = request.Document;
             if (document != null)
             {
                 var actualType = document.GetType();
-                var serializer = request.Serializer ?? BsonSerializer.LookupSerializer(actualType);
                 var idProvider = serializer as IBsonIdProvider;
                 if (idProvider != null)
                 {
@@ -2089,7 +2110,7 @@ namespace MongoDB.Driver
             return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer);
         }
 
-        private BsonBinaryReaderSettings GetBinaryReaderSettings()
+        internal BsonBinaryReaderSettings GetBinaryReaderSettings()
         {
             return new BsonBinaryReaderSettings
             {
@@ -2098,7 +2119,7 @@ namespace MongoDB.Driver
             };
         }
 
-        private BsonBinaryWriterSettings GetBinaryWriterSettings()
+        internal BsonBinaryWriterSettings GetBinaryWriterSettings()
         {
             return new BsonBinaryWriterSettings
             {

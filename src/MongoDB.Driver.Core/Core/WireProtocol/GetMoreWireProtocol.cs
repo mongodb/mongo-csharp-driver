@@ -70,8 +70,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, slidingTimeout, cancellationToken);
             if (reply.QueryFailure)
             {
-                var errorMessage = string.Format("GetMore QueryFailure: {0}.", reply.QueryFailureDocument);
+                var failureDocument = reply.QueryFailureDocument;
+                var errorMessage = string.Format("GetMore QueryFailure: {0}.", failureDocument);
                 throw new MongoQueryException(errorMessage, _query, reply.QueryFailureDocument);
+                throw ExceptionMapper.Map(failureDocument) ?? new MongoQueryException(errorMessage, _query, failureDocument);
             }
             return new CursorBatch<TDocument>(reply.CursorId, reply.Documents);
         }

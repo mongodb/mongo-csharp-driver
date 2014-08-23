@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly bool? _javaScriptMode;
         private readonly long? _limit;
         private readonly BsonJavaScript _mapFunction;
+        private TimeSpan? _maxTime;
         private readonly BsonDocument _query;
         private readonly BsonJavaScript _reduceFunction;
         private readonly BsonDocument _scope;
@@ -104,6 +105,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _mapFunction; }
         }
 
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
+        }
+
         public BsonDocument Query
         {
             get { return _query; }
@@ -144,7 +151,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "finalize", _finalizeFunction, _finalizeFunction != null },
                 { "scope", _scope, _scope != null },
                 { "jsMode", () => _javaScriptMode.Value, _javaScriptMode.HasValue },
-                { "verbose", () => _verbose.Value, _verbose.HasValue }
+                { "verbose", () => _verbose.Value, _verbose.HasValue },
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
         }
 

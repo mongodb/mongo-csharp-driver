@@ -100,7 +100,9 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             if (reply.QueryFailure)
             {
-                throw new MongoCommandException("Query reply had QueryFailure flag set.", _query, reply.QueryFailureDocument);
+                var failureDocument = reply.QueryFailureDocument;
+                var errorMessage = string.Format("QueryFailure: {0}.", failureDocument);
+                throw ExceptionMapper.Map(failureDocument) ?? new MongoQueryException(errorMessage, _query, failureDocument);
             }
 
             return new CursorBatch<TDocument>(reply.CursorId, reply.Documents);

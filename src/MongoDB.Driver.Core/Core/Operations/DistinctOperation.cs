@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _collectionName;
         private readonly string _databaseName;
         private readonly string _key;
+        private TimeSpan? _maxTime;
         private readonly BsonDocument _query;
         private readonly IBsonSerializer<TValue> _valueSerializer;
 
@@ -69,6 +70,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _key; }
         }
 
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
+        }
+
         public BsonDocument Query
         {
             get { return _query; }
@@ -81,8 +88,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "distinct", _collectionName },
                 { "key", _key },
-                { "query", _query, _query != null }
-            };
+                { "query", _query, _query != null },
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+           };
         }
 
         public async Task<IEnumerable<TValue>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))

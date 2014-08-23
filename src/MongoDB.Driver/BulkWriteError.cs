@@ -88,6 +88,12 @@ namespace MongoDB.Driver
             get { return _message; }
         }
 
+        // internal static methods
+        internal static BulkWriteError FromCore(Core.Operations.BulkWriteError error)
+        {
+            return new BulkWriteError(error.Index, error.Code, error.Message, error.Details);
+        }
+
         // internal methods
         internal BulkWriteError WithMappedIndex(IndexMap indexMap)
         {

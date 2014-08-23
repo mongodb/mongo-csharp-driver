@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly bool? _allowDiskUsage;
         private readonly string _collectionName;
         private readonly string _databaseName;
+        private TimeSpan? _maxTime;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
 
         // constructors
@@ -66,6 +67,12 @@ namespace MongoDB.Driver.Core.Operations
         public string DatabaseName
         {
             get { return _databaseName; }
+        }
+
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
         }
 
         public IReadOnlyList<BsonDocument> Pipeline

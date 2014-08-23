@@ -127,18 +127,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
 
             var result = reply.Documents.Single();
-            if (!result.Contains("ok"))
+            var mappedException = ExceptionMapper.Map(result);
+            if (mappedException != null)
             {
-                throw new WriteException("GetLastError result has no ok field.", result);
-            }
-            if (!result["ok"].ToBoolean())
-            {
-                throw new WriteException("GetLastError result had ok 0.", result);
-            }
-            if (!result["err"].Equals(BsonNull.Value))
-            {
-                var message = string.Format("GetLastError detected an error: {0}.", result);
-                throw new WriteException(message, result);
+                throw mappedException;
             }
 
             return result;

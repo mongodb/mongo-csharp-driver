@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _collectionName;
         private readonly string _databaseName;
         private readonly BsonDocument _fields;
+        private TimeSpan? _maxTime;
         private readonly BsonDocument _query;
         private readonly BsonDocument _sort;
 
@@ -74,6 +75,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _fields; }
         }
 
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
+        }
+
         public BsonDocument Query
         {
             get { return _query; }
@@ -93,7 +100,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "query", _query, _query != null },
                 { "sort", _sort, _sort != null },
                 { "remove", true },
-                { "field", _fields, _fields != null }
+                { "field", _fields, _fields != null },
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
         }
 

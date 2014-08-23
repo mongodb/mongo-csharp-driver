@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly string _databaseName;
         private readonly BsonJavaScript _javaScript;
+        private TimeSpan? _maxTime;
         private readonly bool? _nolock;
 
         // constructors
@@ -62,6 +63,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _javaScript; }
         }
 
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
+        }
+
         public bool? Nolock
         {
             get { return _nolock; }
@@ -75,7 +82,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "$eval", _javaScript.Code },
                 { "args", () => javaScriptWithScope.Scope, javaScriptWithScope != null },
-                { "nolock", () => _nolock.Value, _nolock.HasValue }
+                { "nolock", () => _nolock.Value, _nolock.HasValue },
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
         }
 
