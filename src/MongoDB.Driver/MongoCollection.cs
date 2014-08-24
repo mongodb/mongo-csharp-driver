@@ -1776,11 +1776,12 @@ namespace MongoDB.Driver
         {
             var isMulti = !flags.HasFlag(RemoveFlags.Single);
             var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
+            writeConcern = writeConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
             var operation = new DeleteOpcodeOperation(_database.Name, _name, queryDocument)
             {
                 IsMulti = isMulti,
-                WriteConcern = _settings.WriteConcern.ToCore()
+                WriteConcern = writeConcern.ToCore()
             };
 
             using (var binding = _server.GetWriteBinding())
