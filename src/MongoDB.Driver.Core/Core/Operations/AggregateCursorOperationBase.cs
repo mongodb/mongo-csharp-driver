@@ -102,6 +102,7 @@ namespace MongoDB.Driver.Core.Operations
                 firstBatch,
                 cursorId,
                 _batchSize ?? 0,
+                0, // limit
                 BsonDocumentSerializer.Instance,
                 timeout,
                 cancellationToken);
@@ -112,14 +113,15 @@ namespace MongoDB.Driver.Core.Operations
             var firstBatch = result["result"].AsBsonArray.Cast<BsonDocument>().ToList();
 
             return new Cursor<BsonDocument>(
-                null,
+                null, // connectionSource
                 DatabaseName,
                 CollectionName,
                 command,
                 firstBatch,
-                0,
-                0,
-                null,
+                0, // cursorId
+                0, // batchSize
+                0, // limit
+                null, // serializer
                 timeout,
                 cancellationToken);
         }

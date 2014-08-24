@@ -2692,7 +2692,7 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            var result = _collection.FindAll().SetSortOrder("x").SetLimit(3).Select(x => x["x"].AsInt32);
+            var result = _collection.FindAll().SetSortOrder("x").SetLimit(3).Select(x => x["x"].AsInt32).ToList();
             Assert.AreEqual(3, result.Count());
             CollectionAssert.AreEqual(new[] { 1, 2, 3 }, result);
         }

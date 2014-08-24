@@ -243,7 +243,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                var serverDescription = GetServerDescription();
+                return serverDescription.MaxBatchCount;
             }
         }
 

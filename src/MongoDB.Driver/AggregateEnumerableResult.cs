@@ -77,6 +77,7 @@ namespace MongoDB.Driver
                         firstBatch,
                         cursorId,
                         batchSize,
+                        0, // limit
                         serializer,
                         Timeout.InfiniteTimeSpan,
                         CancellationToken.None);

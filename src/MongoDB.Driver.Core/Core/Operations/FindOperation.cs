@@ -308,6 +308,7 @@ namespace MongoDB.Driver.Core.Operations
                     batch.Documents,
                     batch.CursorId,
                     _batchSize ?? 0,
+                    Math.Abs(_limit ?? 0),
                     _serializer,
                     timeout,
                     cancellationToken);

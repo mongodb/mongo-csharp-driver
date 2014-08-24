@@ -136,6 +136,7 @@ namespace MongoDB.Driver.Core.Operations
                         firstBatch,
                         cursorId,
                         _batchSize ?? 0,
+                        0, // limit
                         _serializer,
                         timeout,
                         cancellationToken);

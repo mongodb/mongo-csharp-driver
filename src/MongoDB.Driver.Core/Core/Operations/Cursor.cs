@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -33,11 +34,13 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CancellationToken _cancellationToken;
         private readonly string _collectionName;
         private readonly IConnectionSource _connectionSource;
+        private int _count;
         private IReadOnlyList<TDocument> _currentBatch;
         private long _cursorId;
         private readonly string _databaseName;
         private bool _disposed;
         private IReadOnlyList<TDocument> _firstBatch;
+        private readonly int _limit;
         private readonly BsonDocument _query;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly TimeSpan _timeout;
@@ -51,6 +54,7 @@ namespace MongoDB.Driver.Core.Operations
             IReadOnlyList<TDocument> firstBatch,
             long cursorId,
             int batchSize,
+            int limit,
             IBsonSerializer<TDocument> serializer,
             TimeSpan timeout,
             CancellationToken cancellationToken)
@@ -62,9 +66,20 @@ namespace MongoDB.Driver.Core.Operations
             _firstBatch = Ensure.IsNotNull(firstBatch, "firstBatch");
             _cursorId = cursorId;
             _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, "batchSize");
+            _limit = Ensure.IsGreaterThanOrEqualToZero(limit, "limit");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _timeout = timeout;
             _cancellationToken = cancellationToken;
+
+            if (_limit == 0)
+            {
+                _limit = int.MaxValue;
+            }
+            if (_firstBatch.Count > _limit)
+            {
+                _firstBatch = _firstBatch.Take(_limit).ToList();
+            }
+            _count = _firstBatch.Count;
         }
 
         // properties
@@ -168,15 +183,27 @@ namespace MongoDB.Driver.Core.Operations
                 return false;
             }
 
-            if (_cursorId == 0)
+            if (_cursorId == 0 || _count == _limit)
             {
                 _currentBatch = null;
                 return false;
             }
 
             var batch = await GetNextBatchAsync();
-            _currentBatch = batch.Documents;
-            _cursorId = batch.CursorId;
+            var cursorId = batch.CursorId;
+            var documents = batch.Documents;
+
+            _count += documents.Count;
+            if (_count > _limit)
+            {
+                var remove = _count - _limit;
+                var take = documents.Count - remove;
+                documents = documents.Take(take).ToList();
+                _count = _limit;
+            }
+
+            _currentBatch = documents;
+            _cursorId = cursorId;
             return true;
         }
 
