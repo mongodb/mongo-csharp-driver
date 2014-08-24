@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
@@ -41,11 +42,11 @@ namespace MongoDB.Driver.Core.Operations
     public class ParallelScanOperation<TDocument> : IReadOperation<IReadOnlyList<Cursor<TDocument>>>
     {
         // fields
-        private readonly int? _batchSize;
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly int _numberOfCursors = 4;
-        private readonly IBsonSerializer<TDocument> _serializer;
+        private int? _batchSize;
+        private string _collectionName;
+        private string _databaseName;
+        private int _numberOfCursors = 4;
+        private IBsonSerializer<TDocument> _serializer;
 
         // constructors
         public ParallelScanOperation(
@@ -60,44 +61,35 @@ namespace MongoDB.Driver.Core.Operations
             _serializer = Ensure.IsNotNull(serializer, "serializer");
         }
 
-        private ParallelScanOperation(
-            int? batchSize,
-            string collectionName,
-            string databaseName,
-            int numberOfCursors,
-            IBsonSerializer<TDocument> serializer)
-        {
-            _batchSize = batchSize;
-            _collectionName = collectionName;
-            _databaseName = databaseName;
-            _numberOfCursors = numberOfCursors;
-            _serializer = serializer;
-        }
-
         // properties
         public int? BatchSize
         {
             get { return _batchSize; }
+            set { _batchSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public int NumberOfCursors
         {
             get { return _numberOfCursors; }
+            set { _numberOfCursors = Ensure.IsBetween(value, 1, 1000, "value"); }
         }
 
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
+            set { _serializer = Ensure.IsNotNull(value, "value"); }
         }
 
         // methods
@@ -126,7 +118,17 @@ namespace MongoDB.Driver.Core.Operations
                 foreach (var cursorDocument in result["cursors"].AsBsonArray.Select(v => v["cursor"].AsBsonDocument))
                 {
                     var cursorId = cursorDocument["id"].ToInt64();
-                    var firstBatch = cursorDocument["firstBatch"].AsBsonArray.Cast<TDocument>().ToList(); // TODO: deserialize TDocuments
+                    var firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v =>
+                        {
+                            var bsonDocument = (BsonDocument)v;
+                            using (var reader = new BsonDocumentReader(bsonDocument))
+                            {
+                                var context = BsonDeserializationContext.CreateRoot<TDocument>(reader);
+                                var document = _serializer.Deserialize(context);
+                                return document;
+                            }
+                        })
+                        .ToList();
 
                     var cursor = new Cursor<TDocument>(
                         connectionSource.Fork(),
@@ -144,78 +146,6 @@ namespace MongoDB.Driver.Core.Operations
                 }
 
                 return cursors;
-            }
-        }
-
-        public ParallelScanOperation<TDocument> WithBatchSize(int? value)
-        {
-            Ensure.IsNullOrGreaterThanZero(value, "value");
-            return _batchSize == value ? this : new Builder(this) { _batchSize = value }.Build();
-        }
-
-        public ParallelScanOperation<TDocument> WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return _collectionName == value ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public ParallelScanOperation<TDocument> WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return _databaseName == value ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public ParallelScanOperation<TDocument> WithNumberOfCursors(int value)
-        {
-            Ensure.IsBetween(value, 1, 1000, "value");
-            return _numberOfCursors == value ? this : new Builder(this) { _numberOfCursors = value }.Build();
-        }
-
-        public ParallelScanOperation<TDocument> WithSerializer(IBsonSerializer<TDocument> value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_serializer, value) ? this : new Builder(this) { _serializer = value }.Build();
-        }
-
-        public ParallelScanOperation<TOther> WithSerializer<TOther>(IBsonSerializer<TOther> value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return new ParallelScanOperation<TOther>(
-                _databaseName,
-                _collectionName,
-                _numberOfCursors,
-                value);
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public int? _batchSize;
-            public string _collectionName;
-            public string _databaseName;
-            public int _numberOfCursors;
-            public IBsonSerializer<TDocument> _serializer;
-
-            // constructors
-            public Builder(ParallelScanOperation<TDocument> other)
-            {
-                _batchSize = other._batchSize;
-                _collectionName = other._collectionName;
-                _databaseName = other._databaseName;
-                _numberOfCursors = other._numberOfCursors;
-                _serializer = other._serializer;
-            }
-
-            // methods
-            public ParallelScanOperation<TDocument> Build()
-            {
-                return new ParallelScanOperation<TDocument>(
-                    _batchSize,
-                    _collectionName,
-                    _databaseName,
-                    _numberOfCursors,
-                    _serializer);
             }
         }
     }

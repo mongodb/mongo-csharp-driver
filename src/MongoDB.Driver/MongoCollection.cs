@@ -28,6 +28,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Sync;
 using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Wrappers;
 
@@ -1667,7 +1668,21 @@ namespace MongoDB.Driver
         /// <returns>Multiple enumerators, one for each cursor.</returns>
         public ReadOnlyCollection<IEnumerator<TDocument>> ParallelScanAs<TDocument>(ParallelScanArgs<TDocument> args)
         {
-            throw new NotImplementedException();
+            var batchSize = args.BatchSize;
+            var serializer = args.Serializer ?? BsonSerializer.LookupSerializer<TDocument>();
+
+            var operation = new ParallelScanOperation<TDocument>(Database.Name, _name, args.NumberOfCursors, serializer)
+            {
+                BatchSize = batchSize
+            };
+
+            var readPreference = args.ReadPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
+            using (var binding = _server.GetReadBinding(readPreference))
+            {
+                var cursors = operation.Execute(binding);
+                var documentEnumerators = cursors.Select(c => new SynchronousDocumentCursorAdapter<TDocument>(c).GetEnumerator()).ToList();
+                return new ReadOnlyCollection<IEnumerator<TDocument>>(documentEnumerators);
+            }
         }
 
         /// <summary>
