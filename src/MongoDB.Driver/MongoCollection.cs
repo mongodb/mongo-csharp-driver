@@ -1973,7 +1973,23 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            throw new NotImplementedException();
+            var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
+            var updateDocument = update.ToBsonDocument();
+            var isMulti = options.Flags.HasFlag(UpdateFlags.Multi);
+            var isUpsert = options.Flags.HasFlag(UpdateFlags.Upsert);
+            var writeConcern = options.WriteConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
+
+            var operation = new UpdateOpcodeOperation(Database.Name, _name, queryDocument, updateDocument)
+            {
+                IsMulti = isMulti,
+                IsUpsert = isUpsert,
+                WriteConcern = writeConcern.ToCore()
+            };
+
+            using (var binding = _server.GetWriteBinding())
+            {
+                return operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            }
         }
 
         /// <summary>
