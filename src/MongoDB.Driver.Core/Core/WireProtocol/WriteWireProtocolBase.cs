@@ -142,14 +142,16 @@ namespace MongoDB.Driver.Core.WireProtocol
                 throw new WriteException("GetLastError reply had QueryFailure flag set.", reply.QueryFailureDocument);
             }
 
-            var result = reply.Documents.Single();
-            var mappedException = ExceptionMapper.Map(result);
+            var response = reply.Documents.Single();
+            var writeConcernResult = new WriteConcernResult(response);
+
+            var mappedException = ExceptionMapper.Map(writeConcernResult);
             if (mappedException != null)
             {
                 throw mappedException;
             }
 
-            return result;
+            return response;
         }
     }
 }

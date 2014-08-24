@@ -100,9 +100,17 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             if (reply.QueryFailure)
             {
-                var failureDocument = reply.QueryFailureDocument;
-                var errorMessage = string.Format("QueryFailure: {0}.", failureDocument);
-                throw ExceptionMapper.Map(failureDocument) ?? new MongoQueryException(errorMessage, _query, failureDocument);
+                var document = reply.QueryFailureDocument;
+
+                var mappedException = ExceptionMapper.Map(document);
+                if (mappedException != null)
+                {
+                    throw mappedException;
+                }
+
+                var err = document.GetValue("$err", "Unknown error.");
+                var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, document.ToJson());
+                throw new MongoQueryException(message, _query, document);
             }
 
             return new CursorBatch<TDocument>(reply.CursorId, reply.Documents);

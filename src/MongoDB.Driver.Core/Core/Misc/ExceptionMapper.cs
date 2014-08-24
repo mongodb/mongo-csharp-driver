@@ -31,8 +31,31 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>The custom exception (or null if the response could not be mapped to a custom exception).</returns>
         public static Exception Map(BsonDocument response)
         {
-            var writeConcernResult = new WriteConcernResult(response);
-            return Map(writeConcernResult);
+            BsonValue code;
+            if (response.TryGetValue("code", out code) && code.IsNumeric)
+            {
+                switch (code.ToInt32())
+                {
+                    case 50:
+                    case 13475:
+                    case 16986:
+                    case 16712:
+                        return new ExecutionTimeoutException("Operation exceeded time limit.");
+                }
+            }
+
+            // the server sometimes sends a response that is missing the "code" field but does have an "errmsg" field
+            BsonValue errmsg;
+            if (response.TryGetValue("errmsg", out errmsg) && errmsg.IsString)
+            {
+                if (errmsg.AsString.Contains("exceeded time limit") ||
+                    errmsg.AsString.Contains("execution terminated"))
+                {
+                    return new ExecutionTimeoutException("Operation exceeded time limit.");
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -49,12 +72,6 @@ namespace MongoDB.Driver.Core.Misc
             {
                 switch (code.Value)
                 {
-                    case 50:
-                    case 13475:
-                    case 16986:
-                    case 16712:
-                        return new ExecutionTimeoutException("Operation exceeded time limit.");
- 
                     case 11000:
                     case 11001:
                     case 12582:
@@ -65,18 +82,9 @@ namespace MongoDB.Driver.Core.Misc
                 }
             }
 
-            // the server sometimes sends a response that is missing the "code" field but does have an "errmsg" field
-            BsonValue errmsg;
-            if (writeConcernResult.Response.TryGetValue("errmsg", out errmsg) && errmsg.IsString)
-            {
-                if (errmsg.AsString.Contains("exceeded time limit") ||
-                    errmsg.AsString.Contains("execution terminated"))
-                {
-                    return new ExecutionTimeoutException("Operation exceeded time limit.");
-                }
-            }
+            bool ok = writeConcernResult.Response.GetValue("ok", false).ToBoolean();
 
-            if (!writeConcernResult.Response.GetValue("ok", false).ToBoolean())
+            if (!ok)
             {
                 var errorMessage = string.Format(
                     "WriteConcern detected an error '{0}'. (Response was {1}).",

@@ -33,7 +33,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             var writeConcernResult = ToWriteConcernResult(bulkWriteException.Result, bulkWriteException);
 
-            var exception = ExceptionMapper.Map(writeConcernResult);
+            var exception = ExceptionMapper.Map(writeConcernResult.Response);
+            if (exception == null)
+            {
+                exception = ExceptionMapper.Map(writeConcernResult);
+            }
             if (exception == null)
             {
                 exception = new WriteConcernException(bulkWriteException.Message, writeConcernResult);
