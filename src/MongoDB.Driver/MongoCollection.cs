@@ -1405,13 +1405,13 @@ namespace MongoDB.Driver
             using (var connection = connectionSource.GetConnection())
             {
                 var results = writeConcern.Enabled ? new List<WriteConcernResult>() : null;
+                var originalWriteConcern = writeConcern;
                 Exception finalException = null;
 
                 using (var enumerator = documents.GetEnumerator())
                 {
                     var documentSource = new BatchableSource<TNominalType>(enumerator);
 
-                    var originalWriteConcern = writeConcern;
                     Func<bool> shouldSendGetLastError = null;
                     if (!writeConcern.Enabled && !continueOnError)
                     {
@@ -1463,6 +1463,12 @@ namespace MongoDB.Driver
                     }
                 }
 
+                if (originalWriteConcern.Enabled && finalException != null)
+                {
+                    finalException.Data["results"] = results;
+                    throw finalException;
+                }
+                
                 return results;
             }
         }

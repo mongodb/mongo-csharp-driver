@@ -1908,6 +1908,12 @@ namespace MongoDB.Driver.Tests
             // try the batch again with ContinueOnError
             if (_server.BuildInfo.Version >= new Version(2, 0, 0))
             {
+                // first remove the automatically generated _ids from the documents
+                foreach (var document in batch)
+                {
+                    document.Remove("_id");
+                }
+
                 var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
                 exception = Assert.Throws<MongoDuplicateKeyException>(() => collection.InsertBatch(batch, options));
                 result = exception.WriteConcernResult;
