@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations.InsertOpcodeOperationTests
     {
         private BsonDocument _document;
         private BsonValue _id = 1;
-        private BsonDocument _result;
+        private WriteConcernResult _result;
 
         protected override void Given()
         {
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations.InsertOpcodeOperationTests
         [Test]
         public void Ok_should_be_true()
         {
-            _result["ok"].ToBoolean().Should().BeTrue();
+            _result.Response["ok"].ToBoolean().Should().BeTrue();
         }
 
         [Test]

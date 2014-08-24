@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected abstract IWireProtocol<BsonDocument> CreateProtocol(IConnectionHandle connection, WriteRequest request);
+        protected abstract IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request);
 
         protected virtual async Task<BulkWriteBatchResult> EmulateSingleRequestAsync(IConnectionHandle connection, WriteRequest request, int originalIndex, TimeSpan timeout, CancellationToken cancellationToken)
         {
@@ -116,16 +116,12 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcernException writeConcernException = null;
             try
             {
-                var protocolResult = await protocol.ExecuteAsync(connection, timeout, cancellationToken);
-                if (protocolResult != null)
-                {
-                    writeConcernResult = new WriteConcernResult(protocolResult);
-                }
+                writeConcernResult = await protocol.ExecuteAsync(connection, timeout, cancellationToken);
             }
-            catch (WriteException ex)
+            catch (WriteConcernException ex)
             {
-                writeConcernResult = new WriteConcernResult(ex.Result);
-                writeConcernException = new WriteConcernException(ex.Message, writeConcernResult);
+                writeConcernResult = ex.WriteConcernResult;
+                writeConcernException = ex;
             }
 
             var indexMap = new IndexMap.RangeBased(0, originalIndex, 1);

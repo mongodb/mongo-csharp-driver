@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    public abstract class WriteWireProtocolBase : IWireProtocol<BsonDocument>
+    public abstract class WriteWireProtocolBase : IWireProtocol<WriteConcernResult>
     {
         // fields
         private readonly string _collectionName;
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         protected abstract RequestMessage CreateWriteMessage(IConnection connection);
 
-        public async Task<BsonDocument> ExecuteAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<WriteConcernResult> ExecuteAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
 
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private BsonDocument ProcessReply(ReplyMessage<BsonDocument> reply)
+        private WriteConcernResult ProcessReply(ReplyMessage<BsonDocument> reply)
         {
             if (reply.NumberReturned == 0)
             {
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 throw mappedException;
             }
 
-            return response;
+            return writeConcernResult;
         }
     }
 }

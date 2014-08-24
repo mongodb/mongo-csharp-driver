@@ -1428,22 +1428,21 @@ namespace MongoDB.Driver
                             ShouldSendGetLastError = shouldSendGetLastError
                         };
 
-                        BsonDocument response;
+                        WriteConcernResult result;
                         try
                         {
-                            response = operation.ExecuteAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
+                            result = operation.ExecuteAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
                         }
                         catch (WriteConcernException ex)
                         {
-                            response = ex.Result;
+                            result = ex.WriteConcernResult;
                             if (continueOnError)
                             {
                                 finalException = ex;
                             }
                             else if (originalWriteConcern.Enabled)
                             {
-                                var writeConcernResult = new WriteConcernResult(response);
-                                results.Add(writeConcernResult);
+                                results.Add(result);
                                 ex.Data["results"] = results;
                                 throw;
                             }
@@ -1455,8 +1454,7 @@ namespace MongoDB.Driver
 
                         if (results != null)
                         {
-                            var writeConcernResult = new WriteConcernResult(response);
-                            results.Add(writeConcernResult);
+                            results.Add(result);
                         }
 
                         documentSource.ClearBatch();
@@ -1772,8 +1770,7 @@ namespace MongoDB.Driver
 
             using (var binding = _server.GetWriteBinding())
             {
-                var response = operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
-                return new WriteConcernResult(response);
+                return operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
             }
         }
 

@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected override IWireProtocol<BsonDocument> CreateProtocol(IConnectionHandle connection, WriteRequest request)
+        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
         {
             var updateRequest = (UpdateRequest)request;
             return new UpdateWireProtocol(

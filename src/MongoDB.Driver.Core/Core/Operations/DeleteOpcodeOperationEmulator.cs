@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<BsonDocument> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(connection, "connection");
 
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (_writeConcern.IsAcknowledged)
                 {
-                    return converter.ToWriteConcernResult(bulkWriteResult).Response;
+                    return converter.ToWriteConcernResult(bulkWriteResult);
                 }
                 else
                 {

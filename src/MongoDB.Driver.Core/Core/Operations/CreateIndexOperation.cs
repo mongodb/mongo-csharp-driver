@@ -186,7 +186,8 @@ namespace MongoDB.Driver.Core.Operations
             var indexDocument = CreateIndexDocument();
             var documentSource = new BatchableSource<BsonDocument>(new[] { indexDocument });
             var operation = new InsertOpcodeOperation(_databaseName, "system.indexes", documentSource) { WriteConcern = _writeConcern };
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return result.Response;
         }
 
         public CreateIndexOperation WithAdditionalOptions(BsonDocument value)

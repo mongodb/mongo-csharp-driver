@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class UpdateOpcodeOperation : IWriteOperation<BsonDocument>
+    public class UpdateOpcodeOperation : IWriteOperation<WriteConcernResult>
     {
         // fields
         private string _collectionName;
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
                 _isUpsert);
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(connection, "connection");
 
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
             var slidingTimeout = new SlidingTimeout(timeout);
