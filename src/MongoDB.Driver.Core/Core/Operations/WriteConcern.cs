@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
             get
             {
                 return
-                    _w != null && !_w.Equals((WValue)0) ||
+                    (_w == null || !_w.Equals((WValue)0)) ||
                     _wTimeout.HasValue ||
                     _fsync.HasValue ||
                     _journal.HasValue;

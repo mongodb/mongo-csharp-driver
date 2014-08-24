@@ -376,7 +376,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public Core.Operations.WriteConcern ToCore()
         {
-            return new Core.Operations.WriteConcern(_w.ToCore(), _wTimeout, _fsync, _journal);
+            return new Core.Operations.WriteConcern(_w == null ? null : _w.ToCore(), _wTimeout, _fsync, _journal);
         }
 
         /// <summary>

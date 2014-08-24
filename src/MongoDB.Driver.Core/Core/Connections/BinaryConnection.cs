@@ -343,8 +343,12 @@ namespace MongoDB.Driver.Core.Connections
                         var encoderFactory = new BinaryMessageEncoderFactory(binaryWriter);
                         foreach (var message in messagesToSend)
                         {
-                            var encoder = message.GetEncoder(encoderFactory);
-                            encoder.WriteMessage(message);
+                            if (message.ShouldBeSent == null || message.ShouldBeSent())
+                            {
+                                var encoder = message.GetEncoder(encoderFactory);
+                                encoder.WriteMessage(message);
+                                message.WasSent = true;
+                            }
                         }
                         buffer.Length = (int)stream.Length;
                     }

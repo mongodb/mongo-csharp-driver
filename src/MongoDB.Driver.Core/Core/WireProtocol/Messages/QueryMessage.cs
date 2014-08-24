@@ -14,6 +14,7 @@
 */
 
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -48,8 +49,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             bool partialOk,
             bool noCursorTimeout,
             bool tailableCursor,
-            bool awaitData)
-            : base(requestId)
+            bool awaitData,
+            Func<bool> shouldBeSent = null)
+            : base(requestId, shouldBeSent)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");

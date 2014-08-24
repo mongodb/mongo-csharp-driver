@@ -34,17 +34,20 @@ namespace MongoDB.Driver.Core.WireProtocol
         // fields
         private readonly string _collectionName;
         private readonly string _databaseName;
+        private readonly Func<bool> _shouldSendGetLastError;
         private readonly WriteConcern _writeConcern;
 
         // constructors
         protected WriteWireProtocolBase(
             string databaseName,
             string collectionName,
-            WriteConcern writeConcern)
+            WriteConcern writeConcern,
+            Func<bool> shouldSendGetLastError = null)
         {
             _databaseName = Ensure.IsNotNull(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNull(collectionName, "collectionName");
             _writeConcern = Ensure.IsNotNull(writeConcern, "writeConcern");
+            _shouldSendGetLastError = shouldSendGetLastError;
         }
 
         // properties
@@ -66,6 +69,11 @@ namespace MongoDB.Driver.Core.WireProtocol
         // methods
         private QueryMessage CreateGetLastErrorMessage()
         {
+            if (!_writeConcern.IsAcknowledged)
+            {
+                return null;
+            }
+
             var command = new BsonDocument 
             {
                 { "getLastError", 1 },
@@ -87,7 +95,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                false,
                false,
                false,
-               false);
+               false,
+               _shouldSendGetLastError);
         }
 
         protected abstract RequestMessage CreateWriteMessage(IConnection connection);
@@ -97,16 +106,23 @@ namespace MongoDB.Driver.Core.WireProtocol
             var slidingTimeout = new SlidingTimeout(timeout);
 
             var writeMessage = CreateWriteMessage(connection);
-            if (_writeConcern.IsAcknowledged)
+            var getLastErrorMessage = CreateGetLastErrorMessage();
+
+            var messages = new List<RequestMessage>();
+            messages.Add(writeMessage);
+            if (getLastErrorMessage != null)
             {
-                var getLastErrorMessage = CreateGetLastErrorMessage();
-                await connection.SendMessagesAsync(new RequestMessage[] { writeMessage, getLastErrorMessage }, slidingTimeout, cancellationToken);
+                messages.Add(getLastErrorMessage);
+            }
+
+            await connection.SendMessagesAsync(messages, slidingTimeout, cancellationToken);
+            if (getLastErrorMessage != null && getLastErrorMessage.WasSent)
+            {
                 var reply = await connection.ReceiveMessageAsync<BsonDocument>(getLastErrorMessage.RequestId, BsonDocumentSerializer.Instance, slidingTimeout, cancellationToken);
                 return ProcessReply(reply);
             }
             else
             {
-                await connection.SendMessageAsync(writeMessage, slidingTimeout, cancellationToken);
                 return null;
             }
         }

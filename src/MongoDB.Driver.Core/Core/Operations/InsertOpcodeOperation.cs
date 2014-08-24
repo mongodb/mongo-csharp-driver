@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxDocumentSize;
         private int? _maxMessageSize;
         private IBsonSerializer<TDocument> _serializer;
+        private Func<bool> _shouldSendGetLastError;
         private WriteConcern _writeConcern;
 
         // constructors
@@ -114,6 +115,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _serializer = Ensure.IsNotNull(value, "value"); }
         }
 
+        public Func<bool> ShouldSendGetLastError
+        {
+            get { return _shouldSendGetLastError; }
+            set { _shouldSendGetLastError = value; }
+        }
+
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -131,7 +138,8 @@ namespace MongoDB.Driver.Core.Operations
                 _documentSource,
                 _maxBatchCount,
                 _maxMessageSize,
-                _continueOnError);
+                _continueOnError,
+                _shouldSendGetLastError);
         }
 
         public async Task<BsonDocument> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))

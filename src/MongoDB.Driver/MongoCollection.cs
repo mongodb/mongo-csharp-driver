@@ -1404,29 +1404,66 @@ namespace MongoDB.Driver
             using (var connectionSource = binding.GetWriteConnectionSource())
             using (var connection = connectionSource.GetConnection())
             {
-                var writeConcernResults = writeConcern.Enabled ? new List<WriteConcernResult>() : null;
+                var results = writeConcern.Enabled ? new List<WriteConcernResult>() : null;
+                Exception finalException = null;
 
                 using (var enumerator = documents.GetEnumerator())
                 {
                     var documentSource = new BatchableSource<TNominalType>(enumerator);
+
+                    var originalWriteConcern = writeConcern;
+                    Func<bool> shouldSendGetLastError = null;
+                    if (!writeConcern.Enabled && !continueOnError)
+                    {
+                        writeConcern = WriteConcern.Acknowledged;
+                        shouldSendGetLastError = () => documentSource.HasMore;
+                    }
+
                     while (documentSource.HasMore)
                     {
                         var operation = new InsertOpcodeOperation<TNominalType>(_database.Name, _name, serializer, documentSource)
                         {
                             ContinueOnError = continueOnError,
-                            WriteConcern = writeConcern.ToCore()
+                            WriteConcern = writeConcern.ToCore(),
+                            ShouldSendGetLastError = shouldSendGetLastError
                         };
-                        var response = operation.ExecuteAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
-                        if (writeConcern.Enabled)
+
+                        BsonDocument response;
+                        try
+                        {
+                            response = operation.ExecuteAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
+                        }
+                        catch (WriteConcernException ex)
+                        {
+                            response = ex.Result;
+                            if (continueOnError)
+                            {
+                                finalException = ex;
+                            }
+                            else if (originalWriteConcern.Enabled)
+                            {
+                                var writeConcernResult = new WriteConcernResult(response);
+                                results.Add(writeConcernResult);
+                                ex.Data["results"] = results;
+                                throw;
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        }
+
+                        if (results != null)
                         {
                             var writeConcernResult = new WriteConcernResult(response);
-                            writeConcernResults.Add(writeConcernResult);
+                            results.Add(writeConcernResult);
                         }
+
                         documentSource.ClearBatch();
                     }
                 }
 
-                return writeConcernResults;
+                return results;
             }
         }
 

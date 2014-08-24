@@ -44,8 +44,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             BatchableSource<TDocument> documentSource,
             int? maxBatchCount,
             int? maxMessageSize,
-            bool continueOnError)
-            : base(databaseName, collectionName, writeConcern)
+            bool continueOnError,
+            Func<bool> shouldSendGetLastEror = null)
+            : base(databaseName, collectionName, writeConcern, shouldSendGetLastEror)
         {
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
