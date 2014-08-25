@@ -31,6 +31,7 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly ICluster _cluster;
+        private readonly IOperationExecutor _operationExecutor;
         private readonly MongoClientSettings _settings;
 
         // constructors
@@ -50,6 +51,7 @@ namespace MongoDB.Driver
         {
             _settings = settings.FrozenCopy();
             _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings);
+            _operationExecutor = new OperationExecutor();
         }
 
         /// <summary>
@@ -68,6 +70,12 @@ namespace MongoDB.Driver
         public MongoClient(string connectionString)
             : this(ParseConnectionString(connectionString))
         {
+        }
+
+        internal MongoClient(IOperationExecutor operationExecutor)
+            : this()
+        {
+            _operationExecutor = operationExecutor;
         }
 
         // public properties
@@ -118,7 +126,7 @@ namespace MongoDB.Driver
         /// <returns>An implementation of a database.</returns>
         public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings)
         {
-            return new MongoDatabaseImpl(_cluster, name, settings);
+            return new MongoDatabaseImpl(_cluster, name, settings, _operationExecutor);
         }
 
         /// <summary>
@@ -134,7 +142,7 @@ namespace MongoDB.Driver
             // TODO: use settings.ReadPreference
             using(var binding = new ReadPreferenceBinding(_cluster, Core.Clusters.ReadPreference.Primary))
             {
-                return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout, cancellationToken);
             }
         }
 

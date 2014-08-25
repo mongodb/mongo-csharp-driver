@@ -30,13 +30,15 @@ namespace MongoDB.Driver
     {
         private readonly ICluster _cluster;
         private readonly string _databaseName;
+        private readonly IOperationExecutor _operationExecutor;
         private readonly MongoDatabaseSettings _settings;
 
-        public MongoDatabaseImpl(ICluster cluster, string databaseName, MongoDatabaseSettings settings)
+        public MongoDatabaseImpl(ICluster cluster, string databaseName, MongoDatabaseSettings settings, IOperationExecutor operationExecutor)
         {
             _cluster = cluster;
             _databaseName = databaseName;
             _settings = settings;
+            _operationExecutor = operationExecutor;
         }
 
         public string DatabaseName
@@ -83,7 +85,7 @@ namespace MongoDB.Driver
             // TODO: use settings ReadPreference
             using (var binding = new ReadPreferenceBinding(_cluster, Core.Clusters.ReadPreference.Primary))
             {
-                return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout, cancellationToken);
             }
         }
 
@@ -91,7 +93,7 @@ namespace MongoDB.Driver
         {
             using (var binding = new WritableServerBinding(_cluster))
             {
-                return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout, cancellationToken);
             }
         }
     }

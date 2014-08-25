@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 
-using System;
-using System.Linq;
-using MongoDB.Bson;
-using MongoDB.Driver;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -46,6 +46,18 @@ namespace MongoDB.Driver.Tests
             var server2 = client2.GetServer();
 
             Assert.AreSame(server1, server2);
+        }
+
+        [Test]
+        public async Task ListDatabaseNames()
+        {
+            var operationExecutor = new MockOperationExecutor();
+            var client = new MongoClient(operationExecutor);
+            var names = await client.GetDatabaseNamesAsync();
+
+            var call = operationExecutor.GetReadCall<IReadOnlyList<string>>();
+
+            call.Operation.Should().BeOfType<ListDatabaseNamesOperation>();
         }
     }
 }

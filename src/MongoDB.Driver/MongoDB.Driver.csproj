@@ -98,7 +98,9 @@
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonObjectSerializerHelper.cs" />
     <Compile Include="IMongoClient.cs" />
     <Compile Include="IMongoDatabase.cs" />
+    <Compile Include="IOperationExecutor.cs" />
     <Compile Include="MongoDatabaseImpl.cs" />
+    <Compile Include="OperationExecutor.cs" />
     <Compile Include="Operations\ParallelScanOperation.cs" />
     <Compile Include="ParallelScanArgs.cs" />
     <Compile Include="WriteConcernError.cs" />
