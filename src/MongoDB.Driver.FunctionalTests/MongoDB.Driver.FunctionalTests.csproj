@@ -54,7 +54,6 @@
     <Compile Include="MongoDatabaseImplTests\When_running_an_invalid_command.cs" />
     <Compile Include="MongoDatabaseImplTests\When_running_a_command_with_a_custom_class.cs" />
     <Compile Include="MongoDatabaseImplTests\When_running_a_command_with_json.cs" />
-    <Compile Include="MongoDatabaseImplTests\When_running_a_read_command_with_a_BsonDocument - Copy.cs" />
     <Compile Include="MongoDatabaseImplTests\When_running_a_non_read_command_with_a_BsonDocument.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpecificationBase.cs" />
