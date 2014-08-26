@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
@@ -34,6 +35,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         // fields
         private readonly string _collectionName;
         private readonly string _databaseName;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly Func<bool> _shouldSendGetLastError;
         private readonly WriteConcern _writeConcern;
 
@@ -41,11 +43,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         protected WriteWireProtocolBase(
             string databaseName,
             string collectionName,
+            MessageEncoderSettings messageEncoderSettings,
             WriteConcern writeConcern,
             Func<bool> shouldSendGetLastError = null)
         {
             _databaseName = Ensure.IsNotNull(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNull(collectionName, "collectionName");
+            _messageEncoderSettings = messageEncoderSettings;
             _writeConcern = Ensure.IsNotNull(writeConcern, "writeConcern");
             _shouldSendGetLastError = shouldSendGetLastError;
         }
@@ -115,10 +119,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 messages.Add(getLastErrorMessage);
             }
 
-            await connection.SendMessagesAsync(messages, slidingTimeout, cancellationToken);
+            await connection.SendMessagesAsync(messages, _messageEncoderSettings, slidingTimeout, cancellationToken);
             if (getLastErrorMessage != null && getLastErrorMessage.WasSent)
             {
-                var reply = await connection.ReceiveMessageAsync<BsonDocument>(getLastErrorMessage.RequestId, BsonDocumentSerializer.Instance, slidingTimeout, cancellationToken);
+                var reply = await connection.ReceiveMessageAsync<BsonDocument>(getLastErrorMessage.RequestId, BsonDocumentSerializer.Instance, _messageEncoderSettings, slidingTimeout, cancellationToken);
                 return ProcessReply(reply);
             }
             else

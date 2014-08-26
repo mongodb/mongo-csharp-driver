@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -26,11 +27,13 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private string _databaseName;
+        private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
-        public DatabaseExistsOperation(string databaseName)
+        public DatabaseExistsOperation(string databaseName, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -40,11 +43,17 @@ namespace MongoDB.Driver.Core.Operations
             set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         // methods
         public async Task<bool> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            var operation = new ListDatabaseNamesOperation();
+            var operation = new ListDatabaseNamesOperation(_messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
             return result.Contains(_databaseName);
         }

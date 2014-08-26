@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Authentication
                     BsonDocument result;
                     try
                     {
-                        var protocol = new CommandWireProtocol(DatabaseName, command, true);
+                        var protocol = new CommandWireProtocol(DatabaseName, command, true, null);
                         result = await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
                     }
                     catch(MongoCommandException ex)

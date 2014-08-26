@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
@@ -28,12 +29,14 @@ namespace MongoDB.Driver.Core.WireProtocol
     {
         // fields
         private readonly IReadOnlyList<long> _cursorIds;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
-        public KillCursorsWireProtocol(IEnumerable<long> cursorIds)
+        public KillCursorsWireProtocol(IEnumerable<long> cursorIds, MessageEncoderSettings messageEncoderSettings)
         {
             Ensure.IsNotNull(cursorIds, "cursorIds");
             _cursorIds = (cursorIds as IReadOnlyList<long>) ?? cursorIds.ToList();
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // methods
@@ -45,7 +48,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         public async Task ExecuteAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var message = CreateMessage();
-            await connection.SendMessageAsync(message, timeout, cancellationToken);
+            await connection.SendMessageAsync(message, _messageEncoderSettings, timeout, cancellationToken);
         }
     }
 }

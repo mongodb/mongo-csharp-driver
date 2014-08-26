@@ -19,121 +19,115 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public abstract class MapReduceOperationBase
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly BsonJavaScript _finalizeFunction;
-        private readonly bool? _javaScriptMode;
-        private readonly long? _limit;
-        private readonly BsonJavaScript _mapFunction;
+        private string _collectionName;
+        private string _databaseName;
+        private BsonJavaScript _finalizeFunction;
+        private bool? _javaScriptMode;
+        private long? _limit;
+        private BsonJavaScript _mapFunction;
         private TimeSpan? _maxTime;
-        private readonly BsonDocument _query;
-        private readonly BsonJavaScript _reduceFunction;
-        private readonly BsonDocument _scope;
-        private readonly BsonDocument _sort;
-        private readonly bool? _verbose;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private BsonDocument _query;
+        private BsonJavaScript _reduceFunction;
+        private BsonDocument _scope;
+        private BsonDocument _sort;
+        private bool? _verbose;
 
         // constructors
-        protected MapReduceOperationBase(string databaseName, string collectionName, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query = null)
+        protected MapReduceOperationBase(string databaseName, string collectionName, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _mapFunction = Ensure.IsNotNull(mapFunction, "mapFunction");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _query = query; // can be null
-        }
-
-        protected MapReduceOperationBase(
-            string collectionName,
-            string databaseName,
-            BsonJavaScript finalizeFunction,
-            bool? javaScriptMode,
-            long? limit,
-            BsonJavaScript mapFunction,
-            BsonDocument query,
-            BsonJavaScript reduceFunction,
-            BsonDocument scope,
-            BsonDocument sort,
-            bool? verbose)
-        {
-            _collectionName = collectionName;
-            _databaseName = databaseName;
-            _finalizeFunction = finalizeFunction;
-            _javaScriptMode = javaScriptMode;
-            _limit = limit;
-            _mapFunction = mapFunction;
             _query = query;
-            _reduceFunction = reduceFunction;
-            _scope = scope;
-            _sort = sort;
-            _verbose = verbose;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public BsonJavaScript FinalizeFunction
         {
             get { return _finalizeFunction; }
+            set { _finalizeFunction = value; }
         }
 
         public bool? JavaScriptMode
         {
             get { return _javaScriptMode; }
+            set { _javaScriptMode = value; }
         }
 
         public long? Limit
         {
             get { return _limit; }
+            set { _limit = value; }
         }
 
         public BsonJavaScript MapFunction
         {
             get { return _mapFunction; }
+            set { _mapFunction = Ensure.IsNotNull(value, "value"); }
         }
 
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
-            set { _maxTime = value; }
+            set { _maxTime = Ensure.IsNullOrGreaterThanZero(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         public BsonDocument Query
         {
             get { return _query; }
+            set { _query = value; }
         }
 
         public BsonJavaScript ReduceFunction
         {
             get { return _reduceFunction; }
+            set { _reduceFunction = value; }
         }
 
         public BsonDocument Scope
         {
             get { return _scope; }
+            set { _scope = value; }
         }
 
         public BsonDocument Sort
         {
             get { return _sort; }
+            set { _sort = value; }
         }
 
         public bool? Verbose
         {
             get { return _verbose; }
+            set { _verbose = value; }
         }
 
         // methods

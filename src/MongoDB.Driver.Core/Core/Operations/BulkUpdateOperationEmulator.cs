@@ -23,6 +23,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -35,8 +36,9 @@ namespace MongoDB.Driver.Core.Operations
         public BulkUpdateOperationEmulator(
             string databaseName,
             string collectionName,
-            IEnumerable<UpdateRequest> requests)
-            : base(databaseName, collectionName, requests)
+            IEnumerable<UpdateRequest> requests,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, requests, messageEncoderSettings)
         {
         }
 
@@ -54,6 +56,7 @@ namespace MongoDB.Driver.Core.Operations
             return new UpdateWireProtocol(
                 DatabaseName,
                 CollectionName,
+                MessageEncoderSettings,
                 WriteConcern,
                 updateRequest.Query,
                 updateRequest.Update,

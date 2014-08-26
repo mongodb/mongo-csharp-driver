@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations.DatabaseExistsOperationTests
@@ -26,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations.DatabaseExistsOperationTests
     [TestFixture]
     public class When_a_database_does_not_exist : CollectionUsingSpecification
     {
+        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private DatabaseExistsOperation _subject;
         private bool _result;
 
@@ -33,7 +35,7 @@ namespace MongoDB.Driver.Core.Operations.DatabaseExistsOperationTests
         {
             // this could certainly fail if this database actually exists
             // but chances are not good.
-            _subject = new DatabaseExistsOperation("asljsfkoiulkewlkjwe");
+            _subject = new DatabaseExistsOperation("asljsfkoiulkewlkjwe", _messageEncoderSettings);
         }
 
         protected override void When()

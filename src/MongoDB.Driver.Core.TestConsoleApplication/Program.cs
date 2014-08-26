@@ -11,14 +11,16 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.TestConsoleApplication
 {
     public static class Program
     {
-        private static string _database = "foo";
-        private static string _collection = "bar";
-        private static int _numConcurrentWorkers = 8;
+        private static string __database = "foo";
+        private static string __collection = "bar";
+        private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
+        private static int __numConcurrentWorkers = 8;
 
         public static void Main(string[] args)
         {
@@ -71,7 +73,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             var cancellationTokenSource = new CancellationTokenSource();
             Console.WriteLine("Running CRUD (errors will show up as + (query error) or * (insert/update error))");
             List<Task> tasks = new List<Task>();
-            for (int i = 0; i < _numConcurrentWorkers; i++)
+            for (int i = 0; i < __numConcurrentWorkers; i++)
             {
                 tasks.Add(DoWork(cluster, cancellationTokenSource.Token));
             }
@@ -87,7 +89,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         {
             using (var binding = new WritableServerBinding(cluster))
             {
-                var commandOp = new DropDatabaseOperation(_database);
+                var commandOp = new DropDatabaseOperation(__database, __messageEncoderSettings);
                 await commandOp.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
             }
         }
@@ -169,18 +171,15 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 
         private static Task Insert(IWriteBinding binding, BsonDocument document)
         {
-            var insertOp = new InsertOpcodeOperation<BsonDocument>(
-                _database,
-                _collection,
-                BsonDocumentSerializer.Instance,
-                new BatchableSource<BsonDocument>(new[] { document }));
+            var documentSource = new BatchableSource<BsonDocument>(new[] { document });
+            var insertOp = new InsertOpcodeOperation<BsonDocument>(__database, __collection, documentSource, BsonDocumentSerializer.Instance, __messageEncoderSettings);
 
             return insertOp.ExecuteAsync(binding);
         }
 
         private static Task<Cursor<BsonDocument>> Query(IReadBinding binding, BsonDocument query)
         {
-            var queryOp = new FindOperation<BsonDocument>(_database, _collection, BsonDocumentSerializer.Instance, query)
+            var queryOp = new FindOperation<BsonDocument>(__database, __collection, query, BsonDocumentSerializer.Instance, __messageEncoderSettings)
             {
                 Limit = 1
             };
@@ -191,10 +190,11 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         private static Task Update(IWriteBinding binding, BsonDocument query, BsonDocument update)
         {
             var updateOp = new UpdateOpcodeOperation(
-                _database,
-                _collection,
+                __database,
+                __collection,
                 query,
-                update);
+                update,
+                __messageEncoderSettings);
 
             return updateOp.ExecuteAsync(binding);
         }

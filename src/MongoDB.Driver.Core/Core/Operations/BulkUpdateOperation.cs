@@ -23,6 +23,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -35,8 +36,9 @@ namespace MongoDB.Driver.Core.Operations
         public BulkUpdateOperation(
             string databaseName,
             string collectionName,
-            IEnumerable<UpdateRequest> requests)
-            : base(databaseName, collectionName, requests)
+            IEnumerable<UpdateRequest> requests,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, requests, messageEncoderSettings)
         {
         }
 
@@ -71,15 +73,13 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
         {
-            return new BulkUpdateOperationEmulator(DatabaseName, CollectionName, Requests)
+            return new BulkUpdateOperationEmulator(DatabaseName, CollectionName, Requests, MessageEncoderSettings)
             {
                 CheckElementNames = _checkElementNames,
                 MaxBatchCount = MaxBatchCount,
                 MaxBatchLength = MaxBatchLength,
                 IsOrdered = IsOrdered,
-                ReaderSettings = ReaderSettings,
-                WriteConcern = WriteConcern,
-                WriterSettings = WriterSettings
+                WriteConcern = WriteConcern
             };
         }
 

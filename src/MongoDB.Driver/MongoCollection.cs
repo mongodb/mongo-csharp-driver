@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Sync;
 using MongoDB.Driver.Core.SyncExtensionMethods;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver
@@ -134,8 +135,9 @@ namespace MongoDB.Driver
                 outputCollectionName = lastStage["$out"].AsString;
                 RunAggregateCommand(args);
             }
+            var messageEncoderSettings = GetMessageEncoderSettings();
 
-            return new AggregateEnumerableResult(this, args, outputCollectionName);
+            return new AggregateEnumerableResult(this, args, outputCollectionName, messageEncoderSettings);
         }
 
         /// <summary>
@@ -704,11 +706,13 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>(FindOneArgs args)
         {
+            var queryDocument = args.Query == null ? new BsonDocument() : args.Query.ToBsonDocument();
+            var serializer = BsonSerializer.LookupSerializer<TDocument>();
+            var messageEncoderSettings = GetMessageEncoderSettings();
             var fields = args.Fields == null ? null : args.Fields.ToBsonDocument();
             var hint = args.Hint == null ? null : CreateIndexOperation.GetDefaultIndexName(args.Hint);
-            var serializer = BsonSerializer.LookupSerializer<TDocument>();
 
-            var operation = new FindOneOperation<TDocument>(_database.Name, _name, serializer, args.Query.ToBsonDocument())
+            var operation = new FindOneOperation<TDocument>(_database.Name, _name, queryDocument, serializer, messageEncoderSettings)
             {
                 Fields = fields,
                 Hint = hint,
@@ -1391,10 +1395,8 @@ namespace MongoDB.Driver
 
             var checkElementNames = options.CheckElementNames;
             var continueOnError = options.Flags.HasFlag(InsertFlags.ContinueOnError);
-            var readerSettings = GetBinaryReaderSettings();
             var serializer = BsonSerializer.LookupSerializer<TNominalType>();
             var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
-            var writerSettings = GetBinaryWriterSettings();
 
             if (_settings.AssignIdOnInsert)
             {
@@ -1413,6 +1415,7 @@ namespace MongoDB.Driver
                 {
                     var documentSource = new BatchableSource<TNominalType>(enumerator);
 
+                    var messageEncoderSettings = GetMessageEncoderSettings();
                     Func<bool> shouldSendGetLastError = null;
                     if (!writeConcern.Enabled && !continueOnError)
                     {
@@ -1422,7 +1425,7 @@ namespace MongoDB.Driver
 
                     while (documentSource.HasMore)
                     {
-                        var operation = new InsertOpcodeOperation<TNominalType>(_database.Name, _name, serializer, documentSource)
+                        var operation = new InsertOpcodeOperation<TNominalType>(_database.Name, _name, documentSource, serializer, messageEncoderSettings)
                         {
                             ContinueOnError = continueOnError,
                             WriteConcern = writeConcern.ToCore(),
@@ -1532,7 +1535,14 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("nominalType");
             }
 
-            throw new NotImplementedException();
+            var methodDefinition = typeof(MongoCollection).GetMethod("InsertBatchInvoker", BindingFlags.NonPublic | BindingFlags.Instance);
+            var methodInfo = methodDefinition.MakeGenericMethod(nominalType);
+            return (IEnumerable<WriteConcernResult>)methodInfo.Invoke(this, new object[] { documents, options });
+        }
+
+        private IEnumerable<WriteConcernResult> InsertBatchInvoker<TDocument>(IEnumerable documents, MongoInsertOptions options)
+        {
+            return InsertBatch<TDocument>(documents.Cast<TDocument>(), options);
         }
 
         /// <summary>
@@ -1670,8 +1680,9 @@ namespace MongoDB.Driver
         {
             var batchSize = args.BatchSize;
             var serializer = args.Serializer ?? BsonSerializer.LookupSerializer<TDocument>();
+            var messageEncoderSettings = GetMessageEncoderSettings();
 
-            var operation = new ParallelScanOperation<TDocument>(Database.Name, _name, args.NumberOfCursors, serializer)
+            var operation = new ParallelScanOperation<TDocument>(Database.Name, _name, args.NumberOfCursors, serializer, messageEncoderSettings)
             {
                 BatchSize = batchSize
             };
@@ -1774,11 +1785,12 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, RemoveFlags flags, WriteConcern writeConcern)
         {
-            var isMulti = !flags.HasFlag(RemoveFlags.Single);
             var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var isMulti = !flags.HasFlag(RemoveFlags.Single);
             writeConcern = writeConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
-            var operation = new DeleteOpcodeOperation(_database.Name, _name, queryDocument)
+            var operation = new DeleteOpcodeOperation(_database.Name, _name, queryDocument, messageEncoderSettings)
             {
                 IsMulti = isMulti,
                 WriteConcern = writeConcern.ToCore()
@@ -1991,11 +2003,12 @@ namespace MongoDB.Driver
 
             var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
             var updateDocument = update.ToBsonDocument();
+            var messageEncoderSettings = GetMessageEncoderSettings();
             var isMulti = options.Flags.HasFlag(UpdateFlags.Multi);
             var isUpsert = options.Flags.HasFlag(UpdateFlags.Upsert);
             var writeConcern = options.WriteConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
-            var operation = new UpdateOpcodeOperation(Database.Name, _name, queryDocument, updateDocument)
+            var operation = new UpdateOpcodeOperation(Database.Name, _name, queryDocument, updateDocument, messageEncoderSettings)
             {
                 IsMulti = isMulti,
                 IsUpsert = isUpsert,
@@ -2108,6 +2121,16 @@ namespace MongoDB.Driver
             return RunCommandAs<AggregateResult>(aggregateCommand);
         }
 
+        internal MessageEncoderSettings GetMessageEncoderSettings()
+        {
+            return new MessageEncoderSettings
+            {
+                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
+                { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Helper.StrictUtf8Encoding },
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Helper.StrictUtf8Encoding }
+            };
+        }
+
         // private methods
         internal void AssignId(object document, IBsonSerializer serializer)
         {
@@ -2183,24 +2206,6 @@ namespace MongoDB.Driver
         private MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query, IBsonSerializer serializer)
         {
             return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer);
-        }
-
-        internal BsonBinaryReaderSettings GetBinaryReaderSettings()
-        {
-            return new BsonBinaryReaderSettings
-            {
-                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-        }
-
-        internal BsonBinaryWriterSettings GetBinaryWriterSettings()
-        {
-            return new BsonBinaryWriterSettings
-            {
-                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
         }
 
         private string GetIndexName(BsonDocument keys, BsonDocument options)

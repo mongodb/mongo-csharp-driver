@@ -19,76 +19,75 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class FindAndRemoveOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly BsonDocument _fields;
+        private string _collectionName;
+        private string _databaseName;
+        private BsonDocument _fields;
         private TimeSpan? _maxTime;
-        private readonly BsonDocument _query;
-        private readonly BsonDocument _sort;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private BsonDocument _query;
+        private BsonDocument _sort;
 
         // constructors
         public FindAndRemoveOperation(
             string databaseName,
             string collectionName,
             BsonDocument query,
-            BsonDocument sort = null)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
-            _query = Ensure.IsNotNull(query, "query");
-            _sort = sort; // can be null
-        }
-
-        private FindAndRemoveOperation(
-            string collectionName,
-            string databaseName,
-            BsonDocument fields,
-            BsonDocument query,
-            BsonDocument sort)
-        {
-            _collectionName = collectionName;
-            _databaseName = databaseName;
-            _fields = fields;
             _query = query;
-            _sort = sort;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public BsonDocument Fields
         {
             get { return _fields; }
+            set { _fields = value; }
         }
 
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
-            set { _maxTime = value; }
+            set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         public BsonDocument Query
         {
             get { return _query; }
+            set { _query = value; }
         }
 
         public BsonDocument Sort
         {
             get { return _sort; }
+            set { _sort = value; }
         }
 
         // methods
@@ -116,67 +115,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseName, command);
+            var operation = new WriteCommandOperation(_databaseName, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
-        }
-        public FindAndRemoveOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public FindAndRemoveOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public FindAndRemoveOperation WithFields(BsonDocument value)
-        {
-            return object.ReferenceEquals(_fields, value) ? this : new Builder(this) { _fields = value }.Build();
-        }
-
-        public FindAndRemoveOperation WithQuery(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_query, value) ? this : new Builder(this) { _query = value }.Build();
-        }
-
-        public FindAndRemoveOperation WithSort(BsonDocument value)
-        {
-            return object.ReferenceEquals(_sort, value) ? this : new Builder(this) { _sort = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public string _collectionName;
-            public string _databaseName;
-            public BsonDocument _fields;
-            public BsonDocument _query;
-            public BsonDocument _sort;
-
-            // constructors
-            public Builder(FindAndRemoveOperation other)
-            {
-                _collectionName = other.CollectionName;
-                _databaseName = other.DatabaseName;
-                _fields = other.Fields;
-                _query = other.Query;
-                _sort = other.Sort;
-            }
-
-            // methods
-            public FindAndRemoveOperation Build()
-            {
-                return new FindAndRemoveOperation(
-                    _collectionName,
-                    _databaseName,
-                    _fields,
-                    _query,
-                    _sort);
-            }
         }
     }
 }

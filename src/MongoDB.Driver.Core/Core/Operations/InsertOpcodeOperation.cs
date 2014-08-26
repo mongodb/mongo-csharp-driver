@@ -23,6 +23,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -32,8 +33,9 @@ namespace MongoDB.Driver.Core.Operations
         public InsertOpcodeOperation(
             string databaseName,
             string collectionName,
-            BatchableSource<BsonDocument> documentSource)
-            : base(databaseName, collectionName, BsonDocumentSerializer.Instance, documentSource)
+            BatchableSource<BsonDocument> documentSource,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, documentSource, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -48,22 +50,19 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxBatchCount;
         private int? _maxDocumentSize;
         private int? _maxMessageSize;
+        private MessageEncoderSettings _messageEncoderSettings;
         private IBsonSerializer<TDocument> _serializer;
         private Func<bool> _shouldSendGetLastError;
-        private WriteConcern _writeConcern;
+        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
-        public InsertOpcodeOperation(
-            string databaseName,
-            string collectionName,
-            IBsonSerializer<TDocument> serializer,
-            BatchableSource<TDocument> documentSource)
+        public InsertOpcodeOperation(string databaseName, string collectionName, BatchableSource<TDocument> documentSource, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
-            _writeConcern = WriteConcern.Acknowledged;
+            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -109,6 +108,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxMessageSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
@@ -135,6 +140,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionName,
                 _writeConcern,
                 _serializer,
+                _messageEncoderSettings,
                 _documentSource,
                 _maxBatchCount,
                 _maxMessageSize,
@@ -148,7 +154,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
-                var emulator = new InsertOpcodeOperationEmulator<TDocument>(_databaseName, _collectionName, _serializer, _documentSource)
+                var emulator = new InsertOpcodeOperationEmulator<TDocument>(_databaseName, _collectionName, _serializer, _documentSource, _messageEncoderSettings)
                 {
                     ContinueOnError = _continueOnError,
                     MaxBatchCount = _maxBatchCount,

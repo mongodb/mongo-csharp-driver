@@ -17,6 +17,7 @@ using System;
 using FluentAssertions;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
@@ -25,6 +26,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     public class When_there_are_zero_requests : CollectionUsingSpecification
     {
         private InvalidOperationException _exception;
+        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private WriteRequest[] _requests;
 
         protected override void Given()
@@ -34,7 +36,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
         protected override void When()
         {
-            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests);
+            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests, _messageEncoderSettings);
             _exception = Catch<InvalidOperationException>(() => ExecuteOperationAsync(subject).GetAwaiter().GetResult());
         }
 

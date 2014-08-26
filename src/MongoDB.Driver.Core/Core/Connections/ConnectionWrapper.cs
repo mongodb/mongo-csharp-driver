@@ -22,6 +22,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -99,16 +100,16 @@ namespace MongoDB.Driver.Core.Connections
             return _wrapped.OpenAsync(timeout, cancellationToken);
         }
 
-        public virtual Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
+        public virtual Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _wrapped.ReceiveMessageAsync(responseTo, serializer, timeout, cancellationToken);
+            return _wrapped.ReceiveMessageAsync(responseTo, serializer, messageEncoderSettings, timeout, cancellationToken);
         }
 
-        public virtual Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
+        public virtual Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _wrapped.SendMessagesAsync(messages, timeout, cancellationToken);
+            return _wrapped.SendMessagesAsync(messages, messageEncoderSettings, timeout, cancellationToken);
         }
 
         protected void ThrowIfDisposed()

@@ -94,6 +94,16 @@ namespace MongoDB.Driver.Core.Misc
             return value;
         }
 
+        public static TimeSpan IsGreaterThanZero(TimeSpan value, string paramName)
+        {
+            if (value <= TimeSpan.Zero)
+            {
+                var message = string.Format("Value is not greater than zero: {0}.", value);
+                throw new ArgumentOutOfRangeException(paramName, message);
+            }
+            return value;
+        }
+
         public static TimeSpan IsInfiniteOrGreaterThanOrEqualToZero(TimeSpan value, string paramName)
         {
             if (value < TimeSpan.Zero && value != Timeout.InfiniteTimeSpan)
@@ -167,6 +177,25 @@ namespace MongoDB.Driver.Core.Misc
             if (value != null)
             {
                 IsGreaterThanZero(value.Value, paramName);
+            }
+            return value;
+        }
+
+        public static TimeSpan? IsNullOrGreaterThanZero(TimeSpan? value, string paramName)
+        {
+            if (value != null)
+            {
+                IsGreaterThanZero(value.Value, paramName);
+            }
+            return value;
+        }
+
+        public static TimeSpan? IsNullOrInfiniteOrGreaterThanOrEqualToZero(TimeSpan? value, string paramName)
+        {
+            if (value.HasValue && value.Value < TimeSpan.Zero && value.Value != Timeout.InfiniteTimeSpan)
+            {
+                var message = string.Format("Value is not null or infinite or greater than or equal to zero: {0}.", TimeSpanParser.ToString(value.Value));
+                throw new ArgumentOutOfRangeException(paramName, message);
             }
             return value;
         }

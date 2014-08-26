@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,6 +25,7 @@ namespace MongoDB.Driver.Core.Misc
         private IReadOnlyList<T> _batch;
         private IEnumerator<T> _enumerator;
         private bool _hasMore;
+        private bool _isBatchable;
         private Overflow _overflow;
 
         // constructors
@@ -31,12 +33,14 @@ namespace MongoDB.Driver.Core.Misc
         {
             _batch = Ensure.IsNotNull(batch, "batch").ToList();
             _hasMore = false;
+            _isBatchable = false;
         }
 
         public BatchableSource(IEnumerator<T> enumerator)
         {
             _enumerator = Ensure.IsNotNull(enumerator, "enumerator");
             _hasMore = true;
+            _isBatchable = true;
         }
 
         // properties
@@ -47,7 +51,11 @@ namespace MongoDB.Driver.Core.Misc
 
         public T Current
         {
-            get { return _enumerator.Current; }
+            get
+            {
+                ThrowIfNotBatchable();
+                return _enumerator.Current;
+            }
         }
 
         public bool HasMore
@@ -55,14 +63,21 @@ namespace MongoDB.Driver.Core.Misc
             get { return _hasMore; }
         }
 
+        public bool IsBatchable
+        {
+            get { return _isBatchable; }
+        }
+
         // methods
         public void ClearBatch()
         {
+            ThrowIfNotBatchable();
             _batch = null;
         }
 
         public void EndBatch(IReadOnlyList<T> batch)
         {
+            ThrowIfNotBatchable();
             _batch = batch;
             _hasMore = false;
         }
@@ -73,15 +88,28 @@ namespace MongoDB.Driver.Core.Misc
             {
                 yield return _overflow.Item;
             }
-            while (_enumerator.MoveNext())
+
+            if (_isBatchable)
             {
-                yield return _enumerator.Current;
+                while (_enumerator.MoveNext())
+                {
+                    yield return _enumerator.Current;
+                }
             }
+            else
+            {
+                foreach (var item in _batch)
+                {
+                    yield return item;
+                }
+            }
+
             _hasMore = false;
         }
 
         public void EndBatch(IReadOnlyList<T> batch, Overflow overflow)
         {
+            ThrowIfNotBatchable();
             _batch = batch;
             _overflow = overflow;
             _hasMore = true;
@@ -89,14 +117,24 @@ namespace MongoDB.Driver.Core.Misc
 
         public bool MoveNext()
         {
+            ThrowIfNotBatchable();
             return _enumerator.MoveNext();
         }
 
         public Overflow StartBatch()
         {
+            ThrowIfNotBatchable();
             var overflow = _overflow;
             _overflow = null;
             return overflow;
+        }
+
+        private void ThrowIfNotBatchable()
+        {
+            if (!_isBatchable)
+            {
+                throw new InvalidOperationException("This BatchableSource is not batchable.");
+            }
         }
 
         // nested types

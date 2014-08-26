@@ -17,10 +17,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
 {
@@ -137,7 +139,8 @@ namespace MongoDB.Driver
         /// <returns>A list of the database on the server.</returns>
         public async Task<IReadOnlyList<string>> GetDatabaseNamesAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            var operation = new ListDatabaseNamesOperation();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new ListDatabaseNamesOperation(messageEncoderSettings);
 
             // TODO: use settings.ReadPreference
             using(var binding = new ReadPreferenceBinding(_cluster, Core.Clusters.ReadPreference.Primary))
@@ -156,6 +159,17 @@ namespace MongoDB.Driver
 #pragma warning disable 618
             return MongoServer.Create(serverSettings);
 #pragma warning restore
+        }
+
+        // private methods
+        private MessageEncoderSettings GetMessageEncoderSettings()
+        {
+            return new MessageEncoderSettings
+            {
+                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
+                { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Helper.StrictUtf8Encoding },
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Helper.StrictUtf8Encoding }
+            };
         }
     }
 }

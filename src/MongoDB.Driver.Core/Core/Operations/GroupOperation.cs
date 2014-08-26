@@ -21,92 +21,89 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class GroupOperation : IReadOperation<IEnumerable<BsonDocument>>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly BsonJavaScript _finalizeFunction;
-        private readonly BsonDocument _initial;
-        private readonly BsonDocument _key;
-        private readonly BsonJavaScript _keyFunction;
+        private string _collectionName;
+        private string _databaseName;
+        private BsonJavaScript _finalizeFunction;
+        private BsonDocument _initial;
+        private BsonDocument _key;
+        private BsonJavaScript _keyFunction;
         private TimeSpan? _maxTime;
-        private readonly BsonDocument _query;
-        private readonly BsonJavaScript _reduceFunction;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private BsonDocument _query;
+        private BsonJavaScript _reduceFunction;
 
         // constructors
-        public GroupOperation(string databaseName, string collectionName, BsonDocument key, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument query = null)
+        public GroupOperation(string databaseName, string collectionName, BsonDocument key, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _key = Ensure.IsNotNull(key, "key");
             _initial = Ensure.IsNotNull(initial, "initial");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _query = query; // can be null
+            _query = query;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
-        public GroupOperation(string databaseName, string collectionName, BsonJavaScript keyFunction, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument query = null)
+        public GroupOperation(string databaseName, string collectionName, BsonJavaScript keyFunction, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument query)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _keyFunction = Ensure.IsNotNull(keyFunction, "keyFunction");
             _initial = Ensure.IsNotNull(initial, "initial");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _query = query; // can be null
-        }
-
-        private GroupOperation(
-            string collectionName,
-            string databaseName,
-            BsonJavaScript finalizeFunction,
-            BsonDocument initial,
-            BsonDocument key,
-            BsonJavaScript keyFunction,
-            BsonDocument query,
-            BsonJavaScript reduceFunction)
-        {
-            _collectionName = collectionName;
-            _databaseName = databaseName;
-            _finalizeFunction = finalizeFunction;
-            _initial = initial;
-            _key = key;
-            _keyFunction = keyFunction;
             _query = query;
-            _reduceFunction = reduceFunction;
         }
 
         // properties
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public BsonJavaScript FinalizeFunction
         {
             get { return _finalizeFunction; }
+            set { _finalizeFunction = value; }
         }
 
         public BsonDocument Initial
         {
             get { return _initial; }
+            set { _initial = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonDocument Key
         {
             get { return _key; }
+            set
+            {
+                _key = Ensure.IsNotNull(value, "value");
+                _keyFunction = null;
+            }
         }
 
         public BsonJavaScript KeyFunction
         {
             get { return _keyFunction; }
+            set
+            {
+                _keyFunction = Ensure.IsNotNull(value, "value");
+                _key = null;
+            }
         }
 
         public TimeSpan? MaxTime
@@ -115,14 +112,22 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = value; }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public BsonDocument Query
         {
             get { return _query; }
+            set { _query = value; }
         }
 
         public BsonJavaScript ReduceFunction
         {
             get { return _reduceFunction; }
+            set { _reduceFunction = value; }
         }
 
         // methods
@@ -156,95 +161,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(_databaseName, command);
+            var operation = new ReadCommandOperation(_databaseName, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
-        }
-
-        public GroupOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public GroupOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public GroupOperation WithFinalizeFunction(BsonJavaScript value)
-        {
-            // can be null
-            return object.ReferenceEquals(_finalizeFunction, value) ? this : new Builder(this) { _finalizeFunction = value }.Build();
-        }
-
-        public GroupOperation WithInitial(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_initial, value) ? this : new Builder(this) { _initial = value }.Build();
-        }
-
-        public GroupOperation WithKey(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_key, value) ? this : new Builder(this) { _key = value, _keyFunction = null }.Build();
-        }
-
-        public GroupOperation WithKeyFunction(BsonJavaScript value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_keyFunction, value) ? this : new Builder(this) { _key = null, _keyFunction = value }.Build();
-        }
-
-        public GroupOperation WithQuery(BsonDocument value)
-        {
-            return object.ReferenceEquals(_query, value) ? this : new Builder(this) { _query = value }.Build();
-        }
-
-        public GroupOperation WithReduceFunction(BsonJavaScript value)
-        {
-            return object.ReferenceEquals(_reduceFunction, value) ? this : new Builder(this) { _reduceFunction = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public string _collectionName;
-            public string _databaseName;
-            public BsonJavaScript _finalizeFunction;
-            public BsonDocument _initial;
-            public BsonDocument _key;
-            public BsonJavaScript _keyFunction;
-            public BsonDocument _query;
-            public BsonJavaScript _reduceFunction;
-
-            // constructors
-            public Builder(GroupOperation other)
-            {
-                _collectionName = other.CollectionName;
-                _databaseName = other.DatabaseName;
-                _finalizeFunction = other.FinalizeFunction;
-                _initial = other.Initial;
-                _key = other.Key;
-                _keyFunction = other.KeyFunction;
-                _query = other.Query;
-                _reduceFunction = other.ReduceFunction;
-            }
-
-            // methods
-            public GroupOperation Build()
-            {
-                return new GroupOperation(
-                    _collectionName,
-                    _databaseName,
-                    _finalizeFunction,
-                    _initial,
-                    _key,
-                    _keyFunction,
-                    _query,
-                    _reduceFunction);
-            }
         }
     }
 }

@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -32,22 +33,24 @@ namespace MongoDB.Driver.Core.Operations
         private bool _isMulti;
         private bool _isUpsert;
         private int? _maxDocumentSize;
+        private MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _query;
         private BsonDocument _update;
-        private WriteConcern _writeConcern;
+        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public UpdateOpcodeOperationEmulator(
             string databaseName,
             string collectionName,
             BsonDocument query,
-            BsonDocument update)
+            BsonDocument update,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");
-            _writeConcern = WriteConcern.Acknowledged;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -81,6 +84,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+        
         public BsonDocument Query
         {
             get { return _query; }
@@ -107,7 +116,7 @@ namespace MongoDB.Driver.Core.Operations
             var requests = new[] { new UpdateRequest(_query, _update) { IsMultiUpdate = _isMulti, IsUpsert = _isUpsert } };
             var writeConcern = _writeConcern;
 
-            var operation = new BulkUpdateOperation(_databaseName, _collectionName, requests)
+            var operation = new BulkUpdateOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
             {
                 CheckElementNames = true, // TODO: how is this configured?
                 IsOrdered = true,

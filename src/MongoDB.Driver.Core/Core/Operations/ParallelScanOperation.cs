@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -33,8 +34,9 @@ namespace MongoDB.Driver.Core.Operations
         public ParallelScanOperation(
             string databaseName,
             string collectionName,
-            int numberOfCursors)
-            : base(databaseName, collectionName, numberOfCursors, BsonDocumentSerializer.Instance)
+            int numberOfCursors,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, numberOfCursors, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -45,6 +47,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _batchSize;
         private string _collectionName;
         private string _databaseName;
+        private MessageEncoderSettings _messageEncoderSettings;
         private int _numberOfCursors = 4;
         private IBsonSerializer<TDocument> _serializer;
 
@@ -53,12 +56,14 @@ namespace MongoDB.Driver.Core.Operations
             string databaseName,
             string collectionName,
             int numberOfCursors,
-            IBsonSerializer<TDocument> serializer)
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _numberOfCursors = Ensure.IsBetween(numberOfCursors, 0, 10000, "numberOfCursors");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -78,6 +83,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _databaseName; }
             set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         public int NumberOfCursors
@@ -110,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
             {
                 var command = CreateCommand();
-                var operation = new ReadCommandOperation(_databaseName, command);
+                var operation = new ReadCommandOperation(_databaseName, command, _messageEncoderSettings);
                 var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken);
 
                 var cursors = new List<Cursor<TDocument>>();
@@ -140,6 +151,7 @@ namespace MongoDB.Driver.Core.Operations
                         _batchSize ?? 0,
                         0, // limit
                         _serializer,
+                        _messageEncoderSettings,
                         timeout,
                         cancellationToken);
                     cursors.Add(cursor);

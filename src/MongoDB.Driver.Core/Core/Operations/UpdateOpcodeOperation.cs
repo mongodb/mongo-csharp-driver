@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -32,22 +33,24 @@ namespace MongoDB.Driver.Core.Operations
         private bool _isMulti;
         private bool _isUpsert;
         private int? _maxDocumentSize;
+        private MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _query;
         private BsonDocument _update;
-        private WriteConcern _writeConcern;
+        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public UpdateOpcodeOperation(
             string databaseName,
             string collectionName,
             BsonDocument query,
-            BsonDocument update)
+            BsonDocument update,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");
-            _writeConcern = WriteConcern.Acknowledged;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -81,6 +84,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public BsonDocument Query
         {
             get { return _query; }
@@ -105,6 +114,7 @@ namespace MongoDB.Driver.Core.Operations
             return new UpdateWireProtocol(
                 _databaseName,
                 _collectionName,
+                _messageEncoderSettings,
                 _writeConcern,
                 _query,
                 _update,
@@ -118,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
-                var emulator = new UpdateOpcodeOperationEmulator(_databaseName, _collectionName, _query, _update)
+                var emulator = new UpdateOpcodeOperationEmulator(_databaseName, _collectionName, _query, _update, _messageEncoderSettings)
                 {
                     IsMulti = _isMulti,
                     IsUpsert = _isUpsert,

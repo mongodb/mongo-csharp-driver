@@ -99,9 +99,8 @@ namespace MongoDB.Driver.Core.Helpers
             foreach (var request in requests)
             {
                 using (var stringWriter = new StringWriter())
-                using (var jsonWriter = new JsonWriter(stringWriter))
                 {
-                    var encoderFactory = new JsonMessageEncoderFactory(jsonWriter);
+                    var encoderFactory = new JsonMessageEncoderFactory(stringWriter, null);
 
                     request.GetEncoder(encoderFactory).WriteMessage(request);
                     docs.Add(BsonDocument.Parse(stringWriter.GetStringBuilder().ToString()));
@@ -120,12 +119,9 @@ namespace MongoDB.Driver.Core.Helpers
             var startPosition = stream.Position;
             foreach (var reply in replies)
             {
-                using (var writer = new BsonBinaryWriter(stream))
-                {
-                    var encoderFactory = new BinaryMessageEncoderFactory(writer);
-                    var encoder = reply.GetEncoder(encoderFactory);
-                    encoder.WriteMessage(reply);
-                }
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
+                var encoder = reply.GetEncoder(encoderFactory);
+                encoder.WriteMessage(reply);
             }
             stream.Position = startPosition;
         }
@@ -140,24 +136,22 @@ namespace MongoDB.Driver.Core.Helpers
                 while (stream.Length > bytesRead)
                 {
                     int startPosition = bytesRead;
-                    using (var reader = new BsonBinaryReader(stream))
-                    {
-                        var length = reader.StreamReader.ReadInt32();
-                        var requestId = reader.StreamReader.ReadInt32();
-                        var responseTo = reader.StreamReader.ReadInt32();
-                        var opCode = (Opcode)reader.StreamReader.ReadInt32();
-                        bytesRead += length;
-                        stream.Position = startPosition;
+                    var streamReader = new BsonStreamReader(stream, Utf8Helper.StrictUtf8Encoding);
+                    var length = streamReader.ReadInt32();
+                    var requestId = streamReader.ReadInt32();
+                    var responseTo = streamReader.ReadInt32();
+                    var opCode = (Opcode)streamReader.ReadInt32();
+                    bytesRead += length;
+                    stream.Position = startPosition;
 
-                        var encoderFactory = new BinaryMessageEncoderFactory(reader);
-                        switch (opCode)
-                        {
-                            case Opcode.Query:
-                                requests.Add(encoderFactory.GetQueryMessageEncoder().ReadMessage());
-                                break;
-                            default:
-                                throw new InvalidOperationException("Unsupported request type.");
-                        }
+                    var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
+                    switch (opCode)
+                    {
+                        case Opcode.Query:
+                            requests.Add(encoderFactory.GetQueryMessageEncoder().ReadMessage());
+                            break;
+                        default:
+                            throw new InvalidOperationException("Unsupported request type.");
                     }
                 }
             }

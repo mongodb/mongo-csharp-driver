@@ -19,14 +19,26 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class PingOperation : IReadOperation<BsonDocument>
     {
+        // fields
+        private MessageEncoderSettings _messageEncoderSettings;
+
         // constructors
-        public PingOperation()
+        public PingOperation(MessageEncoderSettings messageEncoderSettings)
         {
+            _messageEncoderSettings = messageEncoderSettings;
+        }
+
+        // properties
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         // methods
@@ -42,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation("admin", command);
+            var operation = new ReadCommandOperation("admin", command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

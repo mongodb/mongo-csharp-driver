@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
@@ -44,8 +45,8 @@ namespace MongoDB.Driver.Core.Operations
         public UpdateRequest(BsonDocument query, BsonDocument update)
             : base(WriteRequestType.Update)
         {
-            _query = query;
-            _update = update;
+            _query = Ensure.IsNotNull(query, "query");
+            _update = Ensure.IsNotNull(update, "update");
         }
 
         // properties
@@ -82,7 +83,7 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Query
         {
             get { return _query; }
-            set { _query = value; }
+            set { _query = Ensure.IsNotNull(value, "value"); }
         }
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Update
         {
             get { return _update; }
-            set { _update = value; }
+            set { _update = Ensure.IsNotNull(value, "value"); }
         }
     }
 }

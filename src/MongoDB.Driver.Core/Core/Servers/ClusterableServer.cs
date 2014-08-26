@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Servers
 {
@@ -260,7 +261,8 @@ namespace MongoDB.Driver.Core.Servers
                 var isMasterCommand = new CommandWireProtocol(
                     "admin",
                     new BsonDocument("isMaster", 1),
-                    true);
+                    true,
+                    null);
 
                 var stopwatch = Stopwatch.StartNew();
                 var isMasterResultDocument = await isMasterCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken);
@@ -270,7 +272,8 @@ namespace MongoDB.Driver.Core.Servers
                 var buildInfoCommand = new CommandWireProtocol(
                     "admin",
                     new BsonDocument("buildInfo", 1),
-                    true);
+                    true,
+                    null);
 
                 var buildInfoResultRocument = await buildInfoCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken);
                 var buildInfoResult = new BuildInfoResult(buildInfoResultRocument);
@@ -388,11 +391,11 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public override async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
+            public override async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken)
             {
                 try
                 {
-                    return await base.ReceiveMessageAsync<TDocument>(responseTo, serializer, timeout, cancellationToken);
+                    return await base.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, timeout, cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -401,11 +404,11 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public override async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
+            public override async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken)
             {
                 try
                 {
-                    await base.SendMessagesAsync(messages, timeout, cancellationToken);
+                    await base.SendMessagesAsync(messages, messageEncoderSettings, timeout, cancellationToken);
                 }
                 catch (Exception ex)
                 {

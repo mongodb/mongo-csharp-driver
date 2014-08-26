@@ -22,56 +22,59 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class EvalOperation : IReadOperation<BsonValue>
     {
         // fields
-        private readonly string _databaseName;
-        private readonly BsonJavaScript _javaScript;
+        private string _databaseName;
+        private BsonJavaScript _javaScript;
         private TimeSpan? _maxTime;
-        private readonly bool? _nolock;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private bool? _nolock;
 
         // constructors
         public EvalOperation(
             string databaseName,
-            BsonJavaScript javaScript)
+            BsonJavaScript javaScript,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _javaScript = Ensure.IsNotNull(javaScript, "javaScript");
-        }
-
-        private EvalOperation(
-            string databaseName,
-            BsonJavaScript javaScript,
-            bool? nolock)
-        {
-            _databaseName = databaseName;
-            _javaScript = javaScript;
-            _nolock = nolock;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public BsonJavaScript JavaScript
         {
             get { return _javaScript; }
+            set { _javaScript = Ensure.IsNotNull(value, "value"); }
         }
 
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
-            set { _maxTime = value; }
+            set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         public bool? Nolock
         {
             get { return _nolock; }
+            set { _nolock = value; }
         }
 
         // methods
@@ -91,26 +94,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(_databaseName, command);
+            var operation = new ReadCommandOperation(_databaseName, command, _messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
             return result["retval"];
-        }
-
-        public EvalOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new EvalOperation(value, _javaScript, _nolock);
-        }
-
-        public EvalOperation WithJavaScript(BsonJavaScript value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return (_javaScript == value) ? this : new EvalOperation(_databaseName, value, _nolock);
-        }
-
-        public EvalOperation WithNoLock(bool? value)
-        {
-            return (_nolock == value) ? this : new EvalOperation(_databaseName, _javaScript, value);
         }
     }
 }

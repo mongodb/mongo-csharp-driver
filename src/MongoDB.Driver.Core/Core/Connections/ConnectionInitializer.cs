@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Connections
             var slidingTimeout = new SlidingTimeout(timeout);
 
             var isMasterCommand = new BsonDocument("isMaster", 1);
-            var isMasterProtocol = new CommandWireProtocol("admin", isMasterCommand, true);
+            var isMasterProtocol = new CommandWireProtocol("admin", isMasterCommand, true, null);
             var isMasterResult = new IsMasterResult(await isMasterProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken));
 
             // authentication is currently broken on arbiters
@@ -50,11 +50,11 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             var buildInfoCommand = new BsonDocument("buildInfo", 1);
-            var buildInfoProtocol = new CommandWireProtocol("admin", buildInfoCommand, true);
+            var buildInfoProtocol = new CommandWireProtocol("admin", buildInfoCommand, true, null);
             var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken));
 
             var getLastErrorCommand = new BsonDocument("getLastError", 1);
-            var getLastErrorProtocol = new CommandWireProtocol("admin", getLastErrorCommand, true);
+            var getLastErrorProtocol = new CommandWireProtocol("admin", getLastErrorCommand, true, null);
             var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
 
             BsonValue connectionIdBsonValue;

@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private static readonly string __databaseName = "d";
         private static readonly BsonDocument __fields = new BsonDocument("f", 1);
         private static readonly int __flagsOffset;
+        private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly bool __noCursorTimeout = true;
         private static readonly bool __partialOk = true;
         private static readonly BsonDocument __query = new BsonDocument("x", 1);
@@ -69,43 +70,19 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         #endregion
 
         [Test]
-        public void Constructor_should_not_throw_if_binaryReader_and_binaryWriter_are_both_provided()
+        public void Constructor_should_not_throw_if_stream_is_provided()
         {
             using (var stream = new MemoryStream())
-            using (var binaryReader = new BsonBinaryReader(stream))
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                Action action = () => new QueryMessageBinaryEncoder(binaryReader, binaryWriter);
+                Action action = () => new QueryMessageBinaryEncoder(stream, __messageEncoderSettings);
                 action.ShouldNotThrow();
             }
         }
 
         [Test]
-        public void Constructor_should_not_throw_if_only_binaryReader_is_provided()
+        public void Constructor_should_throw_if_stream_is_null()
         {
-            using (var stream = new MemoryStream())
-            using (var binaryReader = new BsonBinaryReader(stream))
-            {
-                Action action = () => new QueryMessageBinaryEncoder(binaryReader, null);
-                action.ShouldNotThrow();
-            }
-        }
-
-        [Test]
-        public void Constructor_should_not_throw_if_only_binaryWriter_is_provided()
-        {
-            using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
-            {
-                Action action = () => new QueryMessageBinaryEncoder(null, binaryWriter);
-                action.ShouldNotThrow();
-            }
-        }
-
-        [Test]
-        public void Constructor_should_throw_if_binaryReader_and_binaryWriter_are_both_null()
-        {
-            Action action = () => new QueryMessageBinaryEncoder(null, null);
+            Action action = () => new QueryMessageBinaryEncoder(null, __messageEncoderSettings);
             action.ShouldThrow<ArgumentException>();
         }
 
@@ -121,9 +98,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             bytes[__flagsOffset] = (byte)flags;
 
             using (var stream = new MemoryStream(bytes))
-            using (var binaryReader = new BsonBinaryReader(stream))
             {
-                var subject = new QueryMessageBinaryEncoder(binaryReader, null);
+                var subject = new QueryMessageBinaryEncoder(stream, __messageEncoderSettings);
                 var message = subject.ReadMessage();
                 message.TailableCursor.Should().Be(tailableCursor);
                 message.SlaveOk.Should().Be(slaveOk);
@@ -137,9 +113,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void ReadMessage_should_read_a_message()
         {
             using (var stream = new MemoryStream(__testMessageBytes))
-            using (var binaryReader = new BsonBinaryReader(stream))
             {
-                var subject = new QueryMessageBinaryEncoder(binaryReader, null);
+                var subject = new QueryMessageBinaryEncoder(stream, __messageEncoderSettings);
                 var message = subject.ReadMessage();
                 message.DatabaseName.Should().Be(__databaseName);
                 message.CollectionName.Should().Be(__collectionName);
@@ -156,18 +131,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Test]
-        public void ReadMessage_should_throw_if_binaryReader_was_not_provided()
-        {
-            using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
-            {
-                var subject = new QueryMessageBinaryEncoder(null, binaryWriter);
-                Action action = () => subject.ReadMessage();
-                action.ShouldThrow<InvalidOperationException>();
-            }
-        }
-
         [TestCase(0, false, false, false, false, false)]
         [TestCase(2, true, false, false, false, false)]
         [TestCase(4, false, true, false, false, false)]
@@ -179,9 +142,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var message = new QueryMessage(__requestId, __databaseName, __collectionName, __query, __fields, __skip, __batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
 
             using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                var subject = new QueryMessageBinaryEncoder(null, binaryWriter);
+                var subject = new QueryMessageBinaryEncoder(stream, __messageEncoderSettings);
                 subject.WriteMessage(message);
                 var bytes = stream.ToArray();
                 bytes[__flagsOffset].Should().Be((byte)flags);
@@ -189,24 +151,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         [Test]
-        public void WriteMessage_should_throw_if_binaryWriter_was_not_provided()
-        {
-            using (var stream = new MemoryStream())
-            using (var binaryReader = new BsonBinaryReader(stream))
-            {
-                var subject = new QueryMessageBinaryEncoder(binaryReader, null);
-                Action action = () => subject.WriteMessage(__testMessage);
-                action.ShouldThrow<InvalidOperationException>();
-            }
-        }
-
-        [Test]
         public void WriteMessage_should_throw_if_message_is_null()
         {
             using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                var subject = new QueryMessageBinaryEncoder(null, binaryWriter);
+                var subject = new QueryMessageBinaryEncoder(stream, __messageEncoderSettings);
                 Action action = () => subject.WriteMessage(null);
                 action.ShouldThrow<ArgumentNullException>();
             }
@@ -216,9 +165,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void WriteMessage_should_write_a_message()
         {
             using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                var subject = new QueryMessageBinaryEncoder(null, binaryWriter);
+                var subject = new QueryMessageBinaryEncoder(stream, __messageEncoderSettings);
                 subject.WriteMessage(__testMessage);
                 var bytes = stream.ToArray();
                 bytes.Should().Equal(__testMessageBytes);

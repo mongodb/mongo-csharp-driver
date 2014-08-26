@@ -21,6 +21,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
@@ -31,6 +32,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly int _batchSize;
         private readonly string _collectionName;
         private readonly string _databaseName;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly BsonDocument _fields;
         private readonly bool _noCursorTimeout;
         private readonly bool _partialOk;
@@ -53,7 +55,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             bool noCursorTimeout,
             bool tailableCursor,
             bool awaitData,
-            IBsonSerializer<TDocument> serializer)
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
@@ -67,6 +70,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             _tailableCursor = tailableCursor;
             _awaitData = awaitData;
             _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // methods
@@ -91,8 +95,8 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             var message = CreateMessage();
-            await connection.SendMessageAsync(message, slidingTimeout, cancellationToken);
-            var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, slidingTimeout, cancellationToken);
+            await connection.SendMessageAsync(message, _messageEncoderSettings, slidingTimeout, cancellationToken);
+            var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, _messageEncoderSettings, slidingTimeout, cancellationToken);
             return ProcessReply(reply);
         }
 

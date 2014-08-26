@@ -21,29 +21,19 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    public class KillCursorsMessageBinaryEncoder : IMessageEncoder<KillCursorsMessage>
+    public class KillCursorsMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<KillCursorsMessage>
     {
-        // fields
-        private readonly BsonBinaryReader _binaryReader;
-        private readonly BsonBinaryWriter _binaryWriter;
-
         // constructors
-        public KillCursorsMessageBinaryEncoder(BsonBinaryReader binaryReader, BsonBinaryWriter binaryWriter)
+        public KillCursorsMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
+            : base(stream, encoderSettings)
         {
-            Ensure.That(binaryReader != null || binaryWriter != null, "binaryReader and binaryWriter cannot both be null.");
-            _binaryReader = binaryReader;
-            _binaryWriter = binaryWriter;
         }
 
         // methods
         public KillCursorsMessage ReadMessage()
         {
-            if (_binaryReader == null)
-            {
-                throw new InvalidOperationException("No binaryReader was provided.");
-            }
-
-            var streamReader = _binaryReader.StreamReader;
+            var binaryReader = CreateBinaryReader();
+            var streamReader = binaryReader.StreamReader;
 
             var messageSize = streamReader.ReadInt32();
             var requestId = streamReader.ReadInt32();
@@ -65,12 +55,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void WriteMessage(KillCursorsMessage message)
         {
             Ensure.IsNotNull(message, "message");
-            if (_binaryWriter == null)
-            {
-                throw new InvalidOperationException("No binaryWriter was provided.");
-            }
 
-            var streamWriter = _binaryWriter.StreamWriter;
+            var binaryWriter = CreateBinaryWriter();
+            var streamWriter = binaryWriter.StreamWriter;
             var startPosition = streamWriter.Position;
 
             streamWriter.WriteInt32(0); // messageSize

@@ -28,79 +28,28 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     public class BinaryMessageEncoderFactoryTests
     {
         [Test]
-        public void Constructor_with_binaryReader_parameter_should_not_throw_if_binaryReader_is_not_null()
+        public void Constructor_should_not_throw_if_stream_is_not_null()
         {
             using (var stream = new MemoryStream())
-            using (var binaryReader = new BsonBinaryReader(stream))
             {
-                Action action = () => new BinaryMessageEncoderFactory(binaryReader);
+                Action action = () => new BinaryMessageEncoderFactory(stream, null);
                 action.ShouldNotThrow();
             }
         }
 
         [Test]
-        public void Constructor_with_binaryReader_parameter_should_throw_if_binaryReader_is_null()
-        {
-            BsonBinaryReader binaryReader = null;
-            Action action = () => new BinaryMessageEncoderFactory(binaryReader);
-            action.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_with_binaryWriter_parameter_should_not_throw_if_binaryWriter_is_not_null()
-        {
-            using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
-            {
-                Action action = () => new BinaryMessageEncoderFactory(binaryWriter);
-                action.ShouldNotThrow();
-            }
-        }
-
-        [Test]
-        public void Constructor_with_binaryWriter_parameter_should_throw_if_binaryWriter_is_null()
-        {
-            BsonBinaryWriter binaryWriter = null;
-            Action action = () => new BinaryMessageEncoderFactory(binaryWriter);
-            action.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_with_two_parameters_should_not_throw_if_only_binaryReader_is_provided()
-        {
-            using (var stream = new MemoryStream())
-            using (var binaryReader = new BsonBinaryReader(stream))
-            {
-                Action action = () => new BinaryMessageEncoderFactory(binaryReader, null);
-                action.ShouldNotThrow();
-            }
-        }
-
-        [Test]
-        public void Constructor_with_two_parameters_should_not_throw_if_only_binaryWriter_is_provided()
-        {
-            using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
-            {
-                Action action = () => new BinaryMessageEncoderFactory(null, binaryWriter);
-                action.ShouldNotThrow();
-            }
-        }
-
-        [Test]
-        public void Constructor_with_two_parameters_should_throw_if_both_values_are_null()
+        public void Constructor_should_throw_if_stream_is_null()
         {
             Action action = () => new BinaryMessageEncoderFactory(null, null);
-            action.ShouldThrow<ArgumentException>();
+            action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void GetDeleteMessageEncoder_should_return_a_DeleteMessageBinaryEncoder()
         {
             using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                var encoderFactory = new BinaryMessageEncoderFactory(null, binaryWriter);
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
                 var encoder = encoderFactory.GetDeleteMessageEncoder();
                 encoder.Should().BeOfType<DeleteMessageBinaryEncoder>();
             }
@@ -110,9 +59,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void GetGetMoreMessageEncoder_should_return_a_GetMoreMessageBinaryEncoder()
         {
             using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                var encoderFactory = new BinaryMessageEncoderFactory(null, binaryWriter);
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
                 var encoder = encoderFactory.GetGetMoreMessageEncoder();
                 encoder.Should().BeOfType<GetMoreMessageBinaryEncoder>();
             }
@@ -122,9 +70,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void GetInsertMessageEncoder_should_return_a_InsertMessageBinaryEncoder()
         {
             using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                var encoderFactory = new BinaryMessageEncoderFactory(null, binaryWriter);
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
                 var encoder = encoderFactory.GetInsertMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
                 encoder.Should().BeOfType<InsertMessageBinaryEncoder<BsonDocument>>();
             }
@@ -134,9 +81,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void GetKillCursorsMessageEncoder_should_return_a_KillCursorsMessageBinaryEncoder()
         {
             using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                var encoderFactory = new BinaryMessageEncoderFactory(null, binaryWriter);
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
                 var encoder = encoderFactory.GetKillCursorsMessageEncoder();
                 encoder.Should().BeOfType<KillCursorsMessageBinaryEncoder>();
             }
@@ -146,9 +92,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void GetQueryMessageEncoder_should_return_a_QueryMessageBinaryEncoder()
         {
             using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                var encoderFactory = new BinaryMessageEncoderFactory(null, binaryWriter);
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
                 var encoder = encoderFactory.GetQueryMessageEncoder();
                 encoder.Should().BeOfType<QueryMessageBinaryEncoder>();
             }
@@ -158,9 +103,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void GetReplyMessageEncoder_should_return_a_ReplyMessageBinaryEncoder()
         {
             using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                var encoderFactory = new BinaryMessageEncoderFactory(null, binaryWriter);
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
                 var encoder = encoderFactory.GetReplyMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
                 encoder.Should().BeOfType<ReplyMessageBinaryEncoder<BsonDocument>>();
             }
@@ -170,9 +114,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void GetUpdateMessageEncoder_should_return_a_UpdateMessageBinaryEncoder()
         {
             using (var stream = new MemoryStream())
-            using (var binaryWriter = new BsonBinaryWriter(stream))
             {
-                var encoderFactory = new BinaryMessageEncoderFactory(null, binaryWriter);
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
                 var encoder = encoderFactory.GetUpdateMessageEncoder();
                 encoder.Should().BeOfType<UpdateMessageBinaryEncoder>();
             }

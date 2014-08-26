@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -30,19 +31,21 @@ namespace MongoDB.Driver.Core.Operations
         private string _collectionName;
         private string _databaseName;
         private bool _isMulti;
+        private MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _query;
-        private WriteConcern _writeConcern;
+        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public DeleteOpcodeOperationEmulator(
             string databaseName,
             string collectionName,
-            BsonDocument query)
+            BsonDocument query,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _query = Ensure.IsNotNull(query, "query");
-            _writeConcern = WriteConcern.Acknowledged;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -62,6 +65,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _isMulti; }
             set { _isMulti = value; }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         public BsonDocument Query
@@ -84,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             var limit = _isMulti ? 0 : 1;
             var requests = new[] { new DeleteRequest(_query) { Limit = limit } };
 
-            var operation = new BulkDeleteOperation(_databaseName, _collectionName, requests)
+            var operation = new BulkDeleteOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
             {
                 WriteConcern = _writeConcern
             };

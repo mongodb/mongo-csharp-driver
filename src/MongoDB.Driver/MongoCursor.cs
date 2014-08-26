@@ -731,7 +731,10 @@ namespace MongoDB.Driver
                 }
             }
 
-            var operation = new FindOperation<TDocument>(Database.Name, Collection.Name, Serializer, Query.ToBsonDocument())
+            var queryDocument = Query == null ? new BsonDocument() : Query.ToBsonDocument();
+            var messageEncoderSettings = Collection.GetMessageEncoderSettings();
+
+            var operation = new FindOperation<TDocument>(Database.Name, Collection.Name, queryDocument, Serializer, messageEncoderSettings)
             {
                 AdditionalOptions = Options,
                 BatchSize = BatchSize,

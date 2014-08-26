@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -37,21 +38,23 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxBatchCount;
         private int? _maxDocumentSize;
         private int? _maxMessageSize;
+        private MessageEncoderSettings _messageEncoderSettings;
         private IBsonSerializer<TDocument> _serializer;
-        private WriteConcern _writeConcern;
+        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public InsertOpcodeOperationEmulator(
             string databaseName,
             string collectionName,
             IBsonSerializer<TDocument> serializer,
-            BatchableSource<TDocument> documentSource)
+            BatchableSource<TDocument> documentSource,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
-            _writeConcern = WriteConcern.Acknowledged;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -97,6 +100,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxMessageSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
@@ -115,7 +124,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(connection, "connection");
 
             var requests = _documentSource.GetRemainingItems().Select(d => new InsertRequest(d, _serializer));
-            var operation = new BulkInsertOperation(_databaseName, _collectionName, requests)
+            var operation = new BulkInsertOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
             {
                 // CheckElementNames = ?
                 IsOrdered = !_continueOnError,

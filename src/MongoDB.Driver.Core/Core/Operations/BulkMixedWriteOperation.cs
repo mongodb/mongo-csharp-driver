@@ -25,6 +25,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -45,20 +46,21 @@ namespace MongoDB.Driver.Core.Operations
         private int _maxBatchLength = int.MaxValue;
         private int _maxDocumentSize = int.MaxValue;
         private int _maxWireDocumentSize = int.MaxValue;
+        private MessageEncoderSettings _messageEncoderSettings;
         private IEnumerable<WriteRequest> _requests;
-        private BsonBinaryReaderSettings _readerSettings = BsonBinaryReaderSettings.Defaults;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
-        private BsonBinaryWriterSettings _writerSettings = BsonBinaryWriterSettings.Defaults;
 
         // constructors
         public BulkMixedWriteOperation(
             string databaseName,
             string collectionName,
-            IEnumerable<WriteRequest> requests)
+            IEnumerable<WriteRequest> requests,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _requests = Ensure.IsNotNull(requests, "requests");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -116,28 +118,22 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxWireDocumentSize = Ensure.IsGreaterThanOrEqualToZero(value, "value"); }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public IEnumerable<WriteRequest> Requests
         {
             get { return _requests; }
             set {  _requests = Ensure.IsNotNull(value, "value"); }
         }
 
-        public BsonBinaryReaderSettings ReaderSettings
-        {
-            get { return _readerSettings; }
-            set { _readerSettings = Ensure.IsNotNull(value, "value"); }
-        }
-
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
             set { _writeConcern = Ensure.IsNotNull(value, "value"); }
-        }
-
-        public BsonBinaryWriterSettings WriterSettings
-        {
-            get { return _writerSettings; }
-            set { _writerSettings = Ensure.IsNotNull(value, "value"); }
         }
 
         // methods
@@ -216,44 +212,39 @@ namespace MongoDB.Driver.Core.Operations
 
         private Task<BulkWriteResult> ExecuteDeletesAsync(IConnectionHandle connection, IEnumerable<DeleteRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var operation = new BulkDeleteOperation(_databaseName, _collectionName, requests)
+            var operation = new BulkDeleteOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
             {
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
-                ReaderSettings = _readerSettings,
-                WriteConcern = _writeConcern,
-                WriterSettings = _writerSettings
+                WriteConcern = _writeConcern
             };
             return operation.ExecuteAsync(connection, timeout, cancellationToken);
         }
 
         private Task<BulkWriteResult> ExecuteInsertsAsync(IConnectionHandle connection, IEnumerable<InsertRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var operation = new BulkInsertOperation(_databaseName, _collectionName, requests)
+            var operation = new BulkInsertOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
             {
                 AssignId = _assignId,
                 CheckElementNames = _checkElementNames,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
                 IsOrdered = _isOrdered,
-                ReaderSettings = _readerSettings,
-                WriteConcern = _writeConcern,
-                WriterSettings = _writerSettings
+                MessageEncoderSettings = _messageEncoderSettings,
+                WriteConcern = _writeConcern
             };
             return operation.ExecuteAsync(connection, timeout, cancellationToken);
         }
 
         private Task<BulkWriteResult> ExecuteUpdatesAsync(IConnectionHandle connection, IEnumerable<UpdateRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var operation = new BulkUpdateOperation(_databaseName, _collectionName, requests)
+            var operation = new BulkUpdateOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
             {
                 CheckElementNames = _checkElementNames,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
                 IsOrdered = _isOrdered,
-                ReaderSettings = _readerSettings,
-                WriteConcern = _writeConcern,
-                WriterSettings = _writerSettings
+                WriteConcern = _writeConcern
             };
             return operation.ExecuteAsync(connection, timeout, cancellationToken);
         }

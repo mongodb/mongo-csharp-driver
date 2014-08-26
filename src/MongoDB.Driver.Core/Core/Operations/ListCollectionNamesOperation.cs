@@ -18,8 +18,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -27,11 +29,15 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private string _databaseName;
+        private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
-        public ListCollectionNamesOperation(string databaseName)
+        public ListCollectionNamesOperation(
+            string databaseName,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -41,11 +47,17 @@ namespace MongoDB.Driver.Core.Operations
             set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         // methods
         public async Task<IReadOnlyList<string>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            var operation = new FindOperation(_databaseName, "system.namespaces");
+            var operation = new FindOperation(_databaseName, "system.namespaces", new BsonDocument(), _messageEncoderSettings);
             var cursor = await operation.ExecuteAsync(binding, timeout, cancellationToken);
 
             var result = new List<string>();

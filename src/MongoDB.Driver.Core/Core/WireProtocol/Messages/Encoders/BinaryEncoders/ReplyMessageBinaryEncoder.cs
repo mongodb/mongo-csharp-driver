@@ -27,31 +27,23 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    public class ReplyMessageBinaryEncoder<TDocument> : IMessageEncoder<ReplyMessage<TDocument>>
+    public class ReplyMessageBinaryEncoder<TDocument> : MessageBinaryEncoderBase, IMessageEncoder<ReplyMessage<TDocument>>
     {
         // fields
-        private readonly BsonBinaryReader _binaryReader;
-        private readonly BsonBinaryWriter _binaryWriter;
         private readonly IBsonSerializer<TDocument> _serializer;
 
         // constructors
-        public ReplyMessageBinaryEncoder(BsonBinaryReader binaryReader, BsonBinaryWriter binaryWriter, IBsonSerializer<TDocument> serializer)
+        public ReplyMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
+            : base(stream, encoderSettings)
         {
-            Ensure.That(binaryReader != null || binaryWriter != null, "binaryReader and binaryWriter cannot both be null.");
-            _binaryReader = binaryReader;
-            _binaryWriter = binaryWriter;
             _serializer = Ensure.IsNotNull(serializer, "serializer");
         }
 
         // methods
         public ReplyMessage<TDocument> ReadMessage()
         {
-            if (_binaryReader == null)
-            {
-                throw new InvalidOperationException("No binaryReader was provided.");
-            }
-
-            var streamReader = _binaryReader.StreamReader;
+            var binaryReader = CreateBinaryReader();
+            var streamReader = binaryReader.StreamReader;
 
             var messageSize = streamReader.ReadInt32();
             var requestId = streamReader.ReadInt32();
@@ -70,7 +62,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             if (queryFailure)
             {
-                var context = BsonDeserializationContext.CreateRoot<BsonDocument>(_binaryReader);
+                var context = BsonDeserializationContext.CreateRoot<BsonDocument>(binaryReader);
                 queryFailureDocument = BsonDocumentSerializer.Instance.Deserialize(context);
             }
             else
@@ -78,7 +70,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 documents = new List<TDocument>();
                 for (var i = 0; i < numberReturned; i++)
                 {
-                    var context = BsonDeserializationContext.CreateRoot<TDocument>(_binaryReader);
+                    var context = BsonDeserializationContext.CreateRoot<TDocument>(binaryReader);
                     documents.Add(_serializer.Deserialize(context));
                 }
             }
@@ -100,12 +92,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void WriteMessage(ReplyMessage<TDocument> message)
         {
             Ensure.IsNotNull(message, "message");
-            if (_binaryWriter == null)
-            {
-                throw new InvalidOperationException("No binaryWriter was provided.");
-            }
 
-            var streamWriter = _binaryWriter.StreamWriter;
+            var binaryWriter = CreateBinaryWriter();
+            var streamWriter = binaryWriter.StreamWriter;
             var startPosition = streamWriter.Position;
 
             streamWriter.WriteInt32(0); // messageSize
@@ -133,14 +122,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(message.NumberReturned);
             if (message.QueryFailure)
             {
-                var context = BsonSerializationContext.CreateRoot<TDocument>(_binaryWriter);
+                var context = BsonSerializationContext.CreateRoot<TDocument>(binaryWriter);
                 _serializer.Serialize(context, message.QueryFailureDocument);
             }
             else
             {
                 foreach (var doc in message.Documents)
                 {
-                    var context = BsonSerializationContext.CreateRoot<TDocument>(_binaryWriter);
+                    var context = BsonSerializationContext.CreateRoot<TDocument>(binaryWriter);
                     _serializer.Serialize(context, doc);
                 }
             }

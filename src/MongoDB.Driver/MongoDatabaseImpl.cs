@@ -20,9 +20,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
 {
@@ -53,29 +55,32 @@ namespace MongoDB.Driver
 
         public Task DropAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var operation = new DropDatabaseOperation(_databaseName);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new DropDatabaseOperation(_databaseName, messageEncoderSettings);
             return ExecuteWriteOperation(operation, timeout, cancellationToken);
         }
 
         public Task<IReadOnlyList<string>> GetCollectionNamesAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var operation = new ListCollectionNamesOperation(_databaseName);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new ListCollectionNamesOperation(_databaseName, messageEncoderSettings);
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
         public Task<T> RunCommandAsync<T>(BsonDocument command, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var isReadCommand = CanCommandBeSentToSecondary.Delegate(command);
-
             var serializer = _settings.SerializerRegistry.GetSerializer<T>();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+
             if (isReadCommand)
             {
-                var operation = new ReadCommandOperation<T>(_databaseName, command, serializer);
+                var operation = new ReadCommandOperation<T>(_databaseName, command, serializer, messageEncoderSettings);
                 return ExecuteReadOperation<T>(operation, timeout, cancellationToken);
             }
             else
             {
-                var operation = new WriteCommandOperation<T>(_databaseName, command, serializer);
+                var operation = new WriteCommandOperation<T>(_databaseName, command, serializer, messageEncoderSettings);
                 return ExecuteWriteOperation<T>(operation, timeout, cancellationToken);
             }
         }
@@ -95,6 +100,16 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout, cancellationToken);
             }
+        }
+
+        private MessageEncoderSettings GetMessageEncoderSettings()
+        {
+            return new MessageEncoderSettings
+            {
+                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
+                { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Helper.StrictUtf8Encoding },
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Helper.StrictUtf8Encoding }
+            };
         }
     }
 }

@@ -22,49 +22,63 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class DropIndexOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly string _indexName;
+        private string _collectionName;
+        private string _databaseName;
+        private string _indexName;
+        private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public DropIndexOperation(
             string databaseName,
             string collectionName,
-            BsonDocument keys)
-            : this(databaseName, collectionName, CreateIndexOperation.GetDefaultIndexName(keys))
+            BsonDocument keys,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(databaseName, collectionName, CreateIndexOperation.GetDefaultIndexName(keys), messageEncoderSettings)
         {
         }
 
         public DropIndexOperation(
             string databaseName,
             string collectionName,
-            string indexName)
+            string indexName,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _indexName = Ensure.IsNotNullOrEmpty(indexName, "indexName");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string IndexName
         {
             get { return _indexName; }
+            set { _indexName = Ensure.IsNotNullOrEmpty(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         // methods
@@ -81,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseName, command);
+            var operation = new WriteCommandOperation(_databaseName, command, _messageEncoderSettings);
             try
             {
                 return await operation.ExecuteAsync(binding, timeout, cancellationToken);
@@ -95,31 +109,6 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 throw;
             }
-        }
-
-        public DropIndexOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new DropIndexOperation(_databaseName, value, _indexName);
-        }
-
-        public DropIndexOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new DropIndexOperation(value, _collectionName, _indexName);
-        }
-
-        public DropIndexOperation WithIndexName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_indexName == value) ? this : new DropIndexOperation(_databaseName, _collectionName, value);
-        }
-
-        public DropIndexOperation WithKeys(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            var indexName = CreateIndexOperation.GetDefaultIndexName(value);
-            return WithIndexName(indexName);
         }
     }
 }

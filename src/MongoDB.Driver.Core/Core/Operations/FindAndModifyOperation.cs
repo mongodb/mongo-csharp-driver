@@ -23,21 +23,23 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class FindAndModifyOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly FindAndModifyDocumentVersion? _documentVersionReturned;
-        private readonly BsonDocument _fields;
+        private string _collectionName;
+        private string _databaseName;
+        private FindAndModifyDocumentVersion? _documentVersionReturned;
+        private BsonDocument _fields;
         private TimeSpan? _maxTime;
-        private readonly BsonDocument _query;
-        private readonly BsonDocument _sort;
-        private readonly BsonDocument _update;
-        private readonly bool? _upsert;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private BsonDocument _query;
+        private BsonDocument _sort;
+        private BsonDocument _update;
+        private bool? _upsert;
 
         // constructors
         public FindAndModifyOperation(
@@ -45,54 +47,38 @@ namespace MongoDB.Driver.Core.Operations
             string collectionName,
             BsonDocument query,
             BsonDocument update,
-            BsonDocument sort = null)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
-            _query = Ensure.IsNotNull(query, "query");
-            _update = Ensure.IsNotNull(update, "update");
-            _sort = sort; // can be null
-        }
-
-        private FindAndModifyOperation(
-            string collectionName,
-            string databaseName,
-            FindAndModifyDocumentVersion? documentVersionReturned,
-            BsonDocument fields,
-            BsonDocument query,
-            BsonDocument sort,
-            BsonDocument update,
-            bool? upsert)
-        {
-            _collectionName = collectionName;
-            _databaseName = databaseName;
-            _documentVersionReturned = documentVersionReturned;
-            _fields = fields;
             _query = query;
-            _sort = sort;
-            _update = update;
-            _upsert = upsert;
+            _update = Ensure.IsNotNull(update, "update");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public FindAndModifyDocumentVersion? DocumentVersionReturned
         {
             get { return _documentVersionReturned; }
+            set { _documentVersionReturned = value; }
         }
 
         public BsonDocument Fields
         {
             get { return _fields; }
+            set { _fields = value; }
         }
 
         public TimeSpan? MaxTime
@@ -101,24 +87,34 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = value; }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public BsonDocument Query
         {
             get { return _query; }
+            set { _query = value; }
         }
 
         public BsonDocument Sort
         {
             get { return _sort; }
+            set { _sort = value; }
         }
 
         public BsonDocument Update
         {
             get { return _update; }
+            set { _update = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool? Upsert
         {
             get { return _upsert; }
+            set { _upsert = value; }
         }
 
         // methods
@@ -148,93 +144,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseName, command);
+            var operation = new WriteCommandOperation(_databaseName, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
-        }
-
-        public FindAndModifyOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public FindAndModifyOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public FindAndModifyOperation WithDocumentVersionReturned(FindAndModifyDocumentVersion? value)
-        {
-            return (_documentVersionReturned == value) ? this : new Builder(this) { _documentVersionReturned = value }.Build();
-        }
-
-        public FindAndModifyOperation WithFields(BsonDocument value)
-        {
-            return object.ReferenceEquals(_fields, value) ? this : new Builder(this) { _fields = value }.Build();
-        }
-
-        public FindAndModifyOperation WithQuery(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_query, value) ? this : new Builder(this) { _query = value }.Build();
-        }
-
-        public FindAndModifyOperation WithSort(BsonDocument value)
-        {
-            return object.ReferenceEquals(_sort, value) ? this : new Builder(this) { _sort = value }.Build();
-        }
-
-        public FindAndModifyOperation WithUpdate(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_update, value) ? this : new Builder(this) { _update = value }.Build();
-        }
-
-        public FindAndModifyOperation WithUpsert(bool? value)
-        {
-            return (_upsert == value) ? this : new Builder(this) { _upsert = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public string _collectionName;
-            public string _databaseName;
-            public FindAndModifyDocumentVersion? _documentVersionReturned;
-            public BsonDocument _fields;
-            public BsonDocument _query;
-            public BsonDocument _sort;
-            public BsonDocument _update;
-            public bool? _upsert;
-
-            // constructors
-            public Builder(FindAndModifyOperation other)
-            {
-                _collectionName = other.CollectionName;
-                _databaseName = other.DatabaseName;
-                _documentVersionReturned = other.DocumentVersionReturned;
-                _fields = other.Fields;
-                _query = other.Query;
-                _sort = other.Sort;
-                _update = other.Update;
-                _upsert = other.Upsert;
-            }
-
-            // methods
-            public FindAndModifyOperation Build()
-            {
-                return new FindAndModifyOperation(
-                    _collectionName,
-                    _databaseName,
-                    _documentVersionReturned,
-                    _fields,
-                    _query,
-                    _sort,
-                    _update,
-                    _upsert);
-            }
         }
     }
 }

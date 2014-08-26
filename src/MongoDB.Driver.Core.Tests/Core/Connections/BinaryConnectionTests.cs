@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -26,14 +24,13 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -45,6 +42,7 @@ namespace MongoDB.Driver.Core.Connections
         private IConnectionInitializer _connectionInitializer;
         private DnsEndPoint _endPoint;
         private IConnectionListener _listener;
+        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private IStreamFactory _streamFactory;
         private BinaryConnection _subject;
 
@@ -163,7 +161,7 @@ namespace MongoDB.Driver.Core.Connections
         public void ReceiveMessageAsync_should_throw_an_ArgumentOutOfRangeException_when_timeout_is_out_of_range(int timeoutMilliseconds)
         {
             var serializer = Substitute.For<IBsonSerializer<BsonDocument>>();
-            Action act = () => _subject.ReceiveMessageAsync(10, serializer, TimeSpan.FromMilliseconds(timeoutMilliseconds), CancellationToken.None).Wait();
+            Action act = () => _subject.ReceiveMessageAsync(10, serializer, _messageEncoderSettings, TimeSpan.FromMilliseconds(timeoutMilliseconds), CancellationToken.None).Wait();
 
             act.ShouldThrow<ArgumentOutOfRangeException>();
         }
@@ -172,7 +170,7 @@ namespace MongoDB.Driver.Core.Connections
         public void ReceiveMessageAsync_should_throw_an_ArgumentNullException_when_the_serializer_is_null()
         {
             IBsonSerializer<int> serializer = null;
-            Action act = () => _subject.ReceiveMessageAsync(10, serializer, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.ReceiveMessageAsync(10, serializer, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -183,7 +181,7 @@ namespace MongoDB.Driver.Core.Connections
             var serializer = Substitute.For<IBsonSerializer<BsonDocument>>();
             _subject.Dispose();
 
-            Action act = () => _subject.ReceiveMessageAsync(10, serializer, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.ReceiveMessageAsync(10, serializer, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -193,7 +191,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var serializer = Substitute.For<IBsonSerializer<BsonDocument>>();
 
-            Action act = () => _subject.ReceiveMessageAsync(10, serializer, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.ReceiveMessageAsync(10, serializer, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<InvalidOperationException>();
         }
@@ -211,7 +209,7 @@ namespace MongoDB.Driver.Core.Connections
                 var messageToReceive = MessageHelper.BuildSuccessReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
                 MessageHelper.WriteRepliesToStream(stream, new[] { messageToReceive });
 
-                var received = _subject.ReceiveMessageAsync(10, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+                var received = _subject.ReceiveMessageAsync(10, BsonDocumentSerializer.Instance, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
 
                 var expected = MessageHelper.TranslateMessagesToBsonDocuments(new[] { messageToReceive });
                 var actual = MessageHelper.TranslateMessagesToBsonDocuments(new[] { received });
@@ -233,7 +231,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
-                var receivedTask = _subject.ReceiveMessageAsync(10, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var receivedTask = _subject.ReceiveMessageAsync(10, BsonDocumentSerializer.Instance, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
                 receivedTask.IsCompleted.Should().BeFalse();
 
@@ -259,8 +257,8 @@ namespace MongoDB.Driver.Core.Connections
 
                 _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
-                var receivedTask11 = _subject.ReceiveMessageAsync(11, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
-                var receivedTask10 = _subject.ReceiveMessageAsync(10, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var receivedTask11 = _subject.ReceiveMessageAsync(11, BsonDocumentSerializer.Instance, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var receivedTask10 = _subject.ReceiveMessageAsync(10, BsonDocumentSerializer.Instance, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
                 var messageToReceive10 = MessageHelper.BuildSuccessReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
                 var messageToReceive11 = MessageHelper.BuildSuccessReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 11);
@@ -294,8 +292,8 @@ namespace MongoDB.Driver.Core.Connections
 
                 _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
-                var task1 = _subject.ReceiveMessageAsync<BsonDocument>(1, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
-                var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var task1 = _subject.ReceiveMessageAsync<BsonDocument>(1, BsonDocumentSerializer.Instance, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
                 readTcs.SetException(new SocketException());
 
@@ -328,14 +326,14 @@ namespace MongoDB.Driver.Core.Connections
 
                 _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
-                var task1 = _subject.ReceiveMessageAsync<BsonDocument>(1, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var task1 = _subject.ReceiveMessageAsync<BsonDocument>(1, BsonDocumentSerializer.Instance, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
                 readTcs.SetException(new SocketException());
 
                 Action act1 = () => task1.GetAwaiter().GetResult();
                 act1.ShouldThrow<SocketException>();
 
-                var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
                 Action act2 = () => task2.GetAwaiter().GetResult();
                 act2.ShouldThrow<MongoConnectionException>();
@@ -348,7 +346,7 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void SendMessagesAsync_should_throw_an_ArgumentNullException_if_messages_is_null()
         {
-            Action act = () => _subject.SendMessagesAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.SendMessagesAsync(null, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -358,7 +356,7 @@ namespace MongoDB.Driver.Core.Connections
         [TestCase(-2)]
         public void SendMessagesAsync_should_throw_an_ArgumentOutOfRangeException_when_timeout_is_out_of_range(int timeoutMilliseconds)
         {
-            Action act = () => _subject.SendMessagesAsync(Enumerable.Empty<RequestMessage>(), TimeSpan.FromMilliseconds(timeoutMilliseconds), CancellationToken.None).Wait();
+            Action act = () => _subject.SendMessagesAsync(Enumerable.Empty<RequestMessage>(), null, TimeSpan.FromMilliseconds(timeoutMilliseconds), CancellationToken.None).Wait();
 
             act.ShouldThrow<ArgumentOutOfRangeException>();
         }
@@ -369,7 +367,7 @@ namespace MongoDB.Driver.Core.Connections
             var message = MessageHelper.BuildQueryMessage();
             _subject.Dispose();
 
-            Action act = () => _subject.SendMessagesAsync(new[] { message }, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.SendMessagesAsync(new[] { message }, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -379,7 +377,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var message = MessageHelper.BuildQueryMessage();
 
-            Action act = () => _subject.SendMessagesAsync(new[] { message }, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.SendMessagesAsync(new[] { message }, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<InvalidOperationException>();
         }
@@ -396,7 +394,7 @@ namespace MongoDB.Driver.Core.Connections
                 var message2 = MessageHelper.BuildQueryMessage(query: new BsonDocument("y", 2));
 
                 _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
-                _subject.SendMessagesAsync(new[] { message1, message2 }, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+                _subject.SendMessagesAsync(new[] { message1, message2 }, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
                 var expectedRequests = MessageHelper.TranslateMessagesToBsonDocuments(new[] { message1, message2 });
                 var sentRequests = MessageHelper.TranslateMessagesToBsonDocuments(stream.ToArray());
@@ -426,10 +424,10 @@ namespace MongoDB.Driver.Core.Connections
                 _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
                 var message1 = new KillCursorsMessage(1, new[] { 1L });
-                var task1 = _subject.SendMessageAsync(message1, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var task1 = _subject.SendMessageAsync(message1, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
                 var message2 = new KillCursorsMessage(2, new[] { 2L });
-                var task2 = _subject.SendMessageAsync(message2, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var task2 = _subject.SendMessageAsync(message2, _messageEncoderSettings, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
                 writeTcs.SetException(new SocketException());
 

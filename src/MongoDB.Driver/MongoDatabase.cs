@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.SyncExtensionMethods;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.GridFS;
 
 namespace MongoDB.Driver
@@ -1039,6 +1040,16 @@ namespace MongoDB.Driver
         }
         #pragma warning restore
 
+        private MessageEncoderSettings GetMessageEncoderSettings()
+        {
+            return new MessageEncoderSettings
+            {
+                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
+                { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Helper.StrictUtf8Encoding },
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Helper.StrictUtf8Encoding }
+            };
+        }
+
         internal TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command,
             IBsonSerializer<TCommandResult> resultSerializer)
@@ -1099,7 +1110,8 @@ namespace MongoDB.Driver
             out MongoServerInstance serverInstance)
             where TCommandResult : CommandResult
         {
-            var operation = new ReadCommandOperation<TCommandResult>(_name, command, resultSerializer);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new ReadCommandOperation<TCommandResult>(_name, command, resultSerializer, messageEncoderSettings);
             using (var binding = _server.GetReadBinding(readPreference))
             using (var connectionSource = binding.GetReadConnectionSource())
             {
@@ -1116,7 +1128,8 @@ namespace MongoDB.Driver
             out MongoServerInstance serverInstance)
             where TCommandResult : CommandResult
         {
-            var operation = new WriteCommandOperation<TCommandResult>(_name, command, resultSerializer);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new WriteCommandOperation<TCommandResult>(_name, command, resultSerializer, messageEncoderSettings);
             using (var binding = _server.GetWriteBinding())
             using (var connectionSource = binding.GetWriteConnectionSource())
             {

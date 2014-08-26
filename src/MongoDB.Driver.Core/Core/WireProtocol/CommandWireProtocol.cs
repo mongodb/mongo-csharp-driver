@@ -23,6 +23,8 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
@@ -32,8 +34,9 @@ namespace MongoDB.Driver.Core.WireProtocol
         public CommandWireProtocol(
             string databaseName,
             BsonDocument command,
-            bool slaveOk)
-            : base(databaseName, command, BsonDocumentSerializer.Instance, slaveOk)
+            bool slaveOk,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, command, slaveOk, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -43,6 +46,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         // fields
         private readonly BsonDocument _command;
         private readonly string _databaseName;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly bool _slaveOk;
 
@@ -50,13 +54,15 @@ namespace MongoDB.Driver.Core.WireProtocol
         public CommandWireProtocol(
             string databaseName,
             BsonDocument command,
+            bool slaveOk,
             IBsonSerializer<TCommandResult> resultSerializer,
-            bool slaveOk)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _command = Ensure.IsNotNull(command, "command");
-            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
             _slaveOk = slaveOk;
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // methods
@@ -81,8 +87,8 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             var message = CreateMessage();
-            await connection.SendMessageAsync(message, slidingTimeout, cancellationToken);
-            var reply = await connection.ReceiveMessageAsync<RawBsonDocument>(message.RequestId, RawBsonDocumentSerializer.Instance, slidingTimeout, cancellationToken);
+            await connection.SendMessageAsync(message, _messageEncoderSettings, slidingTimeout, cancellationToken);
+            var reply = await connection.ReceiveMessageAsync<RawBsonDocument>(message.RequestId, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, slidingTimeout, cancellationToken);
             return ProcessReply(reply);
         }
 
@@ -112,10 +118,14 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
 
                 using (var stream = new ByteBufferStream(rawDocument.Slice, ownsByteBuffer: false))
-                using (var reader = new BsonBinaryReader(stream))
                 {
-                    var context = BsonDeserializationContext.CreateRoot<TCommandResult>(reader);
-                    return _resultSerializer.Deserialize(context);
+                    var encoderFactory = new BinaryMessageEncoderFactory(stream, _messageEncoderSettings);
+                    var encoder = (ReplyMessageBinaryEncoder<TCommandResult>)encoderFactory.GetReplyMessageEncoder<TCommandResult>(_resultSerializer);
+                    using (var reader = encoder.CreateBinaryReader())
+                    {
+                        var context = BsonDeserializationContext.CreateRoot<TCommandResult>(reader);
+                        return _resultSerializer.Deserialize(context);
+                    }
                 }
             }
         }

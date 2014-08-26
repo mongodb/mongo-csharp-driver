@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
         public DeleteRequest(BsonDocument query)
             : base(WriteRequestType.Delete)
         {
-            _query = query;
+            _query = Ensure.IsNotNull(query, "query");
         }
 
         // properties
@@ -67,7 +68,7 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Query
         {
             get { return _query; }
-            set { _query = value; }
+            set { _query = Ensure.IsNotNull(value, "value"); }
         }
     }
 }

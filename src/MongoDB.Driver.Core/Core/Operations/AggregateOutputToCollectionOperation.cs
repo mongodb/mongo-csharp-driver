@@ -21,27 +21,15 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class AggregateOutputToCollectionOperation : AggregateOperationBase, IWriteOperation<BsonDocument>
     {
         // constructors
-        public AggregateOutputToCollectionOperation(string databaseName, string collectionName, IEnumerable<BsonDocument> pipeline)
-            : base(databaseName, collectionName, pipeline)
-        {
-        }
-
-        private AggregateOutputToCollectionOperation(
-            bool? allowDiskUsage,
-            string collectionName,
-            string databaseName,
-            IReadOnlyList<BsonDocument> pipeline)
-            : base(
-                allowDiskUsage,
-                collectionName,
-                databaseName,
-                pipeline)
+        public AggregateOutputToCollectionOperation(string databaseName, string collectionName, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, pipeline, messageEncoderSettings)
         {
         }
 
@@ -61,7 +49,7 @@ namespace MongoDB.Driver.Core.Operations
             EnsureIsOutputToCollectionPipeline();
 
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(DatabaseName, command);
+            var operation = new WriteCommandOperation(DatabaseName, command, MessageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
 
@@ -72,60 +60,8 @@ namespace MongoDB.Driver.Core.Operations
 
             var command = CreateCommand();
             command["explain"] = true;
-            var operation = new WriteCommandOperation(DatabaseName, command);
+            var operation = new WriteCommandOperation(DatabaseName, command, MessageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
-        }
-
-        public AggregateOutputToCollectionOperation WithAllowDiskUsage(bool? value)
-        {
-            return (AllowDiskUsage == value) ? this : new Builder(this) { _allowDiskUsage = value }.Build();
-        }
-
-        public AggregateOutputToCollectionOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (CollectionName == value) ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public AggregateOutputToCollectionOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (DatabaseName == value) ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public AggregateOutputToCollectionOperation WithPipeline(IEnumerable<BsonDocument> value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return (Pipeline == value) ? this : new Builder(this) { _pipeline = value.ToList() }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public bool? _allowDiskUsage;
-            public string _collectionName;
-            public string _databaseName;
-            public IReadOnlyList<BsonDocument> _pipeline;
-
-            // constructors
-            public Builder(AggregateOutputToCollectionOperation other)
-            {
-                _allowDiskUsage = other.AllowDiskUsage;
-                _collectionName = other.CollectionName;
-                _databaseName = other.DatabaseName;
-                _pipeline = other.Pipeline;
-            }
-
-            // methods
-            public AggregateOutputToCollectionOperation Build()
-            {
-                return new AggregateOutputToCollectionOperation(
-                    _allowDiskUsage,
-                    _collectionName,
-                    _databaseName,
-                    _pipeline);
-            }
         }
     }
 }

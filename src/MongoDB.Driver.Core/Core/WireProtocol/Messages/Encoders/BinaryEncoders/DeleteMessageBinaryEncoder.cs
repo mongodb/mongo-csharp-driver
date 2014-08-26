@@ -24,18 +24,12 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    public class DeleteMessageBinaryEncoder : IMessageEncoder<DeleteMessage>
+    public class DeleteMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<DeleteMessage>
     {
-        // fields
-        private readonly BsonBinaryReader _binaryReader;
-        private readonly BsonBinaryWriter _binaryWriter;
-
         // constructors
-        public DeleteMessageBinaryEncoder(BsonBinaryReader binaryReader, BsonBinaryWriter binaryWriter)
+        public DeleteMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
+            : base(stream, encoderSettings)
         {
-            Ensure.That(binaryReader != null || binaryWriter != null, "binaryReader and binaryWriter cannot both be null.");
-            _binaryReader = binaryReader;
-            _binaryWriter = binaryWriter;
         }
 
         // methods
@@ -51,12 +45,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         public DeleteMessage ReadMessage()
         {
-            if (_binaryReader == null)
-            {
-                throw new InvalidOperationException("No binaryReader was provided.");
-            }
-
-            var streamReader = _binaryReader.StreamReader;
+            var binaryReader = CreateBinaryReader();
+            var streamReader = binaryReader.StreamReader;
 
             var messageSize = streamReader.ReadInt32();
             var requestId = streamReader.ReadInt32();
@@ -65,7 +55,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var reserved = streamReader.ReadInt32();
             var fullCollectionName = streamReader.ReadCString();
             var flags = (DeleteFlags)streamReader.ReadInt32();
-            var context = BsonDeserializationContext.CreateRoot<BsonDocument>(_binaryReader);
+            var context = BsonDeserializationContext.CreateRoot<BsonDocument>(binaryReader);
             var query = BsonDocumentSerializer.Instance.Deserialize(context);
 
             var firstDot = fullCollectionName.IndexOf('.');
@@ -84,12 +74,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void WriteMessage(DeleteMessage message)
         {
             Ensure.IsNotNull(message, "message");
-            if (_binaryWriter == null)
-            {
-                throw new InvalidOperationException("No binaryWriter was provided.");
-            }
 
-            var streamWriter = _binaryWriter.StreamWriter;
+            var binaryWriter = CreateBinaryWriter();
+            var streamWriter = binaryWriter.StreamWriter;
             var startPosition = streamWriter.Position;
 
             streamWriter.WriteInt32(0); // messageSize
@@ -99,7 +86,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(0); // reserved
             streamWriter.WriteCString(message.DatabaseName + "." + message.CollectionName);
             streamWriter.WriteInt32((int)BuildDeleteFlags(message));
-            var context = BsonSerializationContext.CreateRoot<BsonDocument>(_binaryWriter);
+            var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
             BsonDocumentSerializer.Instance.Serialize(context, message.Query ?? new BsonDocument());
             streamWriter.BackpatchSize(startPosition);
         }

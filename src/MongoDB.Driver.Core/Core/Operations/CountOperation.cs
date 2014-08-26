@@ -19,80 +19,78 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class CountOperation : IReadOperation<long>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly string _hint;
-        private readonly long? _limit;
-        private readonly TimeSpan? _maxTime;
-        private readonly BsonDocument _query;
-        private readonly long? _skip;
+        private string _collectionName;
+        private string _databaseName;
+        private string _hint;
+        private long? _limit;
+        private TimeSpan? _maxTime;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private BsonDocument _query;
+        private long? _skip;
 
         // constructors
-        public CountOperation(string databaseName, string collectionName, BsonDocument query = null)
+        public CountOperation(string databaseName, string collectionName, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
-            _query = query ?? new BsonDocument();
-        }
-
-        private CountOperation(
-            string collectionName,
-            string databaseName,
-            string hint,
-            long? limit,
-            TimeSpan? maxTime,
-            BsonDocument query,
-            long? skip)
-        {
-            _collectionName = collectionName;
-            _databaseName = databaseName;
-            _hint = hint;
-            _limit = limit;
-            _maxTime = maxTime;
             _query = query;
-            _skip = skip;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string Hint
         {
             get { return _hint; }
+            set { _hint = value; }
         }
 
         public long? Limit
         {
             get { return _limit; }
+            set { _limit = value; }
         }
 
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
+            set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         public BsonDocument Query
         {
             get { return _query; }
+            set { _query = value; }
         }
 
         public long? Skip
         {
             get { return _skip; }
+            set { _skip = value; }
         }
 
         // methods
@@ -120,90 +118,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(_databaseName, command);
+            var operation = new ReadCommandOperation(_databaseName, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
-        }
-
-        public CountOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return _collectionName == value ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public CountOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return _databaseName == value ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public CountOperation WithHint(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            var indexName = CreateIndexOperation.GetDefaultIndexName(value);
-            return WithHint(indexName);
-        }
-
-        public CountOperation WithHint(string value)
-        {
-            return _hint == value ? this : new Builder(this) { _hint = value }.Build();
-        }
-
-        public CountOperation WithLimit(long? value)
-        {
-            return _limit == value ? this : new Builder(this) { _limit = value }.Build();
-        }
-
-        public CountOperation WithMaxTime(TimeSpan? value)
-        {
-            return _maxTime == value ? this : new Builder(this) { _maxTime = value }.Build();
-        }
-
-        public CountOperation WithQuery(BsonDocument value)
-        {
-            return _query == value ? this : new Builder(this) { _query = value ?? new BsonDocument() }.Build();
-        }
-
-        public CountOperation WithSkip(long? value)
-        {
-            return _skip == value ? this : new Builder(this) { _skip = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public string _collectionName;
-            public string _databaseName;
-            public string _hint;
-            public long? _limit;
-            public TimeSpan? _maxTime;
-            public BsonDocument _query;
-            public long? _skip;
-
-            // constructors
-            public Builder(CountOperation other)
-            {
-                _collectionName = other._collectionName;
-                _databaseName = other._databaseName;
-                _hint = other._hint;
-                _limit = other._limit;
-                _maxTime = other._maxTime;
-                _query = other._query;
-                _skip = other._skip;
-            }
-
-            // methods
-            public CountOperation Build()
-            {
-                return new CountOperation(
-                    _collectionName,
-                    _databaseName,
-                    _hint,
-                    _limit,
-                    _maxTime,
-                    _query,
-                    _skip);
-            }
         }
     }
 }

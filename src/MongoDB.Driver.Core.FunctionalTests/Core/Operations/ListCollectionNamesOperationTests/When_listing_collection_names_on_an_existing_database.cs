@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations.ListCollectionNamesOperationTests
@@ -26,15 +27,16 @@ namespace MongoDB.Driver.Core.Operations.ListCollectionNamesOperationTests
     [TestFixture]
     public class When_listing_collection_names_on_an_existing_database : CollectionUsingSpecification
     {
+        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private ListCollectionNamesOperation _subject;
         private IReadOnlyList<string> _result;
 
         protected override void Given()
         {
-            _subject = new ListCollectionNamesOperation(_databaseName);
+            _subject = new ListCollectionNamesOperation(_databaseName, _messageEncoderSettings);
 
             // make sure there is at least one collection
-            Insert(new[] { new BsonDocument("x", 1) });
+            Insert(new[] { new BsonDocument("x", 1) }, _messageEncoderSettings);
         }
 
         protected override void When()

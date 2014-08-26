@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations.ListDatabaseNamesOperationTests
@@ -26,15 +27,16 @@ namespace MongoDB.Driver.Core.Operations.ListDatabaseNamesOperationTests
     [TestFixture]
     public class When_listing_database_names : CollectionUsingSpecification
     {
+        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private ListDatabaseNamesOperation _subject;
         private IReadOnlyList<string> _result;
 
         protected override void Given()
         {
-            _subject = new ListDatabaseNamesOperation();
+            _subject = new ListDatabaseNamesOperation(_messageEncoderSettings);
 
             // make sure there is at least 1 database...
-            Insert(new [] { new BsonDocument("x", 1) });
+            Insert(new [] { new BsonDocument("x", 1) }, _messageEncoderSettings);
         }
 
         protected override void When()

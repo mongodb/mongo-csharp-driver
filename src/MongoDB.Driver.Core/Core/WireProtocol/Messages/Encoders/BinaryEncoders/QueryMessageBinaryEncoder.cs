@@ -24,18 +24,12 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    public class QueryMessageBinaryEncoder : IMessageEncoder<QueryMessage>
+    public class QueryMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<QueryMessage>
     {
-        // fields
-        private readonly BsonBinaryReader _binaryReader;
-        private readonly BsonBinaryWriter _binaryWriter;
-
         // constructors
-        public QueryMessageBinaryEncoder(BsonBinaryReader binaryReader, BsonBinaryWriter binaryWriter)
+        public QueryMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
+            : base(stream, encoderSettings)
         {
-            Ensure.That(binaryReader != null || binaryWriter != null, "binaryReader and binaryWriter cannot both be null.");
-            _binaryReader = binaryReader;
-            _binaryWriter = binaryWriter;
         }
 
         // methods
@@ -67,12 +61,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         public QueryMessage ReadMessage()
         {
-            if (_binaryReader == null)
-            {
-                throw new InvalidOperationException("No binaryReader was provided.");
-            }
-
-            var streamReader = _binaryReader.StreamReader;
+            var binaryReader = CreateBinaryReader();
+            var streamReader = binaryReader.StreamReader;
             var startPosition = streamReader.Position;
 
             var messageSize = streamReader.ReadInt32();
@@ -83,7 +73,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var fullCollectionName = streamReader.ReadCString();
             var skip = streamReader.ReadInt32();
             var batchSize = streamReader.ReadInt32();
-            var context = BsonDeserializationContext.CreateRoot<BsonDocument>(_binaryReader);
+            var context = BsonDeserializationContext.CreateRoot<BsonDocument>(binaryReader);
             var query = BsonDocumentSerializer.Instance.Deserialize(context);
             BsonDocument fields = null;
             if (streamReader.Position < startPosition + messageSize)
@@ -118,12 +108,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void WriteMessage(QueryMessage message)
         {
             Ensure.IsNotNull(message, "message");
-            if (_binaryWriter == null)
-            {
-                throw new InvalidOperationException("No binaryWriter was provided.");
-            }
 
-            var streamWriter = _binaryWriter.StreamWriter;
+            var binaryWriter = CreateBinaryWriter();
+            var streamWriter = binaryWriter.StreamWriter;
             var startPosition = streamWriter.Position;
 
             streamWriter.WriteInt32(0); // messageSize
@@ -134,7 +121,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteCString(message.DatabaseName + "." + message.CollectionName);
             streamWriter.WriteInt32(message.Skip);
             streamWriter.WriteInt32(message.BatchSize);
-            var context = BsonSerializationContext.CreateRoot<BsonDocument>(_binaryWriter);
+            var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
             BsonDocumentSerializer.Instance.Serialize(context, message.Query ?? new BsonDocument());
             if (message.Fields != null)
             {

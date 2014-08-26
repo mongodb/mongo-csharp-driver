@@ -120,19 +120,16 @@ namespace MongoDB.Driver
             var assignId = _collection.Settings.AssignIdOnInsert ? (Action<object, IBsonSerializer>)_collection.AssignId : null;
             var collectionSettings = _collection.Settings;
             var checkElementNames = true;
-            var readerSettings = _collection.GetBinaryReaderSettings();
-            var writerSettings = _collection.GetBinaryWriterSettings();
+            var messageEncoderSettings = _collection.GetMessageEncoderSettings();
 
             var requests = _requests.Select(r => r.ToCore());
 
-            var operation = new BulkMixedWriteOperation(_collection.Database.Name, _collection.Name, requests)
+            var operation = new BulkMixedWriteOperation(_collection.Database.Name, _collection.Name, requests, messageEncoderSettings)
             {
                 AssignId = assignId,
                 CheckElementNames = checkElementNames,
                 IsOrdered = _isOrdered,
-                ReaderSettings = readerSettings,
-                WriteConcern = writeConcern.ToCore(),
-                WriterSettings = writerSettings
+                WriteConcern = writeConcern.ToCore()
             };
 
             using (var binding = _collection.Database.Server.GetWriteBinding())

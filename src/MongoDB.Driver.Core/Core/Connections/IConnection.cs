@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -40,8 +41,8 @@ namespace MongoDB.Driver.Core.Connections
 
         // methods
         Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken);
-        Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken);
-        Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken);
+        Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken);
+        Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken);
     }
 
     public interface IConnectionHandle : IConnection

@@ -21,6 +21,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -30,19 +31,21 @@ namespace MongoDB.Driver.Core.Operations
         private string _collectionName;
         private string _databaseName;
         private bool _isMulti;
+        private MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _query;
-        private WriteConcern _writeConcern;
+        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public DeleteOpcodeOperation(
             string databaseName,
             string collectionName,
-            BsonDocument query)
+            BsonDocument query,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _query = Ensure.IsNotNull(query, "query");
-            _writeConcern = WriteConcern.Acknowledged;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -64,6 +67,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _isMulti = value; }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public BsonDocument Query
         {
             get { return _query; }
@@ -82,9 +91,10 @@ namespace MongoDB.Driver.Core.Operations
             return new DeleteWireProtocol(
                 _databaseName,
                 _collectionName,
-                _writeConcern,
                 _query,
-                _isMulti);
+                _isMulti,
+                _messageEncoderSettings,
+                _writeConcern);
         }
 
         public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
@@ -93,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
-                var emulator = new DeleteOpcodeOperationEmulator(_databaseName, _collectionName, _query)
+                var emulator = new DeleteOpcodeOperationEmulator(_databaseName, _collectionName, _query, _messageEncoderSettings)
                 {
                     IsMulti = _isMulti,
                     WriteConcern = _writeConcern

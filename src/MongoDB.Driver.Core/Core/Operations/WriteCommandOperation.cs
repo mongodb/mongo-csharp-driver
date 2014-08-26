@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -26,6 +22,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -35,8 +32,8 @@ namespace MongoDB.Driver.Core.Operations
     public class WriteCommandOperation : WriteCommandOperation<BsonDocument>
     {
         // constructors
-        public WriteCommandOperation(string databaseName, BsonDocument command)
-            : base(databaseName, command, BsonDocumentSerializer.Instance)
+        public WriteCommandOperation(string databaseName, BsonDocument command, MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, command, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -47,18 +44,8 @@ namespace MongoDB.Driver.Core.Operations
     public class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
         // constructors
-        public WriteCommandOperation(string databaseName, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer)
-            : base(null, command, null, databaseName, resultSerializer)
-        {
-        }
-
-        private WriteCommandOperation(
-            BsonDocument additionalOptions,
-            BsonDocument command,
-            string comment,
-            string databaseName,
-            IBsonSerializer<TCommandResult> resultSerializer)
-            : base(additionalOptions, command, comment, databaseName, resultSerializer)
+        public WriteCommandOperation(string databaseName, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, command, resultSerializer, messageEncoderSettings)
         {
         }
 
@@ -71,70 +58,6 @@ namespace MongoDB.Driver.Core.Operations
             using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
             {
                 return await ExecuteCommandAsync(connectionSource, ReadPreference.Primary, slidingTimeout, cancellationToken);
-            }
-        }
-
-        public WriteCommandOperation<TCommandResult> WithAdditionalOptions(BsonDocument value)
-        {
-            return object.ReferenceEquals(AdditionalOptions, value) ? this : new Builder(this) { _additionalOptions = value }.Build();
-        }
-
-        public WriteCommandOperation<TCommandResult> WithCommand(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(Command, value) ? this : new Builder(this) { _command = value }.Build();
-        }
-
-        public WriteCommandOperation<TCommandResult> WithComment(string value)
-        {
-            return Comment == value ? this : new Builder(this) { _comment = value }.Build();
-        }
-
-        public WriteCommandOperation<TCommandResult> WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return DatabaseName == value ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public WriteCommandOperation<TNewCommandResult> WithResultSerializer<TNewCommandResult>(IBsonSerializer<TNewCommandResult> value)
-        {
-            return new WriteCommandOperation<TNewCommandResult>(
-                AdditionalOptions,
-                Command,
-                Comment,
-                DatabaseName,
-                value);
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public BsonDocument _additionalOptions;
-            public BsonDocument _command;
-            public string _comment;
-            public string _databaseName;
-            public IBsonSerializer<TCommandResult> _resultSerializer;
-
-            // constructors
-            public Builder(WriteCommandOperation<TCommandResult> other)
-            {
-                _additionalOptions = other.AdditionalOptions;
-                _command = other.Command;
-                _comment = other.Comment;
-                _databaseName = other.DatabaseName;
-                _resultSerializer = other.ResultSerializer;
-            }
-
-            // methods
-            public WriteCommandOperation<TCommandResult> Build()
-            {
-                return new WriteCommandOperation<TCommandResult>(
-                    _additionalOptions,
-                    _command,
-                    _comment,
-                    _databaseName,
-                    _resultSerializer);
             }
         }
     }

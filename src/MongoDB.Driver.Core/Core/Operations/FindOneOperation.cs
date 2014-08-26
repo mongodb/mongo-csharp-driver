@@ -22,6 +22,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -31,8 +32,9 @@ namespace MongoDB.Driver.Core.Operations
         public FindOneOperation(
             string databaseName,
             string collectionName,
-            BsonDocument query = null)
-            : base(databaseName, collectionName, BsonDocumentSerializer.Instance, query)
+            BsonDocument query,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, query, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -47,6 +49,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _fields;
         private string _hint;
         private TimeSpan? _maxTime;
+        private MessageEncoderSettings _messageEncoderSettings;
         private bool _partialOk;
         private BsonDocument _query;
         private IBsonSerializer<TDocument> _serializer;
@@ -57,13 +60,15 @@ namespace MongoDB.Driver.Core.Operations
         public FindOneOperation(
             string databaseName,
             string collectionName,
+            BsonDocument query,
             IBsonSerializer<TDocument> serializer,
-            BsonDocument query = null)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _query = Ensure.IsNotNull(query, "query");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _query = query ?? new BsonDocument();
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -103,6 +108,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = value; }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public string Hint
         {
             get { return _hint; }
@@ -118,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Query
         {
             get { return _query; }
-            set { _query = value ?? new BsonDocument(); }
+            set { _query = Ensure.IsNotNull(value, "value"); }
         }
 
         public IBsonSerializer<TDocument> Serializer
@@ -151,7 +162,7 @@ namespace MongoDB.Driver.Core.Operations
             var snapshot = false;
             var tailableCursor = false;
 
-            var operation = new FindOperation<TDocument>(_databaseName, _collectionName, _serializer, _query)
+            var operation = new FindOperation<TDocument>(_databaseName, _collectionName, _query, _serializer, _messageEncoderSettings)
             {
                 AdditionalOptions = _additionalOptions,
                 AwaitData = awaitData,

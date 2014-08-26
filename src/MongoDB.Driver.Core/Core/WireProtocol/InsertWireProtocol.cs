@@ -23,6 +23,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
@@ -41,12 +42,13 @@ namespace MongoDB.Driver.Core.WireProtocol
             string collectionName,
             WriteConcern writeConcern,
             IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
             BatchableSource<TDocument> documentSource,
             int? maxBatchCount,
             int? maxMessageSize,
             bool continueOnError,
             Func<bool> shouldSendGetLastEror = null)
-            : base(databaseName, collectionName, writeConcern, shouldSendGetLastEror)
+            : base(databaseName, collectionName, messageEncoderSettings, writeConcern, shouldSendGetLastEror)
         {
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");

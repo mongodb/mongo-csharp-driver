@@ -23,6 +23,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
@@ -38,12 +39,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         public UpdateWireProtocol(
             string databaseName,
             string collectionName,
+            MessageEncoderSettings messageEncoderSettings,
             WriteConcern writeConcern,
             BsonDocument query,
             BsonDocument update,
             bool isMulti,
             bool isUpsert)
-            : base(databaseName, collectionName, writeConcern)
+            : base(databaseName, collectionName, messageEncoderSettings, writeConcern)
         {
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");

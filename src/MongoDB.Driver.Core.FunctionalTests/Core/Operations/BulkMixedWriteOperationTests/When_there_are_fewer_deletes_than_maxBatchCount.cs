@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
@@ -28,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     {
         private BsonDocument[] _documents;
         private int _maxBatchCount;
+        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private DeleteRequest[] _requests;
         private BulkWriteResult _result;
 
@@ -39,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
                 new BsonDocument { { "_id", 2 }, { "x", 2 } },
                 new BsonDocument { { "_id", 3 }, { "x", 3 } }
             };
-            Insert(_documents);
+            Insert(_documents, _messageEncoderSettings);
 
             _maxBatchCount = 4;
             _requests = _documents.Select(d => new DeleteRequest(new BsonDocument("_id", d["_id"]))).ToArray();
@@ -47,7 +49,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
         protected override void When()
         {
-            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests)
+            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests, _messageEncoderSettings)
             {
                 MaxBatchCount = _maxBatchCount,
             };
@@ -72,7 +74,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
         [Test]
         public void Collection_should_contain_the_expected_documents()
         {
-            var documents = ReadAll();
+            var documents = ReadAll(_messageEncoderSettings);
             documents.Should().BeEmpty();
         }
     }

@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -35,8 +36,9 @@ namespace MongoDB.Driver.Core.Operations
         // constructors
         public ReadCommandOperation(
             string databaseName,
-            BsonDocument command)
-            : base(databaseName, command, BsonDocumentSerializer.Instance)
+            BsonDocument command,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, command, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -162,34 +164,24 @@ namespace MongoDB.Driver.Core.Operations
         #endregion
 
         // fields
-        private readonly Action<BsonDocument> _ensureIsReadCommandAction;
+        private Action<BsonDocument> _ensureIsReadCommandAction;
 
         // constructors
         public ReadCommandOperation(
             string databaseName,
             BsonDocument command,
-            IBsonSerializer<TCommandResult> resultSerializer)
-            : base(null, command, null, databaseName, resultSerializer)
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, command, resultSerializer, messageEncoderSettings)
         {
             _ensureIsReadCommandAction = EnsureIsReadCommand;
-        }
-
-        private ReadCommandOperation(
-            BsonDocument additionalOptions,
-            BsonDocument command,
-            string comment,
-            string databaseName,
-            IBsonSerializer<TCommandResult> resultSerializer,
-            Action<BsonDocument> ensureIsReadCommandAction)
-            : base(additionalOptions, command, comment, databaseName, resultSerializer)
-        {
-            _ensureIsReadCommandAction = ensureIsReadCommandAction; // can be null
         }
 
         // properties
         public Action<BsonDocument> EnsureIsReadCommandAction
         {
             get { return _ensureIsReadCommandAction; }
+            set { _ensureIsReadCommandAction = value; }
         }
 
         // methods
@@ -205,79 +197,6 @@ namespace MongoDB.Driver.Core.Operations
             using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
             {
                 return await ExecuteCommandAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken);
-            }
-        }
-
-        public ReadCommandOperation<TCommandResult> WithAdditionalOptions(BsonDocument value)
-        {
-            return object.ReferenceEquals(AdditionalOptions, value) ? this : new Builder(this) { _additionalOptions = value }.Build();
-        }
-
-        public ReadCommandOperation<TCommandResult> WithCommand(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(Command, value) ? this : new Builder(this) { _command = value }.Build();
-        }
-
-        public ReadCommandOperation<TCommandResult> WithComment(string value)
-        {
-            return object.ReferenceEquals(Comment, value) ? this : new Builder(this) { _comment = value }.Build();
-        }
-
-        public ReadCommandOperation<TCommandResult> WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return object.ReferenceEquals(DatabaseName, value) ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public ReadCommandOperation<TCommandResult> WithEnsureIsReadCommandAction(Action<BsonDocument> value)
-        {
-            return object.ReferenceEquals(_ensureIsReadCommandAction, value) ? this : new Builder(this) { _ensureIsReadCommandAction = value }.Build();
-        }
-
-        public ReadCommandOperation<TNewCommandResult> WithResultSerializer<TNewCommandResult>(IBsonSerializer<TNewCommandResult> value)
-        {
-            return new ReadCommandOperation<TNewCommandResult>(
-                AdditionalOptions,
-                Command,
-                Comment,
-                DatabaseName,
-                value,
-                _ensureIsReadCommandAction);
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public BsonDocument _additionalOptions;
-            public BsonDocument _command;
-            public string _comment;
-            public string _databaseName;
-            public Action<BsonDocument> _ensureIsReadCommandAction;
-            public IBsonSerializer<TCommandResult> _resultSerializer;
-
-            // constructors
-            public Builder(ReadCommandOperation<TCommandResult> other)
-            {
-                _additionalOptions = other.AdditionalOptions;
-                _command = other.Command;
-                _comment = other.Comment;
-                _databaseName = other.DatabaseName;
-                _ensureIsReadCommandAction = other.EnsureIsReadCommandAction;
-                _resultSerializer = other.ResultSerializer;
-            }
-
-            // methods
-            public ReadCommandOperation<TCommandResult> Build()
-            {
-                return new ReadCommandOperation<TCommandResult>(
-                    _additionalOptions,
-                    _command,
-                    _comment,
-                    _databaseName,
-                    _resultSerializer,
-                    _ensureIsReadCommandAction);
             }
         }
     }

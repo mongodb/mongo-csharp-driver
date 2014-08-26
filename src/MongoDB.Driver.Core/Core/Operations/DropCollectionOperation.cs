@@ -19,33 +19,45 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class DropCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
+        private string _collectionName;
+        private string _databaseName;
+        private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public DropCollectionOperation(
             string databaseName,
-            string collectionName)
+            string collectionName,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         // methods
@@ -58,7 +70,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseName, command);
+            var operation = new WriteCommandOperation(_databaseName, command, _messageEncoderSettings);
             try
             {
                 return await operation.ExecuteAsync(binding, timeout, cancellationToken);
@@ -72,18 +84,6 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 throw;
             }
-        }
-
-        public DropCollectionOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName != value) ? this : new DropCollectionOperation(_databaseName, value);
-        }
-
-        public DropCollectionOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName != value) ? this : new DropCollectionOperation(value, _collectionName);
         }
     }
 }

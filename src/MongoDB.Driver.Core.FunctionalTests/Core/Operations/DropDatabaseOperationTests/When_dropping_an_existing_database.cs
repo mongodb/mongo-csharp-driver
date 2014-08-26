@@ -18,6 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations.DropDatabaseOperationTests
@@ -25,6 +26,7 @@ namespace MongoDB.Driver.Core.Operations.DropDatabaseOperationTests
     [TestFixture]
     public class When_dropping_an_existing_database : CollectionUsingSpecification
     {
+        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private DropDatabaseOperation _subject;
         private BsonDocument _result;
 
@@ -34,11 +36,12 @@ namespace MongoDB.Driver.Core.Operations.DropDatabaseOperationTests
             var op = new BulkInsertOperation(
                 _databaseName, 
                 "temp", 
-                new [] { new InsertRequest(new BsonDocument("x", 1)) });
+                new [] { new InsertRequest(new BsonDocument("x", 1)) },
+                _messageEncoderSettings);
 
             ExecuteOperation(op);
 
-            _subject = new DropDatabaseOperation(_databaseName);
+            _subject = new DropDatabaseOperation(_databaseName, _messageEncoderSettings);
         }
 
         protected override void When()
@@ -55,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations.DropDatabaseOperationTests
         [Test]
         public void The_database_should_no_longer_exist()
         {
-            var op = new ListDatabaseNamesOperation();
+            var op = new ListDatabaseNamesOperation(_messageEncoderSettings);
             var result = ExecuteOperation(op);
             result.Should().NotContain(_databaseName);
         }

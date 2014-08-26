@@ -19,54 +19,54 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class CollectionExistsOperation : IReadOperation<bool>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
+        private string _collectionName;
+        private string _databaseName;
+        private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public CollectionExistsOperation(
             string databaseName,
-            string collectionName)
+            string collectionName,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         // methods
         public async Task<bool> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            var operation = new ListCollectionNamesOperation(_databaseName);
+            var operation = new ListCollectionNamesOperation(_databaseName, _messageEncoderSettings);
             var collectionNames = await operation.ExecuteAsync(binding, timeout, cancellationToken);
             return collectionNames.Contains(_collectionName);
-        }
-
-        public CollectionExistsOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new CollectionExistsOperation(_databaseName, value);
-        }
-
-        public CollectionExistsOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new CollectionExistsOperation(value, _collectionName);
         }
     }
 }

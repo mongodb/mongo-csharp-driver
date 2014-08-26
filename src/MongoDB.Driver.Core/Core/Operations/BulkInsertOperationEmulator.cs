@@ -25,6 +25,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -38,8 +39,9 @@ namespace MongoDB.Driver.Core.Operations
         public BulkInsertOperationEmulator(
             string databaseName,
             string collectionName,
-            IEnumerable<InsertRequest> requests)
-            : base(databaseName, collectionName, requests)
+            IEnumerable<InsertRequest> requests,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, requests, messageEncoderSettings)
         {
         }
 
@@ -74,6 +76,7 @@ namespace MongoDB.Driver.Core.Operations
                 CollectionName,
                 WriteConcern,
                 BsonDocumentSerializer.Instance,
+                MessageEncoderSettings,
                 documentSource,
                 connection.Description.MaxBatchCount,
                 connection.Description.MaxMessageSize,

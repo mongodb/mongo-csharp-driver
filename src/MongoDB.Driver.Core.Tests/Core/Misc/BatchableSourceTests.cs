@@ -29,8 +29,14 @@ namespace MongoDB.Driver.Core.Misc
         [Test]
         public void ClearBatch_should_clear_batch()
         {
-            var subject = new BatchableSource<int>(new[] { 1, 2 });
+            var items = new List<int> { 1, 2 };
+            var subject = new BatchableSource<int>(items.GetEnumerator());
+            subject.StartBatch();
+            subject.MoveNext();
+            var batch = new[] { subject.Current };
+            subject.EndBatch(batch);
             subject.Batch.Should().NotBeNull();
+
             subject.ClearBatch();
             subject.Batch.Should().BeNull();
         }
@@ -38,10 +44,11 @@ namespace MongoDB.Driver.Core.Misc
         [Test]
         public void Constructor_with_enumerable_argument_should_initialize_instance()
         {
-            var batch = new[] { 1, 2 };
-            var subject = new BatchableSource<int>(batch);
-            subject.Batch.Should().Equal(batch);
+            var items = new List<int> { 1, 2 };
+            var subject = new BatchableSource<int>(items);
+            subject.Batch.Should().Equal(items);
             subject.HasMore.Should().BeFalse();
+            subject.IsBatchable.Should().BeFalse();
         }
 
         [Test]
@@ -58,6 +65,7 @@ namespace MongoDB.Driver.Core.Misc
             var subject = new BatchableSource<int>(items.GetEnumerator());
             subject.Batch.Should().BeNull();
             subject.HasMore.Should().BeTrue();
+            subject.IsBatchable.Should().BeTrue();
         }
 
         [Test]

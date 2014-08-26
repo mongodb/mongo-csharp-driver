@@ -23,6 +23,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -32,8 +33,9 @@ namespace MongoDB.Driver.Core.Operations
         public BulkDeleteOperationEmulator(
             string databaseName,
             string collectionName,
-            IEnumerable<DeleteRequest> requests)
-            : base(databaseName, collectionName, requests)
+            IEnumerable<DeleteRequest> requests,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, requests, messageEncoderSettings)
         {
         }
 
@@ -44,9 +46,10 @@ namespace MongoDB.Driver.Core.Operations
             return new DeleteWireProtocol(
                DatabaseName,
                CollectionName,
-               WriteConcern,
                deleteRequest.Query,
-               isMulti: false);
+               false, // isMulti
+               MessageEncoderSettings,
+               WriteConcern);
         }
     }
 }

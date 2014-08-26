@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Authentication
         private async Task<string> GetNonceAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var command = new BsonDocument("getnonce", 1);
-            var protocol = new CommandWireProtocol(_credential.Source, command, true);
+            var protocol = new CommandWireProtocol(_credential.Source, command, true, null);
             var document = await protocol.ExecuteAsync(connection, timeout, cancellationToken);
             return (string)document["nonce"];
         }
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Authentication
                 { "nonce", nonce },
                 { "key", AuthenticationHelper.HexMD5(_credential.Username, _credential.Password, nonce) }
             };
-            var protocol = new CommandWireProtocol(_credential.Source, command, true);
+            var protocol = new CommandWireProtocol(_credential.Source, command, true, null);
             await protocol.ExecuteAsync(connection, timeout, cancellationToken);
         }
     }

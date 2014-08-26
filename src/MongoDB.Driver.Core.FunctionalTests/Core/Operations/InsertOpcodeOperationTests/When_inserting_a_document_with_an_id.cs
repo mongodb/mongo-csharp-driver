@@ -19,6 +19,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations.InsertOpcodeOperationTests
@@ -28,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations.InsertOpcodeOperationTests
     {
         private BsonDocument _document;
         private BsonValue _id = 1;
+        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private WriteConcernResult _result;
 
         protected override void Given()
@@ -38,11 +40,7 @@ namespace MongoDB.Driver.Core.Operations.InsertOpcodeOperationTests
         protected override void When()
         {
             var documentSource = new BatchableSource<BsonDocument>(new[] { _document });
-            var operation = new InsertOpcodeOperation<BsonDocument>(
-                DatabaseName,
-                CollectionName,
-                BsonDocumentSerializer.Instance,
-                documentSource);
+            var operation = new InsertOpcodeOperation<BsonDocument>(DatabaseName, CollectionName, documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             _result = ExecuteOperationAsync(operation).GetAwaiter().GetResult();
         }

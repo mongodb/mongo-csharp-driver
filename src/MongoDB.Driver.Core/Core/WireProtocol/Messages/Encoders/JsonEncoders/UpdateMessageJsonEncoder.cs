@@ -27,29 +27,20 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
-    public class UpdateMessageJsonEncoder : IMessageEncoder<UpdateMessage>
+    public class UpdateMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder<UpdateMessage>
     {
-        // fields
-        private readonly JsonReader _jsonReader;
-        private readonly JsonWriter _jsonWriter;
 
         // constructors
-        public UpdateMessageJsonEncoder(JsonReader jsonReader, JsonWriter jsonWriter)
+        public UpdateMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
+            : base(textReader, textWriter, encoderSettings)
         {
-            Ensure.That(jsonReader != null || jsonWriter != null, "jsonReader and jsonWriter cannot both be null.");
-            _jsonReader = jsonReader;
-            _jsonWriter = jsonWriter;
         }
 
         // methods
         public UpdateMessage ReadMessage()
         {
-            if (_jsonReader == null)
-            {
-                throw new InvalidOperationException("No jsonReader was provided.");
-            }
-
-            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(_jsonReader);
+            var jsonReader = CreateJsonReader();
+            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(jsonReader);
             var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
 
             var opcode = messageDocument["opcode"].AsString;
@@ -79,10 +70,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         public void WriteMessage(UpdateMessage message)
         {
             Ensure.IsNotNull(message, "message");
-            if (_jsonWriter == null)
-            {
-                throw new InvalidOperationException("No jsonWriter was provided.");
-            }
 
             var messageDocument = new BsonDocument
             {
@@ -96,7 +83,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 { "update", message.Update }
             };
 
-            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
+            var jsonWriter = CreateJsonWriter();
+            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(jsonWriter);
             BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 

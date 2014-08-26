@@ -17,12 +17,14 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.SyncExtensionMethods;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
@@ -293,13 +295,6 @@ namespace MongoDB.Driver
             throw new NotImplementedException();
         }
 
-        private IServer GetServer()
-        {
-            var serverSelector = new EndPointServerSelector(_endPoint);
-            var server = _cluster.SelectServer(serverSelector, _settings.ConnectTimeout, CancellationToken.None);
-            return server;
-        }
-
         /// <summary>
         /// Gets the server description.
         /// </summary>
@@ -321,7 +316,8 @@ namespace MongoDB.Driver
         /// </summary>
         public void Ping()
         {
-            var operation = new PingOperation();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new PingOperation(messageEncoderSettings);
 
             var server = GetServer();
             using (var connectionSource = new ConnectionSourceHandle(new ServerConnectionSource(server)))
@@ -371,6 +367,23 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private MessageEncoderSettings GetMessageEncoderSettings()
+        {
+            return new MessageEncoderSettings
+            {
+                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
+                { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Helper.StrictUtf8Encoding },
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Helper.StrictUtf8Encoding }
+            };
+        }
+
+        private IServer GetServer()
+        {
+            var serverSelector = new EndPointServerSelector(_endPoint);
+            var server = _cluster.SelectServer(serverSelector, _settings.ConnectTimeout, CancellationToken.None);
+            return server;
+        }
+
         private void OnStateChanged()
         {
             var handler = StateChanged;

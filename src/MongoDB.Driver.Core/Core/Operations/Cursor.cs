@@ -22,8 +22,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -41,6 +43,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool _disposed;
         private IReadOnlyList<TDocument> _firstBatch;
         private readonly int _limit;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly BsonDocument _query;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly TimeSpan _timeout;
@@ -56,6 +59,7 @@ namespace MongoDB.Driver.Core.Operations
             int batchSize,
             int limit,
             IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
             TimeSpan timeout,
             CancellationToken cancellationToken)
         {
@@ -68,6 +72,7 @@ namespace MongoDB.Driver.Core.Operations
             _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, "batchSize");
             _limit = Ensure.IsGreaterThanOrEqualToZero(limit, "limit");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _messageEncoderSettings = messageEncoderSettings;
             _timeout = timeout;
             _cancellationToken = cancellationToken;
 
@@ -101,12 +106,13 @@ namespace MongoDB.Driver.Core.Operations
                 _query,
                 _cursorId,
                 _batchSize,
-                _serializer);
+                _serializer,
+                _messageEncoderSettings);
         }
 
         private KillCursorsWireProtocol CreateKillCursorsProtocol()
         {
-            return new KillCursorsWireProtocol(new[] { _cursorId });
+            return new KillCursorsWireProtocol(new[] { _cursorId }, _messageEncoderSettings);
         }
 
         public void Dispose()

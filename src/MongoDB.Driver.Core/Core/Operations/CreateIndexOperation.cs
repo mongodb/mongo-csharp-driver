@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -53,110 +54,103 @@ namespace MongoDB.Driver.Core.Operations
         #endregion
 
         // fields
-        private readonly BsonDocument _additionalOptions;
-        private readonly bool? _background;
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly bool? _dropDups;
-        private readonly string _indexName;
-        private readonly BsonDocument _keys;
-        private readonly bool? _sparse;
-        private readonly TimeSpan? _timeToLive;
-        private readonly bool? _unique;
-        private readonly WriteConcern _writeConcern;
+        private BsonDocument _additionalOptions;
+        private bool? _background;
+        private string _collectionName;
+        private string _databaseName;
+        private bool? _dropDups;
+        private string _indexName;
+        private BsonDocument _keys;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private bool? _sparse;
+        private TimeSpan? _timeToLive;
+        private bool? _unique;
+        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public CreateIndexOperation(
             string databaseName,
             string collectionName,
-            BsonDocument keys)
+            BsonDocument keys,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _keys = Ensure.IsNotNull(keys, "keys");
-            _writeConcern = WriteConcern.Acknowledged;
-        }
-
-        private CreateIndexOperation(
-            BsonDocument additionalOptions,
-            bool? background,
-            string collectionName,
-            string databaseName,
-            bool? dropDups,
-            string indexName,
-            BsonDocument keys,
-            bool? sparse,
-            TimeSpan? timeToLive,
-            bool? unique,
-            WriteConcern writeConcern)
-        {
-            _additionalOptions = additionalOptions;
-            _background = background;
-            _collectionName = collectionName;
-            _databaseName = databaseName;
-            _dropDups = dropDups;
-            _indexName = indexName;
-            _keys = keys;
-            _sparse = sparse;
-            _timeToLive = timeToLive;
-            _unique = unique;
-            _writeConcern = writeConcern;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public BsonDocument AdditionalOptions
         {
             get { return _additionalOptions; }
+            set { _additionalOptions = value; }
         }
 
         public bool? Background
         {
             get { return _background; }
+            set { _background = value; }
         }
 
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public bool? DropDups
         {
             get { return _dropDups; }
+            set { _dropDups = value; }
         }
 
         public string IndexName
         {
             get { return _indexName; }
+            set { _indexName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public BsonDocument Keys
         {
             get { return _keys; }
+            set { _keys = Ensure.IsNotNull(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         public bool? Sparse
         {
             get { return _sparse; }
+            set { _sparse = value; }
         }
 
         public TimeSpan? TimeToLive
         {
             get { return _timeToLive; }
+            set { _timeToLive = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public bool? Unique
         {
             get { return _unique; }
+            set { _unique = value; }
         }
 
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
+            set { _writeConcern = Ensure.IsNotNull(value, "value"); }
         }
 
         // methods
@@ -185,119 +179,12 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var indexDocument = CreateIndexDocument();
             var documentSource = new BatchableSource<BsonDocument>(new[] { indexDocument });
-            var operation = new InsertOpcodeOperation(_databaseName, "system.indexes", documentSource) { WriteConcern = _writeConcern };
+            var operation = new InsertOpcodeOperation(_databaseName, "system.indexes", documentSource, _messageEncoderSettings)
+            {
+                WriteConcern = _writeConcern
+            };
             var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
             return result.Response;
-        }
-
-        public CreateIndexOperation WithAdditionalOptions(BsonDocument value)
-        {
-            return object.ReferenceEquals(_additionalOptions, value) ? this : new Builder(this) { _additionalOptions = value }.Build();
-        }
-
-        public CreateIndexOperation WithBackground(bool? value)
-        {
-            return (_background == value) ? this : new Builder(this) { _background = value }.Build();
-        }
-
-        public CreateIndexOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public CreateIndexOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public CreateIndexOperation WithDropDups(bool? value)
-        {
-            return (_dropDups == value) ? this : new Builder(this) { _dropDups = value }.Build();
-        }
-
-        public CreateIndexOperation WithIndexName(string value)
-        {
-            // value can be null
-            return (_indexName == value) ? this : new Builder(this) { _indexName = value }.Build();
-        }
-
-        public CreateIndexOperation WithKeys(BsonDocument value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.ReferenceEquals(_keys, value) ? this : new Builder(this) { _keys = value }.Build();
-        }
-
-        public CreateIndexOperation WithSparse(bool? value)
-        {
-            return (_sparse == value) ? this : new Builder(this) { _sparse = value }.Build();
-        }
-
-        public CreateIndexOperation WithTimeToLive(TimeSpan? value)
-        {
-            return (_timeToLive == value) ? this : new Builder(this) { _timeToLive = value }.Build();
-        }
-
-        public CreateIndexOperation WithUnique(bool? value)
-        {
-            return (_unique == value) ? this : new Builder(this) { _unique = value }.Build();
-        }
-
-        public CreateIndexOperation WithWriteConcern(WriteConcern value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return object.Equals(_writeConcern, value) ? this : new Builder(this) { _writeConcern = value }.Build();
-        }
-
-        // nested typed
-        private struct Builder
-        {
-            // fields
-            public BsonDocument _additionalOptions;
-            public bool? _background;
-            public string _collectionName;
-            public string _databaseName;
-            public bool? _dropDups;
-            public string _indexName;
-            public BsonDocument _keys;
-            public bool? _sparse;
-            public TimeSpan? _timeToLive;
-            public bool? _unique;
-            public WriteConcern _writeConcern;
-
-            // constructors
-            public Builder(CreateIndexOperation other)
-            {
-                _additionalOptions = other.AdditionalOptions;
-                _background = other.Background;
-                _collectionName = other.CollectionName;
-                _databaseName = other.DatabaseName;
-                _dropDups = other.DropDups;
-                _indexName = other.IndexName;
-                _keys = other.Keys;
-                _sparse = other.Sparse;
-                _timeToLive = other.TimeToLive;
-                _unique = other.Unique;
-                _writeConcern = other.WriteConcern;
-            }
-
-            // methods
-            public CreateIndexOperation Build()
-            {
-                return new CreateIndexOperation(
-                    _additionalOptions,
-                    _background,
-                    _collectionName,
-                    _databaseName,
-                    _dropDups,
-                    _indexName,
-                    _keys,
-                    _sparse,
-                    _timeToLive,
-                    _unique,
-                    _writeConcern);
-            }
         }
     }
 }

@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Sync;
 using MongoDB.Driver.Core.SyncExtensionMethods;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
 {
@@ -32,17 +33,20 @@ namespace MongoDB.Driver
         // private fields
         private readonly MongoCollection _collection;
         private readonly AggregateArgs _args;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly string _outputCollectionName;
 
         // constructors
         public AggregateEnumerableResult(
             MongoCollection collection,
             AggregateArgs args,
-            string outputCollectionName)
+            string outputCollectionName,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _collection = collection;
             _args = args; // TODO: make a defensive copy?
             _outputCollectionName = outputCollectionName;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // public methods
@@ -79,6 +83,7 @@ namespace MongoDB.Driver
                         batchSize,
                         0, // limit
                         serializer,
+                        _messageEncoderSettings,
                         Timeout.InfiniteTimeSpan,
                         CancellationToken.None);
 

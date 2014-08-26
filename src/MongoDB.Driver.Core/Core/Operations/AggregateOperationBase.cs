@@ -18,55 +18,50 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public abstract class AggregateOperationBase
     {
         // fields
-        private readonly bool? _allowDiskUsage;
-        private readonly string _collectionName;
-        private readonly string _databaseName;
+        private bool? _allowDiskUsage;
+        private string _collectionName;
+        private string _databaseName;
         private TimeSpan? _maxTime;
-        private readonly IReadOnlyList<BsonDocument> _pipeline;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private IReadOnlyList<BsonDocument> _pipeline;
 
         // constructors
         protected AggregateOperationBase(
             string databaseName,
             string collectionName,
-            IEnumerable<BsonDocument> pipeline)
+            IEnumerable<BsonDocument> pipeline,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
-        }
-
-        protected AggregateOperationBase(
-            bool? allowDiskUsage,
-            string collectionName,
-            string databaseName,
-            IReadOnlyList<BsonDocument> pipeline)
-        {
-            _allowDiskUsage = allowDiskUsage;
-            _collectionName = collectionName;
-            _databaseName = databaseName;
-            _pipeline = pipeline;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public bool? AllowDiskUsage
         {
             get { return _allowDiskUsage; }
+            set { _allowDiskUsage = value; }
         }
 
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public TimeSpan? MaxTime
@@ -75,9 +70,16 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = value; }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public IReadOnlyList<BsonDocument> Pipeline
         {
             get { return _pipeline; }
+            set { _pipeline = Ensure.IsNotNull(value, "value").ToList(); }
         }
 
         // methods

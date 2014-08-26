@@ -13,16 +13,12 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
@@ -36,10 +32,11 @@ namespace MongoDB.Driver.Core.WireProtocol
         public DeleteWireProtocol(
             string databaseName,
             string collectionName,
-            WriteConcern writeConcern,
             BsonDocument query,
-            bool isMulti)
-            : base(databaseName, collectionName, writeConcern)
+            bool isMulti,
+            MessageEncoderSettings messageEncoderSettings,
+            WriteConcern writeConcern)
+            : base(databaseName, collectionName, messageEncoderSettings, writeConcern)
         {
             _query = Ensure.IsNotNull(query, "query");
             _isMulti = isMulti;

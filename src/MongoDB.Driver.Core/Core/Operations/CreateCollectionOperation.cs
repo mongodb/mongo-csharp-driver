@@ -19,73 +19,73 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class CreateCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private readonly bool? _autoIndexId;
-        private readonly bool? _capped;
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly long? _maxDocuments;
-        private readonly long? _maxSize;
+        private bool? _autoIndexId;
+        private bool? _capped;
+        private string _collectionName;
+        private string _databaseName;
+        private long? _maxDocuments;
+        private long? _maxSize;
+        private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public CreateCollectionOperation(
             string databaseName,
-            string collectionName)
+            string collectionName,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
-        }
-
-        private CreateCollectionOperation(
-            bool? autoIndexId,
-            bool? capped,
-            string collectionName,
-            string databaseName,
-            long? maxDocuments,
-            long? maxSize)
-        {
-            _autoIndexId = autoIndexId;
-            _capped = capped;
-            _collectionName = collectionName;
-            _databaseName = databaseName;
-            _maxDocuments = maxDocuments;
-            _maxSize = maxSize;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public bool? AutoIndexId
         {
             get { return _autoIndexId; }
+            set { _autoIndexId = value; }
         }
 
         public bool? Capped
         {
             get { return _capped; }
+            set { _capped = value; }
         }
 
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public long? MaxDocuments
         {
             get { return _maxDocuments; }
+            set { _maxDocuments = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
         public long? MaxSize
         {
             get { return _maxSize; }
+            set { _maxSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         // methods
@@ -105,77 +105,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseName, command);
+            var operation = new WriteCommandOperation(_databaseName, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
-        }
-
-        public CreateCollectionOperation WithAutoIndexId(bool? value)
-        {
-            return (_autoIndexId == value) ? this : new Builder(this) { _autoIndexId = value }.Build();
-        }
-
-        public CreateCollectionOperation WithCapped(bool? value)
-        {
-            return (_capped == value) ? this : new Builder(this) { _capped = value }.Build();
-        }
-
-        public CreateCollectionOperation WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public CreateCollectionOperation WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_databaseName == value) ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public CreateCollectionOperation WithMaxDocuments(long? value)
-        {
-            Ensure.IsNullOrGreaterThanZero(value, "value");
-            return (_maxDocuments == value) ? this : new Builder(this) { _maxDocuments = value }.Build();
-        }
-
-        public CreateCollectionOperation WithMaxSize(long? value)
-        {
-            Ensure.IsNullOrGreaterThanZero(value, "value");
-            return (_maxSize == value) ? this : new Builder(this) { _maxSize = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public bool? _autoIndexId;
-            public bool? _capped;
-            public string _collectionName;
-            public string _databaseName;
-            public long? _maxDocuments;
-            public long? _maxSize;
-
-            // constructors
-            public Builder(CreateCollectionOperation other)
-            {
-                _autoIndexId = other.AutoIndexId;
-                _capped = other.Capped;
-                _collectionName = other.CollectionName;
-                _databaseName = other.DatabaseName;
-                _maxDocuments = other.MaxDocuments;
-                _maxSize = other.MaxSize;
-            }
-
-            // methods
-            public CreateCollectionOperation Build()
-            {
-                return new CreateCollectionOperation(
-                    _autoIndexId,
-                    _capped,
-                    _collectionName,
-                    _databaseName,
-                    _maxDocuments,
-                    _maxSize);
-            }
         }
     }
 }

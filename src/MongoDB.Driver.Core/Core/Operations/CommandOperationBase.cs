@@ -23,6 +23,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -32,51 +33,61 @@ namespace MongoDB.Driver.Core.Operations
     public abstract class CommandOperationBase<TCommandResult> : QueryOperationBase
     {
         // fields
-        private readonly BsonDocument _additionalOptions;
-        private readonly BsonDocument _command;
-        private readonly string _comment;
-        private readonly string _databaseName;
-        private readonly IBsonSerializer<TCommandResult> _resultSerializer;
+        private BsonDocument _additionalOptions;
+        private BsonDocument _command;
+        private string _comment;
+        private string _databaseName;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private IBsonSerializer<TCommandResult> _resultSerializer;
 
         // constructors
         protected CommandOperationBase(
-            BsonDocument additionalOptions,
-            BsonDocument command,
-            string comment,
             string databaseName,
-            IBsonSerializer<TCommandResult> resultSerializer)
+            BsonDocument command,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
         {
-            _additionalOptions = additionalOptions;
-            _command = Ensure.IsNotNull(command, "command");
-            _comment = comment;
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
+            _command = Ensure.IsNotNull(command, "command");
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public BsonDocument AdditionalOptions
         {
             get { return _additionalOptions; }
+            set { _additionalOptions = value; }
         }
 
         public BsonDocument Command
         {
             get { return _command; }
+            set { _command = Ensure.IsNotNull(value, "value"); }
         }
 
         public string Comment
         {
             get { return _comment; }
+            set { _comment = value; }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         public IBsonSerializer<TCommandResult> ResultSerializer
         {
             get { return _resultSerializer; }
+            set { _resultSerializer = Ensure.IsNotNull(value, "value"); }
         }
 
         // methods
@@ -84,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
             var slaveOk = readPreference != null && readPreference.Mode != ReadPreferenceMode.Primary;
-            return new CommandWireProtocol<TCommandResult>(_databaseName, wrappedCommand, _resultSerializer, slaveOk);
+            return new CommandWireProtocol<TCommandResult>(_databaseName, wrappedCommand, slaveOk, _resultSerializer, _messageEncoderSettings);
         }
 
         private BsonDocument CreateWrappedCommand(ServerDescription serverDescription, ReadPreference readPreference)

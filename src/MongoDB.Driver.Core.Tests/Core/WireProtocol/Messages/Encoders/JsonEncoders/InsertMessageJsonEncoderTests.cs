@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private static readonly BatchableSource<BsonDocument> __documentSource = new BatchableSource<BsonDocument>(__documents);
         private static readonly int __maxBatchCount = 1000;
         private static readonly int __maxMessageSize = 40000000;
+        private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly int __requestId = 1;
         private static readonly IBsonSerializer<BsonDocument> __serializer = BsonDocumentSerializer.Instance;
         private static readonly InsertMessage<BsonDocument> __testMessage;
@@ -65,56 +66,50 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         #endregion
 
         [Test]
-        public void Constructor_should_not_throw_if_jsonReader_and_jsonWriter_are_both_provided()
+        public void Constructor_should_not_throw_if_textReader_and_textWriter_are_both_provided()
         {
-            using (var stringReader = new StringReader(""))
-            using (var stringWriter = new StringWriter())
-            using (var jsonReader = new JsonReader(stringReader))
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textReader = new StringReader(""))
+            using (var textWriter = new StringWriter())
             {
-                Action action = () => new InsertMessageJsonEncoder<BsonDocument>(jsonReader, jsonWriter, __serializer);
+                Action action = () => new InsertMessageJsonEncoder<BsonDocument>(textReader, textWriter, __messageEncoderSettings, __serializer);
                 action.ShouldNotThrow();
             }
         }
 
         [Test]
-        public void Constructor_should_not_throw_if_only_jsonReader_is_provided()
+        public void Constructor_should_not_throw_if_only_textReader_is_provided()
         {
-            using (var stringReader = new StringReader(""))
-            using (var jsonReader = new JsonReader(stringReader))
+            using (var textReader = new StringReader(""))
             {
-                Action action = () => new InsertMessageJsonEncoder<BsonDocument>(jsonReader, null, __serializer);
+                Action action = () => new InsertMessageJsonEncoder<BsonDocument>(textReader, null, __messageEncoderSettings, __serializer);
                 action.ShouldNotThrow();
             }
         }
 
         [Test]
-        public void Constructor_should_not_throw_if_only_jsonWriter_is_provided()
+        public void Constructor_should_not_throw_if_only_textWriter_is_provided()
         {
-            using (var stringWriter = new StringWriter())
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textWriter = new StringWriter())
             {
-                Action action = () => new InsertMessageJsonEncoder<BsonDocument>(null, jsonWriter, __serializer);
+                Action action = () => new InsertMessageJsonEncoder<BsonDocument>(null, textWriter, __messageEncoderSettings, __serializer);
                 action.ShouldNotThrow();
             }
         }
 
         [Test]
-        public void Constructor_should_throw_if_jsonReader_and_jsonWriter_are_both_null()
+        public void Constructor_should_throw_if_textReader_and_textWriter_are_both_null()
         {
-            Action action = () => new InsertMessageJsonEncoder<BsonDocument>(null, null, __serializer);
+            Action action = () => new InsertMessageJsonEncoder<BsonDocument>(null, null, __messageEncoderSettings, __serializer);
             action.ShouldThrow<ArgumentException>();
         }
 
         [Test]
         public void Constructor_should_throw_if_serializer_is_null()
         {
-            using (var stringReader = new StringReader(""))
-            using (var stringWriter = new StringWriter())
-            using (var jsonReader = new JsonReader(stringReader))
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textReader = new StringReader(""))
+            using (var textWriter = new StringWriter())
             {
-                Action action = () => new InsertMessageJsonEncoder<BsonDocument>(jsonReader, jsonWriter, null);
+                Action action = () => new InsertMessageJsonEncoder<BsonDocument>(textReader, textWriter, __messageEncoderSettings, null);
                 action.ShouldThrow<ArgumentNullException>();
             }
         }
@@ -122,10 +117,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         [Test]
         public void ReadMessage_should_read_a_message()
         {
-            using (var stringReader = new StringReader(__testMessageJson))
-            using (var jsonReader = new JsonReader(stringReader))
+            using (var textReader = new StringReader(__testMessageJson))
             {
-                var subject = new InsertMessageJsonEncoder<BsonDocument>(jsonReader, null, __serializer);
+                var subject = new InsertMessageJsonEncoder<BsonDocument>(textReader, null, __messageEncoderSettings, __serializer);
                 var message = subject.ReadMessage();
                 message.CollectionName.Should().Be(__collectionName);
                 message.ContinueOnError.Should().Be(__continueOnError);
@@ -139,24 +133,22 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         [Test]
-        public void ReadMessage_should_throw_if_jsonReader_was_not_provided()
+        public void ReadMessage_should_throw_if_textReader_was_not_provided()
         {
-            using (var stringWriter = new StringWriter())
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textWriter = new StringWriter())
             {
-                var subject = new InsertMessageJsonEncoder<BsonDocument>(null, jsonWriter, __serializer);
+                var subject = new InsertMessageJsonEncoder<BsonDocument>(null, textWriter, __messageEncoderSettings, __serializer);
                 Action action = () => subject.ReadMessage();
                 action.ShouldThrow<InvalidOperationException>();
             }
         }
 
         [Test]
-        public void WriteMessage_should_throw_if_jsonWriter_was_not_provided()
+        public void WriteMessage_should_throw_if_textWriter_was_not_provided()
         {
-            using (var stringReader = new StringReader(""))
-            using (var jsonReader = new JsonReader(stringReader))
+            using (var textReader = new StringReader(""))
             {
-                var subject = new InsertMessageJsonEncoder<BsonDocument>(jsonReader, null, __serializer);
+                var subject = new InsertMessageJsonEncoder<BsonDocument>(textReader, null, __messageEncoderSettings, __serializer);
                 Action action = () => subject.WriteMessage(__testMessage);
                 action.ShouldThrow<InvalidOperationException>();
             }
@@ -165,10 +157,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         [Test]
         public void WriteMessage_should_throw_if_message_is_null()
         {
-            using (var stringWriter = new StringWriter())
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textWriter = new StringWriter())
             {
-                var subject = new InsertMessageJsonEncoder<BsonDocument>(null, jsonWriter, __serializer);
+                var subject = new InsertMessageJsonEncoder<BsonDocument>(null, textWriter, __messageEncoderSettings, __serializer);
                 Action action = () => subject.WriteMessage(null);
                 action.ShouldThrow<ArgumentNullException>();
             }
@@ -177,12 +168,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         [Test]
         public void WriteMessage_should_write_a_message()
         {
-            using (var stringWriter = new StringWriter())
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textWriter = new StringWriter())
             {
-                var subject = new InsertMessageJsonEncoder<BsonDocument>(null, jsonWriter, __serializer);
+                var subject = new InsertMessageJsonEncoder<BsonDocument>(null, textWriter, __messageEncoderSettings, __serializer);
                 subject.WriteMessage(__testMessage);
-                var json = stringWriter.ToString();
+                var json = textWriter.ToString();
                 json.Should().Be(__testMessageJson);
             }
         }

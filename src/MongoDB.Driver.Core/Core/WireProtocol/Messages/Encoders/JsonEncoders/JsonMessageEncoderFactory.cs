@@ -13,13 +13,7 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
@@ -28,61 +22,63 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     public class JsonMessageEncoderFactory : IMessageEncoderFactory
     {
         // fields
-        private readonly JsonReader _jsonReader;
-        private readonly JsonWriter _jsonWriter;
+        private readonly MessageEncoderSettings _encoderSettings;
+        private readonly TextReader _textReader;
+        private readonly TextWriter _textWriter;
 
         // constructors
-        public JsonMessageEncoderFactory(JsonReader jsonReader)
-            : this(Ensure.IsNotNull(jsonReader, "jsonReader"), null)
+        public JsonMessageEncoderFactory(TextReader textReader, MessageEncoderSettings encoderSettings)
+            : this(Ensure.IsNotNull(textReader, "textReader"), null, encoderSettings)
         {
         }
 
-        public JsonMessageEncoderFactory(JsonWriter jsonWriter)
-            : this(null, Ensure.IsNotNull(jsonWriter, "jsonWriter"))
+        public JsonMessageEncoderFactory(TextWriter textWriter, MessageEncoderSettings encoderSettings)
+            : this(null, Ensure.IsNotNull(textWriter, "textWriter"), encoderSettings)
         {
         }
 
-        public JsonMessageEncoderFactory(JsonReader jsonReader, JsonWriter jsonWriter)
+        public JsonMessageEncoderFactory(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
         {
-            Ensure.That(jsonReader != null || jsonWriter != null, "jsonReader and jsonWriter cannot both be null.");
-            _jsonReader = jsonReader;
-            _jsonWriter = jsonWriter;
+            Ensure.That(textReader != null || textWriter != null, "textReader and textWriter cannot both be null.");
+            _textReader = textReader;
+            _textWriter = textWriter;
+            _encoderSettings = encoderSettings;
         }
 
         // methods
         public IMessageEncoder<DeleteMessage> GetDeleteMessageEncoder()
         {
-            return new DeleteMessageJsonEncoder(_jsonReader, _jsonWriter);
+            return new DeleteMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
         public IMessageEncoder<GetMoreMessage> GetGetMoreMessageEncoder()
         {
-            return new GetMoreMessageJsonEncoder(_jsonReader, _jsonWriter);
+            return new GetMoreMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
         public IMessageEncoder<InsertMessage<TDocument>> GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
-            return new InsertMessageJsonEncoder<TDocument>(_jsonReader, _jsonWriter, serializer);
+            return new InsertMessageJsonEncoder<TDocument>(_textReader, _textWriter, _encoderSettings, serializer);
         }
 
         public IMessageEncoder<KillCursorsMessage> GetKillCursorsMessageEncoder()
         {
-            return new KillCursorsMessageJsonEncoder(_jsonReader, _jsonWriter);
+            return new KillCursorsMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
         public IMessageEncoder<QueryMessage> GetQueryMessageEncoder()
         {
-            return new QueryMessageJsonEncoder(_jsonReader, _jsonWriter);
+            return new QueryMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
         public IMessageEncoder<ReplyMessage<TDocument>> GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
-            return new ReplyMessageJsonEncoder<TDocument>(_jsonReader, _jsonWriter, serializer);
+            return new ReplyMessageJsonEncoder<TDocument>(_textReader, _textWriter, _encoderSettings, serializer);
         }
 
         public IMessageEncoder<UpdateMessage> GetUpdateMessageEncoder()
         {
-            return new UpdateMessageJsonEncoder(_jsonReader, _jsonWriter);
+            return new UpdateMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
     }
 }

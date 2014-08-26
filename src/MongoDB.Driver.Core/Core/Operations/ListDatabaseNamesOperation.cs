@@ -22,11 +22,28 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class ListDatabaseNamesOperation : IReadOperation<IReadOnlyList<string>>, ICommandOperation
     {
+        // fields
+        private MessageEncoderSettings _messageEncoderSettings;
+        
+        // constructors
+        public ListDatabaseNamesOperation(MessageEncoderSettings messageEncoderSettings)
+        {
+            _messageEncoderSettings = messageEncoderSettings;
+        }
+
+        // properties
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         // methods
         public BsonDocument CreateCommand()
         {
@@ -37,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation("admin", command);
+            var operation = new ReadCommandOperation("admin", command, _messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
             var databases = result["databases"];
             return databases.AsBsonArray.Select(x => x["name"].ToString()).ToList();

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -22,29 +23,19 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
-    public class GetMoreMessageJsonEncoder : IMessageEncoder<GetMoreMessage>
+    public class GetMoreMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder<GetMoreMessage>
     {
-        // fields
-        private readonly JsonReader _jsonReader;
-        private readonly JsonWriter _jsonWriter;
-
         // constructors
-        public GetMoreMessageJsonEncoder(JsonReader jsonReader, JsonWriter jsonWriter)
+        public GetMoreMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
+            : base(textReader, textWriter, encoderSettings)
         {
-            Ensure.That(jsonReader != null || jsonWriter != null, "jsonReader and jsonWriter cannot both be null.");
-            _jsonReader = jsonReader;
-            _jsonWriter = jsonWriter;
         }
 
         // methods
         public GetMoreMessage ReadMessage()
         {
-            if (_jsonReader == null)
-            {
-                throw new InvalidOperationException("No jsonReader was provided.");
-            }
-
-            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(_jsonReader);
+            var jsonReader = CreateJsonReader();
+            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(jsonReader);
             var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
 
             var opcode = messageDocument["opcode"].AsString;
@@ -70,10 +61,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         public void WriteMessage(GetMoreMessage message)
         {
             Ensure.IsNotNull(message, "message");
-            if (_jsonWriter == null)
-            {
-                throw new InvalidOperationException("No jsonWriter was provided.");
-            }
 
             var messageDocument = new BsonDocument
             {
@@ -85,7 +72,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 { "batchSize", message.BatchSize }
             };
 
-            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);
+            var jsonWriter = CreateJsonWriter();
+            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(jsonWriter);
             BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 

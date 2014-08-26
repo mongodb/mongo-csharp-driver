@@ -22,14 +22,15 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class DistinctOperation : DistinctOperation<BsonValue>
     {
         // constructors
-        public DistinctOperation(string databaseName, string collectionName, string key, BsonDocument query = null)
-            : base(databaseName, collectionName, BsonValueSerializer.Instance, key, query)
+        public DistinctOperation(string databaseName, string collectionName, string key, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, BsonValueSerializer.Instance, key, query, messageEncoderSettings)
         {
         }
     }
@@ -37,48 +38,60 @@ namespace MongoDB.Driver.Core.Operations
     public class DistinctOperation<TValue> : IReadOperation<IEnumerable<TValue>>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
-        private readonly string _key;
+        private string _collectionName;
+        private string _databaseName;
+        private string _key;
         private TimeSpan? _maxTime;
-        private readonly BsonDocument _query;
-        private readonly IBsonSerializer<TValue> _valueSerializer;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private BsonDocument _query;
+        private IBsonSerializer<TValue> _valueSerializer;
 
         // constructors
-        public DistinctOperation(string databaseName, string collectionName, IBsonSerializer<TValue> valueSerializer, string key, BsonDocument query = null)
+        public DistinctOperation(string databaseName, string collectionName, IBsonSerializer<TValue> valueSerializer, string key, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _valueSerializer = Ensure.IsNotNull(valueSerializer, "valueSerializer");
-            _key = Ensure.IsNotNull(key, "key");
-            _query = query ?? new BsonDocument();
+            _key = Ensure.IsNotNullOrEmpty(key, "key");
+            _query = query;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public string CollectionName
         {
             get { return _collectionName; }
+            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string DatabaseName
         {
             get { return _databaseName; }
+            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public string Key
         {
             get { return _key; }
+            set { _key = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
-            set { _maxTime = value; }
+            set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, "value"); }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
         }
 
         public BsonDocument Query
         {
             get { return _query; }
+            set { _query = value; }
         }
 
         // methods
@@ -99,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
             var command = CreateCommand();
             var valueArraySerializer = new ArraySerializer<TValue>(_valueSerializer);
             var resultSerializer = new ElementDeserializer<TValue[]>("values", valueArraySerializer);
-            var operation = new ReadCommandOperation<TValue[]>(_databaseName, command, resultSerializer);
+            var operation = new ReadCommandOperation<TValue[]>(_databaseName, command, resultSerializer, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
 
@@ -107,68 +120,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(_databaseName, command);
+            var operation = new ReadCommandOperation(_databaseName, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
-        }
-
-        public DistinctOperation<TValue> WithCollectionName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new Builder(this) { _collectionName = value }.Build();
-        }
-
-        public DistinctOperation<TValue> WithDatabaseName(string value)
-        {
-            Ensure.IsNotNullOrEmpty(value, "value");
-            return (_collectionName == value) ? this : new Builder(this) { _databaseName = value }.Build();
-        }
-
-        public DistinctOperation<TValue> WithKey(string value)
-        {
-            Ensure.IsNotNull(value, "value");
-            return (_collectionName == value) ? this : new Builder(this) { _key = value }.Build();
-        }
-
-        public DistinctOperation<TValue> WithQuery(BsonDocument value)
-        {
-            return object.Equals(_query, value) ? this : new Builder(this) { _query = value }.Build();
-        }
-
-        public DistinctOperation<TValue> WithValueSerializer(IBsonSerializer<TValue> value)
-        {
-            return object.ReferenceEquals(_valueSerializer, value) ? this : new Builder(this) { _valueSerializer = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public string _collectionName;
-            public string _databaseName;
-            public string _key;
-            public BsonDocument _query;
-            public IBsonSerializer<TValue> _valueSerializer;
-
-            // constructors
-            public Builder(DistinctOperation<TValue> other)
-            {
-                _collectionName = other._collectionName;
-                _databaseName = other._databaseName;
-                _key = other._key;
-                _query = other._query;
-                _valueSerializer = other._valueSerializer;
-            }
-
-            // methods
-            public DistinctOperation<TValue> Build()
-            {
-                return new DistinctOperation<TValue>(
-                    _databaseName,
-                    _collectionName,
-                    _valueSerializer,
-                    _key,
-                    _query);
-            }
         }
     }
 }

@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -37,8 +38,9 @@ namespace MongoDB.Driver.Core.Operations
         public FindOperation(
             string databaseName,
             string collectionName,
-            BsonDocument query = null)
-            : base(databaseName, collectionName, BsonDocumentSerializer.Instance, query)
+            BsonDocument query,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, query, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -60,6 +62,7 @@ namespace MongoDB.Driver.Core.Operations
         private string _hint;
         private int? _limit;
         private TimeSpan? _maxTime;
+        private MessageEncoderSettings _messageEncoderSettings;
         private bool _noCursorTimeout;
         private bool _partialOk;
         private BsonDocument _query;
@@ -73,13 +76,15 @@ namespace MongoDB.Driver.Core.Operations
         public FindOperation(
             string databaseName,
             string collectionName,
+            BsonDocument query,
             IBsonSerializer<TDocument> serializer,
-            BsonDocument query = null)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _query = Ensure.IsNotNull(query, "query");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _query = query ?? new BsonDocument();
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -143,6 +148,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = value; }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public bool NoCursorTimeout
         {
             get { return _noCursorTimeout; }
@@ -158,7 +169,7 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Query
         {
             get { return _query; }
-            set { _query = value ?? new BsonDocument(); }
+            set { _query = Ensure.IsNotNull(value, "value"); }
         }
 
         public IBsonSerializer<TDocument> Serializer
@@ -224,7 +235,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public FindOperation<TOtherDocument> Clone<TOtherDocument>(IBsonSerializer<TOtherDocument> serializer)
         {
-            return new FindOperation<TOtherDocument>(_databaseName, _collectionName, serializer, _query)
+            return new FindOperation<TOtherDocument>(_databaseName, _collectionName, _query, serializer, _messageEncoderSettings)
             {
                 AdditionalOptions = _additionalOptions,
                 AwaitData = _awaitData,
@@ -261,7 +272,8 @@ namespace MongoDB.Driver.Core.Operations
                 _noCursorTimeout,
                 _tailableCursor,
                 _awaitData,
-                _serializer);
+                _serializer,
+                _messageEncoderSettings);
         }
 
         private BsonDocument CreateWrappedQuery(ServerDescription serverDescription, ReadPreference readPreference)
@@ -310,6 +322,7 @@ namespace MongoDB.Driver.Core.Operations
                     _batchSize ?? 0,
                     Math.Abs(_limit ?? 0),
                     _serializer,
+                    _messageEncoderSettings,
                     timeout,
                     cancellationToken);
             }

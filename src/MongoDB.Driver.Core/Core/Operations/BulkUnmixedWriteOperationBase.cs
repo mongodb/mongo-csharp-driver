@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -37,20 +38,21 @@ namespace MongoDB.Driver.Core.Operations
         private bool _isOrdered = true;
         private int _maxBatchCount = 0;
         private int _maxBatchLength = int.MaxValue;
-        private BsonBinaryReaderSettings _readerSettings = BsonBinaryReaderSettings.Defaults;
+        private MessageEncoderSettings _messageEncoderSettings;
         private IEnumerable<WriteRequest> _requests;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
-        private BsonBinaryWriterSettings _writerSettings = BsonBinaryWriterSettings.Defaults;
 
         // constructors
         protected BulkUnmixedWriteOperationBase(
             string databaseName,
             string collectionName,
-            IEnumerable<WriteRequest> requests)
+            IEnumerable<WriteRequest> requests,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _requests = Ensure.IsNotNull(requests, "requests");
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
@@ -80,16 +82,16 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxBatchLength = Ensure.IsGreaterThanOrEqualToZero(value, "value"); }
         }
 
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+            set { _messageEncoderSettings = value; }
+        }
+
         public bool IsOrdered
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
-        }
-
-        public BsonBinaryReaderSettings ReaderSettings
-        {
-            get { return _readerSettings; }
-            set { _readerSettings = Ensure.IsNotNull(value, "value"); }
         }
 
         public IEnumerable<WriteRequest> Requests
@@ -104,12 +106,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _writeConcern; }
             set { _writeConcern = Ensure.IsNotNull(value, "value"); }
-        }
-
-        public BsonBinaryWriterSettings WriterSettings
-        {
-            get { return _writerSettings; }
-            set { _writerSettings = Ensure.IsNotNull(value, "value"); }
         }
 
         // methods
@@ -138,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private CommandWireProtocol CreateWriteCommandProtocol(BsonDocument command)
         {
-            return new CommandWireProtocol(_databaseName, command, false);
+            return new CommandWireProtocol(_databaseName, command, false, _messageEncoderSettings);
         }
 
         protected virtual IEnumerable<WriteRequest> DecorateRequests(IEnumerable<WriteRequest> requests)
@@ -310,6 +306,18 @@ namespace MongoDB.Driver.Core.Operations
 
             public override void Serialize(BsonSerializationContext context, BatchableSource<WriteRequest> requestSource)
             {
+                if (requestSource.IsBatchable)
+                {
+                    SerializeNextBatch(context, requestSource);
+                }
+                else
+                {
+                    SerializeSingleBatch(context, requestSource);
+                }
+            }
+
+            private void SerializeNextBatch(BsonSerializationContext context, BatchableSource<WriteRequest> requestSource)
+            {
                 var batch = new List<WriteRequest>();
 
                 var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
@@ -340,6 +348,23 @@ namespace MongoDB.Driver.Core.Operations
                 }
 
                 requestSource.EndBatch(batch);
+            }
+
+            private void SerializeSingleBatch(BsonSerializationContext context, BatchableSource<WriteRequest> requestSource)
+            {
+                var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
+                _batchStartPosition = (int)bsonBinaryWriter.Stream.Position;
+
+                // always go one document too far so that we can set IsDone as early as possible
+                foreach (var request in requestSource.Batch)
+                {
+                    AddRequest(context, request);
+
+                    if ((_batchCount > _maxBatchCount || _batchLength > _maxBatchLength) && _batchCount > 1)
+                    {
+                        throw new ArgumentException("The non-batchable requests do not fit in a single write command.");
+                    }
+                }
             }
 
             protected abstract void SerializeRequest(BsonSerializationContext context, WriteRequest request);

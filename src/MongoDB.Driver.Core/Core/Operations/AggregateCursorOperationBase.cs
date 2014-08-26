@@ -21,48 +21,35 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public abstract class AggregateCursorOperationBase : AggregateOperationBase
     {
         // fields
-        private readonly int? _batchSize;
-        private readonly AggregateResultMode _resultMode;
+        private int? _batchSize;
+        private AggregateResultMode _resultMode;
 
         // constructors
-        protected AggregateCursorOperationBase(string databaseName, string collectionName, IEnumerable<BsonDocument> pipeline)
-            : base(databaseName, collectionName, pipeline)
+        protected AggregateCursorOperationBase(string databaseName, string collectionName, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
+            : base(databaseName, collectionName, pipeline, messageEncoderSettings)
         {
             _resultMode = AggregateResultMode.Cursor;
-        }
-
-        protected AggregateCursorOperationBase(
-            bool? allowDiskUsage,
-            int? batchSize,
-            string collectionName,
-            string databaseName,
-            AggregateResultMode resultMode,
-            IReadOnlyList<BsonDocument> pipeline)
-            : base(
-                allowDiskUsage,
-                collectionName,
-                databaseName,
-                pipeline)
-        {
-            _batchSize = batchSize;
-            _resultMode = resultMode;
         }
 
         // properties
         public int? BatchSize
         {
             get { return _batchSize; }
+            set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
         public AggregateResultMode ResultMode
         {
             get { return _resultMode; }
+            set { _resultMode = value; }
         }
 
         // methods
@@ -104,6 +91,7 @@ namespace MongoDB.Driver.Core.Operations
                 _batchSize ?? 0,
                 0, // limit
                 BsonDocumentSerializer.Instance,
+                MessageEncoderSettings,
                 timeout,
                 cancellationToken);
         }
@@ -122,6 +110,7 @@ namespace MongoDB.Driver.Core.Operations
                 0, // batchSize
                 0, // limit
                 null, // serializer
+                null, // messageEncoderSettings
                 timeout,
                 cancellationToken);
         }

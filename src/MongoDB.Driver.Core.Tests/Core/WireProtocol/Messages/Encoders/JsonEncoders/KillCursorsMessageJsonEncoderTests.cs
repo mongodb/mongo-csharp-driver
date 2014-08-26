@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // static fields
         private static readonly long[] __cursorIds = new[] { 2L };
         private static readonly int __requestId = 1;
+        private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly KillCursorsMessage __testMessage;
         private static readonly string __testMessageJson;
 
@@ -48,54 +49,49 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         #endregion
 
         [Test]
-        public void Constructor_should_not_throw_if_jsonReader_and_jsonWriter_are_both_provided()
+        public void Constructor_should_not_throw_if_textReader_and_textWriter_are_both_provided()
         {
-            using (var stringReader = new StringReader(""))
-            using (var stringWriter = new StringWriter())
-            using (var jsonReader = new JsonReader(stringReader))
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textReader = new StringReader(""))
+            using (var textWriter = new StringWriter())
             {
-                Action action = () => new KillCursorsMessageJsonEncoder(jsonReader, jsonWriter);
+                Action action = () => new KillCursorsMessageJsonEncoder(textReader, textWriter, __messageEncoderSettings);
                 action.ShouldNotThrow();
             }
         }
 
         [Test]
-        public void Constructor_should_not_throw_if_only_jsonReader_is_provided()
+        public void Constructor_should_not_throw_if_only_textReader_is_provided()
         {
-            using (var stringReader = new StringReader(""))
-            using (var jsonReader = new JsonReader(stringReader))
+            using (var textReader = new StringReader(""))
             {
-                Action action = () => new KillCursorsMessageJsonEncoder(jsonReader, null);
+                Action action = () => new KillCursorsMessageJsonEncoder(textReader, null, __messageEncoderSettings);
                 action.ShouldNotThrow();
             }
         }
 
         [Test]
-        public void Constructor_should_not_throw_if_only_jsonWriter_is_provided()
+        public void Constructor_should_not_throw_if_only_textWriter_is_provided()
         {
-            using (var stringWriter = new StringWriter())
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textWriter = new StringWriter())
             {
-                Action action = () => new KillCursorsMessageJsonEncoder(null, jsonWriter);
+                Action action = () => new KillCursorsMessageJsonEncoder(null, textWriter, __messageEncoderSettings);
                 action.ShouldNotThrow();
             }
         }
 
         [Test]
-        public void Constructor_should_throw_if_jsonReader_and_jsonWriter_are_both_null()
+        public void Constructor_should_throw_if_textReader_and_textWriter_are_both_null()
         {
-            Action action = () => new KillCursorsMessageJsonEncoder(null, null);
+            Action action = () => new KillCursorsMessageJsonEncoder(null, null, __messageEncoderSettings);
             action.ShouldThrow<ArgumentException>();
         }
 
         [Test]
         public void ReadMessage_should_read_a_message()
         {
-            using (var stringReader = new StringReader(__testMessageJson))
-            using (var jsonReader = new JsonReader(stringReader))
+            using (var textReader = new StringReader(__testMessageJson))
             {
-                var subject = new KillCursorsMessageJsonEncoder(jsonReader, null);
+                var subject = new KillCursorsMessageJsonEncoder(textReader, null, __messageEncoderSettings);
                 var message = subject.ReadMessage();
                 message.CursorIds.Should().Equal(__cursorIds);
                 message.RequestId.Should().Be(__testMessage.RequestId);
@@ -103,24 +99,22 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         [Test]
-        public void ReadMessage_should_throw_if_jsonReader_was_not_provided()
+        public void ReadMessage_should_throw_if_textReader_was_not_provided()
         {
-            using (var stringWriter = new StringWriter())
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textWriter = new StringWriter())
             {
-                var subject = new KillCursorsMessageJsonEncoder(null, jsonWriter);
+                var subject = new KillCursorsMessageJsonEncoder(null, textWriter, __messageEncoderSettings);
                 Action action = () => subject.ReadMessage();
                 action.ShouldThrow<InvalidOperationException>();
             }
         }
 
         [Test]
-        public void WriteMessage_should_throw_if_jsonWriter_was_not_provided()
+        public void WriteMessage_should_throw_if_textWriter_was_not_provided()
         {
-            using (var stringReader = new StringReader(""))
-            using (var jsonReader = new JsonReader(stringReader))
+            using (var textReader = new StringReader(""))
             {
-                var subject = new KillCursorsMessageJsonEncoder(jsonReader, null);
+                var subject = new KillCursorsMessageJsonEncoder(textReader, null, __messageEncoderSettings);
                 Action action = () => subject.WriteMessage(__testMessage);
                 action.ShouldThrow<InvalidOperationException>();
             }
@@ -129,10 +123,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         [Test]
         public void WriteMessage_should_throw_if_message_is_null()
         {
-            using (var stringWriter = new StringWriter())
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textWriter = new StringWriter())
             {
-                var subject = new KillCursorsMessageJsonEncoder(null, jsonWriter);
+                var subject = new KillCursorsMessageJsonEncoder(null, textWriter, __messageEncoderSettings);
                 Action action = () => subject.WriteMessage(null);
                 action.ShouldThrow<ArgumentNullException>();
             }
@@ -141,12 +134,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         [Test]
         public void WriteMessage_should_write_a_message()
         {
-            using (var stringWriter = new StringWriter())
-            using (var jsonWriter = new JsonWriter(stringWriter))
+            using (var textWriter = new StringWriter())
             {
-                var subject = new KillCursorsMessageJsonEncoder(null, jsonWriter);
+                var subject = new KillCursorsMessageJsonEncoder(null, textWriter, __messageEncoderSettings);
                 subject.WriteMessage(__testMessage);
-                var json = stringWriter.ToString();
+                var json = textWriter.ToString();
                 json.Should().Be(__testMessageJson);
             }
         }

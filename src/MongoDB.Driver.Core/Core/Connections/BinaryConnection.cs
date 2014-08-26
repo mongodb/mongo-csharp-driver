@@ -21,6 +21,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Async;
@@ -29,6 +30,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
 namespace MongoDB.Driver.Core.Connections
@@ -255,7 +257,12 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(
+            int responseTo,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan timeout,
+            CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(serializer, "serializer");
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
@@ -275,9 +282,7 @@ namespace MongoDB.Driver.Core.Connections
                 ReplyMessage<TDocument> reply;
                 using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: true))
                 {
-                    var readerSettings = BsonBinaryReaderSettings.Defaults; // TODO: where are reader settings supposed to come from?
-                    var binaryReader = new BsonBinaryReader(stream, readerSettings);
-                    var encoderFactory = new BinaryMessageEncoderFactory(binaryReader);
+                    var encoderFactory = new BinaryMessageEncoderFactory(stream, messageEncoderSettings);
                     var encoder = encoderFactory.GetReplyMessageEncoder<TDocument>(serializer);
                     reply = encoder.ReadMessage();
                 }
@@ -319,7 +324,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(messages, "messages");
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
@@ -338,9 +343,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: false))
                     {
-                        var writerSettings = BsonBinaryWriterSettings.Defaults; // TODO: where are writer settings supposed to come from?
-                        var binaryWriter = new BsonBinaryWriter(stream, writerSettings);
-                        var encoderFactory = new BinaryMessageEncoderFactory(binaryWriter);
+                        var encoderFactory = new BinaryMessageEncoderFactory(stream, messageEncoderSettings);
                         foreach (var message in messagesToSend)
                         {
                             if (message.ShouldBeSent == null || message.ShouldBeSent())

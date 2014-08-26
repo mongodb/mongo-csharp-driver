@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations.ListCollectionNamesOperationTests
@@ -26,12 +27,13 @@ namespace MongoDB.Driver.Core.Operations.ListCollectionNamesOperationTests
     [TestFixture]
     public class When_listing_collection_names_on_database_that_does_not_exist : CollectionUsingSpecification
     {
+        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private ListCollectionNamesOperation _subject;
         private IReadOnlyList<string> _result;
 
         protected override void Given()
         {
-            _subject = new ListCollectionNamesOperation("asdlfkjklfkljlwef");
+            _subject = new ListCollectionNamesOperation("asdlfkjklfkljlwef", _messageEncoderSettings);
         }
 
         protected override void When()
