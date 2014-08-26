@@ -60,7 +60,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the command.
         /// </returns>
-        Task<T> RunCommandAsync<T>(BsonDocument command, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
+        Task<T> RunCommandAsync<T>(object command, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
     }
 
     /// <summary>
@@ -81,18 +81,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, string command, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (database == null)
-            {
-                throw new ArgumentNullException("database");
-            }
-            if (command == null)
-            {
-                throw new ArgumentNullException("command");
-            }
-
-            var doc = BsonDocument.Parse(command);
-
-            return database.RunCommandAsync<T>(doc, timeout, cancellationToken);
+            return database.RunCommandAsync<T>(command, timeout, cancellationToken);
         }
 
         /// <summary>
@@ -106,21 +95,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the command.
         /// </returns>
-        public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, object command, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, BsonDocument command, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (database == null)
-            {
-                throw new ArgumentNullException("database");
-            }
-            if (command == null)
-            {
-                throw new ArgumentNullException("command");
-            }
-
-            var serializer = database.Settings.SerializerRegistry.GetSerializer(command.GetType());
-            var doc = new BsonDocumentWrapper(command, serializer);
-
-            return database.RunCommandAsync<T>(doc);
+            return database.RunCommandAsync<T>(command, timeout, cancellationToken);
         }
     }
 }

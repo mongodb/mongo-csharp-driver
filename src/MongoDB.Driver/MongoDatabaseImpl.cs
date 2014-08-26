@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -67,20 +68,36 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
-        public Task<T> RunCommandAsync<T>(BsonDocument command, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<T> RunCommandAsync<T>(object command, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var isReadCommand = CanCommandBeSentToSecondary.Delegate(command);
+            Ensure.IsNotNull(command, "command");
+
+            var commandDocument = command as BsonDocument;
+            if (commandDocument == null)
+            {
+                if (command is string)
+                {
+                    commandDocument = BsonDocument.Parse((string)command);
+                }
+                else
+                {
+                    var commandSerializer = _settings.SerializerRegistry.GetSerializer(command.GetType());
+                    commandDocument = new BsonDocumentWrapper(command, commandSerializer);
+                }
+            }
+
+            var isReadCommand = CanCommandBeSentToSecondary.Delegate(commandDocument);
             var serializer = _settings.SerializerRegistry.GetSerializer<T>();
             var messageEncoderSettings = GetMessageEncoderSettings();
 
             if (isReadCommand)
             {
-                var operation = new ReadCommandOperation<T>(_databaseName, command, serializer, messageEncoderSettings);
+                var operation = new ReadCommandOperation<T>(_databaseName, commandDocument, serializer, messageEncoderSettings);
                 return ExecuteReadOperation<T>(operation, timeout, cancellationToken);
             }
             else
             {
-                var operation = new WriteCommandOperation<T>(_databaseName, command, serializer, messageEncoderSettings);
+                var operation = new WriteCommandOperation<T>(_databaseName, commandDocument, serializer, messageEncoderSettings);
                 return ExecuteWriteOperation<T>(operation, timeout, cancellationToken);
             }
         }
