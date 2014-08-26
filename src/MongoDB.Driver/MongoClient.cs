@@ -84,9 +84,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the cluster.
         /// </summary>
-        /// <value>
-        /// The cluster.
-        /// </value>
         internal ICluster Cluster
         {
             get { return _cluster; }
@@ -128,7 +125,7 @@ namespace MongoDB.Driver
         /// <returns>An implementation of a database.</returns>
         public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings)
         {
-            return new MongoDatabaseImpl(_cluster, name, settings, _operationExecutor);
+            return new MongoDatabaseImpl(name, settings, _cluster, _operationExecutor);
         }
 
         /// <summary>
@@ -142,8 +139,7 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListDatabaseNamesOperation(messageEncoderSettings);
 
-            // TODO: use settings.ReadPreference
-            using(var binding = new ReadPreferenceBinding(_cluster, Core.Clusters.ReadPreference.Primary))
+            using(var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference.ToCore()))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout, cancellationToken);
             }

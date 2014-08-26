@@ -15,8 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -29,21 +27,24 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
 {
-    internal class MongoDatabaseImpl : IMongoDatabase
+    internal sealed class MongoDatabaseImpl : IMongoDatabase
     {
+        // fields
         private readonly ICluster _cluster;
         private readonly string _databaseName;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoDatabaseSettings _settings;
 
-        public MongoDatabaseImpl(ICluster cluster, string databaseName, MongoDatabaseSettings settings, IOperationExecutor operationExecutor)
+        // constructors
+        public MongoDatabaseImpl(string databaseName, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
-            _cluster = cluster;
-            _databaseName = databaseName;
-            _settings = settings;
-            _operationExecutor = operationExecutor;
+            _databaseName = Ensure.IsNotNull(databaseName, "databaseName");
+            _settings = Ensure.IsNotNull(settings, "settings");
+            _cluster = Ensure.IsNotNull(cluster, "cluster");
+            _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
         }
 
+        // properties
         public string DatabaseName
         {
             get { return _databaseName; }
@@ -54,11 +55,26 @@ namespace MongoDB.Driver
             get { return _settings; }
         }
 
+        // methods
         public Task DropAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new DropDatabaseOperation(_databaseName, messageEncoderSettings);
             return ExecuteWriteOperation(operation, timeout, cancellationToken);
+        }
+
+        public IMongoCollection<T> GetCollection<T>(string name)
+        {
+            return GetCollection<T>(name, new MongoCollectionSettings());
+        }
+
+        public IMongoCollection<T> GetCollection<T>(string name, MongoCollectionSettings settings)
+        {
+            Ensure.IsNotNullOrEmpty(name, "name");
+            Ensure.IsNotNull(settings, "settings");
+
+            settings.ApplyDefaultValues(_settings);
+            return new MongoCollectionImpl<T>(name, settings, _cluster, _operationExecutor);
         }
 
         public Task<IReadOnlyList<string>> GetCollectionNamesAsync(TimeSpan timeout, CancellationToken cancellationToken)
@@ -104,8 +120,7 @@ namespace MongoDB.Driver
 
         private async Task<T> ExecuteReadOperation<T>(IReadOperation<T> operation, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            // TODO: use settings ReadPreference
-            using (var binding = new ReadPreferenceBinding(_cluster, Core.Clusters.ReadPreference.Primary))
+            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference.ToCore()))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout, cancellationToken);
             }

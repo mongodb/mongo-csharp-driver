@@ -92,10 +92,14 @@
     <Compile Include="Communication\ClusterKey.cs" />
     <Compile Include="Communication\ClusterRegistry.cs" />
     <Compile Include="Communication\ConnectionModeExtensionMethods.cs" />
+    <Compile Include="CountModel.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonObjectSerializerHelper.cs" />
+    <Compile Include="IExplainableModel.cs" />
     <Compile Include="IMongoClient.cs" />
+    <Compile Include="IMongoCollection.cs" />
     <Compile Include="IMongoDatabase.cs" />
     <Compile Include="IOperationExecutor.cs" />
+    <Compile Include="MongoCollectionImpl.cs" />
     <Compile Include="MongoDatabaseImpl.cs" />
     <Compile Include="OperationExecutor.cs" />
     <Compile Include="ParallelScanArgs.cs" />

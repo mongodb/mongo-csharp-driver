@@ -37,9 +37,9 @@ namespace MongoDB.Driver
         {
             _operationExecutor = new MockOperationExecutor();
             _subject = new MongoDatabaseImpl(
-                Substitute.For<ICluster>(),
                 "foo",
                 new MongoDatabaseSettings(),
+                Substitute.For<ICluster>(),
                 _operationExecutor);
         }
 
