@@ -25,7 +25,6 @@ using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
 {
@@ -45,7 +44,6 @@ namespace MongoDB.Driver
 
         // private fields
         private readonly MongoServerSettings _settings;
-        private readonly MongoConnectionPool _connectionPool;
         private readonly MongoServerAddress _address;
         private readonly int _sequentialId;
         private readonly ICluster _cluster;
@@ -64,7 +62,6 @@ namespace MongoDB.Driver
             _address = address;
             _cluster = cluster;
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
-            _connectionPool = new MongoConnectionPool(this);
             _endPoint = new DnsEndPoint(address.Host, address.Port);
         }
 
@@ -127,14 +124,6 @@ namespace MongoDB.Driver
             {
                 throw new NotImplementedException();
             }
-        }
-
-        /// <summary>
-        /// Gets the connection pool for this server instance.
-        /// </summary>
-        public MongoConnectionPool ConnectionPool
-        {
-            get { return _connectionPool; }
         }
 
         /// <summary>

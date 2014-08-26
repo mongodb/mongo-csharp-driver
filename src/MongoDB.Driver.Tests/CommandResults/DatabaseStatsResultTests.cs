@@ -37,26 +37,22 @@ namespace MongoDB.Driver.Tests.CommandResults
         [Test]
         public void Test()
         {
-            using (_database.RequestStart())
+            if (_server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
-                {
-                    // make sure collection and database exist
-                    _collection.Insert(new BsonDocument());
+                // make sure collection and database exist
+                _collection.Insert(new BsonDocument());
 
-                    var result = _database.GetStats();
-                    Assert.IsTrue(result.Ok);
-                    Assert.IsTrue(result.AverageObjectSize > 0);
-                    Assert.IsTrue(result.CollectionCount > 0);
-                    Assert.IsTrue(result.DataSize > 0);
-                    Assert.IsTrue(result.ExtentCount > 0);
-                    Assert.IsTrue(result.FileSize > 0);
-                    Assert.IsTrue(result.IndexCount > 0);
-                    Assert.IsTrue(result.IndexSize > 0);
-                    Assert.IsTrue(result.ObjectCount > 0);
-                    Assert.IsTrue(result.StorageSize > 0);
-                }
+                var result = _database.GetStats();
+                Assert.IsTrue(result.Ok);
+                Assert.IsTrue(result.AverageObjectSize > 0);
+                Assert.IsTrue(result.CollectionCount > 0);
+                Assert.IsTrue(result.DataSize > 0);
+                Assert.IsTrue(result.ExtentCount > 0);
+                Assert.IsTrue(result.FileSize > 0);
+                Assert.IsTrue(result.IndexCount > 0);
+                Assert.IsTrue(result.IndexSize > 0);
+                Assert.IsTrue(result.ObjectCount > 0);
+                Assert.IsTrue(result.StorageSize > 0);
             }
         }
     }

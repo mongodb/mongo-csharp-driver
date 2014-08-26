@@ -290,8 +290,6 @@
     <Compile Include="GridFS\MongoGridFSException.cs" />
     <Compile Include="GridFS\MongoGridFSCreateOptions.cs" />
     <Compile Include="MongoCursorEnumerator.cs" />
-    <Compile Include="Communication\MongoConnection.cs" />
-    <Compile Include="Communication\MongoConnectionPool.cs" />
     <Compile Include="Linq\Expressions\ExpressionVisitorGeneric.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoFinder.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoHelper.cs" />

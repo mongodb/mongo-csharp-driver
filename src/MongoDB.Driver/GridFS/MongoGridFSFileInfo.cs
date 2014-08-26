@@ -449,7 +449,7 @@ namespace MongoDB.Driver.GridFS
             var server = gridFS.Server;
             using (server.RequestStart(null, gridFS.Settings.ReadPreference))
             {
-                return server.RequestConnection.ServerInstance;
+                return server.RequestServerInstance;
             }
         }
 

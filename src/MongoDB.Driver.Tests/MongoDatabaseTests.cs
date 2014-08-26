@@ -220,21 +220,17 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestGetProfilingInfo()
         {
-            using (_database.RequestStart())
+            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
-                {
-                    var collection = Configuration.TestCollection;
-                    if (collection.Exists()) { collection.Drop(); }
-                    collection.Insert(new BsonDocument("x", 1));
-                    _database.SetProfilingLevel(ProfilingLevel.All);
-                    collection.Count();
-                    _database.SetProfilingLevel(ProfilingLevel.None);
-                    var info = _database.GetProfilingInfo(Query.Null).SetSortOrder(SortBy.Descending("$natural")).SetLimit(1).First();
-                    Assert.IsTrue(info.Timestamp >= new DateTime(2011, 10, 6, 0, 0, 0, DateTimeKind.Utc));
-                    Assert.IsTrue(info.Duration >= TimeSpan.Zero);
-                }
+                var collection = Configuration.TestCollection;
+                if (collection.Exists()) { collection.Drop(); }
+                collection.Insert(new BsonDocument("x", 1));
+                _database.SetProfilingLevel(ProfilingLevel.All);
+                collection.Count();
+                _database.SetProfilingLevel(ProfilingLevel.None);
+                var info = _database.GetProfilingInfo(Query.Null).SetSortOrder(SortBy.Descending("$natural")).SetLimit(1).First();
+                Assert.IsTrue(info.Timestamp >= new DateTime(2011, 10, 6, 0, 0, 0, DateTimeKind.Utc));
+                Assert.IsTrue(info.Duration >= TimeSpan.Zero);
             }
         }
 
@@ -295,41 +291,37 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestSetProfilingLevel()
         {
-            using (_database.RequestStart())
+            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
-                {
-                    _database.SetProfilingLevel(ProfilingLevel.None, TimeSpan.FromMilliseconds(100));
-                    var result = _database.GetProfilingLevel();
-                    Assert.AreEqual(ProfilingLevel.None, result.Level);
-                    Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
+                _database.SetProfilingLevel(ProfilingLevel.None, TimeSpan.FromMilliseconds(100));
+                var result = _database.GetProfilingLevel();
+                Assert.AreEqual(ProfilingLevel.None, result.Level);
+                Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
 
-                    _database.SetProfilingLevel(ProfilingLevel.Slow);
-                    result = _database.GetProfilingLevel();
-                    Assert.AreEqual(ProfilingLevel.Slow, result.Level);
-                    Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
+                _database.SetProfilingLevel(ProfilingLevel.Slow);
+                result = _database.GetProfilingLevel();
+                Assert.AreEqual(ProfilingLevel.Slow, result.Level);
+                Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
 
-                    _database.SetProfilingLevel(ProfilingLevel.Slow, TimeSpan.FromMilliseconds(200));
-                    result = _database.GetProfilingLevel();
-                    Assert.AreEqual(ProfilingLevel.Slow, result.Level);
-                    Assert.AreEqual(TimeSpan.FromMilliseconds(200), result.Slow);
+                _database.SetProfilingLevel(ProfilingLevel.Slow, TimeSpan.FromMilliseconds(200));
+                result = _database.GetProfilingLevel();
+                Assert.AreEqual(ProfilingLevel.Slow, result.Level);
+                Assert.AreEqual(TimeSpan.FromMilliseconds(200), result.Slow);
 
-                    _database.SetProfilingLevel(ProfilingLevel.Slow, TimeSpan.FromMilliseconds(100));
-                    result = _database.GetProfilingLevel();
-                    Assert.AreEqual(ProfilingLevel.Slow, result.Level);
-                    Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
+                _database.SetProfilingLevel(ProfilingLevel.Slow, TimeSpan.FromMilliseconds(100));
+                result = _database.GetProfilingLevel();
+                Assert.AreEqual(ProfilingLevel.Slow, result.Level);
+                Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
 
-                    _database.SetProfilingLevel(ProfilingLevel.All);
-                    result = _database.GetProfilingLevel();
-                    Assert.AreEqual(ProfilingLevel.All, result.Level);
-                    Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
+                _database.SetProfilingLevel(ProfilingLevel.All);
+                result = _database.GetProfilingLevel();
+                Assert.AreEqual(ProfilingLevel.All, result.Level);
+                Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
 
-                    _database.SetProfilingLevel(ProfilingLevel.None);
-                    result = _database.GetProfilingLevel();
-                    Assert.AreEqual(ProfilingLevel.None, result.Level);
-                    Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
-                }
+                _database.SetProfilingLevel(ProfilingLevel.None);
+                result = _database.GetProfilingLevel();
+                Assert.AreEqual(ProfilingLevel.None, result.Level);
+                Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
             }
         }
 
@@ -338,45 +330,42 @@ namespace MongoDB.Driver.Tests
         [TestCase("user2", "pass2", false)]
         public void TestUserMethods(string username, string password, bool isReadOnly)
         {
-            #pragma warning disable 618
-            using (_database.RequestStart(ReadPreference.Primary))
+#pragma warning disable 618
+            bool usesCommands = _primary.Supports(FeatureId.UserManagementCommands);
+            if (usesCommands)
             {
-                bool usesCommands = _database.Server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands);
-                if (usesCommands)
-                {
-                    _database.RunCommand("dropAllUsersFromDatabase");
-                }
-                else
-                {
-                    var collection = _database.GetCollection("system.users");
-                    collection.RemoveAll();
-                }
-
-                _database.AddUser(new MongoUser(username, new PasswordEvidence(password), isReadOnly));
-
-                var user = _database.FindUser(username);
-                Assert.IsNotNull(user);
-                Assert.AreEqual(username, user.Username);
-                if (!usesCommands)
-                {
-                    Assert.AreEqual(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, password)), user.PasswordHash);
-                    Assert.AreEqual(isReadOnly, user.IsReadOnly);
-                }
-
-                var users = _database.FindAllUsers();
-                Assert.AreEqual(1, users.Length);
-                Assert.AreEqual(username, users[0].Username);
-                if (!usesCommands)
-                {
-                    Assert.AreEqual(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, password)), users[0].PasswordHash);
-                    Assert.AreEqual(isReadOnly, users[0].IsReadOnly);
-                }
-
-                _database.RemoveUser(user);
-                user = _database.FindUser(username);
-                Assert.IsNull(user);
-                #pragma warning restore
+                _database.RunCommand("dropAllUsersFromDatabase");
             }
+            else
+            {
+                var collection = _database.GetCollection("system.users");
+                collection.RemoveAll();
+            }
+
+            _database.AddUser(new MongoUser(username, new PasswordEvidence(password), isReadOnly));
+
+            var user = _database.FindUser(username);
+            Assert.IsNotNull(user);
+            Assert.AreEqual(username, user.Username);
+            if (!usesCommands)
+            {
+                Assert.AreEqual(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, password)), user.PasswordHash);
+                Assert.AreEqual(isReadOnly, user.IsReadOnly);
+            }
+
+            var users = _database.FindAllUsers();
+            Assert.AreEqual(1, users.Length);
+            Assert.AreEqual(username, users[0].Username);
+            if (!usesCommands)
+            {
+                Assert.AreEqual(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, password)), users[0].PasswordHash);
+                Assert.AreEqual(isReadOnly, users[0].IsReadOnly);
+            }
+
+            _database.RemoveUser(user);
+            user = _database.FindUser(username);
+            Assert.IsNull(user);
+#pragma warning restore
         }
     }
 }

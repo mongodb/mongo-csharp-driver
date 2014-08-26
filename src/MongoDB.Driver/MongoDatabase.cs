@@ -229,7 +229,7 @@ namespace MongoDB.Driver
         {
             using (RequestStart(ReadPreference.Primary))
             {
-                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
                 {
                     AddUserWithUserManagementCommands(user);
                 }
@@ -409,7 +409,7 @@ namespace MongoDB.Driver
         {
             using (RequestStart(ReadPreference.Primary))
             {
-                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
                 {
                     return FindAllUsersWithUserManagementCommands();
                 }
@@ -428,7 +428,7 @@ namespace MongoDB.Driver
         {
             using (RequestStart(ReadPreference.Primary))
             {
-                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
                 {
                     return FindUserWithUserManagementCommands(username);
                 }
@@ -718,7 +718,7 @@ namespace MongoDB.Driver
         {
             using (RequestStart(ReadPreference.Primary))
             {
-                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
                 {
                     RunCommand(new CommandDocument("dropUser", username));
                 }

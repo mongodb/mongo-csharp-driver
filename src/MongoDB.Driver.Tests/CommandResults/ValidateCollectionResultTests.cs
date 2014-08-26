@@ -37,19 +37,15 @@ namespace MongoDB.Driver.Tests.CommandResults
         [Test]
         public void Test()
         {
-            using (_database.RequestStart())
+            if (_server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
-                {
-                    // make sure collection exists and has exactly one document
-                    _collection.RemoveAll();
-                    _collection.Insert(new BsonDocument());
+                // make sure collection exists and has exactly one document
+                _collection.RemoveAll();
+                _collection.Insert(new BsonDocument());
 
-                    var result = _collection.Validate();
-                    Assert.IsTrue(result.Ok);
-                    Assert.AreEqual(_collection.FullName, result.Namespace);
-                }
+                var result = _collection.Validate();
+                Assert.IsTrue(result.Ok);
+                Assert.AreEqual(_collection.FullName, result.Namespace);
             }
         }
     }

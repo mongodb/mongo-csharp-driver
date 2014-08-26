@@ -301,69 +301,59 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestBulkWriteCounts()
         {
-            using (_server.RequestStart(null, ReadPreference.Primary))
+            _collection.Drop();
+
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            bulk.Insert(new BsonDocument("x", 1));
+            bulk.Find(Query.EQ("x", 1)).UpdateOne(Update.Set("x", 2));
+            bulk.Find(Query.EQ("x", 2)).RemoveOne();
+            var result = bulk.Execute();
+
+            Assert.AreEqual(1, result.DeletedCount);
+            Assert.AreEqual(1, result.InsertedCount);
+            if (_primary.Supports(FeatureId.WriteCommands))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
-
-                _collection.Drop();
-
-                var bulk = _collection.InitializeOrderedBulkOperation();
-                bulk.Insert(new BsonDocument("x", 1));
-                bulk.Find(Query.EQ("x", 1)).UpdateOne(Update.Set("x", 2));
-                bulk.Find(Query.EQ("x", 2)).RemoveOne();
-                var result = bulk.Execute();
-
-                Assert.AreEqual(1, result.DeletedCount);
-                Assert.AreEqual(1, result.InsertedCount);
-                if (serverInstance.Supports(FeatureId.WriteCommands))
-                {
-                    Assert.AreEqual(true, result.IsModifiedCountAvailable);
-                    Assert.AreEqual(1, result.ModifiedCount);
-                }
-                else
-                {
-                    Assert.AreEqual(false, result.IsModifiedCountAvailable);
-                    Assert.Throws<NotSupportedException>(() => { var _ = result.ModifiedCount; });
-                }
-                Assert.AreEqual(3, result.RequestCount);
-                Assert.AreEqual(1, result.MatchedCount);
+                Assert.AreEqual(true, result.IsModifiedCountAvailable);
+                Assert.AreEqual(1, result.ModifiedCount);
             }
+            else
+            {
+                Assert.AreEqual(false, result.IsModifiedCountAvailable);
+                Assert.Throws<NotSupportedException>(() => { var _ = result.ModifiedCount; });
+            }
+            Assert.AreEqual(3, result.RequestCount);
+            Assert.AreEqual(1, result.MatchedCount);
         }
 
         [Test]
         public void TestBulkWriteCountsWithUpsert()
         {
-            using (_server.RequestStart(null, ReadPreference.Primary))
+            _collection.Drop();
+            var id = new BsonObjectId(ObjectId.GenerateNewId());
+
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            bulk.Find(Query.EQ("_id", id)).Upsert().UpdateOne(Update.Set("x", 2));
+            bulk.Find(Query.EQ("_id", id)).Upsert().UpdateOne(Update.Set("x", 2));
+            bulk.Find(Query.EQ("_id", id)).UpdateOne(Update.Set("x", 3));
+            var result = bulk.Execute();
+
+            Assert.AreEqual(0, result.DeletedCount);
+            Assert.AreEqual(0, result.InsertedCount);
+            if (_primary.Supports(FeatureId.WriteCommands))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
-
-                _collection.Drop();
-                var id = new BsonObjectId(ObjectId.GenerateNewId());
-
-                var bulk = _collection.InitializeOrderedBulkOperation();
-                bulk.Find(Query.EQ("_id", id)).Upsert().UpdateOne(Update.Set("x", 2));
-                bulk.Find(Query.EQ("_id", id)).Upsert().UpdateOne(Update.Set("x", 2));
-                bulk.Find(Query.EQ("_id", id)).UpdateOne(Update.Set("x", 3));
-                var result = bulk.Execute();
-
-                Assert.AreEqual(0, result.DeletedCount);
-                Assert.AreEqual(0, result.InsertedCount);
-                if (serverInstance.Supports(FeatureId.WriteCommands))
-                {
-                    Assert.AreEqual(true, result.IsModifiedCountAvailable);
-                    Assert.AreEqual(1, result.ModifiedCount);
-                }
-                else
-                {
-                    Assert.AreEqual(false, result.IsModifiedCountAvailable);
-                    Assert.Throws<NotSupportedException>(() => { var _ = result.ModifiedCount; });
-                }
-                Assert.AreEqual(3, result.RequestCount);
-                Assert.AreEqual(2, result.MatchedCount);
-                Assert.AreEqual(1, result.Upserts.Count);
-                Assert.AreEqual(0, result.Upserts.First().Index);
-                Assert.AreEqual(id, result.Upserts.First().Id);
+                Assert.AreEqual(true, result.IsModifiedCountAvailable);
+                Assert.AreEqual(1, result.ModifiedCount);
             }
+            else
+            {
+                Assert.AreEqual(false, result.IsModifiedCountAvailable);
+                Assert.Throws<NotSupportedException>(() => { var _ = result.ModifiedCount; });
+            }
+            Assert.AreEqual(3, result.RequestCount);
+            Assert.AreEqual(2, result.MatchedCount);
+            Assert.AreEqual(1, result.Upserts.Count);
+            Assert.AreEqual(0, result.Upserts.First().Index);
+            Assert.AreEqual(id, result.Upserts.First().Id);
         }
 
         [Test]
@@ -1257,38 +1247,34 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestGeoHaystackSearch()
         {
-            using (_database.RequestStart())
+            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
+                _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
+                _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
+                _collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
+
+                var args = new GeoHaystackSearchArgs
                 {
-                    if (_collection.Exists()) { _collection.Drop(); }
-                    _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
-                    _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
-                    _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
-                    _collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
+                    Near = new XYPoint(33, 33),
+                    AdditionalFieldName = "Type",
+                    AdditionalFieldValue = "restaurant",
+                    Limit = 30,
+                    MaxDistance = 6
+                };
+                var result = _collection.GeoHaystackSearchAs<Place>(args);
 
-                    var args = new GeoHaystackSearchArgs
-                    {
-                        Near = new XYPoint(33, 33),
-                        AdditionalFieldName = "Type",
-                        AdditionalFieldValue = "restaurant",
-                        Limit = 30,
-                        MaxDistance = 6
-                    };
-                    var result = _collection.GeoHaystackSearchAs<Place>(args);
-
-                    Assert.IsTrue(result.Ok);
-                    Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
-                    Assert.AreEqual(2, result.Stats.BTreeMatches);
-                    Assert.AreEqual(2, result.Stats.NumberOfHits);
-                    Assert.AreEqual(34.2, result.Hits[0].Document.Location[0]);
-                    Assert.AreEqual(33.3, result.Hits[0].Document.Location[1]);
-                    Assert.AreEqual("restaurant", result.Hits[0].Document.Type);
-                    Assert.AreEqual(34.2, result.Hits[1].Document.Location[0]);
-                    Assert.AreEqual(37.3, result.Hits[1].Document.Location[1]);
-                    Assert.AreEqual("restaurant", result.Hits[1].Document.Type);
-                }
+                Assert.IsTrue(result.Ok);
+                Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+                Assert.AreEqual(2, result.Stats.BTreeMatches);
+                Assert.AreEqual(2, result.Stats.NumberOfHits);
+                Assert.AreEqual(34.2, result.Hits[0].Document.Location[0]);
+                Assert.AreEqual(33.3, result.Hits[0].Document.Location[1]);
+                Assert.AreEqual("restaurant", result.Hits[0].Document.Type);
+                Assert.AreEqual(34.2, result.Hits[1].Document.Location[0]);
+                Assert.AreEqual(37.3, result.Hits[1].Document.Location[1]);
+                Assert.AreEqual("restaurant", result.Hits[1].Document.Type);
             }
         }
 
@@ -1329,37 +1315,33 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestGeoHaystackSearch_Typed()
         {
-            using (_database.RequestStart())
+            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
+                _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
+                _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
+                _collection.CreateIndex(IndexKeys<Place>.GeoSpatialHaystack(x => x.Location, x => x.Type), IndexOptions.SetBucketSize(1));
+
+                var args = new GeoHaystackSearchArgs
                 {
-                    if (_collection.Exists()) { _collection.Drop(); }
-                    _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
-                    _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
-                    _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
-                    _collection.CreateIndex(IndexKeys<Place>.GeoSpatialHaystack(x => x.Location, x => x.Type), IndexOptions.SetBucketSize(1));
-
-                    var args = new GeoHaystackSearchArgs
-                    {
-                        Near = new XYPoint(33, 33),
-                        Limit = 30,
-                        MaxDistance = 6
-                    }
-                    .SetAdditionalField<Place, string>(x => x.Type, "restaurant");
-                    var result = _collection.GeoHaystackSearchAs<Place>(args);
-
-                    Assert.IsTrue(result.Ok);
-                    Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
-                    Assert.AreEqual(2, result.Stats.BTreeMatches);
-                    Assert.AreEqual(2, result.Stats.NumberOfHits);
-                    Assert.AreEqual(34.2, result.Hits[0].Document.Location[0]);
-                    Assert.AreEqual(33.3, result.Hits[0].Document.Location[1]);
-                    Assert.AreEqual("restaurant", result.Hits[0].Document.Type);
-                    Assert.AreEqual(34.2, result.Hits[1].Document.Location[0]);
-                    Assert.AreEqual(37.3, result.Hits[1].Document.Location[1]);
-                    Assert.AreEqual("restaurant", result.Hits[1].Document.Type);
+                    Near = new XYPoint(33, 33),
+                    Limit = 30,
+                    MaxDistance = 6
                 }
+                .SetAdditionalField<Place, string>(x => x.Type, "restaurant");
+                var result = _collection.GeoHaystackSearchAs<Place>(args);
+
+                Assert.IsTrue(result.Ok);
+                Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+                Assert.AreEqual(2, result.Stats.BTreeMatches);
+                Assert.AreEqual(2, result.Stats.NumberOfHits);
+                Assert.AreEqual(34.2, result.Hits[0].Document.Location[0]);
+                Assert.AreEqual(33.3, result.Hits[0].Document.Location[1]);
+                Assert.AreEqual("restaurant", result.Hits[0].Document.Type);
+                Assert.AreEqual(34.2, result.Hits[1].Document.Location[0]);
+                Assert.AreEqual(37.3, result.Hits[1].Document.Location[1]);
+                Assert.AreEqual("restaurant", result.Hits[1].Document.Type);
             }
         }
 
@@ -1936,12 +1918,10 @@ namespace MongoDB.Driver.Tests
             var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
             if (collection.Exists()) { collection.Drop(); }
 
-            using (Configuration.TestDatabase.RequestStart())
-            {
-                var maxMessageLength = Configuration.TestServer.RequestConnection.ServerInstance.MaxMessageLength;
+            var maxMessageLength = _primary.MaxMessageLength;
 
-                var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
-                var documents = new BsonDocument[]
+            var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
+            var documents = new BsonDocument[]
                 {
                     // first sub-batch
                     new BsonDocument { { "_id", 1 }, { "filler", filler } },
@@ -1954,16 +1934,15 @@ namespace MongoDB.Driver.Tests
                     new BsonDocument { { "_id", 5 }, { "filler", filler } },
                 };
 
-                var options = new MongoInsertOptions { Flags = InsertFlags.None }; // no ContinueOnError
-                var results = collection.InsertBatch(documents, options);
-                Assert.AreEqual(null, results);
+            var options = new MongoInsertOptions { Flags = InsertFlags.None }; // no ContinueOnError
+            var results = collection.InsertBatch(documents, options);
+            Assert.AreEqual(null, results);
 
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
-                Assert.AreEqual(0, collection.Count(Query.EQ("_id", 4)));
-                Assert.AreEqual(0, collection.Count(Query.EQ("_id", 5)));
-            }
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
+            Assert.AreEqual(0, collection.Count(Query.EQ("_id", 4)));
+            Assert.AreEqual(0, collection.Count(Query.EQ("_id", 5)));
         }
 
         [Test]
@@ -1974,12 +1953,10 @@ namespace MongoDB.Driver.Tests
             var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
             if (collection.Exists()) { collection.Drop(); }
 
-            using (Configuration.TestDatabase.RequestStart())
-            {
-                var maxMessageLength = Configuration.TestServer.RequestConnection.ServerInstance.MaxMessageLength;
+            var maxMessageLength = _primary.MaxMessageLength;
 
-                var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
-                var documents = new BsonDocument[]
+            var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
+            var documents = new BsonDocument[]
                 {
                     // first sub-batch
                     new BsonDocument { { "_id", 1 }, { "filler", filler } },
@@ -1992,16 +1969,15 @@ namespace MongoDB.Driver.Tests
                     new BsonDocument { { "_id", 5 }, { "filler", filler } },
                 };
 
-                var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
-                var results = collection.InsertBatch(documents, options);
-                Assert.AreEqual(null, results);
+            var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
+            var results = collection.InsertBatch(documents, options);
+            Assert.AreEqual(null, results);
 
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 4)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 5)));
-            }
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 4)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 5)));
         }
 
         [Test]
@@ -2012,12 +1988,10 @@ namespace MongoDB.Driver.Tests
             var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
             if (collection.Exists()) { collection.Drop(); }
 
-            using (Configuration.TestDatabase.RequestStart())
-            {
-                var maxMessageLength = Configuration.TestServer.RequestConnection.ServerInstance.MaxMessageLength;
+            var maxMessageLength = _primary.MaxMessageLength;
 
-                var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
-                var documents = new BsonDocument[]
+            var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
+            var documents = new BsonDocument[]
                 {
                     // first sub-batch
                     new BsonDocument { { "_id", 1 }, { "filler", filler } },
@@ -2030,36 +2004,35 @@ namespace MongoDB.Driver.Tests
                     new BsonDocument { { "_id", 5 }, { "filler", filler } },
                 };
 
-                var options = new MongoInsertOptions { Flags = InsertFlags.None }; // no ContinueOnError
-                var exception = Assert.Throws<MongoDuplicateKeyException>(() => { collection.InsertBatch(documents, options); });
-                var result = exception.WriteConcernResult;
+            var options = new MongoInsertOptions { Flags = InsertFlags.None }; // no ContinueOnError
+            var exception = Assert.Throws<MongoDuplicateKeyException>(() => { collection.InsertBatch(documents, options); });
+            var result = exception.WriteConcernResult;
 
-                var expectedResult = new ExpectedWriteConcernResult
-                {
-                    HasLastErrorMessage = true
-                };
-                CheckExpectedResult(expectedResult, result);
+            var expectedResult = new ExpectedWriteConcernResult
+            {
+                HasLastErrorMessage = true
+            };
+            CheckExpectedResult(expectedResult, result);
 
-                var results = ((IEnumerable<WriteConcernResult>)exception.Data["results"]).ToArray();
-                if (_primary.Supports(FeatureId.WriteCommands))
-                {
-                    // it the opcode was emulated there will just be one synthesized result
-                    Assert.AreEqual(1, results.Length);
-                    Assert.AreEqual(true, results[0].HasLastErrorMessage);
-                }
-                else
-                {
-                    Assert.AreEqual(2, results.Length);
-                    Assert.AreEqual(false, results[0].HasLastErrorMessage);
-                    Assert.AreEqual(true, results[1].HasLastErrorMessage);
-                }
-
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
-                Assert.AreEqual(0, collection.Count(Query.EQ("_id", 4)));
-                Assert.AreEqual(0, collection.Count(Query.EQ("_id", 5)));
+            var results = ((IEnumerable<WriteConcernResult>)exception.Data["results"]).ToArray();
+            if (_primary.Supports(FeatureId.WriteCommands))
+            {
+                // it the opcode was emulated there will just be one synthesized result
+                Assert.AreEqual(1, results.Length);
+                Assert.AreEqual(true, results[0].HasLastErrorMessage);
             }
+            else
+            {
+                Assert.AreEqual(2, results.Length);
+                Assert.AreEqual(false, results[0].HasLastErrorMessage);
+                Assert.AreEqual(true, results[1].HasLastErrorMessage);
+            }
+
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
+            Assert.AreEqual(0, collection.Count(Query.EQ("_id", 4)));
+            Assert.AreEqual(0, collection.Count(Query.EQ("_id", 5)));
         }
 
         [Test]
@@ -2070,12 +2043,10 @@ namespace MongoDB.Driver.Tests
             var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
             if (collection.Exists()) { collection.Drop(); }
 
-            using (Configuration.TestDatabase.RequestStart())
-            {
-                var maxMessageLength = Configuration.TestServer.RequestConnection.ServerInstance.MaxMessageLength;
+            var maxMessageLength = _primary.MaxMessageLength;
 
-                var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
-                var documents = new BsonDocument[]
+            var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
+            var documents = new BsonDocument[]
                 {
                     // first sub-batch
                     new BsonDocument { { "_id", 1 }, { "filler", filler } },
@@ -2088,37 +2059,36 @@ namespace MongoDB.Driver.Tests
                     new BsonDocument { { "_id", 5 }, { "filler", filler } },
                 };
 
-                var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
-                var exception = Assert.Throws<MongoDuplicateKeyException>(() => { collection.InsertBatch(documents, options); });
-                var result = exception.WriteConcernResult;
+            var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
+            var exception = Assert.Throws<MongoDuplicateKeyException>(() => { collection.InsertBatch(documents, options); });
+            var result = exception.WriteConcernResult;
 
-                var expectedResult = new ExpectedWriteConcernResult()
-                {
-                    HasLastErrorMessage = true
-                };
-                CheckExpectedResult(expectedResult, result);
+            var expectedResult = new ExpectedWriteConcernResult()
+            {
+                HasLastErrorMessage = true
+            };
+            CheckExpectedResult(expectedResult, result);
 
-                var results = ((IEnumerable<WriteConcernResult>)exception.Data["results"]).ToArray();
-                if (_primary.Supports(FeatureId.WriteCommands))
-                {
-                    // it the opcode was emulated there will just be one synthesized result
-                    Assert.AreEqual(1, results.Length);
-                    Assert.AreEqual(true, results[0].HasLastErrorMessage);
-                }
-                else
-                {
-                    Assert.AreEqual(3, results.Length);
-                    Assert.AreEqual(false, results[0].HasLastErrorMessage);
-                    Assert.AreEqual(true, results[1].HasLastErrorMessage);
-                    Assert.AreEqual(false, results[2].HasLastErrorMessage);
-                }
-
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 4)));
-                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 5)));
+            var results = ((IEnumerable<WriteConcernResult>)exception.Data["results"]).ToArray();
+            if (_primary.Supports(FeatureId.WriteCommands))
+            {
+                // it the opcode was emulated there will just be one synthesized result
+                Assert.AreEqual(1, results.Length);
+                Assert.AreEqual(true, results[0].HasLastErrorMessage);
             }
+            else
+            {
+                Assert.AreEqual(3, results.Length);
+                Assert.AreEqual(false, results[0].HasLastErrorMessage);
+                Assert.AreEqual(true, results[1].HasLastErrorMessage);
+                Assert.AreEqual(false, results[2].HasLastErrorMessage);
+            }
+
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 4)));
+            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 5)));
         }
 
         [Test]
@@ -2129,27 +2099,24 @@ namespace MongoDB.Driver.Tests
             var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
             if (collection.Exists()) { collection.Drop(); }
 
-            using (Configuration.TestDatabase.RequestStart())
-            {
-                var maxMessageLength = Configuration.TestServer.RequestConnection.ServerInstance.MaxMessageLength;
-                var documentCount = maxMessageLength / (1024 * 1024) + 1; // 1 document will overflow to second sub batch
+            var maxMessageLength = _primary.MaxMessageLength;
+            var documentCount = maxMessageLength / (1024 * 1024) + 1; // 1 document will overflow to second sub batch
 
-                var documents = new BsonDocument[documentCount];
-                for (var i = 0; i < documentCount; i++)
-                {
-                    var document = new BsonDocument
+            var documents = new BsonDocument[documentCount];
+            for (var i = 0; i < documentCount; i++)
+            {
+                var document = new BsonDocument
                     {
                         { "_id", i },
                         { "filler", new string('x', 1024 * 1024) }
                     };
-                    documents[i] = document;
-                }
-
-                var results = collection.InsertBatch(documents);
-                Assert.IsNull(results);
-
-                Assert.AreEqual(documentCount, collection.Count());
+                documents[i] = document;
             }
+
+            var results = collection.InsertBatch(documents);
+            Assert.IsNull(results);
+
+            Assert.AreEqual(documentCount, collection.Count());
         }
 
         [TestCase(-1)]
@@ -2528,68 +2495,60 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestParallelScan()
         {
-            using (_database.RequestStart())
+            if (_primary.Supports(FeatureId.ParallelScanCommand))
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.Supports(FeatureId.ParallelScanCommand))
+                var numberOfDocuments = 2000;
+                var numberOfCursors = 3;
+                var ids = new HashSet<int>();
+
+                _collection.Drop();
+                for (int i = 0; i < numberOfDocuments; i++)
                 {
-                    var numberOfDocuments = 2000;
-                    var numberOfCursors = 3;
-                    var ids = new HashSet<int>();
-
-                    _collection.Drop();
-                    for (int i = 0; i < numberOfDocuments; i++)
-                    {
-                        _collection.Insert(new BsonDocument("_id", i));
-                        ids.Add(i);
-                    }
-
-                    var enumerators = _collection.ParallelScanAs(typeof(BsonDocument), new ParallelScanArgs
-                    {
-                        BatchSize = 100,
-                        NumberOfCursors = numberOfCursors
-                    });
-
-                    foreach (var enumerator in enumerators)
-                    {
-                        while (enumerator.MoveNext())
-                        {
-                            var document = (BsonDocument)enumerator.Current;
-                            var id = document["_id"].ToInt32();
-                            Assert.AreEqual(true, ids.Remove(id));
-                        }
-                    }
-
-                    Assert.AreEqual(3, enumerators.Count);
-                    Assert.AreEqual(0, ids.Count);
+                    _collection.Insert(new BsonDocument("_id", i));
+                    ids.Add(i);
                 }
+
+                var enumerators = _collection.ParallelScanAs(typeof(BsonDocument), new ParallelScanArgs
+                {
+                    BatchSize = 100,
+                    NumberOfCursors = numberOfCursors
+                });
+
+                foreach (var enumerator in enumerators)
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        var document = (BsonDocument)enumerator.Current;
+                        var id = document["_id"].ToInt32();
+                        Assert.AreEqual(true, ids.Remove(id));
+                    }
+                }
+
+                Assert.AreEqual(3, enumerators.Count);
+                Assert.AreEqual(0, ids.Count);
             }
         }
 
         [Test]
         public void TestReIndex()
         {
-            using (_database.RequestStart())
+            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                _collection.RemoveAll();
+                _collection.Insert(new BsonDocument("x", 1));
+                _collection.Insert(new BsonDocument("x", 2));
+                _collection.DropAllIndexes();
+                _collection.CreateIndex("x");
+                // note: prior to 1.8.1 the reIndex command was returning duplicate ok elements
+                try
                 {
-                    _collection.RemoveAll();
-                    _collection.Insert(new BsonDocument("x", 1));
-                    _collection.Insert(new BsonDocument("x", 2));
-                    _collection.DropAllIndexes();
-                    _collection.CreateIndex("x");
-                    // note: prior to 1.8.1 the reIndex command was returning duplicate ok elements
-                    try
-                    {
-                        var result = _collection.ReIndex();
-                        Assert.AreEqual(2, result.Response["nIndexes"].ToInt32());
-                        Assert.AreEqual(2, result.Response["nIndexesWas"].ToInt32());
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        Assert.AreEqual("Duplicate element name 'ok'.", ex.Message);
-                    }
+                    var result = _collection.ReIndex();
+                    Assert.AreEqual(2, result.Response["nIndexes"].ToInt32());
+                    Assert.AreEqual(2, result.Response["nIndexesWas"].ToInt32());
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Assert.AreEqual("Duplicate element name 'ok'.", ex.Message);
                 }
             }
         }
@@ -2707,7 +2666,7 @@ namespace MongoDB.Driver.Tests
         public void TestGetStatsUsePowerOf2Sizes()
         {
             // SERVER-8409: only run this when talking to a non-mongos 2.2 server or >= 2.4.
-            if ((_server.BuildInfo.Version >= new Version(2, 2, 0) && _server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if ((_server.BuildInfo.Version >= new Version(2, 2, 0) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
                 || _server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 _collection.Drop();
@@ -2975,90 +2934,78 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestValidate()
         {
-            using (_database.RequestStart())
+            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
-                {
-                    // ensure collection exists
-                    _collection.Drop();
-                    _collection.Insert(new BsonDocument("x", 1));
+                // ensure collection exists
+                _collection.Drop();
+                _collection.Insert(new BsonDocument("x", 1));
 
-                    var result = _collection.Validate();
-                    Assert.AreEqual(_collection.FullName, result.Namespace);
+                var result = _collection.Validate();
+                Assert.AreEqual(_collection.FullName, result.Namespace);
 
-                    // just test that all the values can be extracted without throwing an exception, we don't know what the correct values should be
-                    var ns = result.Namespace;
-                    var firstExtent = result.FirstExtent;
-                    var lastExtent = result.LastExtent;
-                    var extentCount = result.ExtentCount;
-                    var dataSize = result.DataSize;
-                    var nrecords = result.RecordCount;
-                    var lastExtentSize = result.LastExtentSize;
-                    var padding = result.Padding;
-                    var firstExtentDetails = result.FirstExtentDetails;
-                    var loc = firstExtentDetails.Loc;
-                    var xnext = firstExtentDetails.XNext;
-                    var xprev = firstExtentDetails.XPrev;
-                    var nsdiag = firstExtentDetails.NSDiag;
-                    var size = firstExtentDetails.Size;
-                    var firstRecord = firstExtentDetails.FirstRecord;
-                    var lastRecord = firstExtentDetails.LastRecord;
-                    var deletedCount = result.DeletedCount;
-                    var deletedSize = result.DeletedSize;
-                    var nindexes = result.IndexCount;
-                    var keysPerIndex = result.KeysPerIndex;
-                    var valid = result.IsValid;
-                    var errors = result.Errors;
-                    var warning = result.Warning;
-                }
+                // just test that all the values can be extracted without throwing an exception, we don't know what the correct values should be
+                var ns = result.Namespace;
+                var firstExtent = result.FirstExtent;
+                var lastExtent = result.LastExtent;
+                var extentCount = result.ExtentCount;
+                var dataSize = result.DataSize;
+                var nrecords = result.RecordCount;
+                var lastExtentSize = result.LastExtentSize;
+                var padding = result.Padding;
+                var firstExtentDetails = result.FirstExtentDetails;
+                var loc = firstExtentDetails.Loc;
+                var xnext = firstExtentDetails.XNext;
+                var xprev = firstExtentDetails.XPrev;
+                var nsdiag = firstExtentDetails.NSDiag;
+                var size = firstExtentDetails.Size;
+                var firstRecord = firstExtentDetails.FirstRecord;
+                var lastRecord = firstExtentDetails.LastRecord;
+                var deletedCount = result.DeletedCount;
+                var deletedSize = result.DeletedSize;
+                var nindexes = result.IndexCount;
+                var keysPerIndex = result.KeysPerIndex;
+                var valid = result.IsValid;
+                var errors = result.Errors;
+                var warning = result.Warning;
             }
         }
 
         [Test]
         public void TestValidateWithFull()
         {
-            using (_database.RequestStart())
+            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                // ensure collection exists
+                _collection.Drop();
+                _collection.Insert(new BsonDocument("x", 1));
+
+                var result = _collection.Validate(new ValidateCollectionArgs
                 {
-                    // ensure collection exists
-                    _collection.Drop();
-                    _collection.Insert(new BsonDocument("x", 1));
+                    Full = true
+                });
 
-                    var result = _collection.Validate(new ValidateCollectionArgs
-                    {
-                        Full = true
-                    });
-
-                    Assert.AreEqual(_collection.FullName, result.Namespace);
-                }
+                Assert.AreEqual(_collection.FullName, result.Namespace);
             }
         }
 
         [Test]
         public void TestValidateWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime))
+            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
-                    var instance = _server.RequestConnection.ServerInstance; // FailPoint did a RequestStart
-                    if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                    if (failpoint.IsSupported())
                     {
-                        if (failpoint.IsSupported())
-                        {
-                            _collection.Drop();
-                            _collection.Insert(new BsonDocument("x", 1)); // ensure collection is not empty
+                        _collection.Drop();
+                        _collection.Insert(new BsonDocument("x", 1)); // ensure collection is not empty
 
-                            failpoint.SetAlwaysOn();
-                            var args = new ValidateCollectionArgs
-                            {
-                                MaxTime = TimeSpan.FromMilliseconds(1)
-                            };
-                            Assert.Throws<ExecutionTimeoutException>(() => _collection.Validate(args));
-                        }
+                        failpoint.SetAlwaysOn();
+                        var args = new ValidateCollectionArgs
+                        {
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Validate(args));
                     }
                 }
             }
@@ -3067,22 +3014,18 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestValidateWithScanData()
         {
-            using (_database.RequestStart())
+            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var instance = _server.RequestConnection.ServerInstance;
-                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                // ensure collection exists
+                _collection.Drop();
+                _collection.Insert(new BsonDocument("x", 1));
+
+                var result = _collection.Validate(new ValidateCollectionArgs
                 {
-                    // ensure collection exists
-                    _collection.Drop();
-                    _collection.Insert(new BsonDocument("x", 1));
+                    ScanData = true
+                });
 
-                    var result = _collection.Validate(new ValidateCollectionArgs
-                    {
-                        ScanData = true
-                    });
-
-                    Assert.AreEqual(_collection.FullName, result.Namespace);
-                }
+                Assert.AreEqual(_collection.FullName, result.Namespace);
             }
         }
 

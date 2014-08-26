@@ -238,7 +238,7 @@ namespace MongoDB.Driver
         {
             using (_database.RequestStart(ReadPreference.Primary))
             {
-                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.CreateIndexCommand))
+                if (_server.RequestServerInstance.Supports(FeatureId.CreateIndexCommand))
                 {
                     try
                     {

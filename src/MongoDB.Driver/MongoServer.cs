@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.SyncExtensionMethods;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
 {
@@ -334,16 +333,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the connection reserved by the current RequestStart scope (null if not in the scope of a RequestStart).
+        /// Gets the server instance of the connection reserved by the current RequestStart scope (null if not in the scope of a RequestStart).
         /// </summary>
-        public virtual MongoConnection RequestConnection
+        public virtual MongoServerInstance RequestServerInstance
         {
             get
             {
                 var request = __threadStaticRequest;
                 if (request != null)
                 {
-                    return request.Connection;
+                    return request.ServerInstance;
                 }
                 else
                 {
@@ -910,8 +909,7 @@ namespace MongoDB.Driver
             var endPoint = (DnsEndPoint)serverDescription.EndPoint;
             var serverAddress = new MongoServerAddress(endPoint.Host, endPoint.Port);
             var serverInstance = _serverInstances.Single(i => i.Address == serverAddress);
-            var mongoConnection = new MongoConnection(serverInstance);
-            __threadStaticRequest = new Request(serverDescription, mongoConnection, connectionBinding);
+            __threadStaticRequest = new Request(serverDescription, serverInstance, connectionBinding);
 
             return new RequestStartResult(this);
         }
@@ -958,15 +956,15 @@ namespace MongoDB.Driver
         {
             // private fields
             private readonly IReadBindingHandle _binding;
-            private readonly MongoConnection _connection;
             private int _nestingLevel;
             private readonly ServerDescription _serverDescription;
+            private readonly MongoServerInstance _serverInstance;
 
             // constructors
-            public Request(ServerDescription serverDescription, MongoConnection connection, IReadBindingHandle binding)
+            public Request(ServerDescription serverDescription, MongoServerInstance serverInstance, IReadBindingHandle binding)
             {
                 _serverDescription = serverDescription;
-                _connection = connection;
+                _serverInstance = serverInstance;
                 _binding = binding;
                 _nestingLevel = 1;
             }
@@ -977,9 +975,9 @@ namespace MongoDB.Driver
                 get { return _binding; }
             }
 
-            public MongoConnection Connection
+            public MongoServerInstance ServerInstance
             {
-                get { return _connection; }
+                get { return _serverInstance; }
             }
 
             public int NestingLevel
