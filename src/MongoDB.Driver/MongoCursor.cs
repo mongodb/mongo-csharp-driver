@@ -734,13 +734,28 @@ namespace MongoDB.Driver
             var queryDocument = Query == null ? new BsonDocument() : Query.ToBsonDocument();
             var messageEncoderSettings = Collection.GetMessageEncoderSettings();
 
+            var awaitData = Flags.HasFlag(QueryFlags.AwaitData);
+            var exhaust = Flags.HasFlag(QueryFlags.Exhaust);
+            var noCursorTimeout = Flags.HasFlag(QueryFlags.NoCursorTimeout);
+            var partialOk = Flags.HasFlag(QueryFlags.Partial);
+            var tailableCursor = Flags.HasFlag(QueryFlags.TailableCursor);
+
+            if (exhaust)
+            {
+                throw new NotSupportedException("The Exhaust QueryFlag is not yet supported.");
+            }
+
             var operation = new FindOperation<TDocument>(Database.Name, Collection.Name, queryDocument, Serializer, messageEncoderSettings)
             {
                 AdditionalOptions = Options,
+                AwaitData = awaitData,
                 BatchSize = BatchSize,
                 Fields = Fields.ToBsonDocument(),
                 Limit = Limit,
-                Skip = Skip
+                NoCursorTimeout = noCursorTimeout,
+                PartialOk = partialOk,
+                Skip = Skip,
+                TailableCursor = tailableCursor,
             };
 
             using (var binding = Server.GetReadBinding(readPreference))

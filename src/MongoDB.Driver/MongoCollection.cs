@@ -1400,7 +1400,7 @@ namespace MongoDB.Driver
 
             if (_settings.AssignIdOnInsert)
             {
-                documents = documents.Select(d => { AssignId(d, serializer); return d; });
+                documents = documents.Select(d => { AssignId(d, null); return d; });
             }
 
             using (var binding = _server.GetWriteBinding())
@@ -1426,7 +1426,7 @@ namespace MongoDB.Driver
                     while (documentSource.HasMore)
                     {
                         var operation = new InsertOpcodeOperation<TNominalType>(_database.Name, _name, documentSource, serializer, messageEncoderSettings)
-                        {
+                        {                           
                             ContinueOnError = continueOnError,
                             WriteConcern = writeConcern.ToCore(),
                             ShouldSendGetLastError = shouldSendGetLastError
@@ -2137,6 +2137,11 @@ namespace MongoDB.Driver
             if (document != null)
             {
                 var actualType = document.GetType();
+                if (serializer == null)
+                {
+                    serializer = BsonSerializer.LookupSerializer(actualType);
+                }
+
                 var idProvider = serializer as IBsonIdProvider;
                 if (idProvider != null)
                 {
