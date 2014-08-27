@@ -110,6 +110,7 @@
     <Compile Include="Core\Connections\BuildInfoResultTests.cs" />
     <Compile Include="Core\Connections\IsMasterResultTests.cs" />
     <Compile Include="CommandExceptionTests.cs" />
+    <Compile Include="Core\Operations\CursorTests.cs" />
     <Compile Include="MongoExceptionTests.cs" />
     <Compile Include="MongoQueryExceptionTests.cs" />
     <Compile Include="WriteExceptionTests.cs" />
