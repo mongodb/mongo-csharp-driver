@@ -54,5 +54,17 @@ namespace MongoDB.Driver
         /// The number of documents in the collection
         /// </returns>
         Task<long> CountAsync(CountModel model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Gets the distinct values for a specified field.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="model">The model.</param>
+        /// <param name="timeout">The timeout.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The distinct values for the specified field.
+        /// </returns>
+        Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(DistinctModel<TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

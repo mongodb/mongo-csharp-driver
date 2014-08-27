@@ -26,35 +26,25 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DistinctOperation : DistinctOperation<BsonValue>
-    {
-        // constructors
-        public DistinctOperation(string databaseName, string collectionName, string key, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, BsonValueSerializer.Instance, key, query, messageEncoderSettings)
-        {
-        }
-    }
-
-    public class DistinctOperation<TValue> : IReadOperation<IEnumerable<TValue>>
+    public class DistinctOperation<TValue> : IReadOperation<IReadOnlyList<TValue>>, ICommandOperation
     {
         // fields
         private string _collectionName;
         private string _databaseName;
-        private string _key;
+        private BsonDocument _filter;
+        private string _fieldName;
         private TimeSpan? _maxTime;
         private MessageEncoderSettings _messageEncoderSettings;
-        private BsonDocument _query;
         private IBsonSerializer<TValue> _valueSerializer;
 
         // constructors
-        public DistinctOperation(string databaseName, string collectionName, IBsonSerializer<TValue> valueSerializer, string key, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
+        public DistinctOperation(string databaseName, string collectionName, IBsonSerializer<TValue> valueSerializer, string fieldName, MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _databaseName = Ensure.IsNotNull(databaseName, "databaseName");
+            _collectionName = Ensure.IsNotNull(collectionName, "collectionName");
             _valueSerializer = Ensure.IsNotNull(valueSerializer, "valueSerializer");
-            _key = Ensure.IsNotNullOrEmpty(key, "key");
-            _query = query;
-            _messageEncoderSettings = messageEncoderSettings;
+            _fieldName = Ensure.IsNotNullOrEmpty(fieldName, "fieldName");
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
         // properties
@@ -70,10 +60,16 @@ namespace MongoDB.Driver.Core.Operations
             set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
-        public string Key
+        public BsonDocument Filter
         {
-            get { return _key; }
-            set { _key = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _filter; }
+            set { _filter = value; }
+        }
+
+        public string FieldName
+        {
+            get { return _fieldName; }
+            set { _fieldName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public TimeSpan? MaxTime
@@ -88,25 +84,19 @@ namespace MongoDB.Driver.Core.Operations
             set { _messageEncoderSettings = value; }
         }
 
-        public BsonDocument Query
-        {
-            get { return _query; }
-            set { _query = value; }
-        }
-
         // methods
         public BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
                 { "distinct", _collectionName },
-                { "key", _key },
-                { "query", _query, _query != null },
+                { "key", _fieldName },
+                { "query", _filter, _filter != null },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
            };
         }
 
-        public async Task<IEnumerable<TValue>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyList<TValue>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();

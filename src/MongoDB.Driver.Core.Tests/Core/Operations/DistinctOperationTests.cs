@@ -16,37 +16,59 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class CountOperationTests
+    public class DistinctOperationTests
     {
-        private string _databaseName;
         private string _collectionName;
+        private string _databaseName;
+        private string _fieldName;
         private MessageEncoderSettings _messageEncoderSettings;
+        private IBsonSerializer<int> _valueSerializer;
 
         [SetUp]
         public void Setup()
         {
             _databaseName = "foo";
             _collectionName = "bar";
+            _fieldName = "a.b";
             _messageEncoderSettings = new MessageEncoderSettings();
+            _valueSerializer = new Int32Serializer();
         }
 
         [Test]
         public void Constructor_should_throw_when_database_name_is_null()
         {
-            Action act = () => new CountOperation(null, _collectionName, _messageEncoderSettings);
+            Action act = () => new DistinctOperation<int>(null, _collectionName, _valueSerializer, _fieldName, _messageEncoderSettings);
+
+            act.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
+        public void Constructor_should_throw_when_collection_name_is_null_or_empty()
+        {
+            Action act = () => new DistinctOperation<int>(_databaseName, null, _valueSerializer, _fieldName, _messageEncoderSettings);
+
+            act.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
+        public void Constructor_should_throw_when_value_serializer_is_null()
+        {
+            Action act = () => new DistinctOperation<int>(_databaseName, _collectionName, null, _fieldName, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void Constructor_should_throw_when_collection_name_is_null()
+        public void Constructor_should_throw_when_field_name_is_null()
         {
-            Action act = () => new CountOperation(_databaseName, null, _messageEncoderSettings);
+            Action act = () => new DistinctOperation<int>(_databaseName, _collectionName, _valueSerializer, null, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -54,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
-            Action act = () => new CountOperation(_databaseName, _collectionName, null);
+            Action act = () => new DistinctOperation<int>(_databaseName, _collectionName, _valueSerializer, _fieldName, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -62,18 +84,15 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateCommand_should_create_the_correct_command()
         {
-            var subject = new CountOperation(_databaseName, _collectionName, _messageEncoderSettings)
+            var subject = new DistinctOperation<int>(_databaseName, _collectionName, _valueSerializer, _fieldName, _messageEncoderSettings)
             {
                 Filter = new BsonDocument("x", 1),
-                Hint = "funny",
-                Limit = 10,
                 MaxTime = TimeSpan.FromSeconds(20),
-                Skip = 30
             };
 
             var cmd = subject.CreateCommand();
 
-            cmd.Should().Be("{ count: \"bar\", query: {x: 1}, limit: 10, skip: 30, hint: \"funny\", maxTimeMS: 20000 }");
+            cmd.Should().Be("{ distinct: \"bar\", key: \"a.b\", query: {x: 1}, maxTimeMS: 20000 }");
         }
     }
 }

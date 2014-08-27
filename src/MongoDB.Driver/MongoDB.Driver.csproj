@@ -93,6 +93,7 @@
     <Compile Include="Communication\ClusterRegistry.cs" />
     <Compile Include="Communication\ConnectionModeExtensionMethods.cs" />
     <Compile Include="CountModel.cs" />
+    <Compile Include="DistinctModel.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonObjectSerializerHelper.cs" />
     <Compile Include="IExplainableModel.cs" />
     <Compile Include="IMongoClient.cs" />

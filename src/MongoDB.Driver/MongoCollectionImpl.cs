@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -64,6 +65,8 @@ namespace MongoDB.Driver
         // methods
         public Task<long> CountAsync(CountModel model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(model, "model");
+
             var operation = new CountOperation(
                 _databaseName,
                 _collectionName,
@@ -74,6 +77,24 @@ namespace MongoDB.Driver
                 Limit = model.Limit,
                 MaxTime = model.MaxTime,
                 Skip = model.Skip
+            };
+
+            return ExecuteReadOperation(operation, timeout, cancellationToken);
+        }
+
+        public Task<IReadOnlyList<TValue>> DistinctAsync<TValue>(DistinctModel<TValue> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(model, "model");
+
+            var operation = new DistinctOperation<TValue>(
+                _databaseName,
+                _collectionName,
+                model.ValueSerializer ?? _settings.SerializerRegistry.GetSerializer<TValue>(),
+                model.FieldName,
+                GetMessageEncoderSettings())
+            {
+                Filter = ConvertToBsonDocument(model.Filter),
+                MaxTime = model.MaxTime
             };
 
             return ExecuteReadOperation(operation, timeout, cancellationToken);

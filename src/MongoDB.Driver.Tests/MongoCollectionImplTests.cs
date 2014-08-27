@@ -77,14 +77,36 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<long>();
 
             call.Operation.Should().BeOfType<CountOperation>();
-            var op = (CountOperation)call.Operation;
-            op.DatabaseName.Should().Be("foo");
-            op.CollectionName.Should().Be("bar");
-            op.Filter.Should().Be((BsonDocument)model.Filter);
-            op.Hint.Should().Be((string)model.Hint);
-            op.Limit.Should().Be(model.Limit);
-            op.MaxTime.Should().Be(model.MaxTime);
-            op.Skip.Should().Be(model.Skip);
+            var operation = (CountOperation)call.Operation;
+            operation.DatabaseName.Should().Be("foo");
+            operation.CollectionName.Should().Be("bar");
+            operation.Filter.Should().Be((BsonDocument)model.Filter);
+            operation.Hint.Should().Be((string)model.Hint);
+            operation.Limit.Should().Be(model.Limit);
+            operation.MaxTime.Should().Be(model.MaxTime);
+            operation.Skip.Should().Be(model.Skip);
+        }
+
+        [Test]
+        public async Task DistinctAsync_should_execute_the_DistinctOperation()
+        {
+            var model = new DistinctModel<int>("a.b")
+            {
+                Filter = new BsonDocument("x", 1),
+                MaxTime = TimeSpan.FromSeconds(20),
+            };
+
+            await _subject.DistinctAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var call = _operationExecutor.GetReadCall<IReadOnlyList<int>>();
+
+            call.Operation.Should().BeOfType<DistinctOperation<int>>();
+            var operation = (DistinctOperation<int>)call.Operation;
+            operation.DatabaseName.Should().Be("foo");
+            operation.CollectionName.Should().Be("bar");
+            operation.FieldName.Should().Be("a.b");
+            operation.Filter.Should().Be((BsonDocument)model.Filter);
+            operation.MaxTime.Should().Be(model.MaxTime);
         }
     }
 }

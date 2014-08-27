@@ -38,8 +38,8 @@ namespace MongoDB.Driver.Core.Operations
         // constructors
         public CountOperation(string databaseName, string collectionName, MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _databaseName = Ensure.IsNotNull(databaseName, "databaseName");
+            _collectionName = Ensure.IsNotNull(collectionName, "collectionName");
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
