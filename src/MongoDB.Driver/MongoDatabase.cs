@@ -1079,7 +1079,7 @@ namespace MongoDB.Driver
                 }
 
 
-                if (clusterType == ClusterType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
+                if (!CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
                 {
                     readPreference = ReadPreference.Primary;
                 }
