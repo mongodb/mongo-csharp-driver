@@ -119,10 +119,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new ArgumentException("The pipeline for an aggregate command contains a $out operator. Use a WriteCommandOperation instead.");
             }
-            if (pipeline.Any(s => s.AsBsonDocument.GetElement(0).Name.Equals("$tee", StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new ArgumentException("The pipeline for an aggregate command contains a $tee operator. Use a WriteCommandOperation instead.");
-            }
         }
 
         public static void EnsureIsReadCommand(BsonDocument command)

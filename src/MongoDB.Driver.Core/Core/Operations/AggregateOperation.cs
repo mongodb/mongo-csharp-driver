@@ -40,10 +40,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new ArgumentException("The pipeline for an AggregateOperation contains a $out operator. Use AggregateOutputToCollectionOperation instead.");
             }
-            if (Pipeline.Any(s => s.GetElement(0).Name == "$tee"))
-            {
-                throw new ArgumentException("The pipeline for an AggregateOperation contains a $tee operator. Use AggregateWritePipelineOperation instead.");
-            }
         }
 
         public async Task<Cursor<BsonDocument>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))

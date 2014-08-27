@@ -1426,7 +1426,7 @@ namespace MongoDB.Driver
                     while (documentSource.HasMore)
                     {
                         var operation = new InsertOpcodeOperation<TNominalType>(_database.Name, _name, documentSource, serializer, messageEncoderSettings)
-                        {                           
+                        {
                             ContinueOnError = continueOnError,
                             WriteConcern = writeConcern.ToCore(),
                             ShouldSendGetLastError = shouldSendGetLastError
