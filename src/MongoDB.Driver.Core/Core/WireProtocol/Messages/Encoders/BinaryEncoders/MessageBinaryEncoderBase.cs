@@ -44,11 +44,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var readerSettings = new BsonBinaryReaderSettings();
             if (_encoderSettings != null)
             {
-                readerSettings.Encoding = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, Utf8Helper.StrictUtf8Encoding);
-                readerSettings.FixOldBinarySubTypeOnInput = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.FixOldBinarySubTypeOnInput, false);
-                readerSettings.FixOldDateTimeMaxValueOnInput = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.FixOldBinarySubTypeOnOutput, false);
-                readerSettings.GuidRepresentation = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
-                readerSettings.MaxDocumentSize = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.MaxDocumentSize, int.MaxValue);
+                readerSettings.Encoding = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, readerSettings.Encoding);
+                readerSettings.FixOldBinarySubTypeOnInput = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.FixOldBinarySubTypeOnInput, readerSettings.FixOldBinarySubTypeOnInput);
+                readerSettings.FixOldDateTimeMaxValueOnInput = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.FixOldBinarySubTypeOnOutput, readerSettings.FixOldDateTimeMaxValueOnInput);
+                readerSettings.GuidRepresentation = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.GuidRepresentation, readerSettings.GuidRepresentation);
+                readerSettings.MaxDocumentSize = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.MaxDocumentSize, readerSettings.MaxDocumentSize);
             }
             return new BsonBinaryReader(_stream, readerSettings);
         }
@@ -58,11 +58,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var writerSettings = new BsonBinaryWriterSettings();
             if (_encoderSettings != null)
             {
-                writerSettings.Encoding = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.WriteEncoding, Utf8Helper.StrictUtf8Encoding);
-                writerSettings.FixOldBinarySubTypeOnOutput = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.FixOldBinarySubTypeOnOutput, false);
-                writerSettings.GuidRepresentation = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
-                writerSettings.MaxDocumentSize = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.MaxDocumentSize, int.MaxValue);
-                writerSettings.MaxSerializationDepth = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.MaxSerializationDepth, BsonDefaults.MaxSerializationDepth);
+                writerSettings.Encoding = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.WriteEncoding, writerSettings.Encoding);
+                writerSettings.FixOldBinarySubTypeOnOutput = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.FixOldBinarySubTypeOnOutput, writerSettings.FixOldBinarySubTypeOnOutput);
+                writerSettings.GuidRepresentation = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.GuidRepresentation, writerSettings.GuidRepresentation);
+                writerSettings.MaxDocumentSize = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.MaxDocumentSize, writerSettings.MaxDocumentSize);
+                writerSettings.MaxSerializationDepth = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.MaxSerializationDepth, writerSettings.MaxSerializationDepth);
             }
             return new BsonBinaryWriter(_stream, writerSettings);
         }
