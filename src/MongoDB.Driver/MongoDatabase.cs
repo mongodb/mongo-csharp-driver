@@ -1064,6 +1064,8 @@ namespace MongoDB.Driver
             ReadPreference readPreference)
             where TCommandResult : CommandResult
         {
+            var isReadCommand = CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument());
+
             if (readPreference != ReadPreference.Primary)
             {
                 var slidingTimeout = new SlidingTimeout(_server.Settings.ConnectTimeout);
@@ -1078,8 +1080,7 @@ namespace MongoDB.Driver
                     clusterType = cluster.Description.Type;
                 }
 
-
-                if (!CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
+                if (clusterType == ClusterType.ReplicaSet && !isReadCommand)
                 {
                     readPreference = ReadPreference.Primary;
                 }
@@ -1088,13 +1089,13 @@ namespace MongoDB.Driver
             TCommandResult commandResult;
             var wrappedCommand = new BsonDocumentWrapper(command);
             MongoServerInstance serverInstance;
-            if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
+            if (isReadCommand)
             {
-                commandResult = RunWriteCommandAs<TCommandResult>(wrappedCommand, resultSerializer, out serverInstance);
+                commandResult = RunReadCommandAs<TCommandResult>(wrappedCommand, resultSerializer, readPreference, out serverInstance);
             }
             else
             {
-                commandResult = RunReadCommandAs<TCommandResult>(wrappedCommand, resultSerializer, readPreference, out serverInstance);
+                commandResult = RunWriteCommandAs<TCommandResult>(wrappedCommand, resultSerializer, out serverInstance);
             }
 
             commandResult.Command = command.ToBsonDocument();

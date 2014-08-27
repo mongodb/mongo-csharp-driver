@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
         // static fields
-        private static ConcurrentDictionary<string, bool> __knownReadCommands = new ConcurrentDictionary<string, bool>();
+        private static ConcurrentDictionary<string, bool> __knownReadCommands = new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
         // static constructor
         static ReadCommandOperation()
@@ -115,11 +115,11 @@ namespace MongoDB.Driver.Core.Operations
         private static void EnsureIsReadAggregateCommand(BsonDocument command)
         {
             var pipeline = command["pipeline"].AsBsonArray;
-            if (pipeline.Any(s => s.AsBsonDocument.GetElement(0).Name == "$out"))
+            if (pipeline.Any(s => s.AsBsonDocument.GetElement(0).Name.Equals("$out", StringComparison.OrdinalIgnoreCase)))
             {
                 throw new ArgumentException("The pipeline for an aggregate command contains a $out operator. Use a WriteCommandOperation instead.");
             }
-            if (pipeline.Any(s => s.AsBsonDocument.GetElement(0).Name == "$tee"))
+            if (pipeline.Any(s => s.AsBsonDocument.GetElement(0).Name.Equals("$tee", StringComparison.OrdinalIgnoreCase)))
             {
                 throw new ArgumentException("The pipeline for an aggregate command contains a $tee operator. Use a WriteCommandOperation instead.");
             }
@@ -129,13 +129,13 @@ namespace MongoDB.Driver.Core.Operations
         {
             var commandName = command.GetElement(0).Name;
 
-            if (commandName == "aggregate")
+            if (commandName.Equals("aggregate", StringComparison.OrdinalIgnoreCase))
             {
                 EnsureIsReadAggregateCommand(command);
                 return;
             }
 
-            if (commandName == "mapReduce")
+            if (commandName.Equals("mapReduce", StringComparison.OrdinalIgnoreCase))
             {
                 EnsureIsReadMapReduceCommand(command);
                 return;
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
                 if (output.BsonType == BsonType.Document)
                 {
                     var action = output.AsBsonDocument.GetElement(0).Name;
-                    if (action == "inline")
+                    if (action.Equals("inline", StringComparison.OrdinalIgnoreCase))
                     {
                         return;
                     }
