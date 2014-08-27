@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private BsonDocument CreateQuery()
+        private BsonDocument CreateFilter()
         {
             return new BsonDocument
             {
@@ -91,8 +91,11 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<bool> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            var query = CreateQuery();
-            var operation = new CountOperation(_databaseName, "system.indexes", query, _messageEncoderSettings);
+            var filter = CreateFilter();
+            var operation = new CountOperation(_databaseName, "system.indexes", _messageEncoderSettings)
+            {
+                Filter = filter
+            };
             var count = await operation.ExecuteAsync(binding, timeout, cancellationToken);
             return count != 0;
         }

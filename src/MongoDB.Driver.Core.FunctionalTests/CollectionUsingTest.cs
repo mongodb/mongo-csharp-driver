@@ -76,29 +76,29 @@ namespace MongoDB.Driver
             DropCollection();
         }
 
-        protected void Insert<T>(IEnumerable<T> documents, IBsonSerializer<T> serializer, MessageEncoderSettings messageEncoderSettings)
+        protected void Insert<T>(IEnumerable<T> documents, IBsonSerializer<T> serializer, MessageEncoderSettings messageEncoderSettings = null)
         {
             var requests = documents.Select(d => new InsertRequest(d, serializer));
-            var operation = new BulkInsertOperation(DatabaseName, CollectionName, requests, messageEncoderSettings);
+            var operation = new BulkInsertOperation(DatabaseName, _collectionName, requests, messageEncoderSettings ?? MessageEncoderSettings);
             ExecuteOperationAsync(operation).GetAwaiter().GetResult();
         }
 
-        protected void Insert(IEnumerable<BsonDocument> documents, MessageEncoderSettings messageEncoderSettings)
+        protected void Insert(IEnumerable<BsonDocument> documents, MessageEncoderSettings messageEncoderSettings = null)
         {
             Insert(documents, BsonDocumentSerializer.Instance, messageEncoderSettings);
         }
 
-        protected List<T> ReadAll<T>(IBsonSerializer<T> serializer, MessageEncoderSettings messageEncoderSettings)
+        protected List<T> ReadAll<T>(IBsonSerializer<T> serializer, MessageEncoderSettings messageEncoderSettings = null)
         {
             var query = new BsonDocument();
-            var operation = new FindOperation<T>(DatabaseName, _collectionName, query, serializer, messageEncoderSettings);
+            var operation = new FindOperation<T>(DatabaseName, _collectionName, query, serializer, messageEncoderSettings ?? MessageEncoderSettings);
             var cursor = ExecuteOperationAsync(operation).GetAwaiter().GetResult();
             return ReadCursorToEnd(cursor);
         }
 
-        protected List<BsonDocument> ReadAll(MessageEncoderSettings messageEncoderSettings)
+        protected List<BsonDocument> ReadAll(MessageEncoderSettings messageEncoderSettings = null)
         {
-            return ReadAll<BsonDocument>(BsonDocumentSerializer.Instance, messageEncoderSettings);
+            return ReadAll<BsonDocument>(BsonDocumentSerializer.Instance, messageEncoderSettings ?? MessageEncoderSettings);
         }
     }
 }

@@ -35,10 +35,12 @@ namespace MongoDB.Driver
         [SetUp]
         public void Setup()
         {
+            var settings = new MongoDatabaseSettings();
+            settings.ApplyDefaultValues(new MongoServerSettings());
             _operationExecutor = new MockOperationExecutor();
             _subject = new MongoDatabaseImpl(
                 "foo",
-                new MongoDatabaseSettings(),
+                settings,
                 Substitute.For<ICluster>(),
                 _operationExecutor);
         }

@@ -74,7 +74,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(settings, "settings");
 
             settings.ApplyDefaultValues(_settings);
-            return new MongoCollectionImpl<T>(name, settings, _cluster, _operationExecutor);
+            return new MongoCollectionImpl<T>(_databaseName, name, settings, _cluster, _operationExecutor);
         }
 
         public Task<IReadOnlyList<string>> GetCollectionNamesAsync(TimeSpan timeout, CancellationToken cancellationToken)

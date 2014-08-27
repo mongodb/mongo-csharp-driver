@@ -28,7 +28,6 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     public class When_there_is_one_insert : CollectionUsingSpecification
     {
         private BsonDocument[] _documents;
-        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private InsertRequest[] _requests;
         private BulkWriteResult _result;
 
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
         protected override void When()
         {
-            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests, _messageEncoderSettings);
+            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests, MessageEncoderSettings);
             _result = ExecuteOperationAsync(subject).GetAwaiter().GetResult();
         }
 
@@ -65,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
         [Test]
         public void Collection_should_contain_the_expected_documents()
         {
-            var documents = ReadAll(_messageEncoderSettings);
+            var documents = ReadAll(MessageEncoderSettings);
             documents.Should().Equal(_documents);
         }
     }

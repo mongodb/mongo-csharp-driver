@@ -27,13 +27,12 @@ namespace MongoDB.Driver.Core.Operations.DatabaseExistsOperationTests
     [TestFixture]
     public class When_a_database_exists : CollectionUsingSpecification
     {
-        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private DatabaseExistsOperation _subject;
         private bool _result;
 
         protected override void Given()
         {
-            _subject = new DatabaseExistsOperation(_databaseName, _messageEncoderSettings);
+            _subject = new DatabaseExistsOperation(DatabaseName, MessageEncoderSettings);
         }
 
         protected override void When()

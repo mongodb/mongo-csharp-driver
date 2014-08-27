@@ -27,13 +27,12 @@ namespace MongoDB.Driver.Core.Operations.ListCollectionNamesOperationTests
     [TestFixture]
     public class When_listing_collection_names_on_database_that_does_not_exist : CollectionUsingSpecification
     {
-        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private ListCollectionNamesOperation _subject;
         private IReadOnlyList<string> _result;
 
         protected override void Given()
         {
-            _subject = new ListCollectionNamesOperation("asdlfkjklfkljlwef", _messageEncoderSettings);
+            _subject = new ListCollectionNamesOperation("asdlfkjklfkljlwef", MessageEncoderSettings);
         }
 
         protected override void When()

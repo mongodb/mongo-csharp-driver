@@ -13,6 +13,9 @@
 * limitations under the License.
 */
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Operations

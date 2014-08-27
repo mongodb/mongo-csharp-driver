@@ -27,16 +27,15 @@ namespace MongoDB.Driver.Core.Operations.ListDatabaseNamesOperationTests
     [TestFixture]
     public class When_listing_database_names : CollectionUsingSpecification
     {
-        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private ListDatabaseNamesOperation _subject;
         private IReadOnlyList<string> _result;
 
         protected override void Given()
         {
-            _subject = new ListDatabaseNamesOperation(_messageEncoderSettings);
+            _subject = new ListDatabaseNamesOperation(MessageEncoderSettings);
 
             // make sure there is at least 1 database...
-            Insert(new [] { new BsonDocument("x", 1) }, _messageEncoderSettings);
+            Insert(new[] { new BsonDocument("x", 1) }, MessageEncoderSettings);
         }
 
         protected override void When()
@@ -48,7 +47,7 @@ namespace MongoDB.Driver.Core.Operations.ListDatabaseNamesOperationTests
         public void It_should_return_all_the_names()
         {
             _result.Count.Should().BeGreaterThan(0);
-            _result.Should().Contain(_databaseName);
+            _result.Should().Contain(DatabaseName);
         }
     }
 }

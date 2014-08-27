@@ -27,16 +27,15 @@ namespace MongoDB.Driver.Core.Operations.ListCollectionNamesOperationTests
     [TestFixture]
     public class When_listing_collection_names_on_an_existing_database : CollectionUsingSpecification
     {
-        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private ListCollectionNamesOperation _subject;
         private IReadOnlyList<string> _result;
 
         protected override void Given()
         {
-            _subject = new ListCollectionNamesOperation(_databaseName, _messageEncoderSettings);
+            _subject = new ListCollectionNamesOperation(DatabaseName, MessageEncoderSettings);
 
             // make sure there is at least one collection
-            Insert(new[] { new BsonDocument("x", 1) }, _messageEncoderSettings);
+            Insert(new[] { new BsonDocument("x", 1) }, MessageEncoderSettings);
         }
 
         protected override void When()

@@ -28,13 +28,12 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     {
         private BulkWriteException _exception;
         private BsonDocument[] _expectedDocuments;
-        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private WriteRequest[] _requests;
 
         protected override void Given()
         {
             var keys = new BsonDocument("x", 1);
-            var createIndexOperation = new CreateIndexOperation(DatabaseName, CollectionName, keys, _messageEncoderSettings)
+            var createIndexOperation = new CreateIndexOperation(DatabaseName, CollectionName, keys, MessageEncoderSettings)
             {
                 Unique = true
             };
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
         protected override void When()
         {
-            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests, _messageEncoderSettings)
+            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests, MessageEncoderSettings)
             {
                 IsOrdered = true
             };
@@ -114,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
         [Test]
         public void Collection_should_contain_the_expected_documents()
         {
-            var documents = ReadAll(_messageEncoderSettings);
+            var documents = ReadAll(MessageEncoderSettings);
             documents.Should().Equal(_expectedDocuments);
         }
     }

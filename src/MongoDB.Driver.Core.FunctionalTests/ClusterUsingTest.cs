@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver
@@ -26,7 +27,19 @@ namespace MongoDB.Driver
     public abstract class ClusterUsingTest
     {
         // fields
-        protected ICluster _cluster;
+        private ICluster _cluster;
+        private MessageEncoderSettings _messageEncoderSettings;
+
+        // properties
+        public ICluster Cluster
+        {
+            get { return _cluster; }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+        }
 
         // methods
         protected TException Catch<TException>(Action action) where TException : Exception
@@ -46,6 +59,7 @@ namespace MongoDB.Driver
         public void ClusterUsingTestSetUp()
         {
             _cluster = CreateCluster();
+            _messageEncoderSettings = new MessageEncoderSettings();
         }
 
         [TestFixtureTearDown]

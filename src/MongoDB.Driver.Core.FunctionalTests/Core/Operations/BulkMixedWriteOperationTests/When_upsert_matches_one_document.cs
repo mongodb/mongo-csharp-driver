@@ -28,7 +28,6 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     public class When_upsert_matches_one_document : CollectionUsingSpecification
     {
         private BsonDocument[] _expectedDocuments;
-        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private UpdateRequest[] _requests;
         private BulkWriteResult _result;
 
@@ -39,7 +38,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
                 new BsonDocument { { "_id", 1 }, { "x", 1 } },
                 new BsonDocument { { "_id", 2 }, { "x", 2 } }
             };
-            Insert(initialDocuments, _messageEncoderSettings);
+            Insert(initialDocuments, MessageEncoderSettings);
 
             _requests = new[]
             {
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
         protected override void When()
         {
-            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests, _messageEncoderSettings);
+            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests, MessageEncoderSettings);
             _result = ExecuteOperationAsync(subject).GetAwaiter().GetResult();
         }
 
@@ -77,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
         [Test]
         public void Collection_should_contain_the_expected_documents()
         {
-            var documents = ReadAll(_messageEncoderSettings);
+            var documents = ReadAll(MessageEncoderSettings);
             documents.Should().Equal(_expectedDocuments);
         }
     }

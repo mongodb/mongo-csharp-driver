@@ -165,6 +165,7 @@
     <Compile Include="Jira\CSharp900Tests.cs" />
     <Compile Include="MockOperationExecutor.cs" />
     <Compile Include="MongoClientSettingsTests.cs" />
+    <Compile Include="MongoCollectionImplTests.cs" />
     <Compile Include="MongoDatabaseImplTests.cs" />
     <Compile Include="MongoServerBuildInfoTests.cs" />
     <Compile Include="MongoClientTests.cs" />

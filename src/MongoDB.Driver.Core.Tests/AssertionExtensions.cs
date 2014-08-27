@@ -33,5 +33,10 @@ namespace MongoDB.Driver
         {
             return assertions.Be(BsonDocument.Parse(json));
         }
+
+        public static AndConstraint<ComparableTypeAssertions<BsonDocument>> Be(this ComparableTypeAssertions<BsonDocument> assertions, BsonDocument other)
+        {
+            return assertions.Be(other);
+        }
     }
 }

@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver
@@ -22,7 +23,7 @@ namespace MongoDB.Driver
     public abstract class DatabaseUsingTest : ClusterUsingTest
     {
         // fields
-        protected string _databaseName;
+        private string _databaseName;
 
         // properties
         public string DatabaseName

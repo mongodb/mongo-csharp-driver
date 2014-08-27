@@ -13,28 +13,35 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Helpers;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Operations.DatabaseExistsOperationTests
+namespace MongoDB.Driver.Core.Operations.CountOperationTests
 {
     [TestFixture]
-    public class When_a_database_does_not_exist : CollectionUsingSpecification
+    public class When_executing_a_count : CollectionUsingSpecification
     {
-        private DatabaseExistsOperation _subject;
-        private bool _result;
+        private CountOperation _subject;
+        private long _result;
 
         protected override void Given()
         {
-            // this could certainly fail if this database actually exists
-            // but chances are not good.
-            _subject = new DatabaseExistsOperation("asljsfkoiulkewlkjwe", MessageEncoderSettings);
+            Insert(new[] {
+                new BsonDocument("x", 1),
+                new BsonDocument("x", 2),
+                new BsonDocument("x", 3),
+                new BsonDocument("x", 4),
+                new BsonDocument("x", 5),
+                new BsonDocument("x", 6),
+            });
+
+            _subject = new CountOperation(DatabaseName, CollectionName, MessageEncoderSettings)
+            {
+                Filter = BsonDocument.Parse("{ x : { $gt : 2 } }"),
+                Limit = 2,
+                Skip = 1
+            };
         }
 
         protected override void When()
@@ -43,9 +50,9 @@ namespace MongoDB.Driver.Core.Operations.DatabaseExistsOperationTests
         }
 
         [Test]
-        public void It_should_return_false()
+        public void It_should_return_the_correct_number_of_documents()
         {
-            _result.Should().BeFalse();
+            _result.Should().Be(2);
         }
     }
 }

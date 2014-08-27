@@ -23,25 +23,24 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class CountOperation : IReadOperation<long>
+    public class CountOperation : IReadOperation<long>, ICommandOperation
     {
         // fields
         private string _collectionName;
         private string _databaseName;
-        private string _hint;
+        private BsonDocument _filter;
+        private BsonValue _hint;
         private long? _limit;
         private TimeSpan? _maxTime;
         private MessageEncoderSettings _messageEncoderSettings;
-        private BsonDocument _query;
         private long? _skip;
 
         // constructors
-        public CountOperation(string databaseName, string collectionName, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
+        public CountOperation(string databaseName, string collectionName, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
-            _query = query;
-            _messageEncoderSettings = messageEncoderSettings;
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
         // properties
@@ -57,7 +56,13 @@ namespace MongoDB.Driver.Core.Operations
             set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
-        public string Hint
+        public BsonDocument Filter
+        {
+            get { return _filter; }
+            set { _filter = value; }
+        }
+
+        public BsonValue Hint
         {
             get { return _hint; }
             set { _hint = value; }
@@ -81,12 +86,6 @@ namespace MongoDB.Driver.Core.Operations
             set { _messageEncoderSettings = value; }
         }
 
-        public BsonDocument Query
-        {
-            get { return _query; }
-            set { _query = value; }
-        }
-
         public long? Skip
         {
             get { return _skip; }
@@ -99,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "count", _collectionName },
-                { "query", _query, _query != null },
+                { "query", _filter, _filter != null },
                 { "limit", () => _limit.Value, _limit.HasValue },
                 { "skip", () => _skip.Value, _skip.HasValue },
                 { "hint", _hint, _hint != null },

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -32,6 +33,11 @@ namespace MongoDB.Driver
         /// Gets the name of the collection.
         /// </summary>
         string CollectionName { get; }
+
+        /// <summary>
+        /// Gets the name of the database.
+        /// </summary>
+        string DatabaseName { get; }
 
         /// <summary>
         /// Gets the settings.

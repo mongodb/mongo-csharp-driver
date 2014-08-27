@@ -29,7 +29,6 @@ namespace MongoDB.Driver.Core.Operations.InsertOpcodeOperationTests
     {
         private BsonDocument _document;
         private BsonValue _id = 1;
-        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private WriteConcernResult _result;
 
         protected override void Given()
@@ -40,7 +39,7 @@ namespace MongoDB.Driver.Core.Operations.InsertOpcodeOperationTests
         protected override void When()
         {
             var documentSource = new BatchableSource<BsonDocument>(new[] { _document });
-            var operation = new InsertOpcodeOperation<BsonDocument>(DatabaseName, CollectionName, documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var operation = new InsertOpcodeOperation<BsonDocument>(DatabaseName, CollectionName, documentSource, BsonDocumentSerializer.Instance, MessageEncoderSettings);
 
             _result = ExecuteOperationAsync(operation).GetAwaiter().GetResult();
         }
