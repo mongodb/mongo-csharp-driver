@@ -62,7 +62,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public Task<long> CountAsync(CountModel model, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public Task<long> CountAsync(CountModel model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var operation = new CountOperation(
                 _databaseName,
@@ -101,19 +101,19 @@ namespace MongoDB.Driver
             return new BsonDocumentWrapper(document, serializer);
         }
 
-        private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference.ToCore()))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout, cancellationToken);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
             }
         }
 
-        private async Task<TResult> ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<TResult> ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             using (var binding = new WritableServerBinding(_cluster))
             {
-                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout, cancellationToken);
+                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
             }
         }
 

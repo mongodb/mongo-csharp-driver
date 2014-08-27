@@ -53,6 +53,6 @@ namespace MongoDB.Driver
         /// <returns>
         /// The number of documents in the collection
         /// </returns>
-        Task<long> CountAsync(CountModel model, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
+        Task<long> CountAsync(CountModel model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

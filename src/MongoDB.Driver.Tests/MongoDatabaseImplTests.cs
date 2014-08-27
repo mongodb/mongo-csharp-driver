@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         public void Setup()
         {
             var settings = new MongoDatabaseSettings();
-            settings.ApplyDefaultValues(new MongoServerSettings());
+            settings.ApplyDefaultValues(new MongoClientSettings());
             _operationExecutor = new MockOperationExecutor();
             _subject = new MongoDatabaseImpl(
                 "foo",

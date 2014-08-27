@@ -39,11 +39,13 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoDatabaseSettings
             {
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
+                OperationTimeout = TimeSpan.FromMilliseconds(20),
                 ReadPreference = ReadPreference.Primary,
                 WriteConcern = WriteConcern.Acknowledged
             };
 
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(20), settings.OperationTimeout);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
 #pragma warning disable 618
             Assert.AreEqual(new SafeMode(true), settings.SafeMode);
@@ -58,6 +60,7 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoDatabaseSettings
             {
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
+                OperationTimeout = TimeSpan.FromMilliseconds(20),
                 ReadPreference = ReadPreference.Secondary,
                 WriteConcern = WriteConcern.W2
             };
@@ -70,6 +73,7 @@ namespace MongoDB.Driver.Tests
         {
             var settings = new MongoDatabaseSettings();
             Assert.AreEqual(GuidRepresentation.Unspecified, settings.GuidRepresentation);
+            Assert.AreEqual(default(TimeSpan), settings.OperationTimeout);
             Assert.AreEqual(null, settings.ReadPreference);
 #pragma warning disable 618
             Assert.AreEqual(null, settings.SafeMode);
@@ -90,6 +94,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.GuidRepresentation = GuidRepresentation.PythonLegacy;
+            Assert.IsFalse(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.OperationTimeout = TimeSpan.FromMilliseconds(20);
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -162,6 +170,21 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(guidRepresentation, settings.GuidRepresentation);
             Assert.Throws<InvalidOperationException>(() => { settings.GuidRepresentation = guidRepresentation; });
+        }
+
+        [Test]
+        public void TestOperationTimeout()
+        {
+            var settings = new MongoDatabaseSettings();
+            Assert.AreEqual(default(TimeSpan), settings.OperationTimeout);
+
+            var operationTimeout = new TimeSpan(1, 2, 3);
+            settings.OperationTimeout = operationTimeout;
+            Assert.AreEqual(operationTimeout, settings.OperationTimeout);
+
+            settings.Freeze();
+            Assert.AreEqual(operationTimeout, settings.OperationTimeout);
+            Assert.Throws<InvalidOperationException>(() => { settings.OperationTimeout = operationTimeout; });
         }
 
         [Test]

@@ -56,7 +56,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public Task DropAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public Task DropAsync(TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new DropDatabaseOperation(_databaseName, messageEncoderSettings);
@@ -77,14 +77,14 @@ namespace MongoDB.Driver
             return new MongoCollectionImpl<T>(_databaseName, name, settings, _cluster, _operationExecutor);
         }
 
-        public Task<IReadOnlyList<string>> GetCollectionNamesAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<IReadOnlyList<string>> GetCollectionNamesAsync(TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListCollectionNamesOperation(_databaseName, messageEncoderSettings);
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
-        public Task<T> RunCommandAsync<T>(object command, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<T> RunCommandAsync<T>(object command, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(command, "command");
 
@@ -118,19 +118,19 @@ namespace MongoDB.Driver
             }
         }
 
-        private async Task<T> ExecuteReadOperation<T>(IReadOperation<T> operation, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<T> ExecuteReadOperation<T>(IReadOperation<T> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference.ToCore()))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout, cancellationToken);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
             }
         }
 
-        private async Task<T> ExecuteWriteOperation<T>(IWriteOperation<T> operation, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<T> ExecuteWriteOperation<T>(IWriteOperation<T> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             using (var binding = new WritableServerBinding(_cluster))
             {
-                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout, cancellationToken);
+                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
             }
         }
 

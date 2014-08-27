@@ -113,7 +113,7 @@ namespace MongoDB.Driver
         public IMongoDatabase GetDatabase(string name)
         {
             var settings = new MongoDatabaseSettings();
-            settings.ApplyDefaultValues(MongoServerSettings.FromClientSettings(_settings));
+            settings.ApplyDefaultValues(_settings);
             return GetDatabase(name, settings);
         }
 
@@ -134,14 +134,14 @@ namespace MongoDB.Driver
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A list of the database on the server.</returns>
-        public async Task<IReadOnlyList<string>> GetDatabaseNamesAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyList<string>> GetDatabaseNamesAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListDatabaseNamesOperation(messageEncoderSettings);
 
             using(var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference.ToCore()))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout, cancellationToken);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
             }
         }
 

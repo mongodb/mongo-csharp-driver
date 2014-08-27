@@ -51,6 +51,6 @@ namespace MongoDB.Driver
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A list of the database on the server.</returns>
-        Task<IReadOnlyList<string>> GetDatabaseNamesAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyList<string>> GetDatabaseNamesAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

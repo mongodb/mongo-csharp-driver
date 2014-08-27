@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Shared;
 
@@ -38,6 +39,7 @@ namespace MongoDB.Driver
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
+        private TimeSpan _operationTimeout;
         private UTF8Encoding _readEncoding;
         private ReadPreference _readPreference;
         private string _replicaSetName;
@@ -72,6 +74,7 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            _operationTimeout = Timeout.InfiniteTimeSpan;
             _readEncoding = null;
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
@@ -214,6 +217,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _minConnectionPoolSize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        public TimeSpan OperationTimeout
+        {
+            get { return _operationTimeout; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _operationTimeout = value;
             }
         }
 
@@ -507,6 +523,7 @@ namespace MongoDB.Driver
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
             clone._minConnectionPoolSize = _minConnectionPoolSize;
+            clone._operationTimeout = _operationTimeout;
             clone._readEncoding = _readEncoding;
             clone._readPreference = _readPreference.Clone();
             clone._replicaSetName = _replicaSetName;
@@ -556,6 +573,7 @@ namespace MongoDB.Driver
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
+                _operationTimeout == rhs._operationTimeout &&
                 object.Equals(_readEncoding, rhs._readEncoding) &&
                 _readPreference == rhs._readPreference &&
                 _replicaSetName == rhs._replicaSetName &&
@@ -625,6 +643,7 @@ namespace MongoDB.Driver
                 .Hash(_maxConnectionLifeTime)
                 .Hash(_maxConnectionPoolSize)
                 .Hash(_minConnectionPoolSize)
+                .Hash(_operationTimeout)
                 .Hash(_readEncoding)
                 .Hash(_readPreference)
                 .Hash(_replicaSetName)
@@ -662,6 +681,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
             sb.AppendFormat("MinConnectionPoolSize={0};", _minConnectionPoolSize);
+            sb.AppendFormat("OperationTimeout={0};", _operationTimeout);
             if (_readEncoding != null)
             {
                 sb.Append("ReadEncoding=UTF8Encoding;");
