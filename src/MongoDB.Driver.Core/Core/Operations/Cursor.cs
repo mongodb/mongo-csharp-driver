@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             TimeSpan timeout,
             CancellationToken cancellationToken)
         {
-            _connectionSource = cursorId == 0 ? connectionSource : Ensure.IsNotNull(connectionSource, "connectionSource");
+            _connectionSource = Ensure.IsNotNull(connectionSource, "connectionSource");
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _query = Ensure.IsNotNull(query, "query");
@@ -85,6 +85,13 @@ namespace MongoDB.Driver.Core.Operations
                 _firstBatch = _firstBatch.Take(_limit).ToList();
             }
             _count = _firstBatch.Count;
+
+            // if we aren't going to need the connection source we can go ahead and Dispose it now
+            if (_cursorId == 0)
+            {
+                _connectionSource.Dispose();
+                _connectionSource = null;
+            }
         }
 
         // properties
