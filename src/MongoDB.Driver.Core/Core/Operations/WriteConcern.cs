@@ -24,7 +24,7 @@ using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class WriteConcern : IEquatable<WriteConcern>
+    public class WriteConcern : IEquatable<WriteConcern>, IConvertibleToBsonDocument
     {
         #region static
         // static fields
@@ -161,6 +161,17 @@ namespace MongoDB.Driver.Core.Operations
                 .Hash(_w)
                 .Hash(_wTimeout)
                 .GetHashCode();
+        }
+
+        public BsonDocument ToBsonDocument()
+        {
+            return new BsonDocument
+            {
+                { "w", () => _w.ToBsonValue(), _w != null }, // optional
+                { "wtimeout", () => _wTimeout.Value.TotalMilliseconds, _wTimeout.HasValue }, // optional
+                { "fsync", () => _fsync.Value, _fsync.HasValue }, // optional
+                { "j", () => _journal.Value, _journal.HasValue } // optional
+            };
         }
 
         public override string ToString()
