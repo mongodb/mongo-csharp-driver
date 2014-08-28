@@ -193,7 +193,8 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     if (hasWriteErrors && _isOrdered)
                     {
-                        remainingRequests = remainingRequests.Concat(requestSource.GetRemainingItems());
+                        // note: we have to materialize the list of remaining items before the enumerator gets Disposed
+                        remainingRequests = remainingRequests.Concat(requestSource.GetRemainingItems()).ToList();
                         break;
                     }
 
