@@ -218,16 +218,6 @@ namespace MongoDB.Driver.Core.Misc
             return value;
         }
 
-        public static T IsValid<T>(T value, string paramName, Func<T, bool> validator, string message)
-        {
-            if (!validator(value))
-            {
-                throw new ArgumentException(message, paramName);
-            }
-
-            return value;
-        }
-
         public static TimeSpan IsValidTimeout(TimeSpan value, string paramName)
         {
             if (value < TimeSpan.Zero && value != Timeout.InfiniteTimeSpan)
@@ -244,6 +234,16 @@ namespace MongoDB.Driver.Core.Misc
             {
                 throw new ArgumentException(message);
             }
+        }
+
+        public static T That<T>(T value, Func<T, bool> assertion, string paramName, string message)
+        {
+            if (!assertion(value))
+            {
+                throw new ArgumentException(message, paramName);
+            }
+
+            return value;
         }
     }
 }

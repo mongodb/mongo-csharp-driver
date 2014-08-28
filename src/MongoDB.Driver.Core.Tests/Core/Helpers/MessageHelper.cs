@@ -33,8 +33,13 @@ namespace MongoDB.Driver.Core.Helpers
         public static QueryMessage BuildQueryMessage(
             BsonDocument query = null, 
             int requestId = 0, 
-            string collectionNamespace = "foo.bar")
+            CollectionNamespace collectionNamespace = null)
         {
+            if (collectionNamespace == null)
+            {
+                collectionNamespace = new CollectionNamespace("foo", "bar");
+            }
+
             return new QueryMessage(
                 requestId: requestId,
                 collectionNamespace: collectionNamespace,

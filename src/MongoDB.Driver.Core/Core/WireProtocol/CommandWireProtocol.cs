@@ -32,11 +32,11 @@ namespace MongoDB.Driver.Core.WireProtocol
     {
         // constructors
         public CommandWireProtocol(
-            string databaseName,
+            DatabaseNamespace databaseNamespace,
             BsonDocument command,
             bool slaveOk,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, command, slaveOk, BsonDocumentSerializer.Instance, messageEncoderSettings)
+            : base(databaseNamespace, command, slaveOk, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }

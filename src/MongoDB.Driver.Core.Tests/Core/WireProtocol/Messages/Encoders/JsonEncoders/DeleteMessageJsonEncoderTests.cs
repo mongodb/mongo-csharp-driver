@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     {
         #region static
         // static fields
-        private static readonly CollectionNamespace __collectionNamespace = "d.c";
+        private static readonly CollectionNamespace __collectionNamespace = new CollectionNamespace("d", "c");
         private static readonly bool __isMulti = false;
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly BsonDocument __query = new BsonDocument("x", 1);

@@ -259,7 +259,7 @@ namespace MongoDB.Driver.Core.Servers
                 var slidingTimeout = new SlidingTimeout(_settings.HeartbeatTimeout);
 
                 var isMasterCommand = new CommandWireProtocol(
-                    "admin",
+                    DatabaseNamespace.Admin,
                     new BsonDocument("isMaster", 1),
                     true,
                     null);
@@ -270,7 +270,7 @@ namespace MongoDB.Driver.Core.Servers
                 var isMasterResult = new IsMasterResult(isMasterResultDocument);
 
                 var buildInfoCommand = new CommandWireProtocol(
-                    "admin",
+                    DatabaseNamespace.Admin,
                     new BsonDocument("buildInfo", 1),
                     true,
                     null);

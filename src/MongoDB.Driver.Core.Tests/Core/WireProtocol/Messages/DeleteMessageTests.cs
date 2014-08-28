@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     [TestFixture]
     public class DeleteMessageTests
     {
-        private readonly CollectionNamespace _collectionNamespace = "database.collection";
+        private readonly CollectionNamespace _collectionNamespace = new CollectionNamespace("database", "collection");
         private readonly bool _isMulti = true;
         private readonly BsonDocument _query = new BsonDocument("x", 1);
         private readonly int _requestId = 1;

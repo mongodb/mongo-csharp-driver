@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Core.Operations
     public class WriteCommandOperation : WriteCommandOperation<BsonDocument>
     {
         // constructors
-        public WriteCommandOperation(string databaseName, BsonDocument command, MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, command, BsonDocumentSerializer.Instance, messageEncoderSettings)
+        public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, MessageEncoderSettings messageEncoderSettings)
+            : base(databaseNamespace, command, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Core.Operations
     public class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
         // constructors
-        public WriteCommandOperation(string databaseName, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, command, resultSerializer, messageEncoderSettings)
+        public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+            : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
         {
         }
 

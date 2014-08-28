@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             return new InsertMessage<TDocument>(
                 requestId,
-                fullCollectionName,
+                CollectionNamespace.FromFullName(fullCollectionName),
                 _serializer,
                 documentSource,
                 maxBatchCount,
@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(0); // responseTo
             streamWriter.WriteInt32((int)Opcode.Insert);
             streamWriter.WriteInt32((int)BuildInsertFlags(message));
-            streamWriter.WriteCString(message.CollectionNamespace);
+            streamWriter.WriteCString(message.CollectionNamespace.FullName);
             WriteDocuments(state);
             streamWriter.BackpatchSize(messageStartPosition);
         }

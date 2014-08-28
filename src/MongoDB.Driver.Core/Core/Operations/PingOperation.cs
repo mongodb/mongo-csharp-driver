@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation("admin", command, _messageEncoderSettings);
+            var operation = new ReadCommandOperation(DatabaseNamespace.Admin, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

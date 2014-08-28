@@ -26,21 +26,21 @@ namespace MongoDB.Driver.Core.Operations
     public class DatabaseExistsOperation : IReadOperation<bool>
     {
         // fields
-        private string _databaseName;
+        private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
-        public DatabaseExistsOperation(string databaseName, MessageEncoderSettings messageEncoderSettings)
+        public DatabaseExistsOperation(DatabaseNamespace databaseNamespace, MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string DatabaseName
+        public DatabaseNamespace DatabaseNamespace
         {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _databaseNamespace; }
+            set { _databaseNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var operation = new ListDatabaseNamesOperation(_messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
-            return result.Contains(_databaseName);
+            return result.Contains(_databaseNamespace.DatabaseName);
         }
     }
 }

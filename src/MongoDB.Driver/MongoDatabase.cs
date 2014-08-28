@@ -1112,7 +1112,7 @@ namespace MongoDB.Driver
             where TCommandResult : CommandResult
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ReadCommandOperation<TCommandResult>(_name, command, resultSerializer, messageEncoderSettings);
+            var operation = new ReadCommandOperation<TCommandResult>(new DatabaseNamespace(_name), command, resultSerializer, messageEncoderSettings);
             using (var binding = _server.GetReadBinding(readPreference))
             using (var connectionSource = binding.GetReadConnectionSource())
             {
@@ -1130,7 +1130,7 @@ namespace MongoDB.Driver
             where TCommandResult : CommandResult
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new WriteCommandOperation<TCommandResult>(_name, command, resultSerializer, messageEncoderSettings);
+            var operation = new WriteCommandOperation<TCommandResult>(new DatabaseNamespace(_name), command, resultSerializer, messageEncoderSettings);
             using (var binding = _server.GetWriteBinding())
             using (var connectionSource = binding.GetWriteConnectionSource())
             {

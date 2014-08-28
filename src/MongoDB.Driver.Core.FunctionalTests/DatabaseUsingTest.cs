@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         [TestFixtureSetUp]
         public void DatabaseUsingTestSetUp()
         {
-            _databaseNamespace = GetDatabaseName();
+            _databaseNamespace = new DatabaseNamespace(GetDatabaseName());
         }
 
         [TestFixtureTearDown]

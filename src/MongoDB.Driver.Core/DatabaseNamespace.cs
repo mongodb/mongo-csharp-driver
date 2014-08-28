@@ -41,27 +41,18 @@ namespace MongoDB.Driver
             return index == -1;
         }
 
-        public static implicit operator DatabaseNamespace(string value)
-        {
-            return new DatabaseNamespace(value);
-        }
-
-        public static implicit operator string(DatabaseNamespace name)
-        {
-            return name.ToString();
-        }
-
         // fields
         private readonly string _databaseName;
 
         // constructors
         public DatabaseNamespace(string databaseName)
         {
-            _databaseName = Ensure.IsValid(databaseName, "databaseName", IsValid, "Database names must be non-empty and not contain '.' or the null character.");
+            Ensure.IsNotNull(databaseName, "databaseName");
+            _databaseName = Ensure.That(databaseName, IsValid, "databaseName", "Database names must be non-empty and not contain '.' or the null character.");
         }
 
         // properties
-        public CollectionNamespace CommandCollection
+        internal CollectionNamespace CommandCollection
         {
             get { return new CollectionNamespace(this, "$cmd"); }
         }
@@ -71,12 +62,12 @@ namespace MongoDB.Driver
             get { return _databaseName; }
         }
 
-        public CollectionNamespace SystemIndexesCollection
+        internal CollectionNamespace SystemIndexesCollection
         {
             get { return new CollectionNamespace(this, "system.indexes"); }
         }
 
-        public CollectionNamespace SystemNamespacesCollection
+        internal CollectionNamespace SystemNamespacesCollection
         {
             get { return new CollectionNamespace(this, "system.namespaces"); }
         }

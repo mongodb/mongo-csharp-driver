@@ -42,7 +42,7 @@ namespace MongoDB.Driver
             settings.ApplyDefaultValues(dbSettings);
             _operationExecutor = new MockOperationExecutor();
             _subject = new MongoCollectionImpl<BsonDocument>(
-                "foo.bar",
+                new CollectionNamespace("foo", "bar"),
                 settings,
                 Substitute.For<ICluster>(),
                 _operationExecutor);

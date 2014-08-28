@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     [TestFixture]
     public class InsertMessageTests
     {
-        private readonly CollectionNamespace _collectionNamespace = "database.collection";
+        private readonly CollectionNamespace _collectionNamespace = new CollectionNamespace("database", "collection");
         private readonly bool _continueOnError = true;
         private readonly BatchableSource<BsonDocument> _documentSource = new BatchableSource<BsonDocument>(Enumerable.Empty<BsonDocument>());
         private readonly int _maxBatchCount = 1;

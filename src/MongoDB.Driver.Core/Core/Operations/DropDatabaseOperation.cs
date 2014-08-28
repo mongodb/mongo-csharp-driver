@@ -26,23 +26,23 @@ namespace MongoDB.Driver.Core.Operations
     public class DropDatabaseOperation : IWriteOperation<BsonDocument>, ICommandOperation
     {
         // fields
-        private string _databaseName;
+        private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public DropDatabaseOperation(
-            string databaseName,
+            DatabaseNamespace databaseNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string DatabaseName
+        public DatabaseNamespace DatabaseNamespace
         {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _databaseNamespace; }
+            set { _databaseNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseName, command, _messageEncoderSettings);
+            var operation = new WriteCommandOperation(_databaseNamespace, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

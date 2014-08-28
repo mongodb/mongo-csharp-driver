@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     {
         #region static
         // static fields
-        private static readonly CollectionNamespace __collectionNamespace = "d.c";
+        private static readonly CollectionNamespace __collectionNamespace = new CollectionNamespace("d", "c");
         private static readonly bool __continueOnError = true;
         private static readonly BsonDocument[] __documents = new[] { new BsonDocument("_id", 1), new BsonDocument("_id", 2) };
         private static readonly BatchableSource<BsonDocument> __documentSource = new BatchableSource<BsonDocument>(__documents);

@@ -125,7 +125,7 @@ namespace MongoDB.Driver
         /// <returns>An implementation of a database.</returns>
         public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings)
         {
-            return new MongoDatabaseImpl(name, settings, _cluster, _operationExecutor);
+            return new MongoDatabaseImpl(new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
         }
 
         /// <summary>

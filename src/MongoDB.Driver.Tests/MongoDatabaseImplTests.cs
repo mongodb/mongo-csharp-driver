@@ -39,7 +39,7 @@ namespace MongoDB.Driver
             settings.ApplyDefaultValues(new MongoClientSettings());
             _operationExecutor = new MockOperationExecutor();
             _subject = new MongoDatabaseImpl(
-                "foo",
+                new DatabaseNamespace("foo"),
                 settings,
                 Substitute.For<ICluster>(),
                 _operationExecutor);
@@ -66,7 +66,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<DropDatabaseOperation>();
             var op = (DropDatabaseOperation)call.Operation;
-            op.DatabaseName.Should().Be("foo");
+            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
         }
 
         [Test]

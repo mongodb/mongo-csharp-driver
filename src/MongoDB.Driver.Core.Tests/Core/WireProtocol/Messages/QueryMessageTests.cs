@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     public class QueryMessageTests
     {
         private readonly int _batchSize = 1;
-        private readonly CollectionNamespace _collectionNamespace = "database.collection";
+        private readonly CollectionNamespace _collectionNamespace = new CollectionNamespace("database", "collection");
         private readonly BsonDocument _fields = new BsonDocument("x", 1);
         private readonly BsonDocument _query = new BsonDocument("y", 2);
         private readonly int _requestId = 2;

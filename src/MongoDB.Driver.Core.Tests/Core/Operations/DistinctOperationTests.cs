@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class DistinctOperationTests
     {
-        private string _collectionNamespace;
+        private CollectionNamespace _collectionNamespace;
         private string _fieldName;
         private MessageEncoderSettings _messageEncoderSettings;
         private IBsonSerializer<int> _valueSerializer;
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         [SetUp]
         public void Setup()
         {
-            _collectionNamespace = "foo.bar";
+            _collectionNamespace = new CollectionNamespace("foo", "bar");
             _fieldName = "a.b";
             _messageEncoderSettings = new MessageEncoderSettings();
             _valueSerializer = new Int32Serializer();

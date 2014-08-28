@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     public class EvalOperation : IReadOperation<BsonValue>
     {
         // fields
-        private string _databaseName;
+        private DatabaseNamespace _databaseNamespace;
         private BsonJavaScript _javaScript;
         private TimeSpan? _maxTime;
         private MessageEncoderSettings _messageEncoderSettings;
@@ -37,20 +37,20 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public EvalOperation(
-            string databaseName,
+            DatabaseNamespace databaseNamespace,
             BsonJavaScript javaScript,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _javaScript = Ensure.IsNotNull(javaScript, "javaScript");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string DatabaseName
+        public DatabaseNamespace DatabaseNamespace
         {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _databaseNamespace; }
+            set { _databaseNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonJavaScript JavaScript
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(_databaseName, command, _messageEncoderSettings);
+            var operation = new ReadCommandOperation(_databaseNamespace, command, _messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
             return result["retval"];
         }

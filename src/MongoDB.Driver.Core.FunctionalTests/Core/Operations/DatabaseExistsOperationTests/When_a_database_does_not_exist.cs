@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Operations.DatabaseExistsOperationTests
         {
             // this could certainly fail if this database actually exists
             // but chances are not good.
-            _subject = new DatabaseExistsOperation("asljsfkoiulkewlkjwe", MessageEncoderSettings);
+            _subject = new DatabaseExistsOperation(new DatabaseNamespace("asljsfkoiulkewlkjwe"), MessageEncoderSettings);
         }
 
         protected override void When()

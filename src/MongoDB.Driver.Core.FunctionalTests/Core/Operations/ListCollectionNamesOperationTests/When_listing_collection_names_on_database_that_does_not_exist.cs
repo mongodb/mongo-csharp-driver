@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations.ListCollectionNamesOperationTests
 
         protected override void Given()
         {
-            _subject = new ListCollectionNamesOperation("asdlfkjklfkljlwef", MessageEncoderSettings);
+            _subject = new ListCollectionNamesOperation(new DatabaseNamespace("asdlfkjklfkljlwef"), MessageEncoderSettings);
         }
 
         protected override void When()

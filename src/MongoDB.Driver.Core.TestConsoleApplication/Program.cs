@@ -17,7 +17,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 {
     public static class Program
     {
-        private static CollectionNamespace __collection = "foo.bar";
+        private static CollectionNamespace __collection = new CollectionNamespace("foo", "bar");
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static int __numConcurrentWorkers = 8;
 

@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
         [SetUp]
         public void Setup()
         {
-            _collectionNamespace = "foo.bar";
+            _collectionNamespace = new CollectionNamespace("foo", "bar");
             _messageEncoderSettings = new MessageEncoderSettings();
         }
 

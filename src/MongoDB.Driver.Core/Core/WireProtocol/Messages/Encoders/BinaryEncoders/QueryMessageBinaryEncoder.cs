@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             return new QueryMessage(
                 requestId,
-                fullCollectionName,
+                CollectionNamespace.FromFullName(fullCollectionName),
                 query,
                 fields,
                 skip,
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(0); // responseTo
             streamWriter.WriteInt32((int)Opcode.Query);
             streamWriter.WriteInt32((int)BuildQueryFlags(message));
-            streamWriter.WriteCString(message.CollectionNamespace);
+            streamWriter.WriteCString(message.CollectionNamespace.FullName);
             streamWriter.WriteInt32(message.Skip);
             streamWriter.WriteInt32(message.BatchSize);
             var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);

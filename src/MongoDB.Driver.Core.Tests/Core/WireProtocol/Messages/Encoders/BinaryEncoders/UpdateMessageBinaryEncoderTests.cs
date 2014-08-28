@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     {
         #region static
         // static fields
-        private static readonly CollectionNamespace __collectionNamespace = "d.c";
+        private static readonly CollectionNamespace __collectionNamespace = new CollectionNamespace("d", "c");
         private static readonly int __flagsOffset;
         private static readonly bool __isMulti = true;
         private static readonly bool __isUpsert = true;

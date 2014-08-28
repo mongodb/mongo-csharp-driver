@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     [TestFixture]
     public class UpdateMessageTests
     {
-        private readonly CollectionNamespace _collectionNamespace = "database.collection";
+        private readonly CollectionNamespace _collectionNamespace = new CollectionNamespace("database", "collection");
         private readonly BsonDocument _query = new BsonDocument("x", 1);
         private readonly int _requestId = 1;
         private readonly BsonDocument _update = new BsonDocument("$set", new BsonDocument("y", 2));

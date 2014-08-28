@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             return new UpdateMessage(
                 requestId,
-                fullCollectionName,
+                CollectionNamespace.FromFullName(fullCollectionName),
                 query,
                 update,
                 isMulti,
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(0); // responseTo
             streamWriter.WriteInt32((int)Opcode.Update);
             streamWriter.WriteInt32(0); // reserved
-            streamWriter.WriteCString(message.CollectionNamespace);
+            streamWriter.WriteCString(message.CollectionNamespace.FullName);
             streamWriter.WriteInt32((int)BuildUpdateFlags(message));
             var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
             BsonDocumentSerializer.Instance.Serialize(context, message.Query ?? new BsonDocument());

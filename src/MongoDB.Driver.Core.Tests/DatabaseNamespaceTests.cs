@@ -108,22 +108,5 @@ namespace MongoDB.Driver
 
             subject.ToString().Should().Be("test");
         }
-
-        [Test]
-        public void Should_implicitly_convert_from_a_string()
-        {
-            DatabaseNamespace subject = "test";
-
-            subject.ToString().Should().Be("test");
-        }
-
-        [Test]
-        public void Should_implicitly_convert_to_a_string()
-        {
-            var subject = new DatabaseNamespace("test");
-
-            string s = subject;
-            s.Should().Be("test");
-        }
     }
 }

@@ -40,9 +40,17 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public void Constructor_should_throw_an_argument_null_exception_if_full_name_is_null()
+        public void FromFullName_should_throw_an_argument_null_exception_if_full_name_is_null()
         {
-            Action act = () => new CollectionNamespace(null);
+            Action act = () => CollectionNamespace.FromFullName(null);
+
+            act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Test]
+        public void Constructor_should_throw_an_argument_null_exception_if_database_name_is_null()
+        {
+            Action act = () => new CollectionNamespace((string)null, "bar\0baz");
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -50,7 +58,7 @@ namespace MongoDB.Driver
         [Test]
         public void Constructor_should_throw_an_argument_null_exception_if_database_namespace_is_null()
         {
-            Action act = () => new CollectionNamespace(null, "bar\0baz");
+            Action act = () => new CollectionNamespace((DatabaseNamespace)null, "bar\0baz");
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -64,9 +72,9 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public void Constructor_should_handle_multiple_periods()
+        public void FromFullName_should_handle_multiple_periods()
         {
-            var subject = new CollectionNamespace("test.foo.bar");
+            var subject = CollectionNamespace.FromFullName("test.foo.bar");
 
             subject.DatabaseNamespace.DatabaseName.Should().Be("test");
             subject.CollectionName.Should().Be("foo.bar");
@@ -102,8 +110,8 @@ namespace MongoDB.Driver
         [TestCase("foo.bar", "foo.baz", false)]
         public void Equals_should_be_correct(string a, string b, bool equals)
         {
-            var subject = new CollectionNamespace(a);
-            var compared = new CollectionNamespace(b);
+            var subject = CollectionNamespace.FromFullName(a);
+            var compared = CollectionNamespace.FromFullName(b);
 
             subject.Equals(compared).Should().Be(equals);
         }
@@ -111,26 +119,9 @@ namespace MongoDB.Driver
         [Test]
         public void ToString_should_return_the_name()
         {
-            var subject = new CollectionNamespace("test.foo");
+            var subject = CollectionNamespace.FromFullName("test.foo");
 
             subject.ToString().Should().Be("test.foo");
-        }
-
-        [Test]
-        public void Should_implicitly_convert_from_a_string()
-        {
-            CollectionNamespace subject = "test.foo";
-
-            subject.ToString().Should().Be("test.foo");
-        }
-
-        [Test]
-        public void Should_implicitly_convert_to_a_string()
-        {
-            var subject = new CollectionNamespace("test.foo");
-
-            string s = subject;
-            s.Should().Be("test.foo");
         }
     }
 }

@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Authentication
                     { "mechanism", Name },
                     { "user", _username }
                 };
-                var protocol = new CommandWireProtocol("$external", command, true, null);
+                var protocol = new CommandWireProtocol(new DatabaseNamespace("$external"), command, true, null);
                 await protocol.ExecuteAsync(connection, timeout, cancellationToken);
             }
             catch (MongoCommandException ex)

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // static fields
         private static readonly bool __awaitData = true;
         private static readonly int __batchSize = 3;
-        private static CollectionNamespace __collectionNamespace = "d.c";
+        private static readonly CollectionNamespace __collectionNamespace = new CollectionNamespace("d", "c");
         private static readonly BsonDocument __fields = new BsonDocument("f", 1);
         private static readonly int __flagsOffset;
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();

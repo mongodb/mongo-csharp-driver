@@ -26,6 +26,23 @@ namespace MongoDB.Driver
     public sealed class CollectionNamespace : IEquatable<CollectionNamespace>
     {
         // static methods
+        public static CollectionNamespace FromFullName(string fullName)
+        {
+            Ensure.IsNotNull(fullName, "fullName");
+
+            var index = fullName.IndexOf('.');
+            if (index > -1)
+            {
+                var databaseName = fullName.Substring(0, index);
+                var collectionName = fullName.Substring(index + 1);
+                return new CollectionNamespace(databaseName, collectionName);
+            }
+            else
+            {
+                throw new ArgumentException("Must contain a '.' separating the database name from the collection name.", "fullName");
+            }
+        }
+
         public static bool IsValid(string collectionName)
         {
             if (string.IsNullOrWhiteSpace(collectionName))
@@ -37,40 +54,20 @@ namespace MongoDB.Driver
             return index == -1;
         }
 
-        public static implicit operator CollectionNamespace(string value)
-        {
-            return new CollectionNamespace(value);
-        }
-
-        public static implicit operator string(CollectionNamespace name)
-        {
-            return name.ToString();
-        }
-
         // fields
         private readonly string _collectionName;
         private readonly DatabaseNamespace _databaseNamespace;
 
         // constructors
-        public CollectionNamespace(string fullName)
+        public CollectionNamespace(string databaseName, string collectionName)
+            : this(new DatabaseNamespace(databaseName), collectionName)
         {
-            Ensure.IsNotNull(fullName, "fullName");
-            var index = fullName.IndexOf('.');
-            if (index > -1)
-            {
-                _databaseNamespace = fullName.Substring(0, index);
-                _collectionName = fullName.Substring(index + 1);
-            }
-            else
-            {
-                throw new ArgumentException("Must contain a '.' separating the database name from the collection name.", "fullName");
-            }
         }
         
         public CollectionNamespace(DatabaseNamespace databaseNamespace, string collectionName)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
-            _collectionName = Ensure.IsValid(collectionName, "collectionName", IsValid, "Collection names must be non-empty and not contain the null character.");
+            _collectionName = Ensure.That(collectionName, IsValid, "collectionName", "Collection names must be non-empty and not contain the null character.");
         }
 
         // properties

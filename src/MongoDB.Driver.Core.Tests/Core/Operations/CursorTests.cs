@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
             var connectionSource = Substitute.For<IConnectionSource>();
             var subject = new Cursor<BsonDocument>(
                 connectionSource,
-                "databaseName.collectionName",
+                new CollectionNamespace("databaseName", "collectionName"),
                 new BsonDocument(), // query
                 new BsonDocument[0], // firstBatch
                 cursorId,
