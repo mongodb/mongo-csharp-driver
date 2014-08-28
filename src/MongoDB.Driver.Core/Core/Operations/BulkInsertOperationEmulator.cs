@@ -37,11 +37,10 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public BulkInsertOperationEmulator(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IEnumerable<InsertRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, requests, messageEncoderSettings)
+            : base(collectionNamespace, requests, messageEncoderSettings)
         {
         }
 
@@ -72,8 +71,7 @@ namespace MongoDB.Driver.Core.Operations
             var documentSource = new BatchableSource<BsonDocument>(new[] { wrapper });
 
             return new InsertWireProtocol<BsonDocument>(
-                DatabaseName,
-                CollectionName,
+                CollectionNamespace,
                 WriteConcern,
                 BsonDocumentSerializer.Instance,
                 MessageEncoderSettings,

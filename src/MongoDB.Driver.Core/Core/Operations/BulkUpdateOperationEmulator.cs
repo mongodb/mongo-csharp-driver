@@ -34,11 +34,10 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public BulkUpdateOperationEmulator(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IEnumerable<UpdateRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, requests, messageEncoderSettings)
+            : base(collectionNamespace, requests, messageEncoderSettings)
         {
         }
 
@@ -54,8 +53,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var updateRequest = (UpdateRequest)request;
             return new UpdateWireProtocol(
-                DatabaseName,
-                CollectionName,
+                CollectionNamespace,
                 MessageEncoderSettings,
                 WriteConcern,
                 updateRequest.Query,

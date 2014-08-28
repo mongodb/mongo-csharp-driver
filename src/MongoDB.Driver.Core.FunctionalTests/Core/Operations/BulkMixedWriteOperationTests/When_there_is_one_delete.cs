@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
         protected override void When()
         {
-            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests, MessageEncoderSettings);
+            var subject = new BulkMixedWriteOperation(CollectionNamespace, _requests, MessageEncoderSettings);
             _result = ExecuteOperationAsync(subject).GetAwaiter().GetResult();
         }
 

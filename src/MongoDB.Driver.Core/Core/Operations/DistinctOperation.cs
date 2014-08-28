@@ -29,8 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     public class DistinctOperation<TValue> : IReadOperation<IReadOnlyList<TValue>>, ICommandOperation
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private BsonDocument _filter;
         private string _fieldName;
         private TimeSpan? _maxTime;
@@ -38,26 +37,19 @@ namespace MongoDB.Driver.Core.Operations
         private IBsonSerializer<TValue> _valueSerializer;
 
         // constructors
-        public DistinctOperation(string databaseName, string collectionName, IBsonSerializer<TValue> valueSerializer, string fieldName, MessageEncoderSettings messageEncoderSettings)
+        public DistinctOperation(CollectionNamespace collectionNamespace, IBsonSerializer<TValue> valueSerializer, string fieldName, MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNull(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNull(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _valueSerializer = Ensure.IsNotNull(valueSerializer, "valueSerializer");
             _fieldName = Ensure.IsNotNullOrEmpty(fieldName, "fieldName");
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonDocument Filter
@@ -89,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "distinct", _collectionName },
+                { "distinct", _collectionNamespace.CollectionName },
                 { "key", _fieldName },
                 { "query", _filter, _filter != null },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
@@ -102,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             var command = CreateCommand();
             var valueArraySerializer = new ArraySerializer<TValue>(_valueSerializer);
             var resultSerializer = new ElementDeserializer<TValue[]>("values", valueArraySerializer);
-            var operation = new ReadCommandOperation<TValue[]>(_databaseName, command, resultSerializer, _messageEncoderSettings);
+            var operation = new ReadCommandOperation<TValue[]>(_collectionNamespace.DatabaseNamespace, command, resultSerializer, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
 
@@ -110,7 +102,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(_databaseName, command, _messageEncoderSettings);
+            var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

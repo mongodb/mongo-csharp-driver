@@ -44,7 +44,7 @@ namespace MongoDB.Driver
         private readonly MongoServer _server;
         private readonly MongoDatabase _database;
         private readonly MongoCollectionSettings _settings;
-        private readonly string _name;
+        private readonly CollectionNamespace _collectionNamespace;
 
         // constructors
         /// <summary>
@@ -79,7 +79,7 @@ namespace MongoDB.Driver
 
             _server = database.Server;
             _database = database;
-            _name = name;
+            _collectionNamespace = new CollectionNamespace(_database.Name, name);
             _settings = settings;
         }
 
@@ -97,7 +97,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual string FullName
         {
-            get { return _database.Name + "." + _name; }
+            get { return _collectionNamespace.FullName; }
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual string Name
         {
-            get { return _name; }
+            get { return _collectionNamespace.CollectionName; }
         }
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace MongoDB.Driver
         {
             var aggregateCommand = new CommandDocument
             {
-                { "aggregate", _name },
+                { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
                 { "allowDiskUse", () => args.AllowDiskUse.Value, args.AllowDiskUse.HasValue },
                 { "explain", true }
@@ -207,7 +207,7 @@ namespace MongoDB.Driver
 
             var command = new CommandDocument
             {
-                { "count", _name },
+                { "count", _collectionNamespace.CollectionName },
                 { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
                 { "skip", () => args.Skip.Value, args.Skip.HasValue }, // optional
@@ -291,7 +291,7 @@ namespace MongoDB.Driver
 
             var command = new CommandDocument
             {
-                { "distinct", _name },
+                { "distinct", _collectionNamespace.CollectionName },
                 { "key", args.Key },
                 { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
@@ -368,7 +368,7 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult Drop()
         {
-            return _database.DropCollection(_name);
+            return _database.DropCollection(_collectionNamespace.CollectionName);
         }
 
         /// <summary>
@@ -411,7 +411,7 @@ namespace MongoDB.Driver
         {
             var command = new CommandDocument
             {
-                { "deleteIndexes", _name }, // not FullName
+                { "deleteIndexes", _collectionNamespace.CollectionName }, // not FullName
                 { "index", indexName }
             };
             try
@@ -466,7 +466,7 @@ namespace MongoDB.Driver
         /// <returns>True if this collection exists.</returns>
         public virtual bool Exists()
         {
-            return _database.CollectionExists(_name);
+            return _database.CollectionExists(_collectionNamespace.CollectionName);
         }
 
         /// <summary>
@@ -581,7 +581,7 @@ namespace MongoDB.Driver
 
             var command = new CommandDocument
             {
-                { "findAndModify", _name },
+                { "findAndModify", _collectionNamespace.CollectionName },
                 { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                 { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
                 { "update", BsonDocumentWrapper.Create(args.Update, true) }, // isUpdateDocument = true
@@ -635,7 +635,7 @@ namespace MongoDB.Driver
             
             var command = new CommandDocument
             {
-                { "findAndModify", _name },
+                { "findAndModify", _collectionNamespace.CollectionName },
                 { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                 { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
                 { "remove", true },
@@ -712,7 +712,7 @@ namespace MongoDB.Driver
             var fields = args.Fields == null ? null : args.Fields.ToBsonDocument();
             var hint = args.Hint == null ? null : CreateIndexOperation.GetDefaultIndexName(args.Hint);
 
-            var operation = new FindOneOperation<TDocument>(_database.Name, _name, queryDocument, serializer, messageEncoderSettings)
+            var operation = new FindOneOperation<TDocument>(_collectionNamespace, queryDocument, serializer, messageEncoderSettings)
             {
                 Fields = fields,
                 Hint = hint,
@@ -853,7 +853,7 @@ namespace MongoDB.Driver
 
             var command = new CommandDocument
             {
-                { "geoSearch", _name },
+                { "geoSearch", _collectionNamespace.CollectionName },
                 { "near", new BsonArray { args.Near.X, args.Near.Y } },
                 { "maxDistance", () => args.MaxDistance.Value, args.MaxDistance.HasValue }, // optional
                 { "search", search, search != null }, // optional
@@ -909,7 +909,7 @@ namespace MongoDB.Driver
 
             var command = new CommandDocument
             {
-                { "geoNear", _name },
+                { "geoNear", _collectionNamespace.CollectionName },
                 { "near", args.Near.ToGeoNearCommandValue() },
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
                 { "maxDistance", () => args.MaxDistance.Value, args.MaxDistance.HasValue }, // optional
@@ -1060,7 +1060,7 @@ namespace MongoDB.Driver
 
             var command = new CommandDocument
             {
-                { "collstats", _name },
+                { "collstats", _collectionNamespace.CollectionName },
                 { "scale", () => args.Scale.Value, args.Scale.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
@@ -1076,7 +1076,7 @@ namespace MongoDB.Driver
             var totalSize = GetStats().DataSize;
             foreach (var index in GetIndexes())
             {
-                var indexCollectionName = string.Format("{0}.${1}", _name, index.Name);
+                var indexCollectionName = string.Format("{0}.${1}", _collectionNamespace.CollectionName, index.Name);
                 var indexCollection = _database.GetCollection(indexCollectionName);
                 totalSize += indexCollection.GetStats().DataSize;
             }
@@ -1092,7 +1092,7 @@ namespace MongoDB.Driver
             var totalSize = GetStats().StorageSize;
             foreach (var index in GetIndexes())
             {
-                var indexCollectionName = string.Format("{0}.${1}", _name, index.Name);
+                var indexCollectionName = string.Format("{0}.${1}", _collectionNamespace.CollectionName, index.Name);
                 var indexCollection = _database.GetCollection(indexCollectionName);
                 totalSize += indexCollection.GetStats().StorageSize;
             }
@@ -1128,7 +1128,7 @@ namespace MongoDB.Driver
             {
                 { "group", new BsonDocument
                     {
-                        { "ns", _name },
+                        { "ns", _collectionNamespace.CollectionName },
                         { "key", () => BsonDocumentWrapper.Create(args.KeyFields), args.KeyFields != null }, // key and keyf are mutually exclusive
                         { "$keyf", args.KeyFunction, args.KeyFunction != null },
                         { "$reduce", args.ReduceFunction },
@@ -1425,7 +1425,7 @@ namespace MongoDB.Driver
 
                     while (documentSource.HasMore)
                     {
-                        var operation = new InsertOpcodeOperation<TNominalType>(_database.Name, _name, documentSource, serializer, messageEncoderSettings)
+                        var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documentSource, serializer, messageEncoderSettings)
                         {
                             ContinueOnError = continueOnError,
                             WriteConcern = writeConcern.ToCore(),
@@ -1651,7 +1651,7 @@ namespace MongoDB.Driver
 
             var command = new CommandDocument
             {
-                { "mapreduce", _name }, // all lowercase for backwards compatibility
+                { "mapreduce", _collectionNamespace.CollectionName }, // all lowercase for backwards compatibility
                 { "map", args.MapFunction },
                 { "reduce", args.ReduceFunction },
                 { "out", output },
@@ -1682,7 +1682,7 @@ namespace MongoDB.Driver
             var serializer = args.Serializer ?? BsonSerializer.LookupSerializer<TDocument>();
             var messageEncoderSettings = GetMessageEncoderSettings();
 
-            var operation = new ParallelScanOperation<TDocument>(Database.Name, _name, args.NumberOfCursors, serializer, messageEncoderSettings)
+            var operation = new ParallelScanOperation<TDocument>(_collectionNamespace, args.NumberOfCursors, serializer, messageEncoderSettings)
             {
                 BatchSize = batchSize
             };
@@ -1740,7 +1740,7 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult ReIndex()
         {
-            var command = new CommandDocument("reIndex", _name);
+            var command = new CommandDocument("reIndex", _collectionNamespace.CollectionName);
             return RunCommandAs<CommandResult>(command);
         }
 
@@ -1790,7 +1790,7 @@ namespace MongoDB.Driver
             var isMulti = !flags.HasFlag(RemoveFlags.Single);
             writeConcern = writeConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
-            var operation = new DeleteOpcodeOperation(_database.Name, _name, queryDocument, messageEncoderSettings)
+            var operation = new DeleteOpcodeOperation(_collectionNamespace, queryDocument, messageEncoderSettings)
             {
                 IsMulti = isMulti,
                 WriteConcern = writeConcern.ToCore()
@@ -2008,7 +2008,7 @@ namespace MongoDB.Driver
             var isUpsert = options.Flags.HasFlag(UpdateFlags.Upsert);
             var writeConcern = options.WriteConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
-            var operation = new UpdateOpcodeOperation(Database.Name, _name, queryDocument, updateDocument, messageEncoderSettings)
+            var operation = new UpdateOpcodeOperation(_collectionNamespace, queryDocument, updateDocument, messageEncoderSettings)
             {
                 IsMulti = isMulti,
                 IsUpsert = isUpsert,
@@ -2089,7 +2089,7 @@ namespace MongoDB.Driver
 
             var command = new CommandDocument
             {
-                { "validate", _name },
+                { "validate", _collectionNamespace.CollectionName },
                 { "full", () => args.Full.Value, args.Full.HasValue }, // optional
                 { "scandata", () => args.ScanData.Value, args.ScanData.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
@@ -2111,7 +2111,7 @@ namespace MongoDB.Driver
 
             var aggregateCommand = new CommandDocument
             {
-                { "aggregate", _name },
+                { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
                 { "cursor", cursor, cursor != null }, // optional
                 { "allowDiskUse", () => args.AllowDiskUse.Value, args.AllowDiskUse.HasValue }, // optional

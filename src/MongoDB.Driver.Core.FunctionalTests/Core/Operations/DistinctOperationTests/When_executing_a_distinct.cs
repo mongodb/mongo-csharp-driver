@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Operations.CountOperationTests
                 new BsonDocument("x", 6).Add("y", 3),
             });
 
-            _subject = new DistinctOperation<int>(DatabaseName, CollectionName, new Int32Serializer(), "y", MessageEncoderSettings)
+            _subject = new DistinctOperation<int>(CollectionNamespace, new Int32Serializer(), "y", MessageEncoderSettings)
             {
                 Filter = BsonDocument.Parse("{ x : { $gt : 2 } }"),
             };

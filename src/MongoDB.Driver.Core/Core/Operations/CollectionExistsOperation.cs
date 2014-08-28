@@ -26,32 +26,23 @@ namespace MongoDB.Driver.Core.Operations
     public class CollectionExistsOperation : IReadOperation<bool>
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public CollectionExistsOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -64,9 +55,9 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<bool> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            var operation = new ListCollectionNamesOperation(_databaseName, _messageEncoderSettings);
+            var operation = new ListCollectionNamesOperation(_collectionNamespace.DatabaseNamespace, _messageEncoderSettings);
             var collectionNames = await operation.ExecuteAsync(binding, timeout, cancellationToken);
-            return collectionNames.Contains(_collectionName);
+            return collectionNames.Contains(_collectionNamespace.CollectionName);
         }
     }
 }

@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Core.Operations
     public class AggregateOperation : AggregateCursorOperationBase, IReadOperation<Cursor<BsonDocument>>
     {
         // constructors
-        public AggregateOperation(string databaseName, string collectionName, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, pipeline, messageEncoderSettings)
+        public AggregateOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
+            : base(collectionNamespace, pipeline, messageEncoderSettings)
         {
         }
 
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
             {
                 var command = CreateCommand();
-                var operation = new ReadCommandOperation(DatabaseName, command, MessageEncoderSettings);
+                var operation = new ReadCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
                 var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken);
                 return CreateCursor(connectionSource, command, result, timeout, cancellationToken);
             }
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var command = CreateCommand();
             command["explain"] = true;
-            var operation = new ReadCommandOperation(DatabaseName, command, MessageEncoderSettings);
+            var operation = new ReadCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

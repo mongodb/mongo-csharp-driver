@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Operations.InsertOpcodeOperationTests
         protected override void When()
         {
             var documentSource = new BatchableSource<BsonDocument>(new[] { _document });
-            var operation = new InsertOpcodeOperation<BsonDocument>(DatabaseName, CollectionName, documentSource, BsonDocumentSerializer.Instance, MessageEncoderSettings);
+            var operation = new InsertOpcodeOperation<BsonDocument>(CollectionNamespace, documentSource, BsonDocumentSerializer.Instance, MessageEncoderSettings);
 
             _result = ExecuteOperationAsync(operation).GetAwaiter().GetResult();
         }

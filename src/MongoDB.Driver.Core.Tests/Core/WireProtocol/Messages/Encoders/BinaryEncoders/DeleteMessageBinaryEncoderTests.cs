@@ -29,8 +29,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     {
         #region static
         // static fields
-        private static readonly string __collectionName = "c";
-        private static readonly string __databaseName = "d";
+        private static readonly CollectionNamespace __collectionNamespace = "d.c";
         private static readonly int __flagsOffset;
         private static readonly bool __isMulti = false;
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // static constructor
         static DeleteMessageBinaryEncoderTests()
         {
-            __testMessage = new DeleteMessage(__requestId, __databaseName, __collectionName, __query, __isMulti);
+            __testMessage = new DeleteMessage(__requestId, __collectionNamespace, __query, __isMulti);
 
             __testMessageBytes = new byte[]
             {
@@ -56,7 +55,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 12, 0, 0, 0, 0x10, (byte)'x', 0, 1, 0, 0, 0, 0 // query
             };
             __testMessageBytes[0] = (byte)__testMessageBytes.Length;
-            __flagsOffset = 20 + (__databaseName.Length + 1 + __collectionName.Length + 1);
+            __flagsOffset = 20 + __collectionNamespace.FullName.Length + 1;
         }
         #endregion
 
@@ -99,8 +98,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 var subject = new DeleteMessageBinaryEncoder(stream, __messageEncoderSettings);
                 var message = subject.ReadMessage();
-                message.CollectionName.Should().Be(__collectionName);
-                message.DatabaseName.Should().Be(__databaseName);
+                message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.IsMulti.Should().Be(__isMulti);
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);
@@ -111,7 +109,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [TestCase(1, false)]
         public void WriteMessage_should_encode_flags_correctly(int flags, bool isMulti)
         {
-            var message = new DeleteMessage(__requestId, __databaseName, __collectionName, __query, isMulti);
+            var message = new DeleteMessage(__requestId, __collectionNamespace, __query, isMulti);
 
             using (var stream = new MemoryStream())
             {

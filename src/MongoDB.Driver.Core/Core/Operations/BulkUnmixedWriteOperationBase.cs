@@ -33,8 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     internal abstract class BulkUnmixedWriteOperationBase : IWriteOperation<BulkWriteResult>
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
         private int _maxBatchCount = 0;
         private int _maxBatchLength = int.MaxValue;
@@ -44,31 +43,23 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         protected BulkUnmixedWriteOperationBase(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IEnumerable<WriteRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _requests = Ensure.IsNotNull(requests, "requests");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         protected abstract string CommandName { get; }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
 
         public int MaxBatchCount
         {
@@ -125,7 +116,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return new BsonDocument
             {
-                { CommandName, _collectionName },
+                { CommandName, _collectionNamespace.CollectionName },   
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "ordered", _isOrdered },
                 { RequestsElementName, new BsonArray { batchWrapper } }
@@ -134,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private CommandWireProtocol CreateWriteCommandProtocol(BsonDocument command)
         {
-            return new CommandWireProtocol(_databaseName, command, false, _messageEncoderSettings);
+            return new CommandWireProtocol(_collectionNamespace.DatabaseNamespace, command, false, _messageEncoderSettings);
         }
 
         protected virtual IEnumerable<WriteRequest> DecorateRequests(IEnumerable<WriteRequest> requests)

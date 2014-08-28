@@ -26,8 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     [TestFixture]
     public class DeleteMessageTests
     {
-        private readonly string _collectionName = "collection";
-        private readonly string _databaseName = "database";
+        private readonly CollectionNamespace _collectionNamespace = "database.collection";
         private readonly bool _isMulti = true;
         private readonly BsonDocument _query = new BsonDocument("x", 1);
         private readonly int _requestId = 1;
@@ -35,9 +34,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [Test]
         public void Constructor_should_initialize_instance()
         {
-            var subject = new DeleteMessage(_requestId, _databaseName, _collectionName, _query, _isMulti);
-            subject.CollectionName.Should().Be(_collectionName);
-            subject.DatabaseName.Should().Be(_databaseName);
+            var subject = new DeleteMessage(_requestId, _collectionNamespace, _query, _isMulti);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.IsMulti.Should().Be(_isMulti);
             subject.Query.Should().Be(_query);
             subject.RequestId.Should().Be(_requestId);
@@ -46,21 +44,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [Test]
         public void Constructor_with_null_collectionName_should_throw()
         {
-            Action action = () => new DeleteMessage(_requestId, _databaseName, null, _query, _isMulti);
-            action.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_with_null_databaseName_should_throw()
-        {
-            Action action = () => new DeleteMessage(_requestId, null, _collectionName, _query, _isMulti);
+            Action action = () => new DeleteMessage(_requestId, null, _query, _isMulti);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_query_should_throw()
         {
-            Action action = () => new DeleteMessage(_requestId, _databaseName, _collectionName, null, _isMulti);
+            Action action = () => new DeleteMessage(_requestId, _collectionNamespace, null, _isMulti);
             action.ShouldThrow<ArgumentNullException>();
         }
 
@@ -71,7 +62,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetDeleteMessageEncoder().Returns(mockEncoder);
 
-            var subject = new DeleteMessage(1, "database", "collection", new BsonDocument("x", 1), true);
+            var subject = new DeleteMessage(1, _collectionNamespace, new BsonDocument("x", 1), true);
             var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }

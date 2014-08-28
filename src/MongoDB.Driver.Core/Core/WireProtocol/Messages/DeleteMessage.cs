@@ -23,35 +23,27 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     public class DeleteMessage : RequestMessage, IEncodableMessage<DeleteMessage>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly bool _isMulti;
         private readonly BsonDocument _query;
 
         // constructors
         public DeleteMessage(
             int requestId,
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             bool isMulti)
             : base(requestId)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _isMulti = isMulti;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
+            get { return _collectionNamespace; }
         }
 
         public bool IsMulti

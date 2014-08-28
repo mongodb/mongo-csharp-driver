@@ -28,23 +28,23 @@ namespace MongoDB.Driver.Core.Operations
     public class ListCollectionNamesOperation : IReadOperation<IReadOnlyList<string>>
     {
         // fields
-        private string _databaseName;
+        private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public ListCollectionNamesOperation(
-            string databaseName,
+            DatabaseNamespace databaseNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string DatabaseName
+        public DatabaseNamespace DatabaseNamespace
         {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _databaseNamespace; }
+            set { _databaseNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -57,11 +57,11 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<IReadOnlyList<string>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            var operation = new FindOperation(_databaseName, "system.namespaces", new BsonDocument(), _messageEncoderSettings);
+            var operation = new FindOperation(_databaseNamespace.SystemNamespacesCollection, new BsonDocument(), _messageEncoderSettings);
             var cursor = await operation.ExecuteAsync(binding, timeout, cancellationToken);
 
             var result = new List<string>();
-            var prefix = _databaseName + ".";
+            var prefix = _databaseNamespace + ".";
             while (await cursor.MoveNextAsync())
             {
                 var batch = cursor.Current;

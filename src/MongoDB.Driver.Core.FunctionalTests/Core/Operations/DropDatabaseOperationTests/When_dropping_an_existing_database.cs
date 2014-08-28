@@ -33,14 +33,13 @@ namespace MongoDB.Driver.Core.Operations.DropDatabaseOperationTests
         {
             // Ensure database exists
             var op = new BulkInsertOperation(
-                DatabaseName, 
-                "temp", 
+                new CollectionNamespace(DatabaseNamespace, "temp"), 
                 new [] { new InsertRequest(new BsonDocument("x", 1)) },
                 MessageEncoderSettings);
 
             ExecuteOperation(op);
 
-            _subject = new DropDatabaseOperation(DatabaseName, MessageEncoderSettings);
+            _subject = new DropDatabaseOperation(DatabaseNamespace, MessageEncoderSettings);
         }
 
         protected override void When()
@@ -59,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations.DropDatabaseOperationTests
         {
             var op = new ListDatabaseNamesOperation(MessageEncoderSettings);
             var result = ExecuteOperation(op);
-            result.Should().NotContain(DatabaseName);
+            result.Should().NotContain(DatabaseNamespace);
         }
     }
 }

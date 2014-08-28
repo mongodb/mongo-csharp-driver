@@ -58,15 +58,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var context = BsonDeserializationContext.CreateRoot<BsonDocument>(binaryReader);
             var query = BsonDocumentSerializer.Instance.Deserialize(context);
 
-            var firstDot = fullCollectionName.IndexOf('.');
-            var databaseName = fullCollectionName.Substring(0, firstDot);
-            var collectionName = fullCollectionName.Substring(firstDot + 1);
             var isMulti = !flags.HasFlag(DeleteFlags.Single);
 
             return new DeleteMessage(
                 requestId,
-                databaseName,
-                collectionName,
+                fullCollectionName,
                 query,
                 isMulti);
         }
@@ -84,7 +80,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(0); // responseTo
             streamWriter.WriteInt32((int)Opcode.Delete);
             streamWriter.WriteInt32(0); // reserved
-            streamWriter.WriteCString(message.DatabaseName + "." + message.CollectionName);
+            streamWriter.WriteCString(message.CollectionNamespace);
             streamWriter.WriteInt32((int)BuildDeleteFlags(message));
             var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
             BsonDocumentSerializer.Instance.Serialize(context, message.Query ?? new BsonDocument());

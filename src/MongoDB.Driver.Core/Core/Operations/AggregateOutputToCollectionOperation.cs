@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Core.Operations
     public class AggregateOutputToCollectionOperation : AggregateOperationBase, IWriteOperation<BsonDocument>
     {
         // constructors
-        public AggregateOutputToCollectionOperation(string databaseName, string collectionName, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, pipeline, messageEncoderSettings)
+        public AggregateOutputToCollectionOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
+            : base(collectionNamespace, pipeline, messageEncoderSettings)
         {
         }
 
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Operations
             EnsureIsOutputToCollectionPipeline();
 
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(DatabaseName, command, MessageEncoderSettings);
+            var operation = new WriteCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
 
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var command = CreateCommand();
             command["explain"] = true;
-            var operation = new WriteCommandOperation(DatabaseName, command, MessageEncoderSettings);
+            var operation = new WriteCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

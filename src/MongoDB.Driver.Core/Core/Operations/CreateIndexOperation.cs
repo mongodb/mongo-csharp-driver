@@ -56,8 +56,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private BsonDocument _additionalOptions;
         private bool? _background;
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private bool? _dropDups;
         private string _indexName;
         private BsonDocument _keys;
@@ -69,13 +68,11 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public CreateIndexOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument keys,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _keys = Ensure.IsNotNull(keys, "keys");
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -93,16 +90,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _background = value; }
         }
 
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool? DropDups
@@ -159,7 +150,7 @@ namespace MongoDB.Driver.Core.Operations
             var document = new BsonDocument
             {
                 { "name", _indexName ?? GetDefaultIndexName(_keys) },
-                { "ns", _databaseName + "." + _collectionName },
+                { "ns", _collectionNamespace.FullName },
                 { "key", _keys },
                 { "background", () => _background.Value, _background.HasValue },
                 { "dropDups", () => _dropDups.Value, _dropDups.HasValue },
@@ -179,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var indexDocument = CreateIndexDocument();
             var documentSource = new BatchableSource<BsonDocument>(new[] { indexDocument });
-            var operation = new InsertOpcodeOperation(_databaseName, "system.indexes", documentSource, _messageEncoderSettings)
+            var operation = new InsertOpcodeOperation(_collectionNamespace.DatabaseNamespace.SystemIndexesCollection, documentSource, _messageEncoderSettings)
             {
                 WriteConcern = _writeConcern
             };

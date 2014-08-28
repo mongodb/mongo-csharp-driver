@@ -23,30 +23,20 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class CountOperationTests
     {
-        private string _databaseName;
-        private string _collectionName;
+        private CollectionNamespace _collectionNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
 
         [SetUp]
         public void Setup()
         {
-            _databaseName = "foo";
-            _collectionName = "bar";
+            _collectionNamespace = "foo.bar";
             _messageEncoderSettings = new MessageEncoderSettings();
         }
 
         [Test]
-        public void Constructor_should_throw_when_database_name_is_null()
+        public void Constructor_should_throw_when_collection_namespace_is_null()
         {
-            Action act = () => new CountOperation(null, _collectionName, _messageEncoderSettings);
-
-            act.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_should_throw_when_collection_name_is_null()
-        {
-            Action act = () => new CountOperation(_databaseName, null, _messageEncoderSettings);
+            Action act = () => new CountOperation(null, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -54,7 +44,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
-            Action act = () => new CountOperation(_databaseName, _collectionName, null);
+            Action act = () => new CountOperation(_collectionNamespace, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -62,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateCommand_should_create_the_correct_command()
         {
-            var subject = new CountOperation(_databaseName, _collectionName, _messageEncoderSettings)
+            var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Filter = new BsonDocument("x", 1),
                 Hint = "funny",

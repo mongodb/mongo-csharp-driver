@@ -33,36 +33,28 @@ namespace MongoDB.Driver.Core.WireProtocol
     public abstract class WriteWireProtocolBase : IWireProtocol<WriteConcernResult>
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly Func<bool> _shouldSendGetLastError;
         private readonly WriteConcern _writeConcern;
 
         // constructors
         protected WriteWireProtocolBase(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings,
             WriteConcern writeConcern,
             Func<bool> shouldSendGetLastError = null)
         {
-            _databaseName = Ensure.IsNotNull(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNull(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _messageEncoderSettings = messageEncoderSettings;
             _writeConcern = Ensure.IsNotNull(writeConcern, "writeConcern");
             _shouldSendGetLastError = shouldSendGetLastError;
         }
 
         // properties
-        protected string CollectionName
+        protected CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-        }
-
-        protected string DatabaseName
-        {
-            get { return _databaseName; }
+            get { return _collectionNamespace; }
         }
 
         protected WriteConcern WriteConcern
@@ -89,8 +81,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             return new QueryMessage(
                RequestMessage.GetNextRequestId(),
-               _databaseName,
-               "$cmd",
+               _collectionNamespace.DatabaseNamespace.CommandCollection,
                command,
                null,
                0,

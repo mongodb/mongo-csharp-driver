@@ -39,8 +39,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private Action<object, IBsonSerializer> _assignId;
         private bool _checkElementNames = true;
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
         private int _maxBatchCount = 0;
         private int _maxBatchLength = int.MaxValue;
@@ -52,13 +51,11 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public BulkMixedWriteOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IEnumerable<WriteRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _requests = Ensure.IsNotNull(requests, "requests");
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -76,16 +73,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _checkElementNames = value; }
         }
 
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool IsOrdered
@@ -212,7 +203,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private Task<BulkWriteResult> ExecuteDeletesAsync(IConnectionHandle connection, IEnumerable<DeleteRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var operation = new BulkDeleteOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
+            var operation = new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
@@ -223,7 +214,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private Task<BulkWriteResult> ExecuteInsertsAsync(IConnectionHandle connection, IEnumerable<InsertRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var operation = new BulkInsertOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
+            var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 AssignId = _assignId,
                 CheckElementNames = _checkElementNames,
@@ -238,7 +229,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private Task<BulkWriteResult> ExecuteUpdatesAsync(IConnectionHandle connection, IEnumerable<UpdateRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var operation = new BulkUpdateOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
+            var operation = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 CheckElementNames = _checkElementNames,
                 MaxBatchCount = _maxBatchCount,

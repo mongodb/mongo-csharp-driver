@@ -84,10 +84,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 documents.Add(document);
             }
 
-            var firstDot = fullCollectionName.IndexOf('.');
-            var databaseName = fullCollectionName.Substring(0, firstDot);
-            var collectionName = fullCollectionName.Substring(firstDot + 1);
-
             var documentSource = new BatchableSource<TDocument>(documents);
             var maxBatchCount = 0;
             var maxMessageSize = 0;
@@ -95,8 +91,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             return new InsertMessage<TDocument>(
                 requestId,
-                databaseName,
-                collectionName,
+                fullCollectionName,
                 _serializer,
                 documentSource,
                 maxBatchCount,
@@ -162,7 +157,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(0); // responseTo
             streamWriter.WriteInt32((int)Opcode.Insert);
             streamWriter.WriteInt32((int)BuildInsertFlags(message));
-            streamWriter.WriteCString(message.DatabaseName + "." + message.CollectionName);
+            streamWriter.WriteCString(message.CollectionNamespace);
             WriteDocuments(state);
             streamWriter.BackpatchSize(messageStartPosition);
         }

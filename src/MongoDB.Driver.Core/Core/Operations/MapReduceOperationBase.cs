@@ -26,8 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     public abstract class MapReduceOperationBase
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private BsonJavaScript _finalizeFunction;
         private bool? _javaScriptMode;
         private long? _limit;
@@ -41,10 +40,9 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _verbose;
 
         // constructors
-        protected MapReduceOperationBase(string databaseName, string collectionName, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
+        protected MapReduceOperationBase(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _mapFunction = Ensure.IsNotNull(mapFunction, "mapFunction");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
             _query = query;
@@ -52,16 +50,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonJavaScript FinalizeFunction
@@ -135,7 +127,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "mapReduce", _collectionName },
+                { "mapReduce", _collectionNamespace.CollectionName },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out" , CreateOutputOptions() },

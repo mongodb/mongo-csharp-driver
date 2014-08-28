@@ -17,8 +17,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 {
     public static class Program
     {
-        private static string __database = "foo";
-        private static string __collection = "bar";
+        private static CollectionNamespace __collection = "foo.bar";
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static int __numConcurrentWorkers = 8;
 
@@ -89,7 +88,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         {
             using (var binding = new WritableServerBinding(cluster))
             {
-                var commandOp = new DropDatabaseOperation(__database, __messageEncoderSettings);
+                var commandOp = new DropDatabaseOperation(__collection.DatabaseNamespace, __messageEncoderSettings);
                 await commandOp.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
             }
         }
@@ -172,14 +171,14 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         private static Task Insert(IWriteBinding binding, BsonDocument document)
         {
             var documentSource = new BatchableSource<BsonDocument>(new[] { document });
-            var insertOp = new InsertOpcodeOperation<BsonDocument>(__database, __collection, documentSource, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+            var insertOp = new InsertOpcodeOperation<BsonDocument>(__collection, documentSource, BsonDocumentSerializer.Instance, __messageEncoderSettings);
 
             return insertOp.ExecuteAsync(binding);
         }
 
         private static Task<Cursor<BsonDocument>> Query(IReadBinding binding, BsonDocument query)
         {
-            var queryOp = new FindOperation<BsonDocument>(__database, __collection, query, BsonDocumentSerializer.Instance, __messageEncoderSettings)
+            var queryOp = new FindOperation<BsonDocument>(__collection, query, BsonDocumentSerializer.Instance, __messageEncoderSettings)
             {
                 Limit = 1
             };
@@ -190,7 +189,6 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         private static Task Update(IWriteBinding binding, BsonDocument query, BsonDocument update)
         {
             var updateOp = new UpdateOpcodeOperation(
-                __database,
                 __collection,
                 query,
                 update,

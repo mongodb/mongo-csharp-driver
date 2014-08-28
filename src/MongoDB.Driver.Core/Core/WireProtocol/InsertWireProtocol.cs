@@ -38,8 +38,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         // constructors
         public InsertWireProtocol(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             WriteConcern writeConcern,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
@@ -48,7 +47,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             int? maxMessageSize,
             bool continueOnError,
             Func<bool> shouldSendGetLastEror = null)
-            : base(databaseName, collectionName, messageEncoderSettings, writeConcern, shouldSendGetLastEror)
+            : base(collectionNamespace, messageEncoderSettings, writeConcern, shouldSendGetLastEror)
         {
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
@@ -62,8 +61,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             return new InsertMessage<TDocument>(
                 RequestMessage.GetNextRequestId(),
-                DatabaseName,
-                CollectionName,
+                CollectionNamespace,
                 _serializer,
                 _documentSource,
                 _maxBatchCount ?? int.MaxValue,

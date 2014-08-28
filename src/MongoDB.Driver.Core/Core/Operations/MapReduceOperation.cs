@@ -27,10 +27,9 @@ namespace MongoDB.Driver.Core.Operations
     public class MapReduceOperation : MapReduceOperationBase, IReadOperation<IEnumerable<BsonValue>>
     {
         // constructors
-        public MapReduceOperation(string databaseName, string collectionName, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
+        public MapReduceOperation(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
             : base(
-                databaseName,
-                collectionName,
+                collectionNamespace,
                 mapFunction,
                 reduceFunction,
                 query,
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(DatabaseName, command, MessageEncoderSettings);
+            var operation = new ReadCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

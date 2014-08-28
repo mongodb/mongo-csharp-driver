@@ -48,7 +48,7 @@ namespace MongoDB.Driver
         [Test]
         public void DatabaseName_should_be_set()
         {
-            _subject.DatabaseName.Should().Be("foo");
+            _subject.DatabaseNamespace.DatabaseName.Should().Be("foo");
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<ListCollectionNamesOperation>();
             var op = (ListCollectionNamesOperation)call.Operation;
-            op.DatabaseName.Should().Be("foo");
+            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
             var op = (ReadCommandOperation<BsonDocument>)call.Operation;
-            op.DatabaseName.Should().Be("foo");
+            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
             op.Command.Should().Be("{count: \"foo\"}");
         }
 
@@ -105,7 +105,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<WriteCommandOperation<BsonDocument>>();
             var op = (WriteCommandOperation<BsonDocument>)call.Operation;
-            op.DatabaseName.Should().Be("foo");
+            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
             op.Command.Should().Be(cmd);
         }
 
@@ -118,7 +118,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
             var op = (ReadCommandOperation<BsonDocument>)call.Operation;
-            op.DatabaseName.Should().Be("foo");
+            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
             op.Command.Should().Be("{count: \"foo\"}");
         }
 
@@ -132,7 +132,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
             var op = (ReadCommandOperation<BsonDocument>)call.Operation;
-            op.DatabaseName.Should().Be("foo");
+            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
             op.Command.Should().Be("{count: \"foo\"}");
         }
 

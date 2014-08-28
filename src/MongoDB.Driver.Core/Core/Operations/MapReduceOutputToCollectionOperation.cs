@@ -28,29 +28,26 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private bool? _nonAtomicOutput;
-        private string _outputCollectionName;
-        private string _outputDatabaseName;
+        private CollectionNamespace _outputCollectionNamespace;
         private MapReduceOutputMode _outputMode;
         private bool? _shardedOutput;
 
         // constructors
         public MapReduceOutputToCollectionOperation(
-            string databaseName,
-            string collectionName,
-            string outputCollectionName,
+            CollectionNamespace collectionNamespace,
+            CollectionNamespace outputCollectionNamespace,
             BsonJavaScript mapFunction,
             BsonJavaScript reduceFunction,
             BsonDocument query,
             MessageEncoderSettings messageEncoderSettings)
             : base(
-                databaseName,
-                collectionName,
+                collectionNamespace,
                 mapFunction,
                 reduceFunction,
                 query,
                 messageEncoderSettings)
         {
-            _outputCollectionName = Ensure.IsNotNullOrEmpty(outputCollectionName, "outputCollectionName");
+            _outputCollectionNamespace = Ensure.IsNotNull(outputCollectionNamespace, "outputCollectionName");
             _outputMode = MapReduceOutputMode.Replace;
         }
 
@@ -61,16 +58,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _nonAtomicOutput = value; }
         }
 
-        public string OutputCollectionName
+        public CollectionNamespace OutputCollectionNamespace
         {
-            get { return _outputCollectionName; }
-            set { _outputCollectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string OutputDatabaseName
-        {
-            get { return _outputDatabaseName; }
-            set { _outputDatabaseName = value; }
+            get { return _outputCollectionNamespace; }
+            set { _outputCollectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MapReduceOutputMode OutputMode
@@ -88,14 +79,11 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         protected override BsonDocument CreateOutputOptions()
         {
-            Ensure.IsNullOrNotEmpty(_outputDatabaseName, "DatabaseName");
-            Ensure.IsNotNullOrEmpty(_outputCollectionName, "OutputCollectionName");
-
             var action = _outputMode.ToString().ToLowerInvariant();
             return new BsonDocument
             {
-                { action, _outputCollectionName },
-                { "db", _outputDatabaseName, _outputDatabaseName != null },
+                { action, _outputCollectionNamespace.CollectionName },
+                { "db", _outputCollectionNamespace.DatabaseNamespace.DatabaseName },
                 { "sharded", () => _shardedOutput.Value, _shardedOutput.HasValue },
                 { "nonAtomic", () => _nonAtomicOutput.Value, _nonAtomicOutput.HasValue }
             };
@@ -105,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(DatabaseName, command, MessageEncoderSettings);
+            var operation = new WriteCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

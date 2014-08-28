@@ -31,11 +31,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         // constructors
         public BulkDeleteOperationEmulator(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IEnumerable<DeleteRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, requests, messageEncoderSettings)
+            : base(collectionNamespace, requests, messageEncoderSettings)
         {
         }
 
@@ -44,8 +43,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var deleteRequest = (DeleteRequest)request;
             return new DeleteWireProtocol(
-               DatabaseName,
-               CollectionName,
+               CollectionNamespace,
                deleteRequest.Query,
                false, // isMulti
                MessageEncoderSettings,

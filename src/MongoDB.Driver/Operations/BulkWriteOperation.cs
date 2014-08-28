@@ -124,7 +124,7 @@ namespace MongoDB.Driver
 
             var requests = _requests.Select(r => r.ToCore());
 
-            var operation = new BulkMixedWriteOperation(_collection.Database.Name, _collection.Name, requests, messageEncoderSettings)
+            var operation = new BulkMixedWriteOperation(new CollectionNamespace(_collection.Database.Name, _collection.Name), requests, messageEncoderSettings)
             {
                 AssignId = assignId,
                 CheckElementNames = checkElementNames,

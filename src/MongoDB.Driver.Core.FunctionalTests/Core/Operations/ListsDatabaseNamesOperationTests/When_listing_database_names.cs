@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Operations.ListDatabaseNamesOperationTests
         public void It_should_return_all_the_names()
         {
             _result.Count.Should().BeGreaterThan(0);
-            _result.Should().Contain(DatabaseName);
+            _result.Should().Contain(DatabaseNamespace);
         }
     }
 }

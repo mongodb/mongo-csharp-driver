@@ -33,13 +33,11 @@ namespace MongoDB.Driver.Core.Helpers
         public static QueryMessage BuildQueryMessage(
             BsonDocument query = null, 
             int requestId = 0, 
-            string databaseName = "foo", 
-            string collectionName = "bar")
+            string collectionNamespace = "foo.bar")
         {
             return new QueryMessage(
                 requestId: requestId,
-                databaseName: databaseName,
-                collectionName: collectionName,
+                collectionNamespace: collectionNamespace,
                 query: query ?? new BsonDocument(),
                 fields: null,
                 skip: 0,

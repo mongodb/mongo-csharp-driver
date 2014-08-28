@@ -33,9 +33,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     {
         #region static
         // static fields
-        private static readonly string __collectionName = "c";
+        private static readonly CollectionNamespace __collectionNamespace = "d.c";
         private static readonly bool __continueOnError = true;
-        private static readonly string __databaseName = "d";
         private static readonly BsonDocument[] __documents = new[] { new BsonDocument("_id", 1), new BsonDocument("_id", 2) };
         private static readonly BatchableSource<BsonDocument> __documentSource = new BatchableSource<BsonDocument>(__documents);
         private static readonly int __maxBatchCount = 1000;
@@ -49,7 +48,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // static constructor
         static InsertMessageJsonEncoderTests()
         {
-            __testMessage = new InsertMessage<BsonDocument>(__requestId, __databaseName, __collectionName, __serializer, __documentSource, __maxBatchCount, __maxMessageSize, __continueOnError);
+            __testMessage = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, __documentSource, __maxBatchCount, __maxMessageSize, __continueOnError);
 
             __testMessageJson =
                 "{ " +
@@ -121,9 +120,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 var subject = new InsertMessageJsonEncoder<BsonDocument>(textReader, null, __messageEncoderSettings, __serializer);
                 var message = subject.ReadMessage();
-                message.CollectionName.Should().Be(__collectionName);
+                message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.ContinueOnError.Should().Be(__continueOnError);
-                message.DatabaseName.Should().Be(__databaseName);
                 message.DocumentSource.Batch.Should().Equal(__documentSource.Batch);
                 message.MaxBatchCount.Should().Be(__maxBatchCount);
                 message.MaxMessageSize.Should().Be(__maxMessageSize);

@@ -30,8 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         // fields
         private readonly bool _awaitData;
         private readonly int _batchSize;
-        private readonly string _collectionName;
-        private readonly string _databaseName;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly BsonDocument _fields;
         private readonly bool _noCursorTimeout;
@@ -44,8 +43,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         // constructors
         public QueryWireProtocol(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument fields,
             int skip,
@@ -58,8 +56,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _fields = fields; // can be null
             _skip = Ensure.IsGreaterThanOrEqualToZero(skip, "skip");
@@ -78,8 +75,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             return new QueryMessage(
                 RequestMessage.GetNextRequestId(),
-                _databaseName,
-                _collectionName,
+                _collectionNamespace,
                 _query,
                 _fields,
                 _skip,

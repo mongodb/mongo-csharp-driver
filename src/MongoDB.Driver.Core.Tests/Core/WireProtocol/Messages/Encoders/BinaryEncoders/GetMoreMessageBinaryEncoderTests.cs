@@ -29,9 +29,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         #region static
         // static fields
         private static readonly int __batchSize = 3;
-        private static readonly string __collectionName = "c";
+        private static readonly CollectionNamespace __collectionNamespace = "d.c";
         private static readonly long __cursorId = 2;
-        private static readonly string __databaseName = "d";
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly int __requestId = 1;
         private static readonly GetMoreMessage __testMessage;
@@ -40,7 +39,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // static constructor
         static GetMoreMessageBinaryEncoderTests()
         {
-            __testMessage = new GetMoreMessage(__requestId, __databaseName, __collectionName, __cursorId, __batchSize);
+            __testMessage = new GetMoreMessage(__requestId, __collectionNamespace, __cursorId, __batchSize);
 
             __testMessageBytes = new byte[]
             {
@@ -82,9 +81,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var subject = new GetMoreMessageBinaryEncoder(stream, __messageEncoderSettings);
                 var message = subject.ReadMessage();
                 message.BatchSize.Should().Be(__batchSize);
-                message.CollectionName.Should().Be(__collectionName);
+                message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.CursorId.Should().Be(__cursorId);
-                message.DatabaseName.Should().Be(__databaseName);
                 message.RequestId.Should().Be(__requestId);
             }
         }

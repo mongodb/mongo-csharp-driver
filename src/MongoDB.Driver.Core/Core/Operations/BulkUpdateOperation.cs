@@ -34,11 +34,10 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public BulkUpdateOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IEnumerable<UpdateRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, requests, messageEncoderSettings)
+            : base(collectionNamespace, requests, messageEncoderSettings)
         {
         }
 
@@ -73,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
         {
-            return new BulkUpdateOperationEmulator(DatabaseName, CollectionName, Requests, MessageEncoderSettings)
+            return new BulkUpdateOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
             {
                 CheckElementNames = _checkElementNames,
                 MaxBatchCount = MaxBatchCount,

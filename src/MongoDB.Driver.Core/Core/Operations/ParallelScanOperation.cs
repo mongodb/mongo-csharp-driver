@@ -32,11 +32,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         // constructors
         public ParallelScanOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             int numberOfCursors,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, numberOfCursors, BsonDocumentSerializer.Instance, messageEncoderSettings)
+            : base(collectionNamespace, numberOfCursors, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -45,22 +44,19 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private int? _batchSize;
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
         private int _numberOfCursors = 4;
         private IBsonSerializer<TDocument> _serializer;
 
         // constructors
         public ParallelScanOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             int numberOfCursors,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNullOrEmpty(collectionNamespace, "collectionNamespace");
             _numberOfCursors = Ensure.IsBetween(numberOfCursors, 0, 10000, "numberOfCursors");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _messageEncoderSettings = messageEncoderSettings;
@@ -73,16 +69,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _batchSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -108,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "parallelCollectionScan", _collectionName },
+                { "parallelCollectionScan", _collectionNamespace.CollectionName },
                 { "numCursors", _numberOfCursors }
             };
         }
@@ -121,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
             {
                 var command = CreateCommand();
-                var operation = new ReadCommandOperation(_databaseName, command, _messageEncoderSettings);
+                var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
                 var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken);
 
                 var cursors = new List<Cursor<TDocument>>();
@@ -143,8 +133,7 @@ namespace MongoDB.Driver.Core.Operations
 
                     var cursor = new Cursor<TDocument>(
                         connectionSource.Fork(),
-                        _databaseName,
-                        _collectionName,
+                        _collectionNamespace,
                         command,
                         firstBatch,
                         cursorId,

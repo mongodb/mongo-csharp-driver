@@ -23,12 +23,12 @@ namespace MongoDB.Driver
     public abstract class DatabaseUsingTest : ClusterUsingTest
     {
         // fields
-        private string _databaseName;
+        private DatabaseNamespace _databaseNamespace;
 
         // properties
-        public string DatabaseName
+        public DatabaseNamespace DatabaseNamespace
         {
-            get { return _databaseName; }
+            get { return _databaseNamespace; }
         }
 
         // methods
@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         [TestFixtureSetUp]
         public void DatabaseUsingTestSetUp()
         {
-            _databaseName = GetDatabaseName();
+            _databaseNamespace = GetDatabaseName();
         }
 
         [TestFixtureTearDown]

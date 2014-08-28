@@ -37,15 +37,14 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         // constructors
         public UpdateWireProtocol(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings,
             WriteConcern writeConcern,
             BsonDocument query,
             BsonDocument update,
             bool isMulti,
             bool isUpsert)
-            : base(databaseName, collectionName, messageEncoderSettings, writeConcern)
+            : base(collectionNamespace, messageEncoderSettings, writeConcern)
         {
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");
@@ -58,8 +57,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             return new UpdateMessage(
                 RequestMessage.GetNextRequestId(),
-                DatabaseName,
-                CollectionName,
+                CollectionNamespace,
                 _query,
                 _update,
                 _isMulti,

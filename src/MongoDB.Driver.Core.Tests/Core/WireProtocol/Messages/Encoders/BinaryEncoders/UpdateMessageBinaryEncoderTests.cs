@@ -29,8 +29,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     {
         #region static
         // static fields
-        private static readonly string __collectionName = "c";
-        private static readonly string __databaseName = "d";
+        private static readonly CollectionNamespace __collectionNamespace = "d.c";
         private static readonly int __flagsOffset;
         private static readonly bool __isMulti = true;
         private static readonly bool __isUpsert = true;
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // static constructor
         static UpdateMessageBinaryEncoderTests()
         {
-            __testMessage = new UpdateMessage(__requestId, __databaseName, __collectionName, __query, __update, __isMulti, __isUpsert);
+            __testMessage = new UpdateMessage(__requestId, __collectionNamespace, __query, __update, __isMulti, __isUpsert);
 
             __testMessageBytes = new byte[]
             {
@@ -59,7 +58,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 12, 0, 0, 0, 0x10, (byte)'y', 0, 1, 0, 0, 0, 0 // fields
             };
             __testMessageBytes[0] = (byte)__testMessageBytes.Length;
-            __flagsOffset = 20 + (__databaseName.Length + 1 + __collectionName.Length + 1);
+            __flagsOffset = 20 + (__collectionNamespace.FullName.Length + 1);
         }
         #endregion
 
@@ -105,8 +104,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 var subject = new UpdateMessageBinaryEncoder(stream, __messageEncoderSettings);
                 var message = subject.ReadMessage();
-                message.DatabaseName.Should().Be(__databaseName);
-                message.CollectionName.Should().Be(__collectionName);
+                message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.IsMulti.Should().Be(__isMulti);
                 message.IsUpsert.Should().Be(__isUpsert);
                 message.Query.Should().Be(__query);
@@ -120,7 +118,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [TestCase(2, false, true)]
         public void WriteMessage_should_encode_flags_correctly(int flags, bool isUpsert, bool isMulti)
         {
-            var message = new UpdateMessage(__requestId, __databaseName, __collectionName, __query, __update, isMulti, isUpsert);
+            var message = new UpdateMessage(__requestId, __collectionNamespace, __query, __update, isMulti, isUpsert);
 
             using (var stream = new MemoryStream())
             {

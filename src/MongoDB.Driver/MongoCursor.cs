@@ -745,7 +745,7 @@ namespace MongoDB.Driver
                 throw new NotSupportedException("The Exhaust QueryFlag is not yet supported.");
             }
 
-            var operation = new FindOperation<TDocument>(Database.Name, Collection.Name, queryDocument, Serializer, messageEncoderSettings)
+            var operation = new FindOperation<TDocument>(new CollectionNamespace(Database.Name, Collection.Name), queryDocument, Serializer, messageEncoderSettings)
             {
                 AdditionalOptions = Options,
                 AwaitData = awaitData,

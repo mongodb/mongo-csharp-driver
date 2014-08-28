@@ -28,20 +28,17 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _autoIndexId;
         private bool? _capped;
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private long? _maxDocuments;
         private long? _maxSize;
         private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public CreateCollectionOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -58,16 +55,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _capped = value; }
         }
 
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public long? MaxDocuments
@@ -93,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "create", _collectionName },
+                { "create", _collectionNamespace.CollectionName },
                 { "capped", () => _capped.Value, _capped.HasValue },
                 { "autoIndexID", () => _autoIndexId.Value, _autoIndexId.HasValue },
                 { "size", () => _maxSize.Value, _maxSize.HasValue },
@@ -105,7 +96,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseName, command, _messageEncoderSettings);
+            var operation = new WriteCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

@@ -29,25 +29,22 @@ namespace MongoDB.Driver.Core.WireProtocol
     {
         // fields
         private readonly int _batchSize;
-        private readonly string _collectionName;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly long _cursorId;
-        private readonly string _databaseName;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly BsonDocument _query;
         private readonly IBsonSerializer<TDocument> _serializer;
 
         // constructors
         public GetMoreWireProtocol(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             long cursorId,
             int batchSize,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _cursorId = cursorId;
             _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, "batchSize");
@@ -60,8 +57,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             return new GetMoreMessage(
                 RequestMessage.GetNextRequestId(),
-                _databaseName,
-                _collectionName,
+                _collectionNamespace,
                 _cursorId,
                 _batchSize);
         }

@@ -38,11 +38,10 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public BulkInsertOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IEnumerable<InsertRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, requests, messageEncoderSettings)
+            : base(collectionNamespace, requests, messageEncoderSettings)
         {
         }
 
@@ -83,7 +82,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
         {
-            return new BulkInsertOperationEmulator(DatabaseName, CollectionName, Requests, MessageEncoderSettings)
+            return new BulkInsertOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
             {
                 AssignId = _assignId,
                 CheckElementNames = _checkElementNames,

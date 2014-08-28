@@ -30,11 +30,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         // constructors
         public FindOneOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, query, BsonDocumentSerializer.Instance, messageEncoderSettings)
+            : base(collectionNamespace, query, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -43,9 +42,8 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private BsonDocument _additionalOptions;
-        private string _collectionName;
+        private CollectionNamespace _collectionNamespace;
         private string _comment;
-        private string _databaseName;
         private BsonDocument _fields;
         private string _hint;
         private TimeSpan? _maxTime;
@@ -58,14 +56,12 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public FindOneOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _messageEncoderSettings = messageEncoderSettings;
@@ -78,22 +74,16 @@ namespace MongoDB.Driver.Core.Operations
             set { _additionalOptions = value; }
         }
 
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public string Comment
         {
             get { return _comment; }
             set { _comment = value; }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public BsonDocument Fields
@@ -162,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
             var snapshot = false;
             var tailableCursor = false;
 
-            var operation = new FindOperation<TDocument>(_databaseName, _collectionName, _query, _serializer, _messageEncoderSettings)
+            var operation = new FindOperation<TDocument>(_collectionNamespace, _query, _serializer, _messageEncoderSettings)
             {
                 AdditionalOptions = _additionalOptions,
                 AwaitData = awaitData,

@@ -27,12 +27,12 @@ namespace MongoDB.Driver
     public abstract class CollectionUsingTest : DatabaseUsingTest
     {
         // fields
-        private string _collectionName;
+        private CollectionNamespace _collectionNamespace;
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
+            get { return _collectionNamespace; }
         }
 
         // methods
@@ -52,7 +52,7 @@ namespace MongoDB.Driver
             var specificationFolder = type.Namespace.Split('.').Last();
             var specificationName = type.Name;
             var collectionName = string.Format("{0}_{1}", specificationFolder, specificationName);
-            var namespaceLength = DatabaseName.Length + collectionName.Length + 1;
+            var namespaceLength = DatabaseNamespace.DatabaseName.Length + collectionName.Length + 1;
             const int maxNamespaceLength = 120;
             if (namespaceLength > maxNamespaceLength)
             {
@@ -66,7 +66,7 @@ namespace MongoDB.Driver
         [TestFixtureSetUp]
         public void CollectionUsingTestSetUp()
         {
-            _collectionName = GetCollectionName();
+            _collectionNamespace = new CollectionNamespace(DatabaseNamespace, GetCollectionName());
             CreateCollection();
         }
 
@@ -79,7 +79,7 @@ namespace MongoDB.Driver
         protected void Insert<T>(IEnumerable<T> documents, IBsonSerializer<T> serializer, MessageEncoderSettings messageEncoderSettings = null)
         {
             var requests = documents.Select(d => new InsertRequest(d, serializer));
-            var operation = new BulkInsertOperation(DatabaseName, _collectionName, requests, messageEncoderSettings ?? MessageEncoderSettings);
+            var operation = new BulkInsertOperation(_collectionNamespace, requests, messageEncoderSettings ?? MessageEncoderSettings);
             ExecuteOperationAsync(operation).GetAwaiter().GetResult();
         }
 
@@ -91,7 +91,7 @@ namespace MongoDB.Driver
         protected List<T> ReadAll<T>(IBsonSerializer<T> serializer, MessageEncoderSettings messageEncoderSettings = null)
         {
             var query = new BsonDocument();
-            var operation = new FindOperation<T>(DatabaseName, _collectionName, query, serializer, messageEncoderSettings ?? MessageEncoderSettings);
+            var operation = new FindOperation<T>(_collectionNamespace, query, serializer, messageEncoderSettings ?? MessageEncoderSettings);
             var cursor = ExecuteOperationAsync(operation).GetAwaiter().GetResult();
             return ReadCursorToEnd(cursor);
         }

@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations.ListCollectionNamesOperationTests
 
         protected override void Given()
         {
-            _subject = new ListCollectionNamesOperation(DatabaseName, MessageEncoderSettings);
+            _subject = new ListCollectionNamesOperation(DatabaseNamespace, MessageEncoderSettings);
 
             // make sure there is at least one collection
             Insert(new[] { new BsonDocument("x", 1) }, MessageEncoderSettings);
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Operations.ListCollectionNamesOperationTests
         public void It_should_return_all_the_names()
         {
             _result.Count.Should().BeGreaterThan(0);
-            _result.Should().Contain(CollectionName);
+            _result.Should().Contain(CollectionNamespace.CollectionName);
         }
     }
 }

@@ -31,9 +31,8 @@ namespace MongoDB.Driver.Core.Operations
     internal class InsertOpcodeOperationEmulator<TDocument>
     {
         // fields
-        private string _collectionName;
+        private CollectionNamespace _collectionNamespace;
         private bool _continueOnError;
-        private string _databaseName;
         private BatchableSource<TDocument> _documentSource;
         private int? _maxBatchCount;
         private int? _maxDocumentSize;
@@ -44,36 +43,28 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public InsertOpcodeOperationEmulator(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IBsonSerializer<TDocument> serializer,
             BatchableSource<TDocument> documentSource,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool ContinueOnError
         {
             get { return _continueOnError; }
             set { _continueOnError = value; }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public BatchableSource<TDocument> DocumentSource
@@ -124,7 +115,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(connection, "connection");
 
             var requests = _documentSource.GetRemainingItems().Select(d => new InsertRequest(d, _serializer));
-            var operation = new BulkInsertOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
+            var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 // CheckElementNames = ?
                 IsOrdered = !_continueOnError,

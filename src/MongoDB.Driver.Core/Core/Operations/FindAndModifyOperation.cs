@@ -30,8 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     public class FindAndModifyOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private FindAndModifyDocumentVersion? _documentVersionReturned;
         private BsonDocument _fields;
         private TimeSpan? _maxTime;
@@ -43,30 +42,22 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public FindAndModifyOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument update,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = query;
             _update = Ensure.IsNotNull(update, "update");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public FindAndModifyDocumentVersion? DocumentVersionReturned
@@ -122,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "findAndModify", _collectionName },
+                { "findAndModify", _collectionNamespace.CollectionName },
                 { "query", _query, _query != null },
                 { "sort", _sort, _sort != null },
                 { "update", _update },
@@ -144,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseName, command, _messageEncoderSettings);
+            var operation = new WriteCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

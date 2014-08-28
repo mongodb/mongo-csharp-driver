@@ -28,8 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     public class DeleteOpcodeOperationEmulator
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private bool _isMulti;
         private MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _query;
@@ -37,28 +36,20 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public DeleteOpcodeOperationEmulator(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool IsMulti
@@ -93,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
             var limit = _isMulti ? 0 : 1;
             var requests = new[] { new DeleteRequest(_query) { Limit = limit } };
 
-            var operation = new BulkDeleteOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
+            var operation = new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 WriteConcern = _writeConcern
             };

@@ -59,8 +59,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 
             return new UpdateMessage(
                 requestId,
-                databaseName,
-                collectionName,
+                new CollectionNamespace(databaseName, collectionName),
                 query,
                 update,
                 isMulti,
@@ -75,8 +74,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 { "opcode", "update" },
                 { "requestId", message.RequestId },
-                { "database", message.DatabaseName },
-                { "collection", message.CollectionName },
+                { "database", message.CollectionNamespace.DatabaseNamespace.DatabaseName },
+                { "collection", message.CollectionNamespace.CollectionName },
                 { "isMulti", true, message.IsMulti },
                 { "isUpsert", true, message.IsUpsert },
                 { "query", message.Query },

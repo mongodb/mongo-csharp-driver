@@ -42,8 +42,7 @@ namespace MongoDB.Driver
             settings.ApplyDefaultValues(dbSettings);
             _operationExecutor = new MockOperationExecutor();
             _subject = new MongoCollectionImpl<BsonDocument>(
-                "foo",
-                "bar",
+                "foo.bar",
                 settings,
                 Substitute.For<ICluster>(),
                 _operationExecutor);
@@ -52,7 +51,7 @@ namespace MongoDB.Driver
         [Test]
         public void CollectionName_should_be_set()
         {
-            _subject.CollectionName.Should().Be("bar");
+            _subject.CollectionNamespace.CollectionName.Should().Be("bar");
         }
 
         [Test]
@@ -78,8 +77,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<CountOperation>();
             var operation = (CountOperation)call.Operation;
-            operation.DatabaseName.Should().Be("foo");
-            operation.CollectionName.Should().Be("bar");
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.Filter.Should().Be((BsonDocument)model.Filter);
             operation.Hint.Should().Be((string)model.Hint);
             operation.Limit.Should().Be(model.Limit);
@@ -102,8 +100,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<DistinctOperation<int>>();
             var operation = (DistinctOperation<int>)call.Operation;
-            operation.DatabaseName.Should().Be("foo");
-            operation.CollectionName.Should().Be("bar");
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.FieldName.Should().Be("a.b");
             operation.Filter.Should().Be((BsonDocument)model.Filter);
             operation.MaxTime.Should().Be(model.MaxTime);

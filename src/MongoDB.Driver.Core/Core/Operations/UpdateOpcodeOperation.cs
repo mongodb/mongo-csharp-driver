@@ -28,8 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     public class UpdateOpcodeOperation : IWriteOperation<WriteConcernResult>
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private bool _isMulti;
         private bool _isUpsert;
         private int? _maxDocumentSize;
@@ -40,30 +39,22 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public UpdateOpcodeOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument update,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool IsMulti
@@ -112,8 +103,7 @@ namespace MongoDB.Driver.Core.Operations
         private UpdateWireProtocol CreateProtocol()
         {
             return new UpdateWireProtocol(
-                _databaseName,
-                _collectionName,
+                _collectionNamespace,
                 _messageEncoderSettings,
                 _writeConcern,
                 _query,
@@ -128,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
-                var emulator = new UpdateOpcodeOperationEmulator(_databaseName, _collectionName, _query, _update, _messageEncoderSettings)
+                var emulator = new UpdateOpcodeOperationEmulator(_collectionNamespace, _query, _update, _messageEncoderSettings)
                 {
                     IsMulti = _isMulti,
                     IsUpsert = _isUpsert,

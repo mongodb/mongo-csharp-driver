@@ -27,8 +27,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     public class QueryMessageTests
     {
         private readonly int _batchSize = 1;
-        private readonly string _collectionName = "collection";
-        private readonly string _databaseName = "database";
+        private readonly CollectionNamespace _collectionNamespace = "database.collection";
         private readonly BsonDocument _fields = new BsonDocument("x", 1);
         private readonly BsonDocument _query = new BsonDocument("y", 2);
         private readonly int _requestId = 2;
@@ -41,11 +40,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [TestCase(false, false, false, false, true)]
         public void Constructor_should_initialize_instance(bool awaitData, bool noCursorTimeout, bool partialOk, bool slaveOk, bool tailableCursor)
         {
-            var subject = new QueryMessage(_requestId, _databaseName, _collectionName, _query, _fields, _skip, _batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
+            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _skip, _batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
             subject.AwaitData.Should().Be(awaitData);
             subject.BatchSize.Should().Be(_batchSize);
-            subject.CollectionName.Should().Be(_collectionName);
-            subject.DatabaseName.Should().Be(_databaseName);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.Fields.Should().Be(_fields);
             subject.NoCursorTimeout.Should().Be(noCursorTimeout);
             subject.PartialOk.Should().Be(partialOk);
@@ -58,28 +56,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [Test]
         public void Constructor_with_negative_skip_should_throw()
         {
-            Action action = () => new QueryMessage(_requestId, _databaseName, _collectionName, _query, _fields, -1, _batchSize, false, false, false, false, false);
+            Action action = () => new QueryMessage(_requestId, _collectionNamespace, _query, _fields, -1, _batchSize, false, false, false, false, false);
             action.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
         [Test]
-        public void Constructor_with_null_collectionName_should_throw()
+        public void Constructor_with_null_collectionNamespace_should_throw()
         {
-            Action action = () => new QueryMessage(_requestId, _databaseName, null, _query, _fields, _skip, _batchSize, false, false, false, false, false);
-            action.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_with_null_databaseName_should_throw()
-        {
-            Action action = () => new QueryMessage(_requestId, null, _collectionName, _query, _fields, _skip, _batchSize, false, false, false, false, false);
+            Action action = () => new QueryMessage(_requestId, null, _query, _fields, _skip, _batchSize, false, false, false, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_query_should_throw()
         {
-            Action action = () => new QueryMessage(_requestId, _databaseName, _collectionName, null, _fields, _skip, _batchSize, false, false, false, false, false);
+            Action action = () => new QueryMessage(_requestId, _collectionNamespace, null, _fields, _skip, _batchSize, false, false, false, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
@@ -90,7 +81,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetQueryMessageEncoder().Returns(mockEncoder);
 
-            var subject = new QueryMessage(_requestId, _databaseName, _collectionName, _query, _fields, _skip, _batchSize, false, false, false, false, false);
+            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _skip, _batchSize, false, false, false, false, false);
             var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }

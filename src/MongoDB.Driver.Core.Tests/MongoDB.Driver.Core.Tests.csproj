@@ -113,6 +113,8 @@
     <Compile Include="Core\Operations\DistinctOperationTests.cs" />
     <Compile Include="Core\Operations\CountOperationTests.cs" />
     <Compile Include="Core\Operations\CursorTests.cs" />
+    <Compile Include="CollectionNamespaceTests.cs" />
+    <Compile Include="DatabaseNamespaceTests.cs" />
     <Compile Include="MongoExceptionTests.cs" />
     <Compile Include="MongoQueryExceptionTests.cs" />
     <Compile Include="WriteExceptionTests.cs" />

@@ -29,7 +29,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the name of the database.
         /// </summary>
-        string DatabaseName { get; }
+        DatabaseNamespace DatabaseNamespace { get; }
 
         /// <summary>
         /// Gets the settings.

@@ -81,9 +81,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 fields = BsonDocumentSerializer.Instance.Deserialize(context);
             }
 
-            var firstDot = fullCollectionName.IndexOf('.');
-            var databaseName = fullCollectionName.Substring(0, firstDot);
-            var collectionName = fullCollectionName.Substring(firstDot + 1);
             var awaitData = flags.HasFlag(QueryFlags.AwaitData);
             var slaveOk = flags.HasFlag(QueryFlags.SlaveOk);
             var partialOk = flags.HasFlag(QueryFlags.Partial);
@@ -92,8 +89,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             return new QueryMessage(
                 requestId,
-                databaseName,
-                collectionName,
+                fullCollectionName,
                 query,
                 fields,
                 skip,
@@ -118,7 +114,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(0); // responseTo
             streamWriter.WriteInt32((int)Opcode.Query);
             streamWriter.WriteInt32((int)BuildQueryFlags(message));
-            streamWriter.WriteCString(message.DatabaseName + "." + message.CollectionName);
+            streamWriter.WriteCString(message.CollectionNamespace);
             streamWriter.WriteInt32(message.Skip);
             streamWriter.WriteInt32(message.BatchSize);
             var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);

@@ -26,37 +26,27 @@ namespace MongoDB.Driver.Core.Operations
     public class RenameCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private bool? _dropTarget;
         private MessageEncoderSettings _messageEncoderSettings;
-        private string _newCollectionName;
-        private string _newDatabaseName;
+        private CollectionNamespace _newCollectionNamespace;
 
         // constructors
         public RenameCollectionOperation(
-            string databaseName,
-            string collectionName,
-            string newCollectionName,
+            CollectionNamespace collectionNamespace,
+            CollectionNamespace newCollectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
-            _newCollectionName = Ensure.IsNotNullOrEmpty(newCollectionName, "newCollectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
+            _newCollectionNamespace = Ensure.IsNotNull(newCollectionNamespace, "newCollectionNamespace");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool? DropTarget
@@ -71,16 +61,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _messageEncoderSettings = value; }
         }
 
-        public string NewCollectionName
+        public CollectionNamespace NewCollectionNamespace
         {
-            get { return _newCollectionName; }
-            set { _newCollectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string NewDatabaseName
-        {
-            get { return _newDatabaseName; }
-            set { _newDatabaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _newCollectionNamespace; }
+            set { _newCollectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         // methods
@@ -88,8 +72,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "drop", _databaseName + "." + _collectionName },
-                { "to", (_newDatabaseName ?? _databaseName) + "." + _newCollectionName },
+                { "drop", _collectionNamespace.FullName },
+                { "to", _newCollectionNamespace.FullName },
                 { "dropTarget", () => _dropTarget.Value, _dropTarget.HasValue }
             };
         }
@@ -98,7 +82,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation("admin", command, _messageEncoderSettings);
+            var operation = new WriteCommandOperation(DatabaseNamespace.Admin, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

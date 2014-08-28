@@ -52,8 +52,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 
             return new GetMoreMessage(
                 requestId,
-                databaseName,
-                collectionName,
+                new CollectionNamespace(databaseName, collectionName),
                 cursorId,
                 batchSize);
         }
@@ -66,8 +65,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 { "opcode", "getMore" },
                 { "requestId", message.RequestId },
-                { "database", message.DatabaseName },
-                { "collection", message.CollectionName },
+                { "database", message.CollectionNamespace.DatabaseNamespace.DatabaseName },
+                { "collection", message.CollectionNamespace.CollectionName },
                 { "cursorId", message.CursorId },
                 { "batchSize", message.BatchSize }
             };

@@ -44,14 +44,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var batchSize = streamReader.ReadInt32();
             var cursorId = streamReader.ReadInt64();
 
-            var firstDot = fullCollectionName.IndexOf('.');
-            var databaseName = fullCollectionName.Substring(0, firstDot);
-            var collectionName = fullCollectionName.Substring(firstDot + 1);
-
             return new GetMoreMessage(
                 requestId,
-                databaseName,
-                collectionName,
+                fullCollectionName,
                 cursorId,
                 batchSize);
         }
@@ -69,7 +64,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(0); // responseTo
             streamWriter.WriteInt32((int)Opcode.GetMore);
             streamWriter.WriteInt32(0); // reserved
-            streamWriter.WriteCString(message.DatabaseName + "." + message.CollectionName);
+            streamWriter.WriteCString(message.CollectionNamespace);
             streamWriter.WriteInt32(message.BatchSize);
             streamWriter.WriteInt64(message.CursorId);
             streamWriter.BackpatchSize(startPosition);

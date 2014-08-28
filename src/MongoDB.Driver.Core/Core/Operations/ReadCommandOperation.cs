@@ -35,10 +35,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         // constructors
         public ReadCommandOperation(
-            string databaseName,
+            DatabaseNamespace databaseNamespace,
             BsonDocument command,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, command, BsonDocumentSerializer.Instance, messageEncoderSettings)
+            : base(databaseNamespace, command, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -164,11 +164,11 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public ReadCommandOperation(
-            string databaseName,
+            DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, command, resultSerializer, messageEncoderSettings)
+            : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
         {
             _ensureIsReadCommandAction = EnsureIsReadCommand;
         }

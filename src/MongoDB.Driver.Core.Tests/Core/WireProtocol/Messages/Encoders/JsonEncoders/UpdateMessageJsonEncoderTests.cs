@@ -29,8 +29,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     {
         #region static
         // static fields
-        private static readonly string __collectionName = "c";
-        private static readonly string __databaseName = "d";
+        private static readonly CollectionNamespace __collectionNamespace = "d.c";
         private static readonly bool __isMulti = true;
         private static readonly bool __isUpsert = true;
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // static constructor
         static UpdateMessageJsonEncoderTests()
         {
-            __testMessage = new UpdateMessage(__requestId, __databaseName, __collectionName, __query, __update, __isMulti, __isUpsert);
+            __testMessage = new UpdateMessage(__requestId, __collectionNamespace, __query, __update, __isMulti, __isUpsert);
 
             __testMessageJson =
                 "{ " +
@@ -104,8 +103,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 var subject = new UpdateMessageJsonEncoder(textReader, null, __messageEncoderSettings);
                 var message = subject.ReadMessage();
-                message.DatabaseName.Should().Be(__databaseName);
-                message.CollectionName.Should().Be(__collectionName);
+                message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.IsMulti.Should().Be(__isMulti);
                 message.IsUpsert.Should().Be(__isUpsert);
                 message.Query.Should().Be(__query);

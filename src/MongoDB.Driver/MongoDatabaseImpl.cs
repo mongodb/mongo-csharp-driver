@@ -31,23 +31,23 @@ namespace MongoDB.Driver
     {
         // fields
         private readonly ICluster _cluster;
-        private readonly string _databaseName;
+        private readonly DatabaseNamespace _databaseNamespace;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoDatabaseSettings _settings;
 
         // constructors
-        public MongoDatabaseImpl(string databaseName, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
+        public MongoDatabaseImpl(DatabaseNamespace databaseNamespace, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
-            _databaseName = Ensure.IsNotNull(databaseName, "databaseName");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _settings = Ensure.IsNotNull(settings, "settings");
             _cluster = Ensure.IsNotNull(cluster, "cluster");
             _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
         }
 
         // properties
-        public string DatabaseName
+        public DatabaseNamespace DatabaseNamespace
         {
-            get { return _databaseName; }
+            get { return _databaseNamespace; }
         }
 
         public MongoDatabaseSettings Settings
@@ -59,7 +59,7 @@ namespace MongoDB.Driver
         public Task DropAsync(TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new DropDatabaseOperation(_databaseName, messageEncoderSettings);
+            var operation = new DropDatabaseOperation(_databaseNamespace, messageEncoderSettings);
             return ExecuteWriteOperation(operation, timeout, cancellationToken);
         }
 
@@ -74,13 +74,13 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(settings, "settings");
 
             settings.ApplyDefaultValues(_settings);
-            return new MongoCollectionImpl<T>(_databaseName, name, settings, _cluster, _operationExecutor);
+            return new MongoCollectionImpl<T>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
         public Task<IReadOnlyList<string>> GetCollectionNamesAsync(TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ListCollectionNamesOperation(_databaseName, messageEncoderSettings);
+            var operation = new ListCollectionNamesOperation(_databaseNamespace, messageEncoderSettings);
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
@@ -108,12 +108,12 @@ namespace MongoDB.Driver
 
             if (isReadCommand)
             {
-                var operation = new ReadCommandOperation<T>(_databaseName, commandDocument, serializer, messageEncoderSettings);
+                var operation = new ReadCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
                 return ExecuteReadOperation<T>(operation, timeout, cancellationToken);
             }
             else
             {
-                var operation = new WriteCommandOperation<T>(_databaseName, commandDocument, serializer, messageEncoderSettings);
+                var operation = new WriteCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
                 return ExecuteWriteOperation<T>(operation, timeout, cancellationToken);
             }
         }

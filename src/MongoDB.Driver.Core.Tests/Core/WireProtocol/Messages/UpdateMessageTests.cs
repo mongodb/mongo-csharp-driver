@@ -26,8 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     [TestFixture]
     public class UpdateMessageTests
     {
-        private readonly string _collectionName = "collection";
-        private readonly string _databaseName = "database";
+        private readonly CollectionNamespace _collectionNamespace = "database.collection";
         private readonly BsonDocument _query = new BsonDocument("x", 1);
         private readonly int _requestId = 1;
         private readonly BsonDocument _update = new BsonDocument("$set", new BsonDocument("y", 2));
@@ -36,9 +35,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [TestCase(false, true)]
         public void Constructor_should_initialize_instance(bool isMulti, bool isUpsert)
         {
-            var subject = new UpdateMessage(_requestId, _databaseName, _collectionName, _query, _update, isMulti, isUpsert);
-            subject.CollectionName.Should().Be(_collectionName);
-            subject.DatabaseName.Should().Be(_databaseName);
+            var subject = new UpdateMessage(_requestId, _collectionNamespace, _query, _update, isMulti, isUpsert);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.IsMulti.Should().Be(isMulti);
             subject.IsUpsert.Should().Be(isUpsert);
             subject.Query.Should().Be(_query);
@@ -47,30 +45,23 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         [Test]
-        public void Constructor_with_null_collectionName_should_throw()
+        public void Constructor_with_null_collectionNamespace_should_throw()
         {
-            Action action = () => new UpdateMessage(_requestId, _databaseName, null, _query, _update, false, false);
-            action.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_with_null_databaseName_should_throw()
-        {
-            Action action = () => new UpdateMessage(_requestId, null, _collectionName, _query, _update, false, false);
+            Action action = () => new UpdateMessage(_requestId, null, _query, _update, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_query_should_throw()
         {
-            Action action = () => new UpdateMessage(_requestId, _databaseName, _collectionName, null, _update, false, false);
+            Action action = () => new UpdateMessage(_requestId, _collectionNamespace, null, _update, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_update_should_throw()
         {
-            Action action = () => new UpdateMessage(_requestId, _databaseName, _collectionName, _query, null, false, false);
+            Action action = () => new UpdateMessage(_requestId, _collectionNamespace, _query, null, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
@@ -81,7 +72,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetUpdateMessageEncoder().Returns(mockEncoder);
 
-            var subject = new UpdateMessage(_requestId, _databaseName, _collectionName, _query, _update, false, false);
+            var subject = new UpdateMessage(_requestId, _collectionNamespace, _query, _update, false, false);
             var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }

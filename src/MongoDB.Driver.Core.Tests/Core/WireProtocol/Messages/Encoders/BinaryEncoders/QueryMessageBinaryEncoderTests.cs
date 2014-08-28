@@ -31,8 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // static fields
         private static readonly bool __awaitData = true;
         private static readonly int __batchSize = 3;
-        private static readonly string __collectionName = "c";
-        private static readonly string __databaseName = "d";
+        private static CollectionNamespace __collectionNamespace = "d.c";
         private static readonly BsonDocument __fields = new BsonDocument("f", 1);
         private static readonly int __flagsOffset;
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
@@ -49,7 +48,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // static constructor
         static QueryMessageBinaryEncoderTests()
         {
-            __testMessage = new QueryMessage(__requestId, __databaseName, __collectionName, __query, __fields, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __tailableCursor, __awaitData);
+            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __tailableCursor, __awaitData);
 
             __testMessageBytes = new byte[]
             {
@@ -116,8 +115,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 var subject = new QueryMessageBinaryEncoder(stream, __messageEncoderSettings);
                 var message = subject.ReadMessage();
-                message.DatabaseName.Should().Be(__databaseName);
-                message.CollectionName.Should().Be(__collectionName);
+                message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.AwaitData.Should().Be(__awaitData);
                 message.BatchSize.Should().Be(__batchSize);
                 message.Fields.Should().Be(__fields);
@@ -139,7 +137,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [TestCase(128, false, false, false, false, true)]
         public void WriteMessage_should_encode_flags_correctly(int flags, bool tailableCursor, bool slaveOk, bool noCursorTimeout, bool awaitData, bool partialOk)
         {
-            var message = new QueryMessage(__requestId, __databaseName, __collectionName, __query, __fields, __skip, __batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
+            var message = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __skip, __batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
 
             using (var stream = new MemoryStream())
             {

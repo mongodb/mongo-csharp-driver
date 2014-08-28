@@ -26,44 +26,34 @@ namespace MongoDB.Driver.Core.Operations
     public class IndexExistsOperation : IReadOperation<bool>
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private string _indexName;
         private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public IndexExistsOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument keys,
             MessageEncoderSettings messageEncoderSettings)
-            : this(databaseName, collectionName, CreateIndexOperation.GetDefaultIndexName(keys), messageEncoderSettings)
+            : this(collectionNamespace, CreateIndexOperation.GetDefaultIndexName(keys), messageEncoderSettings)
         {
         }
 
         public IndexExistsOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             string indexName,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _indexName = Ensure.IsNotNullOrEmpty(indexName, "indexName");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public string IndexName
@@ -84,7 +74,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "name", _indexName },
-                { "ns", _databaseName + "." + _collectionName }
+                { "ns", _collectionNamespace.FullName }
             };
         }
 
@@ -92,7 +82,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var filter = CreateFilter();
-            var operation = new CountOperation(_databaseName, "system.indexes", _messageEncoderSettings)
+            var operation = new CountOperation(_collectionNamespace.DatabaseNamespace.SystemIndexesCollection, _messageEncoderSettings)
             {
                 Filter = filter
             };

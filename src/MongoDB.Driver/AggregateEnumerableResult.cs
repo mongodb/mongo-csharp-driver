@@ -75,8 +75,7 @@ namespace MongoDB.Driver
                 {
                     var cursor = new Cursor<BsonDocument>(
                         connectionSource.Fork(),
-                        _collection.Database.Name,
-                        _collection.Name,
+                        new CollectionNamespace(_collection.Database.Name, _collection.Name),
                         query,
                         firstBatch,
                         cursorId,

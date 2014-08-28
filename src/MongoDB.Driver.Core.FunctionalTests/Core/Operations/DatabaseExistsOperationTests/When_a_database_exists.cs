@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations.DatabaseExistsOperationTests
 
         protected override void Given()
         {
-            _subject = new DatabaseExistsOperation(DatabaseName, MessageEncoderSettings);
+            _subject = new DatabaseExistsOperation(DatabaseNamespace, MessageEncoderSettings);
         }
 
         protected override void When()

@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Core.Operations
     public class AggregateWritePipelineOperation : AggregateCursorOperationBase, IWriteOperation<Cursor<BsonDocument>>
     {
         // constructors
-        public AggregateWritePipelineOperation(string databaseName, string collectionName, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, pipeline, messageEncoderSettings)
+        public AggregateWritePipelineOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
+            : base(collectionNamespace, pipeline, messageEncoderSettings)
         {
         }
 
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
             {
                 var command = CreateCommand();
-                var operation = new WriteCommandOperation(DatabaseName, command, MessageEncoderSettings);
+                var operation = new WriteCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
                 var result = await operation.ExecuteAsync(connectionSource, slidingTimeout, cancellationToken);
                 return CreateCursor(connectionSource, command, result, timeout, cancellationToken);
             }
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var command = CreateCommand();
             command["explain"] = true;
-            var operation = new WriteCommandOperation(DatabaseName, command, MessageEncoderSettings);
+            var operation = new WriteCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

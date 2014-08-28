@@ -26,8 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     public class CountOperation : IReadOperation<long>, ICommandOperation
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private BsonDocument _filter;
         private BsonValue _hint;
         private long? _limit;
@@ -36,24 +35,17 @@ namespace MongoDB.Driver.Core.Operations
         private long? _skip;
 
         // constructors
-        public CountOperation(string databaseName, string collectionName, MessageEncoderSettings messageEncoderSettings)
+        public CountOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNull(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNull(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonDocument Filter
@@ -97,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "count", _collectionName },
+                { "count", _collectionNamespace.CollectionName },
                 { "query", _filter, _filter != null },
                 { "limit", () => _limit.Value, _limit.HasValue },
                 { "skip", () => _skip.Value, _skip.HasValue },
@@ -117,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(_databaseName, command, _messageEncoderSettings);
+            var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

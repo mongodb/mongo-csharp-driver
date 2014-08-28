@@ -29,8 +29,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     {
         #region static
         // static fields
-        private static readonly string __collectionName = "c";
-        private static readonly string __databaseName = "d";
+        private static readonly CollectionNamespace __collectionNamespace = "d.c";
         private static readonly bool __isMulti = false;
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly BsonDocument __query = new BsonDocument("x", 1);
@@ -41,7 +40,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // static constructor
         static DeleteMessageJsonEncoderTests()
         {
-            __testMessage = new DeleteMessage(__requestId, __databaseName, __collectionName, __query, __isMulti);
+            __testMessage = new DeleteMessage(__requestId, __collectionNamespace, __query, __isMulti);
 
             __testMessageJson =
                 "{ " +
@@ -100,8 +99,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 var subject = new DeleteMessageJsonEncoder(textReader, null, __messageEncoderSettings);
                 var message = subject.ReadMessage();
-                message.CollectionName.Should().Be(__collectionName);
-                message.DatabaseName.Should().Be(__databaseName);
+                message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.IsMulti.Should().Be(__isMulti);
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);

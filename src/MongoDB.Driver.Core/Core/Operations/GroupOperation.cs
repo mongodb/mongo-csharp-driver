@@ -28,8 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     public class GroupOperation : IReadOperation<IEnumerable<BsonDocument>>
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private BsonJavaScript _finalizeFunction;
         private BsonDocument _initial;
         private BsonDocument _key;
@@ -40,10 +39,9 @@ namespace MongoDB.Driver.Core.Operations
         private BsonJavaScript _reduceFunction;
 
         // constructors
-        public GroupOperation(string databaseName, string collectionName, BsonDocument key, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
+        public GroupOperation(CollectionNamespace collectionNamespace, BsonDocument key, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _key = Ensure.IsNotNull(key, "key");
             _initial = Ensure.IsNotNull(initial, "initial");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
@@ -51,10 +49,9 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        public GroupOperation(string databaseName, string collectionName, BsonJavaScript keyFunction, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument query)
+        public GroupOperation(CollectionNamespace collectionNamespace, BsonJavaScript keyFunction, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument query)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _keyFunction = Ensure.IsNotNull(keyFunction, "keyFunction");
             _initial = Ensure.IsNotNull(initial, "initial");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
@@ -62,16 +59,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonJavaScript FinalizeFunction
@@ -137,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "group", new BsonDocument
                     {
-                        { "ns", _collectionName },
+                        { "ns", _collectionNamespace.CollectionName },
                         { "key", _key, _key != null },
                         { "$keyf", _keyFunction, _keyFunction != null },
                         { "$reduce", _reduceFunction },
@@ -161,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(_databaseName, command, _messageEncoderSettings);
+            var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }

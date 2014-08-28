@@ -31,30 +31,23 @@ namespace MongoDB.Driver
     {
         // fields
         private readonly ICluster _cluster;
-        private readonly string _collectionName;
-        private readonly string _databaseName;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoCollectionSettings _settings;
 
         // constructors
-        public MongoCollectionImpl(string databaseName, string collectionName, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
+        public MongoCollectionImpl(CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _settings = Ensure.IsNotNull(settings, "settings");
             _cluster = Ensure.IsNotNull(cluster, "cluster");
             _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
+            get { return _collectionNamespace; }
         }
 
         public MongoCollectionSettings Settings
@@ -68,8 +61,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(model, "model");
 
             var operation = new CountOperation(
-                _databaseName,
-                _collectionName,
+                _collectionNamespace,
                 GetMessageEncoderSettings())
             {
                 Filter = ConvertToBsonDocument(model.Filter),
@@ -87,8 +79,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(model, "model");
 
             var operation = new DistinctOperation<TValue>(
-                _databaseName,
-                _collectionName,
+                _collectionNamespace,
                 model.ValueSerializer ?? _settings.SerializerRegistry.GetSerializer<TValue>(),
                 model.FieldName,
                 GetMessageEncoderSettings())

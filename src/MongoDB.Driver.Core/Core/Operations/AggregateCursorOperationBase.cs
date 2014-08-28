@@ -33,8 +33,8 @@ namespace MongoDB.Driver.Core.Operations
         private AggregateResultMode _resultMode;
 
         // constructors
-        protected AggregateCursorOperationBase(string databaseName, string collectionName, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, pipeline, messageEncoderSettings)
+        protected AggregateCursorOperationBase(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
+            : base(collectionNamespace, pipeline, messageEncoderSettings)
         {
             _resultMode = AggregateResultMode.Cursor;
         }
@@ -83,8 +83,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return new Cursor<BsonDocument>(
                 connectionSource.Fork(),
-                DatabaseName,
-                CollectionName,
+                CollectionNamespace,
                 command,
                 firstBatch,
                 cursorId,
@@ -102,8 +101,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return new Cursor<BsonDocument>(
                 null, // connectionSource
-                DatabaseName,
-                CollectionName,
+                CollectionNamespace,
                 command,
                 firstBatch,
                 0, // cursorId

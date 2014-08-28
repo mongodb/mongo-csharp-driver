@@ -23,9 +23,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     public class InsertMessage<TDocument> : RequestMessage, IEncodableMessage<InsertMessage<TDocument>>
     {
         // fields
-        private readonly string _collectionName;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly bool _continueOnError;
-        private readonly string _databaseName;
         private readonly BatchableSource<TDocument> _documentSource;
         private readonly int _maxBatchCount;
         private readonly int _maxMessageSize;
@@ -34,8 +33,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         // constructors
         public InsertMessage(
             int requestId,
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IBsonSerializer<TDocument> serializer,
             BatchableSource<TDocument> documentSource,
             int maxBatchCount,
@@ -43,8 +41,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             bool continueOnError)
             : base(requestId)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
             _maxBatchCount = Ensure.IsGreaterThanOrEqualToZero(maxBatchCount, "maxBatchCount");
@@ -53,19 +50,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
+            get { return _collectionNamespace; }
         }
 
         public bool ContinueOnError
         {
             get { return _continueOnError; }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
         }
 
         public BatchableSource<TDocument> DocumentSource

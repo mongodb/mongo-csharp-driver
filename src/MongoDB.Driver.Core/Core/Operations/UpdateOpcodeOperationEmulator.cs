@@ -28,8 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     public class UpdateOpcodeOperationEmulator
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private bool _isMulti;
         private bool _isUpsert;
         private int? _maxDocumentSize;
@@ -40,30 +39,22 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public UpdateOpcodeOperationEmulator(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument update,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool IsMulti
@@ -116,7 +107,7 @@ namespace MongoDB.Driver.Core.Operations
             var requests = new[] { new UpdateRequest(_query, _update) { IsMultiUpdate = _isMulti, IsUpsert = _isUpsert } };
             var writeConcern = _writeConcern;
 
-            var operation = new BulkUpdateOperation(_databaseName, _collectionName, requests, _messageEncoderSettings)
+            var operation = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 CheckElementNames = true, // TODO: how is this configured?
                 IsOrdered = true,

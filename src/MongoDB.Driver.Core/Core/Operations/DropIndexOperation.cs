@@ -29,44 +29,34 @@ namespace MongoDB.Driver.Core.Operations
     public class DropIndexOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private string _indexName;
         private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public DropIndexOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument keys,
             MessageEncoderSettings messageEncoderSettings)
-            : this(databaseName, collectionName, CreateIndexOperation.GetDefaultIndexName(keys), messageEncoderSettings)
+            : this(collectionNamespace, CreateIndexOperation.GetDefaultIndexName(keys), messageEncoderSettings)
         {
         }
 
         public DropIndexOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             string indexName,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _indexName = Ensure.IsNotNullOrEmpty(indexName, "indexName");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public string IndexName
@@ -86,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "deleteIndexes", _collectionName },
+                { "deleteIndexes", _collectionNamespace.CollectionName },
                 { "index", _indexName }
             };
         }
@@ -95,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseName, command, _messageEncoderSettings);
+            var operation = new WriteCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
             try
             {
                 return await operation.ExecuteAsync(binding, timeout, cancellationToken);

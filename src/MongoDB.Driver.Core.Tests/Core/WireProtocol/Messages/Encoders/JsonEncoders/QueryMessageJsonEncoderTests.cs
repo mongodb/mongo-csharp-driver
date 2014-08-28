@@ -31,8 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // static fields
         private static readonly bool __awaitData = true;
         private static readonly int __batchSize = 3;
-        private static readonly string __collectionName = "c";
-        private static readonly string __databaseName = "d";
+        private static readonly CollectionNamespace __collectionNamespace = "d.c";
         private static readonly BsonDocument __fields = new BsonDocument("f", 1);
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly bool __noCursorTimeout = true;
@@ -48,7 +47,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // static constructor
         static QueryMessageJsonEncoderTests()
         {
-            __testMessage = new QueryMessage(__requestId, __databaseName, __collectionName, __query, __fields, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __tailableCursor, __awaitData);
+            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __tailableCursor, __awaitData);
 
             __testMessageJson =
                 "{ " +
@@ -114,8 +113,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 var subject = new QueryMessageJsonEncoder(textReader, null, __messageEncoderSettings);
                 var message = subject.ReadMessage();
-                message.DatabaseName.Should().Be(__databaseName);
-                message.CollectionName.Should().Be(__collectionName);
+                message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.AwaitData.Should().Be(__awaitData);
                 message.BatchSize.Should().Be(__batchSize);
                 message.Fields.Should().Be(__fields);

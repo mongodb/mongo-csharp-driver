@@ -26,8 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         // fields
         private readonly bool _awaitData;
         private readonly int _batchSize;
-        private readonly string _collectionName;
-        private readonly string _databaseName;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly BsonDocument _fields;
         private readonly bool _noCursorTimeout;
         private readonly bool _partialOk;
@@ -39,8 +38,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         // constructors
         public QueryMessage(
             int requestId,
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument fields,
             int skip,
@@ -53,8 +51,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             Func<bool> shouldBeSent = null)
             : base(requestId, shouldBeSent)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _fields = fields; // can be null
             _skip = Ensure.IsGreaterThanOrEqualToZero(skip, "skip");
@@ -77,14 +74,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             get { return _batchSize; }
         }
 
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
+            get { return _collectionNamespace; }
         }
 
         public BsonDocument Fields

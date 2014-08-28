@@ -36,18 +36,18 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _additionalOptions;
         private BsonDocument _command;
         private string _comment;
-        private string _databaseName;
+        private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
         private IBsonSerializer<TCommandResult> _resultSerializer;
 
         // constructors
         protected CommandOperationBase(
-            string databaseName,
+            DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _command = Ensure.IsNotNull(command, "command");
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
             _messageEncoderSettings = messageEncoderSettings;
@@ -72,10 +72,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _comment = value; }
         }
 
-        public string DatabaseName
+        public DatabaseNamespace DatabaseNamespace
         {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _databaseNamespace; }
+            set { _databaseNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
             var slaveOk = readPreference != null && readPreference.Mode != ReadPreferenceMode.Primary;
-            return new CommandWireProtocol<TCommandResult>(_databaseName, wrappedCommand, slaveOk, _resultSerializer, _messageEncoderSettings);
+            return new CommandWireProtocol<TCommandResult>(_databaseNamespace, wrappedCommand, slaveOk, _resultSerializer, _messageEncoderSettings);
         }
 
         private BsonDocument CreateWrappedCommand(ServerDescription serverDescription, ReadPreference readPreference)

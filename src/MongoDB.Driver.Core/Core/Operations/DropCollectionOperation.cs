@@ -26,32 +26,23 @@ namespace MongoDB.Driver.Core.Operations
     public class DropCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public DropCollectionOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -63,14 +54,14 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         public BsonDocument CreateCommand()
         {
-            return new BsonDocument { { "drop", _collectionName } };
+            return new BsonDocument { { "drop", _collectionNamespace.CollectionName } };
         }
 
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseName, command, _messageEncoderSettings);
+            var operation = new WriteCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
             try
             {
                 return await operation.ExecuteAsync(binding, timeout, cancellationToken);

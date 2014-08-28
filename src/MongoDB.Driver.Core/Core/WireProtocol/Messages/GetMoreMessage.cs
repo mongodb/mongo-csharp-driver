@@ -22,21 +22,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     {
         // fields
         private readonly int _batchSize;
-        private readonly string _collectionName;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly long _cursorId;
-        private readonly string _databaseName;
 
         // constructors
         public GetMoreMessage(
             int requestId,
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             long cursorId,
             int batchSize)
             : base(requestId)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _cursorId = cursorId;
             _batchSize = Ensure.IsGreaterThanOrEqualToZero(batchSize, "batchSize");
         }
@@ -47,19 +44,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             get { return _batchSize; }
         }
 
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
+            get { return _collectionNamespace; }
         }
 
         public long CursorId
         {
             get { return _cursorId; }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
         }
 
         // methods

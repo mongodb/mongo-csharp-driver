@@ -30,9 +30,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     [TestFixture]
     public class InsertMessageTests
     {
-        private readonly string _collectionName = "collection";
+        private readonly CollectionNamespace _collectionNamespace = "database.collection";
         private readonly bool _continueOnError = true;
-        private readonly string _databaseName = "database";
         private readonly BatchableSource<BsonDocument> _documentSource = new BatchableSource<BsonDocument>(Enumerable.Empty<BsonDocument>());
         private readonly int _maxBatchCount = 1;
         private readonly int _maxMessageSize = 2;
@@ -42,10 +41,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [Test]
         public void Constructor_should_initialize_instance()
         {
-            var subject = new InsertMessage<BsonDocument>(_requestId, _databaseName, _collectionName, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
-            subject.CollectionName.Should().Be(_collectionName);
+            var subject = new InsertMessage<BsonDocument>(_requestId,  _collectionNamespace, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.ContinueOnError.Should().Be(_continueOnError);
-            subject.DatabaseName.Should().Be(_databaseName);
             subject.DocumentSource.Should().BeSameAs(_documentSource);
             subject.MaxBatchCount.Should().Be(_maxBatchCount);
             subject.MaxMessageSize.Should().Be(_maxMessageSize);
@@ -56,42 +54,35 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [Test]
         public void Constructor_with_negative_maxBatchCount_should_throw()
         {
-            Action action = () => new InsertMessage<BsonDocument>(_requestId, _databaseName, _collectionName, _serializer, _documentSource, -1, _maxMessageSize, _continueOnError);
+            Action action = () => new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, _serializer, _documentSource, -1, _maxMessageSize, _continueOnError);
             action.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
         [Test]
         public void Constructor_with_negative_maxMessageSize_should_throw()
         {
-            Action action = () => new InsertMessage<BsonDocument>(_requestId, _databaseName, _collectionName, _serializer, _documentSource, _maxBatchCount, -1, _continueOnError);
+            Action action = () => new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, _serializer, _documentSource, _maxBatchCount, -1, _continueOnError);
             action.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
         [Test]
-        public void Constructor_with_null_collectionName_should_throw()
+        public void Constructor_with_null_collectionNamespace_should_throw()
         {
-            Action action = () => new InsertMessage<BsonDocument>(_requestId, _databaseName, null, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
-            action.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_with_null_databaseName_should_throw()
-        {
-            Action action = () => new InsertMessage<BsonDocument>(_requestId, null, _collectionName, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
+            Action action = () => new InsertMessage<BsonDocument>(_requestId, null, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_documents_should_throw()
         {
-            Action action = () => new InsertMessage<BsonDocument>(_requestId, _databaseName, _collectionName, _serializer, null, _maxBatchCount, _maxMessageSize, _continueOnError);
+            Action action = () => new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, _serializer, null, _maxBatchCount, _maxMessageSize, _continueOnError);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_serializer_should_throw()
         {
-            Action action = () => new InsertMessage<BsonDocument>(_requestId, _databaseName, _collectionName, null, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
+            Action action = () => new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, null, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
             action.ShouldThrow<ArgumentNullException>();
         }
 
@@ -102,7 +93,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetInsertMessageEncoder(_serializer).Returns(mockEncoder);
 
-            var subject = new InsertMessage<BsonDocument>(_requestId, _databaseName, _collectionName, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
+            var subject = new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
             var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }

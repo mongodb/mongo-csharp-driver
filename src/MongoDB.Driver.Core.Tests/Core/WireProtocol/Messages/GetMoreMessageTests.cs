@@ -27,40 +27,31 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     public class GetMoreMessageTests
     {
         private readonly int _batchSize = 1;
-        private readonly string _collectionName = "collection";
+        private readonly CollectionNamespace _collectionNamespace = "database.collection";
         private readonly long _cursorId = 2;
-        private readonly string _databaseName = "database";
         private readonly int _requestId = 3;
 
         [Test]
         public void Constructor_should_initialize_instance()
         {
-            var subject = new GetMoreMessage(_requestId, _databaseName, _collectionName, _cursorId, _batchSize);
+            var subject = new GetMoreMessage(_requestId, _collectionNamespace, _cursorId, _batchSize);
             subject.BatchSize.Should().Be(_batchSize);
             subject.CursorId.Should().Be(_cursorId);
-            subject.CollectionName.Should().Be(_collectionName);
-            subject.DatabaseName.Should().Be(_databaseName);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.RequestId.Should().Be(_requestId);
         }
 
         [Test]
         public void Constructor_with_negative_batchSize_should_throw()
         {
-            Action action = () => new GetMoreMessage(_requestId, _databaseName, _collectionName, _cursorId, -1);
+            Action action = () => new GetMoreMessage(_requestId, _collectionNamespace, _cursorId, -1);
             action.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
         [Test]
-        public void Constructor_with_null_collectionName_should_throw()
+        public void Constructor_with_null_collectionNamespace_should_throw()
         {
-            Action action = () => new GetMoreMessage(_requestId, _databaseName, null, _cursorId, _batchSize);
-            action.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_with_null_databaseName_should_throw()
-        {
-            Action action = () => new GetMoreMessage(_requestId, null, _collectionName, _cursorId, _batchSize);
+            Action action = () => new GetMoreMessage(_requestId, null, _cursorId, _batchSize);
             action.ShouldThrow<ArgumentNullException>();
         }
 
@@ -71,7 +62,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetGetMoreMessageEncoder().Returns(mockEncoder);
 
-            var subject = new GetMoreMessage(_requestId, _databaseName, _collectionName, _cursorId, _batchSize);
+            var subject = new GetMoreMessage(_requestId, _collectionNamespace, _cursorId, _batchSize);
             var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }

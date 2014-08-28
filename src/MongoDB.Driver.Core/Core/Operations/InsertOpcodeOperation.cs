@@ -31,11 +31,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         // constructors
         public InsertOpcodeOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BatchableSource<BsonDocument> documentSource,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, documentSource, BsonDocumentSerializer.Instance, messageEncoderSettings)
+            : base(collectionNamespace, documentSource, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -43,9 +42,8 @@ namespace MongoDB.Driver.Core.Operations
     public class InsertOpcodeOperation<TDocument> : IWriteOperation<WriteConcernResult>
     {
         // fields
-        private string _collectionName;
+        private CollectionNamespace _collectionNamespace;
         private bool _continueOnError;
-        private string _databaseName;
         private BatchableSource<TDocument> _documentSource;
         private int? _maxBatchCount;
         private int? _maxDocumentSize;
@@ -56,32 +54,25 @@ namespace MongoDB.Driver.Core.Operations
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
-        public InsertOpcodeOperation(string databaseName, string collectionName, BatchableSource<TDocument> documentSource, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings)
+        public InsertOpcodeOperation(CollectionNamespace collectionNamespace, BatchableSource<TDocument> documentSource, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool ContinueOnError
         {
             get { return _continueOnError; }
             set { _continueOnError = value; }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public BatchableSource<TDocument> DocumentSource
@@ -136,8 +127,7 @@ namespace MongoDB.Driver.Core.Operations
         private InsertWireProtocol<TDocument> CreateProtocol()
         {
             return new InsertWireProtocol<TDocument>(
-                _databaseName,
-                _collectionName,
+                _collectionNamespace,
                 _writeConcern,
                 _serializer,
                 _messageEncoderSettings,
@@ -154,7 +144,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
-                var emulator = new InsertOpcodeOperationEmulator<TDocument>(_databaseName, _collectionName, _serializer, _documentSource, _messageEncoderSettings)
+                var emulator = new InsertOpcodeOperationEmulator<TDocument>(_collectionNamespace, _serializer, _documentSource, _messageEncoderSettings)
                 {
                     ContinueOnError = _continueOnError,
                     MaxBatchCount = _maxBatchCount,

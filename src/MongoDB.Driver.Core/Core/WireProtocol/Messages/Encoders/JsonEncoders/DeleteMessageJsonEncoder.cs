@@ -52,8 +52,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 
             return new DeleteMessage(
                 requestId,
-                databaseName,
-                collectionName,
+                new CollectionNamespace(databaseName, collectionName),
                 query,
                 isMulti);
         }
@@ -66,8 +65,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 { "opcode", "delete" },
                 { "requestId", message.RequestId },
-                { "database", message.DatabaseName },
-                { "collection", message.CollectionName },
+                { "database", message.CollectionNamespace.DatabaseNamespace.DatabaseName },
+                { "collection", message.CollectionNamespace.CollectionName },
                 { "query", message.Query ?? new BsonDocument() },
                 { "isMulti", message.IsMulti }
             };

@@ -23,8 +23,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     public class UpdateMessage : RequestMessage
     {
         // fields
-        private readonly string _collectionName;
-        private readonly string _databaseName;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly bool _isMulti;
         private readonly bool _isUpsert;
         private readonly BsonDocument _query;
@@ -33,16 +32,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         // constructors
         public UpdateMessage(
             int requestId,
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument update,
             bool isMulti,
             bool isUpsert)
             : base(requestId)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");
             _isMulti = isMulti;
@@ -50,14 +47,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
+            get { return _collectionNamespace; }
         }
 
         public bool IsMulti

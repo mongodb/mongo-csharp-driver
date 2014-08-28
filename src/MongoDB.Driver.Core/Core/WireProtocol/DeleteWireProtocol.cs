@@ -30,13 +30,12 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         // constructors
         public DeleteWireProtocol(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             bool isMulti,
             MessageEncoderSettings messageEncoderSettings,
             WriteConcern writeConcern)
-            : base(databaseName, collectionName, messageEncoderSettings, writeConcern)
+            : base(collectionNamespace, messageEncoderSettings, writeConcern)
         {
             _query = Ensure.IsNotNull(query, "query");
             _isMulti = isMulti;
@@ -47,8 +46,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             return new DeleteMessage(
                 RequestMessage.GetNextRequestId(),
-                DatabaseName,
-                CollectionName,
+                CollectionNamespace,
                 _query,
                 _isMulti);
         }

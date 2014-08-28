@@ -45,20 +45,20 @@ namespace MongoDB.Driver.Core.WireProtocol
     {
         // fields
         private readonly BsonDocument _command;
-        private readonly string _databaseName;
+        private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly bool _slaveOk;
 
         // constructors
         public CommandWireProtocol(
-            string databaseName,
+            DatabaseNamespace databaseNamespace,
             BsonDocument command,
             bool slaveOk,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _command = Ensure.IsNotNull(command, "command");
             _slaveOk = slaveOk;
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
@@ -70,8 +70,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             return new QueryMessage(
                 RequestMessage.GetNextRequestId(),
-                _databaseName,
-                "$cmd",
+                _databaseNamespace.CommandCollection,
                 _command,
                 null,
                 0,

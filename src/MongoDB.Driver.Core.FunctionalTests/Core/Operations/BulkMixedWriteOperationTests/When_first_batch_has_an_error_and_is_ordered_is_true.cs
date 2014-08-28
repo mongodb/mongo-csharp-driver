@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
         protected override void Given()
         {
             var keys = new BsonDocument("x", 1);
-            var createIndexOperation = new CreateIndexOperation(DatabaseName, CollectionName, keys, MessageEncoderSettings)
+            var createIndexOperation = new CreateIndexOperation(CollectionNamespace, keys, MessageEncoderSettings)
             {
                 Unique = true
             };
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
         protected override void When()
         {
-            var subject = new BulkMixedWriteOperation(DatabaseName, CollectionName, _requests, MessageEncoderSettings)
+            var subject = new BulkMixedWriteOperation(CollectionNamespace, _requests, MessageEncoderSettings)
             {
                 IsOrdered = true
             };

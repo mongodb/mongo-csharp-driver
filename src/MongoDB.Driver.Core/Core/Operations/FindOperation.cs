@@ -36,11 +36,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         // constructors
         public FindOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, query, BsonDocumentSerializer.Instance, messageEncoderSettings)
+            : base(collectionNamespace, query, BsonDocumentSerializer.Instance, messageEncoderSettings)
         {
         }
     }
@@ -55,9 +54,8 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _additionalOptions;
         private bool _awaitData = true;
         private int? _batchSize;
-        private string _collectionName;
+        private CollectionNamespace _collectionNamespace;
         private string _comment;
-        private string _databaseName;
         private BsonDocument _fields;
         private string _hint;
         private int? _limit;
@@ -74,14 +72,12 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public FindOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _messageEncoderSettings = messageEncoderSettings;
@@ -106,22 +102,16 @@ namespace MongoDB.Driver.Core.Operations
             set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public string Comment
         {
             get { return _comment; }
             set { _comment = value; }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public BsonDocument Fields
@@ -235,7 +225,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public FindOperation<TOtherDocument> Clone<TOtherDocument>(IBsonSerializer<TOtherDocument> serializer)
         {
-            return new FindOperation<TOtherDocument>(_databaseName, _collectionName, _query, serializer, _messageEncoderSettings)
+            return new FindOperation<TOtherDocument>(_collectionNamespace, _query, serializer, _messageEncoderSettings)
             {
                 AdditionalOptions = _additionalOptions,
                 AwaitData = _awaitData,
@@ -261,8 +251,7 @@ namespace MongoDB.Driver.Core.Operations
             var firstBatchSize = CalculateFirstBatchSize();
 
             return new QueryWireProtocol<TDocument>(
-                _databaseName,
-                _collectionName,
+                _collectionNamespace,
                 wrappedQuery,
                 _fields,
                 _skip ?? 0,
@@ -314,8 +303,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 return new Cursor<TDocument>(
                     connectionSource.Fork(),
-                    _databaseName,
-                    _collectionName,
+                    _collectionNamespace,
                     _query,
                     batch.Documents,
                     batch.CursorId,

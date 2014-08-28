@@ -34,12 +34,11 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly int _batchSize;
         private readonly CancellationToken _cancellationToken;
-        private readonly string _collectionName;
+        private readonly CollectionNamespace _collectionNamespace;
         private readonly IConnectionSource _connectionSource;
         private int _count;
         private IReadOnlyList<TDocument> _currentBatch;
         private long _cursorId;
-        private readonly string _databaseName;
         private bool _disposed;
         private IReadOnlyList<TDocument> _firstBatch;
         private readonly int _limit;
@@ -51,8 +50,7 @@ namespace MongoDB.Driver.Core.Operations
         // constructors
         public Cursor(
             IConnectionSource connectionSource,
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             BsonDocument query,
             IReadOnlyList<TDocument> firstBatch,
             long cursorId,
@@ -64,8 +62,7 @@ namespace MongoDB.Driver.Core.Operations
             CancellationToken cancellationToken)
         {
             _connectionSource = Ensure.IsNotNull(connectionSource, "connectionSource");
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _firstBatch = Ensure.IsNotNull(firstBatch, "firstBatch");
             _cursorId = cursorId;
@@ -108,8 +105,7 @@ namespace MongoDB.Driver.Core.Operations
         private GetMoreWireProtocol<TDocument> CreateGetMoreProtocol()
         {
             return new GetMoreWireProtocol<TDocument>(
-                _databaseName,
-                _collectionName,
+                _collectionNamespace,
                 _query,
                 _cursorId,
                 _batchSize,

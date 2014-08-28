@@ -31,11 +31,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         // constructors
         public BulkDeleteOperation(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IEnumerable<DeleteRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseName, collectionName, requests, messageEncoderSettings)
+            : base(collectionNamespace, requests, messageEncoderSettings)
         {
         }
 
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
         {
-            return new BulkDeleteOperationEmulator(DatabaseName, CollectionName, Requests, MessageEncoderSettings)
+            return new BulkDeleteOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
             {
                 MaxBatchCount = MaxBatchCount,
                 MaxBatchLength = MaxBatchLength,

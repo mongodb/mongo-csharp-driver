@@ -26,21 +26,18 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private bool? _allowDiskUsage;
-        private string _collectionName;
-        private string _databaseName;
+        private CollectionNamespace _collectionNamespace;
         private TimeSpan? _maxTime;
         private MessageEncoderSettings _messageEncoderSettings;
         private IReadOnlyList<BsonDocument> _pipeline;
 
         // constructors
         protected AggregateOperationBase(
-            string databaseName,
-            string collectionName,
+            CollectionNamespace collectionNamespace,
             IEnumerable<BsonDocument> pipeline,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
-            _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -52,16 +49,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _allowDiskUsage = value; }
         }
 
-        public string CollectionName
+        public CollectionNamespace CollectionNamespace
         {
-            get { return _collectionName; }
-            set { _collectionName = Ensure.IsNotNullOrEmpty(value, "value"); }
-        }
-
-        public string DatabaseName
-        {
-            get { return _databaseName; }
-            set { _databaseName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            get { return _collectionNamespace; }
+            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public TimeSpan? MaxTime
@@ -87,7 +78,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "aggregate", _collectionName },
+                { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUsage", () => _allowDiskUsage.Value, _allowDiskUsage.HasValue }
             };

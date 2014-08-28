@@ -70,6 +70,8 @@
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\MessageBinaryEncoderBase.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\MessageJsonEncoderBase.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\MessageEncoderSettings.cs" />
+    <Compile Include="CollectionNamespace.cs" />
+    <Compile Include="DatabaseNamespace.cs" />
     <Compile Include="ExecutionTimeoutException.cs" />
     <Compile Include="Core\Operations\BulkWriteResultConverter.cs" />
     <Compile Include="Core\Operations\DeleteOpcodeOperationEmulator.cs" />
