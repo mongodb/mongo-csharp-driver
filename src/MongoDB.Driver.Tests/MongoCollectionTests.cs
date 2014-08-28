@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests
         public void Setup()
         {
             _server = Configuration.TestServer;
-            _primary = _server.Instances.First(x => ReadPreference.Primary.MatchesInstance(x));
+            _primary = _server.Instances.First(x => x.IsPrimary);
             _database = Configuration.TestDatabase;
             _collection = Configuration.TestCollection;
         }

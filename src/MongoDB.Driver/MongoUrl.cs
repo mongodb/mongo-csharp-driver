@@ -74,7 +74,6 @@ namespace MongoDB.Driver
         private readonly string _replicaSetName;
         private readonly TimeSpan _secondaryAcceptableLatency;
         private readonly IEnumerable<MongoServerAddress> _servers;
-        private readonly bool _slaveOk;
         private readonly TimeSpan _socketTimeout;
         private readonly string _username;
         private readonly bool _useSsl;
@@ -113,9 +112,6 @@ namespace MongoDB.Driver
             _replicaSetName = builder.ReplicaSetName;
             _secondaryAcceptableLatency = builder.SecondaryAcceptableLatency;
             _servers = builder.Servers;
-#pragma warning disable 618
-            _slaveOk = builder.SlaveOk;
-#pragma warning restore
             _socketTimeout = builder.SocketTimeout;
             _username = builder.Username;
             _useSsl = builder.UseSsl;
@@ -327,17 +323,6 @@ namespace MongoDB.Driver
         public IEnumerable<MongoServerAddress> Servers
         {
             get { return _servers; }
-        }
-
-        /// <summary>
-        /// Gets whether queries can be sent to secondary servers.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public bool SlaveOk
-        {
-#pragma warning disable 618
-            get { return _slaveOk; }
-#pragma warning restore
         }
 
         /// <summary>

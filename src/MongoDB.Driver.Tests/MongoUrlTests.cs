@@ -28,11 +28,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestAll()
         {
-            var readPreference = new ReadPreference
-            {
-                ReadPreferenceMode = ReadPreferenceMode.Secondary,
-                TagSets = new[] { new ReplicaSetTagSet { { "dc", "1" } } }
-            };
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new [] { new Tag("dc", "1") }) });
             var built = new MongoUrlBuilder()
             {
                 AuthenticationMechanism = "GSSAPI",
@@ -115,9 +111,6 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(6), url.SecondaryAcceptableLatency);
                 Assert.AreEqual(new MongoServerAddress("host", 27017), url.Server);
-#pragma warning disable 618
-                Assert.AreEqual(true, url.SlaveOk);
-#pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(7), url.SocketTimeout);
                 Assert.AreEqual("username", url.Username);
                 Assert.AreEqual(true, url.UseSsl);

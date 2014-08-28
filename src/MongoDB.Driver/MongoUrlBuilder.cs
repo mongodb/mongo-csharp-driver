@@ -316,7 +316,7 @@ namespace MongoDB.Driver
                 }
                 else if (_slaveOk.HasValue)
                 {
-                    return ReadPreference.FromSlaveOk(_slaveOk.Value);
+                    return _slaveOk.Value ? ReadPreference.SecondaryPreferred : ReadPreference.Primary;
                 }
                 else
                 {
@@ -414,37 +414,6 @@ namespace MongoDB.Driver
         {
             get { return _servers; }
             set { _servers = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets whether queries should be sent to secondary servers.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public bool SlaveOk
-        {
-            get
-            {
-                if (_slaveOk.HasValue)
-                {
-                    return _slaveOk.Value;
-                }
-                else if (_readPreference != null)
-                {
-                    return _readPreference.ToSlaveOk();
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            set
-            {
-                if (_readPreference != null)
-                {
-                    throw new InvalidOperationException("SlaveOk cannot be set because ReadPreference already has a value.");
-                }
-                _slaveOk = value;
-            }
         }
 
         /// <summary>
@@ -659,9 +628,9 @@ namespace MongoDB.Driver
             }
         }
 
-        internal static ReplicaSetTagSet ParseReplicaSetTagSet(string name, string s)
+        internal static TagSet ParseReplicaSetTagSet(string name, string s)
         {
-            var tagSet = new ReplicaSetTagSet();
+            var tags = new List<Tag>();
             foreach (var tagString in s.Split(','))
             {
                 var parts = tagString.Split(':');
@@ -669,10 +638,10 @@ namespace MongoDB.Driver
                 {
                     throw new FormatException(FormatMessage(name, s));
                 }
-                var tag = new ReplicaSetTag(parts[0].Trim(), parts[1].Trim());
-                tagSet.Add(tag);
+                var tag = new Tag(parts[0].Trim(), parts[1].Trim());
+                tags.Add(tag);
             }
-            return tagSet;
+            return new TagSet(tags);
         }
 
         internal static TimeSpan ParseTimeSpan(string name, string s)
@@ -868,12 +837,12 @@ namespace MongoDB.Driver
                                 MinConnectionPoolSize = ParseInt32(name, value);
                                 break;
                             case "readpreference":
-                                if (_readPreference == null) { _readPreference = new ReadPreference(); }
-                                ReadPreference.ReadPreferenceMode = ParseReadPreferenceMode(name, value);
+                                if (_readPreference == null) { _readPreference = new ReadPreference(ReadPreferenceMode.Primary); }
+                                _readPreference = _readPreference.WithMode(ParseReadPreferenceMode(name, value));
                                 break;
                             case "readpreferencetags":
-                                if (_readPreference == null) { _readPreference = new ReadPreference { ReadPreferenceMode = ReadPreferenceMode.Primary }; }
-                                ReadPreference.AddTagSet(ParseReplicaSetTagSet(name, value));
+                                if (_readPreference == null) { _readPreference = new ReadPreference(ReadPreferenceMode.Primary); }
+                                _readPreference = _readPreference.WithTagSets(_readPreference.TagSets.Concat(new [] { ParseReplicaSetTagSet(name, value) } ));
                                 break;
                             case "replicaset":
                                 ReplicaSetName = value;
@@ -906,9 +875,11 @@ namespace MongoDB.Driver
                                 SecondaryAcceptableLatency = ParseTimeSpan(name, value);
                                 break;
                             case "slaveok":
-#pragma warning disable 618
-                                SlaveOk = ParseBoolean(name, value);
-#pragma warning restore
+                                if(_readPreference != null)
+                                {
+                                    throw new InvalidOperationException("SlaveOk cannot be set because ReadPreference already has a value.");
+                                }
+                                _slaveOk = ParseBoolean(name, value);
                                 break;
                             case "sockettimeout":
                             case "sockettimeoutms":
@@ -1046,10 +1017,6 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("replicaSet={0};", _replicaSetName);
             }
-            if (_slaveOk.HasValue)
-            {
-                query.AppendFormat("slaveOk={0};", _slaveOk.Value ? "true" : "false"); // note: bool.ToString() returns "True" and "False"
-            }
             if (_readPreference != null)
             {
                 query.AppendFormat("readPreference={0};", MongoUtils.ToCamelCase(_readPreference.ReadPreferenceMode.ToString()));
@@ -1057,7 +1024,7 @@ namespace MongoDB.Driver
                 {
                     foreach (var tagSet in _readPreference.TagSets)
                     {
-                        query.AppendFormat("readPreferenceTags={0};", string.Join(",", tagSet.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()));
+                        query.AppendFormat("readPreferenceTags={0};", string.Join(",", tagSet.Tags.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()));
                     }
                 }
             }

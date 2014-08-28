@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return new BsonDocument
             {
-                { "mode", BsonUtils.ToCamelCase(readPreference.Mode.ToString()) },
+                { "mode", BsonUtils.ToCamelCase(readPreference.ReadPreferenceMode.ToString()) },
                 { "tags", tagSets, tagSets != null }
             };
         }

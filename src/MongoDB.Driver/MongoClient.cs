@@ -139,7 +139,7 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListDatabaseNamesOperation(messageEncoderSettings);
 
-            using(var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference.ToCore()))
+            using(var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
             }

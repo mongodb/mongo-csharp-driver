@@ -19,10 +19,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Driver.Core.Clusters;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver
 {
     [TestFixture]
     public class ReadPreferenceTests
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void Constructor_should_set_mode_correctly()
         {
             var readPreference = new ReadPreference(ReadPreferenceMode.Secondary); // use a value that is not the default
-            readPreference.Mode.Should().Be(ReadPreferenceMode.Secondary);
+            readPreference.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Secondary);
         }
 
         [Test]
@@ -65,10 +64,29 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Test]
+        public void Equals_should_be_correct()
+        {
+            var a = ReadPreference.Primary;
+            var b = ReadPreference.Primary;
+            var c = ReadPreference.Secondary;
+            var d = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ca") }) });
+            var e = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ca") }) });
+            var f = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ac") }) });
+            var g = new ReadPreference(ReadPreferenceMode.Primary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ac") }) });
+
+            a.Should().Be(b);
+            b.Should().NotBe(c);
+            c.Should().NotBe(d);
+            d.Should().Be(e);
+            e.Should().NotBe(f);
+            f.Should().NotBe(g);
+        }
+
+        [Test]
         public void Nearest_should_return_a_correctly_initialized_read_preference()
         {
             var readPreference = ReadPreference.Nearest;
-            readPreference.Mode.Should().Be(ReadPreferenceMode.Nearest);
+            readPreference.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Nearest);
             readPreference.TagSets.Count.Should().Be(0);
         }
 
@@ -76,7 +94,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void Primary_should_return_a_correctly_initialized_read_preference()
         {
             var readPreference = ReadPreference.Primary;
-            readPreference.Mode.Should().Be(ReadPreferenceMode.Primary);
+            readPreference.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Primary);
             readPreference.TagSets.Count.Should().Be(0);
         }
 
@@ -84,7 +102,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void PrimaryPreferred_should_return_a_correctly_initialized_read_preference()
         {
             var readPreference = ReadPreference.PrimaryPreferred;
-            readPreference.Mode.Should().Be(ReadPreferenceMode.PrimaryPreferred);
+            readPreference.ReadPreferenceMode.Should().Be(ReadPreferenceMode.PrimaryPreferred);
             readPreference.TagSets.Count.Should().Be(0);
         }
 
@@ -92,7 +110,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void Secondary_should_return_a_correctly_initialized_read_preference()
         {
             var readPreference = ReadPreference.Secondary;
-            readPreference.Mode.Should().Be(ReadPreferenceMode.Secondary);
+            readPreference.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Secondary);
             readPreference.TagSets.Count.Should().Be(0);
         }
 
@@ -100,7 +118,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void SecondaryPreferred_should_return_a_correctly_initialized_read_preference()
         {
             var readPreference = ReadPreference.SecondaryPreferred;
-            readPreference.Mode.Should().Be(ReadPreferenceMode.SecondaryPreferred);
+            readPreference.ReadPreferenceMode.Should().Be(ReadPreferenceMode.SecondaryPreferred);
             readPreference.TagSets.Count.Should().Be(0);
         }
 
@@ -110,7 +128,7 @@ namespace MongoDB.Driver.Core.Clusters
             var readPreference1 = new ReadPreference(ReadPreferenceMode.Secondary);
             var readPreference2 = readPreference1.WithMode(ReadPreferenceMode.SecondaryPreferred);
             readPreference2.Should().NotBeSameAs(readPreference1);
-            readPreference2.Mode.Should().Be(ReadPreferenceMode.SecondaryPreferred);
+            readPreference2.ReadPreferenceMode.Should().Be(ReadPreferenceMode.SecondaryPreferred);
         }
 
         [Test]

@@ -153,23 +153,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether queries should be sent to secondary servers.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public bool SlaveOk
-        {
-            get
-            {
-                return (_readPreference.Value != null) ? _readPreference.Value.ToSlaveOk() : false;
-            }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                _readPreference.Value = ReadPreference.FromSlaveOk(value);
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the WriteConcern to use.
         /// </summary>
         public WriteConcern WriteConcern
@@ -257,7 +240,6 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                if (_readPreference.Value != null) { _readPreference.Value = _readPreference.Value.FrozenCopy(); }
                 if (_writeConcern.Value != null) { _writeConcern.Value = _writeConcern.Value.FrozenCopy(); }
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();

@@ -221,18 +221,15 @@ namespace MongoDB.Driver.Tests
         public void TestFreeze()
         {
             var settings = new MongoServerSettings();
-            settings.ReadPreference = new ReadPreference();
             settings.WriteConcern = new WriteConcern();
 
             Assert.IsFalse(settings.IsFrozen);
-            Assert.IsFalse(settings.ReadPreference.IsFrozen);
             Assert.IsFalse(settings.WriteConcern.IsFrozen);
             var hashCode = settings.GetHashCode();
             var stringRepresentation = settings.ToString();
 
             settings.Freeze();
             Assert.IsTrue(settings.IsFrozen);
-            Assert.IsTrue(settings.ReadPreference.IsFrozen);
             Assert.IsTrue(settings.WriteConcern.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
@@ -435,14 +432,12 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoServerSettings();
             Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
 
-            var readPreference = new ReadPreference();
+            var readPreference = ReadPreference.Primary;
             settings.ReadPreference = readPreference;
             Assert.AreSame(readPreference, settings.ReadPreference);
-            Assert.IsFalse(settings.ReadPreference.IsFrozen);
 
             settings.Freeze();
             Assert.AreEqual(readPreference, settings.ReadPreference);
-            Assert.IsTrue(settings.ReadPreference.IsFrozen);
             Assert.Throws<InvalidOperationException>(() => { settings.ReadPreference = readPreference; });
         }
 

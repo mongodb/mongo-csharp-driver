@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
         private CommandWireProtocol<TCommandResult> CreateProtocol(ServerDescription serverDescription, ReadPreference readPreference)
         {
             var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
-            var slaveOk = readPreference != null && readPreference.Mode != ReadPreferenceMode.Primary;
+            var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
             return new CommandWireProtocol<TCommandResult>(_databaseNamespace, wrappedCommand, slaveOk, _resultSerializer, _messageEncoderSettings);
         }
 

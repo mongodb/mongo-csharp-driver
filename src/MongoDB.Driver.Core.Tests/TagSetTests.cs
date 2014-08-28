@@ -18,11 +18,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Clusters;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver
 {
     [TestFixture]
     public class TagSetTests

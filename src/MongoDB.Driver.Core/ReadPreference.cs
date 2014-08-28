@@ -13,16 +13,18 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a read preference.
     /// </summary>
-    public class ReadPreference
+    public sealed class ReadPreference : IEquatable<ReadPreference>
     {
         #region static
         // static fields
@@ -78,7 +80,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // properties
-        public ReadPreferenceMode Mode
+        public ReadPreferenceMode ReadPreferenceMode
         {
             get { return _mode; }
         }
@@ -89,6 +91,35 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // methods
+        public bool Equals(ReadPreference other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            return _mode == other._mode &&
+                _tagSets.SequenceEqual(other.TagSets);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ReadPreference);
+        }
+
+        public override int GetHashCode()
+        {
+            return new Hasher()
+                .Hash(_mode)
+                .HashElements(_tagSets)
+                .GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{{ Mode = {0}, TagSets = {1} }}", _mode, _tagSets);
+        }
+
         public ReadPreference WithMode(ReadPreferenceMode value)
         {
             return (_mode == value) ? this : new ReadPreference(value, _tagSets);

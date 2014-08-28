@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Core.Operations
         private QueryWireProtocol<TDocument> CreateProtocol(ServerDescription serverDescription, ReadPreference readPreference)
         {
             var wrappedQuery = CreateWrappedQuery(serverDescription, readPreference);
-            var slaveOk = readPreference != null && readPreference.Mode != ReadPreferenceMode.Primary;
+            var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
             var firstBatchSize = CalculateFirstBatchSize();
 
             return new QueryWireProtocol<TDocument>(

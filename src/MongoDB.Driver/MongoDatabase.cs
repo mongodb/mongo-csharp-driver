@@ -799,19 +799,6 @@ namespace MongoDB.Driver
         /// on the same connection. The return value of this method implements IDisposable and can be placed in a
         /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
         /// </summary>
-        /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
-        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        [Obsolete("Use the overload of RequestStart that has a ReadPreference parameter instead.")]
-        public virtual IDisposable RequestStart(bool slaveOk)
-        {
-            return _server.RequestStart(this, ReadPreference.FromSlaveOk(slaveOk));
-        }
-
-        /// <summary>
-        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
-        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
-        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
-        /// </summary>
         /// <param name="readPreference">The read preference.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(ReadPreference readPreference)
@@ -1119,7 +1106,7 @@ namespace MongoDB.Driver
                 var endPoint = (DnsEndPoint)connectionSource.ServerDescription.EndPoint;
                 var address = new MongoServerAddress(endPoint.Host, endPoint.Port);
                 serverInstance = _server.GetServerInstance(address);
-                return operation.Execute(connectionSource, readPreference.ToCore(), Timeout.InfiniteTimeSpan, CancellationToken.None);
+                return operation.Execute(connectionSource, readPreference, Timeout.InfiniteTimeSpan, CancellationToken.None);
             }
         }
 

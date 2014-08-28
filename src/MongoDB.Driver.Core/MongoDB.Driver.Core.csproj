@@ -136,8 +136,8 @@
     <Compile Include="Core\Clusters\ICluster.cs" />
     <Compile Include="Core\Clusters\IClusterFactory.cs" />
     <Compile Include="Core\Clusters\MultiServerCluster.cs" />
-    <Compile Include="Core\Clusters\ReadPreference.cs" />
-    <Compile Include="Core\Clusters\ReadPreferenceMode.cs" />
+    <Compile Include="ReadPreference.cs" />
+    <Compile Include="ReadPreferenceMode.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfig.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\LatencyLimitingServerSelector.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\CompositeServerSelector.cs" />
@@ -146,8 +146,8 @@
     <Compile Include="Core\Clusters\ServerSelectors\RandomServerSelector.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\ReadPreferenceServerSelector.cs" />
     <Compile Include="Core\Clusters\SingleServerCluster.cs" />
-    <Compile Include="Core\Clusters\Tag.cs" />
-    <Compile Include="Core\Clusters\TagSet.cs" />
+    <Compile Include="Tag.cs" />
+    <Compile Include="TagSet.cs" />
     <Compile Include="Core\ConnectionPools\SharedConnectionPool.cs" />
     <Compile Include="Core\ConnectionPools\SharedConnectionPoolFactory.cs" />
     <Compile Include="Core\Configuration\ConnectionPoolSettings.cs" />

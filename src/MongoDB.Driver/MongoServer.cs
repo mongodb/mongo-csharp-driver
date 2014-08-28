@@ -495,7 +495,7 @@ namespace MongoDB.Driver
         public virtual void Connect(TimeSpan timeout)
         {
             var readPreference = _settings.ReadPreference;
-            var readPreferenceServerSelector = new ReadPreferenceServerSelector(readPreference.ToCore());
+            var readPreferenceServerSelector = new ReadPreferenceServerSelector(readPreference);
             _cluster.SelectServerAsync(readPreferenceServerSelector, timeout, CancellationToken.None).GetAwaiter().GetResult();
         }
 
@@ -778,28 +778,12 @@ namespace MongoDB.Driver
         /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
         /// </summary>
         /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
-        /// <param name="slaveOk">Whether a secondary is acceptable.</param>
-        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        [Obsolete("Use the overload of RequestStart that has a ReadPreference parameter instead.")]
-        public virtual IDisposable RequestStart(MongoDatabase initialDatabase, bool slaveOk)
-        {
-            var readPreference = ReadPreference.FromSlaveOk(slaveOk);
-            return RequestStart(initialDatabase, readPreference);
-        }
-
-        /// <summary>
-        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
-        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
-        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
-        /// </summary>
-        /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase, ReadPreference readPreference)
         {
-            var coreReadPreference = readPreference.ToCore();
-            var serverSelector = new ReadPreferenceServerSelector(coreReadPreference);
-            return RequestStart(serverSelector, coreReadPreference);
+            var serverSelector = new ReadPreferenceServerSelector(readPreference);
+            return RequestStart(serverSelector, readPreference);
         }
 
         /// <summary>
@@ -815,7 +799,7 @@ namespace MongoDB.Driver
             var address = serverInstance.Address;
             var endPoint = new DnsEndPoint(address.Host, address.Port);
             var serverSelector = new EndPointServerSelector(endPoint);
-            var coreReadPreference = serverInstance.GetServerDescription().Type.IsWritable() ? Core.Clusters.ReadPreference.Primary : Core.Clusters.ReadPreference.Secondary;
+            var coreReadPreference = serverInstance.GetServerDescription().Type.IsWritable() ? ReadPreference.Primary : ReadPreference.Secondary;
             return RequestStart(serverSelector, coreReadPreference);
         }
 
@@ -842,7 +826,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                return new ReadBindingHandle(new ReadPreferenceBinding(_cluster, readPreference.ToCore()));
+                return new ReadBindingHandle(new ReadPreferenceBinding(_cluster, readPreference));
             }
 
         }
@@ -877,7 +861,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private IDisposable RequestStart(IServerSelector serverSelector, Core.Clusters.ReadPreference readPreference)
+        private IDisposable RequestStart(IServerSelector serverSelector, ReadPreference readPreference)
         {
             var request = __threadStaticRequest;
             if (request != null)
@@ -895,7 +879,7 @@ namespace MongoDB.Driver
             var server = _cluster.SelectServer(serverSelector);
             using (var connection = server.GetConnection())
             {
-                if (readPreference.Mode == Core.Clusters.ReadPreferenceMode.Primary)
+                if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
                 {
                     connectionBinding = new ReadWriteBindingHandle(new ConnectionReadWriteBinding(server, connection.Fork()));
                 }

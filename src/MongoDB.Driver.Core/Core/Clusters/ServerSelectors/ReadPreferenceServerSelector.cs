@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
             var materializedList = servers as IReadOnlyList<ServerDescription> ?? servers.ToList();
 
-            switch (_readPreference.Mode)
+            switch (_readPreference.ReadPreferenceMode)
             {
                 case ReadPreferenceMode.Primary:
                     return materializedList.Where(n => n.Type == ServerType.ReplicaSetPrimary);

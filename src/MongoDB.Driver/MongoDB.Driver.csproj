@@ -254,9 +254,6 @@
     <Compile Include="PasswordEvidence.cs" />
     <Compile Include="ProfilingLevel.cs" />
     <Compile Include="Range.cs" />
-    <Compile Include="ReadPreference.cs" />
-    <Compile Include="ReplicaSetTag.cs" />
-    <Compile Include="ReplicaSetTagSet.cs" />
     <Compile Include="Operations\DeleteRequest.cs" />
     <Compile Include="Operations\UpdateRequest.cs" />
     <Compile Include="Setting.cs" />

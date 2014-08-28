@@ -14,11 +14,10 @@
 */
 
 using System;
-using MongoDB.Driver.Core.Clusters;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver
 {
     [TestFixture]
     public class TagTests

@@ -87,7 +87,7 @@
     <Compile Include="Core\Clusters\ClusterDescriptionTests.cs" />
     <Compile Include="Core\Clusters\ClusterIdTests.cs" />
     <Compile Include="Core\Clusters\ClusterTests.cs" />
-    <Compile Include="Core\Clusters\ReadPreferenceTests.cs" />
+    <Compile Include="ReadPreferenceTests.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\DelegateServerSelectorTests.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\CompositeServerSelectorTests.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\ReadPreferenceServerSelectorTests.cs" />
@@ -95,8 +95,8 @@
     <Compile Include="Core\Clusters\ServerSelectors\LatencyLimitingServerSelectorTests.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\EndPointServerSelectorTests.cs" />
     <Compile Include="Core\Clusters\SingleServerClusterTests.cs" />
-    <Compile Include="Core\Clusters\TagSetTests.cs" />
-    <Compile Include="Core\Clusters\TagTests.cs" />
+    <Compile Include="TagSetTests.cs" />
+    <Compile Include="TagTests.cs" />
     <Compile Include="Core\Configuration\ConnectionStringTests.cs" />
     <Compile Include="Core\Configuration\ServerSettingsTests.cs" />
     <Compile Include="Core\ConnectionPools\ExclusiveConnectionPoolFactoryTests.cs" />

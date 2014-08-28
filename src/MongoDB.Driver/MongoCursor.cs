@@ -165,23 +165,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether the query can be sent to a secondary server.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public virtual bool SlaveOk
-        {
-            get
-            {
-                return _readPreference.ToSlaveOk();
-            }
-            set
-            {
-                if (_isFrozen) { ThrowFrozen(); }
-                _readPreference = ReadPreference.FromSlaveOk(value);
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the number of documents the server should skip before returning the rest of the documents.
         /// </summary>
         public virtual int Skip
@@ -584,19 +567,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Sets whether the query should be sent to a secondary server.
-        /// </summary>
-        /// <param name="slaveOk">Whether the query can be sent to a secondary server.</param>
-        /// <returns>The cursor (so you can chain method calls to it).</returns>
-        [Obsolete("Use SetReadPreference instead.")]
-        public virtual MongoCursor SetSlaveOk(bool slaveOk)
-        {
-            if (_isFrozen) { ThrowFrozen(); }
-            _readPreference = ReadPreference.FromSlaveOk(slaveOk);
-            return this;
-        }
-
-        /// <summary>
         /// Sets the $snapshot option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
@@ -935,19 +905,6 @@ namespace MongoDB.Driver
         public new virtual MongoCursor<TDocument> SetSkip(int skip)
         {
             return (MongoCursor<TDocument>)base.SetSkip(skip);
-        }
-
-        /// <summary>
-        /// Sets whether the query should be sent to a secondary server.
-        /// </summary>
-        /// <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
-        /// <returns>The cursor (so you can chain method calls to it).</returns>
-        [Obsolete("Use SetReadPreference instead.")]
-        public new virtual MongoCursor<TDocument> SetSlaveOk(bool slaveOk)
-        {
-#pragma warning disable 618
-            return (MongoCursor<TDocument>)base.SetSlaveOk(slaveOk);
-#pragma warning restore 618
         }
 
         /// <summary>

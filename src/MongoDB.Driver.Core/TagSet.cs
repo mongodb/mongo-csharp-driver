@@ -21,12 +21,12 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a replica set member tag set.
     /// </summary>
-    public class TagSet : IEquatable<TagSet>
+    public sealed class TagSet : IEquatable<TagSet>
     {
         // fields
         private readonly IReadOnlyList<Tag> _tags;
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         public bool Equals(TagSet rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(TagSet))
+            if (rhs == null)
             {
                 return false;
             }

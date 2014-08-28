@@ -310,7 +310,7 @@ namespace MongoDB.Driver
 
             var server = GetServer();
             using (var connectionSource = new ConnectionSourceHandle(new ServerConnectionSource(server)))
-            using (var connectionSourceBinding = new ConnectionSourceReadWriteBinding(connectionSource, Core.Clusters.ReadPreference.PrimaryPreferred))
+            using (var connectionSourceBinding = new ConnectionSourceReadWriteBinding(connectionSource, ReadPreference.PrimaryPreferred))
             {
                 operation.Execute(connectionSourceBinding, _settings.ConnectTimeout, CancellationToken.None);
             }

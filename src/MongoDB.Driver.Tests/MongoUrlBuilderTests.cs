@@ -30,11 +30,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestAll()
         {
-            var readPreference = new ReadPreference
-            {
-                ReadPreferenceMode = ReadPreferenceMode.Secondary,
-                TagSets = new[] { new ReplicaSetTagSet { { "dc", "1" } } }
-            };
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) });
             var built = new MongoUrlBuilder()
             {
                 AuthenticationMechanism = "GSSAPI",
@@ -117,9 +113,6 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(6), builder.SecondaryAcceptableLatency);
                 Assert.AreEqual(new MongoServerAddress("host", 27017), builder.Server);
-#pragma warning disable 618
-                Assert.AreEqual(true, builder.SlaveOk);
-#pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(7), builder.SocketTimeout);
                 Assert.AreEqual("username", builder.Username);
                 Assert.AreEqual(true, builder.UseSsl);
@@ -306,9 +299,6 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(MongoDefaults.SecondaryAcceptableLatency, builder.SecondaryAcceptableLatency);
                 Assert.AreEqual(null, builder.Server);
                 Assert.AreEqual(null, builder.Servers);
-#pragma warning disable 618
-                Assert.AreEqual(false, builder.SlaveOk);
-#pragma warning restore
                 Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
                 Assert.AreEqual(null, builder.Username);
                 Assert.AreEqual(false, builder.UseSsl);
@@ -588,7 +578,7 @@ namespace MongoDB.Driver.Tests
         public void TestReadPreference(ReadPreferenceMode? mode, string formatString, string[] values)
         {
             ReadPreference readPreference = null;
-            if (mode != null) { readPreference = new ReadPreference { ReadPreferenceMode = mode.Value }; }
+            if (mode != null) { readPreference = new ReadPreference(mode.Value); }
             var built = new MongoUrlBuilder { Server = _localhost, ReadPreference = readPreference };
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
@@ -600,29 +590,13 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [TestCase(false, ReadPreferenceMode.Primary)]
-        [TestCase(false, ReadPreferenceMode.Secondary)]
-        [TestCase(true, ReadPreferenceMode.Primary)]
-        [TestCase(true, ReadPreferenceMode.Secondary)]
-        public void TestReadPreference_AfterSlaveOk(bool slaveOk, ReadPreferenceMode mode)
-        {
-            var readPreference = new ReadPreference { ReadPreferenceMode = mode };
-            var builder = new MongoUrlBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.SlaveOk = slaveOk;
-#pragma warning restore
-            builder.ReadPreference = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.ReadPreference = readPreference; });
-        }
-
-        [Test]
         public void TestReadPreference_SecondaryWithOneTagSet()
         {
-            var tagSets = new ReplicaSetTagSet[]
+            var tagSets = new TagSet[]
             {
-                new ReplicaSetTagSet { { "dc", "ny" }, { "rack", "1" } }
+                new TagSet(new [] { new Tag("dc", "ny"), new Tag("rack", "1") })
             };
-            var readPreference = new ReadPreference { ReadPreferenceMode = ReadPreferenceMode.Secondary, TagSets = tagSets };
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, tagSets);
             var built = new MongoUrlBuilder { Server = _localhost, ReadPreference = readPreference };
             var connectionString = "mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny,rack:1";
 
@@ -633,8 +607,8 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(1, builderTagSets.Length);
                 var builderTagSet1Tags = builderTagSets[0].Tags.ToArray();
                 Assert.AreEqual(2, builderTagSet1Tags.Length);
-                Assert.AreEqual(new ReplicaSetTag("dc", "ny"), builderTagSet1Tags[0]);
-                Assert.AreEqual(new ReplicaSetTag("rack", "1"), builderTagSet1Tags[1]);
+                Assert.AreEqual(new Tag("dc", "ny"), builderTagSet1Tags[0]);
+                Assert.AreEqual(new Tag("rack", "1"), builderTagSet1Tags[1]);
                 Assert.AreEqual(connectionString, builder.ToString());
             }
         }
@@ -642,12 +616,12 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestReadPreference_SecondaryWithTwoTagSets()
         {
-            var tagSets = new ReplicaSetTagSet[]
+            var tagSets = new TagSet[]
             {
-                new ReplicaSetTagSet { { "dc", "ny" }, { "rack", "1" } },
-                new ReplicaSetTagSet { { "dc", "sf" } }
+                new TagSet(new [] { new Tag("dc", "ny"), new Tag("rack", "1") }),
+                new TagSet(new [] { new Tag("dc", "sf") })
             };
-            var readPreference = new ReadPreference { ReadPreferenceMode = ReadPreferenceMode.Secondary, TagSets = tagSets };
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, tagSets);
             var built = new MongoUrlBuilder { Server = _localhost, ReadPreference = readPreference };
             var connectionString = "mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny,rack:1;readPreferenceTags=dc:sf";
 
@@ -659,10 +633,10 @@ namespace MongoDB.Driver.Tests
                 var builderTagSet1Tags = builderTagSets[0].Tags.ToArray();
                 var builderTagSet2Tags = builderTagSets[1].Tags.ToArray();
                 Assert.AreEqual(2, builderTagSet1Tags.Length);
-                Assert.AreEqual(new ReplicaSetTag("dc", "ny"), builderTagSet1Tags[0]);
-                Assert.AreEqual(new ReplicaSetTag("rack", "1"), builderTagSet1Tags[1]);
+                Assert.AreEqual(new Tag("dc", "ny"), builderTagSet1Tags[0]);
+                Assert.AreEqual(new Tag("rack", "1"), builderTagSet1Tags[1]);
                 Assert.AreEqual(1, builderTagSet2Tags.Length);
-                Assert.AreEqual(new ReplicaSetTag("dc", "sf"), builderTagSet2Tags[0]);
+                Assert.AreEqual(new Tag("dc", "sf"), builderTagSet2Tags[0]);
                 Assert.AreEqual(connectionString, builder.ToString());
             }
         }
@@ -694,7 +668,7 @@ namespace MongoDB.Driver.Tests
         public void TestSafe(object wobj, string formatString, string[] values)
         {
             var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)(int)wobj : (string)wobj;
-            var built = new MongoUrlBuilder { Server = _localhost, W = w};
+            var built = new MongoUrlBuilder { Server = _localhost, W = w };
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
@@ -952,52 +926,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(false, "mongodb://localhost/?slaveOk={0}", new[] { "false", "False" })]
-        [TestCase(true, "mongodb://localhost/?slaveOk={0}", new[] { "true", "True" })]
-        public void TestSlaveOk(bool? slaveOk, string formatString, string[] values)
+        [TestCase("mongodb://localhost/?slaveOk=true", ReadPreferenceMode.SecondaryPreferred)]
+        [TestCase("mongodb://localhost/?slaveOk=false", ReadPreferenceMode.Primary)]
+        public void TestSlaveOk(string url, ReadPreferenceMode mode)
         {
-#pragma warning disable 618
-            var built = new MongoUrlBuilder { Server = _localhost };
-            if (slaveOk != null) { built.SlaveOk = slaveOk.Value; }
-
-            var canonicalConnectionString = string.Format(formatString, values[0]);
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
-            {
-                Assert.AreEqual(slaveOk ?? false, builder.SlaveOk);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
-            }
-#pragma warning restore
+            var builder = new MongoUrlBuilder(url);
+            Assert.AreEqual(mode, builder.ReadPreference.ReadPreferenceMode);
         }
 
         [Test]
-        [TestCase(ReadPreferenceMode.Primary, false)]
-        [TestCase(ReadPreferenceMode.Primary, true)]
-        [TestCase(ReadPreferenceMode.Secondary, false)]
-        [TestCase(ReadPreferenceMode.Secondary, true)]
-        public void TestSlaveOk_AfterReadPreference(ReadPreferenceMode mode, bool slaveOk)
+        public void TestSlaveOk_AfterReadPreference()
         {
-            var readPreference = new ReadPreference { ReadPreferenceMode = mode };
-            var builder = new MongoUrlBuilder { Server = _localhost, ReadPreference = readPreference };
-#pragma warning disable 618
-            Assert.Throws<InvalidOperationException>(() => { builder.SlaveOk = slaveOk; });
-#pragma warning restore
-        }
-
-        [Test]
-        [TestCase(null, false)]
-        [TestCase(ReadPreferenceMode.Primary, false)]
-        [TestCase(ReadPreferenceMode.PrimaryPreferred, false)]
-        [TestCase(ReadPreferenceMode.Secondary, true)]
-        [TestCase(ReadPreferenceMode.SecondaryPreferred, true)]
-        [TestCase(ReadPreferenceMode.Nearest, true)]
-        public void TestSlaveOk_ForReadPreference(ReadPreferenceMode? mode, bool slaveOk)
-        {
-            var readPreference = (mode == null) ? null : new ReadPreference { ReadPreferenceMode = mode.Value };
-            var builder = new MongoUrlBuilder { Server = _localhost, ReadPreference = readPreference };
-#pragma warning disable 618
-            Assert.AreEqual(slaveOk, builder.SlaveOk);
-#pragma warning restore
+            Assert.Throws<InvalidOperationException>(() => new MongoUrlBuilder("mongodb://localhost/?readPreference=primary&slaveOk=true"));
         }
 
         [Test]

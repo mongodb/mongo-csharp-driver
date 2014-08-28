@@ -340,23 +340,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether queries should be sent to secondary servers.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public bool SlaveOk
-        {
-            get
-            {
-                return _readPreference.ToSlaveOk();
-            }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _readPreference = ReadPreference.FromSlaveOk(value);
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the socket timeout.
         /// </summary>
         public TimeSpan SocketTimeout
@@ -510,7 +493,7 @@ namespace MongoDB.Driver
             serverSettings.MaxConnectionPoolSize = clientSettings.MaxConnectionPoolSize;
             serverSettings.MinConnectionPoolSize = clientSettings.MinConnectionPoolSize;
             serverSettings.ReadEncoding = clientSettings.ReadEncoding;
-            serverSettings.ReadPreference = clientSettings.ReadPreference.Clone();
+            serverSettings.ReadPreference = clientSettings.ReadPreference;
             serverSettings.ReplicaSetName = clientSettings.ReplicaSetName;
             serverSettings.SecondaryAcceptableLatency = clientSettings.SecondaryAcceptableLatency;
             serverSettings.Servers = new List<MongoServerAddress>(clientSettings.Servers);
@@ -591,7 +574,7 @@ namespace MongoDB.Driver
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
             clone._minConnectionPoolSize = _minConnectionPoolSize;
             clone._readEncoding = _readEncoding;
-            clone._readPreference = _readPreference.Clone();
+            clone._readPreference = _readPreference;
             clone._replicaSetName = _replicaSetName;
             clone._secondaryAcceptableLatency = _secondaryAcceptableLatency;
             clone._servers = new List<MongoServerAddress>(_servers);
@@ -640,7 +623,7 @@ namespace MongoDB.Driver
                _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                _minConnectionPoolSize == rhs._minConnectionPoolSize &&
                object.Equals(_readEncoding, rhs._readEncoding) &&
-               _readPreference == rhs._readPreference &&
+               _readPreference.Equals(rhs._readPreference) &&
                _replicaSetName == rhs._replicaSetName &&
                _secondaryAcceptableLatency == rhs._secondaryAcceptableLatency &&
                _servers.SequenceEqual(rhs._servers) &&
@@ -662,7 +645,6 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                _readPreference = _readPreference.FrozenCopy();
                 _writeConcern = _writeConcern.FrozenCopy();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();

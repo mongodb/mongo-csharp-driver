@@ -525,7 +525,7 @@ namespace MongoDB.Driver
             clone._minConnectionPoolSize = _minConnectionPoolSize;
             clone._operationTimeout = _operationTimeout;
             clone._readEncoding = _readEncoding;
-            clone._readPreference = _readPreference.Clone();
+            clone._readPreference = _readPreference;
             clone._replicaSetName = _replicaSetName;
             clone._secondaryAcceptableLatency = _secondaryAcceptableLatency;
             clone._servers = new List<MongoServerAddress>(_servers);
@@ -597,7 +597,6 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                _readPreference = _readPreference.FrozenCopy();
                 _writeConcern = _writeConcern.FrozenCopy();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();

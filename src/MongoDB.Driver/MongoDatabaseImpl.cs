@@ -120,7 +120,7 @@ namespace MongoDB.Driver
 
         private async Task<T> ExecuteReadOperation<T>(IReadOperation<T> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference.ToCore()))
+            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
             }

@@ -127,10 +127,6 @@ namespace MongoDB.Driver.Tests
             clone = settings.Clone();
             clone.SafeMode = SafeMode.W2;
             Assert.IsFalse(clone.Equals(settings));
-
-            clone = settings.Clone();
-            clone.SlaveOk = !clone.SlaveOk;
-            Assert.IsFalse(clone.Equals(settings));
 #pragma warning restore
 
             clone = settings.Clone();
@@ -143,18 +139,15 @@ namespace MongoDB.Driver.Tests
         {
             var settings = new MongoCollectionSettings
             {
-                ReadPreference = new ReadPreference(),
                 WriteConcern = new WriteConcern()
             };
             Assert.IsFalse(settings.IsFrozen);
-            Assert.IsFalse(settings.ReadPreference.IsFrozen);
             Assert.IsFalse(settings.WriteConcern.IsFrozen);
             var hashCode = settings.GetHashCode();
             var stringRepresentation = settings.ToString();
 
             settings.Freeze();
             Assert.IsTrue(settings.IsFrozen);
-            Assert.IsTrue(settings.ReadPreference.IsFrozen);
             Assert.IsTrue(settings.WriteConcern.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
@@ -235,23 +228,6 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(safeMode, settings.SafeMode);
             Assert.Throws<InvalidOperationException>(() => { settings.SafeMode = safeMode; });
-#pragma warning restore
-        }
-
-        [Test]
-        public void TestSlaveOk()
-        {
-#pragma warning disable 618
-            var settings = new MongoCollectionSettings();
-            Assert.AreEqual(false, settings.SlaveOk);
-
-            var slaveOk = true;
-            settings.SlaveOk = slaveOk;
-            Assert.AreEqual(slaveOk, settings.SlaveOk);
-
-            settings.Freeze();
-            Assert.AreEqual(slaveOk, settings.SlaveOk);
-            Assert.Throws<InvalidOperationException>(() => { settings.SlaveOk = slaveOk; });
 #pragma warning restore
         }
 

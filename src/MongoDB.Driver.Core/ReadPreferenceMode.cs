@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver
 {
     public enum ReadPreferenceMode
     {

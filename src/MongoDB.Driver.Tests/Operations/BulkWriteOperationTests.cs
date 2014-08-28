@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Operations
         public void TestFixtureSetUp()
         {
             _server = Configuration.TestServer;
-            _primary = _server.Instances.First(x => ReadPreference.Primary.MatchesInstance(x));
+            _primary = _server.Instances.First(x => x.IsPrimary);
             _collection = Configuration.TestCollection;
         }
 
