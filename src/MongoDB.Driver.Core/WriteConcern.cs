@@ -22,9 +22,9 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
-namespace MongoDB.Driver.Core.Operations
+namespace MongoDB.Driver
 {
-    public class WriteConcern : IEquatable<WriteConcern>, IConvertibleToBsonDocument
+    public sealed class WriteConcern : IEquatable<WriteConcern>, IConvertibleToBsonDocument
     {
         #region static
         // static fields
@@ -101,6 +101,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        public bool Enabled
+        {
+            get { return IsAcknowledged; }
+        }
+
         public bool? FSync
         {
             get { return _fsync; }
@@ -141,13 +146,12 @@ namespace MongoDB.Driver.Core.Operations
 
         public bool Equals(WriteConcern rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(WriteConcern))
+            if (rhs == null)
             {
                 return false;
             }
 
-            return
-                _fsync == rhs._fsync &&
+            return _fsync == rhs._fsync &&
                 _journal == rhs._journal &&
                 object.Equals(_w, rhs._w) &&
                 _wTimeout == rhs._wTimeout;
@@ -179,7 +183,14 @@ namespace MongoDB.Driver.Core.Operations
             var parts = new List<string>();
             if (_w != null)
             {
-                parts.Add(string.Format("w : {0}", _w));
+                if (_w is WMode)
+                {
+                    parts.Add(string.Format("w : \"{0}\"", _w));
+                }
+                else
+                {
+                    parts.Add(string.Format("w : {0}", _w));
+                }
             }
             if (_wTimeout != null)
             {
@@ -322,7 +333,7 @@ namespace MongoDB.Driver.Core.Operations
 
             public bool Equals(WCount rhs)
             {
-                if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(WCount))
+                if (rhs == null)
                 {
                     return false;
                 }
@@ -345,7 +356,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public sealed class WMode : WValue
+        public sealed class WMode : WValue, IEquatable<WMode>
         {
             #region static
             // static properties
@@ -378,7 +389,7 @@ namespace MongoDB.Driver.Core.Operations
 
             public bool Equals(WMode rhs)
             {
-                if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(WMode))
+                if (rhs == null)
                 {
                     return false;
                 }
@@ -397,7 +408,7 @@ namespace MongoDB.Driver.Core.Operations
 
             public override string ToString()
             {
-                return "\"" + _value + "\"";
+                return _value;
             }
         }
     }

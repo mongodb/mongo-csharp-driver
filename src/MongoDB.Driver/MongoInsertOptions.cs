@@ -67,16 +67,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the SafeMode to use for the Insert.
-        /// </summary>
-        [Obsolete("Use WriteConcern instead.")]
-        public SafeMode SafeMode
-        {
-            get { return (_writeConcern == null) ? null : new SafeMode(_writeConcern); }
-            set { _writeConcern = (value == null) ? null : value.WriteConcern; }
-        }
-
-        /// <summary>
         /// Gets or sets the WriteConcern to use for the Insert.
         /// </summary>
         public WriteConcern WriteConcern

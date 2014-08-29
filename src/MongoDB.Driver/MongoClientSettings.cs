@@ -535,7 +535,7 @@ namespace MongoDB.Driver
             clone._verifySslCertificate = _verifySslCertificate;
             clone._waitQueueSize = _waitQueueSize;
             clone._waitQueueTimeout = _waitQueueTimeout;
-            clone._writeConcern = _writeConcern.Clone();
+            clone._writeConcern = _writeConcern;
             clone._writeEncoding = _writeEncoding;
             return clone;
         }
@@ -597,7 +597,6 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                _writeConcern = _writeConcern.FrozenCopy();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
                 _isFrozen = true;

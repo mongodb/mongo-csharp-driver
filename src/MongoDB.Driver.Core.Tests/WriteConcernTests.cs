@@ -20,10 +20,9 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Core.Operations
+namespace MongoDB.Driver
 {
     [TestFixture]
     public class WriteConcernTests
@@ -178,10 +177,25 @@ namespace MongoDB.Driver.Core.Operations
         [TestCase(null, null, true, null, "{ fsync : true }")]
         [TestCase(null, null, null, true, "{ journal : true }")]
         [TestCase(1, 2, true, true, "{ w : 1, wtimeout : 2s, fsync : true, journal : true }")]
-        public void ToString_should_return_expected_value(int? wCount, int? wTimeoutSeconds, bool? fsync, bool? journal, string expected)
+        [TestCase("majority", 2, true, true, "{ w : \"majority\", wtimeout : 2s, fsync : true, journal : true }")]
+        public void ToString_should_return_expected_value(object w, int? wTimeoutSeconds, bool? fsync, bool? journal, string expected)
         {
+            WriteConcern.WValue parsedW;
+            if(w == null)
+            {
+                parsedW = null;
+            }
+            else if (w is int)
+            {
+                parsedW = new WriteConcern.WCount((int)w);
+            }
+            else
+            {
+                parsedW = new WriteConcern.WMode((string)w);
+            }
+
             var wTimeout = wTimeoutSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(wTimeoutSeconds.Value) : null;
-            var writeConcern = new WriteConcern(wCount, wTimeout, fsync, journal);
+            var writeConcern = new WriteConcern(parsedW, wTimeout, fsync, journal);
             writeConcern.ToString().Should().Be(expected);
         }
 
@@ -499,7 +513,7 @@ namespace MongoDB.Driver.Core.Operations
         public void ToString_should_return_proper_value()
         {
             var wMode = new WriteConcern.WMode("mode");
-            wMode.ToString().Should().Be("\"mode\"");
+            wMode.ToString().Should().Be("mode");
         }
 
         [Test]

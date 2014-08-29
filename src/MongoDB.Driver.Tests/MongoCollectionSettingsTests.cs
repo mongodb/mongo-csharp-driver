@@ -123,12 +123,6 @@ namespace MongoDB.Driver.Tests
             clone.ReadPreference = ReadPreference.Secondary;
             Assert.IsFalse(clone.Equals(settings));
 
-#pragma warning disable 618
-            clone = settings.Clone();
-            clone.SafeMode = SafeMode.W2;
-            Assert.IsFalse(clone.Equals(settings));
-#pragma warning restore
-
             clone = settings.Clone();
             clone.WriteConcern = WriteConcern.W2;
             Assert.IsFalse(clone.Equals(settings));
@@ -137,18 +131,13 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestFeeze()
         {
-            var settings = new MongoCollectionSettings
-            {
-                WriteConcern = new WriteConcern()
-            };
+            var settings = new MongoCollectionSettings();
             Assert.IsFalse(settings.IsFrozen);
-            Assert.IsFalse(settings.WriteConcern.IsFrozen);
             var hashCode = settings.GetHashCode();
             var stringRepresentation = settings.ToString();
 
             settings.Freeze();
             Assert.IsTrue(settings.IsFrozen);
-            Assert.IsTrue(settings.WriteConcern.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
         }
@@ -212,23 +201,6 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(readPreference, settings.ReadPreference);
             Assert.Throws<InvalidOperationException>(() => { settings.ReadPreference = readPreference; });
-        }
-
-        [Test]
-        public void TestSafeMode()
-        {
-#pragma warning disable 618
-            var settings = new MongoCollectionSettings();
-            Assert.AreEqual(null, settings.SafeMode);
-
-            var safeMode = SafeMode.W2;
-            settings.SafeMode = safeMode;
-            Assert.AreEqual(safeMode, settings.SafeMode);
-
-            settings.Freeze();
-            Assert.AreEqual(safeMode, settings.SafeMode);
-            Assert.Throws<InvalidOperationException>(() => { settings.SafeMode = safeMode; });
-#pragma warning restore
         }
 
         [Test]

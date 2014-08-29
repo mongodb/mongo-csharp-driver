@@ -288,7 +288,6 @@
     <Compile Include="Wrappers\SortByWrapper.cs" />
     <Compile Include="Wrappers\UpdateDocument.cs" />
     <Compile Include="Wrappers\UpdateWrapper.cs" />
-    <Compile Include="WriteConcern.cs" />
     <Compile Include="GridFS\MongoGridFSException.cs" />
     <Compile Include="GridFS\MongoGridFSCreateOptions.cs" />
     <Compile Include="MongoCursorEnumerator.cs" />
@@ -333,7 +332,6 @@
     <Compile Include="MongoUrl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoveFlags.cs" />
-    <Compile Include="SafeMode.cs" />
     <Compile Include="UpdateFlags.cs" />
     <Compile Include="ExternalEvidence.cs" />
     <Compile Include="XYPoint.cs" />

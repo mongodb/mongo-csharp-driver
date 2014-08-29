@@ -218,24 +218,6 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Gets or sets the safe mode.
-        /// </summary>
-        [Obsolete("Use WriteConcern instead.")]
-        public SafeMode SafeMode
-        {
-            get { return (_writeConcern.Value == null) ? null : new SafeMode(_writeConcern.Value); }
-            set
-            {
-                if (_isFrozen) { ThrowFrozen(); }
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-                _writeConcern.Value = (value == null) ? null : value.WriteConcern;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets whether to udpate the MD5 hash on the server when a file is uploaded or modified.
         /// </summary>
         public bool UpdateMD5
@@ -370,7 +352,6 @@ namespace MongoDB.Driver.GridFS
         {
             if (!_isFrozen)
             {
-                if (_writeConcern.Value != null) { _writeConcern.Value = _writeConcern.Value.FrozenCopy(); }
                 _frozenHashCode = GetHashCode();
                 _isFrozen = true;
             }

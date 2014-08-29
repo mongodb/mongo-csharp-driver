@@ -1428,7 +1428,7 @@ namespace MongoDB.Driver
                         var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documentSource, serializer, messageEncoderSettings)
                         {
                             ContinueOnError = continueOnError,
-                            WriteConcern = writeConcern.ToCore(),
+                            WriteConcern = writeConcern,
                             ShouldSendGetLastError = shouldSendGetLastError
                         };
 
@@ -1793,7 +1793,7 @@ namespace MongoDB.Driver
             var operation = new DeleteOpcodeOperation(_collectionNamespace, queryDocument, messageEncoderSettings)
             {
                 IsMulti = isMulti,
-                WriteConcern = writeConcern.ToCore()
+                WriteConcern = writeConcern
             };
 
             using (var binding = _server.GetWriteBinding())
@@ -2012,7 +2012,7 @@ namespace MongoDB.Driver
             {
                 IsMulti = isMulti,
                 IsUpsert = isUpsert,
-                WriteConcern = writeConcern.ToCore()
+                WriteConcern = writeConcern
             };
 
             using (var binding = _server.GetWriteBinding())

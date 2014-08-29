@@ -127,7 +127,7 @@
     <Compile Include="Core\Misc\SlidingTimeoutTests.cs" />
     <Compile Include="Core\Misc\InterlockedInt32Tests.cs" />
     <Compile Include="Core\Misc\TimeSpanParserTests.cs" />
-    <Compile Include="Core\Operations\WriteConcernTests.cs" />
+    <Compile Include="WriteConcernTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequiresServerAttribute.cs" />
     <Compile Include="Core\Servers\ServerDescriptionTests.cs" />

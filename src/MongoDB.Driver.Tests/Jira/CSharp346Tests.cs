@@ -22,7 +22,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp346
     [TestFixture]
     public class CSharp346Tests
     {
-#pragma warning disable 618
         [Test]
         public void TestOneIPv6Address()
         {
@@ -30,7 +29,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp346
             var url = new MongoUrl(connectionString);
             Assert.AreEqual("[::1:]", url.Server.Host);
             Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(true, url.SafeMode.Enabled);
         }
 
         [Test]
@@ -42,7 +40,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp346
             Assert.AreEqual(27017, url.Server.Port);
             Assert.AreEqual("username", url.Username);
             Assert.AreEqual("password", url.Password);
-            Assert.AreEqual(true, url.SafeMode.Enabled);
         }
 
         [Test]
@@ -52,7 +49,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp346
             var url = new MongoUrl(connectionString);
             Assert.AreEqual("[::1:]", url.Server.Host);
             Assert.AreEqual(1234, url.Server.Port);
-            Assert.AreEqual(true, url.SafeMode.Enabled);
         }
 
         [Test]
@@ -66,7 +62,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp346
             Assert.AreEqual(27017, servers[0].Port);
             Assert.AreEqual("[::2:]", servers[1].Host);
             Assert.AreEqual(27017, servers[1].Port);
-            Assert.AreEqual(true, url.SafeMode.Enabled);
         }
 
         [Test]
@@ -82,7 +77,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp346
             Assert.AreEqual(27017, servers[1].Port);
             Assert.AreEqual("username", url.Username);
             Assert.AreEqual("password", url.Password);
-            Assert.AreEqual(true, url.SafeMode.Enabled);
         }
 
         [Test]
@@ -96,8 +90,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp346
             Assert.AreEqual(1234, servers[0].Port);
             Assert.AreEqual("[::2:]", servers[1].Host);
             Assert.AreEqual(2345, servers[1].Port);
-            Assert.AreEqual(true, url.SafeMode.Enabled);
         }
-#pragma warning restore
     }
 }

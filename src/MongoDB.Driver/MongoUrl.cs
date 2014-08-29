@@ -280,27 +280,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the SafeMode to use.
-        /// </summary>
-        [Obsolete("Use FSync, Journal, W and WTimeout instead.")]
-        public SafeMode SafeMode
-        {
-            get
-            {
-                if (AnyWriteConcernSettingsAreSet())
-                {
-#pragma warning disable 618
-                    return new SafeMode(GetWriteConcern(false));
-#pragma warning restore
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets the acceptable latency for considering a replica set member for inclusion in load balancing
         /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
         /// </summary>
@@ -508,13 +487,12 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcern.</returns>
         public WriteConcern GetWriteConcern(bool enabledDefault)
         {
-            return new WriteConcern(enabledDefault)
+            if (_w == null && !_wTimeout.HasValue && !_fsync.HasValue && !_journal.HasValue)
             {
-                FSync = _fsync,
-                Journal = _journal,
-                W = _w,
-                WTimeout = _wTimeout
-            };
+                return enabledDefault ? WriteConcern.Acknowledged : WriteConcern.Unacknowledged;
+            }
+
+            return new WriteConcern(_w, _wTimeout, _fsync, _journal);
         }
 
         /// <summary>

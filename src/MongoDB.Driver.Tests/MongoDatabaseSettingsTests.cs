@@ -47,9 +47,6 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
             Assert.AreEqual(TimeSpan.FromMilliseconds(20), settings.OperationTimeout);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
-#pragma warning disable 618
-            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
-#pragma warning restore
             Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
         }
 
@@ -75,9 +72,6 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(GuidRepresentation.Unspecified, settings.GuidRepresentation);
             Assert.AreEqual(default(TimeSpan), settings.OperationTimeout);
             Assert.AreEqual(null, settings.ReadPreference);
-#pragma warning disable 618
-            Assert.AreEqual(null, settings.SafeMode);
-#pragma warning restore
             Assert.AreEqual(null, settings.WriteConcern);
         }
 
@@ -117,13 +111,11 @@ namespace MongoDB.Driver.Tests
                 WriteConcern = new WriteConcern()
             };
             Assert.IsFalse(settings.IsFrozen);
-            Assert.IsFalse(settings.WriteConcern.IsFrozen);
             var hashCode = settings.GetHashCode();
             var stringRepresentation = settings.ToString();
 
             settings.Freeze();
             Assert.IsTrue(settings.IsFrozen);
-            Assert.IsTrue(settings.WriteConcern.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
         }
@@ -187,23 +179,6 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(readPreference, settings.ReadPreference);
             Assert.Throws<InvalidOperationException>(() => { settings.ReadPreference = readPreference; });
-        }
-
-        [Test]
-        public void TestSafeMode()
-        {
-#pragma warning disable 618
-            var settings = new MongoDatabaseSettings();
-            Assert.AreEqual(null, settings.SafeMode);
-
-            var safeMode = SafeMode.W2;
-            settings.SafeMode = safeMode;
-            Assert.AreEqual(safeMode, settings.SafeMode);
-
-            settings.Freeze();
-            Assert.AreEqual(safeMode, settings.SafeMode);
-            Assert.Throws<InvalidOperationException>(() => { settings.SafeMode = safeMode; });
-#pragma warning restore
         }
 
         [Test]

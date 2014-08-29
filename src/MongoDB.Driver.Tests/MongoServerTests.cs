@@ -71,17 +71,16 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestCreateMongoServerSettings()
         {
-#pragma warning disable 618
             var settings = new MongoServerSettings
             {
                 Server = new MongoServerAddress("localhost"),
-                SafeMode = SafeMode.True
             };
+#pragma warning disable 618
             var server1 = MongoServer.Create(settings);
             var server2 = MongoServer.Create(settings);
+#pragma warning restore 618
             Assert.AreSame(server1, server2);
             Assert.AreEqual(settings, server1.Settings);
-#pragma warning restore
         }
 
         [Test]
@@ -89,11 +88,10 @@ namespace MongoDB.Driver.Tests
         {
 #pragma warning disable 618
             var server = MongoServer.Create(); // no args!
+#pragma warning restore 618
             Assert.AreEqual(MongoDefaults.GuidRepresentation, server.Settings.GuidRepresentation);
-            Assert.AreEqual(SafeMode.False, server.Settings.SafeMode);
             Assert.AreEqual(ReadPreference.Primary, server.Settings.ReadPreference);
             Assert.AreEqual(new MongoServerAddress("localhost"), server.Instance.Address);
-#pragma warning restore
         }
 
         [Test]

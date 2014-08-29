@@ -214,16 +214,13 @@ namespace MongoDB.Driver.Tests
         public void TestFreeze()
         {
             var settings = new MongoClientSettings();
-            settings.WriteConcern = new WriteConcern();
 
             Assert.IsFalse(settings.IsFrozen);
-            Assert.IsFalse(settings.WriteConcern.IsFrozen);
             var hashCode = settings.GetHashCode();
             var stringRepresentation = settings.ToString();
 
             settings.Freeze();
             Assert.IsTrue(settings.IsFrozen);
-            Assert.IsTrue(settings.WriteConcern.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
         }
@@ -606,11 +603,9 @@ namespace MongoDB.Driver.Tests
             var writeConcern = new WriteConcern();
             settings.WriteConcern = writeConcern;
             Assert.AreSame(writeConcern, settings.WriteConcern);
-            Assert.IsFalse(settings.WriteConcern.IsFrozen);
 
             settings.Freeze();
             Assert.AreEqual(writeConcern, settings.WriteConcern);
-            Assert.IsTrue(settings.WriteConcern.IsFrozen);
             Assert.Throws<InvalidOperationException>(() => { settings.WriteConcern = writeConcern; });
         }
     }

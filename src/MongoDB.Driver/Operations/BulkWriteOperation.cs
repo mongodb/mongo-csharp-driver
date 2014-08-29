@@ -129,7 +129,7 @@ namespace MongoDB.Driver
                 AssignId = assignId,
                 CheckElementNames = checkElementNames,
                 IsOrdered = _isOrdered,
-                WriteConcern = writeConcern.ToCore()
+                WriteConcern = writeConcern
             };
 
             using (var binding = _collection.Database.Server.GetWriteBinding())

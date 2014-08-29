@@ -85,9 +85,7 @@ namespace MongoDB.Driver
             _verifySslCertificate = true;
             _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
-#pragma warning disable 612, 618
-            _writeConcern = MongoDefaults.SafeMode.WriteConcern;
-#pragma warning restore
+            _writeConcern = WriteConcern.Unacknowledged;
             _writeEncoding = null;
         }
 
@@ -270,24 +268,6 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 _replicaSetName = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the SafeMode to use.
-        /// </summary>
-        [Obsolete("Use WriteConcern instead.")]
-        public SafeMode SafeMode
-        {
-            get { return new SafeMode(_writeConcern); }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-                _writeConcern = value.WriteConcern;
             }
         }
 
@@ -503,7 +483,7 @@ namespace MongoDB.Driver
             serverSettings.VerifySslCertificate = clientSettings.VerifySslCertificate;
             serverSettings.WaitQueueSize = clientSettings.WaitQueueSize;
             serverSettings.WaitQueueTimeout = clientSettings.WaitQueueTimeout;
-            serverSettings.WriteConcern = clientSettings.WriteConcern.Clone();
+            serverSettings.WriteConcern = clientSettings.WriteConcern;
             serverSettings.WriteEncoding = clientSettings.WriteEncoding;
             return serverSettings;
         }
@@ -549,9 +529,7 @@ namespace MongoDB.Driver
             serverSettings.VerifySslCertificate = url.VerifySslCertificate;
             serverSettings.WaitQueueSize = url.ComputedWaitQueueSize;
             serverSettings.WaitQueueTimeout = url.WaitQueueTimeout;
-#pragma warning disable 618
-            serverSettings.WriteConcern = url.GetWriteConcern(MongoDefaults.SafeMode.Enabled);
-#pragma warning restore
+            serverSettings.WriteConcern = url.GetWriteConcern(false);
             serverSettings.WriteEncoding = null; // WriteEncoding must be provided in code
             return serverSettings;
         }
@@ -584,7 +562,7 @@ namespace MongoDB.Driver
             clone._verifySslCertificate = _verifySslCertificate;
             clone._waitQueueSize = _waitQueueSize;
             clone._waitQueueTimeout = _waitQueueTimeout;
-            clone._writeConcern = _writeConcern.Clone();
+            clone._writeConcern = _writeConcern;
             clone._writeEncoding = _writeEncoding;
             return clone;
         }
@@ -633,7 +611,7 @@ namespace MongoDB.Driver
                _verifySslCertificate == rhs._verifySslCertificate &&
                _waitQueueSize == rhs._waitQueueSize &&
                _waitQueueTimeout == rhs._waitQueueTimeout &&
-               _writeConcern == rhs._writeConcern &&
+               _writeConcern.Equals(rhs._writeConcern) &&
                 object.Equals(_writeEncoding, rhs._writeEncoding);
         }
 
@@ -645,7 +623,6 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                _writeConcern = _writeConcern.FrozenCopy();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
                 _isFrozen = true;

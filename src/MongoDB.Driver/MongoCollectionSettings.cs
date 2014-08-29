@@ -127,24 +127,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the SafeMode to use.
-        /// </summary>
-        [Obsolete("Use WriteConcern instead.")]
-        public SafeMode SafeMode
-        {
-            get { return (_writeConcern.Value == null) ? null : new SafeMode(_writeConcern.Value); }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-                _writeConcern.Value = value.WriteConcern;
-            }
-        }
-
-        /// <summary>
         /// Gets the serializer registry.
         /// </summary>
         public IBsonSerializerRegistry SerializerRegistry
@@ -240,7 +222,6 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                if (_writeConcern.Value != null) { _writeConcern.Value = _writeConcern.Value.FrozenCopy(); }
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
                 _isFrozen = true;

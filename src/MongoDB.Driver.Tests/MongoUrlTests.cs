@@ -106,9 +106,6 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual("password", url.Password);
                 Assert.AreEqual(readPreference, url.ReadPreference);
                 Assert.AreEqual("name", url.ReplicaSetName);
-#pragma warning disable 618
-                Assert.AreEqual(new SafeMode(true) { FSync = true, Journal = true, W = 2, WTimeout = TimeSpan.FromSeconds(9) }, url.SafeMode);
-#pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(6), url.SecondaryAcceptableLatency);
                 Assert.AreEqual(new MongoServerAddress("host", 27017), url.Server);
                 Assert.AreEqual(TimeSpan.FromSeconds(7), url.SocketTimeout);

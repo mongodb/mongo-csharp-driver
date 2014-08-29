@@ -259,7 +259,7 @@
     <Compile Include="Core\Operations\UpdateOpcodeOperation.cs" />
     <Compile Include="Core\Operations\UpdateRequest.cs" />
     <Compile Include="Core\Operations\WriteCommandOperation.cs" />
-    <Compile Include="Core\Operations\WriteConcern.cs" />
+    <Compile Include="WriteConcern.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Events\IServerListener.cs" />
     <Compile Include="Core\Servers\IServer.cs" />

@@ -209,7 +209,7 @@ namespace MongoDB.Driver.Tests.Operations
                 var document = new BsonDocument("_id", 1);
                 var bulk = InitializeBulkOperation(_collection, ordered);
                 bulk.Insert(document);
-                var result = bulk.Execute(new WriteConcern { W = w });
+                var result = bulk.Execute(new WriteConcern(w));
 
                 var expectedResult = new ExpectedResult { IsAcknowledged = w > 0, InsertedCount = 1 };
                 CheckExpectedResult(expectedResult, result);
@@ -466,7 +466,7 @@ namespace MongoDB.Driver.Tests.Operations
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(documents[0]);
 
-            var writeConcern = new WriteConcern { Journal = true };
+            var writeConcern = WriteConcern.Acknowledged.WithJournal(true);
             if (IsJournalEnabled())
             {
                 var result = bulk.Execute(writeConcern);
@@ -1226,7 +1226,7 @@ namespace MongoDB.Driver.Tests.Operations
                 var bulk = _collection.InitializeUnorderedBulkOperation();
                 bulk.Insert(new BsonDocument("_id", 1));
                 bulk.Insert(new BsonDocument("_id", 1));
-                var exception = Assert.Throws<BulkWriteException>(() => bulk.Execute(new WriteConcern { W = 999, WTimeout = TimeSpan.FromMilliseconds(1) }));
+                var exception = Assert.Throws<BulkWriteException>(() => bulk.Execute(new WriteConcern(999, TimeSpan.FromMilliseconds(1), null, null)));
                 var result = exception.Result;
 
                 var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 2 };
