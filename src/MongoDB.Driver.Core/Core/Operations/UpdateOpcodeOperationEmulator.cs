@@ -105,7 +105,6 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(connection, "connection");
 
             var requests = new[] { new UpdateRequest(_query, _update) { IsMultiUpdate = _isMulti, IsUpsert = _isUpsert } };
-            var writeConcern = _writeConcern;
 
             var operation = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {

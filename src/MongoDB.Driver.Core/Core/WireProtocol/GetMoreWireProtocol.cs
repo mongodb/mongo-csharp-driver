@@ -72,7 +72,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 var failureDocument = reply.QueryFailureDocument;
                 var errorMessage = string.Format("GetMore QueryFailure: {0}.", failureDocument);
-                throw new MongoQueryException(errorMessage, _query, reply.QueryFailureDocument);
                 throw ExceptionMapper.Map(failureDocument) ?? new MongoQueryException(errorMessage, _query, failureDocument);
             }
             return new CursorBatch<TDocument>(reply.CursorId, reply.Documents);

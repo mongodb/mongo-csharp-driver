@@ -26,6 +26,9 @@ namespace MongoDB.Bson.Serialization
         private static readonly GlobalBsonSerializerRegistry __instance = new GlobalBsonSerializerRegistry();
 
         // public static properties
+        /// <summary>
+        /// Gets the instance of the global registry.
+        /// </summary>
         public static GlobalBsonSerializerRegistry Instance
         {
             get { return __instance; }
