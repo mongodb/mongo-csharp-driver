@@ -36,7 +36,17 @@ namespace MongoDB.Driver.Core.WireProtocol
             BsonDocument command,
             bool slaveOk,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseNamespace, command, slaveOk, BsonDocumentSerializer.Instance, messageEncoderSettings)
+            : this(databaseNamespace, command, slaveOk, NoOpElementNameValidator.Instance, messageEncoderSettings)
+        {
+        }
+
+        public CommandWireProtocol(
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            bool slaveOk,
+            IElementNameValidator elementNameValidator,
+            MessageEncoderSettings messageEncoderSettings)
+            : base(databaseNamespace, command, slaveOk, BsonDocumentSerializer.Instance, elementNameValidator, messageEncoderSettings)
         {
         }
     }
@@ -46,6 +56,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         // fields
         private readonly BsonDocument _command;
         private readonly DatabaseNamespace _databaseNamespace;
+        private readonly IElementNameValidator _elementNameValidator;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly bool _slaveOk;
@@ -57,11 +68,29 @@ namespace MongoDB.Driver.Core.WireProtocol
             bool slaveOk,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
+            : this(
+                databaseNamespace,
+                command,
+                slaveOk,
+                resultSerializer,
+                NoOpElementNameValidator.Instance,
+                messageEncoderSettings)
+        {
+        }
+
+        public CommandWireProtocol(
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            bool slaveOk,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            IElementNameValidator elementNameValidator,
+            MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _command = Ensure.IsNotNull(command, "command");
             _slaveOk = slaveOk;
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            _elementNameValidator = Ensure.IsNotNull(elementNameValidator, "elementNameValidator");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -73,6 +102,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _databaseNamespace.CommandCollection,
                 _command,
                 null,
+                _elementNameValidator,
                 0,
                 -1,
                 _slaveOk,

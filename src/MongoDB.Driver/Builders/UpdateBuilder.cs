@@ -813,7 +813,7 @@ namespace MongoDB.Driver.Builders
         {
             if (name == null) { throw new ArgumentNullException("name"); }
             if (values == null) { throw new ArgumentNullException("values"); }
-            var wrappedValues = BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>(); // the cast to BsonValue is required
+            var wrappedValues = values.Select(v => new BsonDocumentWrapper(v));
             return AddToSetEach(name, wrappedValues);
         }
 
@@ -841,7 +841,7 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder AddToSetWrapped<T>(string name, T value)
         {
             if (name == null) { throw new ArgumentNullException("name"); }
-            var wrappedValue = (BsonValue)BsonDocumentWrapper.Create(value); // the cast to BsonValue is required
+            var wrappedValue = new BsonDocumentWrapper(value);
             return AddToSet(name, wrappedValue);
         }
 
@@ -1190,7 +1190,7 @@ namespace MongoDB.Driver.Builders
         {
             if (name == null) { throw new ArgumentNullException("name"); }
             if (query == null) { throw new ArgumentNullException("query"); }
-            BsonValue wrappedQuery = BsonDocumentWrapper.Create(query);
+            BsonValue wrappedQuery = new BsonDocumentWrapper(query);
             BsonElement element;
             if (_document.TryGetElement("$pull", out element))
             {
@@ -1262,7 +1262,7 @@ namespace MongoDB.Driver.Builders
         {
             if (name == null) { throw new ArgumentNullException("name"); }
             if (values == null) { throw new ArgumentNullException("values"); }
-            var wrappedValues = new BsonArray(BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
+            var wrappedValues = new BsonArray(values.Select(v => new BsonDocumentWrapper(v)));
             BsonElement element;
             if (_document.TryGetElement("$pullAll", out element))
             {
@@ -1299,7 +1299,7 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder PullWrapped<T>(string name, T value)
         {
             if (name == null) { throw new ArgumentNullException("name"); }
-            var wrappedValue = BsonDocumentWrapper.Create(value);
+            var wrappedValue = new BsonDocumentWrapper(value);
             BsonElement element;
             if (_document.TryGetElement("$pull", out element))
             {
@@ -1393,7 +1393,7 @@ namespace MongoDB.Driver.Builders
         {
             if (name == null) { throw new ArgumentNullException("name"); }
             if (values == null) { throw new ArgumentNullException("values"); }
-            var wrappedValues = new BsonArray(BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
+            var wrappedValues = new BsonArray(values.Select(v => new BsonDocumentWrapper(v)));
             BsonElement element;
             if (_document.TryGetElement("$pushAll", out element))
             {
@@ -1563,7 +1563,7 @@ namespace MongoDB.Driver.Builders
         {
             if (name == null) { throw new ArgumentNullException("name"); }
             if (values == null) { throw new ArgumentNullException("values"); }
-            var wrappedValues = BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>(); // the cast to BsonValue is required
+            var wrappedValues = new BsonArray(values.Select(v => new BsonDocumentWrapper(v)));
             return PushEach(name, args, wrappedValues);
         }
 
@@ -1591,7 +1591,7 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder PushWrapped<T>(string name, T value)
         {
             if (name == null) { throw new ArgumentNullException("name"); }
-            var wrappedValue = BsonDocumentWrapper.Create<T>(value);
+            var wrappedValue = new BsonDocumentWrapper(value);
             BsonElement element;
             if (_document.TryGetElement("$push", out element))
             {
@@ -1681,7 +1681,7 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder SetWrapped<T>(string name, T value)
         {
             if (name == null) { throw new ArgumentNullException("name"); }
-            var wrappedValue = BsonDocumentWrapper.Create<T>(value);
+            var wrappedValue = new BsonDocumentWrapper(value);
             BsonElement element;
             if (_document.TryGetElement("$set", out element))
             {

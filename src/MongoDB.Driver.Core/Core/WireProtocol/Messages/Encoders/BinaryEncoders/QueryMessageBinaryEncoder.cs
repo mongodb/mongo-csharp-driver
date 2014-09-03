@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -92,6 +91,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 CollectionNamespace.FromFullName(fullCollectionName),
                 query,
                 fields,
+                NoOpElementNameValidator.Instance,
                 skip,
                 batchSize,
                 slaveOk,
@@ -117,13 +117,32 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteCString(message.CollectionNamespace.FullName);
             streamWriter.WriteInt32(message.Skip);
             streamWriter.WriteInt32(message.BatchSize);
-            var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
-            BsonDocumentSerializer.Instance.Serialize(context, message.Query ?? new BsonDocument());
-            if (message.Fields != null)
-            {
-                BsonDocumentSerializer.Instance.Serialize(context, message.Fields);
-            }
+            WriteQuery(binaryWriter, message.Query, message.ElementNameValidator);
+            WriteOptionalFields(binaryWriter, message.Fields);
             streamWriter.BackpatchSize(startPosition);
+        }
+
+        private void WriteOptionalFields(BsonBinaryWriter binaryWriter, BsonDocument fields)
+        {
+            if (fields != null)
+            {
+                var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
+                BsonDocumentSerializer.Instance.Serialize(context, fields);
+            }
+        }
+
+        private void WriteQuery(BsonBinaryWriter binaryWriter, BsonDocument query, IElementNameValidator elementNameValidator)
+        {
+            binaryWriter.PushElementNameValidator(elementNameValidator);
+            try
+            {
+                var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
+                BsonDocumentSerializer.Instance.Serialize(context, query ?? new BsonDocument());
+            }
+            finally
+            {
+                binaryWriter.PopElementNameValidator();
+            }
         }
 
         // explicit interface implementations

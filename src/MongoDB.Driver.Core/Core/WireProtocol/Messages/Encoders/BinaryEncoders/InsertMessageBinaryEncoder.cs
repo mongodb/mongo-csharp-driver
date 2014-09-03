@@ -47,11 +47,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private void AddDocument(State state, TDocument document)
         {
             var binaryWriter = state.BinaryWriter;
-            var streamWriter = binaryWriter.StreamWriter;
-            var context = BsonSerializationContext.CreateRoot<TDocument>(binaryWriter);
-            _serializer.Serialize(context, document);
-            state.BatchCount++;
-            state.MessageSize = (int)streamWriter.Position - state.MessageStartPosition;
+
+            binaryWriter.PushElementNameValidator(state.Message.ElementNameValidator);
+            try
+            {
+                var streamWriter = binaryWriter.StreamWriter;
+                var context = BsonSerializationContext.CreateRoot<TDocument>(binaryWriter);
+                _serializer.Serialize(context, document);
+                state.BatchCount++;
+                state.MessageSize = (int)streamWriter.Position - state.MessageStartPosition;
+            }
+            finally
+            {
+                binaryWriter.PopElementNameValidator();
+            }
         }
 
         private InsertFlags BuildInsertFlags(InsertMessage<TDocument> message)
@@ -93,6 +102,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 requestId,
                 CollectionNamespace.FromFullName(fullCollectionName),
                 _serializer,
+                NoOpElementNameValidator.Instance,
                 documentSource,
                 maxBatchCount,
                 maxMessageSize,

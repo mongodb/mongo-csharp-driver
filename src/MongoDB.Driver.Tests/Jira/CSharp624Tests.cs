@@ -20,9 +20,10 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using NUnit.Framework;
 
-namespace MongoDB.Bson.Tests.Jira.CSharp624
+namespace MongoDB.Driver.Tests.Jira.CSharp624
 {
     [TestFixture]
     public class CSharp624Tests
@@ -70,7 +71,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp624
             using (var stream = new MemoryStream())
             using (var bsonWriter = new BsonBinaryWriter(stream, BsonBinaryWriterSettings.Defaults))
             {
-                bsonWriter.CheckElementNames = true;
+                bsonWriter.PushElementNameValidator(CollectionElementNameValidator.Instance);
                 Assert.Throws<BsonSerializationException>(() => BsonSerializer.Serialize(bsonWriter, c));
             }
         }

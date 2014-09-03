@@ -13,12 +13,8 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -38,13 +34,14 @@ namespace MongoDB.Driver.Core.WireProtocol
         // constructors
         public UpdateWireProtocol(
             CollectionNamespace collectionNamespace,
+            IElementNameValidator elementNameValidator,
             MessageEncoderSettings messageEncoderSettings,
             WriteConcern writeConcern,
             BsonDocument query,
             BsonDocument update,
             bool isMulti,
             bool isUpsert)
-            : base(collectionNamespace, messageEncoderSettings, writeConcern)
+            : base(collectionNamespace, elementNameValidator, messageEncoderSettings, writeConcern)
         {
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");

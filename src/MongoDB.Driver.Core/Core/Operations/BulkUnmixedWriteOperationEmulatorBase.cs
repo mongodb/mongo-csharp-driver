@@ -17,9 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -31,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private CollectionNamespace _collectionNamespace;
+        private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
         private bool _isOrdered = true;
         private int _maxBatchCount = 0;
         private int _maxBatchLength = int.MaxValue;
@@ -54,6 +53,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _collectionNamespace; }
             set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
+        }
+
+        public IElementNameValidator ElementNameValidator
+        {
+            get { return _elementNameValidator; }
+            set { _elementNameValidator = Ensure.IsNotNull(value, "value"); }
         }
 
         public int MaxBatchCount

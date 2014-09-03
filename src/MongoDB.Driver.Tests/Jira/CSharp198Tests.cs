@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
@@ -59,7 +60,8 @@ namespace MongoDB.Driver.Tests.Jira.CSharp198
             };
             _collection.Save(foo1);
 
-            var foo1Rehydrated = _collection.FindOne(Query.EQ("_id", BsonDocumentWrapper.Create(foo1.Id)));
+            var idSerializer = BsonSerializer.LookupSerializer<Id>();
+            var foo1Rehydrated = _collection.FindOne(Query.EQ("_id", new BsonDocumentWrapper(foo1.Id, idSerializer)));
             Assert.IsInstanceOf<Foo>(foo1Rehydrated);
             Assert.IsInstanceOf<Id>(foo1Rehydrated.Id);
             Assert.AreEqual(1, foo1Rehydrated.Id.AccountId);
@@ -73,7 +75,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp198
             };
             _collection.Save(foo2);
 
-            var foo2Rehydrated = _collection.FindOne(Query.EQ("_id", BsonDocumentWrapper.Create(foo2.Id)));
+            var foo2Rehydrated = _collection.FindOne(Query.EQ("_id", new BsonDocumentWrapper(foo2.Id, idSerializer)));
             Assert.IsInstanceOf<Foo>(foo2Rehydrated);
             Assert.IsInstanceOf<IdWithExtraField>(foo2Rehydrated.Id);
             Assert.AreEqual(3, foo2Rehydrated.Id.AccountId);

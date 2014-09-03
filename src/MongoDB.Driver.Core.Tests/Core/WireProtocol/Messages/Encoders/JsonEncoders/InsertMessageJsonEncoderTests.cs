@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private static readonly bool __continueOnError = true;
         private static readonly BsonDocument[] __documents = new[] { new BsonDocument("_id", 1), new BsonDocument("_id", 2) };
         private static readonly BatchableSource<BsonDocument> __documentSource = new BatchableSource<BsonDocument>(__documents);
+        private static readonly IElementNameValidator __elementNameValidator = NoOpElementNameValidator.Instance;
         private static readonly int __maxBatchCount = 1000;
         private static readonly int __maxMessageSize = 40000000;
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
@@ -48,7 +49,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // static constructor
         static InsertMessageJsonEncoderTests()
         {
-            __testMessage = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, __documentSource, __maxBatchCount, __maxMessageSize, __continueOnError);
+            __testMessage = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, __elementNameValidator, __documentSource, __maxBatchCount, __maxMessageSize, __continueOnError);
 
             __testMessageJson =
                 "{ " +

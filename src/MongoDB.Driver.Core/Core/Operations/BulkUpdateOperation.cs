@@ -13,16 +13,14 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Bindings;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -30,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     internal class BulkUpdateOperation : BulkUnmixedWriteOperationBase
     {
         // fields
-        private bool _checkElementNames = true;
+        private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
 
         // constructors
         public BulkUpdateOperation(
@@ -42,15 +40,15 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public bool CheckElementNames
-        {
-            get { return _checkElementNames; }
-            set { _checkElementNames = value; }
-        }
-
         protected override string CommandName
         {
             get { return "update"; }
+        }
+
+        public IElementNameValidator ElementNameValidator
+        {
+            get { return _elementNameValidator; }
+            set { _elementNameValidator = Ensure.IsNotNull(value, "value"); }
         }
 
         public new IEnumerable<UpdateRequest> Requests
@@ -67,14 +65,14 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         protected override BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
         {
-            return new UpdateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
+            return new UpdateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize, _elementNameValidator);
         }
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
         {
             return new BulkUpdateOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
             {
-                CheckElementNames = _checkElementNames,
+                ElementNameValidator = ElementNameValidator,
                 MaxBatchCount = MaxBatchCount,
                 MaxBatchLength = MaxBatchLength,
                 IsOrdered = IsOrdered,
@@ -85,34 +83,68 @@ namespace MongoDB.Driver.Core.Operations
         // nested types
         private class UpdateBatchSerializer : BatchSerializer
         {
+            // fields
+            private readonly IElementNameValidator _elementNameValidator;
+
             // constructors
-            public UpdateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
+            public UpdateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize, IElementNameValidator elementNameValidator)
                 : base(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize)
             {
+                _elementNameValidator = elementNameValidator;
             }
 
             // methods
+            private void SerializeQuery(BsonBinaryWriter bsonWriter, BsonDocument query)
+            {
+                var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
+                BsonDocumentSerializer.Instance.Serialize(context, query);
+            }
+
             protected override void SerializeRequest(BsonSerializationContext context, WriteRequest request)
             {
                 var updateRequest = (UpdateRequest)request;
                 var bsonWriter = (BsonBinaryWriter)context.Writer;
 
                 bsonWriter.PushMaxDocumentSize(MaxWireDocumentSize);
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName("q");
-                BsonSerializer.Serialize(bsonWriter, updateRequest.Query);
-                bsonWriter.WriteName("u");
-                BsonSerializer.Serialize(bsonWriter, updateRequest.Update);
-                if (updateRequest.IsMultiUpdate.HasValue)
+                try
                 {
-                    bsonWriter.WriteBoolean("multi", updateRequest.IsMultiUpdate.Value);
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteName("q");
+                    SerializeQuery(bsonWriter, updateRequest.Query);
+                    bsonWriter.WriteName("u");
+                    SerializeUpdate(bsonWriter, updateRequest.Update);
+                    if (updateRequest.IsMultiUpdate.HasValue)
+                    {
+                        bsonWriter.WriteBoolean("multi", updateRequest.IsMultiUpdate.Value);
+                    }
+                    if (updateRequest.IsUpsert.HasValue)
+                    {
+                        bsonWriter.WriteBoolean("upsert", updateRequest.IsUpsert.Value);
+                    }
+                    bsonWriter.WriteEndDocument();
                 }
-                if (updateRequest.IsUpsert.HasValue)
+                finally
                 {
-                    bsonWriter.WriteBoolean("upsert", updateRequest.IsUpsert.Value);
+                    bsonWriter.PopMaxDocumentSize();
                 }
-                bsonWriter.WriteEndDocument();
-                bsonWriter.PopMaxDocumentSize();
+            }
+
+            private void SerializeUpdate(BsonBinaryWriter bsonWriter, BsonDocument update)
+            {
+                var updateElementNameValidator = new UpdateOrReplacementElementNameValidator(
+                   UpdateElementNameValidator.Instance,
+                   _elementNameValidator);
+
+                bsonWriter.PushElementNameValidator(updateElementNameValidator);
+                try
+                {
+                    var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
+                    BsonDocumentSerializer.Instance.Serialize(context, update);
+                }
+                finally
+                {
+                    bsonWriter.PopElementNameValidator();
+                }
             }
         }
     }

@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Helpers
                 collectionNamespace: collectionNamespace,
                 query: query ?? new BsonDocument(),
                 fields: null,
+                elementNameValidator: NoOpElementNameValidator.Instance,
                 skip: 0,
                 batchSize: 0,
                 slaveOk: false,

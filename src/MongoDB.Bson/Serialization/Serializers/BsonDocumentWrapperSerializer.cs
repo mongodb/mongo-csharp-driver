@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -73,25 +74,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
 
-            if (value.IsUpdateDocument)
+            if (value.ElementNameValidator == null)
             {
-                var savedCheckElementNames = bsonWriter.CheckElementNames;
-                var savedCheckUpdateDocument = bsonWriter.CheckUpdateDocument;
+                context.SerializeWithChildContext(value.Serializer, value.Wrapped);
+            }
+            else
+            {
+                bsonWriter.PushElementNameValidator(value.ElementNameValidator);
                 try
                 {
-                    bsonWriter.CheckElementNames = false;
-                    bsonWriter.CheckUpdateDocument = true;
                     context.SerializeWithChildContext(value.Serializer, value.Wrapped);
                 }
                 finally
                 {
-                    bsonWriter.CheckElementNames = savedCheckElementNames;
-                    bsonWriter.CheckUpdateDocument = savedCheckUpdateDocument;
+                    bsonWriter.PopElementNameValidator();
                 }
-            }
-            else
-            {
-                context.SerializeWithChildContext(value.Serializer, value.Wrapped);
             }
         }
     }

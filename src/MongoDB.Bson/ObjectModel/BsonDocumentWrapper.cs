@@ -14,12 +14,9 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson
@@ -36,9 +33,9 @@ namespace MongoDB.Bson
     public class BsonDocumentWrapper : MaterializedOnDemandBsonDocument
     {
         // private fields
+        private readonly IElementNameValidator _elementNameValidator;
         private readonly object _wrapped;
         private readonly IBsonSerializer _serializer;
-        private readonly bool _isUpdateDocument;
 
         // constructors
         /// <summary>
@@ -56,7 +53,7 @@ namespace MongoDB.Bson
         /// <param name="value">The value.</param>
         /// <param name="serializer">The serializer.</param>
         public BsonDocumentWrapper(object value, IBsonSerializer serializer)
-            : this(value, serializer, false)
+            : this(value, serializer, NoOpElementNameValidator.Instance)
         {
         }
 
@@ -65,9 +62,9 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="serializer">The serializer.</param>
-        /// <param name="isUpdateDocument">if set to <c>true</c> then value is an update document.</param>
+        /// <param name="elementNameValidator">The element name validator.</param>
         /// <exception cref="System.ArgumentNullException">serializer</exception>
-        public BsonDocumentWrapper(object value, IBsonSerializer serializer, bool isUpdateDocument)
+        public BsonDocumentWrapper(object value, IBsonSerializer serializer, IElementNameValidator elementNameValidator)
         {
             if (serializer == null)
             {
@@ -76,16 +73,16 @@ namespace MongoDB.Bson
 
             _wrapped = value;
             _serializer = serializer;
-            _isUpdateDocument = isUpdateDocument;
+            _elementNameValidator = elementNameValidator;
         }
 
         // public properties
         /// <summary>
-        /// Gets whether the wrapped value is an update document.
+        /// Gets the element name validator.
         /// </summary>
-        public bool IsUpdateDocument
+        public IElementNameValidator ElementNameValidator
         {
-            get { return _isUpdateDocument; }
+            get { return _elementNameValidator; }
         }
 
         /// <summary>
@@ -107,92 +104,6 @@ namespace MongoDB.Bson
             get { return _wrapped; }
         }
 
-        // public static methods
-        /// <summary>
-        /// Creates a new instance of the BsonDocumentWrapper class.
-        /// </summary>
-        /// <typeparam name="TNominalType">The nominal type of the wrapped object.</typeparam>
-        /// <param name="value">The wrapped object.</param>
-        /// <returns>A BsonDocumentWrapper.</returns>
-        public static BsonDocumentWrapper Create<TNominalType>(TNominalType value)
-        {
-            return Create(typeof(TNominalType), value);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonDocumentWrapper class.
-        /// </summary>
-        /// <typeparam name="TNominalType">The nominal type of the wrapped object.</typeparam>
-        /// <param name="value">The wrapped object.</param>
-        /// <param name="isUpdateDocument">Whether the wrapped object is an update document.</param>
-        /// <returns>A BsonDocumentWrapper.</returns>
-        public static BsonDocumentWrapper Create<TNominalType>(TNominalType value, bool isUpdateDocument)
-        {
-            return Create(typeof(TNominalType), value, isUpdateDocument);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonDocumentWrapper class.
-        /// </summary>
-        /// <param name="nominalType">The nominal type of the wrapped object.</param>
-        /// <param name="value">The wrapped object.</param>
-        /// <returns>A BsonDocumentWrapper.</returns>
-        public static BsonDocumentWrapper Create(Type nominalType, object value)
-        {
-            return Create(nominalType, value, false); // isUpdateDocument = false
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonDocumentWrapper class.
-        /// </summary>
-        /// <param name="nominalType">The nominal type of the wrapped object.</param>
-        /// <param name="value">The wrapped object.</param>
-        /// <param name="isUpdateDocument">Whether the wrapped object is an update document.</param>
-        /// <returns>A BsonDocumentWrapper.</returns>
-        public static BsonDocumentWrapper Create(Type nominalType, object value, bool isUpdateDocument)
-        {
-            var serializer = BsonSerializer.LookupSerializer(nominalType);
-            return new BsonDocumentWrapper(value, serializer, isUpdateDocument);
-        }
-
-        /// <summary>
-        /// Creates a list of new instances of the BsonDocumentWrapper class.
-        /// </summary>
-        /// <typeparam name="TNominalType">The nominal type of the wrapped objects.</typeparam>
-        /// <param name="values">A list of wrapped objects.</param>
-        /// <returns>A list of BsonDocumentWrappers.</returns>
-        public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values)
-        {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-
-            var serializer = BsonSerializer.LookupSerializer(typeof(TNominalType));
-            return values.Select(v => new BsonDocumentWrapper(v, serializer));
-        }
-
-        /// <summary>
-        /// Creates a list of new instances of the BsonDocumentWrapper class.
-        /// </summary>
-        /// <param name="nominalType">The nominal type of the wrapped object.</param>
-        /// <param name="values">A list of wrapped objects.</param>
-        /// <returns>A list of BsonDocumentWrappers.</returns>
-        public static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values)
-        {
-            if (nominalType == null)
-            {
-                throw new ArgumentNullException("nominalType");
-            }
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-
-            var serializer = BsonSerializer.LookupSerializer(nominalType);
-            return values.Cast<object>().Select(v => new BsonDocumentWrapper(v, serializer));
-        }
-
         // public methods
         /// <summary>
         /// Creates a shallow clone of the document (see also DeepClone).
@@ -211,7 +122,7 @@ namespace MongoDB.Bson
                 return new BsonDocumentWrapper(
                     _wrapped,
                     _serializer,
-                    _isUpdateDocument);
+                    _elementNameValidator);
             }
         }
 

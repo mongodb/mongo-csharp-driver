@@ -17,11 +17,13 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -45,6 +47,7 @@ namespace MongoDB.Driver.Core.Operations
         private CollectionNamespace _collectionNamespace;
         private bool _continueOnError;
         private BatchableSource<TDocument> _documentSource;
+        private IElementNameValidator _elementNameValidator = CollectionElementNameValidator.Instance;
         private int? _maxBatchCount;
         private int? _maxDocumentSize;
         private int? _maxMessageSize;
@@ -79,6 +82,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _documentSource; }
             set { _documentSource = Ensure.IsNotNull(value, "value"); }
+        }
+
+        public IElementNameValidator ElementNameValidator
+        {
+            get { return _elementNameValidator; }
+            set { _elementNameValidator = Ensure.IsNotNull(value, "value"); }
         }
 
         public int? MaxBatchCount
@@ -130,6 +139,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace,
                 _writeConcern,
                 _serializer,
+                _elementNameValidator,
                 _messageEncoderSettings,
                 _documentSource,
                 _maxBatchCount,
@@ -147,6 +157,7 @@ namespace MongoDB.Driver.Core.Operations
                 var emulator = new InsertOpcodeOperationEmulator<TDocument>(_collectionNamespace, _serializer, _documentSource, _messageEncoderSettings)
                 {
                     ContinueOnError = _continueOnError,
+                    ElementNameValidator = _elementNameValidator,
                     MaxBatchCount = _maxBatchCount,
                     MaxDocumentSize = _maxDocumentSize,
                     MaxMessageSize = _maxMessageSize,

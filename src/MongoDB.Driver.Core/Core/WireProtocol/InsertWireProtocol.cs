@@ -14,10 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -41,13 +38,14 @@ namespace MongoDB.Driver.Core.WireProtocol
             CollectionNamespace collectionNamespace,
             WriteConcern writeConcern,
             IBsonSerializer<TDocument> serializer,
+            IElementNameValidator elementNameValidator,
             MessageEncoderSettings messageEncoderSettings,
             BatchableSource<TDocument> documentSource,
             int? maxBatchCount,
             int? maxMessageSize,
             bool continueOnError,
             Func<bool> shouldSendGetLastEror = null)
-            : base(collectionNamespace, messageEncoderSettings, writeConcern, shouldSendGetLastEror)
+            : base(collectionNamespace, elementNameValidator, messageEncoderSettings, writeConcern, shouldSendGetLastEror)
         {
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
@@ -63,6 +61,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 RequestMessage.GetNextRequestId(),
                 CollectionNamespace,
                 _serializer,
+                ElementNameValidator,
                 _documentSource,
                 _maxBatchCount ?? int.MaxValue,
                 _maxMessageSize ?? connection.Description.MaxMessageSize,

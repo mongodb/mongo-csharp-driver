@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private CommandWireProtocol CreateWriteCommandProtocol(BsonDocument command)
         {
-            return new CommandWireProtocol(_collectionNamespace.DatabaseNamespace, command, false, _messageEncoderSettings);
+            return new CommandWireProtocol(_collectionNamespace.DatabaseNamespace, command, false, NoOpElementNameValidator.Instance, _messageEncoderSettings);
         }
 
         protected virtual IEnumerable<WriteRequest> DecorateRequests(IEnumerable<WriteRequest> requests)

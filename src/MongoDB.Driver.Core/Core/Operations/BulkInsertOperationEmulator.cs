@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private Action<object, IBsonSerializer> _assignId;
-        private bool _checkElementNames = true;
 
         // constructors
         public BulkInsertOperationEmulator(
@@ -49,12 +48,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _assignId; }
             set { _assignId = value; }
-        }
-
-        public bool CheckElementNames
-        {
-            get { return _checkElementNames; }
-            set { _checkElementNames = value; }
         }
 
         //  methods
@@ -74,6 +67,7 @@ namespace MongoDB.Driver.Core.Operations
                 CollectionNamespace,
                 WriteConcern,
                 BsonDocumentSerializer.Instance,
+                ElementNameValidator,
                 MessageEncoderSettings,
                 documentSource,
                 connection.Description.MaxBatchCount,

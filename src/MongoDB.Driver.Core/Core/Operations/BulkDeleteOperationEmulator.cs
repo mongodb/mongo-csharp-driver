@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.Operations
             var deleteRequest = (DeleteRequest)request;
             return new DeleteWireProtocol(
                CollectionNamespace,
+               ElementNameValidator,
                deleteRequest.Query,
                false, // isMulti
                MessageEncoderSettings,

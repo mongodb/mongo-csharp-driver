@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -172,6 +173,7 @@ namespace MongoDB.Driver.Core.Operations
             var documentSource = new BatchableSource<BsonDocument>(new[] { indexDocument });
             var operation = new InsertOpcodeOperation(_collectionNamespace.DatabaseNamespace.SystemIndexesCollection, documentSource, _messageEncoderSettings)
             {
+                ElementNameValidator = NoOpElementNameValidator.Instance,
                 WriteConcern = _writeConcern
             };
             var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);

@@ -29,9 +29,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal class BulkUpdateOperationEmulator : BulkUnmixedWriteOperationEmulatorBase
     {
-        // fields
-        private bool _checkElementNames = true;
-
         // constructors
         public BulkUpdateOperationEmulator(
             CollectionNamespace collectionNamespace,
@@ -42,18 +39,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public bool CheckElementNames
-        {
-            get { return _checkElementNames; }
-            set { _checkElementNames = value; }
-        }
-
         // methods
         protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
         {
             var updateRequest = (UpdateRequest)request;
             return new UpdateWireProtocol(
                 CollectionNamespace,
+                ElementNameValidator,
                 MessageEncoderSettings,
                 WriteConcern,
                 updateRequest.Query,

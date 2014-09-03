@@ -520,7 +520,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetQuery(IMongoQuery query)
         {
-            _document["query"] = BsonDocumentWrapper.Create(query);
+            _document["query"] = new BsonDocumentWrapper(query);
             return this;
         }
 
@@ -531,7 +531,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetScope(IMongoScope scope)
         {
-            _document["scope"] = BsonDocumentWrapper.Create(scope);
+            _document["scope"] = new BsonDocumentWrapper(scope);
             return this;
         }
 
@@ -542,7 +542,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetSortOrder(IMongoSortBy sortBy)
         {
-            _document["sort"] = BsonDocumentWrapper.Create(sortBy);
+            _document["sort"] = new BsonDocumentWrapper(sortBy);
             return this;
         }
 

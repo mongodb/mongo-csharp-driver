@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -31,11 +32,12 @@ namespace MongoDB.Driver.Core.WireProtocol
         // constructors
         public DeleteWireProtocol(
             CollectionNamespace collectionNamespace,
+            IElementNameValidator elementNameValidator,
             BsonDocument query,
             bool isMulti,
             MessageEncoderSettings messageEncoderSettings,
             WriteConcern writeConcern)
-            : base(collectionNamespace, messageEncoderSettings, writeConcern)
+            : base(collectionNamespace, elementNameValidator, messageEncoderSettings, writeConcern)
         {
             _query = Ensure.IsNotNull(query, "query");
             _isMulti = isMulti;

@@ -14,11 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -66,6 +62,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 new CollectionNamespace(databaseName, collectionName),
                 query,
                 fields,
+                NoOpElementNameValidator.Instance,
                 skip,
                 batchSize,
                 slaveOk,

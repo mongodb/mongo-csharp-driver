@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private static readonly bool __continueOnError = true;
         private static readonly BsonDocument[] __documents = new[] { new BsonDocument("_id", 1), new BsonDocument("_id", 2) };
         private static readonly BatchableSource<BsonDocument> __documentSource = new BatchableSource<BsonDocument>(__documents);
+        private static readonly IElementNameValidator __elementNameValidator = NoOpElementNameValidator.Instance;
         private static readonly int __flagsOffset;
         private static readonly int __maxBatchCount = 1000;
         private static readonly int __maxMessageSize = 40000000;
@@ -49,7 +50,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // static constructor
         static InsertMessageBinaryEncoderTests()
         {
-            __testMessage = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, __documentSource, __maxBatchCount, __maxMessageSize, __continueOnError);
+            __testMessage = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, __elementNameValidator, __documentSource, __maxBatchCount, __maxMessageSize, __continueOnError);
 
             __testMessageBytes = new byte[]
             {
@@ -130,7 +131,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [TestCase(1, true)]
         public void WriteMessage_should_encode_flags_correctly(int flags, bool continueOnError)
         {
-            var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, __documentSource, __maxBatchCount, __maxMessageSize, continueOnError);
+            var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, __elementNameValidator, __documentSource, __maxBatchCount, __maxMessageSize, continueOnError);
 
             using (var stream = new MemoryStream())
             {
@@ -161,7 +162,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             using (var enumerator = documents.GetEnumerator())
             {
                 var documentSource = new BatchableSource<BsonDocument>(enumerator);
-                var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, documentSource, maxBatchCount, __maxMessageSize, __continueOnError);
+                var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, __elementNameValidator, documentSource, maxBatchCount, __maxMessageSize, __continueOnError);
 
                 var numberOfBatches = 0;
                 var batchedDocuments = new List<BsonDocument>();
@@ -207,7 +208,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             using (var enumerator = documents.GetEnumerator())
             {
                 var documentSource = new BatchableSource<BsonDocument>(enumerator);
-                var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, documentSource, __maxBatchCount, maxMessageSize, __continueOnError);
+                var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, __elementNameValidator, documentSource, __maxBatchCount, maxMessageSize, __continueOnError);
 
                 var numberOfBatches = 0;
                 var batchedDocuments = new List<BsonDocument>();

@@ -100,6 +100,7 @@
     <Compile Include="IO\BsonStreamWriter.cs" />
     <Compile Include="IO\BsonTrie.cs" />
     <Compile Include="IO\BsonWriterSettings.cs" />
+    <Compile Include="IO\IElementNameValidator.cs" />
     <Compile Include="IO\INameDecoder.cs" />
     <Compile Include="IO\JsonBuffer.cs" />
     <Compile Include="IO\ByteBufferFactory.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="IO\IByteBuffer.cs" />
     <Compile Include="IO\ISliceableStream.cs" />
     <Compile Include="IO\MultiChunkBuffer.cs" />
+    <Compile Include="IO\NoOpElementNameValidator.cs" />
     <Compile Include="IO\TrieNameDecoder.cs" />
     <Compile Include="IO\Utf8NameDecoder.cs" />
     <Compile Include="IO\SingleChunkBuffer.cs" />

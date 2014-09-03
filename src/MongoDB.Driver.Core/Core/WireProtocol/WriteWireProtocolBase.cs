@@ -15,12 +15,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -34,6 +33,7 @@ namespace MongoDB.Driver.Core.WireProtocol
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
+        private readonly IElementNameValidator _elementNameValidator;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly Func<bool> _shouldSendGetLastError;
         private readonly WriteConcern _writeConcern;
@@ -41,11 +41,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         // constructors
         protected WriteWireProtocolBase(
             CollectionNamespace collectionNamespace,
+            IElementNameValidator elementNameValidator,
             MessageEncoderSettings messageEncoderSettings,
             WriteConcern writeConcern,
             Func<bool> shouldSendGetLastError = null)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
+            _elementNameValidator = Ensure.IsNotNull(elementNameValidator, "elementNameValidator");
             _messageEncoderSettings = messageEncoderSettings;
             _writeConcern = Ensure.IsNotNull(writeConcern, "writeConcern");
             _shouldSendGetLastError = shouldSendGetLastError;
@@ -55,6 +57,11 @@ namespace MongoDB.Driver.Core.WireProtocol
         protected CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        protected IElementNameValidator ElementNameValidator
+        {
+            get { return _elementNameValidator; }
         }
 
         protected WriteConcern WriteConcern
@@ -84,6 +91,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                _collectionNamespace.DatabaseNamespace.CommandCollection,
                command,
                null,
+               NoOpElementNameValidator.Instance,
                0,
                -1,
                true,

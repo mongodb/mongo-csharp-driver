@@ -16,6 +16,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -27,6 +28,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly bool _awaitData;
         private readonly int _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
+        private readonly IElementNameValidator _elementNameValidator;
         private readonly BsonDocument _fields;
         private readonly bool _noCursorTimeout;
         private readonly bool _partialOk;
@@ -41,6 +43,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument fields,
+            IElementNameValidator elementNameValidator,
             int skip,
             int batchSize,
             bool slaveOk,
@@ -54,6 +57,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _fields = fields; // can be null
+            _elementNameValidator = Ensure.IsNotNull(elementNameValidator, "elementNameValidator");
             _skip = Ensure.IsGreaterThanOrEqualToZero(skip, "skip");
             _batchSize = batchSize; // can be negative
             _slaveOk = slaveOk;
@@ -77,6 +81,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        public IElementNameValidator ElementNameValidator
+        {
+            get { return _elementNameValidator; }
         }
 
         public BsonDocument Fields

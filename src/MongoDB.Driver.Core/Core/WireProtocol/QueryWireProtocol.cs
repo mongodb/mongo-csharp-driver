@@ -17,6 +17,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -78,6 +79,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _collectionNamespace,
                 _query,
                 _fields,
+                NoOpElementNameValidator.Instance,
                 _skip,
                 _batchSize,
                 _slaveOk,

@@ -589,7 +589,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("sortBy");
             }
             if (_isFrozen) { ThrowFrozen(); }
-            SetOption("$orderby", BsonDocumentWrapper.Create(sortBy));
+            SetOption("$orderby", new BsonDocumentWrapper(sortBy));
             return this;
         }
 
