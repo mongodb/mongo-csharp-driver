@@ -2002,13 +2002,12 @@ namespace MongoDB.Driver
 
             var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
             var updateDocument = update.ToBsonDocument();
-            var updateValidator = new UpdateOrReplacementElementNameValidator();
             var messageEncoderSettings = GetMessageEncoderSettings();
             var isMulti = options.Flags.HasFlag(UpdateFlags.Multi);
             var isUpsert = options.Flags.HasFlag(UpdateFlags.Upsert);
             var writeConcern = options.WriteConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
-            var operation = new UpdateOpcodeOperation(_collectionNamespace, queryDocument, updateDocument, updateValidator, messageEncoderSettings)
+            var operation = new UpdateOpcodeOperation(_collectionNamespace, queryDocument, updateDocument, messageEncoderSettings)
             {
                 IsMulti = isMulti,
                 IsUpsert = isUpsert,

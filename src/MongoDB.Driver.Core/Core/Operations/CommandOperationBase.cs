@@ -17,6 +17,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private BsonDocument _additionalOptions;
         private BsonDocument _command;
+        private IElementNameValidator _commandValidator = NoOpElementNameValidator.Instance;
         private string _comment;
         private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
@@ -66,6 +68,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _command = Ensure.IsNotNull(value, "value"); }
         }
 
+        public IElementNameValidator CommandValidator
+        {
+            get { return _commandValidator; }
+            set { _commandValidator = Ensure.IsNotNull(value, "value"); }
+        }
+
         public string Comment
         {
             get { return _comment; }
@@ -95,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
             var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
-            return new CommandWireProtocol<TCommandResult>(_databaseNamespace, wrappedCommand, slaveOk, _resultSerializer, _messageEncoderSettings);
+            return new CommandWireProtocol<TCommandResult>(_databaseNamespace, wrappedCommand, _commandValidator, slaveOk, _resultSerializer, _messageEncoderSettings);
         }
 
         private BsonDocument CreateWrappedCommand(ServerDescription serverDescription, ReadPreference readPreference)

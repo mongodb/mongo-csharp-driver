@@ -193,7 +193,6 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 __collection,
                 query,
                 update,
-                new UpdateOrReplacementElementNameValidator(),
                 __messageEncoderSettings);
 
             return updateOp.ExecuteAsync(binding);
