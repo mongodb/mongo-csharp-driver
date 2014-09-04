@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
         private BsonDocument[] _expectedDocuments;
         private BulkWriteUpsert[] _expectedUpserts;
         private UpdateRequest[] _requests;
-        private BulkWriteResult _result;
+        private BulkWriteOperationResult _result;
 
         protected override void Given()
         {

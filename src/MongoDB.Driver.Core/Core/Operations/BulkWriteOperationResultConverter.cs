@@ -21,15 +21,15 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal class BulkWriteResultConverter
+    internal class BulkWriteOperationResultConverter
     {
         // constructors
-        public BulkWriteResultConverter()
+        public BulkWriteOperationResultConverter()
         {
         }
 
         // public methods
-        public Exception ToWriteConcernException(BulkWriteException bulkWriteException)
+        public Exception ToWriteConcernException(BulkWriteOperationException bulkWriteException)
         {
             var writeConcernResult = ToWriteConcernResult(bulkWriteException.Result, bulkWriteException);
 
@@ -52,13 +52,13 @@ namespace MongoDB.Driver.Core.Operations
             return exception; // usually a WriteConcernException unless ExceptionMapper chose a different type
         }
 
-        public WriteConcernResult ToWriteConcernResult(BulkWriteResult bulkWriteResult)
+        public WriteConcernResult ToWriteConcernResult(BulkWriteOperationResult bulkWriteResult)
         {
             return ToWriteConcernResult(bulkWriteResult, null);
         }
 
         // private methods
-        private WriteConcernResult ToWriteConcernResult(BulkWriteResult bulkWriteResult, BulkWriteException bulkWriteException)
+        private WriteConcernResult ToWriteConcernResult(BulkWriteOperationResult bulkWriteResult, BulkWriteOperationException bulkWriteException)
         {
             if (!bulkWriteResult.IsAcknowledged)
             {

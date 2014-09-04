@@ -78,7 +78,7 @@ namespace MongoDB.Driver
 
         protected void Insert<T>(IEnumerable<T> documents, IBsonSerializer<T> serializer, MessageEncoderSettings messageEncoderSettings = null)
         {
-            var requests = documents.Select(d => new InsertRequest(d, serializer));
+            var requests = documents.Select(d => new InsertRequest(new BsonDocumentWrapper(d, serializer)));
             var operation = new BulkInsertOperation(_collectionNamespace, requests, messageEncoderSettings ?? MessageEncoderSettings);
             ExecuteOperationAsync(operation).GetAwaiter().GetResult();
         }

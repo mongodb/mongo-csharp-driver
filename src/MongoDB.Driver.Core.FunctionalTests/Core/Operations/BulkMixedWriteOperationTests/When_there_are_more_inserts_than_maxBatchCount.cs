@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
         private BsonDocument[] _documents;
         private int _maxBatchCount;
         private InsertRequest[] _requests;
-        private BulkWriteResult _result;
+        private BulkWriteOperationResult _result;
 
         protected override void Given()
         {
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
             };
             _maxBatchCount = 2;
 
-            _requests = _documents.Select(d => new InsertRequest(d, BsonDocumentSerializer.Instance)).ToArray();
+            _requests = _documents.Select(d => new InsertRequest(d)).ToArray();
         }
 
         protected override void When()

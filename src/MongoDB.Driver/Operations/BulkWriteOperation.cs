@@ -17,7 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.SyncExtensionMethods;
 
@@ -26,7 +28,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a fluent builder for a bulk operation.
     /// </summary>
-    public sealed class BulkWriteOperation
+    public sealed class BulkWriteOperation<TDocument>
     {
         // private fields
         private readonly MongoCollection _collection;
@@ -46,7 +48,7 @@ namespace MongoDB.Driver
         /// Executes the bulk operation using the default write concern from the collection.
         /// </summary>
         /// <returns>A BulkWriteResult.</returns>
-        public BulkWriteResult Execute()
+        public BulkWriteResult<TDocument> Execute()
         {
             return ExecuteHelper(_collection.Settings.WriteConcern ?? WriteConcern.Acknowledged);
         }
@@ -56,7 +58,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="writeConcern">The write concern for this bulk operation.</param>
         /// <returns>A BulkWriteResult.</returns>
-        public BulkWriteResult Execute(WriteConcern writeConcern)
+        public BulkWriteResult<TDocument> Execute(WriteConcern writeConcern)
         {
             if (writeConcern == null)
             {
@@ -70,7 +72,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns>A FluentWriteRequestBuilder.</returns>
-        public BulkWriteRequestBuilder Find(IMongoQuery query)
+        public BulkWriteRequestBuilder<TDocument> Find(IMongoQuery query)
         {
             if (query == null)
             {
@@ -80,22 +82,22 @@ namespace MongoDB.Driver
             {
                 throw new InvalidOperationException("The bulk write operation has already been executed.");
             }
-            return new BulkWriteRequestBuilder(AddRequest, query);
+            return new BulkWriteRequestBuilder<TDocument>(AddRequest, query);
         }
 
         /// <summary>
         /// Adds an insert request for the specified document to the bulk operation.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="document">The document.</param>
-        public void Insert<TDocument>(TDocument document)
+        public void Insert(TDocument document)
         {
             if (document == null)
             {
                 throw new ArgumentNullException("document");
             }
+
             var serializer = BsonSerializer.LookupSerializer<TDocument>();
-            var request = new InsertRequest(document, serializer);
+            var request = new InsertRequest(new BsonDocumentWrapper(document, serializer));
             AddRequest(request);
         }
 
@@ -106,10 +108,11 @@ namespace MongoDB.Driver
             {
                 throw new InvalidOperationException("The bulk write operation has already been executed.");
             }
+            request.CorrelationId = _requests.Count;
             _requests.Add(request);
         }
 
-        private BulkWriteResult ExecuteHelper(WriteConcern writeConcern)
+        private BulkWriteResult<TDocument> ExecuteHelper(WriteConcern writeConcern)
         {
             if (_hasBeenExecuted)
             {
@@ -117,15 +120,36 @@ namespace MongoDB.Driver
             }
             _hasBeenExecuted = true;
 
-            var assignId = _collection.Settings.AssignIdOnInsert ? (Action<object, IBsonSerializer>)_collection.AssignId : null;
             var collectionSettings = _collection.Settings;
             var messageEncoderSettings = _collection.GetMessageEncoderSettings();
 
-            var requests = _requests.Select(r => r.ToCore());
-
-            var operation = new BulkMixedWriteOperation(new CollectionNamespace(_collection.Database.Name, _collection.Name), requests, messageEncoderSettings)
+            IEnumerable<WriteRequest> requests = _requests;
+            if (_collection.Settings.AssignIdOnInsert)
             {
-                AssignId = assignId,
+                requests = _requests.Select(x =>
+                {
+                    var insertRequest = x as InsertRequest;
+                    if (insertRequest != null)
+                    {
+                        object document = insertRequest.Document;
+                        IBsonSerializer serializer = BsonDocumentSerializer.Instance;
+                        var wrapped = insertRequest.Document as BsonDocumentWrapper;
+                        while (wrapped != null)
+                        {
+                            document = wrapped.Wrapped;
+                            serializer = wrapped.Serializer;
+                            wrapped = document as BsonDocumentWrapper;
+                        }
+
+                        _collection.AssignId(document, serializer);
+                    }
+
+                    return x;
+                });
+            }
+
+            var operation = new BulkMixedWriteOperation(new CollectionNamespace(_collection.Database.Name, _collection.Name), _requests, messageEncoderSettings)
+            {
                 IsOrdered = _isOrdered,
                 WriteConcern = writeConcern
             };
@@ -135,11 +159,11 @@ namespace MongoDB.Driver
                 try
                 {
                     var result = operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
-                    return BulkWriteResult.FromCore(result);
+                    return BulkWriteResult<TDocument>.FromCore(result);
                 }
-                catch (Core.BulkWriteException ex)
+                catch (BulkWriteOperationException ex)
                 {
-                    throw BulkWriteException.FromCore(ex);
+                    throw BulkWriteException<TDocument>.FromCore(ex);
                 }
             }
         }

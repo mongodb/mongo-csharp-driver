@@ -27,7 +27,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class BulkMixedWriteOperation : IWriteOperation<BulkWriteResult>
+    public class BulkMixedWriteOperation : IWriteOperation<BulkWriteOperationResult>
     {
         #region static
         // static fields
@@ -35,15 +35,14 @@ namespace MongoDB.Driver.Core.Operations
         #endregion
 
         // fields
-        private Action<object, IBsonSerializer> _assignId;
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
         private int _maxBatchCount = 0;
         private int _maxBatchLength = int.MaxValue;
         private int _maxDocumentSize = int.MaxValue;
         private int _maxWireDocumentSize = int.MaxValue;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private IEnumerable<WriteRequest> _requests;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly IEnumerable<WriteRequest> _requests;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
@@ -58,16 +57,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public Action<object, IBsonSerializer> AssignId
-        {
-            get { return _assignId; }
-            set { _assignId = value; }
-        }
-
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool IsOrdered
@@ -103,13 +95,11 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         public IEnumerable<WriteRequest> Requests
         {
             get { return _requests; }
-            set {  _requests = Ensure.IsNotNull(value, "value"); }
         }
 
         public WriteConcern WriteConcern
@@ -119,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<BulkWriteResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             var batchResults = new List<BulkWriteBatchResult>();
@@ -152,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
             return combiner.CreateResultOrThrowIfHasErrors(remainingRequests.ToList());
         }
 
-        public async Task<BulkWriteResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
@@ -164,8 +154,8 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IConnectionHandle connection, Run run, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            BulkWriteResult result;
-            BulkWriteException exception = null;
+            BulkWriteOperationResult result;
+            BulkWriteOperationException exception = null;
             try
             {
                 switch (run.RequestType)
@@ -183,7 +173,7 @@ namespace MongoDB.Driver.Core.Operations
                         throw new MongoInternalException("Unrecognized RequestType.");
                 }
             }
-            catch (BulkWriteException ex)
+            catch (BulkWriteOperationException ex)
             {
                 result = ex.Result;
                 exception = ex;
@@ -192,7 +182,7 @@ namespace MongoDB.Driver.Core.Operations
             return BulkWriteBatchResult.Create(result, exception, run.IndexMap);
         }
 
-        private Task<BulkWriteResult> ExecuteDeletesAsync(IConnectionHandle connection, IEnumerable<DeleteRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
+        private Task<BulkWriteOperationResult> ExecuteDeletesAsync(IConnectionHandle connection, IEnumerable<DeleteRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var operation = new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
@@ -203,11 +193,10 @@ namespace MongoDB.Driver.Core.Operations
             return operation.ExecuteAsync(connection, timeout, cancellationToken);
         }
 
-        private Task<BulkWriteResult> ExecuteInsertsAsync(IConnectionHandle connection, IEnumerable<InsertRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
+        private Task<BulkWriteOperationResult> ExecuteInsertsAsync(IConnectionHandle connection, IEnumerable<InsertRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
-                AssignId = _assignId,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
                 IsOrdered = _isOrdered,
@@ -217,7 +206,7 @@ namespace MongoDB.Driver.Core.Operations
             return operation.ExecuteAsync(connection, timeout, cancellationToken);
         }
 
-        private Task<BulkWriteResult> ExecuteUpdatesAsync(IConnectionHandle connection, IEnumerable<UpdateRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
+        private Task<BulkWriteOperationResult> ExecuteUpdatesAsync(IConnectionHandle connection, IEnumerable<UpdateRequest> requests, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var operation = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {

@@ -14,48 +14,29 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
     /// Represents a request to insert a document.
     /// </summary>
-    public class InsertRequest : WriteRequest // TODO: use InsertRequest<TDocument> and set serialization options once for the whole operation?
+    public sealed class InsertRequest : WriteRequest
     {
         // fields
-        private object _document;
-        private IBsonSerializer _serializer;
+        private readonly BsonDocument _document;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="InsertRequest"/> class.
-        /// </summary>
-        public InsertRequest()
-            : this(null)
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="InsertRequest" /> class.
         /// </summary>
         /// <param name="document">The document.</param>
-        public InsertRequest(object document)
-            : this(document, null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="InsertRequest" /> class.
-        /// </summary>
-        /// <param name="document">The document.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="serializationOptions">The serialization options.</param>
-        public InsertRequest(object document, IBsonSerializer serializer)
+        public InsertRequest(BsonDocument document)
             : base(WriteRequestType.Insert)
         {
-            _document = document;
-            _serializer = serializer;
+            _document = Ensure.IsNotNull(document, "document");
         }
 
         // properties
@@ -65,22 +46,9 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The document.
         /// </value>
-        public object Document
+        public BsonDocument Document
         {
             get { return _document; }
-            set { _document = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the serializer.
-        /// </summary>
-        /// <value>
-        /// The serializer.
-        /// </value>
-        public IBsonSerializer Serializer
-        {
-            get { return _serializer; }
-            set { _serializer = value; }
         }
     }
 }

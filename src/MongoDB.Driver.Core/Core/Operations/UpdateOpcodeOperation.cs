@@ -30,24 +30,24 @@ namespace MongoDB.Driver.Core.Operations
     public class UpdateOpcodeOperation : IWriteOperation<WriteConcernResult>
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
+        private readonly BsonDocument _criteria;
         private bool _isMulti;
         private bool _isUpsert;
         private int? _maxDocumentSize;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private BsonDocument _query;
-        private BsonDocument _update;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly BsonDocument _update;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public UpdateOpcodeOperation(
             CollectionNamespace collectionNamespace,
-            BsonDocument query,
+            BsonDocument criteria,
             BsonDocument update,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _query = Ensure.IsNotNull(query, "query");
+            _criteria = Ensure.IsNotNull(criteria, "criteria");
             _update = Ensure.IsNotNull(update, "update");
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -56,7 +56,11 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
+        }
+
+        public BsonDocument Criteria
+        {
+            get { return _criteria; }
         }
 
         public bool IsMulti
@@ -80,19 +84,11 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
-        }
-
-        public BsonDocument Query
-        {
-            get { return _query; }
-            set { _query = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonDocument Update
         {
             get { return _update; }
-            set { _update = Ensure.IsNotNull(value, "value"); }
         }
 
         public WriteConcern WriteConcern
@@ -110,7 +106,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace,
                 _messageEncoderSettings,
                 _writeConcern,
-                _query,
+                _criteria,
                 _update,
                 updateValidator,
                 _isMulti,
@@ -123,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
-                var emulator = new UpdateOpcodeOperationEmulator(_collectionNamespace, _query, _update, _messageEncoderSettings)
+                var emulator = new UpdateOpcodeOperationEmulator(_collectionNamespace, _criteria, _update, _messageEncoderSettings)
                 {
                     IsMulti = _isMulti,
                     IsUpsert = _isUpsert,

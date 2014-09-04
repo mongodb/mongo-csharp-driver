@@ -15,41 +15,42 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
     /// Represents a request to update one or more documents.
     /// </summary>
-    public class UpdateRequest : WriteRequest
+    public sealed class UpdateRequest : WriteRequest
     {
         // fields
+        private readonly BsonDocument _criteria;
         private bool? _isMultiUpdate;
         private bool? _isUpsert;
-        private BsonDocument _query;
-        private BsonDocument _update;
+        private readonly BsonDocument _update;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateRequest"/> class.
+        /// Initializes a new instance of the <see cref="UpdateRequest" /> class.
         /// </summary>
-        public UpdateRequest()
-            : this(null, null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateRequest"/> class.
-        /// </summary>
-        /// <param name="query">The query.</param>
+        /// <param name="criteria">The criteria.</param>
         /// <param name="update">The update.</param>
-        public UpdateRequest(BsonDocument query, BsonDocument update)
+        public UpdateRequest(BsonDocument criteria, BsonDocument update)
             : base(WriteRequestType.Update)
         {
-            _query = Ensure.IsNotNull(query, "query");
+            _criteria = Ensure.IsNotNull(criteria, "criteria");
             _update = Ensure.IsNotNull(update, "update");
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the criteria.
+        /// </summary>
+        public BsonDocument Criteria
+        {
+            get { return _criteria; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether this update request should affect multiple documents.
         /// </summary>
@@ -75,27 +76,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets the query.
-        /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
-        public BsonDocument Query
-        {
-            get { return _query; }
-            set { _query = Ensure.IsNotNull(value, "value"); }
-        }
-
-        /// <summary>
         /// Gets or sets the update.
         /// </summary>
-        /// <value>
-        /// The update.
-        /// </value>
         public BsonDocument Update
         {
             get { return _update; }
-            set { _update = Ensure.IsNotNull(value, "value"); }
         }
     }
 }

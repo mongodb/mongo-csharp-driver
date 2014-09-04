@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     {
         private BsonDocument[] _documents;
         private InsertRequest[] _requests;
-        private BulkWriteResult _result;
+        private BulkWriteOperationResult _result;
 
         protected override void Given()
         {
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
             {
                 new BsonDocument { { "_id", 1 }, { "x", 1 } }
             };
-            _requests = _documents.Select(d => new InsertRequest(d, BsonDocumentSerializer.Instance)).ToArray();
+            _requests = _documents.Select(d => new InsertRequest(d)).ToArray();
         }
 
         protected override void When()

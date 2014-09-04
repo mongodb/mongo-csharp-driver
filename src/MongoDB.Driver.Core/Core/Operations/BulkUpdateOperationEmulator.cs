@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Operations
                 CollectionNamespace,
                 MessageEncoderSettings,
                 WriteConcern,
-                updateRequest.Query,
+                updateRequest.Criteria,
                 updateRequest.Update,
                 updateValidator,
                 updateRequest.IsMultiUpdate ?? false,

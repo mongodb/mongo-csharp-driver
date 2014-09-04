@@ -14,13 +14,16 @@
 */
 
 using System;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a fluent builder for a write request (either a remove or an update).
     /// </summary>
-    public sealed class BulkWriteRequestBuilder
+    public sealed class BulkWriteRequestBuilder<TDocument>
     {
         // private fields
         private readonly Action<WriteRequest> _addRequest;
@@ -39,7 +42,7 @@ namespace MongoDB.Driver
         /// </summary>
         public void Remove()
         {
-            var request = new DeleteRequest(_query) { Limit = 0 };
+            var request = new DeleteRequest(new BsonDocumentWrapper(_query)) { Limit = 0 };
             _addRequest(request);
         }
 
@@ -48,20 +51,20 @@ namespace MongoDB.Driver
         /// </summary>
         public void RemoveOne()
         {
-            var request = new DeleteRequest(_query) { Limit = 1 };
+            var request = new DeleteRequest(new BsonDocumentWrapper(_query)) { Limit = 1 };
             _addRequest(request);
         }
 
         /// <summary>
         /// Adds a request to replace one matching documents to the bulk operation.
         /// </summary>
-        public void ReplaceOne<TDocument>(TDocument document)
+        public void ReplaceOne(TDocument document)
         {
             if (document == null)
             {
                 throw new ArgumentNullException("document");
             }
-            new BulkUpdateRequestBuilder(_addRequest, _query, false).ReplaceOne(document);
+            new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, false).ReplaceOne(document);
         }
 
         /// <summary>
@@ -73,7 +76,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            new BulkUpdateRequestBuilder(_addRequest, _query, false).Update(update);
+            new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, false).Update(update);
         }
 
         /// <summary>
@@ -85,16 +88,16 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            new BulkUpdateRequestBuilder(_addRequest, _query, false).UpdateOne(update);
+            new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, false).UpdateOne(update);
         }
 
         /// <summary>
         /// Specifies that the request being built should be an upsert.
         /// </summary>
         /// <returns></returns>
-        public BulkUpdateRequestBuilder Upsert()
+        public BulkUpdateRequestBuilder<TDocument> Upsert()
         {
-            return new BulkUpdateRequestBuilder(_addRequest, _query, true);
+            return new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, true);
         }
     }
 }

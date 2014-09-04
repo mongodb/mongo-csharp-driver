@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     [TestFixture]
     public class When_first_batch_has_an_error_and_is_ordered_is_true : CollectionUsingSpecification
     {
-        private BulkWriteException _exception;
+        private BulkWriteOperationException _exception;
         private BsonDocument[] _expectedDocuments;
         private WriteRequest[] _requests;
 
@@ -58,14 +58,14 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
             {
                 IsOrdered = true
             };
-            _exception = Catch<BulkWriteException>(() => ExecuteOperationAsync(subject).GetAwaiter().GetResult());
+            _exception = Catch<BulkWriteOperationException>(() => ExecuteOperationAsync(subject).GetAwaiter().GetResult());
         }
 
         [Test]
         public void ExecuteOperationAsync_should_throw_a_BulkWriteException()
         {
             _exception.Should().NotBeNull();
-            _exception.Should().BeOfType<BulkWriteException>();
+            _exception.Should().BeOfType<BulkWriteOperationException>();
         }
 
         [Test]

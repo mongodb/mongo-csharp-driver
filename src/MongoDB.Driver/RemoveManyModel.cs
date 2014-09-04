@@ -13,50 +13,49 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 
-namespace MongoDB.Driver.Core.Operations
+namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents a request to delete one or more documents.
+    /// Model for removing many documents.
     /// </summary>
-    public sealed class DeleteRequest : WriteRequest
+    public sealed class RemoveManyModel<T> : WriteModel<T>
     {
         // fields
-        private readonly BsonDocument _criteria;
-        private int _limit = 1;
+        private readonly object _criteria;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRequest" /> class.
+        /// Initializes a new instance of the <see cref="RemoveManyModel{T}"/> class.
         /// </summary>
         /// <param name="criteria">The criteria.</param>
-        public DeleteRequest(BsonDocument criteria)
-            : base(WriteRequestType.Delete)
+        public RemoveManyModel(object criteria)
         {
             _criteria = Ensure.IsNotNull(criteria, "criteria");
         }
 
         // properties
         /// <summary>
-        /// Gets or sets the criteria.
+        /// Gets the document.
         /// </summary>
-        public BsonDocument Criteria
+        public object Criteria
         {
             get { return _criteria; }
         }
 
         /// <summary>
-        /// Gets or sets the limit.
+        /// Gets the type of the model.
         /// </summary>
-        /// <value>
-        /// The limit.
-        /// </value>
-        public int Limit
+        public override WriteModelType ModelType
         {
-            get { return _limit; }
-            set { _limit = value; }
+            get { return WriteModelType.RemoveMany; }
         }
     }
 }

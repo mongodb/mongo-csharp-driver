@@ -63,7 +63,7 @@
     <Compile Include="Core\Misc\ReferenceCounted.cs" />
     <Compile Include="Core\Bindings\WritableServerBinding.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
-    <Compile Include="BulkWriteException.cs" />
+    <Compile Include="Core\Operations\BulkWriteOperationException.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\CollectionElementNameValidator.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\UpdateElementNameValidator.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\UpdateOrReplacementElementNameValidator.cs" />
@@ -76,7 +76,7 @@
     <Compile Include="CollectionNamespace.cs" />
     <Compile Include="DatabaseNamespace.cs" />
     <Compile Include="ExecutionTimeoutException.cs" />
-    <Compile Include="Core\Operations\BulkWriteResultConverter.cs" />
+    <Compile Include="Core\Operations\BulkWriteOperationResultConverter.cs" />
     <Compile Include="Core\Operations\DeleteOpcodeOperationEmulator.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperationEmulator.cs" />
     <Compile Include="Core\Operations\UpdateOpcodeOperationEmulator.cs" />
@@ -175,7 +175,7 @@
     <Compile Include="Core\Misc\ToStringComparer.cs" />
     <Compile Include="Core\Misc\IdGenerator.cs" />
     <Compile Include="Core\Misc\InterlockedInt32.cs" />
-    <Compile Include="Core\Operations\AcknowledgedBulkWriteResult.cs" />
+    <Compile Include="Core\Operations\AcknowledgedBulkWriteOperationResult.cs" />
     <Compile Include="Core\Operations\BulkDeleteOperation.cs" />
     <Compile Include="Core\Operations\BulkDeleteOperationEmulator.cs" />
     <Compile Include="Core\Operations\BulkInsertOperation.cs" />
@@ -188,10 +188,10 @@
     <Compile Include="Core\Operations\BulkWriteBatchResult.cs" />
     <Compile Include="Core\Operations\BulkWriteBatchResultCombiner.cs" />
     <Compile Include="Core\Operations\BulkWriteError.cs" />
-    <Compile Include="Core\Operations\BulkWriteResult.cs" />
+    <Compile Include="Core\Operations\BulkWriteOperationResult.cs" />
     <Compile Include="Core\Operations\BulkWriteUpsert.cs" />
     <Compile Include="Core\Operations\InsertRequest.cs" />
-    <Compile Include="Core\Operations\UnacknowledgedBulkWriteResult.cs" />
+    <Compile Include="Core\Operations\UnacknowledgedBulkWriteOperationResult.cs" />
     <Compile Include="Core\Operations\WriteConcernError.cs" />
     <Compile Include="WriteConcernResult.cs" />
     <Compile Include="Core\Operations\WriteRequest.cs" />
@@ -203,7 +203,7 @@
     <Compile Include="Core\Servers\ServerId.cs" />
     <Compile Include="MongoQueryException.cs" />
     <Compile Include="WriteConcernException.cs" />
-    <Compile Include="WriteException.cs" />
+    <Compile Include="WriteProtocolException.cs" />
     <Compile Include="Core\Misc\EndPointParser.cs" />
     <Compile Include="Core\Misc\Ensure.cs" />
     <Compile Include="Core\Misc\ExponentiallyWeightedMovingAverage.cs" />

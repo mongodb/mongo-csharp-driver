@@ -18,32 +18,31 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
-using MongoDB.Driver.Core.Operations;
 
-namespace MongoDB.Driver.Core
+namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
     /// Represents a bulk write exception.
     /// </summary>
     [Serializable]
-    public class BulkWriteException : MongoException
+    public class BulkWriteOperationException : MongoException
     {
         // fields
-        private BulkWriteResult _result;
+        private BulkWriteOperationResult _result;
         private IReadOnlyList<WriteRequest> _unprocessedRequests;
         private WriteConcernError _writeConcernError;
         private IReadOnlyList<BulkWriteError> _writeErrors;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteException" /> class.
+        /// Initializes a new instance of the <see cref="BulkWriteOperationException" /> class.
         /// </summary>
         /// <param name="result">The result.</param>
         /// <param name="writeErrors">The write errors.</param>
         /// <param name="unprocessedRequests">The unprocessed requests.</param>
         /// <param name="writeConcernError">The write concern error.</param>
-        public BulkWriteException(
-            BulkWriteResult result,
+        public BulkWriteOperationException(
+            BulkWriteOperationResult result,
             IReadOnlyList<BulkWriteError> writeErrors,
             WriteConcernError writeConcernError,
             IReadOnlyList<WriteRequest> unprocessedRequests)
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.Core
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public BulkWriteException(SerializationInfo info, StreamingContext context)
+        public BulkWriteOperationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             // TODO: decide what to do about serialization
@@ -70,7 +69,7 @@ namespace MongoDB.Driver.Core
         /// <summary>
         /// Gets the result of the bulk write operation.
         /// </summary>
-        public BulkWriteResult Result
+        public BulkWriteOperationResult Result
         {
             get { return _result; }
         }

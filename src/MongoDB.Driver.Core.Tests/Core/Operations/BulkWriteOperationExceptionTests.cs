@@ -20,23 +20,22 @@ using NUnit.Framework;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Operations;
 
-namespace MongoDB.Driver.Core.Exceptions
+namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
-    public class BulkWriteExceptionTests
+    public class BulkWriteOperationExceptionTests
     {
         [Test]
         public void Constructor_should_work()
         {
             var processedRequests = new WriteRequest[0];
             var upserts = new BulkWriteUpsert[0];
-            var result = new AcknowledgedBulkWriteResult(1, 2, 3, 4, 5, processedRequests, upserts);
+            var result = new AcknowledgedBulkWriteOperationResult(1, 2, 3, 4, 5, processedRequests, upserts);
             var writeErrors = new BulkWriteError[0];
             var writeConcernError = new WriteConcernError(1, "message", new BsonDocument("x", 1));
             var unprocessedRequests = new WriteRequest[0];
-            var subject = new BulkWriteException(result, writeErrors, writeConcernError, unprocessedRequests);
+            var subject = new BulkWriteOperationException(result, writeErrors, writeConcernError, unprocessedRequests);
 
             subject.Result.Should().BeSameAs(result);
             subject.UnprocessedRequests.Should().BeSameAs(unprocessedRequests);
@@ -49,18 +48,18 @@ namespace MongoDB.Driver.Core.Exceptions
         {
             var processedRequests = new WriteRequest[0];
             var upserts = new BulkWriteUpsert[0];
-            var result = new AcknowledgedBulkWriteResult(1, 2, 3, 4, 5, processedRequests, upserts);
+            var result = new AcknowledgedBulkWriteOperationResult(1, 2, 3, 4, 5, processedRequests, upserts);
             var writeErrors = new BulkWriteError[0];
             var writeConcernError = new WriteConcernError(1, "message", new BsonDocument("x", 1));
             var unprocessedRequests = new WriteRequest[0];
-            var subject = new BulkWriteException(result, writeErrors, writeConcernError, unprocessedRequests);
+            var subject = new BulkWriteOperationException(result, writeErrors, writeConcernError, unprocessedRequests);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
-                var rehydrated = (BulkWriteException)formatter.Deserialize(stream);
+                var rehydrated = (BulkWriteOperationException)formatter.Deserialize(stream);
 
                 rehydrated.Result.Should().BeNull();
                 rehydrated.UnprocessedRequests.Should().BeNull();

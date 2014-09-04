@@ -22,21 +22,43 @@ using MongoDB.Bson;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents the result of an unacknowledged BulkWrite operation.
+    /// Represents the result of an acknowledged bulk write operation.
     /// </summary>
-    public class UnacknowledgedBulkWriteResult : BulkWriteResult
+    public class AcknowledgedBulkWriteOperationResult : BulkWriteOperationResult
     {
+        // fields
+        private readonly long _deletedCount;
+        private readonly long _insertedCount;
+        private readonly long _matchedCount;
+        private readonly long? _modifiedCount;
+        private readonly IReadOnlyList<BulkWriteUpsert> _upserts;
+
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="AcknowledgedBulkWriteResult" /> class.
+        /// Initializes a new instance of the <see cref="AcknowledgedBulkWriteOperationResult" /> class.
         /// </summary>
         /// <param name="requestCount">The request count.</param>
+        /// <param name="matchedCount">The matched count.</param>
+        /// <param name="deletedCount">The deleted count.</param>
+        /// <param name="insertedCount">The inserted count.</param>
+        /// <param name="modifiedCount">The modified count.</param>
         /// <param name="processedRequests">The processed requests.</param>
-        public UnacknowledgedBulkWriteResult(
+        /// <param name="upserts">The upserts.</param>
+        public AcknowledgedBulkWriteOperationResult(
             int requestCount,
-            IReadOnlyList<WriteRequest> processedRequests)
+            long matchedCount,
+            long deletedCount,
+            long insertedCount,
+            long? modifiedCount,
+            IReadOnlyList<WriteRequest> processedRequests,
+            IReadOnlyList<BulkWriteUpsert> upserts)
             : base(requestCount, processedRequests)
         {
+            _matchedCount = matchedCount;
+            _deletedCount = deletedCount;
+            _insertedCount = insertedCount;
+            _modifiedCount = modifiedCount;
+            _upserts = upserts;
         }
 
         // properties
@@ -46,10 +68,9 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The number of document that were deleted.
         /// </value>
-        /// <exception cref="System.NotSupportedException">Only acknowledged writes support the DeletedCount property.</exception>
         public override long DeletedCount
         {
-            get { throw new NotSupportedException("Only acknowledged writes support the DeletedCount property."); }
+            get { return _deletedCount; }
         }
 
         /// <summary>
@@ -58,10 +79,9 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The number of document that were inserted.
         /// </value>
-        /// <exception cref="System.NotSupportedException">Only acknowledged writes support the InsertedCount property.</exception>
         public override long InsertedCount
         {
-            get { throw new NotSupportedException("Only acknowledged writes support the InsertedCount property."); }
+            get { return _insertedCount; }
         }
 
         /// <summary>
@@ -73,23 +93,20 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// <c>true</c> if the modified count is available; otherwise, <c>false</c>.
         /// </value>
-        /// <exception cref="System.NotImplementedException"></exception>
         public override bool IsModifiedCountAvailable
         {
-            get { throw new NotSupportedException("Only acknowledged writes support the IsModifiedCountAvailable property."); }
+            get { return _modifiedCount.HasValue; }
         }
 
         /// <summary>
         /// Gets the number of documents that were matched.
         /// </summary>
         /// <value>
-        /// The number of document that were matched
-        /// .
+        /// The number of document that were matched.
         /// </value>
-        /// <exception cref="System.NotSupportedException">Only acknowledged writes support the MatchedCount property.</exception>
         public override long MatchedCount
         {
-            get { throw new NotSupportedException("Only acknowledged writes support the MatchedCount property."); }
+            get { return _matchedCount; }
         }
 
         /// <summary>
@@ -98,10 +115,16 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The number of document that were actually modified during an update.
         /// </value>
-        /// <exception cref="System.NotSupportedException">Only acknowledged writes support the ModifiedCount property.</exception>
         public override long ModifiedCount
         {
-            get { throw new NotSupportedException("Only acknowledged writes support the ModifiedCount property."); }
+            get
+            {
+                if (!_modifiedCount.HasValue)
+                {
+                    throw new NotSupportedException("ModifiedCount is not available.");
+                }
+                return _modifiedCount.Value;
+            }
         }
 
         /// <summary>
@@ -112,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
         /// </value>
         public override bool IsAcknowledged
         {
-            get { return false; }
+            get { return true; }
         }
 
         /// <summary>
@@ -123,7 +146,7 @@ namespace MongoDB.Driver.Core.Operations
         /// </value>
         public override IReadOnlyList<BulkWriteUpsert> Upserts
         {
-            get { throw new NotSupportedException("Only acknowledged writes support the Upserts property."); }
+            get { return _upserts; }
         }
     }
 }

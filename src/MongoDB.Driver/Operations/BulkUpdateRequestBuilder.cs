@@ -14,12 +14,14 @@
 */
 
 using System;
+using MongoDB.Bson;
+using MongoDB.Driver.Core.Operations;
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a fluent builder for one update request.
     /// </summary>
-    public sealed class BulkUpdateRequestBuilder
+    public sealed class BulkUpdateRequestBuilder<TDocument>
     {
         // private fields
         private readonly Action<WriteRequest> _addRequest;
@@ -38,16 +40,14 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds an update request to replace one matching document to the bulk operation.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="document">The document.</param>
-        public void ReplaceOne<TDocument>(TDocument document)
+        public void ReplaceOne(TDocument document)
         {
             if (document == null)
             {
                 throw new ArgumentNullException("document");
             }
-            var update = Builders.Update.Replace(document);
-            Update(update, false);
+            Update(new BsonDocumentWrapper(document), false);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            Update(update, true);
+            Update(update.ToBsonDocument(), true);
         }
 
         /// <summary>
@@ -73,13 +73,13 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            Update(update, false);
+            Update(update.ToBsonDocument(), false);
         }
 
         // private methods
-        private void Update(IMongoUpdate update, bool multi)
+        private void Update(BsonDocument update, bool multi)
         {
-            var request = new UpdateRequest(_query, update)
+            var request = new UpdateRequest(new BsonDocumentWrapper(_query), update)
             {
                 IsMultiUpdate = multi,
                 IsUpsert = _upsert

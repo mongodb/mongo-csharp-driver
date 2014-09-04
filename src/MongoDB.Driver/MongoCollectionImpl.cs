@@ -15,10 +15,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -33,6 +35,7 @@ namespace MongoDB.Driver
         private readonly ICluster _cluster;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly IOperationExecutor _operationExecutor;
+        private readonly IBsonSerializer<T> _serializer;
         private readonly MongoCollectionSettings _settings;
 
         // constructors
@@ -42,6 +45,8 @@ namespace MongoDB.Driver
             _settings = Ensure.IsNotNull(settings, "settings");
             _cluster = Ensure.IsNotNull(cluster, "cluster");
             _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
+
+            _serializer = _settings.SerializerRegistry.GetSerializer<T>();
         }
 
         // properties
@@ -56,6 +61,30 @@ namespace MongoDB.Driver
         }
 
         // methods
+        public async Task<BulkWriteResult<T>> BulkWriteAsync(BulkWriteModel<T> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(model, "model");
+
+            var operation = new BulkMixedWriteOperation(
+                _collectionNamespace,
+                model.Requests.Select(ConvertWriteModelToWriteRequest),
+                GetMessageEncoderSettings())
+            {
+                IsOrdered = model.IsOrdered,
+                WriteConcern = _settings.WriteConcern
+            };
+
+            try
+            {
+                var result = await ExecuteWriteOperation(operation, timeout, cancellationToken);
+                return BulkWriteResult<T>.FromCore(result, model.Requests);
+            }
+            catch(BulkWriteOperationException ex)
+            {
+                throw BulkWriteException<T>.FromCore(ex, model.Requests);
+            }
+        }
+
         public Task<long> CountAsync(CountModel model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(model, "model");
@@ -89,6 +118,85 @@ namespace MongoDB.Driver
             };
 
             return ExecuteReadOperation(operation, timeout, cancellationToken);
+        }
+
+        private void AssignId(T document)
+        {
+            var idProvider = _serializer as IBsonIdProvider;
+            if (idProvider != null)
+            {
+                object id;
+                Type idNominalType;
+                IIdGenerator idGenerator;
+                if (idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator))
+                {
+                    if (idGenerator != null && idGenerator.IsEmpty(id))
+                    {
+                        id = idGenerator.GenerateId(this, document);
+                        idProvider.SetDocumentId(document, id);
+                    }
+                }
+            }
+        }
+        
+        private WriteRequest ConvertWriteModelToWriteRequest(WriteModel<T> model, int index)
+        {
+            switch (model.ModelType)
+            {
+                case WriteModelType.InsertOne:
+                    var insertOneModel = (InsertOneModel<T>)model;
+                    AssignId(insertOneModel.Document);
+                    return new InsertRequest(new BsonDocumentWrapper(insertOneModel.Document, _serializer))
+                    {
+                        CorrelationId = index
+                    };
+                case WriteModelType.RemoveMany:
+                    var removeManyModel = (RemoveManyModel<T>)model;
+                    return new DeleteRequest(ConvertToBsonDocument(removeManyModel.Criteria))
+                    {
+                        CorrelationId = index,
+                        Limit = 0
+                    };
+                case WriteModelType.RemoveOne:
+                    var removeOneModel = (RemoveOneModel<T>)model;
+                    return new DeleteRequest(ConvertToBsonDocument(removeOneModel.Criteria))
+                    {
+                        CorrelationId = index,
+                        Limit = 1
+                    };
+                case WriteModelType.ReplaceOne:
+                    var replaceOneModel = (ReplaceOneModel<T>)model;
+                    return new UpdateRequest(
+                        ConvertToBsonDocument(replaceOneModel.Criteria),
+                        new BsonDocumentWrapper(replaceOneModel.Replacement, _serializer))
+                    {
+                        CorrelationId = index,
+                        IsMultiUpdate = false,
+                        IsUpsert = replaceOneModel.IsUpsert
+                    };
+                case WriteModelType.UpdateMany:
+                    var updateManyModel = (UpdateManyModel<T>)model;
+                    return new UpdateRequest(
+                        ConvertToBsonDocument(updateManyModel.Criteria),
+                        ConvertToBsonDocument(updateManyModel.Update))
+                    {
+                        CorrelationId = index,
+                        IsMultiUpdate = true,
+                        IsUpsert = updateManyModel.IsUpsert
+                    };
+                case WriteModelType.UpdateOne:
+                    var updateOneModel = (UpdateOneModel<T>)model;
+                    return new UpdateRequest(
+                        ConvertToBsonDocument(updateOneModel.Criteria),
+                        ConvertToBsonDocument(updateOneModel.Update))
+                    {
+                        CorrelationId = index,
+                        IsMultiUpdate = false,
+                        IsUpsert = updateOneModel.IsUpsert
+                    };
+                default:
+                    throw new InvalidOperationException("Unknown type of WriteModel provided.");
+            }
         }
 
         private BsonDocument ConvertToBsonDocument(object document)

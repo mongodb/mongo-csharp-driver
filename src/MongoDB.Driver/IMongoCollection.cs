@@ -40,6 +40,15 @@ namespace MongoDB.Driver
         MongoCollectionSettings Settings { get; }
 
         /// <summary>
+        /// Performs multiple write operations at the same time.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="timeout">The timeout.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The result of writing.</returns>
+        Task<BulkWriteResult<T>> BulkWriteAsync(BulkWriteModel<T> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Counts the number of documents in the collection.
         /// </summary>
         /// <param name="model">The model.</param>

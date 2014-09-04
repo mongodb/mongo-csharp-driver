@@ -28,20 +28,20 @@ namespace MongoDB.Driver.Core.Operations
     public class DeleteOpcodeOperation : IWriteOperation<WriteConcernResult>
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
+        private readonly BsonDocument _criteria;
         private bool _isMulti;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private BsonDocument _query;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public DeleteOpcodeOperation(
             CollectionNamespace collectionNamespace,
-            BsonDocument query,
+            BsonDocument criteria,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _query = Ensure.IsNotNull(query, "query");
+            _criteria = Ensure.IsNotNull(criteria, "criteria");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -49,7 +49,11 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
+        }
+
+        public BsonDocument Criteria
+        {
+            get { return _criteria; }
         }
 
         public bool IsMulti
@@ -61,13 +65,6 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
-        }
-
-        public BsonDocument Query
-        {
-            get { return _query; }
-            set { _query = Ensure.IsNotNull(value, "value"); }
         }
 
         public WriteConcern WriteConcern
@@ -81,7 +78,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new DeleteWireProtocol(
                 _collectionNamespace,
-                _query,
+                _criteria,
                 _isMulti,
                 _messageEncoderSettings,
                 _writeConcern);
@@ -93,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
-                var emulator = new DeleteOpcodeOperationEmulator(_collectionNamespace, _query, _messageEncoderSettings)
+                var emulator = new DeleteOpcodeOperationEmulator(_collectionNamespace, _criteria, _messageEncoderSettings)
                 {
                     IsMulti = _isMulti,
                     WriteConcern = _writeConcern

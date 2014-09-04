@@ -17,7 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -28,12 +30,12 @@ namespace MongoDB.Driver.Core.Operations
     internal abstract class BulkUnmixedWriteOperationEmulatorBase
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
         private int _maxBatchCount = 0;
         private int _maxBatchLength = int.MaxValue;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private IEnumerable<WriteRequest> _requests;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly IEnumerable<WriteRequest> _requests;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
@@ -51,7 +53,6 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public int MaxBatchCount
@@ -69,7 +70,6 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         public bool IsOrdered
@@ -81,7 +81,6 @@ namespace MongoDB.Driver.Core.Operations
         public IEnumerable<WriteRequest> Requests
         {
             get { return _requests; }
-            set { _requests = Ensure.IsNotNull(value, "value"); }
         }
 
         public WriteConcern WriteConcern
@@ -117,7 +116,7 @@ namespace MongoDB.Driver.Core.Operations
                 indexMap);
         }
 
-        public async Task<BulkWriteResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
 

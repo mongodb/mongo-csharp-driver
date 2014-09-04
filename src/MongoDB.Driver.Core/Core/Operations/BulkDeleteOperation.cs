@@ -13,16 +13,10 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -47,7 +41,6 @@ namespace MongoDB.Driver.Core.Operations
         public new IEnumerable<DeleteRequest> Requests
         {
             get { return base.Requests.Cast<DeleteRequest>(); }
-            set { base.Requests = value; }
         }
 
         protected override string RequestsElementName
@@ -89,7 +82,7 @@ namespace MongoDB.Driver.Core.Operations
                 bsonWriter.PushMaxDocumentSize(MaxDocumentSize);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("q");
-                BsonSerializer.Serialize(bsonWriter, deleteRequest.Query);
+                BsonSerializer.Serialize(bsonWriter, deleteRequest.Criteria);
                 bsonWriter.WriteInt32("limit", deleteRequest.Limit);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.PopMaxDocumentSize();

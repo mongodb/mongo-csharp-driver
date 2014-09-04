@@ -30,7 +30,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal abstract class BulkUnmixedWriteOperationBase : IWriteOperation<BulkWriteResult>
+    internal abstract class BulkUnmixedWriteOperationBase : IWriteOperation<BulkWriteOperationResult>
     {
         // fields
         private CollectionNamespace _collectionNamespace;
@@ -56,7 +56,6 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         protected abstract string CommandName { get; }
@@ -88,7 +87,6 @@ namespace MongoDB.Driver.Core.Operations
         public IEnumerable<WriteRequest> Requests
         {
             get { return _requests; }
-            set { _requests = Ensure.IsNotNull(value, "value"); }
         }
 
         protected abstract string RequestsElementName { get; }
@@ -134,7 +132,7 @@ namespace MongoDB.Driver.Core.Operations
             return requests;
         }
 
-        public async Task<BulkWriteResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             if (connection.Description.ServerVersion >= new SemanticVersion(2, 6, 0))
             {
@@ -147,7 +145,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<BulkWriteResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
@@ -177,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
                 indexMap);
         }
 
-        private async Task<BulkWriteResult> ExecuteBatchesAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             var batchResults = new List<BulkWriteBatchResult>();

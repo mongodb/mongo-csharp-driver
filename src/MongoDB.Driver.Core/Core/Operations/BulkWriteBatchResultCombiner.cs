@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private BulkWriteException CreateBulkWriteException(IEnumerable<WriteRequest> remainingRequests)
+        private BulkWriteOperationException CreateBulkWriteException(IEnumerable<WriteRequest> remainingRequests)
         {
             var remainingRequestsList = remainingRequests.ToList();
             var result = CreateBulkWriteResult(remainingRequestsList.Count);
@@ -127,17 +127,17 @@ namespace MongoDB.Driver.Core.Operations
             var writeConcernError = CombineWriteConcernErrors();
             var unprocessedRequests = CombineUnprocessedRequests(remainingRequestsList);
 
-            return new BulkWriteException(result, writeErrors, writeConcernError, unprocessedRequests);
+            return new BulkWriteOperationException(result, writeErrors, writeConcernError, unprocessedRequests);
         }
 
-        private BulkWriteResult CreateBulkWriteResult(int remainingRequestsCount)
+        private BulkWriteOperationResult CreateBulkWriteResult(int remainingRequestsCount)
         {
             var requestCount = CombineBatchCount() + remainingRequestsCount;
             var processedRequests = CombineProcessedRequests();
 
             if (!_isAcknowledged)
             {
-                return new UnacknowledgedBulkWriteResult(
+                return new UnacknowledgedBulkWriteOperationResult(
                     requestCount,
                     processedRequests);
             }
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Operations
             var modifiedCount = CombineModifiedCount();
             var upserts = CombineUpserts();
 
-            return new AcknowledgedBulkWriteResult(
+            return new AcknowledgedBulkWriteOperationResult(
                 requestCount,
                 matchedCount,
                 deletedCount,
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
                 upserts);
         }
 
-        public BulkWriteResult CreateResultOrThrowIfHasErrors(IReadOnlyList<WriteRequest> remainingRequests)
+        public BulkWriteOperationResult CreateResultOrThrowIfHasErrors(IReadOnlyList<WriteRequest> remainingRequests)
         {
             if (_batchResults.Any(r => r.HasWriteErrors || r.HasWriteConcernError))
             {

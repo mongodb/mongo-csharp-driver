@@ -25,24 +25,24 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver
 {
     [Serializable]
-    public class WriteException : MongoException
+    public class WriteProtocolException : MongoException
     {
         // fields
         private readonly BsonDocument _result;
 
         // constructors
-        public WriteException(string message)
+        public WriteProtocolException(string message)
             : this(message, null)
         {
         }
 
-        public WriteException(string message, BsonDocument result)
+        public WriteProtocolException(string message, BsonDocument result)
             : base(message, null)
         {
             _result = result; // can be null
         }
 
-        protected WriteException(SerializationInfo info, StreamingContext context)
+        protected WriteProtocolException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _result = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_result", typeof(byte[])));

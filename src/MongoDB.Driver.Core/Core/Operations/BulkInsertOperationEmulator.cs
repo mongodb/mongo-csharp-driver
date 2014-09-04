@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
@@ -27,9 +28,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal class BulkInsertOperationEmulator : BulkUnmixedWriteOperationEmulatorBase
     {
-        // fields
-        private Action<object, IBsonSerializer> _assignId;
-
         // constructors
         public BulkInsertOperationEmulator(
             CollectionNamespace collectionNamespace,
@@ -39,25 +37,11 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-        // properties
-        public Action<object, IBsonSerializer> AssignId
-        {
-            get { return _assignId; }
-            set { _assignId = value; }
-        }
-
         //  methods
         protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
         {
             var insertRequest = (InsertRequest)request;
-            var document = insertRequest.Document;
-            var serializer = insertRequest.Serializer;       
-            if (_assignId != null)
-            {
-                _assignId(document, serializer);
-            }
-            var wrapper = new BsonDocumentWrapper(document, serializer);
-            var documentSource = new BatchableSource<BsonDocument>(new[] { wrapper });
+            var documentSource = new BatchableSource<BsonDocument>(new[] { insertRequest.Document });
 
             return new InsertWireProtocol<BsonDocument>(
                 CollectionNamespace,

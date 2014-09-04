@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -27,14 +28,14 @@ namespace MongoDB.Driver.Core.Operations
     internal class InsertOpcodeOperationEmulator<TDocument>
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private bool _continueOnError;
-        private BatchableSource<TDocument> _documentSource;
+        private readonly BatchableSource<TDocument> _documentSource;
         private int? _maxBatchCount;
         private int? _maxDocumentSize;
         private int? _maxMessageSize;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private IBsonSerializer<TDocument> _serializer;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly IBsonSerializer<TDocument> _serializer;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
@@ -54,7 +55,6 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool ContinueOnError
@@ -66,7 +66,6 @@ namespace MongoDB.Driver.Core.Operations
         public BatchableSource<TDocument> DocumentSource
         {
             get { return _documentSource; }
-            set { _documentSource = Ensure.IsNotNull(value, "value"); }
         }
 
         public int? MaxBatchCount
@@ -90,13 +89,11 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
-            set { _serializer = Ensure.IsNotNull(value, "value"); }
         }
 
         public WriteConcern WriteConcern
@@ -110,7 +107,15 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(connection, "connection");
 
-            var requests = _documentSource.GetRemainingItems().Select(d => new InsertRequest(d, _serializer));
+            var requests = _documentSource.GetRemainingItems().Select(d =>
+            {
+                if (d == null)
+                {
+                    throw new ArgumentException("Batch contains one or more null documents.");
+                }
+
+                return new InsertRequest(new BsonDocumentWrapper(d, _serializer));
+            });
             var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 IsOrdered = !_continueOnError,
@@ -120,19 +125,19 @@ namespace MongoDB.Driver.Core.Operations
                 // WriteSettings = ?
             };
 
-            BulkWriteResult bulkWriteResult;
-            BulkWriteException bulkWriteException = null;
+            BulkWriteOperationResult bulkWriteResult;
+            BulkWriteOperationException bulkWriteException = null;
             try
             {
                 bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken);
             }
-            catch (BulkWriteException ex)
+            catch (BulkWriteOperationException ex)
             {
                 bulkWriteResult = ex.Result;
                 bulkWriteException = ex;
             }
 
-            var converter = new BulkWriteResultConverter();
+            var converter = new BulkWriteOperationResultConverter();
             if (bulkWriteException != null)
             {
                 throw converter.ToWriteConcernException(bulkWriteException);

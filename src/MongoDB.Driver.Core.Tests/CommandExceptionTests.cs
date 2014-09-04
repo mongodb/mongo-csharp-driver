@@ -21,7 +21,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Core.Exceptions
+namespace MongoDB.Driver
 {
     [TestFixture]
     public class CommandExceptionTests

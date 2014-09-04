@@ -13,8 +13,11 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -45,7 +48,6 @@ namespace MongoDB.Driver.Core.Operations
         public new IEnumerable<UpdateRequest> Requests
         {
             get { return base.Requests.Cast<UpdateRequest>(); }
-            set { base.Requests = value; }
         }
 
         protected override string RequestsElementName
@@ -80,10 +82,10 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             // methods
-            private void SerializeQuery(BsonBinaryWriter bsonWriter, BsonDocument query)
+            private void SerializeCriteria(BsonBinaryWriter bsonWriter, BsonDocument criteria)
             {
                 var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
-                BsonDocumentSerializer.Instance.Serialize(context, query);
+                BsonDocumentSerializer.Instance.Serialize(context, criteria);
             }
 
             protected override void SerializeRequest(BsonSerializationContext context, WriteRequest request)
@@ -96,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteName("q");
-                    SerializeQuery(bsonWriter, updateRequest.Query);
+                    SerializeCriteria(bsonWriter, updateRequest.Criteria);
                     bsonWriter.WriteName("u");
                     SerializeUpdate(bsonWriter, updateRequest.Update);
                     if (updateRequest.IsMultiUpdate.HasValue)

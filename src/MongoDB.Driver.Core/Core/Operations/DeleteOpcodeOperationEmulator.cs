@@ -28,20 +28,20 @@ namespace MongoDB.Driver.Core.Operations
     public class DeleteOpcodeOperationEmulator
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
+        private readonly BsonDocument _criteria;
         private bool _isMulti;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private BsonDocument _query;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public DeleteOpcodeOperationEmulator(
             CollectionNamespace collectionNamespace,
-            BsonDocument query,
+            BsonDocument criteria,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _query = Ensure.IsNotNull(query, "query");
+            _criteria = Ensure.IsNotNull(criteria, "criteria");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -49,7 +49,11 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
+        }
+
+        public BsonDocument Criteria
+        {
+            get { return _criteria; }
         }
 
         public bool IsMulti
@@ -61,13 +65,6 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
-        }
-
-        public BsonDocument Query
-        {
-            get { return _query; }
-            set { _query = Ensure.IsNotNull(value, "value"); }
         }
 
         public WriteConcern WriteConcern
@@ -82,26 +79,26 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(connection, "connection");
 
             var limit = _isMulti ? 0 : 1;
-            var requests = new[] { new DeleteRequest(_query) { Limit = limit } };
+            var requests = new[] { new DeleteRequest(_criteria) { Limit = limit } };
 
             var operation = new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 WriteConcern = _writeConcern
             };
 
-            BulkWriteResult bulkWriteResult;
-            BulkWriteException bulkWriteException = null;
+            BulkWriteOperationResult bulkWriteResult;
+            BulkWriteOperationException bulkWriteException = null;
             try
             {
                 bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken);
             }
-            catch (BulkWriteException ex)
+            catch (BulkWriteOperationException ex)
             {
                 bulkWriteResult = ex.Result;
                 bulkWriteException = ex;
             }
 
-            var converter = new BulkWriteResultConverter();
+            var converter = new BulkWriteOperationResultConverter();
             if (bulkWriteException != null)
             {
                 throw converter.ToWriteConcernException(bulkWriteException);

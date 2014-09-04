@@ -1260,18 +1260,18 @@ namespace MongoDB.Driver
         /// Creates a fluent builder for an ordered bulk operation.
         /// </summary>
         /// <returns>A fluent bulk operation builder.</returns>
-        public virtual BulkWriteOperation InitializeOrderedBulkOperation()
+        public virtual BulkWriteOperation<TDocument> InitializeOrderedBulkOperationAs<TDocument>()
         {
-            return new BulkWriteOperation(this, true);
+            return new BulkWriteOperation<TDocument>(this, true);
         }
 
         /// <summary>
         /// Creates a fluent builder for an unordered bulk operation.
         /// </summary>
         /// <returns>A fluent bulk operation builder.</returns>
-        public virtual BulkWriteOperation InitializeUnorderedBulkOperation()
+        public virtual BulkWriteOperation<TDocument> InitializeUnorderedBulkOperationAs<TDocument>()
         {
-            return new BulkWriteOperation(this, false);
+            return new BulkWriteOperation<TDocument>(this, false);
         }
 
         // WARNING: be VERY careful about adding any new overloads of Insert or InsertBatch (just don't do it!)
@@ -2508,6 +2508,24 @@ namespace MongoDB.Driver
             IMongoGeoNearOptions options)
         {
             return GeoNearAs<TDefaultDocument>(query, x, y, limit, options);
+        }
+
+        /// <summary>
+        /// Creates a fluent builder for an ordered bulk operation.
+        /// </summary>
+        /// <returns>A fluent bulk operation builder.</returns>
+        public virtual BulkWriteOperation<TDefaultDocument> InitializeOrderedBulkOperation()
+        {
+            return new BulkWriteOperation<TDefaultDocument>(this, true);
+        }
+
+        /// <summary>
+        /// Creates a fluent builder for an unordered bulk operation.
+        /// </summary>
+        /// <returns>A fluent bulk operation builder.</returns>
+        public virtual BulkWriteOperation<TDefaultDocument> InitializeUnorderedBulkOperation()
+        {
+            return new BulkWriteOperation<TDefaultDocument>(this, false);
         }
 
         /// <summary>

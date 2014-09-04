@@ -27,13 +27,13 @@ namespace MongoDB.Driver.Core.Operations
     public class UpdateOpcodeOperationEmulator
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
+        private readonly BsonDocument _criteria;
         private bool _isMulti;
         private bool _isUpsert;
         private int? _maxDocumentSize;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private BsonDocument _query;
-        private BsonDocument _update;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly BsonDocument _update;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Operations
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _query = Ensure.IsNotNull(query, "query");
+            _criteria = Ensure.IsNotNull(query, "criteria");
             _update = Ensure.IsNotNull(update, "update");
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -53,7 +53,11 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
+        }
+
+        public BsonDocument Criteria
+        {
+            get { return _criteria; }
         }
 
         public bool IsMulti
@@ -77,19 +81,11 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
-        }
-        
-        public BsonDocument Query
-        {
-            get { return _query; }
-            set { _query = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonDocument Update
         {
             get { return _update; }
-            set { _update = Ensure.IsNotNull(value, "value"); }
         }
 
         public WriteConcern WriteConcern
@@ -103,7 +99,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(connection, "connection");
 
-            var requests = new[] { new UpdateRequest(_query, _update) { IsMultiUpdate = _isMulti, IsUpsert = _isUpsert } };
+            var requests = new[] { new UpdateRequest(_criteria, _update) { IsMultiUpdate = _isMulti, IsUpsert = _isUpsert } };
 
             var operation = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
@@ -111,19 +107,19 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = _writeConcern
             };
 
-            BulkWriteResult bulkWriteResult;
-            BulkWriteException bulkWriteException = null;
+            BulkWriteOperationResult bulkWriteResult;
+            BulkWriteOperationException bulkWriteException = null;
             try
             {
                 bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken);
             }
-            catch (BulkWriteException ex)
+            catch (BulkWriteOperationException ex)
             {
                 bulkWriteResult = ex.Result;
                 bulkWriteException = ex;
             }
 
-            var converter = new BulkWriteResultConverter();
+            var converter = new BulkWriteOperationResultConverter();
             if (bulkWriteException != null)
             {
                 throw converter.ToWriteConcernException(bulkWriteException);

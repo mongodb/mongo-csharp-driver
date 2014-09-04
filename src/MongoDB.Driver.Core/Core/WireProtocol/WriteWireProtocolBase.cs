@@ -126,15 +126,15 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             if (reply.NumberReturned == 0)
             {
-                throw new WriteException("GetLastError reply had no documents.");
+                throw new WriteProtocolException("GetLastError reply had no documents.");
             }
             if (reply.NumberReturned > 1)
             {
-                throw new WriteException("GetLastError reply had more than one document.");
+                throw new WriteProtocolException("GetLastError reply had more than one document.");
             }
             if (reply.QueryFailure)
             {
-                throw new WriteException("GetLastError reply had QueryFailure flag set.", reply.QueryFailureDocument);
+                throw new WriteProtocolException("GetLastError reply had QueryFailure flag set.", reply.QueryFailureDocument);
             }
 
             var response = reply.Documents.Single();

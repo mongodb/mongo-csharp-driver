@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     public class When_second_batch_has_an_error_and_isOrdered_is_false : CollectionUsingSpecification
     {
         private BsonDocument[] _documents;
-        private BulkWriteException _exception;
+        private BulkWriteOperationException _exception;
         private InsertRequest[] _requests;
 
         protected override void Given()
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
                 new BsonDocument { { "_id", 5 }, { "x", 5 } }
             };
 
-            _requests = _documents.Select(d => new InsertRequest(d, BsonDocumentSerializer.Instance)).ToArray();
+            _requests = _documents.Select(d => new InsertRequest(d)).ToArray();
         }
 
         protected override void When()
@@ -52,14 +52,14 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
                 IsOrdered = false,
                 MaxBatchCount = 2,
             };
-            _exception = Catch<BulkWriteException>(() => ExecuteOperationAsync(subject).GetAwaiter().GetResult());
+            _exception = Catch<BulkWriteOperationException>(() => ExecuteOperationAsync(subject).GetAwaiter().GetResult());
         }
 
         [Test]
         public void ExecuteOperationAsync_should_throw_a_BulkWriteException()
         {
             _exception.Should().NotBeNull();
-            _exception.Should().BeOfType<BulkWriteException>();
+            _exception.Should().BeOfType<BulkWriteOperationException>();
         }
 
         [Test]

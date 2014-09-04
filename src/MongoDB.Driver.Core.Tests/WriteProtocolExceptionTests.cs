@@ -21,7 +21,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Core.Exceptions
+namespace MongoDB.Driver
 {
     [TestFixture]
     public class WriteExceptionTests
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Exceptions
         [Test]
         public void Constructor_with_1_arguments_should_work()
         {
-            var exception = new WriteException("message");
+            var exception = new WriteProtocolException("message");
             exception.Message.Should().Be("message");
             exception.InnerException.Should().BeNull();
             exception.Result.Should().BeNull();
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Exceptions
         public void Constructor_with_2_arguments_should_work()
         {
             var result = new BsonDocument("result", 1);
-            var exception = new WriteException("message", result);
+            var exception = new WriteProtocolException("message", result);
             exception.Message.Should().Be("message");
             exception.InnerException.Should().BeNull();
             exception.Result.Equals(result).Should().BeTrue();
@@ -49,14 +49,14 @@ namespace MongoDB.Driver.Core.Exceptions
         public void Serialization_should_work()
         {
             var result = new BsonDocument("result", 1);
-            var exception = new WriteException("message", result);
+            var exception = new WriteProtocolException("message", result);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, exception);
                 stream.Position = 0;
-                var rehydrated = (WriteException)formatter.Deserialize(stream);
+                var rehydrated = (WriteProtocolException)formatter.Deserialize(stream);
                 rehydrated.Message.Should().Be("message");
                 rehydrated.InnerException.Should().BeNull();
                 rehydrated.Result.Equals(result).Should().BeTrue();

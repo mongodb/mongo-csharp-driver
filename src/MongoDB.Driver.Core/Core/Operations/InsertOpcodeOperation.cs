@@ -42,14 +42,14 @@ namespace MongoDB.Driver.Core.Operations
     public class InsertOpcodeOperation<TDocument> : IWriteOperation<WriteConcernResult>
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private bool _continueOnError;
-        private BatchableSource<TDocument> _documentSource;
+        private readonly BatchableSource<TDocument> _documentSource;
         private int? _maxBatchCount;
         private int? _maxDocumentSize;
         private int? _maxMessageSize;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private IBsonSerializer<TDocument> _serializer;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly IBsonSerializer<TDocument> _serializer;
         private Func<bool> _shouldSendGetLastError;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
@@ -66,7 +66,6 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool ContinueOnError
@@ -78,7 +77,6 @@ namespace MongoDB.Driver.Core.Operations
         public BatchableSource<TDocument> DocumentSource
         {
             get { return _documentSource; }
-            set { _documentSource = Ensure.IsNotNull(value, "value"); }
         }
 
         public int? MaxBatchCount
@@ -102,13 +100,11 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
-            set { _serializer = Ensure.IsNotNull(value, "value"); }
         }
 
         public Func<bool> ShouldSendGetLastError

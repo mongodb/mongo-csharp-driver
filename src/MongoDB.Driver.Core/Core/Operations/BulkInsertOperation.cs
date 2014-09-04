@@ -16,8 +16,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -26,9 +33,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal class BulkInsertOperation : BulkUnmixedWriteOperationBase
     {
-        // fields
-        private Action<object, IBsonSerializer> _assignId;
-
         // constructors
         public BulkInsertOperation(
             CollectionNamespace collectionNamespace,
@@ -39,12 +43,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public Action<object, IBsonSerializer> AssignId
-        {
-            get { return _assignId; }
-            set { _assignId = value; }
-        }
-
         protected override string CommandName
         {
             get { return "insert"; }
@@ -53,7 +51,6 @@ namespace MongoDB.Driver.Core.Operations
         public new IEnumerable<InsertRequest> Requests
         {
             get { return base.Requests.Cast<InsertRequest>(); }
-            set { base.Requests = value; }
         }
 
         protected override string RequestsElementName
@@ -71,31 +68,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BulkInsertOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
             {
-                AssignId = _assignId,
                 MaxBatchCount = MaxBatchCount,
                 MaxBatchLength = MaxBatchLength,
                 IsOrdered = IsOrdered,
                 WriteConcern = WriteConcern
             };
-        }
-
-        protected override IEnumerable<WriteRequest> DecorateRequests(IEnumerable<WriteRequest> requests)
-        {
-            if (_assignId != null)
-            {
-                return requests.Select(request =>
-                {
-                    var insertRequest = (InsertRequest)request;
-                    var document = insertRequest.Document;
-                    var serializer = insertRequest.Serializer ?? BsonSerializer.LookupSerializer(document.GetType());
-                    _assignId(document, serializer);
-                    return request;
-                });
-            }
-            else
-            {
-                return requests;
-            }
         }
 
         // nested types
@@ -116,22 +93,15 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var insertRequest = (InsertRequest)request;
                 var document = insertRequest.Document;
-                if (document == null)
+
+                var actualType = document.GetType();
+                if (_cachedSerializerType != actualType)
                 {
-                    throw new ArgumentException("Batch contains one or more null documents.");
+                    _cachedSerializer = BsonSerializer.LookupSerializer(actualType);
+                    _cachedSerializerType = actualType;
                 }
 
-                var serializer = insertRequest.Serializer;
-                if (serializer == null)
-                {
-                    var actualType = document.GetType();
-                    if (_cachedSerializerType != actualType)
-                    {
-                        _cachedSerializer = BsonSerializer.LookupSerializer(actualType);
-                        _cachedSerializerType = actualType;
-                    }
-                    serializer = _cachedSerializer;
-                }
+                var serializer = _cachedSerializer;
 
                 var bsonWriter = (BsonBinaryWriter)context.Writer;
                 bsonWriter.PushMaxDocumentSize(MaxDocumentSize);

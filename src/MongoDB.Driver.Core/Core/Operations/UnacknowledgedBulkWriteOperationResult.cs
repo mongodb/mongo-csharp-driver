@@ -22,26 +22,21 @@ using MongoDB.Bson;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents the result of a bulk write operation.
+    /// Represents the result of an unacknowledged BulkWrite operation.
     /// </summary>
-    public abstract class BulkWriteResult
+    public class UnacknowledgedBulkWriteOperationResult : BulkWriteOperationResult
     {
-        // fields
-        private readonly IReadOnlyList<WriteRequest> _processedRequests;
-        private readonly int _requestCount;
-
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteResult" /> class.
+        /// Initializes a new instance of the <see cref="AcknowledgedBulkWriteOperationResult" /> class.
         /// </summary>
         /// <param name="requestCount">The request count.</param>
         /// <param name="processedRequests">The processed requests.</param>
-        protected BulkWriteResult(
+        public UnacknowledgedBulkWriteOperationResult(
             int requestCount,
             IReadOnlyList<WriteRequest> processedRequests)
+            : base(requestCount, processedRequests)
         {
-            _requestCount = requestCount;
-            _processedRequests = processedRequests;
         }
 
         // properties
@@ -51,7 +46,11 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The number of document that were deleted.
         /// </value>
-        public abstract long DeletedCount { get; }
+        /// <exception cref="System.NotSupportedException">Only acknowledged writes support the DeletedCount property.</exception>
+        public override long DeletedCount
+        {
+            get { throw new NotSupportedException("Only acknowledged writes support the DeletedCount property."); }
+        }
 
         /// <summary>
         /// Gets the number of documents that were inserted.
@@ -59,15 +58,11 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The number of document that were inserted.
         /// </value>
-        public abstract long InsertedCount { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the bulk write operation was acknowledged.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the bulk write operation was acknowledged; otherwise, <c>false</c>.
-        /// </value>
-        public abstract bool IsAcknowledged { get; }
+        /// <exception cref="System.NotSupportedException">Only acknowledged writes support the InsertedCount property.</exception>
+        public override long InsertedCount
+        {
+            get { throw new NotSupportedException("Only acknowledged writes support the InsertedCount property."); }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the modified count is available.
@@ -78,15 +73,24 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// <c>true</c> if the modified count is available; otherwise, <c>false</c>.
         /// </value>
-        public abstract bool IsModifiedCountAvailable { get; }
+        /// <exception cref="System.NotImplementedException"></exception>
+        public override bool IsModifiedCountAvailable
+        {
+            get { throw new NotSupportedException("Only acknowledged writes support the IsModifiedCountAvailable property."); }
+        }
 
         /// <summary>
         /// Gets the number of documents that were matched.
         /// </summary>
         /// <value>
-        /// The number of document that were matched.
+        /// The number of document that were matched
+        /// .
         /// </value>
-        public abstract long MatchedCount { get; }
+        /// <exception cref="System.NotSupportedException">Only acknowledged writes support the MatchedCount property.</exception>
+        public override long MatchedCount
+        {
+            get { throw new NotSupportedException("Only acknowledged writes support the MatchedCount property."); }
+        }
 
         /// <summary>
         /// Gets the number of documents that were actually modified during an update.
@@ -94,28 +98,21 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The number of document that were actually modified during an update.
         /// </value>
-        public abstract long ModifiedCount { get; }
-
-        /// <summary>
-        /// Gets the processed requests.
-        /// </summary>
-        /// <value>
-        /// The processed requests.
-        /// </value>
-        public IReadOnlyList<WriteRequest> ProcessedRequests
+        /// <exception cref="System.NotSupportedException">Only acknowledged writes support the ModifiedCount property.</exception>
+        public override long ModifiedCount
         {
-            get { return _processedRequests; }
+            get { throw new NotSupportedException("Only acknowledged writes support the ModifiedCount property."); }
         }
 
         /// <summary>
-        /// Gets the request count.
+        /// Gets a value indicating whether the bulk write operation was acknowledged.
         /// </summary>
         /// <value>
-        /// The request count.
+        /// <c>true</c> if the bulk write operation was acknowledged; otherwise, <c>false</c>.
         /// </value>
-        public int RequestCount
+        public override bool IsAcknowledged
         {
-            get { return _requestCount; }
+            get { return false; }
         }
 
         /// <summary>
@@ -124,6 +121,9 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The list with information about each request that resulted in an upsert.
         /// </value>
-        public abstract IReadOnlyList<BulkWriteUpsert> Upserts { get; }
+        public override IReadOnlyList<BulkWriteUpsert> Upserts
+        {
+            get { throw new NotSupportedException("Only acknowledged writes support the Upserts property."); }
+        }
     }
 }

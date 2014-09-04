@@ -91,8 +91,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         public static BulkWriteBatchResult Create(
-           BulkWriteResult result,
-           BulkWriteException exception,
+           BulkWriteOperationResult result,
+           BulkWriteOperationException exception,
            IndexMap indexMap)
         {
             var matchedCount = 0L;
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
                     // and then from the Query document.
                     upsertId =
                         updateRequest.Update.ToBsonDocument().GetValue("_id", null) ??
-                        updateRequest.Query.ToBsonDocument().GetValue("_id", null);
+                        updateRequest.Criteria.ToBsonDocument().GetValue("_id", null);
                 }
             }
 

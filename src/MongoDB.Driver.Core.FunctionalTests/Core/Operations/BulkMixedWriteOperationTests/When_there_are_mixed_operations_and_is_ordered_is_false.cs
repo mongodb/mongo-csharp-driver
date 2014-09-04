@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
         private WriteRequest[] _expectedProcessedRequests;
         private BulkWriteUpsert[] _expectedUpserts;
         private WriteRequest[] _requests;
-        private BulkWriteResult _result;
+        private BulkWriteOperationResult _result;
 
         protected override void Given()
         {
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
             {
                 new UpdateRequest(new BsonDocument("_id", 1), new BsonDocument("$set", new BsonDocument("x", 1))),
                 new DeleteRequest(new BsonDocument("_id", 2)),
-                new InsertRequest(new BsonDocument("_id", 3), BsonDocumentSerializer.Instance),
+                new InsertRequest(new BsonDocument("_id", 3)),
                 new UpdateRequest(new BsonDocument("_id", 4), new BsonDocument("$set", new BsonDocument("x", 4))) { IsUpsert = true }
             };
 

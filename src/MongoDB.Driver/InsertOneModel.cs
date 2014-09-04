@@ -13,50 +13,49 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using MongoDB.Driver.Core.Operations;
 
-namespace MongoDB.Driver.Core.Operations
+namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents a request to delete one or more documents.
+    /// Model for inserting a single document.
     /// </summary>
-    public sealed class DeleteRequest : WriteRequest
+    /// <typeparam name="T">The type of the document.</typeparam>
+    public sealed class InsertOneModel<T> : WriteModel<T>
     {
         // fields
-        private readonly BsonDocument _criteria;
-        private int _limit = 1;
+        private readonly T _document;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRequest" /> class.
+        /// Initializes a new instance of the <see cref="InsertOneModel{T}"/> class.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
-        public DeleteRequest(BsonDocument criteria)
-            : base(WriteRequestType.Delete)
+        /// <param name="document">The document.</param>
+        public InsertOneModel(T document)
         {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _document = document;
         }
 
         // properties
         /// <summary>
-        /// Gets or sets the criteria.
+        /// Gets the document.
         /// </summary>
-        public BsonDocument Criteria
+        public T Document
         {
-            get { return _criteria; }
+            get { return _document; }
         }
 
         /// <summary>
-        /// Gets or sets the limit.
+        /// Gets the type of the model.
         /// </summary>
-        /// <value>
-        /// The limit.
-        /// </value>
-        public int Limit
+        public override WriteModelType ModelType
         {
-            get { return _limit; }
-            set { _limit = value; }
+            get { return WriteModelType.InsertOne; }
         }
     }
 }

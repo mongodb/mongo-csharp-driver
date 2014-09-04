@@ -21,12 +21,14 @@ namespace MongoDB.Driver.Core.Operations
     public abstract class WriteRequest
     {
         // fields
+        private int? _correlationId;
         private readonly WriteRequestType _requestType;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="WriteRequest"/> class.
+        /// Initializes a new instance of the <see cref="WriteRequest" /> class.
         /// </summary>
+        /// <param name="correlationId">The correlation identifier.</param>
         /// <param name="requestType">The request type.</param>
         protected WriteRequest(WriteRequestType requestType)
         {
@@ -34,6 +36,15 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the correlation identifier.
+        /// </summary>
+        public int? CorrelationId
+        {
+            get { return _correlationId; }
+            set { _correlationId = value; }
+        }
+
         /// <summary>
         /// Gets the request type.
         /// </summary>
