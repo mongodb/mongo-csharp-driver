@@ -39,11 +39,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private static readonly UpdateMessage __testMessage;
         private static readonly byte[] __testMessageBytes;
         private static readonly BsonDocument __update = new BsonDocument("y", 1);
+        private static readonly IElementNameValidator __updateValidator = NoOpElementNameValidator.Instance;
 
         // static constructor
         static UpdateMessageBinaryEncoderTests()
         {
-            __testMessage = new UpdateMessage(__requestId, __collectionNamespace, __query, __update, __isMulti, __isUpsert);
+            __testMessage = new UpdateMessage(__requestId, __collectionNamespace, __query, __update, __updateValidator, __isMulti, __isUpsert);
 
             __testMessageBytes = new byte[]
             {
@@ -118,7 +119,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [TestCase(2, false, true)]
         public void WriteMessage_should_encode_flags_correctly(int flags, bool isUpsert, bool isMulti)
         {
-            var message = new UpdateMessage(__requestId, __collectionNamespace, __query, __update, isMulti, isUpsert);
+            var message = new UpdateMessage(__requestId, __collectionNamespace, __query, __update, __updateValidator, isMulti, isUpsert);
 
             using (var stream = new MemoryStream())
             {

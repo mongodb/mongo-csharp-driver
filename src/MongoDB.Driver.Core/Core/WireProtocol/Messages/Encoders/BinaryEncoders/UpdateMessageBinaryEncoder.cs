@@ -79,6 +79,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 CollectionNamespace.FromFullName(fullCollectionName),
                 query,
                 update,
+                NoOpElementNameValidator.Instance,
                 isMulti,
                 isUpsert);
         }

@@ -62,6 +62,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 new CollectionNamespace(databaseName, collectionName),
                 query,
                 update,
+                NoOpElementNameValidator.Instance,
                 isMulti,
                 isUpsert);
         }

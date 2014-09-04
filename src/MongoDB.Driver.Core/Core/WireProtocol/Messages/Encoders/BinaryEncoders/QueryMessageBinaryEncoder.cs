@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteCString(message.CollectionNamespace.FullName);
             streamWriter.WriteInt32(message.Skip);
             streamWriter.WriteInt32(message.BatchSize);
-            WriteQuery(binaryWriter, message.Query, message.ElementNameValidator);
+            WriteQuery(binaryWriter, message.Query, message.QueryValidator);
             WriteOptionalFields(binaryWriter, message.Fields);
             streamWriter.BackpatchSize(startPosition);
         }
@@ -131,9 +131,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        private void WriteQuery(BsonBinaryWriter binaryWriter, BsonDocument query, IElementNameValidator elementNameValidator)
+        private void WriteQuery(BsonBinaryWriter binaryWriter, BsonDocument query, IElementNameValidator queryValidator)
         {
-            binaryWriter.PushElementNameValidator(elementNameValidator);
+            binaryWriter.PushElementNameValidator(queryValidator);
             try
             {
                 var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);

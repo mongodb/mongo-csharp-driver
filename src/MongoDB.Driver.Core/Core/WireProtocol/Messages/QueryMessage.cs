@@ -28,11 +28,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly bool _awaitData;
         private readonly int _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly IElementNameValidator _elementNameValidator;
         private readonly BsonDocument _fields;
         private readonly bool _noCursorTimeout;
         private readonly bool _partialOk;
         private readonly BsonDocument _query;
+        private readonly IElementNameValidator _queryValidator;
         private readonly int _skip;
         private readonly bool _slaveOk;
         private readonly bool _tailableCursor;
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument fields,
-            IElementNameValidator elementNameValidator,
+            IElementNameValidator queryValidator,
             int skip,
             int batchSize,
             bool slaveOk,
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _fields = fields; // can be null
-            _elementNameValidator = Ensure.IsNotNull(elementNameValidator, "elementNameValidator");
+            _queryValidator = Ensure.IsNotNull(queryValidator, "queryValidator");
             _skip = Ensure.IsGreaterThanOrEqualToZero(skip, "skip");
             _batchSize = batchSize; // can be negative
             _slaveOk = slaveOk;
@@ -83,11 +83,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             get { return _collectionNamespace; }
         }
 
-        public IElementNameValidator ElementNameValidator
-        {
-            get { return _elementNameValidator; }
-        }
-
         public BsonDocument Fields
         {
             get { return _fields; }
@@ -106,6 +101,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public BsonDocument Query
         {
             get { return _query; }
+        }
+
+        public IElementNameValidator QueryValidator
+        {
+            get { return _queryValidator; }
         }
 
         public int Skip

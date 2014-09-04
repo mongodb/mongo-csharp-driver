@@ -14,7 +14,6 @@
 */
 
 
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -27,7 +26,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly CollectionNamespace _collectionNamespace;
         private readonly bool _continueOnError;
         private readonly BatchableSource<TDocument> _documentSource;
-        private readonly IElementNameValidator _elementNameValidator;
         private readonly int _maxBatchCount;
         private readonly int _maxMessageSize;
         private readonly IBsonSerializer<TDocument> _serializer;
@@ -37,7 +35,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             int requestId,
             CollectionNamespace collectionNamespace,
             IBsonSerializer<TDocument> serializer,
-            IElementNameValidator elementNameValidator,
             BatchableSource<TDocument> documentSource,
             int maxBatchCount,
             int maxMessageSize,
@@ -46,7 +43,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _elementNameValidator = Ensure.IsNotNull(elementNameValidator, "elementNameValidator");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
             _maxBatchCount = Ensure.IsGreaterThanOrEqualToZero(maxBatchCount, "maxBatchCount");
             _maxMessageSize = Ensure.IsGreaterThanOrEqualToZero(maxMessageSize, "maxMessageSize");
@@ -67,11 +63,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public BatchableSource<TDocument> DocumentSource
         {
             get { return _documentSource; }
-        }
-
-        public IElementNameValidator ElementNameValidator
-        {
-            get { return _elementNameValidator; }
         }
 
         public int MaxBatchCount

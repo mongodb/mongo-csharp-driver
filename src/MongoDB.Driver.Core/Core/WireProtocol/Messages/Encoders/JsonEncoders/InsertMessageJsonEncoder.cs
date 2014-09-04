@@ -78,7 +78,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 requestId,
                 new CollectionNamespace(databaseName, collectionName),
                 _serializer,
-                NoOpElementNameValidator.Instance,
                 documentSource,
                 maxBatchCount,
                 maxMessageSize,

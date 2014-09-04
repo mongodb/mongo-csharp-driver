@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
@@ -254,6 +255,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace,
                 wrappedQuery,
                 _fields,
+                NoOpElementNameValidator.Instance,
                 _skip ?? 0,
                 firstBatchSize,
                 slaveOk,

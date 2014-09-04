@@ -32,12 +32,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private static readonly bool __awaitData = true;
         private static readonly int __batchSize = 3;
         private static readonly CollectionNamespace __collectionNamespace = new CollectionNamespace("d", "c");
-        private static readonly IElementNameValidator __elementNameValidator = NoOpElementNameValidator.Instance;
         private static readonly BsonDocument __fields = new BsonDocument("f", 1);
         private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly bool __noCursorTimeout = true;
         private static readonly bool __partialOk = true;
         private static readonly BsonDocument __query = new BsonDocument("x", 1);
+        private static readonly IElementNameValidator __queryValidator = NoOpElementNameValidator.Instance;
         private static readonly int __requestId = 1;
         private static readonly int __skip = 2;
         private static readonly bool __slaveOk = true;
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // static constructor
         static QueryMessageJsonEncoderTests()
         {
-            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __elementNameValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __tailableCursor, __awaitData);
+            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __tailableCursor, __awaitData);
 
             __testMessageJson =
                 "{ " +

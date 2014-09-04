@@ -27,9 +27,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal class BulkUpdateOperation : BulkUnmixedWriteOperationBase
     {
-        // fields
-        private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
-
         // constructors
         public BulkUpdateOperation(
             CollectionNamespace collectionNamespace,
@@ -43,12 +40,6 @@ namespace MongoDB.Driver.Core.Operations
         protected override string CommandName
         {
             get { return "update"; }
-        }
-
-        public IElementNameValidator ElementNameValidator
-        {
-            get { return _elementNameValidator; }
-            set { _elementNameValidator = Ensure.IsNotNull(value, "value"); }
         }
 
         public new IEnumerable<UpdateRequest> Requests
@@ -65,14 +56,13 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         protected override BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
         {
-            return new UpdateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize, _elementNameValidator);
+            return new UpdateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
         }
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
         {
             return new BulkUpdateOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
             {
-                ElementNameValidator = ElementNameValidator,
                 MaxBatchCount = MaxBatchCount,
                 MaxBatchLength = MaxBatchLength,
                 IsOrdered = IsOrdered,
@@ -83,14 +73,10 @@ namespace MongoDB.Driver.Core.Operations
         // nested types
         private class UpdateBatchSerializer : BatchSerializer
         {
-            // fields
-            private readonly IElementNameValidator _elementNameValidator;
-
             // constructors
-            public UpdateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize, IElementNameValidator elementNameValidator)
+            public UpdateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
                 : base(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize)
             {
-                _elementNameValidator = elementNameValidator;
             }
 
             // methods
@@ -131,11 +117,9 @@ namespace MongoDB.Driver.Core.Operations
 
             private void SerializeUpdate(BsonBinaryWriter bsonWriter, BsonDocument update)
             {
-                var updateElementNameValidator = new UpdateOrReplacementElementNameValidator(
-                   UpdateElementNameValidator.Instance,
-                   _elementNameValidator);
+                var updateValidator = new UpdateOrReplacementElementNameValidator();
 
-                bsonWriter.PushElementNameValidator(updateElementNameValidator);
+                bsonWriter.PushElementNameValidator(updateValidator);
                 try
                 {
                     var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);

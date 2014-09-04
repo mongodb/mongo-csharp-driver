@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -38,18 +39,19 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-        // properties
         // methods
         protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
         {
             var updateRequest = (UpdateRequest)request;
+            var updateValidator = new UpdateOrReplacementElementNameValidator();
+
             return new UpdateWireProtocol(
                 CollectionNamespace,
-                ElementNameValidator,
                 MessageEncoderSettings,
                 WriteConcern,
                 updateRequest.Query,
                 updateRequest.Update,
+                updateValidator,
                 updateRequest.IsMultiUpdate ?? false,
                 updateRequest.IsUpsert ?? false);
         }

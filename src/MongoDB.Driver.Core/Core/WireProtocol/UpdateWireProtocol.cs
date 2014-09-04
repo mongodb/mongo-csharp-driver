@@ -30,19 +30,21 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly bool _isUpsert;
         private readonly BsonDocument _query;
         private readonly BsonDocument _update;
+        private readonly IElementNameValidator _updateValidator;
 
         // constructors
         public UpdateWireProtocol(
             CollectionNamespace collectionNamespace,
-            IElementNameValidator elementNameValidator,
             MessageEncoderSettings messageEncoderSettings,
             WriteConcern writeConcern,
             BsonDocument query,
             BsonDocument update,
+            IElementNameValidator updateValidator,
             bool isMulti,
             bool isUpsert)
-            : base(collectionNamespace, elementNameValidator, messageEncoderSettings, writeConcern)
+            : base(collectionNamespace, messageEncoderSettings, writeConcern)
         {
+            _updateValidator = Ensure.IsNotNull(updateValidator, "updateValidator");
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");
             _isMulti = isMulti;
@@ -57,6 +59,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 CollectionNamespace,
                 _query,
                 _update,
+                _updateValidator,
                 _isMulti,
                 _isUpsert);
         }

@@ -32,13 +32,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private static readonly bool __awaitData = true;
         private static readonly int __batchSize = 3;
         private static readonly CollectionNamespace __collectionNamespace = new CollectionNamespace("d", "c");
-        private static readonly IElementNameValidator __elementNameValidator = NoOpElementNameValidator.Instance;
         private static readonly BsonDocument __fields = new BsonDocument("f", 1);
         private static readonly int __flagsOffset;
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static readonly bool __noCursorTimeout = true;
         private static readonly bool __partialOk = true;
         private static readonly BsonDocument __query = new BsonDocument("x", 1);
+        private static readonly IElementNameValidator __queryValidator = NoOpElementNameValidator.Instance;
         private static readonly int __requestId = 1;
         private static readonly int __skip = 2;
         private static readonly bool __slaveOk = true;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // static constructor
         static QueryMessageBinaryEncoderTests()
         {
-            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __elementNameValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __tailableCursor, __awaitData);
+            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __tailableCursor, __awaitData);
 
             __testMessageBytes = new byte[]
             {
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [TestCase(128, false, false, false, false, true)]
         public void WriteMessage_should_encode_flags_correctly(int flags, bool tailableCursor, bool slaveOk, bool noCursorTimeout, bool awaitData, bool partialOk)
         {
-            var message = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __elementNameValidator, __skip, __batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
+            var message = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
 
             using (var stream = new MemoryStream())
             {

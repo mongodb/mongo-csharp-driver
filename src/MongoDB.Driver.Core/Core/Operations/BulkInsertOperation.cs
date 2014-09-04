@@ -19,6 +19,7 @@ using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -27,7 +28,6 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private Action<object, IBsonSerializer> _assignId;
-        private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
 
         // constructors
         public BulkInsertOperation(
@@ -50,12 +50,6 @@ namespace MongoDB.Driver.Core.Operations
             get { return "insert"; }
         }
 
-        public IElementNameValidator ElementNameValidator
-        {
-            get { return _elementNameValidator; }
-            set { _elementNameValidator = Ensure.IsNotNull(value, "value"); }
-        }
-
         public new IEnumerable<InsertRequest> Requests
         {
             get { return base.Requests.Cast<InsertRequest>(); }
@@ -70,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         protected override BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
         {
-            return new InsertBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize, _elementNameValidator);
+            return new InsertBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
         }
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
@@ -78,7 +72,6 @@ namespace MongoDB.Driver.Core.Operations
             return new BulkInsertOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
             {
                 AssignId = _assignId,
-                ElementNameValidator = ElementNameValidator,
                 MaxBatchCount = MaxBatchCount,
                 MaxBatchLength = MaxBatchLength,
                 IsOrdered = IsOrdered,
@@ -111,13 +104,11 @@ namespace MongoDB.Driver.Core.Operations
             // fields
             private IBsonSerializer _cachedSerializer;
             private Type _cachedSerializerType;
-            private IElementNameValidator _elementNameValidator;
 
             // constructors
-            public InsertBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize, IElementNameValidator elementNameValidator)
+            public InsertBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
                 : base(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize)
             {
-                _elementNameValidator = elementNameValidator;
             }
 
             // methods
@@ -144,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 var bsonWriter = (BsonBinaryWriter)context.Writer;
                 bsonWriter.PushMaxDocumentSize(MaxDocumentSize);
-                bsonWriter.PushElementNameValidator(_elementNameValidator);
+                bsonWriter.PushElementNameValidator(CollectionElementNameValidator.Instance);
                 try
                 {
                     var documentNominalType = serializer.ValueType;

@@ -29,9 +29,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     {
         private readonly int _batchSize = 1;
         private readonly CollectionNamespace _collectionNamespace = new CollectionNamespace("database", "collection");
-        private readonly IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
         private readonly BsonDocument _fields = new BsonDocument("x", 1);
         private readonly BsonDocument _query = new BsonDocument("y", 2);
+        private readonly IElementNameValidator _queryValidator = NoOpElementNameValidator.Instance;
         private readonly int _requestId = 2;
         private readonly int _skip = 3;
 
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [TestCase(false, false, false, false, true)]
         public void Constructor_should_initialize_instance(bool awaitData, bool noCursorTimeout, bool partialOk, bool slaveOk, bool tailableCursor)
         {
-            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _elementNameValidator, _skip, _batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
+            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
             subject.AwaitData.Should().Be(awaitData);
             subject.BatchSize.Should().Be(_batchSize);
             subject.CollectionNamespace.Should().Be(_collectionNamespace);
@@ -58,21 +58,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [Test]
         public void Constructor_with_negative_skip_should_throw()
         {
-            Action action = () => new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _elementNameValidator, -1, _batchSize, false, false, false, false, false);
+            Action action = () => new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, -1, _batchSize, false, false, false, false, false);
             action.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
         [Test]
         public void Constructor_with_null_collectionNamespace_should_throw()
         {
-            Action action = () => new QueryMessage(_requestId, null, _query, _fields, _elementNameValidator, _skip, _batchSize, false, false, false, false, false);
+            Action action = () => new QueryMessage(_requestId, null, _query, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_query_should_throw()
         {
-            Action action = () => new QueryMessage(_requestId, _collectionNamespace, null, _fields, _elementNameValidator, _skip, _batchSize, false, false, false, false, false);
+            Action action = () => new QueryMessage(_requestId, _collectionNamespace, null, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetQueryMessageEncoder().Returns(mockEncoder);
 
-            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _elementNameValidator, _skip, _batchSize, false, false, false, false, false);
+            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false);
             var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }

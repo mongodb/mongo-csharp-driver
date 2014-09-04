@@ -209,7 +209,7 @@ namespace MongoDB.Driver
             var command = new CommandDocument
             {
                 { "count", _collectionNamespace.CollectionName },
-                { "query", () => new BsonDocumentWrapper(args.Query), args.Query != null }, // optional
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
                 { "skip", () => args.Skip.Value, args.Skip.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } //optional
@@ -294,7 +294,7 @@ namespace MongoDB.Driver
             {
                 { "distinct", _collectionNamespace.CollectionName },
                 { "key", args.Key },
-                { "query", () => new BsonDocumentWrapper(args.Query), args.Query != null }, // optional
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             var valueSerializer = (IBsonSerializer<TValue>)args.ValueSerializer ?? BsonSerializer.LookupSerializer<TValue>();
@@ -580,22 +580,17 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Update == null) { throw new ArgumentException("Update is null.", "args"); }
 
-            var updateSerializer = BsonSerializer.LookupSerializer(args.Update.GetType());
-            var updateElementNameValidator = new UpdateOrReplacementElementNameValidator(UpdateElementNameValidator.Instance, CollectionElementNameValidator.Instance);
-            var updateWrapper = new BsonDocumentWrapper(args.Update, updateSerializer, updateElementNameValidator);
-
             var command = new CommandDocument
             {
                 { "findAndModify", _collectionNamespace.CollectionName },
-                { "query", () => new BsonDocumentWrapper(args.Query), args.Query != null }, // optional
-                { "sort", () => new BsonDocumentWrapper(args.SortBy), args.SortBy != null }, // optional
-                { "update", updateWrapper },
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
+                { "update", BsonDocumentWrapper.Create(args.Update) },
                 { "new", () => args.VersionReturned.Value == FindAndModifyDocumentVersion.Modified, args.VersionReturned.HasValue }, // optional
-                { "fields", () => new BsonDocumentWrapper(args.Fields), args.Fields != null }, // optional
+                { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
                 { "upsert", true, args.Upsert}, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-
             try
             {
                 return RunCommandAs<FindAndModifyResult>(command);
@@ -642,10 +637,10 @@ namespace MongoDB.Driver
             var command = new CommandDocument
             {
                 { "findAndModify", _collectionNamespace.CollectionName },
-                { "query", () => new BsonDocumentWrapper(args.Query), args.Query != null }, // optional
-                { "sort", () => new BsonDocumentWrapper(args.SortBy), args.SortBy != null }, // optional
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
                 { "remove", true },
-                { "fields", () => new BsonDocumentWrapper(args.Fields), args.Fields != null }, // optional
+                { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             try
@@ -919,7 +914,7 @@ namespace MongoDB.Driver
                 { "near", args.Near.ToGeoNearCommandValue() },
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
                 { "maxDistance", () => args.MaxDistance.Value, args.MaxDistance.HasValue }, // optional
-                { "query", () => new BsonDocumentWrapper(args.Query), args.Query != null }, // optional
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                 { "spherical", () => args.Spherical.Value, args.Spherical.HasValue }, // optional
                 { "distanceMultiplier", () => args.DistanceMultiplier.Value, args.DistanceMultiplier.HasValue }, // optional
                 { "includeLocs", () => args.IncludeLocs.Value, args.IncludeLocs.HasValue }, // optional
@@ -1135,11 +1130,11 @@ namespace MongoDB.Driver
                 { "group", new BsonDocument
                     {
                         { "ns", _collectionNamespace.CollectionName },
-                        { "key", () => new BsonDocumentWrapper(args.KeyFields), args.KeyFields != null }, // key and keyf are mutually exclusive
+                        { "key", () => BsonDocumentWrapper.Create(args.KeyFields), args.KeyFields != null }, // key and keyf are mutually exclusive
                         { "$keyf", args.KeyFunction, args.KeyFunction != null },
                         { "$reduce", args.ReduceFunction },
                         { "initial", args.Initial },
-                        { "cond", () => new BsonDocumentWrapper(args.Query), args.Query != null }, // optional
+                        { "cond", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                         { "finalize", args.FinalizeFunction, args.FinalizeFunction != null } // optional
                     }
                 },
@@ -1400,7 +1395,6 @@ namespace MongoDB.Driver
             }
 
             var continueOnError = options.Flags.HasFlag(InsertFlags.ContinueOnError);
-            var elementNameValidator = options.CheckElementNames ? (IElementNameValidator)CollectionElementNameValidator.Instance : NoOpElementNameValidator.Instance;
             var serializer = BsonSerializer.LookupSerializer<TNominalType>();
             var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
 
@@ -1434,7 +1428,6 @@ namespace MongoDB.Driver
                         var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documentSource, serializer, messageEncoderSettings)
                         {
                             ContinueOnError = continueOnError,
-                            ElementNameValidator = elementNameValidator,
                             WriteConcern = writeConcern,
                             ShouldSendGetLastError = shouldSendGetLastError
                         };
@@ -1662,11 +1655,11 @@ namespace MongoDB.Driver
                 { "map", args.MapFunction },
                 { "reduce", args.ReduceFunction },
                 { "out", output },
-                { "query", () => new BsonDocumentWrapper(args.Query), args.Query != null }, // optional
-                { "sort", () => new BsonDocumentWrapper(args.SortBy), args.SortBy != null }, // optional
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
                 { "finalize", args.FinalizeFunction, args.FinalizeFunction != null }, // optional
-                { "scope", () => new BsonDocumentWrapper(args.Scope), args.Scope != null }, // optional
+                { "scope", () => BsonDocumentWrapper.Create(args.Scope), args.Scope != null }, // optional
                 { "jsMode", () => args.JsMode.Value, args.JsMode.HasValue }, // optional
                 { "verbose", () => args.Verbose.Value, args.Verbose.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
@@ -1942,7 +1935,6 @@ namespace MongoDB.Driver
             var update = Builders.Update.Replace(bsonDocument);
             var updateOptions = new MongoUpdateOptions
             {
-                CheckElementNames = options.CheckElementNames,
                 Flags = UpdateFlags.Upsert,
                 WriteConcern = options.WriteConcern
             };
@@ -2010,12 +2002,13 @@ namespace MongoDB.Driver
 
             var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
             var updateDocument = update.ToBsonDocument();
+            var updateValidator = new UpdateOrReplacementElementNameValidator();
             var messageEncoderSettings = GetMessageEncoderSettings();
             var isMulti = options.Flags.HasFlag(UpdateFlags.Multi);
             var isUpsert = options.Flags.HasFlag(UpdateFlags.Upsert);
             var writeConcern = options.WriteConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
-            var operation = new UpdateOpcodeOperation(_collectionNamespace, queryDocument, updateDocument, messageEncoderSettings)
+            var operation = new UpdateOpcodeOperation(_collectionNamespace, queryDocument, updateDocument, updateValidator, messageEncoderSettings)
             {
                 IsMulti = isMulti,
                 IsUpsert = isUpsert,
@@ -2202,7 +2195,6 @@ namespace MongoDB.Driver
             var index = CreateIndexDocument(keys, options);
             var insertOptions = new MongoInsertOptions
             {
-                CheckElementNames = false,
                 WriteConcern = WriteConcern.Acknowledged
             };
             var indexes = _database.GetCollection("system.indexes");

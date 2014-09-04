@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly bool _noCursorTimeout;
         private readonly bool _partialOk;
         private readonly BsonDocument _query;
+        private readonly IElementNameValidator _queryValidator;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly int _skip;
         private readonly bool _slaveOk;
@@ -47,6 +48,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument fields,
+            IElementNameValidator queryValidator,
             int skip,
             int batchSize,
             bool slaveOk,
@@ -60,6 +62,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _fields = fields; // can be null
+            _queryValidator = Ensure.IsNotNull(queryValidator, "queryValidator");
             _skip = Ensure.IsGreaterThanOrEqualToZero(skip, "skip");
             _batchSize = batchSize; // can be negative
             _slaveOk = slaveOk;
@@ -79,7 +82,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _collectionNamespace,
                 _query,
                 _fields,
-                NoOpElementNameValidator.Instance,
+                _queryValidator,
                 _skip,
                 _batchSize,
                 _slaveOk,

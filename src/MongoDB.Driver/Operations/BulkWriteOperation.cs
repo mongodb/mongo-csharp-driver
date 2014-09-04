@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.SyncExtensionMethods;
 
 namespace MongoDB.Driver
@@ -127,7 +126,6 @@ namespace MongoDB.Driver
             var operation = new BulkMixedWriteOperation(new CollectionNamespace(_collection.Database.Name, _collection.Name), requests, messageEncoderSettings)
             {
                 AssignId = assignId,
-                ElementNameValidator = CollectionElementNameValidator.Instance, // note: not configurable when using the fluent Bulk API
                 IsOrdered = _isOrdered,
                 WriteConcern = writeConcern
             };

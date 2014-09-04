@@ -15,6 +15,7 @@
 
 
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -28,6 +29,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly bool _isUpsert;
         private readonly BsonDocument _query;
         private readonly BsonDocument _update;
+        private readonly IElementNameValidator _updateValidator;
 
         // constructors
         public UpdateMessage(
@@ -35,6 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument update,
+            IElementNameValidator updateValidator,
             bool isMulti,
             bool isUpsert)
             : base(requestId)
@@ -42,6 +45,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");
+            _updateValidator = Ensure.IsNotNull(updateValidator, "updateValidator");
             _isMulti = isMulti;
             _isUpsert = isUpsert;
         }
@@ -70,6 +74,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public BsonDocument Update
         {
             get { return _update; }
+        }
+
+        public IElementNameValidator UpdateValidator
+        {
+            get { return _updateValidator; }
         }
 
         // methods

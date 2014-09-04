@@ -21,6 +21,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -30,13 +31,13 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private CollectionNamespace _collectionNamespace;
-        private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
         private bool _isMulti;
         private bool _isUpsert;
         private int? _maxDocumentSize;
         private MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _query;
         private BsonDocument _update;
+        private IElementNameValidator _updateValidator;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
@@ -44,11 +45,13 @@ namespace MongoDB.Driver.Core.Operations
             CollectionNamespace collectionNamespace,
             BsonDocument query,
             BsonDocument update,
+            IElementNameValidator updateValidator,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _update = Ensure.IsNotNull(update, "update");
+            _updateValidator = Ensure.IsNotNull(updateValidator, "updateValidator");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -57,12 +60,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _collectionNamespace; }
             set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
-        }
-
-        public IElementNameValidator ElementNameValidator
-        {
-            get { return _elementNameValidator; }
-            set { _elementNameValidator = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool IsMulti
@@ -101,6 +98,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _update = Ensure.IsNotNull(value, "value"); }
         }
 
+        public IElementNameValidator UpdateValidator
+        {
+            get { return _updateValidator; }
+            set { _updateValidator = Ensure.IsNotNull(value, "value"); }
+        }
+
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -112,11 +115,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new UpdateWireProtocol(
                 _collectionNamespace,
-                _elementNameValidator,
                 _messageEncoderSettings,
                 _writeConcern,
                 _query,
                 _update,
+                _updateValidator,
                 _isMulti,
                 _isUpsert);
         }

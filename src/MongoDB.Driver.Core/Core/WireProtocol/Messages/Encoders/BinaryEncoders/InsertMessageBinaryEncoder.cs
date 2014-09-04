@@ -19,6 +19,7 @@ using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
@@ -48,7 +49,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             var binaryWriter = state.BinaryWriter;
 
-            binaryWriter.PushElementNameValidator(state.Message.ElementNameValidator);
+            IElementNameValidator elementNameValidator = CollectionElementNameValidator.Instance;
+            if (state.Message.CollectionNamespace.CollectionName == "system.indexes")
+            {
+                elementNameValidator = NoOpElementNameValidator.Instance;
+            }
+
+            binaryWriter.PushElementNameValidator(elementNameValidator);
             try
             {
                 var streamWriter = binaryWriter.StreamWriter;
@@ -102,7 +109,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 requestId,
                 CollectionNamespace.FromFullName(fullCollectionName),
                 _serializer,
-                NoOpElementNameValidator.Instance,
                 documentSource,
                 maxBatchCount,
                 maxMessageSize,

@@ -23,7 +23,6 @@ namespace MongoDB.Driver
     public class MongoInsertOptions
     {
         // private fields
-        private bool _checkElementNames;
         private InsertFlags _flags;
         private WriteConcern _writeConcern;
 
@@ -33,7 +32,6 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoInsertOptions()
         {
-            _checkElementNames = true;
             _flags = InsertFlags.None;
         }
 
@@ -48,15 +46,6 @@ namespace MongoDB.Driver
         }
 
         // public properties
-        /// <summary>
-        /// Gets or sets whether to check element names before proceeding with the Insert.
-        /// </summary>
-        public bool CheckElementNames
-        {
-            get { return _checkElementNames; }
-            set { _checkElementNames = value; }
-        }
-
         /// <summary>
         /// Gets or sets the insert flags.
         /// </summary>

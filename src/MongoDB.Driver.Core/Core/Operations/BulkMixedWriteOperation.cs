@@ -37,7 +37,6 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private Action<object, IBsonSerializer> _assignId;
         private CollectionNamespace _collectionNamespace;
-        private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
         private bool _isOrdered = true;
         private int _maxBatchCount = 0;
         private int _maxBatchLength = int.MaxValue;
@@ -69,12 +68,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _collectionNamespace; }
             set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
-        }
-
-        public IElementNameValidator ElementNameValidator
-        {
-            get { return _elementNameValidator; }
-            set { _elementNameValidator = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool IsOrdered
@@ -215,7 +208,6 @@ namespace MongoDB.Driver.Core.Operations
             var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 AssignId = _assignId,
-                ElementNameValidator = ElementNameValidator,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
                 IsOrdered = _isOrdered,
@@ -229,7 +221,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             var operation = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
-                ElementNameValidator = ElementNameValidator,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
                 IsOrdered = _isOrdered,

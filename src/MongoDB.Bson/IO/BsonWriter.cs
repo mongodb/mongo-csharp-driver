@@ -28,7 +28,7 @@ namespace MongoDB.Bson.IO
     public abstract class BsonWriter : IDisposable
     {
         // private fields
-        private IElementNameValidator _childElementNameValidator;
+        private Func<IElementNameValidator> _childElementNameValidatorFactory = () => NoOpElementNameValidator.Instance;
         private bool _disposed = false;
         private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
         private Stack<IElementNameValidator> _elementNameValidatorStack = new Stack<IElementNameValidator>();
@@ -128,7 +128,7 @@ namespace MongoDB.Bson.IO
         public void PopElementNameValidator()
         {
             _elementNameValidator = _elementNameValidatorStack.Pop();
-            _childElementNameValidator = null;
+            _childElementNameValidatorFactory = () => _elementNameValidator;
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace MongoDB.Bson.IO
 
             _elementNameValidatorStack.Push(_elementNameValidator);
             _elementNameValidator = validator;
-            _childElementNameValidator = null;
+            _childElementNameValidatorFactory = () => _elementNameValidator;
         }
 
         /// <summary>
@@ -432,7 +432,7 @@ namespace MongoDB.Bson.IO
                 var message = string.Format("Element name '{0}' is not valid'.", name);
                 throw new BsonSerializationException(message);
             }
-            _childElementNameValidator = _elementNameValidator.GetValidatorForChildContent(name);
+            _childElementNameValidatorFactory = () => _elementNameValidator.GetValidatorForChildContent(name);
 
             _name = name;
             _state = BsonWriterState.Value;
@@ -652,8 +652,7 @@ namespace MongoDB.Bson.IO
                 throw new BsonSerializationException("Maximum serialization depth exceeded (does the object being serialized have a circular reference?).");
             }
 
-            // note: _childElementName can be null if this is the root document or if WriteStartDocument is called right after PushElementNameValidator
-            PushElementNameValidator(_childElementNameValidator ?? _elementNameValidator);
+            PushElementNameValidator(_childElementNameValidatorFactory());
         }
 
         /// <summary>

@@ -16,6 +16,7 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NSubstitute;
@@ -30,12 +31,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly BsonDocument _query = new BsonDocument("x", 1);
         private readonly int _requestId = 1;
         private readonly BsonDocument _update = new BsonDocument("$set", new BsonDocument("y", 2));
+        private readonly IElementNameValidator _updateValidator = NoOpElementNameValidator.Instance;
 
         [TestCase(true, false)]
         [TestCase(false, true)]
         public void Constructor_should_initialize_instance(bool isMulti, bool isUpsert)
         {
-            var subject = new UpdateMessage(_requestId, _collectionNamespace, _query, _update, isMulti, isUpsert);
+            var subject = new UpdateMessage(_requestId, _collectionNamespace, _query, _update, _updateValidator, isMulti, isUpsert);
             subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.IsMulti.Should().Be(isMulti);
             subject.IsUpsert.Should().Be(isUpsert);
@@ -47,21 +49,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [Test]
         public void Constructor_with_null_collectionNamespace_should_throw()
         {
-            Action action = () => new UpdateMessage(_requestId, null, _query, _update, false, false);
+            Action action = () => new UpdateMessage(_requestId, null, _query, _update, _updateValidator, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_query_should_throw()
         {
-            Action action = () => new UpdateMessage(_requestId, _collectionNamespace, null, _update, false, false);
+            Action action = () => new UpdateMessage(_requestId, _collectionNamespace, null, _update, _updateValidator, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_update_should_throw()
         {
-            Action action = () => new UpdateMessage(_requestId, _collectionNamespace, _query, null, false, false);
+            Action action = () => new UpdateMessage(_requestId, _collectionNamespace, _query, null, _updateValidator, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
@@ -72,7 +74,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetUpdateMessageEncoder().Returns(mockEncoder);
 
-            var subject = new UpdateMessage(_requestId, _collectionNamespace, _query, _update, false, false);
+            var subject = new UpdateMessage(_requestId, _collectionNamespace, _query, _update, _updateValidator, false, false);
             var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }

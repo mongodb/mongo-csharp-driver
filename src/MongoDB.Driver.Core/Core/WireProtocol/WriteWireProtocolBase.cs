@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Core.WireProtocol
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly IElementNameValidator _elementNameValidator;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly Func<bool> _shouldSendGetLastError;
         private readonly WriteConcern _writeConcern;
@@ -41,13 +40,11 @@ namespace MongoDB.Driver.Core.WireProtocol
         // constructors
         protected WriteWireProtocolBase(
             CollectionNamespace collectionNamespace,
-            IElementNameValidator elementNameValidator,
             MessageEncoderSettings messageEncoderSettings,
             WriteConcern writeConcern,
             Func<bool> shouldSendGetLastError = null)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _elementNameValidator = Ensure.IsNotNull(elementNameValidator, "elementNameValidator");
             _messageEncoderSettings = messageEncoderSettings;
             _writeConcern = Ensure.IsNotNull(writeConcern, "writeConcern");
             _shouldSendGetLastError = shouldSendGetLastError;
@@ -57,11 +54,6 @@ namespace MongoDB.Driver.Core.WireProtocol
         protected CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-        }
-
-        protected IElementNameValidator ElementNameValidator
-        {
-            get { return _elementNameValidator; }
         }
 
         protected WriteConcern WriteConcern

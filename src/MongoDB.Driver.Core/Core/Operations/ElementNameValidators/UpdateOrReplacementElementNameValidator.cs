@@ -22,16 +22,10 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
     {
         // private fields
         private IElementNameValidator _chosenValidator;
-        private IElementNameValidator _replacementValidator;
-        private IElementNameValidator _updateValidator;
 
         // constructors
-        public UpdateOrReplacementElementNameValidator(
-            IElementNameValidator updateValidator,
-            IElementNameValidator replacementValidator)
+        public UpdateOrReplacementElementNameValidator()
         {
-            _updateValidator = Ensure.IsNotNull(updateValidator, "updateValidator");
-            _replacementValidator = Ensure.IsNotNull(replacementValidator, "replacementValidator");
         }
 
         // methods
@@ -47,11 +41,11 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
             {
                 if (elementName.Length > 0 && elementName[0] == '$')
                 {
-                    _chosenValidator = _updateValidator;
+                    _chosenValidator = UpdateElementNameValidator.Instance; ;
                 }
                 else
                 {
-                    _chosenValidator = _replacementValidator;
+                    _chosenValidator = CollectionElementNameValidator.Instance;
                 }
             }
             return _chosenValidator.IsValidElementName(elementName);

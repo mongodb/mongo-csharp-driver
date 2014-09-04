@@ -23,7 +23,6 @@ namespace MongoDB.Driver
     public class MongoUpdateOptions
     {
         // private fields
-        private bool _checkElementNames;
         private UpdateFlags _flags;
         private WriteConcern _writeConcern;
 
@@ -33,7 +32,6 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoUpdateOptions()
         {
-            _checkElementNames = true;
             _flags = UpdateFlags.None;
         }
 
@@ -48,15 +46,6 @@ namespace MongoDB.Driver
         }
 
         // public properties
-        /// <summary>
-        /// Gets or sets whether to check element names before proceeding with the Update.
-        /// </summary>
-        public bool CheckElementNames
-        {
-            get { return _checkElementNames; }
-            set { _checkElementNames = value; }
-        }
-
         /// <summary>
         /// Gets or sets the update flags.
         /// </summary>

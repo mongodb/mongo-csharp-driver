@@ -17,7 +17,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -31,7 +30,6 @@ namespace MongoDB.Driver.Core.Operations
         private CollectionNamespace _collectionNamespace;
         private bool _continueOnError;
         private BatchableSource<TDocument> _documentSource;
-        private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
         private int? _maxBatchCount;
         private int? _maxDocumentSize;
         private int? _maxMessageSize;
@@ -69,12 +67,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _documentSource; }
             set { _documentSource = Ensure.IsNotNull(value, "value"); }
-        }
-
-        public IElementNameValidator ElementNameValidator
-        {
-            get { return _elementNameValidator; }
-            set { _elementNameValidator = Ensure.IsNotNull(value, "value"); }
         }
 
         public int? MaxBatchCount
@@ -121,7 +113,6 @@ namespace MongoDB.Driver.Core.Operations
             var requests = _documentSource.GetRemainingItems().Select(d => new InsertRequest(d, _serializer));
             var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
-                ElementNameValidator = _elementNameValidator,
                 IsOrdered = !_continueOnError,
                 MaxBatchCount = _maxBatchCount ?? 0,
                 // ReaderSettings = ?

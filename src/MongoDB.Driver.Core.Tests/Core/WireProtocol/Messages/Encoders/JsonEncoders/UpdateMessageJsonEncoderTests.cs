@@ -38,11 +38,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private static readonly UpdateMessage __testMessage;
         private static readonly string __testMessageJson;
         private static readonly BsonDocument __update = new BsonDocument("y", 1);
+        private static readonly IElementNameValidator _updateValidator = NoOpElementNameValidator.Instance;
 
         // static constructor
         static UpdateMessageJsonEncoderTests()
         {
-            __testMessage = new UpdateMessage(__requestId, __collectionNamespace, __query, __update, __isMulti, __isUpsert);
+            __testMessage = new UpdateMessage(__requestId, __collectionNamespace, __query, __update, _updateValidator, __isMulti, __isUpsert);
 
             __testMessageJson =
                 "{ " +

@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("geometry");
             }
 
-            var geoDoc = new BsonDocument("$geometry", new BsonDocumentWrapper(geometry));
+            var geoDoc = new BsonDocument("$geometry", BsonDocumentWrapper.Create(geometry));
             var condition = new BsonDocument("$geoIntersects", geoDoc);
 
             return new QueryDocument(name, condition);
@@ -377,7 +377,7 @@ namespace MongoDB.Driver.Builders
             }
 
             var op = spherical ? "$nearSphere" : "$near";
-            var geometry = new BsonDocument("$geometry", new BsonDocumentWrapper(point));
+            var geometry = new BsonDocument("$geometry", BsonDocumentWrapper.Create(point));
             if (maxDistance != double.MaxValue)
             {
                 geometry.Add("$maxDistance", maxDistance);
@@ -716,7 +716,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("polygon");
             }
 
-            var geoDoc = new BsonDocument("$geometry", new BsonDocumentWrapper(polygon));
+            var geoDoc = new BsonDocument("$geometry", BsonDocumentWrapper.Create(polygon));
             var condition = new BsonDocument("$within", geoDoc);
 
             return new QueryDocument(name, condition);

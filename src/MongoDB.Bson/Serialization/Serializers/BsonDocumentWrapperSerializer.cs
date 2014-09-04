@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.IO;
-
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
@@ -72,24 +70,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="value">The object.</param>
         protected override void SerializeValue(BsonSerializationContext context, BsonDocumentWrapper value)
         {
-            var bsonWriter = context.Writer;
-
-            if (value.ElementNameValidator == null)
-            {
-                context.SerializeWithChildContext(value.Serializer, value.Wrapped);
-            }
-            else
-            {
-                bsonWriter.PushElementNameValidator(value.ElementNameValidator);
-                try
-                {
-                    context.SerializeWithChildContext(value.Serializer, value.Wrapped);
-                }
-                finally
-                {
-                    bsonWriter.PopElementNameValidator();
-                }
-            }
+            context.SerializeWithChildContext(value.Serializer, value.Wrapped);
         }
     }
 }

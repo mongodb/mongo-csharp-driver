@@ -11,6 +11,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.TestConsoleApplication
@@ -192,6 +193,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 __collection,
                 query,
                 update,
+                new UpdateOrReplacementElementNameValidator(),
                 __messageEncoderSettings);
 
             return updateOp.ExecuteAsync(binding);
