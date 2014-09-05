@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                Filter = new BsonDocument("x", 1),
+                Criteria = new BsonDocument("x", 1),
                 Hint = "funny",
                 Limit = 10,
                 MaxTime = TimeSpan.FromSeconds(20),

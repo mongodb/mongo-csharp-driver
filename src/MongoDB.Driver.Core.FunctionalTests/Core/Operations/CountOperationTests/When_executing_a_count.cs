@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Operations.CountOperationTests
 
             _subject = new CountOperation(CollectionNamespace, MessageEncoderSettings)
             {
-                Filter = BsonDocument.Parse("{ x : { $gt : 2 } }"),
+                Criteria = BsonDocument.Parse("{ x : { $gt : 2 } }"),
                 Limit = 2,
                 Skip = 1
             };

@@ -65,7 +65,7 @@ namespace MongoDB.Driver
         {
             var model = new CountModel
             {
-                Filter = new BsonDocument("x", 1),
+                Criteria = new BsonDocument("x", 1),
                 Hint = "funny",
                 Limit = 10,
                 MaxTime = TimeSpan.FromSeconds(20),
@@ -78,7 +78,7 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<CountOperation>();
             var operation = (CountOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.Filter.Should().Be((BsonDocument)model.Filter);
+            operation.Criteria.Should().Be((BsonDocument)model.Criteria);
             operation.Hint.Should().Be((string)model.Hint);
             operation.Limit.Should().Be(model.Limit);
             operation.MaxTime.Should().Be(model.MaxTime);
@@ -90,7 +90,7 @@ namespace MongoDB.Driver
         {
             var model = new DistinctModel<int>("a.b")
             {
-                Filter = new BsonDocument("x", 1),
+                Criteria = new BsonDocument("x", 1),
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
@@ -102,7 +102,7 @@ namespace MongoDB.Driver
             var operation = (DistinctOperation<int>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.FieldName.Should().Be("a.b");
-            operation.Filter.Should().Be((BsonDocument)model.Filter);
+            operation.Criteria.Should().Be((BsonDocument)model.Criteria);
             operation.MaxTime.Should().Be(model.MaxTime);
         }
     }

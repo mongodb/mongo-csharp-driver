@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations.CountOperationTests
 
             _subject = new DistinctOperation<int>(CollectionNamespace, new Int32Serializer(), "y", MessageEncoderSettings)
             {
-                Filter = BsonDocument.Parse("{ x : { $gt : 2 } }"),
+                Criteria = BsonDocument.Parse("{ x : { $gt : 2 } }"),
             };
         }
 

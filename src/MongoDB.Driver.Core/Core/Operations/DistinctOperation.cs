@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private CollectionNamespace _collectionNamespace;
-        private BsonDocument _filter;
+        private BsonDocument _criteria;
         private string _fieldName;
         private TimeSpan? _maxTime;
         private MessageEncoderSettings _messageEncoderSettings;
@@ -52,10 +52,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
-        public BsonDocument Filter
+        public BsonDocument Criteria
         {
-            get { return _filter; }
-            set { _filter = value; }
+            get { return _criteria; }
+            set { _criteria = value; }
         }
 
         public string FieldName
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "distinct", _collectionNamespace.CollectionName },
                 { "key", _fieldName },
-                { "query", _filter, _filter != null },
+                { "query", _criteria, _criteria != null },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
            };
         }

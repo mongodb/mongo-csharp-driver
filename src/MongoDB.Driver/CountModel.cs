@@ -23,7 +23,7 @@ namespace MongoDB.Driver
     public sealed class CountModel : IExplainableModel
     {
         // fields
-        private object _filter;
+        private object _criteria;
         private object _hint;
         private long? _limit;
         private TimeSpan? _maxTime;
@@ -31,12 +31,12 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets or sets the filter.
+        /// Gets or sets the criteria.
         /// </summary>
-        public object Filter
+        public object Criteria
         {
-            get { return _filter; }
-            set { _filter = value; }
+            get { return _criteria; }
+            set { _criteria = value; }
         }
 
         /// <summary>

@@ -93,7 +93,7 @@ namespace MongoDB.Driver
                 _collectionNamespace,
                 GetMessageEncoderSettings())
             {
-                Filter = ConvertToBsonDocument(model.Filter),
+                Criteria = ConvertToBsonDocument(model.Criteria),
                 Hint = model.Hint is string ? BsonValue.Create((string)model.Hint) : ConvertToBsonDocument(model.Hint),
                 Limit = model.Limit,
                 MaxTime = model.MaxTime,
@@ -113,7 +113,7 @@ namespace MongoDB.Driver
                 model.FieldName,
                 GetMessageEncoderSettings())
             {
-                Filter = ConvertToBsonDocument(model.Filter),
+                Criteria = ConvertToBsonDocument(model.Criteria),
                 MaxTime = model.MaxTime
             };
 

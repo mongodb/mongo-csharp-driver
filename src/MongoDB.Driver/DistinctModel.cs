@@ -29,7 +29,7 @@ namespace MongoDB.Driver
     {
         // fields
         private readonly string _fieldName;
-        private object _filter;
+        private object _criteria;
         private TimeSpan? _maxTime;
         private IBsonSerializer<T> _valueSerializer;
 
@@ -46,20 +46,20 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
+        /// Gets or sets the criteria.
+        /// </summary>
+        public object Criteria
+        {
+            get { return _criteria; }
+            set { _criteria = value; }
+
+        }
+        /// <summary>
         /// Gets the name of the field.
         /// </summary>
         public string FieldName
         {
             get { return _fieldName; }
-        }
-
-        /// <summary>
-        /// Gets or sets the filter.
-        /// </summary>
-        public object Filter
-        {
-            get { return _filter; }
-            set { _filter = value; }
         }
 
         /// <summary>

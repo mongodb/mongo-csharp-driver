@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
             var filter = CreateFilter();
             var operation = new CountOperation(_collectionNamespace.DatabaseNamespace.SystemIndexesCollection, _messageEncoderSettings)
             {
-                Filter = filter
+                Criteria = filter
             };
             var count = await operation.ExecuteAsync(binding, timeout, cancellationToken);
             return count != 0;

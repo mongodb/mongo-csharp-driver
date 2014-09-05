@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
             {
-                Filter = new BsonDocument("x", 1),
+                Criteria = new BsonDocument("x", 1),
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
