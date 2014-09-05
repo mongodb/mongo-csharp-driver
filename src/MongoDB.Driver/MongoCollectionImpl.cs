@@ -167,31 +167,34 @@ namespace MongoDB.Driver
                 case WriteModelType.ReplaceOne:
                     var replaceOneModel = (ReplaceOneModel<T>)model;
                     return new UpdateRequest(
+                        UpdateType.Replacement,
                         ConvertToBsonDocument(replaceOneModel.Criteria),
                         new BsonDocumentWrapper(replaceOneModel.Replacement, _serializer))
                     {
                         CorrelationId = index,
-                        IsMultiUpdate = false,
+                        IsMulti = false,
                         IsUpsert = replaceOneModel.IsUpsert
                     };
                 case WriteModelType.UpdateMany:
                     var updateManyModel = (UpdateManyModel<T>)model;
                     return new UpdateRequest(
+                        UpdateType.Update,
                         ConvertToBsonDocument(updateManyModel.Criteria),
                         ConvertToBsonDocument(updateManyModel.Update))
                     {
                         CorrelationId = index,
-                        IsMultiUpdate = true,
+                        IsMulti = true,
                         IsUpsert = updateManyModel.IsUpsert
                     };
                 case WriteModelType.UpdateOne:
                     var updateOneModel = (UpdateOneModel<T>)model;
                     return new UpdateRequest(
+                        UpdateType.Update,
                         ConvertToBsonDocument(updateOneModel.Criteria),
                         ConvertToBsonDocument(updateOneModel.Update))
                     {
                         CorrelationId = index,
-                        IsMultiUpdate = false,
+                        IsMulti = false,
                         IsUpsert = updateOneModel.IsUpsert
                     };
                 default:

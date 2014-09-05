@@ -36,11 +36,11 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
             var id = ObjectId.GenerateNewId();
             _requests = new WriteRequest[]
             {
-                new UpdateRequest(new BsonDocument("_id", id), new BsonDocument("$set", new BsonDocument("x", 1))) { IsUpsert = true },
+                new UpdateRequest(UpdateType.Update, new BsonDocument("_id", id), new BsonDocument("$set", new BsonDocument("x", 1))) { IsUpsert = true },
                 new DeleteRequest(new BsonDocument("_id", id)),
-                new UpdateRequest(new BsonDocument("_id", id), new BsonDocument("$set", new BsonDocument("x", 2))) { IsUpsert = true },
+                new UpdateRequest(UpdateType.Update, new BsonDocument("_id", id), new BsonDocument("$set", new BsonDocument("x", 2))) { IsUpsert = true },
                 new DeleteRequest(new BsonDocument("_id", id)),
-                new UpdateRequest(new BsonDocument("_id", id), new BsonDocument("$set", new BsonDocument("x", 3))) { IsUpsert = true }
+                new UpdateRequest(UpdateType.Update, new BsonDocument("_id", id), new BsonDocument("$set", new BsonDocument("x", 3))) { IsUpsert = true }
             };
 
             _expectedProcessedRequests =

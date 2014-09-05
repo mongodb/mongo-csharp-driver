@@ -69,6 +69,7 @@
     <Compile Include="Core\Operations\ElementNameValidators\UpdateOrReplacementElementNameValidator.cs" />
     <Compile Include="Core\Operations\ICommandOperation.cs" />
     <Compile Include="Core\Operations\PingOperation.cs" />
+    <Compile Include="Core\Operations\UpdateType.cs" />
     <Compile Include="Core\Sync\SynchronousDocumentCursorAdapter.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\MessageBinaryEncoderBase.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\MessageJsonEncoderBase.cs" />

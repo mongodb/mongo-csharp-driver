@@ -73,11 +73,11 @@ namespace MongoDB.Driver
 
         private static WriteModel<T> ConvertUpdateRequest(UpdateRequest updateRequest)
         {
-            if(updateRequest.IsMultiUpdate.GetValueOrDefault(false))
+            if(updateRequest.IsMulti)
             {
                 return new UpdateManyModel<T>(updateRequest.Criteria, updateRequest.Update)
                 {
-                    IsUpsert = updateRequest.IsUpsert.GetValueOrDefault(false)
+                    IsUpsert = updateRequest.IsUpsert
                 };
             }
 
@@ -86,7 +86,7 @@ namespace MongoDB.Driver
             {
                 return new UpdateOneModel<T>(updateRequest.Criteria, updateRequest.Update)
                 {
-                    IsUpsert = updateRequest.IsUpsert.GetValueOrDefault(false)
+                    IsUpsert = updateRequest.IsUpsert
                 };
             }
 
@@ -108,7 +108,7 @@ namespace MongoDB.Driver
 
             return new ReplaceOneModel<T>(updateRequest.Criteria, (T)document)
             {
-                IsUpsert = updateRequest.IsUpsert.GetValueOrDefault(false)
+                IsUpsert = updateRequest.IsUpsert
             };
         }
 

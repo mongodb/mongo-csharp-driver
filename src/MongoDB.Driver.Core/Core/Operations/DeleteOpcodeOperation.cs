@@ -29,19 +29,18 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly BsonDocument _criteria;
-        private bool _isMulti;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly DeleteRequest _request;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public DeleteOpcodeOperation(
             CollectionNamespace collectionNamespace,
-            BsonDocument criteria,
+            DeleteRequest request,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _request = Ensure.IsNotNull(request, "request");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -51,15 +50,9 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
-        public BsonDocument Criteria
+        public DeleteRequest Request
         {
-            get { return _criteria; }
-        }
-
-        public bool IsMulti
-        {
-            get { return _isMulti; }
-            set { _isMulti = value; }
+            get { return _request; }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -78,8 +71,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new DeleteWireProtocol(
                 _collectionNamespace,
-                _criteria,
-                _isMulti,
+                _request.Criteria,
+                _request.Limit != 1,
                 _messageEncoderSettings,
                 _writeConcern);
         }
@@ -90,9 +83,8 @@ namespace MongoDB.Driver.Core.Operations
 
             if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
-                var emulator = new DeleteOpcodeOperationEmulator(_collectionNamespace, _criteria, _messageEncoderSettings)
+                var emulator = new DeleteOpcodeOperationEmulator(_collectionNamespace, _request, _messageEncoderSettings)
                 {
-                    IsMulti = _isMulti,
                     WriteConcern = _writeConcern
                 };
                 return await emulator.ExecuteAsync(connection, timeout, cancellationToken);

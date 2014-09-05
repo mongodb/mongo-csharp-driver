@@ -100,14 +100,14 @@ namespace MongoDB.Driver.Core.Operations
                     bsonWriter.WriteName("q");
                     SerializeCriteria(bsonWriter, updateRequest.Criteria);
                     bsonWriter.WriteName("u");
-                    SerializeUpdate(bsonWriter, updateRequest.Update);
-                    if (updateRequest.IsMultiUpdate.HasValue)
+                    SerializeUpdate(bsonWriter, updateRequest.Update, updateRequest.UpdateType);
+                    if (updateRequest.IsMulti)
                     {
-                        bsonWriter.WriteBoolean("multi", updateRequest.IsMultiUpdate.Value);
+                        bsonWriter.WriteBoolean("multi", updateRequest.IsMulti);
                     }
-                    if (updateRequest.IsUpsert.HasValue)
+                    if (updateRequest.IsUpsert)
                     {
-                        bsonWriter.WriteBoolean("upsert", updateRequest.IsUpsert.Value);
+                        bsonWriter.WriteBoolean("upsert", updateRequest.IsUpsert);
                     }
                     bsonWriter.WriteEndDocument();
                 }
@@ -117,11 +117,9 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
-            private void SerializeUpdate(BsonBinaryWriter bsonWriter, BsonDocument update)
+            private void SerializeUpdate(BsonBinaryWriter bsonWriter, BsonDocument update, UpdateType updateType)
             {
-                var updateValidator = new UpdateOrReplacementElementNameValidator();
-
-                bsonWriter.PushElementNameValidator(updateValidator);
+                bsonWriter.PushElementNameValidator(updateType.GetElementNameValidator());
                 try
                 {
                     var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);

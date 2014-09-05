@@ -31,48 +31,26 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly BsonDocument _criteria;
-        private bool _isMulti;
-        private bool _isUpsert;
         private int? _maxDocumentSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private readonly BsonDocument _update;
+        private readonly UpdateRequest _request;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public UpdateOpcodeOperation(
             CollectionNamespace collectionNamespace,
-            BsonDocument criteria,
-            BsonDocument update,
+            UpdateRequest request,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
-            _update = Ensure.IsNotNull(update, "update");
-            _messageEncoderSettings = messageEncoderSettings;
+            _request = Ensure.IsNotNull(request, "request");
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
         // properties
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-        }
-
-        public BsonDocument Criteria
-        {
-            get { return _criteria; }
-        }
-
-        public bool IsMulti
-        {
-            get { return _isMulti; }
-            set { _isMulti = value; }
-        }
-
-        public bool IsUpsert
-        {
-            get { return _isUpsert; }
-            set { _isUpsert = value; }
         }
 
         public int? MaxDocumentSize
@@ -86,9 +64,9 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
-        public BsonDocument Update
+        public UpdateRequest Request
         {
-            get { return _update; }
+            get { return _request; }
         }
 
         public WriteConcern WriteConcern
@@ -106,11 +84,11 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace,
                 _messageEncoderSettings,
                 _writeConcern,
-                _criteria,
-                _update,
-                updateValidator,
-                _isMulti,
-                _isUpsert);
+                _request.Criteria,
+                _request.Update,
+                _request.UpdateType.GetElementNameValidator(),
+                _request.IsMulti,
+                _request.IsUpsert);
         }
 
         public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
@@ -119,10 +97,8 @@ namespace MongoDB.Driver.Core.Operations
 
             if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
-                var emulator = new UpdateOpcodeOperationEmulator(_collectionNamespace, _criteria, _update, _messageEncoderSettings)
+                var emulator = new UpdateOpcodeOperationEmulator(_collectionNamespace, _request, _messageEncoderSettings)
                 {
-                    IsMulti = _isMulti,
-                    IsUpsert = _isUpsert,
                     MaxDocumentSize = _maxDocumentSize,
                     WriteConcern = _writeConcern
                 };

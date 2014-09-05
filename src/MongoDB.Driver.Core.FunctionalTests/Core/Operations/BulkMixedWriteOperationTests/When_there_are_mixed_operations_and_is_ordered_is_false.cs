@@ -44,10 +44,10 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
             _requests = new WriteRequest[]
             {
-                new UpdateRequest(new BsonDocument("_id", 1), new BsonDocument("$set", new BsonDocument("x", 1))),
+                new UpdateRequest(UpdateType.Update, new BsonDocument("_id", 1), new BsonDocument("$set", new BsonDocument("x", 1))),
                 new DeleteRequest(new BsonDocument("_id", 2)),
                 new InsertRequest(new BsonDocument("_id", 3)),
-                new UpdateRequest(new BsonDocument("_id", 4), new BsonDocument("$set", new BsonDocument("x", 4))) { IsUpsert = true }
+                new UpdateRequest(UpdateType.Update, new BsonDocument("_id", 4), new BsonDocument("$set", new BsonDocument("x", 4))) { IsUpsert = true }
             };
 
             _expectedProcessedRequests = 

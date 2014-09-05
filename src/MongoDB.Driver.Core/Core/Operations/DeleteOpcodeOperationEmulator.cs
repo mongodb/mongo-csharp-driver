@@ -29,19 +29,18 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly BsonDocument _criteria;
-        private bool _isMulti;
+        private readonly DeleteRequest _request;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public DeleteOpcodeOperationEmulator(
             CollectionNamespace collectionNamespace,
-            BsonDocument criteria,
+            DeleteRequest request,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _request = Ensure.IsNotNull(request, "request");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -51,15 +50,9 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
-        public BsonDocument Criteria
+        public DeleteRequest Request
         {
-            get { return _criteria; }
-        }
-
-        public bool IsMulti
-        {
-            get { return _isMulti; }
-            set { _isMulti = value; }
+            get { return _request; }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -78,8 +71,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(connection, "connection");
 
-            var limit = _isMulti ? 0 : 1;
-            var requests = new[] { new DeleteRequest(_criteria) { Limit = limit } };
+            var requests = new[] { _request };
 
             var operation = new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {

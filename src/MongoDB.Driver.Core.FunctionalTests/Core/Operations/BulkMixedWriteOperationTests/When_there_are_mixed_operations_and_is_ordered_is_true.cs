@@ -35,8 +35,8 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
             _requests = new WriteRequest[]
             {
                 new InsertRequest(new BsonDocument("_id", 1)),
-                new UpdateRequest(new BsonDocument("_id", 1), new BsonDocument("$set", new BsonDocument("x", 1))),
-                new UpdateRequest(new BsonDocument("_id", 2), new BsonDocument("$set", new BsonDocument("x", 2))) { IsUpsert = true },
+                new UpdateRequest(UpdateType.Update, new BsonDocument("_id", 1), new BsonDocument("$set", new BsonDocument("x", 1))),
+                new UpdateRequest(UpdateType.Update, new BsonDocument("_id", 2), new BsonDocument("$set", new BsonDocument("x", 2))) { IsUpsert = true },
                 new InsertRequest(new BsonDocument("_id", 3)),
                 new DeleteRequest(new BsonDocument("_id", 3))
             };

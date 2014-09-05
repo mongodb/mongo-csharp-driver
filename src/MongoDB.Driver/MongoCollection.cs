@@ -1734,9 +1734,9 @@ namespace MongoDB.Driver
             var isMulti = !flags.HasFlag(RemoveFlags.Single);
             writeConcern = writeConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
-            var operation = new DeleteOpcodeOperation(_collectionNamespace, queryDocument, messageEncoderSettings)
+            var request = new DeleteRequest(queryDocument) { Limit = isMulti ? 1 : 0 };
+            var operation = new DeleteOpcodeOperation(_collectionNamespace, request, messageEncoderSettings)
             {
-                IsMulti = isMulti,
                 WriteConcern = writeConcern
             };
 
@@ -1951,10 +1951,13 @@ namespace MongoDB.Driver
             var isUpsert = options.Flags.HasFlag(UpdateFlags.Upsert);
             var writeConcern = options.WriteConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
-            var operation = new UpdateOpcodeOperation(_collectionNamespace, queryDocument, updateDocument, messageEncoderSettings)
+            var request = new UpdateRequest(UpdateType.Unknown, queryDocument, updateDocument)
             {
                 IsMulti = isMulti,
-                IsUpsert = isUpsert,
+                IsUpsert = isUpsert
+            };
+            var operation = new UpdateOpcodeOperation(_collectionNamespace, request, messageEncoderSettings)
+            {
                 WriteConcern = writeConcern
             };
 

@@ -25,19 +25,22 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly BsonDocument _criteria;
-        private bool? _isMultiUpdate;
-        private bool? _isUpsert;
+        private bool _isMulti;
+        private bool _isUpsert;
         private readonly BsonDocument _update;
+        private UpdateType _updateType;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateRequest" /> class.
         /// </summary>
+        /// <param name="updateType">The type.</param>
         /// <param name="criteria">The criteria.</param>
         /// <param name="update">The update.</param>
-        public UpdateRequest(BsonDocument criteria, BsonDocument update)
+        public UpdateRequest(UpdateType updateType, BsonDocument criteria, BsonDocument update)
             : base(WriteRequestType.Update)
         {
+            _updateType = updateType;
             _criteria = Ensure.IsNotNull(criteria, "criteria");
             _update = Ensure.IsNotNull(update, "update");
         }
@@ -57,10 +60,10 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// <c>true</c> if this request should affect multiple documents; otherwise, <c>false</c>.
         /// </value>
-        public bool? IsMultiUpdate
+        public bool IsMulti
         {
-            get { return _isMultiUpdate; }
-            set { _isMultiUpdate = value; }
+            get { return _isMulti; }
+            set { _isMulti = value; }
         }
 
         /// <summary>
@@ -69,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         ///   <c>true</c> if this update request should insert the record if it doesn't already exis; otherwise, <c>false</c>.
         /// </value>
-        public bool? IsUpsert
+        public bool IsUpsert
         {
             get { return _isUpsert; }
             set { _isUpsert = value; }
@@ -81,6 +84,14 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Update
         {
             get { return _update; }
+        }
+
+        /// <summary>
+        /// Gets the type.
+        /// </summary>
+        public UpdateType UpdateType
+        {
+            get { return _updateType; }
         }
     }
 }

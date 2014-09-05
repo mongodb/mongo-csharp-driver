@@ -612,7 +612,6 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
         }
 
-        [Ignore]
         [Test]
         [TestCase(false)]
         [TestCase(true)]
@@ -709,7 +708,6 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
         }
 
-        [Ignore]
         [Test]
         [TestCase(false)]
         [TestCase(true)]
@@ -719,20 +717,6 @@ namespace MongoDB.Driver.Tests.Operations
             var bulk = InitializeBulkOperation(_collection, ordered);
             var query = Query.EQ("_id", 1);
             var update = new UpdateDocument { { "key", 1 } };
-            bulk.Find(query).Update(update);
-            Assert.Throws<BsonSerializationException>(() => bulk.Execute());
-        }
-
-        [Ignore]
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
-        public void TestUpdateKeyValidation(bool ordered)
-        {
-            _collection.Drop();
-            var bulk = InitializeBulkOperation(_collection, ordered);
-            var query = Query.EQ("_id", 1);
-            var update = Update.Set("$key", 1);
             bulk.Find(query).Update(update);
             Assert.Throws<BsonSerializationException>(() => bulk.Execute());
         }
@@ -766,7 +750,6 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
         }
 
-        [Ignore]
         [Test]
         [TestCase(false)]
         [TestCase(true)]

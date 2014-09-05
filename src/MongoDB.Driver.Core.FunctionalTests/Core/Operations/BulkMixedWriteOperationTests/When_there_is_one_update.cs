@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
             {
                 var query = new BsonDocument("_id", d["_id"]);
                 var update = new BsonDocument("$inc", new BsonDocument("x", 1));
-                return new UpdateRequest(query, update);
+                return new UpdateRequest(UpdateType.Update, query, update);
             }).ToArray();
 
             _expectedDocuments = _documents.Select(d => { d["x"] = d["x"].ToInt32() + 1; return d; }).ToArray();

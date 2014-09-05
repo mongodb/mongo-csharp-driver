@@ -28,48 +28,26 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly BsonDocument _criteria;
-        private bool _isMulti;
-        private bool _isUpsert;
         private int? _maxDocumentSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private readonly BsonDocument _update;
+        private readonly UpdateRequest _request;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         public UpdateOpcodeOperationEmulator(
             CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            BsonDocument update,
+            UpdateRequest request,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _criteria = Ensure.IsNotNull(query, "criteria");
-            _update = Ensure.IsNotNull(update, "update");
-            _messageEncoderSettings = messageEncoderSettings;
+            _request = Ensure.IsNotNull(request, "request");
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
         // properties
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-        }
-
-        public BsonDocument Criteria
-        {
-            get { return _criteria; }
-        }
-
-        public bool IsMulti
-        {
-            get { return _isMulti; }
-            set { _isMulti = value; }
-        }
-
-        public bool IsUpsert
-        {
-            get { return _isUpsert; }
-            set { _isUpsert = value; }
         }
 
         public int? MaxDocumentSize
@@ -83,9 +61,9 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
-        public BsonDocument Update
+        public UpdateRequest Request
         {
-            get { return _update; }
+            get { return _request; }
         }
 
         public WriteConcern WriteConcern
@@ -99,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(connection, "connection");
 
-            var requests = new[] { new UpdateRequest(_criteria, _update) { IsMultiUpdate = _isMulti, IsUpsert = _isUpsert } };
+            var requests = new[] { _request };
 
             var operation = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {

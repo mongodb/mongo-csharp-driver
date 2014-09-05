@@ -51,9 +51,9 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern,
                 updateRequest.Criteria,
                 updateRequest.Update,
-                updateValidator,
-                updateRequest.IsMultiUpdate ?? false,
-                updateRequest.IsUpsert ?? false);
+                updateRequest.UpdateType.GetElementNameValidator(),
+                updateRequest.IsMulti,
+                updateRequest.IsUpsert);
         }
     }
 }

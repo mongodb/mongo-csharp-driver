@@ -47,7 +47,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("document");
             }
-            Update(new BsonDocumentWrapper(document), false);
+            Update(UpdateType.Replacement, new BsonDocumentWrapper(document), false);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            Update(update.ToBsonDocument(), true);
+            Update(UpdateType.Update, update.ToBsonDocument(), true);
         }
 
         /// <summary>
@@ -73,15 +73,15 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            Update(update.ToBsonDocument(), false);
+            Update(UpdateType.Update, update.ToBsonDocument(), false);
         }
 
         // private methods
-        private void Update(BsonDocument update, bool multi)
+        private void Update(UpdateType updateType, BsonDocument update, bool multi)
         {
-            var request = new UpdateRequest(new BsonDocumentWrapper(_query), update)
+            var request = new UpdateRequest(updateType, new BsonDocumentWrapper(_query), update)
             {
-                IsMultiUpdate = multi,
+                IsMulti = multi,
                 IsUpsert = _upsert
             };
             _addRequest(request);

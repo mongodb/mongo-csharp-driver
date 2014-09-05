@@ -156,9 +156,9 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 {
                     try
                     {
-                        var query = new BsonDocument("_id", docs[0]["_id"]);
+                        var criteria = new BsonDocument("_id", docs[0]["_id"]);
                         var update = new BsonDocument("$set", new BsonDocument("i", i + 1));
-                        await Update(binding, query, update).ConfigureAwait(false);
+                        await Update(binding, criteria, update).ConfigureAwait(false);
                         //Console.Write(".");
                     }
                     catch (Exception)
@@ -187,12 +187,11 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             return queryOp.ExecuteAsync(binding);
         }
 
-        private static Task Update(IWriteBinding binding, BsonDocument query, BsonDocument update)
+        private static Task Update(IWriteBinding binding, BsonDocument criteria, BsonDocument update)
         {
             var updateOp = new UpdateOpcodeOperation(
                 __collection,
-                query,
-                update,
+                new UpdateRequest(UpdateType.Update, criteria, update),
                 __messageEncoderSettings);
 
             return updateOp.ExecuteAsync(binding);

@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
             _requests = new[]
             {
-                new UpdateRequest(new BsonDocument("_id", 1), new BsonDocument("$set", new BsonDocument("x", largeString))) {IsUpsert = true }
+                new UpdateRequest(UpdateType.Update, new BsonDocument("_id", 1), new BsonDocument("$set", new BsonDocument("x", largeString))) {IsUpsert = true }
             };
 
             _expectedDocuments = new[]

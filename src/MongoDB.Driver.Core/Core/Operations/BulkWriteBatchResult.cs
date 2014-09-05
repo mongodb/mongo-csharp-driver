@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
                 if (upsertId == null &&
                     documentsAffected == 1 &&
                     updateRequest != null &&
-                    updateRequest.IsUpsert.GetValueOrDefault(false) &&
+                    updateRequest.IsUpsert &&
                     !writeConcernResult.UpdatedExisting)
                 {
                     // Get the _id field first from the Update document
