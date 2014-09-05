@@ -143,6 +143,8 @@ namespace MongoDB.Driver.Core.Operations
             var unprocessedRequests = __noWriteRequests;
             BsonValue upsertId = null;
             var documentsAffected = 0L;
+            var writeErrors = __noWriteErrors;
+            WriteConcernError writeConcernError = null;
 
             if (writeConcernResult != null)
             {
@@ -162,14 +164,7 @@ namespace MongoDB.Driver.Core.Operations
                         updateRequest.Update.ToBsonDocument().GetValue("_id", null) ??
                         updateRequest.Criteria.ToBsonDocument().GetValue("_id", null);
                 }
-            }
 
-            var upserts = (upsertId == null) ? __noUpserts : new[] { new BulkWriteUpsert(0, upsertId) };
-            var writeErrors = __noWriteErrors;
-            WriteConcernError writeConcernError = null;
-
-            if (writeConcernException != null)
-            {
                 var getLastErrorResponse = writeConcernResult.Response;
                 if (IsGetLasterrorResponseAWriteConcernError(getLastErrorResponse))
                 {
@@ -180,6 +175,8 @@ namespace MongoDB.Driver.Core.Operations
                     writeErrors = new[] { CreateWriteErrorFromGetLastErrorResponse(getLastErrorResponse) };
                 }
             }
+
+            var upserts = (upsertId == null) ? __noUpserts : new[] { new BulkWriteUpsert(0, upsertId) };
 
             if (request.RequestType == WriteRequestType.Insert && writeErrors.Count == 0)
             {
