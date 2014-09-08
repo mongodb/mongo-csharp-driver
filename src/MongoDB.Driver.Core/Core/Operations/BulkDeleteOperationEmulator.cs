@@ -35,10 +35,12 @@ namespace MongoDB.Driver.Core.Operations
         protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
         {
             var deleteRequest = (DeleteRequest)request;
+            var isMulti = deleteRequest.Limit == 0;
+
             return new DeleteWireProtocol(
                CollectionNamespace,
                deleteRequest.Criteria,
-               false, // isMulti
+               isMulti,
                MessageEncoderSettings,
                WriteConcern);
         }
