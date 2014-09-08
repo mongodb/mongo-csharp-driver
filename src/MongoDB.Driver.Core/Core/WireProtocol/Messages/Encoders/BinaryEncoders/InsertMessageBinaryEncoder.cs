@@ -196,6 +196,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             while (documentSource.MoveNext())
             {
                 var document = documentSource.Current;
+                if (document == null)
+                {
+                    throw new ArgumentException("Batch contains one or more null documents.");
+                }
 
                 var binaryWriter = state.BinaryWriter;
                 var streamWriter = binaryWriter.StreamWriter;
