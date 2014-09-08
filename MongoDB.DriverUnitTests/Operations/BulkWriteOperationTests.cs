@@ -461,7 +461,7 @@ namespace MongoDB.DriverUnitTests.Operations
             bulk.Insert(documents[0]);
 
             var writeConcern = new WriteConcern { Journal = true };
-            if (IsJournalEnabled())
+            if (_primary.BuildInfo.Version < new Version(2, 6, 0) || IsJournalEnabled())
             {
                 var result = bulk.Execute(writeConcern);
                 var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
@@ -470,24 +470,8 @@ namespace MongoDB.DriverUnitTests.Operations
             }
             else
             {
-                if (_primary.Supports(FeatureId.WriteCommands))
-                {
-                    Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
-                    Assert.AreEqual(0, _collection.Count());
-                }
-                else
-                {
-                    var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(writeConcern); });
-                    var result = exception.Result;
-
-                    var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
-                    CheckExpectedResult(expectedResult, result);
-                    Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
-
-                    Assert.AreEqual(0, exception.UnprocessedRequests.Count);
-                    Assert.IsNotNull(exception.WriteConcernError);
-                    Assert.AreEqual(0, exception.WriteErrors.Count);
-                }
+                Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
+                Assert.AreEqual(0, _collection.Count());
             }
         }
 
