@@ -156,7 +156,7 @@ namespace MongoDB.Driver
                     acknowledgedResult.MatchedCount,
                     acknowledgedResult.DeletedCount,
                     acknowledgedResult.InsertedCount,
-                    acknowledgedResult.ModifiedCount,
+                    acknowledgedResult.IsModifiedCountAvailable ? (long?)acknowledgedResult.ModifiedCount : null,
                     acknowledgedResult.ProcessedRequests.Select(r => WriteModel<T>.FromCore(r)),
                     acknowledgedResult.Upserts.Select(u => BulkWriteUpsert.FromCore(u)));
             }
