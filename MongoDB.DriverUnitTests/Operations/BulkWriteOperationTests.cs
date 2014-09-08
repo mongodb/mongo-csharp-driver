@@ -1283,10 +1283,26 @@ namespace MongoDB.DriverUnitTests.Operations
             BsonValue parsed;
             if (result.Response.TryGetValue("parsed", out parsed))
             {
+                // server versions prior to 2.6 report nojournal this way
                 BsonValue nojournal;
                 if (parsed.AsBsonDocument.TryGetValue("nojournal", out nojournal))
                 {
                     return !nojournal.ToBoolean();
+                }
+
+                // server versions starting with 2.6 report nojournal a different way
+                BsonValue storage;
+                if (parsed.AsBsonDocument.TryGetValue("storage", out storage))
+                {
+                    BsonValue journal;
+                    if (storage.AsBsonDocument.TryGetValue("journal", out journal))
+                    {
+                        BsonValue enabled;
+                        if (journal.AsBsonDocument.TryGetValue("enabled", out enabled))
+                        {
+                            return enabled.ToBoolean();
+                        }
+                    }
                 }
             }
 
