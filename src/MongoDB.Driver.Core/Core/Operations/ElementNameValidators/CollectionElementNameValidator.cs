@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
     public class CollectionElementNameValidator : IElementNameValidator
     {
         // private static fields
-        private static readonly List<string> __exceptions = new List<string> { "$db", "$ref", "$id" };
+        private static readonly List<string> __exceptions = new List<string> { "$db", "$ref", "$id", "$code", "$scope" };
         private static readonly CollectionElementNameValidator __instance = new CollectionElementNameValidator();
 
         // public static fields
