@@ -1194,7 +1194,7 @@ namespace MongoDB.Driver.Tests.Operations
                     var writeConcernError = exception.WriteConcernError;
                     Assert.IsNotNull(writeConcernError);
 
-                    Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
+                    Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(documents));
                 }
             }
         }
