@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Operations
             var isUpdate = bulkWriteResult.ProcessedRequests.Any(r => r.RequestType == WriteRequestType.Update);
 
             var updatedExisting = false;
-            BulkWriteUpsert upsert = null;
+            BulkWriteOperationUpsert upsert = null;
             if (isUpdate)
             {
                 upsert = bulkWriteResult.Upserts.LastOrDefault();

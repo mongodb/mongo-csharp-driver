@@ -20,62 +20,59 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Support;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents the information about one Upsert.
+    /// Represents the details of a write error.
     /// </summary>
-    public class BulkWriteUpsert
+    public class WriteError
     {
         // private fields
-        private readonly BsonValue _id;
-        private readonly int _index;
+        private readonly int _code;
+        private readonly BsonDocument _details;
+        private readonly string _message;
 
         // constructors
-        internal BulkWriteUpsert(
-            int index,
-            BsonValue id)
+        internal WriteError(int code, string message, BsonDocument details)
         {
-            _index = index;
-            _id = id;
+            _code = code;
+            _details = details;
+            _message = message;
         }
 
         // public properties
         /// <summary>
-        /// Gets the identifier.
+        /// Gets the error code.
         /// </summary>
         /// <value>
-        /// The identifier.
+        /// The error code.
         /// </value>
-        public BsonValue Id
+        public int Code
         {
-            get { return _id; }
+            get { return _code; }
         }
 
         /// <summary>
-        /// Gets the index.
+        /// Gets the error information.
         /// </summary>
         /// <value>
-        /// The index.
+        /// The error information.
         /// </value>
-        public int Index
+        public BsonDocument Details
         {
-            get { return _index; }
+            get { return _details; }
         }
 
-        // internal static methods
-        internal static BulkWriteUpsert FromCore(Core.Operations.BulkWriteOperationUpsert upsert)
+        /// <summary>
+        /// Gets the error message.
+        /// </summary>
+        /// <value>
+        /// The error message.
+        /// </value>
+        public string Message
         {
-            return new BulkWriteUpsert(upsert.Index, upsert.Id);
-        }
-
-        // internal methods
-        internal BulkWriteUpsert WithMappedIndex(IndexMap indexMap)
-        {
-            var mappedIndex = indexMap.Map(_index);
-            return (_index == mappedIndex) ? this : new BulkWriteUpsert(mappedIndex, _id);
+            get { return _message; }
         }
     }
 }

@@ -15,9 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Clusters;
@@ -61,6 +63,135 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task BulkWriteAsync_should_execute_the_BulkMixedWriteOperation(bool isOrdered)
+        {
+            var requests = new WriteModel<BsonDocument>[] 
+            { 
+                new InsertOneModel<BsonDocument>(new BsonDocument("_id", 1).Add("a",1)),
+                new DeleteManyModel<BsonDocument>(new BsonDocument("b", 1)),
+                new DeleteOneModel<BsonDocument>(new BsonDocument("c", 1)),
+                new ReplaceOneModel<BsonDocument>(new BsonDocument("d", 1), new BsonDocument("e", 1)),
+                new ReplaceOneModel<BsonDocument>(new BsonDocument("f", 1), new BsonDocument("g", 1)) { IsUpsert = true },
+                new UpdateManyModel<BsonDocument>(new BsonDocument("h", 1), new BsonDocument("$set", new BsonDocument("i", 1))),
+                new UpdateManyModel<BsonDocument>(new BsonDocument("j", 1), new BsonDocument("$set", new BsonDocument("k", 1))) { IsUpsert = true },
+                new UpdateOneModel<BsonDocument>(new BsonDocument("l", 1), new BsonDocument("$set", new BsonDocument("m", 1))),
+                new UpdateOneModel<BsonDocument>(new BsonDocument("n", 1), new BsonDocument("$set", new BsonDocument("o", 1))) { IsUpsert = true },
+            };
+            var bulkModel = new BulkWriteModel<BsonDocument>(requests)
+            {
+                IsOrdered = isOrdered
+            };
+
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { new InsertRequest(new BsonDocument("b", 1)) });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var result = await _subject.BulkWriteAsync(bulkModel, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+
+            call.Operation.Should().BeOfType<BulkMixedWriteOperation>();
+            var operation = (BulkMixedWriteOperation)call.Operation;
+
+            // I know, this is a lot of stuff in one test :(
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.IsOrdered.Should().Be(isOrdered);
+            operation.Requests.Count().Should().Be(9);
+            var convertedRequests = operation.Requests.ToList();
+
+            // InsertOneModel
+            convertedRequests[0].Should().BeOfType<InsertRequest>();
+            convertedRequests[0].CorrelationId.Should().Be(0);
+            var convertedRequest0 = (InsertRequest)convertedRequests[0];
+            convertedRequest0.Document.Should().Be("{_id:1, a:1}");
+            
+            // RemoveManyModel
+            convertedRequests[1].Should().BeOfType<DeleteRequest>();
+            convertedRequests[1].CorrelationId.Should().Be(1);
+            var convertedRequest1 = (DeleteRequest)convertedRequests[1];
+            convertedRequest1.Criteria.Should().Be("{b:1}");
+            convertedRequest1.Limit.Should().Be(0);
+
+            // RemoveOneModel
+            convertedRequests[2].Should().BeOfType<DeleteRequest>();
+            convertedRequests[2].CorrelationId.Should().Be(2);
+            var convertedRequest2 = (DeleteRequest)convertedRequests[2];
+            convertedRequest2.Criteria.Should().Be("{c:1}");
+            convertedRequest2.Limit.Should().Be(1);
+
+            // ReplaceOneModel
+            convertedRequests[3].Should().BeOfType<UpdateRequest>();
+            convertedRequests[3].CorrelationId.Should().Be(3);
+            var convertedRequest3 = (UpdateRequest)convertedRequests[3];
+            convertedRequest3.Criteria.Should().Be("{d:1}");
+            convertedRequest3.Update.Should().Be("{e:1}");
+            convertedRequest3.UpdateType.Should().Be(UpdateType.Replacement);
+            convertedRequest3.IsMulti.Should().BeFalse();
+            convertedRequest3.IsUpsert.Should().BeFalse();
+
+            // ReplaceOneModel with upsert
+            convertedRequests[4].Should().BeOfType<UpdateRequest>();
+            convertedRequests[4].CorrelationId.Should().Be(4);
+            var convertedRequest4 = (UpdateRequest)convertedRequests[4];
+            convertedRequest4.Criteria.Should().Be("{f:1}");
+            convertedRequest4.Update.Should().Be("{g:1}");
+            convertedRequest4.UpdateType.Should().Be(UpdateType.Replacement);
+            convertedRequest4.IsMulti.Should().BeFalse();
+            convertedRequest4.IsUpsert.Should().BeTrue();
+
+            // UpdateManyModel
+            convertedRequests[5].Should().BeOfType<UpdateRequest>();
+            convertedRequests[5].CorrelationId.Should().Be(5);
+            var convertedRequest5 = (UpdateRequest)convertedRequests[5];
+            convertedRequest5.Criteria.Should().Be("{h:1}");
+            convertedRequest5.Update.Should().Be("{$set:{i:1}}");
+            convertedRequest5.UpdateType.Should().Be(UpdateType.Update);
+            convertedRequest5.IsMulti.Should().BeTrue();
+            convertedRequest5.IsUpsert.Should().BeFalse();
+
+            // UpdateManyModel with upsert
+            convertedRequests[6].Should().BeOfType<UpdateRequest>();
+            convertedRequests[6].CorrelationId.Should().Be(6);
+            var convertedRequest6 = (UpdateRequest)convertedRequests[6];
+            convertedRequest6.Criteria.Should().Be("{j:1}");
+            convertedRequest6.Update.Should().Be("{$set:{k:1}}");
+            convertedRequest6.UpdateType.Should().Be(UpdateType.Update);
+            convertedRequest6.IsMulti.Should().BeTrue();
+            convertedRequest6.IsUpsert.Should().BeTrue();
+
+            // UpdateOneModel
+            convertedRequests[7].Should().BeOfType<UpdateRequest>();
+            convertedRequests[7].CorrelationId.Should().Be(7);
+            var convertedRequest7 = (UpdateRequest)convertedRequests[7];
+            convertedRequest7.Criteria.Should().Be("{l:1}");
+            convertedRequest7.Update.Should().Be("{$set:{m:1}}");
+            convertedRequest7.UpdateType.Should().Be(UpdateType.Update);
+            convertedRequest7.IsMulti.Should().BeFalse();
+            convertedRequest7.IsUpsert.Should().BeFalse();
+
+            // UpdateOneModel with upsert
+            convertedRequests[8].Should().BeOfType<UpdateRequest>();
+            convertedRequests[8].CorrelationId.Should().Be(8);
+            var convertedRequest8 = (UpdateRequest)convertedRequests[8];
+            convertedRequest8.Criteria.Should().Be("{n:1}");
+            convertedRequest8.Update.Should().Be("{$set:{o:1}}");
+            convertedRequest8.UpdateType.Should().Be(UpdateType.Update);
+            convertedRequest8.IsMulti.Should().BeFalse();
+            convertedRequest8.IsUpsert.Should().BeTrue();
+
+            // Result
+            result.Should().NotBeNull();
+            result.IsAcknowledged.Should().BeFalse();
+            result.RequestCount.Should().Be(9);
+            result.ProcessedRequests.Should().BeEquivalentTo(requests);
+            for (int i = 0; i < requests.Length; i++)
+            {
+                result.ProcessedRequests[i].Should().BeSameAs(requests[i]);
+            }
+        }
+
+        [Test]
         public async Task CountAsync_should_execute_the_CountOperation()
         {
             var model = new CountModel
@@ -86,11 +217,104 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task DeleteManyAsync_should_execute_the_BulkMixedOperation()
+        {
+            var criteria = new BsonDocument("a", 1);
+            var expectedRequest = new DeleteRequest(criteria) { CorrelationId = 0, Limit = 0 };
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            await _subject.DeleteManyAsync(
+                new DeleteManyModel<BsonDocument>(criteria),
+                Timeout.InfiniteTimeSpan,
+                CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            VerifySingleWrite(expectedRequest, call);
+        }
+
+        [Test]
+        public void DeleteManyAsync_should_throw_a_WriteException_when_an_error_occurs()
+        {
+            var criteria = new BsonDocument("a", 1);
+            var expectedRequest = new DeleteRequest(criteria) { CorrelationId = 0, Limit = 0 };
+
+            var exception = new BulkWriteOperationException(
+                new BulkWriteOperationResult.Acknowledged(
+                    requestCount: 1,
+                    matchedCount: 1,
+                    deletedCount: 0,
+                    insertedCount: 0,
+                    modifiedCount: 0,
+                    processedRequests: new[] { expectedRequest },
+                    upserts: new List<BulkWriteOperationUpsert>()),
+                new[] { new BulkWriteOperationError(10, 1, "blah", new BsonDocument()) },
+                null,
+                new List<WriteRequest>());
+
+            _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
+
+            Action act = () => _subject.DeleteManyAsync(
+                    new DeleteManyModel<BsonDocument>(criteria),
+                    Timeout.InfiniteTimeSpan,
+                    CancellationToken.None).GetAwaiter().GetResult();
+
+            act.ShouldThrow<WriteException>();
+        }
+
+        [Test]
+        public async Task DeleteOneAsync_should_execute_the_BulkMixedOperation()
+        {
+            var criteria = new BsonDocument("a", 1);
+            var expectedRequest = new DeleteRequest(criteria) { CorrelationId = 0, Limit = 1 };
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            await _subject.DeleteOneAsync(
+                new DeleteOneModel<BsonDocument>(criteria),
+                Timeout.InfiniteTimeSpan,
+                CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            VerifySingleWrite(expectedRequest, call);
+        }
+
+        [Test]
+        public void DeleteOneAsync_should_throw_a_WriteException_when_an_error_occurs()
+        {
+            var criteria = new BsonDocument("a", 1);
+            var expectedRequest = new DeleteRequest(criteria) { CorrelationId = 0, Limit = 1 };
+
+            var exception = new BulkWriteOperationException(
+                new BulkWriteOperationResult.Acknowledged(
+                    requestCount: 1,
+                    matchedCount: 1,
+                    deletedCount: 0,
+                    insertedCount: 0,
+                    modifiedCount: 0,
+                    processedRequests: new[] { expectedRequest },
+                    upserts: new List<BulkWriteOperationUpsert>()),
+                new[] { new BulkWriteOperationError(0, 1, "blah", new BsonDocument()) },
+                null,
+                new List<WriteRequest>());
+
+            _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
+
+            Action act = () => _subject.DeleteOneAsync(
+                    new DeleteOneModel<BsonDocument>(criteria),
+                    Timeout.InfiniteTimeSpan,
+                    CancellationToken.None).GetAwaiter().GetResult();
+
+            act.ShouldThrow<WriteException>();
+        }
+
+        [Test]
         public async Task DistinctAsync_should_execute_the_DistinctOperation()
         {
+            var criteria = new BsonDocument("x", 1);
             var model = new DistinctModel<int>("a.b")
             {
-                Criteria = new BsonDocument("x", 1),
+                Criteria = criteria,
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
@@ -102,8 +326,220 @@ namespace MongoDB.Driver
             var operation = (DistinctOperation<int>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.FieldName.Should().Be("a.b");
-            operation.Criteria.Should().Be((BsonDocument)model.Criteria);
+            operation.Criteria.Should().Be(criteria);
             operation.MaxTime.Should().Be(model.MaxTime);
+        }
+
+        [Test]
+        public async Task InsertOneAsync_should_execute_the_BulkMixedOperation()
+        {
+            var document = BsonDocument.Parse("{_id:1,a:1}");
+            var expectedRequest = new InsertRequest(document) { CorrelationId = 0 };
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(1, new[] { expectedRequest });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            await _subject.InsertOneAsync(
+                new InsertOneModel<BsonDocument>(document),
+                Timeout.InfiniteTimeSpan, 
+                CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            VerifySingleWrite(expectedRequest, call);
+        }
+
+        [Test]
+        public void InsertOneAsync_should_throw_a_WriteException_when_an_error_occurs()
+        {
+            var document = BsonDocument.Parse("{_id:1,a:1}");
+            var expectedRequest = new InsertRequest(document) { CorrelationId = 0 };
+
+            var exception = new BulkWriteOperationException(
+                new BulkWriteOperationResult.Acknowledged(
+                    requestCount: 1,
+                    matchedCount: 0,
+                    deletedCount: 0,
+                    insertedCount: 0,
+                    modifiedCount: 0,
+                    processedRequests: new[] { expectedRequest },
+                    upserts: new List<BulkWriteOperationUpsert>()),
+                new [] { new BulkWriteOperationError(0, 1, "blah", new BsonDocument()) },
+                null,
+                new List<WriteRequest>());
+
+            _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
+
+            Action act = () => _subject.InsertOneAsync(
+                    new InsertOneModel<BsonDocument>(document),
+                    Timeout.InfiniteTimeSpan,
+                    CancellationToken.None).GetAwaiter().GetResult();
+
+            act.ShouldThrow<WriteException>();
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task ReplaceOneAsync_should_execute_the_BulkMixedOperation(bool upsert)
+        {
+            var criteria = BsonDocument.Parse("{a:1}");
+            var replacement = BsonDocument.Parse("{a:2}");
+            var expectedRequest = new UpdateRequest(UpdateType.Replacement, criteria, replacement) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            await _subject.ReplaceOneAsync(
+                new ReplaceOneModel<BsonDocument>(criteria, replacement) { IsUpsert = upsert },
+                Timeout.InfiniteTimeSpan,
+                CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            VerifySingleWrite(expectedRequest, call);
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ReplaceOneAsync_should_throw_a_WriteException_when_an_error_occurs(bool upsert)
+        {
+            var criteria = BsonDocument.Parse("{a:1}");
+            var replacement = BsonDocument.Parse("{a:2}");
+            var expectedRequest = new UpdateRequest(UpdateType.Replacement, criteria, replacement) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
+            var exception = new BulkWriteOperationException(
+                new BulkWriteOperationResult.Acknowledged(
+                    requestCount: 1,
+                    matchedCount: 1,
+                    deletedCount: 0,
+                    insertedCount: 0,
+                    modifiedCount: 0,
+                    processedRequests: new[] { expectedRequest },
+                    upserts: new List<BulkWriteOperationUpsert>()),
+                new[] { new BulkWriteOperationError(0, 1, "blah", new BsonDocument()) },
+                null,
+                new List<WriteRequest>());
+
+            _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
+
+            Action act = () => _subject.ReplaceOneAsync(
+                    new ReplaceOneModel<BsonDocument>(criteria, replacement) { IsUpsert = upsert },
+                    Timeout.InfiniteTimeSpan,
+                    CancellationToken.None).GetAwaiter().GetResult();
+
+            act.ShouldThrow<WriteException>();
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task UpdateManyAsync_should_execute_the_BulkMixedOperation(bool upsert)
+        {
+            var criteria = BsonDocument.Parse("{a:1}");
+            var update = BsonDocument.Parse("{$set:{a:1}}");
+            var expectedRequest = new UpdateRequest(UpdateType.Update, criteria, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = true };
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            await _subject.UpdateManyAsync(
+                new UpdateManyModel<BsonDocument>(criteria, update) { IsUpsert = upsert },
+                Timeout.InfiniteTimeSpan,
+                CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            VerifySingleWrite(expectedRequest, call);
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void UpdateManyAsync_should_throw_a_WriteException_when_an_error_occurs(bool upsert)
+        {
+            var criteria = BsonDocument.Parse("{a:1}");
+            var update = BsonDocument.Parse("{$set:{a:1}}");
+            var expectedRequest = new UpdateRequest(UpdateType.Update, criteria, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = true };
+            var exception = new BulkWriteOperationException(
+                new BulkWriteOperationResult.Acknowledged(
+                    requestCount: 1,
+                    matchedCount: 1,
+                    deletedCount: 0,
+                    insertedCount: 0,
+                    modifiedCount: 0,
+                    processedRequests: new[] { expectedRequest },
+                    upserts: new List<BulkWriteOperationUpsert>()),
+                new[] { new BulkWriteOperationError(0, 1, "blah", new BsonDocument()) },
+                null,
+                new List<WriteRequest>());
+
+            _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
+
+            Action act = () => _subject.UpdateManyAsync(
+                    new UpdateManyModel<BsonDocument>(criteria, update) { IsUpsert = upsert },
+                    Timeout.InfiniteTimeSpan,
+                    CancellationToken.None).GetAwaiter().GetResult();
+
+            act.ShouldThrow<WriteException>();
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task UpdateOneAsync_should_execute_the_BulkMixedOperation(bool upsert)
+        {
+            var criteria = BsonDocument.Parse("{a:1}");
+            var update = BsonDocument.Parse("{$set:{a:1}}");
+            var expectedRequest = new UpdateRequest(UpdateType.Update, criteria, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            await _subject.UpdateOneAsync(
+                new UpdateOneModel<BsonDocument>(criteria, update) { IsUpsert = upsert },
+                Timeout.InfiniteTimeSpan,
+                CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            VerifySingleWrite(expectedRequest, call);
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void UpdateOneAsync_should_throw_a_WriteException_when_an_error_occurs(bool upsert)
+        {
+            var criteria = BsonDocument.Parse("{a:1}");
+            var update = BsonDocument.Parse("{$set:{a:1}}");
+            var expectedRequest = new UpdateRequest(UpdateType.Update, criteria, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
+            var exception = new BulkWriteOperationException(
+                new BulkWriteOperationResult.Acknowledged(
+                    requestCount: 1,
+                    matchedCount: 1,
+                    deletedCount: 0,
+                    insertedCount: 0,
+                    modifiedCount: 0,
+                    processedRequests: new[] { expectedRequest },
+                    upserts: new List<BulkWriteOperationUpsert>()),
+                new[] { new BulkWriteOperationError(0, 1, "blah", new BsonDocument()) },
+                null,
+                new List<WriteRequest>());
+
+            _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
+
+            Action act = () => _subject.UpdateOneAsync(
+                    new UpdateOneModel<BsonDocument>(criteria, update) { IsUpsert = upsert },
+                    Timeout.InfiniteTimeSpan,
+                    CancellationToken.None).GetAwaiter().GetResult();
+
+            act.ShouldThrow<WriteException>();
+        }
+
+        private static void VerifySingleWrite<TRequest>(TRequest expectedRequest, MockOperationExecutor.WriteCall<BulkWriteOperationResult> call)
+        {
+            call.Operation.Should().BeOfType<BulkMixedWriteOperation>();
+            var operation = (BulkMixedWriteOperation)call.Operation;
+
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.IsOrdered.Should().BeTrue();
+            operation.Requests.Count().Should().Be(1);
+            operation.Requests.Single().Should().BeOfType<TRequest>();
+
+            operation.Requests.Single().ShouldBeEquivalentTo(expectedRequest);
         }
     }
 }

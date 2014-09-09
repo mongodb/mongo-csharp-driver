@@ -143,7 +143,22 @@ namespace MongoDB.Driver.Core.WireProtocol
                 if (!rawDocument.GetValue("ok", false).ToBoolean())
                 {
                     var materializedDocument = new BsonDocument(rawDocument);
-                    throw ExceptionMapper.Map(materializedDocument) ?? new MongoCommandException("Command failed.", _command, materializedDocument);
+                    var commandName = _command.GetElement(0).Name;
+                    if (commandName == "$query")
+                    {
+                        commandName = _command["$query"].AsBsonDocument.GetElement(0).Name;
+                    }
+                    BsonValue serverMessage;
+                    string message;
+                    if (!rawDocument.TryGetValue("errmsg", out serverMessage) || serverMessage.IsBsonNull)
+                    {
+                        message = string.Format("Command {0} failed.", commandName);
+                    }
+                    else
+                    {
+                        message = string.Format("Command {0} failed: {1}.", commandName, serverMessage.ToString());
+                    }
+                    throw ExceptionMapper.Map(materializedDocument) ?? new MongoCommandException(message, _command, materializedDocument);
                 }
 
                 using (var stream = new ByteBufferStream(rawDocument.Slice, ownsByteBuffer: false))

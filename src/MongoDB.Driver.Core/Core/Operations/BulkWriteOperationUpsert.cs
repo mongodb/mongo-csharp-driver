@@ -19,59 +19,58 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents the details of a write concern error.
+    /// Represents the information about one Upsert.
     /// </summary>
-    public class WriteConcernError
+    public class BulkWriteOperationUpsert
     {
         // fields
-        private readonly int _code;
-        private readonly BsonDocument _details;
-        private readonly string _message;
+        private readonly BsonValue _id;
+        private readonly int _index;
 
         // constructors
-        internal WriteConcernError(int code, string message, BsonDocument details)
+        internal BulkWriteOperationUpsert(
+            int index,
+            BsonValue id)
         {
-            _code = code;
-            _details = details;
-            _message = message;
+            _index = index;
+            _id = id;
         }
 
         // properties
         /// <summary>
-        /// Gets the error code.
+        /// Gets the identifier.
         /// </summary>
         /// <value>
-        /// The error code.
+        /// The identifier.
         /// </value>
-        public int Code
+        public BsonValue Id
         {
-            get { return _code; }
+            get { return _id; }
         }
 
         /// <summary>
-        /// Gets the error information.
+        /// Gets the index.
         /// </summary>
         /// <value>
-        /// The error information.
+        /// The index.
         /// </value>
-        public BsonDocument Details
+        public int Index
         {
-            get { return _details; }
+            get { return _index; }
         }
 
-        /// <summary>
-        /// Gets the error message.
-        /// </summary>
-        /// <value>
-        /// The error message.
-        /// </value>
-        public string Message
+        // methods
+        internal BulkWriteOperationUpsert WithMappedIndex(IndexMap indexMap)
         {
-            get { return _message; }
+            var mappedIndex = indexMap.Map(_index);
+            return (_index == mappedIndex) ? this : new BulkWriteOperationUpsert(mappedIndex, _id);
         }
     }
 }
+

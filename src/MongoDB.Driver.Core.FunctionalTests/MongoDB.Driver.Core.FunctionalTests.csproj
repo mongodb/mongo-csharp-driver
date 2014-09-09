@@ -49,7 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Helpers\BulkWriteUpsertEqualityComparer.cs" />
+    <Compile Include="Core\Helpers\BulkWriteOperationUpsertEqualityComparer.cs" />
     <Compile Include="ClusterUsingTest.cs" />
     <Compile Include="CollectionUsingSpecification.cs" />
     <Compile Include="CollectionUsingTest.cs" />

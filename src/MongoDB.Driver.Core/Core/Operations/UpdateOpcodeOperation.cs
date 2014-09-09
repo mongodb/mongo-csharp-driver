@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
                 _writeConcern,
                 _request.Criteria,
                 _request.Update,
-                _request.UpdateType.GetElementNameValidator(),
+                ElementNameValidatorFactory.ForUpdateType(_request.UpdateType),
                 _request.IsMulti,
                 _request.IsUpsert);
         }

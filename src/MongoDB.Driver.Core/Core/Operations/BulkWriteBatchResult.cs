@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
         // static fields
-        private static readonly IReadOnlyList<BulkWriteUpsert> __noUpserts = new BulkWriteUpsert[0];
-        private static readonly IReadOnlyList<BulkWriteError> __noWriteErrors = new BulkWriteError[0];
+        private static readonly IReadOnlyList<BulkWriteOperationUpsert> __noUpserts = new BulkWriteOperationUpsert[0];
+        private static readonly IReadOnlyList<BulkWriteOperationError> __noWriteErrors = new BulkWriteOperationError[0];
         private static readonly IReadOnlyList<WriteRequest> __noWriteRequests = new WriteRequest[0];
 
         // static methods
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var unprocessedRequests = __noWriteRequests;
             var writeErrors = __noWriteErrors;
-            WriteConcernError writeConcernError = null;
+            BulkWriteConcernError writeConcernError = null;
             if (exception != null)
             {
                 unprocessedRequests = exception.UnprocessedRequests;
@@ -164,9 +164,9 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
-            var upserts = (upsertId == null) ? __noUpserts : new[] { new BulkWriteUpsert(0, upsertId) };
+            var upserts = (upsertId == null) ? __noUpserts : new[] { new BulkWriteOperationUpsert(0, upsertId) };
             var writeErrors = __noWriteErrors;
-            WriteConcernError writeConcernError = null;
+            BulkWriteConcernError writeConcernError = null;
 
             if (writeConcernException != null)
             {
@@ -218,7 +218,7 @@ namespace MongoDB.Driver.Core.Operations
                 indexMap);
         }
 
-        private static IReadOnlyList<WriteRequest> CreateProcessedRequests(IReadOnlyList<WriteRequest> requests, IReadOnlyList<BulkWriteError> writeErrors, bool isOrdered)
+        private static IReadOnlyList<WriteRequest> CreateProcessedRequests(IReadOnlyList<WriteRequest> requests, IReadOnlyList<BulkWriteOperationError> writeErrors, bool isOrdered)
         {
             if (!isOrdered || writeErrors.Count == 0)
             {
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private static IReadOnlyList<WriteRequest> CreateUnprocessedRequests(IReadOnlyList<WriteRequest> requests, IReadOnlyList<BulkWriteError> writeErrors, bool isOrdered)
+        private static IReadOnlyList<WriteRequest> CreateUnprocessedRequests(IReadOnlyList<WriteRequest> requests, IReadOnlyList<BulkWriteOperationError> writeErrors, bool isOrdered)
         {
             if (!isOrdered || writeErrors.Count == 0)
             {
@@ -244,9 +244,9 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private static IReadOnlyList<BulkWriteUpsert> CreateUpserts(BsonDocument writeCommandResponse)
+        private static IReadOnlyList<BulkWriteOperationUpsert> CreateUpserts(BsonDocument writeCommandResponse)
         {
-            var upserts = new List<BulkWriteUpsert>();
+            var upserts = new List<BulkWriteOperationUpsert>();
 
             if (writeCommandResponse.Contains("upserted"))
             {
@@ -254,7 +254,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     var index = value["index"].ToInt32();
                     var id = value["_id"];
-                    var upsert = new BulkWriteUpsert(index, id);
+                    var upsert = new BulkWriteOperationUpsert(index, id);
                     upserts.Add(upsert);
                 }
             }
@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Core.Operations
             return upserts;
         }
 
-        private static WriteConcernError CreateWriteConcernError(BsonDocument writeCommandResponse)
+        private static BulkWriteConcernError CreateWriteConcernError(BsonDocument writeCommandResponse)
         {
             if (writeCommandResponse.Contains("writeConcernError"))
             {
@@ -270,13 +270,13 @@ namespace MongoDB.Driver.Core.Operations
                 var code = value["code"].ToInt32();
                 var message = value["errmsg"].AsString;
                 var details = (BsonDocument)value.GetValue("errInfo", null);
-                return new WriteConcernError(code, message, details);
+                return new BulkWriteConcernError(code, message, details);
             }
 
             return null;
         }
 
-        private static WriteConcernError CreateWriteConcernErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
+        private static BulkWriteConcernError CreateWriteConcernErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
         {
             var code = getLastErrorResponse.GetValue("code", 64).ToInt32(); // default = WriteConcernFailed
 
@@ -297,19 +297,19 @@ namespace MongoDB.Driver.Core.Operations
 
             var details = new BsonDocument(getLastErrorResponse.Where(e => !new[] { "ok", "code", "err" }.Contains(e.Name)));
 
-            return new WriteConcernError(code, message, details);
+            return new BulkWriteConcernError(code, message, details);
         }
 
-        private static BulkWriteError CreateWriteErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
+        private static BulkWriteOperationError CreateWriteErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
         {
             var code = getLastErrorResponse.GetValue("code", 8).ToInt32(); // default = UnknownError
             var message = (string)getLastErrorResponse.GetValue("err", null);
-            return new BulkWriteError(0, code, message, null);
+            return new BulkWriteOperationError(0, code, message, null);
         }
 
-        private static IReadOnlyList<BulkWriteError> CreateWriteErrors(BsonDocument writeCommandResponse)
+        private static IReadOnlyList<BulkWriteOperationError> CreateWriteErrors(BsonDocument writeCommandResponse)
         {
-            var writeErrors = new List<BulkWriteError>();
+            var writeErrors = new List<BulkWriteOperationError>();
 
             if (writeCommandResponse.Contains("writeErrors"))
             {
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Core.Operations
                     var code = value["code"].ToInt32();
                     var message = value["errmsg"].AsString;
                     var details = (BsonDocument)value.GetValue("errInfo", null);
-                    var writeError = new BulkWriteError(index, code, message, details);
+                    var writeError = new BulkWriteOperationError(index, code, message, details);
                     writeErrors.Add(writeError);
                 }
             }
@@ -342,9 +342,9 @@ namespace MongoDB.Driver.Core.Operations
         private readonly long? _modifiedCount;
         private readonly IReadOnlyList<WriteRequest> _processedRequests;
         private readonly IReadOnlyList<WriteRequest> _unprocessedRequests;
-        private readonly IReadOnlyList<BulkWriteUpsert> _upserts;
-        private readonly WriteConcernError _writeConcernError;
-        private readonly IReadOnlyList<BulkWriteError> _writeErrors;
+        private readonly IReadOnlyList<BulkWriteOperationUpsert> _upserts;
+        private readonly BulkWriteConcernError _writeConcernError;
+        private readonly IReadOnlyList<BulkWriteOperationError> _writeErrors;
 
         // constructors
         public BulkWriteBatchResult(
@@ -355,9 +355,9 @@ namespace MongoDB.Driver.Core.Operations
             long deletedCount,
             long insertedCount,
             long? modifiedCount,
-            IReadOnlyList<BulkWriteUpsert> upserts,
-            IReadOnlyList<BulkWriteError> writeErrors,
-            WriteConcernError writeConcernError,
+            IReadOnlyList<BulkWriteOperationUpsert> upserts,
+            IReadOnlyList<BulkWriteOperationError> writeErrors,
+            BulkWriteConcernError writeConcernError,
             IndexMap indexMap)
         {
             _batchCount = batchCount;
@@ -424,17 +424,17 @@ namespace MongoDB.Driver.Core.Operations
             get { return _unprocessedRequests; }
         }
 
-        public IReadOnlyList<BulkWriteUpsert> Upserts
+        public IReadOnlyList<BulkWriteOperationUpsert> Upserts
         {
             get { return _upserts; }
         }
 
-        public WriteConcernError WriteConcernError
+        public BulkWriteConcernError WriteConcernError
         {
             get { return _writeConcernError; }
         }
 
-        public IReadOnlyList<BulkWriteError> WriteErrors
+        public IReadOnlyList<BulkWriteOperationError> WriteErrors
         {
             get { return _writeErrors; }
         }

@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     public class When_there_are_mixed_upserts_and_is_ordered_is_true : CollectionUsingSpecification
     {
         private BsonDocument[] _expectedDocuments;
-        private BulkWriteUpsert[] _expectedUpserts;
+        private BulkWriteOperationUpsert[] _expectedUpserts;
         private WriteRequest[] _requests;
         private BulkWriteOperationResult _result;
 
@@ -47,11 +47,11 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
                 new BsonDocument { { "_id", id }, { "x", 3 } }
             };
 
-            _expectedUpserts = new BulkWriteUpsert[]
+            _expectedUpserts = new BulkWriteOperationUpsert[]
             {
-                new BulkWriteUpsert(0, id),
-                new BulkWriteUpsert(2, id),
-                new BulkWriteUpsert(4, id)
+                new BulkWriteOperationUpsert(0, id),
+                new BulkWriteOperationUpsert(2, id),
+                new BulkWriteOperationUpsert(4, id)
             };
         }
 
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
             _result.MatchedCount.Should().Be(0);
             _result.ProcessedRequests.Should().Equal(_requests, SameAs.Predicate);
             _result.RequestCount.Should().Be(5);
-            _result.Upserts.Should().Equal(_expectedUpserts, BulkWriteUpsertEqualityComparer.Equals);
+            _result.Upserts.Should().Equal(_expectedUpserts, BulkWriteOperationUpsertEqualityComparer.Equals);
         }
 
         [Test]

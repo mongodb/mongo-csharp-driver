@@ -43,7 +43,6 @@ namespace MongoDB.Driver.Core.Operations
         protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
         {
             var updateRequest = (UpdateRequest)request;
-            var updateValidator = new UpdateOrReplacementElementNameValidator();
 
             return new UpdateWireProtocol(
                 CollectionNamespace,
@@ -51,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern,
                 updateRequest.Criteria,
                 updateRequest.Update,
-                updateRequest.UpdateType.GetElementNameValidator(),
+                ElementNameValidatorFactory.ForUpdateType(updateRequest.UpdateType),
                 updateRequest.IsMulti,
                 updateRequest.IsUpsert);
         }

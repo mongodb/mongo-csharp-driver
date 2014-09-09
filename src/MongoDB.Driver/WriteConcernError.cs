@@ -70,7 +70,7 @@ namespace MongoDB.Driver
         }
 
         // internal static methods
-        internal static WriteConcernError FromCore(Core.Operations.WriteConcernError error)
+        internal static WriteConcernError FromCore(Core.Operations.BulkWriteConcernError error)
         {
             return error == null ? null : new WriteConcernError(error.Code, error.Message, error.Details);
         }

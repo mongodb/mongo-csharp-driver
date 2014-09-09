@@ -29,7 +29,9 @@ namespace MongoDB.Driver
         // API, so there is type safety in how they got allowed
         // into the system, meaning that even though
         // some things below seem unsafe, they are in a roundabout
-        // way.
+        // way. In addition, we know that there will always 
+        // be one level of BsonDocumentWrapper for everything, even
+        // when the type is already a BsonDocument :(.
         internal static WriteModel<T> FromCore(WriteRequest request)
         {
             switch (request.RequestType)
@@ -45,71 +47,60 @@ namespace MongoDB.Driver
             }
         }
 
-        private static WriteModel<T> ConvertDeleteRequest(DeleteRequest deleteRequest)
+        private static WriteModel<T> ConvertDeleteRequest(DeleteRequest request)
         {
-            if(deleteRequest.Limit == 1)
+            var criteria = Unwrap(request.Criteria);
+            if(request.Limit == 1)
             {
-                return new RemoveOneModel<T>(deleteRequest.Criteria);
+                return new DeleteOneModel<T>(criteria);
             }
 
-            return new RemoveManyModel<T>(deleteRequest.Criteria);
+            return new DeleteManyModel<T>(criteria);
         }
 
         private static WriteModel<T> ConvertInsertRequest(InsertRequest request)
         {
-            object document;
-            var wrapper = request.Document as BsonDocumentWrapper;
-            if (wrapper != null)
-            {
-                document = wrapper.Wrapped;
-            }
-            else
-            {
-                document = request.Document;
-            }
-
-            return new InsertOneModel<T>((T)document);
+            var document = (T)Unwrap(request.Document);
+            return new InsertOneModel<T>(document);
         }
 
-        private static WriteModel<T> ConvertUpdateRequest(UpdateRequest updateRequest)
+        private static WriteModel<T> ConvertUpdateRequest(UpdateRequest request)
         {
-            if(updateRequest.IsMulti)
+            var criteria = Unwrap(request.Criteria);
+            var update = Unwrap(request.Update);
+            if(request.IsMulti)
             {
-                return new UpdateManyModel<T>(updateRequest.Criteria, updateRequest.Update)
+                return new UpdateManyModel<T>(criteria, update)
                 {
-                    IsUpsert = updateRequest.IsUpsert
+                    IsUpsert = request.IsUpsert
                 };
             }
 
-            var firstElement = updateRequest.Update.GetElement(0).Name;
+            var firstElement = request.Update.GetElement(0).Name;
             if(firstElement.StartsWith("$"))
             {
-                return new UpdateOneModel<T>(updateRequest.Criteria, updateRequest.Update)
+                return new UpdateOneModel<T>(criteria, update)
                 {
-                    IsUpsert = updateRequest.IsUpsert
+                    IsUpsert = request.IsUpsert
                 };
             }
 
-            return ConvertToReplaceOne(updateRequest);
+            return ConvertToReplaceOne(request);
         }
 
-        private static WriteModel<T> ConvertToReplaceOne(UpdateRequest updateRequest)
+        private static WriteModel<T> ConvertToReplaceOne(UpdateRequest request)
         {
-            object document;
-            var wrappedUpdate = updateRequest.Update as BsonDocumentWrapper;
-            if (wrappedUpdate != null)
-            {
-                document = wrappedUpdate.Wrapped;
-            }
-            else
-            {
-                document = updateRequest.Update;
-            }
+            var document = (T)Unwrap(request.Update);
 
-            return new ReplaceOneModel<T>(updateRequest.Criteria, (T)document)
+            return new ReplaceOneModel<T>(Unwrap(request.Criteria), document)
             {
-                IsUpsert = updateRequest.IsUpsert
+                IsUpsert = request.IsUpsert
             };
+        }
+
+        private static object Unwrap(BsonDocument wrapper)
+        {
+            return ((BsonDocumentWrapper)wrapper).Wrapped;
         }
 
         // constructors

@@ -25,10 +25,29 @@ namespace MongoDB.Driver.Tests
     internal class MockOperationExecutor : IOperationExecutor
     {
         private readonly Queue<object> _calls;
+        private readonly Queue<object> _results;
 
         public MockOperationExecutor()
         {
             _calls = new Queue<object>();
+            _results = new Queue<object>();
+        }
+
+        public void EnqueueResult<TResult>(TResult result)
+        {
+            EnqueueResult(Task.FromResult(result));
+        }
+
+        public void EnqueueResult<TResult>(Task<TResult> result)
+        {
+            _results.Enqueue(result);
+        }
+
+        public void EnqueueException<TResult>(Exception exception)
+        {
+            var tcs = new TaskCompletionSource<TResult>(TaskCreationOptions.None);
+            tcs.TrySetException(exception);
+            _results.Enqueue(tcs.Task);
         }
 
         public Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, TimeSpan timeout, CancellationToken cancellationToken)
@@ -41,7 +60,13 @@ namespace MongoDB.Driver.Tests
                 CancellationToken = cancellationToken
             });
 
-            return Task.FromResult<TResult>(default(TResult));
+            var result = Task.FromResult<TResult>(default(TResult));
+            if(_results.Count > 0)
+            {
+                result = (Task<TResult>)_results.Dequeue();
+            }
+
+            return result;
         }
 
         public Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, TimeSpan timeout, CancellationToken cancellationToken)
@@ -54,7 +79,13 @@ namespace MongoDB.Driver.Tests
                 CancellationToken = cancellationToken
             });
 
-            return Task.FromResult<TResult>(default(TResult));
+            var result = Task.FromResult<TResult>(default(TResult));
+            if (_results.Count > 0)
+            {
+                result = (Task<TResult>)_results.Dequeue();
+            }
+
+            return result;
         }
 
         public ReadCall<TResult> GetReadCall<TResult>()

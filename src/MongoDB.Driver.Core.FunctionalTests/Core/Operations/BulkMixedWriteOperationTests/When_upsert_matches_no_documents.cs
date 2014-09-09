@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     public class When_upsert_matches_no_documents : CollectionUsingSpecification
     {
         private BsonDocument[] _expectedDocuments;
-        private BulkWriteUpsert[] _expectedUpserts;
+        private BulkWriteOperationUpsert[] _expectedUpserts;
         private UpdateRequest[] _requests;
         private BulkWriteOperationResult _result;
 
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
             _expectedUpserts = new[]
             {
-                new BulkWriteUpsert(0, 1)
+                new BulkWriteOperationUpsert(0, 1)
             };
         }
 
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
             _result.MatchedCount.Should().Be(0);
             _result.ProcessedRequests.Should().Equal(_requests, SameAs.Predicate);
             _result.RequestCount.Should().Be(1);
-            _result.Upserts.Should().Equal(_expectedUpserts, BulkWriteUpsertEqualityComparer.Equals);
+            _result.Upserts.Should().Equal(_expectedUpserts, BulkWriteOperationUpsertEqualityComparer.Equals);
         }
 
         [Test]

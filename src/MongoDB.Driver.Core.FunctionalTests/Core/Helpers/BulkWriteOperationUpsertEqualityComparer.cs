@@ -7,9 +7,9 @@ using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver.Core.Helpers
 {
-    public static class BulkWriteUpsertEqualityComparer
+    public static class BulkWriteOperationUpsertEqualityComparer
     {
-        public static bool Equals(BulkWriteUpsert x, BulkWriteUpsert y)
+        public static bool Equals(BulkWriteOperationUpsert x, BulkWriteOperationUpsert y)
         {
             return
                 object.Equals(x.Id, x.Id) &&

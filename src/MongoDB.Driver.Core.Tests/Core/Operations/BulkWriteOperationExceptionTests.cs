@@ -30,10 +30,10 @@ namespace MongoDB.Driver.Core.Operations
         public void Constructor_should_work()
         {
             var processedRequests = new WriteRequest[0];
-            var upserts = new BulkWriteUpsert[0];
-            var result = new AcknowledgedBulkWriteOperationResult(1, 2, 3, 4, 5, processedRequests, upserts);
-            var writeErrors = new BulkWriteError[0];
-            var writeConcernError = new WriteConcernError(1, "message", new BsonDocument("x", 1));
+            var upserts = new BulkWriteOperationUpsert[0];
+            var result = new BulkWriteOperationResult.Acknowledged(1, 2, 3, 4, 5, processedRequests, upserts);
+            var writeErrors = new BulkWriteOperationError[0];
+            var writeConcernError = new BulkWriteConcernError(1, "message", new BsonDocument("x", 1));
             var unprocessedRequests = new WriteRequest[0];
             var subject = new BulkWriteOperationException(result, writeErrors, writeConcernError, unprocessedRequests);
 
@@ -47,10 +47,10 @@ namespace MongoDB.Driver.Core.Operations
         public void Serialization_should_drop_custom_fields()
         {
             var processedRequests = new WriteRequest[0];
-            var upserts = new BulkWriteUpsert[0];
-            var result = new AcknowledgedBulkWriteOperationResult(1, 2, 3, 4, 5, processedRequests, upserts);
-            var writeErrors = new BulkWriteError[0];
-            var writeConcernError = new WriteConcernError(1, "message", new BsonDocument("x", 1));
+            var upserts = new BulkWriteOperationUpsert[0];
+            var result = new BulkWriteOperationResult.Acknowledged(1, 2, 3, 4, 5, processedRequests, upserts);
+            var writeErrors = new BulkWriteOperationError[0];
+            var writeConcernError = new BulkWriteConcernError(1, "message", new BsonDocument("x", 1));
             var unprocessedRequests = new WriteRequest[0];
             var subject = new BulkWriteOperationException(result, writeErrors, writeConcernError, unprocessedRequests);
 

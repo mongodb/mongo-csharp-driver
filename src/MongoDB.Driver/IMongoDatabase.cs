@@ -45,19 +45,19 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the collection.
         /// </summary>
-        /// <typeparam name="T">The document type.</typeparam>
+        /// <typeparam name="TDocument">The document type.</typeparam>
         /// <param name="name">The name.</param>
         /// <returns>An implementation of a collection.</returns>
-        IMongoCollection<T> GetCollection<T>(string name);
+        IMongoCollection<TDocument> GetCollection<TDocument>(string name);
 
         /// <summary>
         /// Gets the collection.
         /// </summary>
-        /// <typeparam name="T">The document type.</typeparam>
+        /// <typeparam name="TDocument">The document type.</typeparam>
         /// <param name="name">The name.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>An implementation of a collection.</returns>
-        IMongoCollection<T> GetCollection<T>(string name, MongoCollectionSettings settings);
+        IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings);
 
         /// <summary>
         /// Gets the collection names.

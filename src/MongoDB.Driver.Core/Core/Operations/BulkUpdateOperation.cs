@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
 
             private void SerializeUpdate(BsonBinaryWriter bsonWriter, BsonDocument update, UpdateType updateType)
             {
-                bsonWriter.PushElementNameValidator(updateType.GetElementNameValidator());
+                bsonWriter.PushElementNameValidator(ElementNameValidatorFactory.ForUpdateType(updateType));
                 try
                 {
                     var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);

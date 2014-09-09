@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IReadOnlyList<BulkWriteUpsert> CombineUpserts()
+        private IReadOnlyList<BulkWriteOperationUpsert> CombineUpserts()
         {
             if (_batchResults.Count == 1 && _batchResults[0].IndexMap.IsIdentityMap)
             {
@@ -102,12 +102,12 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private WriteConcernError CombineWriteConcernErrors()
+        private BulkWriteConcernError CombineWriteConcernErrors()
         {
             return _batchResults.Select(r => r.WriteConcernError).LastOrDefault(e => e != null);
         }
 
-        private IReadOnlyList<BulkWriteError> CombineWriteErrors()
+        private IReadOnlyList<BulkWriteOperationError> CombineWriteErrors()
         {
             if (_batchResults.Count == 1 && _batchResults[0].IndexMap.IsIdentityMap)
             {
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (!_isAcknowledged)
             {
-                return new UnacknowledgedBulkWriteOperationResult(
+                return new BulkWriteOperationResult.Unacknowledged(
                     requestCount,
                     processedRequests);
             }
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Operations
             var modifiedCount = CombineModifiedCount();
             var upserts = CombineUpserts();
 
-            return new AcknowledgedBulkWriteOperationResult(
+            return new BulkWriteOperationResult.Acknowledged(
                 requestCount,
                 matchedCount,
                 deletedCount,

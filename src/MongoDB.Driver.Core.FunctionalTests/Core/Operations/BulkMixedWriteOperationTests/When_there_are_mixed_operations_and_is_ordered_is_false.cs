@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
     {
         private BsonDocument[] _expectedDocuments;
         private WriteRequest[] _expectedProcessedRequests;
-        private BulkWriteUpsert[] _expectedUpserts;
+        private BulkWriteOperationUpsert[] _expectedUpserts;
         private WriteRequest[] _requests;
         private BulkWriteOperationResult _result;
 
@@ -63,9 +63,9 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
                 new BsonDocument { { "_id", 3 } }
             };
 
-            _expectedUpserts = new BulkWriteUpsert[]
+            _expectedUpserts = new BulkWriteOperationUpsert[]
             {
-                new BulkWriteUpsert(3, 4)
+                new BulkWriteOperationUpsert(3, 4)
             };
         }
 
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
             _result.MatchedCount.Should().Be(1);
             _result.ProcessedRequests.Should().Equal(_expectedProcessedRequests, SameAs.Predicate);
             _result.RequestCount.Should().Be(4);
-            _result.Upserts.Should().Equal(_expectedUpserts, BulkWriteUpsertEqualityComparer.Equals);
+            _result.Upserts.Should().Equal(_expectedUpserts, BulkWriteOperationUpsertEqualityComparer.Equals);
         }
 
         [Test]

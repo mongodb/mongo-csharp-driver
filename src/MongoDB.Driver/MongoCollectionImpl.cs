@@ -29,13 +29,13 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
 {
-    internal sealed class MongoCollectionImpl<T> : IMongoCollection<T>
+    internal sealed class MongoCollectionImpl<TDocument> : IMongoCollection<TDocument>
     {
         // fields
         private readonly ICluster _cluster;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly IOperationExecutor _operationExecutor;
-        private readonly IBsonSerializer<T> _serializer;
+        private readonly IBsonSerializer<TDocument> _serializer;
         private readonly MongoCollectionSettings _settings;
 
         // constructors
@@ -46,7 +46,7 @@ namespace MongoDB.Driver
             _cluster = Ensure.IsNotNull(cluster, "cluster");
             _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
 
-            _serializer = _settings.SerializerRegistry.GetSerializer<T>();
+            _serializer = _settings.SerializerRegistry.GetSerializer<TDocument>();
         }
 
         // properties
@@ -61,7 +61,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public async Task<BulkWriteResult<T>> BulkWriteAsync(BulkWriteModel<T> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteResult<TDocument>> BulkWriteAsync(BulkWriteModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(model, "model");
 
@@ -77,11 +77,11 @@ namespace MongoDB.Driver
             try
             {
                 var result = await ExecuteWriteOperation(operation, timeout, cancellationToken);
-                return BulkWriteResult<T>.FromCore(result, model.Requests);
+                return BulkWriteResult<TDocument>.FromCore(result, model.Requests);
             }
             catch(BulkWriteOperationException ex)
             {
-                throw BulkWriteException<T>.FromCore(ex, model.Requests);
+                throw BulkWriteException<TDocument>.FromCore(ex, model.Requests);
             }
         }
 
@@ -103,6 +103,39 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
+
+        public async Task<DeleteResult> DeleteManyAsync(DeleteManyModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(model, "model");
+
+            try
+            {
+                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                return DeleteResult.FromCore(result);
+            }
+            catch (BulkWriteException<TDocument> ex)
+            {
+                throw WriteException.FromBulkWriteException(ex);
+            }
+        }
+
+        public async Task<DeleteResult> DeleteOneAsync(DeleteOneModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(model, "model");
+
+            try
+            {
+                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                return DeleteResult.FromCore(result);
+            }
+            catch (BulkWriteException<TDocument> ex)
+            {
+                throw WriteException.FromBulkWriteException(ex);
+            }
+        }
+
         public Task<IReadOnlyList<TValue>> DistinctAsync<TValue>(DistinctModel<TValue> model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(model, "model");
@@ -120,7 +153,70 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
-        private void AssignId(T document)
+        public async Task InsertOneAsync(InsertOneModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(model, "model");
+
+            try
+            {
+                var bulkModel = new BulkWriteModel<TDocument>(new [] { model });
+                await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+            }
+            catch(BulkWriteException<TDocument> ex)
+            {
+                throw WriteException.FromBulkWriteException(ex);
+            }
+        }
+
+        public async Task<ReplaceOneResult> ReplaceOneAsync(ReplaceOneModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(model, "model");
+
+            try
+            {
+                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                return ReplaceOneResult.FromCore(result);
+            }
+            catch (BulkWriteException<TDocument> ex)
+            {
+                throw WriteException.FromBulkWriteException(ex);
+            }
+        }
+
+        public async Task<UpdateResult> UpdateManyAsync(UpdateManyModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(model, "model");
+
+            try
+            {
+                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                return UpdateResult.FromCore(result);
+            }
+            catch (BulkWriteException<TDocument> ex)
+            {
+                throw WriteException.FromBulkWriteException(ex);
+            }
+        }
+
+        public async Task<UpdateResult> UpdateOneAsync(UpdateOneModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(model, "model");
+
+            try
+            {
+                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                return UpdateResult.FromCore(result);
+            }
+            catch (BulkWriteException<TDocument> ex)
+            {
+                throw WriteException.FromBulkWriteException(ex);
+            }
+        }
+
+        private void AssignId(TDocument document)
         {
             var idProvider = _serializer as IBsonIdProvider;
             if (idProvider != null)
@@ -139,33 +235,33 @@ namespace MongoDB.Driver
             }
         }
         
-        private WriteRequest ConvertWriteModelToWriteRequest(WriteModel<T> model, int index)
+        private WriteRequest ConvertWriteModelToWriteRequest(WriteModel<TDocument> model, int index)
         {
             switch (model.ModelType)
             {
                 case WriteModelType.InsertOne:
-                    var insertOneModel = (InsertOneModel<T>)model;
+                    var insertOneModel = (InsertOneModel<TDocument>)model;
                     AssignId(insertOneModel.Document);
                     return new InsertRequest(new BsonDocumentWrapper(insertOneModel.Document, _serializer))
                     {
                         CorrelationId = index
                     };
-                case WriteModelType.RemoveMany:
-                    var removeManyModel = (RemoveManyModel<T>)model;
+                case WriteModelType.DeleteMany:
+                    var removeManyModel = (DeleteManyModel<TDocument>)model;
                     return new DeleteRequest(ConvertToBsonDocument(removeManyModel.Criteria))
                     {
                         CorrelationId = index,
                         Limit = 0
                     };
-                case WriteModelType.RemoveOne:
-                    var removeOneModel = (RemoveOneModel<T>)model;
+                case WriteModelType.DeleteOne:
+                    var removeOneModel = (DeleteOneModel<TDocument>)model;
                     return new DeleteRequest(ConvertToBsonDocument(removeOneModel.Criteria))
                     {
                         CorrelationId = index,
                         Limit = 1
                     };
                 case WriteModelType.ReplaceOne:
-                    var replaceOneModel = (ReplaceOneModel<T>)model;
+                    var replaceOneModel = (ReplaceOneModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Replacement,
                         ConvertToBsonDocument(replaceOneModel.Criteria),
@@ -176,7 +272,7 @@ namespace MongoDB.Driver
                         IsUpsert = replaceOneModel.IsUpsert
                     };
                 case WriteModelType.UpdateMany:
-                    var updateManyModel = (UpdateManyModel<T>)model;
+                    var updateManyModel = (UpdateManyModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Update,
                         ConvertToBsonDocument(updateManyModel.Criteria),
@@ -187,7 +283,7 @@ namespace MongoDB.Driver
                         IsUpsert = updateManyModel.IsUpsert
                     };
                 case WriteModelType.UpdateOne:
-                    var updateOneModel = (UpdateOneModel<T>)model;
+                    var updateOneModel = (UpdateOneModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Update,
                         ConvertToBsonDocument(updateOneModel.Criteria),

@@ -30,8 +30,8 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private BulkWriteOperationResult _result;
         private IReadOnlyList<WriteRequest> _unprocessedRequests;
-        private WriteConcernError _writeConcernError;
-        private IReadOnlyList<BulkWriteError> _writeErrors;
+        private BulkWriteConcernError _writeConcernError;
+        private IReadOnlyList<BulkWriteOperationError> _writeErrors;
 
         // constructors
         /// <summary>
@@ -43,8 +43,8 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="writeConcernError">The write concern error.</param>
         public BulkWriteOperationException(
             BulkWriteOperationResult result,
-            IReadOnlyList<BulkWriteError> writeErrors,
-            WriteConcernError writeConcernError,
+            IReadOnlyList<BulkWriteOperationError> writeErrors,
+            BulkWriteConcernError writeConcernError,
             IReadOnlyList<WriteRequest> unprocessedRequests)
             : base("A bulk write operation resulted in one or more errors.")
         {
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The write concern error.
         /// </value>
-        public WriteConcernError WriteConcernError
+        public BulkWriteConcernError WriteConcernError
         {
             get { return _writeConcernError; }
         }
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The write errors.
         /// </value>
-        public IReadOnlyList<BulkWriteError> WriteErrors
+        public IReadOnlyList<BulkWriteOperationError> WriteErrors
         {
             get { return _writeErrors; }
         }

@@ -1734,7 +1734,7 @@ namespace MongoDB.Driver
             var isMulti = !flags.HasFlag(RemoveFlags.Single);
             writeConcern = writeConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
-            var request = new DeleteRequest(queryDocument) { Limit = isMulti ? 1 : 0 };
+            var request = new DeleteRequest(queryDocument) { Limit = isMulti ? 0 : 1 };
             var operation = new DeleteOpcodeOperation(_collectionNamespace, request, messageEncoderSettings)
             {
                 WriteConcern = writeConcern

@@ -30,13 +30,13 @@ namespace MongoDB.Driver
         /// </summary>
         InsertOne,
         /// <summary>
-        /// A request to remove a single document.
+        /// A request to delete a single document.
         /// </summary>
-        RemoveOne,
+        DeleteOne,
         /// <summary>
-        /// A request to remove multiple documents.
+        /// A request to delete multiple documents.
         /// </summary>
-        RemoveMany,
+        DeleteMany,
         /// <summary>
         /// A request to replace a single document.
         /// </summary>

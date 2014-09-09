@@ -63,18 +63,18 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, timeout, cancellationToken);
         }
 
-        public IMongoCollection<T> GetCollection<T>(string name)
+        public IMongoCollection<TDocument> GetCollection<TDocument>(string name)
         {
-            return GetCollection<T>(name, new MongoCollectionSettings());
+            return GetCollection<TDocument>(name, new MongoCollectionSettings());
         }
 
-        public IMongoCollection<T> GetCollection<T>(string name, MongoCollectionSettings settings)
+        public IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
         {
             Ensure.IsNotNullOrEmpty(name, "name");
             Ensure.IsNotNull(settings, "settings");
 
             settings.ApplyDefaultValues(_settings);
-            return new MongoCollectionImpl<T>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
+            return new MongoCollectionImpl<TDocument>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
         public Task<IReadOnlyList<string>> GetCollectionNamesAsync(TimeSpan? timeout, CancellationToken cancellationToken)

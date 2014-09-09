@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the details of a write error for a particular request.
     /// </summary>
-    public class BulkWriteError
+    public sealed class BulkWriteOperationError
     {
         // fields
         private readonly int _code;
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _message;
 
         // constructors
-        internal BulkWriteError(int index, int code, string message, BsonDocument details)
+        public BulkWriteOperationError(int index, int code, string message, BsonDocument details)
         {
             _code = code;
             _details = details;
@@ -89,10 +89,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        internal BulkWriteError WithMappedIndex(IndexMap indexMap)
+        internal BulkWriteOperationError WithMappedIndex(IndexMap indexMap)
         {
             var mappedIndex = indexMap.Map(_index);
-            return (_index == mappedIndex) ? this : new BulkWriteError(mappedIndex, Code, Message, Details);
+            return (_index == mappedIndex) ? this : new BulkWriteOperationError(mappedIndex, Code, Message, Details);
         }
     }
 }

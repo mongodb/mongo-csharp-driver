@@ -65,6 +65,7 @@
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="Core\Operations\BulkWriteOperationException.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\CollectionElementNameValidator.cs" />
+    <Compile Include="Core\Operations\ElementNameValidators\ElementNameValidatorFactory.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\UpdateElementNameValidator.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\UpdateOrReplacementElementNameValidator.cs" />
     <Compile Include="Core\Operations\ICommandOperation.cs" />
@@ -176,7 +177,6 @@
     <Compile Include="Core\Misc\ToStringComparer.cs" />
     <Compile Include="Core\Misc\IdGenerator.cs" />
     <Compile Include="Core\Misc\InterlockedInt32.cs" />
-    <Compile Include="Core\Operations\AcknowledgedBulkWriteOperationResult.cs" />
     <Compile Include="Core\Operations\BulkDeleteOperation.cs" />
     <Compile Include="Core\Operations\BulkDeleteOperationEmulator.cs" />
     <Compile Include="Core\Operations\BulkInsertOperation.cs" />
@@ -188,12 +188,11 @@
     <Compile Include="Core\Operations\BulkUpdateOperationEmulator.cs" />
     <Compile Include="Core\Operations\BulkWriteBatchResult.cs" />
     <Compile Include="Core\Operations\BulkWriteBatchResultCombiner.cs" />
-    <Compile Include="Core\Operations\BulkWriteError.cs" />
+    <Compile Include="Core\Operations\BulkWriteOperationError.cs" />
     <Compile Include="Core\Operations\BulkWriteOperationResult.cs" />
-    <Compile Include="Core\Operations\BulkWriteUpsert.cs" />
+    <Compile Include="Core\Operations\BulkWriteOperationUpsert.cs" />
     <Compile Include="Core\Operations\InsertRequest.cs" />
-    <Compile Include="Core\Operations\UnacknowledgedBulkWriteOperationResult.cs" />
-    <Compile Include="Core\Operations\WriteConcernError.cs" />
+    <Compile Include="Core\Operations\BulkWriteConcernError.cs" />
     <Compile Include="WriteConcernResult.cs" />
     <Compile Include="Core\Operations\WriteRequest.cs" />
     <Compile Include="MongoAuthenticationException.cs" />

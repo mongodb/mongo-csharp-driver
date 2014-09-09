@@ -24,19 +24,19 @@ using MongoDB.Driver.Core.Operations;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Model for removing many documents.
+    /// Model for deleting a single document.
     /// </summary>
-    public sealed class RemoveManyModel<T> : WriteModel<T>
+    public sealed class DeleteOneModel<T> : WriteModel<T>
     {
         // fields
         private readonly object _criteria;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="RemoveManyModel{T}"/> class.
+        /// Initializes a new instance of the <see cref="DeleteOneModel{T}"/> class.
         /// </summary>
         /// <param name="criteria">The criteria.</param>
-        public RemoveManyModel(object criteria)
+        public DeleteOneModel(object criteria)
         {
             _criteria = Ensure.IsNotNull(criteria, "criteria");
         }
@@ -55,7 +55,7 @@ namespace MongoDB.Driver
         /// </summary>
         public override WriteModelType ModelType
         {
-            get { return WriteModelType.RemoveMany; }
+            get { return WriteModelType.DeleteOne; }
         }
     }
 }

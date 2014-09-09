@@ -23,20 +23,4 @@ namespace MongoDB.Driver.Core.Operations
         Update,
         Replacement
     }
-
-    internal static class UpdateRequestTypeExtensions
-    {
-        public static IElementNameValidator GetElementNameValidator(this UpdateType type)
-        {
-            switch(type)
-            {
-                case UpdateType.Replacement:
-                    return CollectionElementNameValidator.Instance;
-                case UpdateType.Update:
-                    return UpdateElementNameValidator.Instance;
-                default:
-                    return new UpdateOrReplacementElementNameValidator();
-            }
-        }
-    }
 }

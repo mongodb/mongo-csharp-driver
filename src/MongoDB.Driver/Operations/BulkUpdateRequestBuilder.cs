@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Operations;
 namespace MongoDB.Driver
 {
@@ -47,7 +48,8 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("document");
             }
-            Update(UpdateType.Replacement, new BsonDocumentWrapper(document), false);
+            var serializer = BsonSerializer.LookupSerializer<TDocument>();
+            Update(UpdateType.Replacement, new BsonDocumentWrapper(document, serializer), false);
         }
 
         /// <summary>
@@ -60,7 +62,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            Update(UpdateType.Update, update.ToBsonDocument(), true);
+            Update(UpdateType.Update, new BsonDocumentWrapper(update), true);
         }
 
         /// <summary>
@@ -73,7 +75,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            Update(UpdateType.Update, update.ToBsonDocument(), false);
+            Update(UpdateType.Update, new BsonDocumentWrapper(update), false);
         }
 
         // private methods
