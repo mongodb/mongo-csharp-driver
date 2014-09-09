@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -174,8 +175,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = _writeConcern
             };
-            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
-            return result.Response;
+            var results = await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return results.First().Response;
         }
     }
 }

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -39,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 
-    public class InsertOpcodeOperation<TDocument> : IWriteOperation<WriteConcernResult>
+    public class InsertOpcodeOperation<TDocument> : IWriteOperation<IEnumerable<WriteConcernResult>>
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
@@ -50,7 +51,6 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxMessageSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IBsonSerializer<TDocument> _serializer;
-        private Func<bool> _shouldSendGetLastError;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
@@ -107,12 +107,6 @@ namespace MongoDB.Driver.Core.Operations
             get { return _serializer; }
         }
 
-        public Func<bool> ShouldSendGetLastError
-        {
-            get { return _shouldSendGetLastError; }
-            set { _shouldSendGetLastError = value; }
-        }
-
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -120,21 +114,21 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private InsertWireProtocol<TDocument> CreateProtocol()
+        private InsertWireProtocol<TDocument> CreateProtocol(WriteConcern batchWriteConcern,Func<bool> shouldSendGetLastError)
         {
             return new InsertWireProtocol<TDocument>(
                 _collectionNamespace,
-                _writeConcern,
+                batchWriteConcern,
                 _serializer,
                 _messageEncoderSettings,
                 _documentSource,
                 _maxBatchCount,
                 _maxMessageSize,
                 _continueOnError,
-                _shouldSendGetLastError);
+                shouldSendGetLastError);
         }
 
-        public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(connection, "connection");
 
@@ -148,16 +142,16 @@ namespace MongoDB.Driver.Core.Operations
                     MaxMessageSize = _maxMessageSize,
                     WriteConcern = _writeConcern
                 };
-                return await emulator.ExecuteAsync(connection, timeout, cancellationToken);
+                var result = await emulator.ExecuteAsync(connection, timeout, cancellationToken);
+                return new[] { result };
             }
             else
             {
-                var protocol = CreateProtocol();
-                return await protocol.ExecuteAsync(connection, timeout, cancellationToken);
+                return await ExecuteBatchesAsync(connection, timeout, cancellationToken);
             }
         }
 
-        public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
             var slidingTimeout = new SlidingTimeout(timeout);
@@ -166,6 +160,66 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return await ExecuteAsync(connection, slidingTimeout, cancellationToken);
             }
+        }
+
+        private async Task<IEnumerable<WriteConcernResult>> ExecuteBatchesAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            var slidingTimeout = new SlidingTimeout(timeout);
+
+            var results = _writeConcern.Enabled ? new List<WriteConcernResult>() : null;
+            Exception finalException = null;
+
+            WriteConcern batchWriteConcern = _writeConcern;
+            Func<bool> shouldSendGetLastError = null;
+            if (!_writeConcern.Enabled && !_continueOnError)
+            {
+                batchWriteConcern = WriteConcern.Acknowledged;
+                shouldSendGetLastError = () => _documentSource.HasMore;
+            }
+
+            while (_documentSource.HasMore)
+            {
+                var protocol = CreateProtocol(batchWriteConcern, shouldSendGetLastError);
+
+                WriteConcernResult result;
+                try
+                {
+                    result = await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                }
+                catch (WriteConcernException ex)
+                {
+                    result = ex.WriteConcernResult;
+                    if (_continueOnError)
+                    {
+                        finalException = ex;
+                    }
+                    else if (_writeConcern.Enabled)
+                    {
+                        results.Add(result);
+                        ex.Data["results"] = results;
+                        throw;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                if (results != null)
+                {
+                    results.Add(result);
+                }
+
+                _documentSource.ClearBatch();
+            }
+
+            if (_writeConcern.Enabled && finalException != null)
+            {
+                finalException.Data["results"] = results;
+                throw finalException;
+            }
+
+            return results;
         }
     }
 }

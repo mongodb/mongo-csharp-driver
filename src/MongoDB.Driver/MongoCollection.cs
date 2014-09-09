@@ -28,7 +28,6 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.Sync;
 using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -1394,84 +1393,29 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var continueOnError = options.Flags.HasFlag(InsertFlags.ContinueOnError);
-            var serializer = BsonSerializer.LookupSerializer<TNominalType>();
-            var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
-
             if (_settings.AssignIdOnInsert)
             {
                 documents = documents.Select(d => { AssignId(d, null); return d; });
             }
 
-            using (var binding = _server.GetWriteBinding())
-            using (var connectionSource = binding.GetWriteConnectionSource())
-            using (var connection = connectionSource.GetConnection())
+            using (var enumerator = documents.GetEnumerator())
             {
-                var results = writeConcern.Enabled ? new List<WriteConcernResult>() : null;
-                var originalWriteConcern = writeConcern;
-                Exception finalException = null;
+                var documentSource = new BatchableSource<TNominalType>(enumerator);
+                var serializer = BsonSerializer.LookupSerializer<TNominalType>();
+                var messageEncoderSettings = GetMessageEncoderSettings();
+                var continueOnError = options.Flags.HasFlag(InsertFlags.ContinueOnError);
+                var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
 
-                using (var enumerator = documents.GetEnumerator())
+                var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documentSource, serializer, messageEncoderSettings)
                 {
-                    var documentSource = new BatchableSource<TNominalType>(enumerator);
+                    ContinueOnError = continueOnError,
+                    WriteConcern = writeConcern
+                };
 
-                    var messageEncoderSettings = GetMessageEncoderSettings();
-                    Func<bool> shouldSendGetLastError = null;
-                    if (!writeConcern.Enabled && !continueOnError)
-                    {
-                        writeConcern = WriteConcern.Acknowledged;
-                        shouldSendGetLastError = () => documentSource.HasMore;
-                    }
-
-                    while (documentSource.HasMore)
-                    {
-                        var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documentSource, serializer, messageEncoderSettings)
-                        {
-                            ContinueOnError = continueOnError,
-                            WriteConcern = writeConcern,
-                            ShouldSendGetLastError = shouldSendGetLastError
-                        };
-
-                        WriteConcernResult result;
-                        try
-                        {
-                            result = operation.ExecuteAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
-                        }
-                        catch (WriteConcernException ex)
-                        {
-                            result = ex.WriteConcernResult;
-                            if (continueOnError)
-                            {
-                                finalException = ex;
-                            }
-                            else if (originalWriteConcern.Enabled)
-                            {
-                                results.Add(result);
-                                ex.Data["results"] = results;
-                                throw;
-                            }
-                            else
-                            {
-                                return null;
-                            }
-                        }
-
-                        if (results != null)
-                        {
-                            results.Add(result);
-                        }
-
-                        documentSource.ClearBatch();
-                    }
-                }
-
-                if (originalWriteConcern.Enabled && finalException != null)
+                using (var binding = _server.GetWriteBinding())
                 {
-                    finalException.Data["results"] = results;
-                    throw finalException;
+                    return operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
                 }
-                
-                return results;
             }
         }
 

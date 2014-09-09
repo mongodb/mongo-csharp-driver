@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -41,7 +42,7 @@ namespace MongoDB.Driver.Core.Operations.InsertOpcodeOperationTests
             var documentSource = new BatchableSource<BsonDocument>(new[] { _document });
             var operation = new InsertOpcodeOperation<BsonDocument>(CollectionNamespace, documentSource, BsonDocumentSerializer.Instance, MessageEncoderSettings);
 
-            _result = ExecuteOperationAsync(operation).GetAwaiter().GetResult();
+            _result = ExecuteOperationAsync(operation).GetAwaiter().GetResult().First();
         }
 
         [Test]

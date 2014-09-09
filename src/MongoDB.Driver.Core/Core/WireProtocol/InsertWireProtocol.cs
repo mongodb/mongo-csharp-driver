@@ -46,8 +46,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             int? maxBatchCount,
             int? maxMessageSize,
             bool continueOnError,
-            Func<bool> shouldSendGetLastEror = null)
-            : base(collectionNamespace, messageEncoderSettings, writeConcern, shouldSendGetLastEror)
+            Func<bool> shouldSendGetLastError = null)
+            : base(collectionNamespace, messageEncoderSettings, writeConcern, shouldSendGetLastError)
         {
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
