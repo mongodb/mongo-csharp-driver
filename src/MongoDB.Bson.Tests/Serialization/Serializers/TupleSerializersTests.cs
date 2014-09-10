@@ -56,18 +56,18 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool>();
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(boolSerializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
         }
 
         [Test]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var t1Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
 
             var subject = new TupleSerializer<bool>(
-                t1Serializer);
+                item1Serializer);
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(t1Serializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
         }
 
         [Test]
@@ -121,17 +121,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 false);
             return new C { Id = 1, T = tuple };
         }
-
-        // nested types
-        private static class Reflector
-        {
-            public static IBsonSerializer _txSerializer(TupleSerializer<bool> instance, int x)
-            {
-                var fieldName = string.Format("_t{0}Serializer", x);
-                var field = instance.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-                return (IBsonSerializer)field.GetValue(instance);
-            }
-        }
     }
 
     [TestFixture]
@@ -163,22 +152,22 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int>();
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(intSerializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
         }
 
         [Test]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var t1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t2Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
 
             var subject = new TupleSerializer<bool, int>(
-                t1Serializer,
-                t2Serializer);
+                item1Serializer,
+                item2Serializer);
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(t1Serializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(t2Serializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
         }
 
         [Test]
@@ -232,17 +221,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 false, 1);
             return new C { Id = 1, T = tuple };
         }
-
-        // nested types
-        private static class Reflector
-        {
-            public static IBsonSerializer _txSerializer(TupleSerializer<bool, int> instance, int x)
-            {
-                var fieldName = string.Format("_t{0}Serializer", x);
-                var field = instance.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-                return (IBsonSerializer)field.GetValue(instance);
-            }
-        }
     }
 
     [TestFixture]
@@ -274,26 +252,26 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool>();
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(boolSerializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
         }
 
         [Test]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var t1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t3Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
 
             var subject = new TupleSerializer<bool, int, bool>(
-                t1Serializer,
-                t2Serializer,
-                t3Serializer);
+                item1Serializer,
+                item2Serializer,
+                item3Serializer);
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(t1Serializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(t2Serializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(t3Serializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
         }
 
         [Test]
@@ -347,17 +325,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 false, 1, true);
             return new C { Id = 1, T = tuple };
         }
-
-        // nested types
-        private static class Reflector
-        {
-            public static IBsonSerializer _txSerializer(TupleSerializer<bool, int, bool> instance, int x)
-            {
-                var fieldName = string.Format("_t{0}Serializer", x);
-                var field = instance.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-                return (IBsonSerializer)field.GetValue(instance);
-            }
-        }
     }
 
     [TestFixture]
@@ -389,30 +356,30 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool, int>();
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 4), Is.SameAs(intSerializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item4Serializer, Is.SameAs(intSerializer));
         }
 
         [Test]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var t1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t3Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t4Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item4Serializer = Substitute.For<IBsonSerializer<int>>();
 
             var subject = new TupleSerializer<bool, int, bool, int>(
-                t1Serializer,
-                t2Serializer,
-                t3Serializer,
-                t4Serializer);
+                item1Serializer,
+                item2Serializer,
+                item3Serializer,
+                item4Serializer);
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(t1Serializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(t2Serializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(t3Serializer));
-            Assert.That(Reflector._txSerializer(subject, 4), Is.SameAs(t4Serializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
+            Assert.That(subject.Item4Serializer, Is.SameAs(item4Serializer));
         }
 
         [Test]
@@ -466,17 +433,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 false, 1, true, 2);
             return new C { Id = 1, T = tuple };
         }
-
-        // nested types
-        private static class Reflector
-        {
-            public static IBsonSerializer _txSerializer(TupleSerializer<bool, int, bool, int> instance, int x)
-            {
-                var fieldName = string.Format("_t{0}Serializer", x);
-                var field = instance.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-                return (IBsonSerializer)field.GetValue(instance);
-            }
-        }
     }
 
     [TestFixture]
@@ -508,34 +464,34 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool, int, bool>();
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 4), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 5), Is.SameAs(boolSerializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item4Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item5Serializer, Is.SameAs(boolSerializer));
         }
 
         [Test]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var t1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t3Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t4Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t5Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item4Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item5Serializer = Substitute.For<IBsonSerializer<bool>>();
 
             var subject = new TupleSerializer<bool, int, bool, int, bool>(
-                t1Serializer,
-                t2Serializer,
-                t3Serializer,
-                t4Serializer,
-                t5Serializer);
+                item1Serializer,
+                item2Serializer,
+                item3Serializer,
+                item4Serializer,
+                item5Serializer);
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(t1Serializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(t2Serializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(t3Serializer));
-            Assert.That(Reflector._txSerializer(subject, 4), Is.SameAs(t4Serializer));
-            Assert.That(Reflector._txSerializer(subject, 5), Is.SameAs(t5Serializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
+            Assert.That(subject.Item4Serializer, Is.SameAs(item4Serializer));
+            Assert.That(subject.Item5Serializer, Is.SameAs(item5Serializer));
         }
 
         [Test]
@@ -589,17 +545,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 false, 1, true, 2, false);
             return new C { Id = 1, T = tuple };
         }
-
-        // nested types
-        private static class Reflector
-        {
-            public static IBsonSerializer _txSerializer(TupleSerializer<bool, int, bool, int, bool> instance, int x)
-            {
-                var fieldName = string.Format("_t{0}Serializer", x);
-                var field = instance.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-                return (IBsonSerializer)field.GetValue(instance);
-            }
-        }
     }
 
     [TestFixture]
@@ -631,38 +576,38 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int>();
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 4), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 5), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 6), Is.SameAs(intSerializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item4Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item5Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item6Serializer, Is.SameAs(intSerializer));
         }
 
         [Test]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var t1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t3Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t4Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t5Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t6Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item4Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item5Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item6Serializer = Substitute.For<IBsonSerializer<int>>();
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int>(
-                t1Serializer,
-                t2Serializer,
-                t3Serializer,
-                t4Serializer,
-                t5Serializer,
-                t6Serializer);
+                item1Serializer,
+                item2Serializer,
+                item3Serializer,
+                item4Serializer,
+                item5Serializer,
+                item6Serializer);
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(t1Serializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(t2Serializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(t3Serializer));
-            Assert.That(Reflector._txSerializer(subject, 4), Is.SameAs(t4Serializer));
-            Assert.That(Reflector._txSerializer(subject, 5), Is.SameAs(t5Serializer));
-            Assert.That(Reflector._txSerializer(subject, 6), Is.SameAs(t6Serializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
+            Assert.That(subject.Item4Serializer, Is.SameAs(item4Serializer));
+            Assert.That(subject.Item5Serializer, Is.SameAs(item5Serializer));
+            Assert.That(subject.Item6Serializer, Is.SameAs(item6Serializer));
         }
 
         [Test]
@@ -716,17 +661,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 false, 1, true, 2, false, 3);
             return new C { Id = 1, T = tuple };
         }
-
-        // nested types
-        private static class Reflector
-        {
-            public static IBsonSerializer _txSerializer(TupleSerializer<bool, int, bool, int, bool, int> instance, int x)
-            {
-                var fieldName = string.Format("_t{0}Serializer", x);
-                var field = instance.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-                return (IBsonSerializer)field.GetValue(instance);
-            }
-        }
     }
 
     [TestFixture]
@@ -758,42 +692,42 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int, bool>();
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 4), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 5), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 6), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 7), Is.SameAs(boolSerializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item4Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item5Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item6Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item7Serializer, Is.SameAs(boolSerializer));
         }
 
         [Test]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var t1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t3Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t4Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t5Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t6Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t7Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item4Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item5Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item6Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item7Serializer = Substitute.For<IBsonSerializer<bool>>();
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int, bool>(
-                t1Serializer,
-                t2Serializer,
-                t3Serializer,
-                t4Serializer,
-                t5Serializer,
-                t6Serializer,
-                t7Serializer);
+                item1Serializer,
+                item2Serializer,
+                item3Serializer,
+                item4Serializer,
+                item5Serializer,
+                item6Serializer,
+                item7Serializer);
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(t1Serializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(t2Serializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(t3Serializer));
-            Assert.That(Reflector._txSerializer(subject, 4), Is.SameAs(t4Serializer));
-            Assert.That(Reflector._txSerializer(subject, 5), Is.SameAs(t5Serializer));
-            Assert.That(Reflector._txSerializer(subject, 6), Is.SameAs(t6Serializer));
-            Assert.That(Reflector._txSerializer(subject, 7), Is.SameAs(t7Serializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
+            Assert.That(subject.Item4Serializer, Is.SameAs(item4Serializer));
+            Assert.That(subject.Item5Serializer, Is.SameAs(item5Serializer));
+            Assert.That(subject.Item6Serializer, Is.SameAs(item6Serializer));
+            Assert.That(subject.Item7Serializer, Is.SameAs(item7Serializer));
         }
 
         [Test]
@@ -847,17 +781,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 false, 1, true, 2, false, 3, true);
             return new C { Id = 1, T = tuple };
         }
-
-        // nested types
-        private static class Reflector
-        {
-            public static IBsonSerializer _txSerializer(TupleSerializer<bool, int, bool, int, bool, int, bool> instance, int x)
-            {
-                var fieldName = string.Format("_t{0}Serializer", x);
-                var field = instance.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-                return (IBsonSerializer)field.GetValue(instance);
-            }
-        }
     }
 
     [TestFixture]
@@ -890,46 +813,46 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int, bool, Tuple<int>>();
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 4), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 5), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 6), Is.SameAs(intSerializer));
-            Assert.That(Reflector._txSerializer(subject, 7), Is.SameAs(boolSerializer));
-            Assert.That(Reflector._txSerializer(subject, 8), Is.SameAs(restSerializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item4Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item5Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.Item6Serializer, Is.SameAs(intSerializer));
+            Assert.That(subject.Item7Serializer, Is.SameAs(boolSerializer));
+            Assert.That(subject.RestSerializer, Is.SameAs(restSerializer));
         }
 
         [Test]
         public void constructor_with_serializers_should_initialize_instance()
         {
-            var t1Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t2Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t3Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t4Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t5Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var t6Serializer = Substitute.For<IBsonSerializer<int>>();
-            var t7Serializer = Substitute.For<IBsonSerializer<bool>>();
-            var tRestSerializer = Substitute.For<IBsonSerializer<Tuple<int>>>();
+            var item1Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item2Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item3Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item4Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item5Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var item6Serializer = Substitute.For<IBsonSerializer<int>>();
+            var item7Serializer = Substitute.For<IBsonSerializer<bool>>();
+            var restSerializer = Substitute.For<IBsonSerializer<Tuple<int>>>();
 
             var subject = new TupleSerializer<bool, int, bool, int, bool, int, bool, Tuple<int>>(
-                t1Serializer,
-                t2Serializer,
-                t3Serializer,
-                t4Serializer,
-                t5Serializer,
-                t6Serializer,
-                t7Serializer,
-                tRestSerializer);
+                item1Serializer,
+                item2Serializer,
+                item3Serializer,
+                item4Serializer,
+                item5Serializer,
+                item6Serializer,
+                item7Serializer,
+                restSerializer);
 
-            Assert.That(Reflector._txSerializer(subject, 1), Is.SameAs(t1Serializer));
-            Assert.That(Reflector._txSerializer(subject, 2), Is.SameAs(t2Serializer));
-            Assert.That(Reflector._txSerializer(subject, 3), Is.SameAs(t3Serializer));
-            Assert.That(Reflector._txSerializer(subject, 4), Is.SameAs(t4Serializer));
-            Assert.That(Reflector._txSerializer(subject, 5), Is.SameAs(t5Serializer));
-            Assert.That(Reflector._txSerializer(subject, 6), Is.SameAs(t6Serializer));
-            Assert.That(Reflector._txSerializer(subject, 7), Is.SameAs(t7Serializer));
-            Assert.That(Reflector._txSerializer(subject, 8), Is.SameAs(tRestSerializer));
+            Assert.That(subject.Item1Serializer, Is.SameAs(item1Serializer));
+            Assert.That(subject.Item2Serializer, Is.SameAs(item2Serializer));
+            Assert.That(subject.Item3Serializer, Is.SameAs(item3Serializer));
+            Assert.That(subject.Item4Serializer, Is.SameAs(item4Serializer));
+            Assert.That(subject.Item5Serializer, Is.SameAs(item5Serializer));
+            Assert.That(subject.Item6Serializer, Is.SameAs(item6Serializer));
+            Assert.That(subject.Item7Serializer, Is.SameAs(item7Serializer));
+            Assert.That(subject.RestSerializer, Is.SameAs(restSerializer));
         }
 
         [Test]
@@ -982,17 +905,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var tuple = new Tuple<bool, int, bool, int, bool, int, bool, Tuple<int>>(
                 false, 1, true, 2, false, 3, true, new Tuple<int>(4));
             return new C { Id = 1, T = tuple };
-        }
-
-        // nested types
-        private static class Reflector
-        {
-            public static IBsonSerializer _txSerializer(TupleSerializer<bool, int, bool, int, bool, int, bool, Tuple<int>> instance, int x)
-            {
-                var fieldName = string.Format("_t{0}Serializer", x == 8 ? "Rest" : x.ToString());
-                var field = instance.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-                return (IBsonSerializer)field.GetValue(instance);
-            }
         }
     }
 }
