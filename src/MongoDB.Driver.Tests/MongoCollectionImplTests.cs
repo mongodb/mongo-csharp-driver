@@ -331,6 +331,104 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task FindOneAndDelete_should_execute_the_FindOneAndDeleteOperation()
+        {
+            var criteria = BsonDocument.Parse("{x: 1}");
+            var projection = BsonDocument.Parse("{x: 1}");
+            var sort = BsonDocument.Parse("{a: -1}");
+            var model = new FindOneAndDeleteModel(criteria)
+            {
+                Projection = projection,
+                Sort = sort,
+                MaxTime = TimeSpan.FromSeconds(2)
+            };
+
+            await _subject.FindOneAndDeleteAsync<BsonDocument>(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<FindOneAndDeleteOperation<BsonDocument>>();
+            var operation = (FindOneAndDeleteOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Criteria.Should().Be(criteria);
+            operation.Projection.Should().Be(projection);
+            operation.Sort.Should().Be(sort);
+            operation.MaxTime.Should().Be(model.MaxTime);
+        }
+
+        [Test]
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task FindOneAndReplace_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, bool returnOriginal)
+        {
+            var criteria = BsonDocument.Parse("{x: 1}");
+            var replacement = BsonDocument.Parse("{a: 2}");
+            var projection = BsonDocument.Parse("{x: 1}");
+            var sort = BsonDocument.Parse("{a: -1}");
+            var model = new FindOneAndReplaceModel<BsonDocument>(criteria, replacement)
+            {
+                IsUpsert = isUpsert,
+                Projection = projection,
+                ReturnOriginal = returnOriginal,
+                Sort = sort,
+                MaxTime = TimeSpan.FromSeconds(2)
+            };
+
+            await _subject.FindOneAndReplaceAsync<BsonDocument>(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<FindOneAndReplaceOperation<BsonDocument>>();
+            var operation = (FindOneAndReplaceOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Criteria.Should().Be(criteria);
+            operation.Replacement.Should().Be(replacement);
+            operation.IsUpsert.Should().Be(isUpsert);
+            operation.ReturnOriginal.Should().Be(returnOriginal);
+            operation.Projection.Should().Be(projection);
+            operation.Sort.Should().Be(sort);
+            operation.MaxTime.Should().Be(model.MaxTime);
+        }
+
+        [Test]
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task FindOneAndUpdate_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, bool returnOriginal)
+        {
+            var criteria = BsonDocument.Parse("{x: 1}");
+            var update = BsonDocument.Parse("{$set: {a: 2}}");
+            var projection = BsonDocument.Parse("{x: 1}");
+            var sort = BsonDocument.Parse("{a: -1}");
+            var model = new FindOneAndUpdateModel(criteria, update)
+            {
+                IsUpsert = isUpsert,
+                Projection = projection,
+                ReturnOriginal = returnOriginal,
+                Sort = sort,
+                MaxTime = TimeSpan.FromSeconds(2)
+            };
+
+            await _subject.FindOneAndUpdateAsync<BsonDocument>(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<FindOneAndUpdateOperation<BsonDocument>>();
+            var operation = (FindOneAndUpdateOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Criteria.Should().Be(criteria);
+            operation.Update.Should().Be(update);
+            operation.IsUpsert.Should().Be(isUpsert);
+            operation.ReturnOriginal.Should().Be(returnOriginal);
+            operation.Projection.Should().Be(projection);
+            operation.Sort.Should().Be(sort);
+            operation.MaxTime.Should().Be(model.MaxTime);
+        }
+
+        [Test]
         public async Task InsertOneAsync_should_execute_the_BulkMixedOperation()
         {
             var document = BsonDocument.Parse("{_id:1,a:1}");

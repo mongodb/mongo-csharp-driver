@@ -49,6 +49,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MongoDB.Driver.Core.Tests\AssertionExtensions.cs">
+      <Link>AssertionExtensions.cs</Link>
+    </Compile>
     <Compile Include="Core\Helpers\BulkWriteOperationUpsertEqualityComparer.cs" />
     <Compile Include="ClusterUsingTest.cs" />
     <Compile Include="CollectionUsingSpecification.cs" />
@@ -58,6 +61,20 @@
     <Compile Include="Core\Operations\DatabaseExistsOperationTests\When_a_database_does_not_exist.cs" />
     <Compile Include="Core\Operations\DatabaseExistsOperationTests\When_a_database_exists.cs" />
     <Compile Include="Core\Operations\DropDatabaseOperationTests\When_dropping_an_existing_database.cs" />
+    <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_updating_a_document_that_does_exist_and_returning_the_original.cs" />
+    <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_updating_a_document_that_does_exist_and_returning_the_updated.cs" />
+    <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_updating_a_document_that_does_not_exist_and_returning_the_original.cs" />
+    <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_updating_a_document_that_does_not_exist_and_returning_the_updated.cs" />
+    <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_upserting_a_document_that_does_not_exist_and_returning_the_original.cs" />
+    <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_upserting_a_document_that_does_not_exist_and_returning_the_updated.cs" />
+    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_replacing_a_document_that_does_exist_and_returning_the_replacement.cs" />
+    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_replacing_a_document_that_does_exist_and_returning_the_original.cs" />
+    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_replacing_a_document_that_does_not_exist_and_returning_the_replacement.cs" />
+    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_repserting_a_document_that_does_not_exist_and_returning_the_replacement.cs" />
+    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_repserting_a_document_that_does_not_exist_and_returning_the_original.cs" />
+    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_replacing_a_document_that_does_not_exist_and_returning_the_original.cs" />
+    <Compile Include="Core\Operations\FindOneAndDeleteOperationTests\When_deleting_a_document_that_does_exist.cs" />
+    <Compile Include="Core\Operations\FindOneAndDeleteOperationTests\When_deleting_a_document_that_does_not_exist.cs" />
     <Compile Include="Core\Operations\ListCollectionNamesOperationTests\When_listing_collection_names_on_database_that_does_not_exist.cs" />
     <Compile Include="Core\Operations\ListCollectionNamesOperationTests\When_listing_collection_names_on_an_existing_database.cs" />
     <Compile Include="Core\Operations\ListsDatabaseNamesOperationTests\When_listing_database_names.cs" />

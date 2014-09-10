@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public override TValue Deserialize(Bson.Serialization.BsonDeserializationContext context)
+        public override TValue Deserialize(BsonDeserializationContext context)
         {
             var reader = context.Reader;
             TValue value = default(TValue);

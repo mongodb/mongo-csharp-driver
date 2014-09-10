@@ -34,6 +34,7 @@ namespace MongoDB.Driver
         // fields
         private readonly ICluster _cluster;
         private readonly CollectionNamespace _collectionNamespace;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IOperationExecutor _operationExecutor;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly MongoCollectionSettings _settings;
@@ -47,6 +48,12 @@ namespace MongoDB.Driver
             _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
 
             _serializer = _settings.SerializerRegistry.GetSerializer<TDocument>();
+            _messageEncoderSettings = new MessageEncoderSettings
+            {
+                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
+                { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Helper.StrictUtf8Encoding },
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Helper.StrictUtf8Encoding }
+            };
         }
 
         // properties
@@ -68,7 +75,7 @@ namespace MongoDB.Driver
             var operation = new BulkMixedWriteOperation(
                 _collectionNamespace,
                 model.Requests.Select(ConvertWriteModelToWriteRequest),
-                GetMessageEncoderSettings())
+                _messageEncoderSettings)
             {
                 IsOrdered = model.IsOrdered,
                 WriteConcern = _settings.WriteConcern
@@ -91,7 +98,7 @@ namespace MongoDB.Driver
 
             var operation = new CountOperation(
                 _collectionNamespace,
-                GetMessageEncoderSettings())
+                _messageEncoderSettings)
             {
                 Criteria = ConvertToBsonDocument(model.Criteria),
                 Hint = model.Hint is string ? BsonValue.Create((string)model.Hint) : ConvertToBsonDocument(model.Hint),
@@ -144,13 +151,68 @@ namespace MongoDB.Driver
                 _collectionNamespace,
                 model.ValueSerializer ?? _settings.SerializerRegistry.GetSerializer<TValue>(),
                 model.FieldName,
-                GetMessageEncoderSettings())
+                _messageEncoderSettings)
             {
                 Criteria = ConvertToBsonDocument(model.Criteria),
                 MaxTime = model.MaxTime
             };
 
             return ExecuteReadOperation(operation, timeout, cancellationToken);
+        }
+
+        public Task<TResult> FindOneAndDeleteAsync<TResult>(FindOneAndDeleteModel model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            var operation = new FindOneAndDeleteOperation<TResult>(
+                _collectionNamespace,
+                ConvertToBsonDocument(model.Criteria),
+                _settings.SerializerRegistry.GetSerializer<TResult>(),
+                _messageEncoderSettings)
+            {
+                MaxTime = model.MaxTime,
+                Projection = ConvertToBsonDocument(model.Projection),
+                Sort = ConvertToBsonDocument(model.Sort)
+            };
+
+            return ExecuteWriteOperation(operation, timeout, cancellationToken);
+
+        }
+
+        public Task<TResult> FindOneAndReplaceAsync<TResult>(FindOneAndReplaceModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            var operation = new FindOneAndReplaceOperation<TResult>(
+                _collectionNamespace,
+                ConvertToBsonDocument(model.Criteria),
+                ConvertToBsonDocument(model.Replacement),
+                _settings.SerializerRegistry.GetSerializer<TResult>(),
+                _messageEncoderSettings)
+            {
+                IsUpsert = model.IsUpsert,
+                MaxTime = model.MaxTime,
+                Projection = ConvertToBsonDocument(model.Projection),
+                ReturnOriginal = model.ReturnOriginal,
+                Sort = ConvertToBsonDocument(model.Sort)
+            };
+
+            return ExecuteWriteOperation(operation, timeout, cancellationToken);
+        }
+
+        public Task<TResult> FindOneAndUpdateAsync<TResult>(FindOneAndUpdateModel model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            var operation = new FindOneAndUpdateOperation<TResult>(
+                _collectionNamespace,
+                ConvertToBsonDocument(model.Criteria),
+                ConvertToBsonDocument(model.Update),
+                _settings.SerializerRegistry.GetSerializer<TResult>(),
+                _messageEncoderSettings)
+            {
+                IsUpsert = model.IsUpsert,
+                MaxTime = model.MaxTime,
+                Projection = ConvertToBsonDocument(model.Projection),
+                ReturnOriginal = model.ReturnOriginal,
+                Sort = ConvertToBsonDocument(model.Sort)
+            };
+
+            return ExecuteWriteOperation(operation, timeout, cancellationToken);
         }
 
         public async Task InsertOneAsync(InsertOneModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
@@ -334,16 +396,6 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
             }
-        }
-
-        private MessageEncoderSettings GetMessageEncoderSettings()
-        {
-            return new MessageEncoderSettings
-            {
-                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
-                { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Helper.StrictUtf8Encoding },
-                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Helper.StrictUtf8Encoding }
-            };
         }
     }
 }

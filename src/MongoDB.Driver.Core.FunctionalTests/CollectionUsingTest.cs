@@ -43,7 +43,8 @@ namespace MongoDB.Driver
 
         protected virtual void DropCollection()
         {
-            // TODO: implement DropCollection
+            var operation = new DropCollectionOperation(CollectionNamespace, MessageEncoderSettings);
+            ExecuteOperation(operation);
         }
 
         protected virtual string GetCollectionName()

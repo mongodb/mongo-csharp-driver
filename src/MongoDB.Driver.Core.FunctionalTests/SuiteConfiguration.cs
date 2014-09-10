@@ -14,8 +14,12 @@
 */
 
 using System;
+using System.Threading;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver
@@ -85,7 +89,16 @@ namespace MongoDB.Driver
 
         private void DropDatabase()
         {
-            // TODO: implement DropDatabase
+            var operation = new DropDatabaseOperation(
+                new DatabaseNamespace(__databaseName),
+                new MessageEncoderSettings());
+
+            using(var binding = new WritableServerBinding(__cluster))
+            {
+                operation.ExecuteAsync(binding, TimeSpan.FromSeconds(10), CancellationToken.None)
+                    .GetAwaiter()
+                    .GetResult();
+            }
         }
 
         [SetUp]

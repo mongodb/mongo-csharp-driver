@@ -90,6 +90,36 @@ namespace MongoDB.Driver
         Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(DistinctModel<TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Finds a single document and deletes it atomically.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="model">The model.</param>
+        /// <param name="timeout">The timeout.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The deleted document if one was deleted.</returns>
+        Task<TResult> FindOneAndDeleteAsync<TResult>(FindOneAndDeleteModel model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Finds a single document and replaces it atomically.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="model">The model.</param>
+        /// <param name="timeout">The timeout.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The result of the operation.</returns>
+        Task<TResult> FindOneAndReplaceAsync<TResult>(FindOneAndReplaceModel<TDocument> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Finds a single document and updates it atomically.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="model">The model.</param>
+        /// <param name="timeout">The timeout.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The result of the operation.</returns>
+        Task<TResult> FindOneAndUpdateAsync<TResult>(FindOneAndUpdateModel model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Inserts a single document.
         /// </summary>
         /// <param name="model">The model.</param>

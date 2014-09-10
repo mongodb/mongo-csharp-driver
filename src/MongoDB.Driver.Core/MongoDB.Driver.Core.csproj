@@ -68,6 +68,10 @@
     <Compile Include="Core\Operations\ElementNameValidators\ElementNameValidatorFactory.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\UpdateElementNameValidator.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\UpdateOrReplacementElementNameValidator.cs" />
+    <Compile Include="Core\Operations\FindAndModifyOperationBase.cs" />
+    <Compile Include="Core\Operations\FindOneAndUpdateOperation.cs" />
+    <Compile Include="Core\Operations\FindOneAndReplaceOperation.cs" />
+    <Compile Include="Core\Operations\FindOneAndDeleteOperation.cs" />
     <Compile Include="Core\Operations\ICommandOperation.cs" />
     <Compile Include="Core\Operations\PingOperation.cs" />
     <Compile Include="Core\Operations\UpdateType.cs" />
@@ -239,9 +243,6 @@
     <Compile Include="Core\Operations\DropIndexOperation.cs" />
     <Compile Include="Core\Operations\EvalOperation.cs" />
     <Compile Include="Core\Operations\ElementDeserializer.cs" />
-    <Compile Include="Core\Operations\FindAndModifyDocumentVersion.cs" />
-    <Compile Include="Core\Operations\FindAndModifyOperation.cs" />
-    <Compile Include="Core\Operations\FindAndRemoveOperation.cs" />
     <Compile Include="Core\Operations\FindOneOperation.cs" />
     <Compile Include="Core\Operations\FindOperation.cs" />
     <Compile Include="Core\Operations\GroupOperation.cs" />
