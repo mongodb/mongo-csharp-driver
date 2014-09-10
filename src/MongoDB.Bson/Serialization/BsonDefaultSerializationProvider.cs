@@ -98,7 +98,15 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Nullable<>), typeof(NullableSerializer<>) },
                 { typeof(Queue<>), typeof(QueueSerializer<>) },
                 { typeof(ReadOnlyCollection<>), typeof(ReadOnlyCollectionSerializer<>) },
-                { typeof(Stack<>), typeof(StackSerializer<>) }
+                { typeof(Stack<>), typeof(StackSerializer<>) },
+                { typeof(Tuple<>), typeof(TupleSerializer<>) },
+                { typeof(Tuple<,>), typeof(TupleSerializer<,>) },
+                { typeof(Tuple<,,>), typeof(TupleSerializer<,,>) },
+                { typeof(Tuple<,,,>), typeof(TupleSerializer<,,,>) },
+                { typeof(Tuple<,,,,>), typeof(TupleSerializer<,,,,>) },
+                { typeof(Tuple<,,,,,>), typeof(TupleSerializer<,,,,,>) },
+                { typeof(Tuple<,,,,,,>), typeof(TupleSerializer<,,,,,,>) },
+                { typeof(Tuple<,,,,,,,>), typeof(TupleSerializer<,,,,,,,>) }
             };
         }
 

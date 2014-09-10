@@ -368,6 +368,7 @@
     <Compile Include="Serialization\Serializers\StringSerializer.cs" />
     <Compile Include="Serialization\Serializers\ThreeDimensionalArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\TimeSpanSerializer.cs" />
+    <Compile Include="Serialization\Serializers\TupleSerializers.cs" />
     <Compile Include="Serialization\Serializers\TwoDimensionalArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\UInt16Serializer.cs" />
     <Compile Include="Serialization\Serializers\UInt32Serializer.cs" />
