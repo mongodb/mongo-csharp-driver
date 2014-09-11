@@ -147,7 +147,15 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                return await ExecuteBatchesAsync(connection, timeout, cancellationToken);
+                if (_documentSource.IsBatchable)
+                {
+                    return await InsertMultipleBatchesAsync(connection, timeout, cancellationToken);
+                }
+                else
+                {
+                    var result = await InsertSingleBatchAsync(connection, timeout, cancellationToken);
+                    return new[] { result };
+                }
             }
         }
 
@@ -162,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private async Task<IEnumerable<WriteConcernResult>> ExecuteBatchesAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<IEnumerable<WriteConcernResult>> InsertMultipleBatchesAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
 
@@ -220,6 +228,12 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return results;
+        }
+
+        private async Task<WriteConcernResult> InsertSingleBatchAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            var protocol = CreateProtocol(_writeConcern, null);
+            return await protocol.ExecuteAsync(connection, timeout, cancellationToken);
         }
     }
 }
