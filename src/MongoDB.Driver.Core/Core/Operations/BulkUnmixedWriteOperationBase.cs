@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Core.Operations
 
             public override void Serialize(BsonSerializationContext context, BatchableSource<WriteRequest> requestSource)
             {
-                if (requestSource.IsBatchable)
+                if (requestSource.Batch == null)
                 {
                     SerializeNextBatch(context, requestSource);
                 }

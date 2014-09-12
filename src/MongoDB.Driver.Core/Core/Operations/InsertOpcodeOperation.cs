@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                if (_documentSource.IsBatchable)
+                if (_documentSource.Batch == null)
                 {
                     return await InsertMultipleBatchesAsync(connection, timeout, cancellationToken);
                 }

@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         private void WriteDocuments(State state)
         {
-            if (state.Message.DocumentSource.IsBatchable)
+            if (state.Message.DocumentSource.Batch == null)
             {
                 WriteNextBatch(state);
             }

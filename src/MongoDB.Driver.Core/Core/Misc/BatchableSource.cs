@@ -21,26 +21,27 @@ namespace MongoDB.Driver.Core.Misc
 {
     public sealed class BatchableSource<T>
     {
+        #region static
+        // static fields
+        private static readonly T[] __emptyBatch = new T[0];
+        #endregion
+
         // fields
         private IReadOnlyList<T> _batch;
         private IEnumerator<T> _enumerator;
         private bool _hasMore;
-        private bool _isBatchable;
         private Overflow _overflow;
 
         // constructors
         public BatchableSource(IEnumerable<T> batch)
         {
             _batch = Ensure.IsNotNull(batch, "batch").ToList();
-            _hasMore = false;
-            _isBatchable = false;
         }
 
         public BatchableSource(IEnumerator<T> enumerator)
         {
             _enumerator = Ensure.IsNotNull(enumerator, "enumerator");
             _hasMore = true;
-            _isBatchable = true;
         }
 
         // properties
@@ -54,18 +55,19 @@ namespace MongoDB.Driver.Core.Misc
             get
             {
                 ThrowIfNotBatchable();
+                ThrowIfHasBatch();
                 return _enumerator.Current;
             }
         }
 
         public bool HasMore
         {
-            get { return _hasMore; }
-        }
-
-        public bool IsBatchable
-        {
-            get { return _isBatchable; }
+            get
+            {
+                // note: OK to call HasMore even if there is a batch (used by InsertOpCodeOperation to decide whether to send GLE or not)
+                ThrowIfNotBatchable();
+                return _hasMore;
+            }
         }
 
         // methods
@@ -78,6 +80,7 @@ namespace MongoDB.Driver.Core.Misc
         public void EndBatch(IReadOnlyList<T> batch)
         {
             ThrowIfNotBatchable();
+            ThrowIfHasBatch();
             _batch = batch;
             _hasMore = false;
         }
@@ -87,9 +90,10 @@ namespace MongoDB.Driver.Core.Misc
             if (_overflow != null)
             {
                 yield return _overflow.Item;
+                _overflow = null;
             }
 
-            if (_isBatchable)
+            if (_enumerator != null)
             {
                 while (_enumerator.MoveNext())
                 {
@@ -102,6 +106,7 @@ namespace MongoDB.Driver.Core.Misc
                 {
                     yield return item;
                 }
+                _batch = __emptyBatch;
             }
 
             _hasMore = false;
@@ -110,6 +115,7 @@ namespace MongoDB.Driver.Core.Misc
         public void EndBatch(IReadOnlyList<T> batch, Overflow overflow)
         {
             ThrowIfNotBatchable();
+            ThrowIfHasBatch();
             _batch = batch;
             _overflow = overflow;
             _hasMore = true;
@@ -118,22 +124,32 @@ namespace MongoDB.Driver.Core.Misc
         public bool MoveNext()
         {
             ThrowIfNotBatchable();
+            ThrowIfHasBatch();
             return _enumerator.MoveNext();
         }
 
         public Overflow StartBatch()
         {
             ThrowIfNotBatchable();
+            ThrowIfHasBatch();
             var overflow = _overflow;
             _overflow = null;
             return overflow;
         }
 
+        private void ThrowIfHasBatch()
+        {
+            if (_batch != null)
+            {
+                throw new InvalidOperationException("This method can only be called when there is no current batch.");
+            }
+        }
+
         private void ThrowIfNotBatchable()
         {
-            if (!_isBatchable)
+            if (_enumerator == null)
             {
-                throw new InvalidOperationException("This BatchableSource is not batchable.");
+                throw new InvalidOperationException("This method can only be called when an enumerator was provided.");
             }
         }
 

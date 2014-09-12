@@ -47,8 +47,6 @@ namespace MongoDB.Driver.Core.Misc
             var items = new List<int> { 1, 2 };
             var subject = new BatchableSource<int>(items);
             subject.Batch.Should().Equal(items);
-            subject.HasMore.Should().BeFalse();
-            subject.IsBatchable.Should().BeFalse();
         }
 
         [Test]
@@ -65,7 +63,6 @@ namespace MongoDB.Driver.Core.Misc
             var subject = new BatchableSource<int>(items.GetEnumerator());
             subject.Batch.Should().BeNull();
             subject.HasMore.Should().BeTrue();
-            subject.IsBatchable.Should().BeTrue();
         }
 
         [Test]
@@ -98,6 +95,7 @@ namespace MongoDB.Driver.Core.Misc
             subject.EndBatch(batch, overflow);
             subject.Batch.Should().BeSameAs(batch);
             subject.HasMore.Should().BeTrue();
+            subject.ClearBatch();
             subject.StartBatch().Should().BeSameAs(overflow);
         }
 
@@ -123,6 +121,7 @@ namespace MongoDB.Driver.Core.Misc
             var batch = new int[0];
             var overflow = new BatchableSource<int>.Overflow { Item = 1, State = null };
             subject.EndBatch(batch, overflow);
+            subject.ClearBatch();
             subject.StartBatch().Should().BeSameAs(overflow);
             subject.StartBatch().Should().BeNull();
         }
