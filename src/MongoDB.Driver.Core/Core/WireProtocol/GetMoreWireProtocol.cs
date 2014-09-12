@@ -30,9 +30,9 @@ namespace MongoDB.Driver.Core.WireProtocol
         // fields
         private readonly int _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
+        private readonly BsonDocument _query;
         private readonly long _cursorId;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private readonly BsonDocument _query;
         private readonly IBsonSerializer<TDocument> _serializer;
 
         // constructors

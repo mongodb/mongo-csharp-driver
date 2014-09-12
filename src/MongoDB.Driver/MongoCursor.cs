@@ -715,23 +715,24 @@ namespace MongoDB.Driver
                 throw new NotSupportedException("The Exhaust QueryFlag is not yet supported.");
             }
 
-            var operation = new FindOperation<TDocument>(new CollectionNamespace(Database.Name, Collection.Name), queryDocument, Serializer, messageEncoderSettings)
+            var operation = new FindOperation<TDocument>(new CollectionNamespace(Database.Name, Collection.Name), Serializer, messageEncoderSettings)
             {
-                AdditionalOptions = Options,
                 AwaitData = awaitData,
                 BatchSize = BatchSize,
-                Fields = Fields.ToBsonDocument(),
+                Criteria = queryDocument,
                 Limit = Limit,
+                Modifiers = Options,
                 NoCursorTimeout = noCursorTimeout,
-                PartialOk = partialOk,
+                Partial = partialOk,
+                Projection = Fields.ToBsonDocument(),
                 Skip = Skip,
-                TailableCursor = tailableCursor,
+                Tailable = tailableCursor,
             };
 
             using (var binding = Server.GetReadBinding(readPreference))
             {
                 var cursor = operation.Execute(binding);
-                return new SynchronousDocumentCursorAdapter<TDocument>(cursor).GetEnumerator();
+                return new AsyncCursorEnumeratorAdapter<TDocument>(cursor).GetEnumerator();
             }
         }
 

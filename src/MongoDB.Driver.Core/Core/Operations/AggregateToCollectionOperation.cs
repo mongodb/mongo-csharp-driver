@@ -16,26 +16,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public abstract class AggregateOperationBase
+    public class AggregateToCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private bool? _allowDiskUsage;
         private CollectionNamespace _collectionNamespace;
         private TimeSpan? _maxTime;
         private MessageEncoderSettings _messageEncoderSettings;
         private IReadOnlyList<BsonDocument> _pipeline;
 
         // constructors
-        protected AggregateOperationBase(
-            CollectionNamespace collectionNamespace,
-            IEnumerable<BsonDocument> pipeline,
-            MessageEncoderSettings messageEncoderSettings)
+        public AggregateToCollectionOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
@@ -43,16 +42,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public bool? AllowDiskUsage
-        {
-            get { return _allowDiskUsage; }
-            set { _allowDiskUsage = value; }
-        }
-
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public TimeSpan? MaxTime
@@ -64,24 +56,41 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         public IReadOnlyList<BsonDocument> Pipeline
         {
             get { return _pipeline; }
-            set { _pipeline = Ensure.IsNotNull(value, "value").ToList(); }
         }
 
         // methods
-        public virtual BsonDocument CreateCommand()
+        public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(binding, "binding");
+            EnsureIsOutputToCollectionPipeline();
+
+            var command = CreateCommand();
+            var operation = new WriteCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
+            return operation.ExecuteAsync(binding, timeout, cancellationToken);
+        }
+
+        private BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
-                { "allowDiskUsage", () => _allowDiskUsage.Value, _allowDiskUsage.HasValue }
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
+        }
+
+        private void EnsureIsOutputToCollectionPipeline()
+        {
+            var lastStage = Pipeline.LastOrDefault();
+            if (lastStage == null || lastStage.GetElement(0).Name != "$out")
+            {
+                throw new ArgumentException("The last stage of the pipeline for an AggregateOutputToCollectionOperation must have a $out operator.");
+            }
         }
     }
 }

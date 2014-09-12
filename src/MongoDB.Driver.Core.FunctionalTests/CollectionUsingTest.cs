@@ -89,17 +89,16 @@ namespace MongoDB.Driver
             Insert(documents, BsonDocumentSerializer.Instance, messageEncoderSettings);
         }
 
-        protected List<T> ReadAll<T>(IBsonSerializer<T> serializer, MessageEncoderSettings messageEncoderSettings = null)
+        protected List<T> ReadAll<T>(IBsonSerializer<T> serializer = null, CollectionNamespace collectionNamespace = null, MessageEncoderSettings messageEncoderSettings = null)
         {
-            var query = new BsonDocument();
-            var operation = new FindOperation<T>(_collectionNamespace, query, serializer, messageEncoderSettings ?? MessageEncoderSettings);
+            var operation = new FindOperation<T>(collectionNamespace ?? _collectionNamespace, serializer ?? BsonSerializer.LookupSerializer<T>(), messageEncoderSettings ?? MessageEncoderSettings);
             var cursor = ExecuteOperationAsync(operation).GetAwaiter().GetResult();
             return ReadCursorToEnd(cursor);
         }
 
-        protected List<BsonDocument> ReadAll(MessageEncoderSettings messageEncoderSettings = null)
+        protected List<BsonDocument> ReadAll(CollectionNamespace collectionNamespace = null, MessageEncoderSettings messageEncoderSettings = null)
         {
-            return ReadAll<BsonDocument>(BsonDocumentSerializer.Instance, messageEncoderSettings ?? MessageEncoderSettings);
+            return ReadAll<BsonDocument>(BsonDocumentSerializer.Instance, collectionNamespace, messageEncoderSettings);
         }
     }
 }

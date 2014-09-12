@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System.Linq;
+using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
 
 namespace MongoDB.Driver
@@ -32,5 +34,20 @@ namespace MongoDB.Driver
         }
 
         protected abstract void When();
+
+        protected static class Require
+        {
+            public static void MinimumServerVersion(string version)
+            {
+                var minVersion = SemanticVersion.Parse(version);
+
+                var firstServer = SuiteConfiguration.Cluster.Description.Servers.First();
+                if (firstServer.Version < minVersion)
+                {
+                    var message = string.Format("Requires a minimum server version of {0}, but currently connected to {1}.", minVersion, firstServer.Version);
+                    Assert.Ignore(message);
+                }
+            }
+        }
     }
 }

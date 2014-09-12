@@ -17,31 +17,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DocumentCursor<TDocument> : IAsyncEnumerator<TDocument>
+    internal class AsyncCursorEnumerator<TDocument> : IAsyncEnumerator<TDocument>
     {
         // fields
-        private IEnumerator<TDocument> _batch;
-        private readonly Cursor<TDocument> _batchCursor;
+        private readonly IAsyncCursor<TDocument> _cursor;
         private long _count;
+        private IEnumerator<TDocument> _currentBatch;
         private bool _disposed;
         private bool _done;
         private readonly long? _limit;
 
         // constructors
-        public DocumentCursor(Cursor<TDocument> batchCursor)
-            : this(batchCursor, null)
+        public AsyncCursorEnumerator(IAsyncCursor<TDocument> cursor)
+            : this(cursor, null)
         {
         }
 
-        public DocumentCursor(Cursor<TDocument> batchCursor, long? limit)
+        public AsyncCursorEnumerator(IAsyncCursor<TDocument> cursor, long? limit)
         {
-            _batchCursor = Ensure.IsNotNull(batchCursor, "batchCursor");
+            _cursor = Ensure.IsNotNull(cursor, "cursor");
             _limit = Ensure.IsNullOrGreaterThanOrEqualToZero(limit, "limit");
         }
 
@@ -51,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
             get
             {
                 ThrowIfDisposed();
-                if (_batch == null)
+                if (_currentBatch == null)
                 {
                     if (_done)
                     {
@@ -62,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
                         throw new InvalidOperationException("Enumeration has not started. Call MoveNextAsync.");
                     }
                 }
-                return _batch.Current;
+                return _currentBatch.Current;
             }
         }
 
@@ -77,16 +78,16 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (disposing)
             {
-                if (_batch != null)
+                if (_currentBatch != null)
                 {
-                    _batch.Dispose();
+                    _currentBatch.Dispose();
                 }
-                _batchCursor.Dispose();
+                _cursor.Dispose();
             }
             _disposed = true;
         }
 
-        public async Task<bool> MoveNextAsync()
+        public async Task<bool> MoveNextAsync(TimeSpan? timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             if (_done)
@@ -102,11 +103,11 @@ namespace MongoDB.Driver.Core.Operations
 
             while (true)
             {
-                if (_batch == null)
+                if (_currentBatch == null)
                 {
-                    if (await _batchCursor.MoveNextAsync())
+                    if (await _cursor.MoveNextAsync())
                     {
-                        _batch = _batchCursor.Current.GetEnumerator();
+                        _currentBatch = _cursor.Current.GetEnumerator();
                     }
                     else
                     {
@@ -115,14 +116,14 @@ namespace MongoDB.Driver.Core.Operations
                     }
                 }
 
-                if (_batch.MoveNext())
+                if (_currentBatch.MoveNext())
                 {
                     _count++;
                     return true;
                 }
                 else
                 {
-                    _batch = null;
+                    _currentBatch = null;
                 }
             }
         }

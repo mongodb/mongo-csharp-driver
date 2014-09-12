@@ -63,6 +63,91 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
+        {
+            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
+            var model = new AggregateModel<BsonDocument, BsonDocument>(pipeline)
+            {
+                AllowDiskUse = true,
+                BatchSize = 10,
+                MaxTime = TimeSpan.FromSeconds(3),
+                UseCursor = false
+            };
+
+            var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(fakeCursor);
+
+            var result = await _subject.AggregateAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            // we haven't executed the operation yet.
+            _operationExecutor.QueuedCallCount.Should().Be(0);
+
+            // this causes execution of the operation
+            await result.GetEnumerator().MoveNextAsync();
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+
+            call.Operation.Should().BeOfType<AggregateOperation<BsonDocument>>();
+            var operation = (AggregateOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.AllowDiskUse.Should().Be(model.AllowDiskUse);
+            operation.BatchSize.Should().Be(model.BatchSize);
+            operation.MaxTime.Should().Be(model.MaxTime);
+            operation.UseCursor.Should().Be(model.UseCursor);
+
+            operation.Pipeline.Should().ContainInOrder(pipeline);
+        }
+
+        [Test]
+        public async Task AggregateAsync_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified()
+        {
+            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}"), BsonDocument.Parse("{$out: \"funny\"}" )};
+            var model = new AggregateModel<BsonDocument, BsonDocument>(pipeline)
+            {
+                AllowDiskUse = true,
+                BatchSize = 10,
+                MaxTime = TimeSpan.FromSeconds(3),
+                UseCursor = false
+            };
+
+            var result = await _subject.AggregateAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            _operationExecutor.QueuedCallCount.Should().Be(1);
+            var writeCall = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            writeCall.Operation.Should().BeOfType<AggregateToCollectionOperation>();
+            var writeOperation = (AggregateToCollectionOperation)writeCall.Operation;
+            writeOperation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            writeOperation.MaxTime.Should().Be(model.MaxTime);
+            writeOperation.Pipeline.Should().BeEquivalentTo(pipeline);
+
+            var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(fakeCursor);
+
+            // this causes execution of the find operation
+            await result.GetEnumerator().MoveNextAsync();
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+
+            call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
+            var operation = (FindOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.funny");
+            operation.AwaitData.Should().BeFalse();
+            operation.BatchSize.Should().Be(model.BatchSize);
+            operation.Comment.Should().BeNull();
+            operation.Criteria.Should().BeNull();
+            operation.Limit.Should().Be(null);
+            operation.MaxTime.Should().Be(model.MaxTime);
+            operation.Modifiers.Should().BeNull();
+            operation.NoCursorTimeout.Should().BeFalse();
+            operation.Partial.Should().BeFalse();
+            operation.Projection.Should().BeNull();
+            operation.Skip.Should().Be(null);
+            operation.Sort.Should().BeNull();
+            operation.Tailable.Should().BeFalse();
+        }
+
+        [Test]
         [TestCase(true)]
         [TestCase(false)]
         public async Task BulkWriteAsync_should_execute_the_BulkMixedWriteOperation(bool isOrdered)
@@ -105,7 +190,7 @@ namespace MongoDB.Driver
             convertedRequests[0].CorrelationId.Should().Be(0);
             var convertedRequest0 = (InsertRequest)convertedRequests[0];
             convertedRequest0.Document.Should().Be("{_id:1, a:1}");
-            
+
             // RemoveManyModel
             convertedRequests[1].Should().BeOfType<DeleteRequest>();
             convertedRequests[1].CorrelationId.Should().Be(1);
@@ -331,6 +416,60 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task FindAsync_should_execute_the_FindOperation()
+        {
+            var criteria = BsonDocument.Parse("{x:1}");
+            var projection = BsonDocument.Parse("{y:1}");
+            var sort = BsonDocument.Parse("{a:1}");
+            var model = new FindModel<BsonDocument, BsonDocument>
+            {
+                AwaitData = true,
+                BatchSize = 20,
+                Comment = "funny",
+                Criteria = criteria,
+                Limit = 30,
+                MaxTime = TimeSpan.FromSeconds(3),
+                Modifiers = BsonDocument.Parse("{$snapshot: true}"),
+                NoCursorTimeout = true,
+                Partial = true,
+                Projection = projection,
+                Skip = 40,
+                Sort = sort,
+                Tailable = true
+            };
+
+            var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(fakeCursor);
+
+            var result = await _subject.FindAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            // we haven't executed the operation yet.
+            _operationExecutor.QueuedCallCount.Should().Be(0);
+
+            // this causes execution of the operation
+            await result.GetEnumerator().MoveNextAsync();
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+
+            call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
+            var operation = (FindOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.AwaitData.Should().Be(model.AwaitData);
+            operation.BatchSize.Should().Be(model.BatchSize);
+            operation.Comment.Should().Be("funny");
+            operation.Criteria.Should().Be(criteria);
+            operation.Limit.Should().Be(model.Limit);
+            operation.MaxTime.Should().Be(model.MaxTime);
+            operation.Modifiers.Should().Be(model.Modifiers);
+            operation.NoCursorTimeout.Should().Be(model.NoCursorTimeout);
+            operation.Partial.Should().Be(model.Partial);
+            operation.Projection.Should().Be(projection);
+            operation.Skip.Should().Be(model.Skip);
+            operation.Sort.Should().Be(sort);
+            operation.Tailable.Should().Be(model.Tailable);
+        }
+
+        [Test]
         public async Task FindOneAndDelete_should_execute_the_FindOneAndDeleteOperation()
         {
             var criteria = BsonDocument.Parse("{x: 1}");
@@ -438,7 +577,7 @@ namespace MongoDB.Driver
 
             await _subject.InsertOneAsync(
                 new InsertOneModel<BsonDocument>(document),
-                Timeout.InfiniteTimeSpan, 
+                Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
@@ -460,7 +599,7 @@ namespace MongoDB.Driver
                     modifiedCount: 0,
                     processedRequests: new[] { expectedRequest },
                     upserts: new List<BulkWriteOperationUpsert>()),
-                new [] { new BulkWriteOperationError(0, 1, "blah", new BsonDocument()) },
+                new[] { new BulkWriteOperationError(0, 1, "blah", new BsonDocument()) },
                 null,
                 new List<WriteRequest>());
 

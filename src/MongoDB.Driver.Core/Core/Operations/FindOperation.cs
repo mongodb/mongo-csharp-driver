@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -33,64 +35,39 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a Find operation.
     /// </summary>
-    public class FindOperation : FindOperation<BsonDocument>
-    {
-        // constructors
-        public FindOperation(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            MessageEncoderSettings messageEncoderSettings)
-            : base(collectionNamespace, query, BsonDocumentSerializer.Instance, messageEncoderSettings)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Represents a Find operation.
-    /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
-    public class FindOperation<TDocument> : QueryOperationBase, IReadOperation<Cursor<TDocument>>
+    public class FindOperation<TDocument> : QueryOperationBase, IReadOperation<IAsyncCursor<TDocument>>
     {
         // fields
-        private BsonDocument _additionalOptions;
-        private bool _awaitData = true;
+        private bool _awaitData;
         private int? _batchSize;
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private string _comment;
-        private BsonDocument _fields;
-        private string _hint;
+        private BsonDocument _criteria;
         private int? _limit;
         private TimeSpan? _maxTime;
-        private MessageEncoderSettings _messageEncoderSettings;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private BsonDocument _modifiers;
         private bool _noCursorTimeout;
-        private bool _partialOk;
-        private BsonDocument _query;
-        private IBsonSerializer<TDocument> _serializer;
+        private bool _partial;
+        private BsonDocument _projection;
+        private readonly IBsonSerializer<TDocument> _resultSerializer;
         private int? _skip;
-        private bool? _snapshot;
         private BsonDocument _sort;
-        private bool _tailableCursor;
+        private bool _tailable;
 
         // constructors
         public FindOperation(
             CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            IBsonSerializer<TDocument> serializer,
+            IBsonSerializer<TDocument> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _query = Ensure.IsNotNull(query, "query");
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, "serializer");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public BsonDocument AdditionalOptions
-        {
-            get { return _additionalOptions; }
-            set { _additionalOptions = value; }
-        }
-
         public bool AwaitData
         {
             get { return _awaitData; }
@@ -106,7 +83,6 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public string Comment
@@ -115,16 +91,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _comment = value; }
         }
 
-        public BsonDocument Fields
+        public BsonDocument Criteria
         {
-            get { return _fields; }
-            set { _fields = value; }
-        }
-
-        public string Hint
-        {
-            get { return _hint; }
-            set { _hint = value; }
+            get { return _criteria; }
+            set { _criteria = value; }
         }
 
         public int? Limit
@@ -142,7 +112,12 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
+        }
+
+        public BsonDocument Modifiers
+        {
+            get { return _modifiers; }
+            set { _modifiers = value; }
         }
 
         public bool NoCursorTimeout
@@ -151,22 +126,21 @@ namespace MongoDB.Driver.Core.Operations
             set { _noCursorTimeout = value; }
         }
 
-        public bool PartialOk
+        public bool Partial
         {
-            get { return _partialOk; }
-            set { _partialOk = value; }
+            get { return _partial; }
+            set { _partial = value; }
         }
 
-        public BsonDocument Query
+        public BsonDocument Projection
         {
-            get { return _query; }
-            set { _query = Ensure.IsNotNull(value, "value"); }
+            get { return _projection; }
+            set { _projection = value; }
         }
 
-        public IBsonSerializer<TDocument> Serializer
+        public IBsonSerializer<TDocument> ResultSerializer
         {
-            get { return _serializer; }
-            set { _serializer = Ensure.IsNotNull(value, "value"); }
+            get { return _resultSerializer; }
         }
 
         public int? Skip
@@ -175,25 +149,46 @@ namespace MongoDB.Driver.Core.Operations
             set { _skip = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
-        public bool? Snapshot
-        {
-            get { return _snapshot; }
-            set { _snapshot = value; }
-        }
-
         public BsonDocument Sort
         {
             get { return _sort; }
             set { _sort = value; }
         }
 
-        public bool TailableCursor
+        public bool Tailable
         {
-            get { return _tailableCursor; }
-            set { _tailableCursor = value; }
+            get { return _tailable; }
+            set { _tailable = value; }
         }
 
         // methods
+        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, "binding");
+
+            var slidingTimeout = new SlidingTimeout(timeout);
+
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
+            {
+                var query = CreateWrappedQuery(connectionSource.ServerDescription, binding.ReadPreference);
+                var protocol = CreateProtocol(query, binding.ReadPreference);
+                var batch = await protocol.ExecuteAsync(connectionSource, slidingTimeout, cancellationToken);
+
+                return new BatchCursor<TDocument>(
+                    connectionSource.Fork(),
+                    _collectionNamespace,
+                    query,
+                    batch.Documents,
+                    batch.CursorId,
+                    _batchSize ?? 0,
+                    Math.Abs(_limit ?? 0),
+                    _resultSerializer,
+                    _messageEncoderSettings,
+                    timeout,
+                    cancellationToken);
+            }
+        }
+
         private int CalculateFirstBatchSize()
         {
             int firstBatchSize;
@@ -224,46 +219,24 @@ namespace MongoDB.Driver.Core.Operations
             return firstBatchSize;
         }
 
-        public FindOperation<TOtherDocument> Clone<TOtherDocument>(IBsonSerializer<TOtherDocument> serializer)
+        private QueryWireProtocol<TDocument> CreateProtocol(BsonDocument wrappedQuery, ReadPreference readPreference)
         {
-            return new FindOperation<TOtherDocument>(_collectionNamespace, _query, serializer, _messageEncoderSettings)
-            {
-                AdditionalOptions = _additionalOptions,
-                AwaitData = _awaitData,
-                BatchSize = _batchSize,
-                Comment = _comment,
-                Fields = _fields,
-                Hint = _hint,
-                Limit = _limit,
-                MaxTime = _maxTime,
-                NoCursorTimeout = _noCursorTimeout,
-                PartialOk = _partialOk,
-                Skip = _skip,
-                Snapshot = _snapshot,
-                Sort = _sort,
-                TailableCursor = _tailableCursor
-            };
-        }
-
-        private QueryWireProtocol<TDocument> CreateProtocol(ServerDescription serverDescription, ReadPreference readPreference)
-        {
-            var wrappedQuery = CreateWrappedQuery(serverDescription, readPreference);
             var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
             var firstBatchSize = CalculateFirstBatchSize();
 
             return new QueryWireProtocol<TDocument>(
                 _collectionNamespace,
                 wrappedQuery,
-                _fields,
+                _projection,
                 NoOpElementNameValidator.Instance,
                 _skip ?? 0,
                 firstBatchSize,
                 slaveOk,
-                _partialOk,
+                _partial,
                 _noCursorTimeout,
-                _tailableCursor,
+                _tailable,
                 _awaitData,
-                _serializer,
+                _resultSerializer,
                 _messageEncoderSettings);
         }
 
@@ -275,66 +248,31 @@ namespace MongoDB.Driver.Core.Operations
                 readPreferenceDocument = CreateReadPreferenceDocument(readPreference);
             }
 
-            var wrappedQuery = new BsonDocument
+            var wrappedQuery = new BsonDocument();
+            if (_modifiers != null)
             {
-                { "$query", _query ?? new BsonDocument() },
-                { "$readPreference", readPreferenceDocument, readPreferenceDocument != null },
-                { "$orderby", () =>_sort, _sort != null },
-                { "$hint", () => _hint, _hint != null },
-                { "$snapshot", () => _snapshot.Value, _snapshot.HasValue },
-                { "$comment", () => _comment, _comment != null },
-                { "$maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
-            };
-            if (_additionalOptions != null)
+                wrappedQuery.AddRange(_modifiers);
+            }
+
+            wrappedQuery["$query"] = _criteria ?? new BsonDocument();
+            if(readPreferenceDocument != null)
             {
-                wrappedQuery.AddRange(_additionalOptions);
+                wrappedQuery["$readPreference"] = readPreferenceDocument;
+            }
+            if(_sort != null)
+            {
+                wrappedQuery["$orderby"] = _sort;
+            }
+            if (_comment != null)
+            {
+                wrappedQuery["$comment"] = _comment;
+            }
+            if(_maxTime.HasValue)
+            {
+                wrappedQuery["$maxTimeMS"] = _maxTime.Value.TotalMilliseconds;
             }
 
             return wrappedQuery;
-        }
-
-        public async Task<Cursor<TDocument>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(binding, "binding");
-            var slidingTimeout = new SlidingTimeout(timeout);
-
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
-            {
-                var protocol = CreateProtocol(connectionSource.ServerDescription, binding.ReadPreference);
-                var batch = await protocol.ExecuteAsync(connectionSource, slidingTimeout, cancellationToken);
-
-                return new Cursor<TDocument>(
-                    connectionSource.Fork(),
-                    _collectionNamespace,
-                    _query,
-                    batch.Documents,
-                    batch.CursorId,
-                    _batchSize ?? 0,
-                    Math.Abs(_limit ?? 0),
-                    _serializer,
-                    _messageEncoderSettings,
-                    timeout,
-                    cancellationToken);
-            }
-        }
-
-        public async Task<BsonDocument> ExplainAsync(IReadBinding binding, bool verbose = false, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(binding, "binding");
-
-            var additionalOptions = new BsonDocument();
-            if (_additionalOptions != null)
-            {
-                additionalOptions.AddRange(_additionalOptions);
-            }
-            additionalOptions.Add("$explain", true);
-
-            var operation = Clone<BsonDocument>(BsonDocumentSerializer.Instance);
-            operation.AdditionalOptions = additionalOptions;
-            operation.Limit = -Math.Abs(_limit ?? 0);
-            var cursor = await operation.ExecuteAsync(binding, timeout, cancellationToken);
-            await cursor.MoveNextAsync();
-            return cursor.Current.First();
         }
     }
 }

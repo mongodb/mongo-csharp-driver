@@ -19,21 +19,162 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class AggregateOperation : AggregateCursorOperationBase, IReadOperation<Cursor<BsonDocument>>
+    public class AggregateOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>
     {
+        // static fields
+        private static readonly SemanticVersion __version26 = new SemanticVersion(2, 6, 0);
+
+        // fields
+        private bool? _allowDiskUse;
+        private int? _batchSize;
+        private CollectionNamespace _collectionNamespace;
+        private TimeSpan? _maxTime;
+        private MessageEncoderSettings _messageEncoderSettings;
+        private IReadOnlyList<BsonDocument> _pipeline;
+        private readonly IBsonSerializer<TResult> _resultSerializer;
+        private bool? _useCursor;
+
         // constructors
-        public AggregateOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
-            : base(collectionNamespace, pipeline, messageEncoderSettings)
+        public AggregateOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
         {
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
+            _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            _messageEncoderSettings = messageEncoderSettings;
+        }
+
+        // properties
+        public bool? AllowDiskUse
+        {
+            get { return _allowDiskUse; }
+            set { _allowDiskUse = value; }
+        }
+
+        public int? BatchSize
+        {
+            get { return _batchSize; }
+            set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
+        }
+
+        public CollectionNamespace CollectionNamespace
+        {
+            get { return _collectionNamespace; }
+        }
+
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
+        }
+
+        public MessageEncoderSettings MessageEncoderSettings
+        {
+            get { return _messageEncoderSettings; }
+        }
+
+        public IReadOnlyList<BsonDocument> Pipeline
+        {
+            get { return _pipeline; }
+        }
+
+        public bool? UseCursor
+        {
+            get { return _useCursor; }
+            set { _useCursor = value; }
         }
 
         // methods
+        public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, "binding");
+            EnsureIsReadOnlyPipeline();
+
+            var slidingTimeout = new SlidingTimeout(timeout);
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
+            {
+                var command = CreateCommand(connectionSource.ServerDescription.Version);
+
+                var serializer = new AggregateResultDeserializer(_resultSerializer);
+                var operation = new ReadCommandOperation<AggregateResult>(CollectionNamespace.DatabaseNamespace, command, serializer, MessageEncoderSettings);
+
+                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken);
+
+                return CreateCursor(connectionSource, command, result, timeout, cancellationToken);
+            }
+        }
+
+        private BsonDocument CreateCommand(SemanticVersion serverVersion)
+        {
+            var command = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(_pipeline) },
+                { "allowDiskUsage", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
+                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+            };
+
+            var defaultCursorValue = serverVersion >= __version26;
+            if (_useCursor.GetValueOrDefault(defaultCursorValue))
+            {
+                command["cursor"] = new BsonDocument
+                {
+                    { "batchSize", () => _batchSize.Value, _batchSize.HasValue }
+                };
+            }
+            return command;
+        }
+
+        private BatchCursor<TResult> CreateCursor(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            if (_useCursor.GetValueOrDefault(true))
+            {
+                return CreateCursorFromCursorResult(connectionSource, command, result, timeout, cancellationToken);
+            }
+
+            return CreateCursorFromInlineResult(command, result, timeout, cancellationToken);
+        }
+
+        private BatchCursor<TResult> CreateCursorFromCursorResult(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            return new BatchCursor<TResult>(
+                connectionSource.Fork(),
+                CollectionNamespace,
+                command,
+                result.Results,
+                result.CursorId.GetValueOrDefault(0),
+                _batchSize ?? 0,
+                0, // limit
+                _resultSerializer,
+                MessageEncoderSettings,
+                timeout,
+                cancellationToken);
+        }
+
+        private BatchCursor<TResult> CreateCursorFromInlineResult(BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            return new BatchCursor<TResult>(
+                null, // connectionSource
+                CollectionNamespace,
+                command,
+                result.Results,
+                0,
+                0, // batchSize
+                0, // limit
+                _resultSerializer, 
+                MessageEncoderSettings,
+                timeout,
+                cancellationToken);
+        }
+
         private void EnsureIsReadOnlyPipeline()
         {
             if (Pipeline.Any(s => s.GetElement(0).Name == "$out"))
@@ -42,29 +183,84 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<Cursor<BsonDocument>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        private class AggregateResult
         {
-            Ensure.IsNotNull(binding, "binding");
-            EnsureIsReadOnlyPipeline();
+            public long? CursorId;
+            public TResult[] Results;
+        }
 
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
+        private class AggregateResultDeserializer : SerializerBase<AggregateResult>
+        {
+            private readonly IBsonSerializer<TResult> _resultSerializer;
+
+            public AggregateResultDeserializer(IBsonSerializer<TResult> resultSerializer)
             {
-                var command = CreateCommand();
-                var operation = new ReadCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
-                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken);
-                return CreateCursor(connectionSource, command, result, timeout, cancellationToken);
+                _resultSerializer = resultSerializer;
+            }
+
+            public override AggregateResult Deserialize(BsonDeserializationContext context)
+            {
+                var reader = context.Reader;
+                AggregateResult result = null;
+                reader.ReadStartDocument();
+                while (reader.ReadBsonType() != 0)
+                {
+                    var elementName = reader.ReadName();
+                    if (elementName == "cursor")
+                    {
+                        var cursorDeserializer = new CursorDeserializer(_resultSerializer);
+                        result = context.DeserializeWithChildContext(cursorDeserializer);
+                    }
+                    else if(elementName == "result")
+                    {
+                        var arraySerializer = new ArraySerializer<TResult>(_resultSerializer);
+                        result = new AggregateResult();
+                        result.Results = context.DeserializeWithChildContext(arraySerializer);
+                    }
+                    else
+                    {
+                        reader.SkipValue();
+                    }
+                }
+                reader.ReadEndDocument();
+                return result;
             }
         }
 
-        public async Task<BsonDocument> ExplainAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        private class CursorDeserializer : SerializerBase<AggregateResult>
         {
-            Ensure.IsNotNull(binding, "binding");
+            private readonly IBsonSerializer<TResult> _resultSerializer;
 
-            var command = CreateCommand();
-            command["explain"] = true;
-            var operation = new ReadCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            public CursorDeserializer(IBsonSerializer<TResult> resultSerializer)
+            {
+                _resultSerializer = resultSerializer;
+            }
+
+            public override AggregateResult Deserialize(BsonDeserializationContext context)
+            {
+                var reader = context.Reader;
+                var result = new AggregateResult();
+                reader.ReadStartDocument();
+                while (reader.ReadBsonType() != 0)
+                {
+                    var elementName = reader.ReadName();
+                    if (elementName == "id")
+                    {
+                        result.CursorId = context.DeserializeWithChildContext<long>(new Int64Serializer());
+                    }
+                    else if (elementName == "firstBatch")
+                    {
+                        var arraySerializer = new ArraySerializer<TResult>(_resultSerializer);
+                        result.Results = context.DeserializeWithChildContext(arraySerializer);
+                    }
+                    else
+                    {
+                        reader.SkipValue();
+                    }
+                }
+                reader.ReadEndDocument();
+                return result;
+            }
         }
     }
 }

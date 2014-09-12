@@ -13,19 +13,21 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
+using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver.Core.Sync
 {
-    public class SynchronousDocumentCursorAdapter<TDocument>
+    public sealed class AsyncCursorEnumeratorAdapter<TDocument> : IDisposable
     {
         // fields
-        private readonly Cursor<TDocument> _cursor;
+        private readonly IAsyncCursor<TDocument> _cursor;
 
         // constructor
-        public SynchronousDocumentCursorAdapter(Cursor<TDocument> cursor)
+        public AsyncCursorEnumeratorAdapter(IAsyncCursor<TDocument> cursor)
         {
             _cursor = Ensure.IsNotNull(cursor, "cursor");
         }
@@ -41,6 +43,11 @@ namespace MongoDB.Driver.Core.Sync
                     yield return document;
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            _cursor.Dispose();
         }
     }
 }

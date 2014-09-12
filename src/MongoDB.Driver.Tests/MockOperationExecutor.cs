@@ -33,6 +33,11 @@ namespace MongoDB.Driver.Tests
             _results = new Queue<object>();
         }
 
+        public int QueuedCallCount
+        {
+            get { return _calls.Count; }
+        }
+
         public void EnqueueResult<TResult>(TResult result)
         {
             EnqueueResult(Task.FromResult(result));

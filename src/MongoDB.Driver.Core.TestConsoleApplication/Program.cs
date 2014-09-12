@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -113,13 +115,13 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             {
                 var i = rand.Next(0, 10000);
                 IReadOnlyList<BsonDocument> docs;
-                Cursor<BsonDocument> result = null;
+                IAsyncCursor<BsonDocument> enumerator = null;
                 try
                 {
-                    result = await Query(binding, new BsonDocument("i", i)).ConfigureAwait(false);
-                    if (await result.MoveNextAsync().ConfigureAwait(false))
+                    enumerator = await Query(binding, new BsonDocument("i", i)).ConfigureAwait(false);
+                    if (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
-                        docs = result.Current;
+                        docs = enumerator.Current.ToList();
                     }
                     else
                     {
@@ -134,9 +136,9 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 }
                 finally
                 {
-                    if (result != null)
+                    if (enumerator != null)
                     {
-                        result.Dispose();
+                        enumerator.Dispose();
                     }
                 }
 
@@ -177,14 +179,15 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             return insertOp.ExecuteAsync(binding);
         }
 
-        private static Task<Cursor<BsonDocument>> Query(IReadBinding binding, BsonDocument query)
+        private static Task<IAsyncCursor<BsonDocument>> Query(IReadBinding binding, BsonDocument query)
         {
-            var queryOp = new FindOperation<BsonDocument>(__collection, query, BsonDocumentSerializer.Instance, __messageEncoderSettings)
+            var findOp = new FindOperation<BsonDocument>(__collection, BsonDocumentSerializer.Instance, __messageEncoderSettings)
             {
-                Limit = 1
+                Criteria = query,
+                Limit = -1
             };
 
-            return queryOp.ExecuteAsync(binding);
+            return findOp.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
         }
 
         private static Task Update(IWriteBinding binding, BsonDocument criteria, BsonDocument update)

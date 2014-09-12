@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
         [Test]
         public void Collection_should_contain_the_expected_documents()
         {
-            var documents = ReadAll(MessageEncoderSettings);
+            var documents = ReadAll();
             documents.Should().BeEmpty();
         }
     }

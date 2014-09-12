@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class Cursor<TDocument> : IAsyncEnumerator<IReadOnlyList<TDocument>>
+    public class BatchCursor<TDocument> : IAsyncCursor<TDocument>
     {
         // fields
         private readonly int _batchSize;
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly TimeSpan _timeout;
 
         // constructors
-        public Cursor(
+        public BatchCursor(
             IConnectionSource connectionSource,
             CollectionNamespace collectionNamespace,
             BsonDocument query,
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
             TimeSpan timeout,
             CancellationToken cancellationToken)
         {
-            _connectionSource = Ensure.IsNotNull(connectionSource, "connectionSource");
+            _connectionSource = connectionSource;
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _firstBatch = Ensure.IsNotNull(firstBatch, "firstBatch");
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
             _count = _firstBatch.Count;
 
             // if we aren't going to need the connection source we can go ahead and Dispose it now
-            if (_cursorId == 0)
+            if (_cursorId == 0 && _connectionSource != null)
             {
                 _connectionSource.Dispose();
                 _connectionSource = null;
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public IReadOnlyList<TDocument> Current
+        public IEnumerable<TDocument> Current
         {
             get
             {
@@ -222,12 +222,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new ObjectDisposedException(GetType().Name);
             }
-        }
-
-        public DocumentCursor<TDocument> ToDocumentCursor()
-        {
-            ThrowIfDisposed();
-            return new DocumentCursor<TDocument>(this);
         }
     }
 }

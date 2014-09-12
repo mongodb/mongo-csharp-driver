@@ -81,9 +81,17 @@ namespace MongoDB.Driver
 
         public static ICluster CreateCluster()
         {
+            var hasServers = false;
             var builder = ConfigureCluster();
             var cluster = builder.BuildCluster();
+            cluster.DescriptionChanged += (o, e) =>
+            {
+                hasServers = e.NewClusterDescription.Servers.Count > 0;
+            };
             cluster.Initialize();
+
+            // wait until the server is up and running
+            SpinWait.SpinUntil(() => hasServers);
             return cluster;
         }
 

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -57,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<IReadOnlyList<string>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            var operation = new FindOperation(_databaseNamespace.SystemNamespacesCollection, new BsonDocument(), _messageEncoderSettings);
+            var operation = new FindOperation<BsonDocument>(_databaseNamespace.SystemNamespacesCollection, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             var cursor = await operation.ExecuteAsync(binding, timeout, cancellationToken);
 
             var result = new List<string>();

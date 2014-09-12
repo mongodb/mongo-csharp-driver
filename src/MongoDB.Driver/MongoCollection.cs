@@ -706,24 +706,37 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>(FindOneArgs args)
         {
+            var modifiers = new BsonDocument();
             var queryDocument = args.Query == null ? new BsonDocument() : args.Query.ToBsonDocument();
             var serializer = BsonSerializer.LookupSerializer<TDocument>();
             var messageEncoderSettings = GetMessageEncoderSettings();
             var fields = args.Fields == null ? null : args.Fields.ToBsonDocument();
-            var hint = args.Hint == null ? null : CreateIndexOperation.GetDefaultIndexName(args.Hint);
-
-            var operation = new FindOneOperation<TDocument>(_collectionNamespace, queryDocument, serializer, messageEncoderSettings)
+            if (args.Hint != null)
             {
-                Fields = fields,
-                Hint = hint,
+                modifiers["$hint"] = CreateIndexOperation.GetDefaultIndexName(args.Hint);
+            }
+            
+            var operation = new FindOperation<TDocument>(_collectionNamespace, serializer, messageEncoderSettings)
+            {
+                Criteria = queryDocument,
+                Limit = -1,
                 MaxTime = args.MaxTime,
+                Projection = fields,
                 Skip = args.Skip,
                 Sort = args.SortBy.ToBsonDocument()
             };
 
             using (var binding = _server.GetReadBinding(args.ReadPreference ?? _settings.ReadPreference))
             {
-                return operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                using(var enumerator = operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None))
+                {
+                    if(enumerator.MoveNextAsync().GetAwaiter().GetResult())
+                    {
+                        return enumerator.Current.SingleOrDefault();
+                    }
+
+                    return default(TDocument);
+                }
             }
         }
 
@@ -1635,7 +1648,7 @@ namespace MongoDB.Driver
             using (var binding = _server.GetReadBinding(readPreference))
             {
                 var cursors = operation.Execute(binding);
-                var documentEnumerators = cursors.Select(c => new SynchronousDocumentCursorAdapter<TDocument>(c).GetEnumerator()).ToList();
+                var documentEnumerators = cursors.Select(c => new AsyncCursorEnumeratorAdapter<TDocument>(c).GetEnumerator()).ToList();
                 return new ReadOnlyCollection<IEnumerator<TDocument>>(documentEnumerators);
             }
         }

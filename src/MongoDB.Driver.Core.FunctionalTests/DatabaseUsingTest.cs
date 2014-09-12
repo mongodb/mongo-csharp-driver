@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
@@ -55,7 +56,7 @@ namespace MongoDB.Driver
             DropDatabase();
         }
 
-        protected List<T> ReadCursorToEnd<T>(Cursor<T> cursor)
+        protected List<T> ReadCursorToEnd<T>(IAsyncCursor<T> cursor)
         {
             var documents = new List<T>();
             while (cursor.MoveNextAsync().GetAwaiter().GetResult())
