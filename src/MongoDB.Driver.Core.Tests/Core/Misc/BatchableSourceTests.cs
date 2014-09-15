@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Misc
             var items = new List<int> { 1, 2 };
             var subject = new BatchableSource<int>(items);
             subject.Batch.Should().Equal(items);
+            subject.HasMore.Should().BeFalse();
         }
 
         [Test]

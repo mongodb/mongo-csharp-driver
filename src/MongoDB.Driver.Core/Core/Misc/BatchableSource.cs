@@ -64,8 +64,6 @@ namespace MongoDB.Driver.Core.Misc
         {
             get
             {
-                // note: OK to call HasMore even if there is a batch (used by InsertOpCodeOperation to decide whether to send GLE or not)
-                ThrowIfNotBatchable();
                 return _hasMore;
             }
         }
