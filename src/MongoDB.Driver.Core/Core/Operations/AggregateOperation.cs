@@ -86,6 +86,11 @@ namespace MongoDB.Driver.Core.Operations
             get { return _pipeline; }
         }
 
+        public IBsonSerializer<TResult> ResultSerializer
+        {
+            get { return _resultSerializer; }
+        }
+
         public bool? UseCursor
         {
             get { return _useCursor; }
@@ -110,6 +115,15 @@ namespace MongoDB.Driver.Core.Operations
 
                 return CreateCursor(connectionSource, command, result, timeout, cancellationToken);
             }
+        }
+
+        public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)
+        {
+            return new AggregateExplainOperation(_collectionNamespace, _pipeline, _messageEncoderSettings)
+            {
+                AllowDiskUse = _allowDiskUse,
+                MaxTime = _maxTime
+            };
         }
 
         private BsonDocument CreateCommand(SemanticVersion serverVersion)

@@ -63,11 +63,14 @@
     <Compile Include="Core\Misc\ReferenceCounted.cs" />
     <Compile Include="Core\Bindings\WritableServerBinding.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
+    <Compile Include="Core\Operations\AggregateExplainOperation.cs" />
     <Compile Include="Core\Operations\BulkWriteOperationException.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\CollectionElementNameValidator.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\ElementNameValidatorFactory.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\UpdateElementNameValidator.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\UpdateOrReplacementElementNameValidator.cs" />
+    <Compile Include="Core\Operations\ExplainOperation.cs" />
+    <Compile Include="Core\Operations\ExplainVerbosity.cs" />
     <Compile Include="Core\Operations\FindAndModifyOperationBase.cs" />
     <Compile Include="Core\Operations\FindOneAndUpdateOperation.cs" />
     <Compile Include="Core\Operations\FindOneAndReplaceOperation.cs" />

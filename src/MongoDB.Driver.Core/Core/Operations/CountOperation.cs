@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class CountOperation : IReadOperation<long>, ICommandOperation
+    public class CountOperation : IReadOperation<long>
     {
         // fields
         private CollectionNamespace _collectionNamespace;
@@ -111,6 +111,17 @@ namespace MongoDB.Driver.Core.Operations
             var command = CreateCommand();
             var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+        }
+
+        public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)
+        {
+            return new ExplainOperation(
+                _collectionNamespace.DatabaseNamespace,
+                CreateCommand(),
+                _messageEncoderSettings)
+            {
+                Verbosity = verbosity
+            };
         }
     }
 }

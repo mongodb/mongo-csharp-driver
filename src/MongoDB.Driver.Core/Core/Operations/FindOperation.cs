@@ -266,5 +266,61 @@ namespace MongoDB.Driver.Core.Operations
                     cancellationToken);
             }
         }
+
+        public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)
+        {
+            BsonDocument modifiers;
+            if (_modifiers == null)
+            {
+                modifiers = new BsonDocument();
+            }
+            else
+            {
+                modifiers = (BsonDocument)_modifiers.DeepClone();
+            }
+            modifiers["$explain"] = true;
+            var operation = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                _awaitData = _awaitData,
+                _batchSize = _batchSize,
+                _comment = _comment,
+                _criteria = _criteria,
+                _limit = _limit,
+                _maxTime = _maxTime,
+                _modifiers = modifiers,
+                _noCursorTimeout = _noCursorTimeout,
+                _partial = _partial,
+                _projection = _projection,
+                _skip = _skip,
+                _sort = _sort,
+                _tailable = _tailable,
+            };
+
+            return new FindExplainOperation(operation);
+        }
+
+        private class FindExplainOperation : IReadOperation<BsonDocument>
+        {
+            private readonly FindOperation<BsonDocument> _explainOperation;
+
+            public FindExplainOperation(FindOperation<BsonDocument> explainOperation)
+            {
+                _explainOperation = explainOperation;
+            }
+
+            public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+            {
+                using (var cursor = await _explainOperation.ExecuteAsync(binding, timeout, cancellationToken))
+                {
+                    if (await cursor.MoveNextAsync())
+                    {
+                        var batch = cursor.Current;
+                        return batch.Single();
+                    }
+                }
+
+                throw new MongoException("No explanation was returned.");
+            }
+        }
     }
 }

@@ -417,6 +417,79 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task ExplainAsync_for_aggregate_should_execute_an_AggregateExplainOperation()
+        {
+            var pipeline = new[] { BsonDocument.Parse("{ $skip: 10 }") };
+            var aggregateModel = new AggregateModel<BsonDocument>(pipeline);
+
+            var model = new ExplainModel(aggregateModel)
+            {
+                Verbosity = ExplainVerbosity.ExecutionStats
+            };
+
+            await _subject.ExplainAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var call = _operationExecutor.GetReadCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<AggregateExplainOperation>();
+            var operation = (AggregateExplainOperation)call.Operation;
+
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Pipeline.Should().BeEquivalentTo(pipeline);
+            operation.AllowDiskUse.Should().Be(aggregateModel.AllowDiskUse);
+            operation.MaxTime.Should().Be(aggregateModel.MaxTime);
+        }
+
+        [Test]
+        public async Task ExplainAsync_for_count_should_execute_an_ExplainOperation()
+        {
+            var countModel = new CountModel
+            {
+                Criteria = new BsonDocument("x", 1),
+                Hint = "funny",
+                Limit = 10,
+                MaxTime = TimeSpan.FromSeconds(20),
+                Skip = 30
+            };
+
+            var model = new ExplainModel(countModel)
+            {
+                Verbosity = ExplainVerbosity.ExecutionStats
+            };
+
+            await _subject.ExplainAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var call = _operationExecutor.GetReadCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<ExplainOperation>();
+            var operation = (ExplainOperation)call.Operation;
+
+            operation.DatabaseNamespace.DatabaseName.Should().Be("foo");
+            operation.Command.Should().NotBeNull();
+            operation.Verbosity.Should().Be(model.Verbosity.ToCore());
+        }
+
+        [Test]
+        public async Task ExplainAsync_for_find_should_execute_a_read_operation()
+        {
+            var findModel = new FindModel<BsonDocument>
+            {
+                Skip = 20
+            };
+
+            var model = new ExplainModel(findModel)
+            {
+                Verbosity = ExplainVerbosity.ExecutionStats
+            };
+
+            await _subject.ExplainAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var call = _operationExecutor.GetReadCall<BsonDocument>();
+
+            call.Operation.Should().BeAssignableTo<IReadOperation<BsonDocument>>();
+        }
+
+        [Test]
         public async Task FindAsync_should_execute_the_FindOperation()
         {
             var criteria = BsonDocument.Parse("{x:1}");

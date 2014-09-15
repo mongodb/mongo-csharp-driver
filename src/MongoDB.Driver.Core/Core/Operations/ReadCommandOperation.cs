@@ -64,6 +64,7 @@ namespace MongoDB.Driver.Core.Operations
                 "cursorInfo",
                 "dbStats",
                 "distinct",
+                "explain",
                 "features",
                 "geoNear",
                 "geoSearch",

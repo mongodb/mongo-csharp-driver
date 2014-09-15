@@ -16,11 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -72,8 +74,6 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(model, "model");
 
-            var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
-
             var pipeline = model.Pipeline.Select(x => ConvertToBsonDocument(x)).ToList();
 
             var last = pipeline.LastOrDefault();
@@ -93,7 +93,7 @@ namespace MongoDB.Driver
                 var outputCollectionName = last.GetElement(0).Value.AsString;
                 var findOperation = new FindOperation<TResult>(
                     new CollectionNamespace(_collectionNamespace.DatabaseNamespace, outputCollectionName),
-                    resultSerializer,
+                    model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>(),
                     _messageEncoderSettings)
                 {
                     BatchSize = model.BatchSize,
@@ -106,17 +106,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                var operation = new AggregateOperation<TResult>(
-                    _collectionNamespace,
-                    pipeline,
-                    resultSerializer,
-                    _messageEncoderSettings)
-                {
-                    AllowDiskUse = model.AllowDiskUse,
-                    BatchSize = model.BatchSize,
-                    MaxTime = model.MaxTime,
-                    UseCursor = model.UseCursor
-                };
+                var operation = CreateAggregateOperation<TResult>(model, pipeline);
 
                 return await Task.FromResult<IAsyncEnumerable<TResult>>(new AsyncCursorAsyncEnumerable<TResult>(
                     () => ExecuteReadOperation(operation, timeout, cancellationToken),
@@ -142,7 +132,7 @@ namespace MongoDB.Driver
                 var result = await ExecuteWriteOperation(operation, timeout, cancellationToken);
                 return BulkWriteResult<TDocument>.FromCore(result, model.Requests);
             }
-            catch(BulkWriteOperationException ex)
+            catch (BulkWriteOperationException ex)
             {
                 throw BulkWriteException<TDocument>.FromCore(ex, model.Requests);
             }
@@ -152,19 +142,11 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(model, "model");
 
-            var operation = new CountOperation(
-                _collectionNamespace,
-                _messageEncoderSettings)
-            {
-                Criteria = ConvertToBsonDocument(model.Criteria),
-                Hint = model.Hint is string ? BsonValue.Create((string)model.Hint) : ConvertToBsonDocument(model.Hint),
-                Limit = model.Limit,
-                MaxTime = model.MaxTime,
-                Skip = model.Skip
-            };
+            var operation = CreateCountOperation(model);
 
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
+
 
         public async Task<DeleteResult> DeleteManyAsync(DeleteManyModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
@@ -216,31 +198,49 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
+        public Task<BsonDocument> ExplainAsync(ExplainModel model, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(model, "model");
+
+            var commandType = model.Command.GetType();
+            if (commandType == typeof(CountModel))
+            {
+                return ExplainCountAsync((CountModel)model.Command, model.Verbosity, timeout, cancellationToken);
+            }
+
+            if (commandType.IsGenericType)
+            {
+                var genericCommandDefinition = commandType.GetGenericTypeDefinition();
+                var genericArgument = commandType.GetGenericArguments()[0];
+                if (genericCommandDefinition == typeof(AggregateModel<>))
+                {
+                    var explainAggregateMethod =
+                        typeof(MongoCollectionImpl<TDocument>)
+                        .GetMethod("ExplainAggregateAsync", BindingFlags.Instance | BindingFlags.NonPublic)
+                        .MakeGenericMethod(genericArgument);
+
+                    return (Task<BsonDocument>)explainAggregateMethod.Invoke(this, new object[] { model.Command, model.Verbosity, timeout, cancellationToken });
+                }
+                if (genericCommandDefinition == typeof(FindModel<>))
+                {
+                    var explainFindMethod =
+                        typeof(MongoCollectionImpl<TDocument>)
+                        .GetMethod("ExplainFindAsync", BindingFlags.Instance | BindingFlags.NonPublic)
+                        .MakeGenericMethod(genericArgument);
+
+                    return (Task<BsonDocument>)explainFindMethod.Invoke(this, new object[] { model.Command, model.Verbosity, timeout, cancellationToken });
+                }
+            }
+
+            var message = string.Format("No explanation for {0} is defined.", model.Command.GetType().ToString());
+            throw new ArgumentException(message, "model.Command");
+        }
+
         public Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindModel<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(model, "model");
 
-            var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
-
-            var operation = new FindOperation<TResult>(
-                _collectionNamespace,
-                resultSerializer,
-                _messageEncoderSettings)
-            {
-                AwaitData = model.AwaitData,
-                BatchSize = model.BatchSize,
-                Comment = model.Comment,
-                Criteria = ConvertToBsonDocument(model.Criteria),
-                Limit = model.Limit,
-                MaxTime = model.MaxTime,
-                Modifiers = model.Modifiers,
-                NoCursorTimeout = model.NoCursorTimeout,
-                Partial = model.Partial,
-                Projection = ConvertToBsonDocument(model.Projection),
-                Skip = model.Skip,
-                Sort = ConvertToBsonDocument(model.Sort),
-                Tailable = model.Tailable
-            };
+            var operation = CreateFindOperation<TResult>(model);
 
             return Task.FromResult<IAsyncEnumerable<TResult>>(new AsyncCursorAsyncEnumerable<TResult>(
                 () => ExecuteReadOperation(operation, timeout, cancellationToken),
@@ -314,10 +314,10 @@ namespace MongoDB.Driver
 
             try
             {
-                var bulkModel = new BulkWriteModel<TDocument>(new [] { model });
+                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
                 await BulkWriteAsync(bulkModel, timeout, cancellationToken);
             }
-            catch(BulkWriteException<TDocument> ex)
+            catch (BulkWriteException<TDocument> ex)
             {
                 throw WriteException.FromBulkWriteException(ex);
             }
@@ -389,7 +389,7 @@ namespace MongoDB.Driver
                 }
             }
         }
-        
+
         private WriteRequest ConvertWriteModelToWriteRequest(WriteModel<TDocument> model, int index)
         {
             switch (model.ModelType)
@@ -455,18 +455,18 @@ namespace MongoDB.Driver
 
         private BsonDocument ConvertToBsonDocument(object document)
         {
-            if(document == null)
+            if (document == null)
             {
                 return null;
             }
 
             var bsonDocument = document as BsonDocument;
-            if(bsonDocument != null)
+            if (bsonDocument != null)
             {
                 return bsonDocument;
             }
 
-            if(document is string)
+            if (document is string)
             {
                 return BsonDocument.Parse((string)document);
             }
@@ -489,6 +489,84 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
             }
+        }
+
+        private AggregateOperation<TResult> CreateAggregateOperation<TResult>(AggregateModel<TResult> model, List<BsonDocument> pipeline)
+        {
+            var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
+
+            return new AggregateOperation<TResult>(
+                _collectionNamespace,
+                pipeline,
+                resultSerializer,
+                _messageEncoderSettings)
+            {
+                AllowDiskUse = model.AllowDiskUse,
+                BatchSize = model.BatchSize,
+                MaxTime = model.MaxTime,
+                UseCursor = model.UseCursor
+            };
+        }
+
+        private CountOperation CreateCountOperation(CountModel model)
+        {
+            return new CountOperation(
+                _collectionNamespace,
+                _messageEncoderSettings)
+            {
+                Criteria = ConvertToBsonDocument(model.Criteria),
+                Hint = model.Hint is string ? BsonValue.Create((string)model.Hint) : ConvertToBsonDocument(model.Hint),
+                Limit = model.Limit,
+                MaxTime = model.MaxTime,
+                Skip = model.Skip
+            };
+        }
+
+        private FindOperation<TResult> CreateFindOperation<TResult>(FindModel<TResult> model)
+        {
+            var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
+
+            return new FindOperation<TResult>(
+                _collectionNamespace,
+                resultSerializer,
+                _messageEncoderSettings)
+            {
+                AwaitData = model.AwaitData,
+                BatchSize = model.BatchSize,
+                Comment = model.Comment,
+                Criteria = ConvertToBsonDocument(model.Criteria),
+                Limit = model.Limit,
+                MaxTime = model.MaxTime,
+                Modifiers = model.Modifiers,
+                NoCursorTimeout = model.NoCursorTimeout,
+                Partial = model.Partial,
+                Projection = ConvertToBsonDocument(model.Projection),
+                Skip = model.Skip,
+                Sort = ConvertToBsonDocument(model.Sort),
+                Tailable = model.Tailable
+            };
+        }
+
+        private Task<BsonDocument> ExplainAggregateAsync<TResult>(AggregateModel<TResult> model, ExplainVerbosity verbosity, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            var pipeline = model.Pipeline.Select(x => ConvertToBsonDocument(x)).ToList();
+            var aggregateOperation = CreateAggregateOperation<TResult>(model, pipeline);
+            var explainOperation = aggregateOperation.ToExplainOperation(verbosity.ToCore());
+            return ExecuteReadOperation(explainOperation, timeout, cancellationToken);
+        }
+
+        private Task<BsonDocument> ExplainCountAsync(CountModel model, ExplainVerbosity verbosity, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            var countOperation = CreateCountOperation(model);
+            var explainOperation = countOperation.ToExplainOperation(verbosity.ToCore());
+            return ExecuteReadOperation(explainOperation, timeout, cancellationToken);
+        }
+
+        private Task<BsonDocument> ExplainFindAsync<TResult>(FindModel<TResult> model, ExplainVerbosity verbosity, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            var findOperation = CreateFindOperation<TResult>(model);
+            var explainOperation = findOperation.ToExplainOperation(verbosity.ToCore());
+            return ExecuteReadOperation(explainOperation, timeout, cancellationToken);
         }
     }
 }

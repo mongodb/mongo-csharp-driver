@@ -12,7 +12,7 @@ namespace MongoDB.Driver
     /// Model for finding documents.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindModel<TResult>
+    public class FindModel<TResult> : IExplainableModel
     {
         // fields
         private bool _awaitData;

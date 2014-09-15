@@ -97,6 +97,8 @@
     <Compile Include="CountModel.cs" />
     <Compile Include="AsyncCursorAsyncEnumerable.cs" />
     <Compile Include="DistinctModel.cs" />
+    <Compile Include="ExplainModel.cs" />
+    <Compile Include="ExplainVerbosity.cs" />
     <Compile Include="FindModel.cs" />
     <Compile Include="FindOneAndDeleteModel.cs" />
     <Compile Include="FindOneAndReplaceModel.cs" />

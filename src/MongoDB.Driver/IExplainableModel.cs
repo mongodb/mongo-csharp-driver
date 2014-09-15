@@ -16,10 +16,9 @@
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Interface for model classes that can be explained.
+    /// Marker interface for model classes that can be explained.
     /// </summary>
     public interface IExplainableModel
     {
-
     }
 }
