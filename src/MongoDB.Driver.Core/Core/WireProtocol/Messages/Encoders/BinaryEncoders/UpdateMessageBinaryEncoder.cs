@@ -99,10 +99,29 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32(0); // reserved
             streamWriter.WriteCString(message.CollectionNamespace.FullName);
             streamWriter.WriteInt32((int)BuildUpdateFlags(message));
-            var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
-            BsonDocumentSerializer.Instance.Serialize(context, message.Query ?? new BsonDocument());
-            BsonDocumentSerializer.Instance.Serialize(context, message.Update ?? new BsonDocument());
+            WriteQuery(binaryWriter, message.Query);
+            WriteUpdate(binaryWriter, message.Update, message.UpdateValidator);
             streamWriter.BackpatchSize(startPosition);
+        }
+
+        private void WriteQuery(BsonBinaryWriter binaryWriter, BsonDocument query)
+        {
+            var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
+            BsonDocumentSerializer.Instance.Serialize(context, query);
+        }
+
+        private void WriteUpdate(BsonBinaryWriter binaryWriter, BsonDocument update, IElementNameValidator updateValidator)
+        {
+            binaryWriter.PushElementNameValidator(updateValidator);
+            try
+            {
+                var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
+                BsonDocumentSerializer.Instance.Serialize(context, update);
+            }
+            finally
+            {
+                binaryWriter.PopElementNameValidator();
+            }
         }
 
         // explicit interface implementations
