@@ -65,6 +65,8 @@ namespace MongoDB.Driver.Core.Operations
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "serializer");
             _messageEncoderSettings = messageEncoderSettings;
+
+            _awaitData = true;
         }
 
         // properties
@@ -162,33 +164,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(binding, "binding");
-
-            var slidingTimeout = new SlidingTimeout(timeout);
-
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
-            {
-                var query = CreateWrappedQuery(connectionSource.ServerDescription, binding.ReadPreference);
-                var protocol = CreateProtocol(query, binding.ReadPreference);
-                var batch = await protocol.ExecuteAsync(connectionSource, slidingTimeout, cancellationToken);
-
-                return new BatchCursor<TDocument>(
-                    connectionSource.Fork(),
-                    _collectionNamespace,
-                    query,
-                    batch.Documents,
-                    batch.CursorId,
-                    _batchSize ?? 0,
-                    Math.Abs(_limit ?? 0),
-                    _resultSerializer,
-                    _messageEncoderSettings,
-                    timeout,
-                    cancellationToken);
-            }
-        }
-
         private int CalculateFirstBatchSize()
         {
             int firstBatchSize;
@@ -248,31 +223,48 @@ namespace MongoDB.Driver.Core.Operations
                 readPreferenceDocument = CreateReadPreferenceDocument(readPreference);
             }
 
-            var wrappedQuery = new BsonDocument();
+            var wrappedQuery = new BsonDocument
+            {
+                { "$query", _criteria ?? new BsonDocument() },
+                { "$readPreference", readPreferenceDocument, readPreferenceDocument != null },
+                { "$orderby", _sort, _sort != null },
+                { "$comment", _comment, _comment != null },
+                { "$maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+            };
+
             if (_modifiers != null)
             {
-                wrappedQuery.AddRange(_modifiers);
-            }
-
-            wrappedQuery["$query"] = _criteria ?? new BsonDocument();
-            if(readPreferenceDocument != null)
-            {
-                wrappedQuery["$readPreference"] = readPreferenceDocument;
-            }
-            if(_sort != null)
-            {
-                wrappedQuery["$orderby"] = _sort;
-            }
-            if (_comment != null)
-            {
-                wrappedQuery["$comment"] = _comment;
-            }
-            if(_maxTime.HasValue)
-            {
-                wrappedQuery["$maxTimeMS"] = _maxTime.Value.TotalMilliseconds;
+                wrappedQuery.Merge(_modifiers, overwriteExistingElements: false);
             }
 
             return wrappedQuery;
+        }
+
+        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(binding, "binding");
+
+            var slidingTimeout = new SlidingTimeout(timeout);
+
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
+            {
+                var query = CreateWrappedQuery(connectionSource.ServerDescription, binding.ReadPreference);
+                var protocol = CreateProtocol(query, binding.ReadPreference);
+                var batch = await protocol.ExecuteAsync(connectionSource, slidingTimeout, cancellationToken);
+
+                return new AsyncCursor<TDocument>(
+                    connectionSource.Fork(),
+                    _collectionNamespace,
+                    query,
+                    batch.Documents,
+                    batch.CursorId,
+                    _batchSize ?? 0,
+                    Math.Abs(_limit ?? 0),
+                    _resultSerializer,
+                    _messageEncoderSettings,
+                    timeout,
+                    cancellationToken);
+            }
         }
     }
 }

@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Sync
     public sealed class AsyncCursorEnumeratorAdapter<TDocument> : IDisposable
     {
         // fields
+        private bool _disposed;
         private readonly IAsyncCursor<TDocument> _cursor;
 
         // constructor
@@ -35,6 +36,11 @@ namespace MongoDB.Driver.Core.Sync
         // methods
         public IEnumerator<TDocument> GetEnumerator()
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
+
             while (_cursor.MoveNextAsync().GetAwaiter().GetResult())
             {
                 var batch = _cursor.Current;
@@ -47,7 +53,11 @@ namespace MongoDB.Driver.Core.Sync
 
         public void Dispose()
         {
-            _cursor.Dispose();
+            if (!_disposed)
+            {
+                _cursor.Dispose();
+                _disposed = true;
+            }
         }
     }
 }

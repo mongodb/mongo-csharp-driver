@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class BatchCursor<TDocument> : IAsyncCursor<TDocument>
+    public class AsyncCursor<TDocument> : IAsyncCursor<TDocument>
     {
         // fields
         private readonly int _batchSize;
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly TimeSpan _timeout;
 
         // constructors
-        public BatchCursor(
+        public AsyncCursor(
             IConnectionSource connectionSource,
             CollectionNamespace collectionNamespace,
             BsonDocument query,

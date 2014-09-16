@@ -632,7 +632,7 @@ namespace MongoDB.Driver
         public virtual FindAndModifyResult FindAndRemove(FindAndRemoveArgs args)
         {
             if (args == null) { throw new ArgumentNullException("args"); }
-            
+
             var command = new CommandDocument
             {
                 { "findAndModify", _collectionNamespace.CollectionName },
@@ -715,7 +715,7 @@ namespace MongoDB.Driver
             {
                 modifiers["$hint"] = CreateIndexOperation.GetDefaultIndexName(args.Hint);
             }
-            
+
             var operation = new FindOperation<TDocument>(_collectionNamespace, serializer, messageEncoderSettings)
             {
                 Criteria = queryDocument,
@@ -728,9 +728,9 @@ namespace MongoDB.Driver
 
             using (var binding = _server.GetReadBinding(args.ReadPreference ?? _settings.ReadPreference))
             {
-                using(var enumerator = operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None))
+                using (var enumerator = operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None))
                 {
-                    if(enumerator.MoveNextAsync().GetAwaiter().GetResult())
+                    if (enumerator.MoveNextAsync().GetAwaiter().GetResult())
                     {
                         return enumerator.Current.SingleOrDefault();
                     }
@@ -934,7 +934,7 @@ namespace MongoDB.Driver
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             var result = RunCommandAs<GeoNearResult<TDocument>>(command);
-            result.Response["ns"] = FullName; 
+            result.Response["ns"] = FullName;
             return result;
         }
 
@@ -1298,8 +1298,8 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Insert<TNominalType>(TNominalType document)
         {
-             var options = new MongoInsertOptions();
-             return Insert(document, options);
+            var options = new MongoInsertOptions();
+            return Insert(document, options);
         }
 
         /// <summary>
@@ -1370,7 +1370,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Insert(Type nominalType, object document, WriteConcern writeConcern)
         {
-            var options = new MongoInsertOptions { WriteConcern = writeConcern};
+            var options = new MongoInsertOptions { WriteConcern = writeConcern };
             return Insert(nominalType, document, options);
         }
 
@@ -1471,7 +1471,7 @@ namespace MongoDB.Driver
             IEnumerable documents,
             WriteConcern writeConcern)
         {
-            var options = new MongoInsertOptions { WriteConcern = writeConcern};
+            var options = new MongoInsertOptions { WriteConcern = writeConcern };
             return InsertBatch(nominalType, documents, options);
         }
 
@@ -1671,7 +1671,8 @@ namespace MongoDB.Driver
                 genericArgs.ReadPreference = args.ReadPreference;
                 genericArgs.Serializer = args.Serializer;
                 args = genericArgs;
-            } else if (args.GetType() != parallelScanArgsType)
+            }
+            else if (args.GetType() != parallelScanArgsType)
             {
                 var message = string.Format("Invalid args type. Expected '{0}', was '{1}'.",
                     BsonUtils.GetFriendlyTypeName(parallelScanArgsType),
@@ -1909,7 +1910,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Save(Type nominalType, object document, WriteConcern writeConcern)
         {
-            var options = new MongoInsertOptions { WriteConcern = writeConcern};
+            var options = new MongoInsertOptions { WriteConcern = writeConcern };
             return Save(nominalType, document, options);
         }
 
@@ -1989,7 +1990,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Update(IMongoQuery query, IMongoUpdate update, WriteConcern writeConcern)
         {
-            var options = new MongoUpdateOptions { WriteConcern = writeConcern};
+            var options = new MongoUpdateOptions { WriteConcern = writeConcern };
             return Update(query, update, options);
         }
 

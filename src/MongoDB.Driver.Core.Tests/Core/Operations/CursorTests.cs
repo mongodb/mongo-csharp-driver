@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Constructor_should_call_Dispose_on_connectionSource_if_cursorId_is_zero(int cursorId, bool shouldCallDispose)
         {
             var connectionSource = Substitute.For<IConnectionSource>();
-            var subject = new BatchCursor<BsonDocument>(
+            var subject = new AsyncCursor<BsonDocument>(
                 connectionSource,
                 new CollectionNamespace("databaseName", "collectionName"),
                 new BsonDocument(), // query

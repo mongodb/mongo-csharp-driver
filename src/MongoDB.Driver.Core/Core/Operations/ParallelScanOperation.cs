@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 
-    public class ParallelScanOperation<TDocument> : IReadOperation<IReadOnlyList<BatchCursor<TDocument>>>
+    public class ParallelScanOperation<TDocument> : IReadOperation<IReadOnlyList<AsyncCursor<TDocument>>>
     {
         // fields
         private int? _batchSize;
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public async Task<IReadOnlyList<BatchCursor<TDocument>>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyList<AsyncCursor<TDocument>>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
             var slidingTimeout = new SlidingTimeout(timeout);
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
                 var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken);
 
-                var cursors = new List<BatchCursor<TDocument>>();
+                var cursors = new List<AsyncCursor<TDocument>>();
 
                 foreach (var cursorDocument in result["cursors"].AsBsonArray.Select(v => v["cursor"].AsBsonDocument))
                 {
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Operations
                         })
                         .ToList();
 
-                    var cursor = new BatchCursor<TDocument>(
+                    var cursor = new AsyncCursor<TDocument>(
                         connectionSource.Fork(),
                         _collectionNamespace,
                         command,

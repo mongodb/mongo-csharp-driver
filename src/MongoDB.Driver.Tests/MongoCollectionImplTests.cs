@@ -83,7 +83,7 @@ namespace MongoDB.Driver
             _operationExecutor.QueuedCallCount.Should().Be(0);
 
             // this causes execution of the operation
-            await result.GetEnumerator().MoveNextAsync();
+            await result.GetAsyncEnumerator().MoveNextAsync();
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -118,6 +118,7 @@ namespace MongoDB.Driver
             writeCall.Operation.Should().BeOfType<AggregateToCollectionOperation>();
             var writeOperation = (AggregateToCollectionOperation)writeCall.Operation;
             writeOperation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            writeOperation.AllowDiskUse.Should().Be(model.AllowDiskUse);
             writeOperation.MaxTime.Should().Be(model.MaxTime);
             writeOperation.Pipeline.Should().BeEquivalentTo(pipeline);
 
@@ -125,14 +126,14 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult(fakeCursor);
 
             // this causes execution of the find operation
-            await result.GetEnumerator().MoveNextAsync();
+            await result.GetAsyncEnumerator().MoveNextAsync();
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
             var operation = (FindOperation<BsonDocument>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.funny");
-            operation.AwaitData.Should().BeFalse();
+            operation.AwaitData.Should().BeTrue();
             operation.BatchSize.Should().Be(model.BatchSize);
             operation.Comment.Should().BeNull();
             operation.Criteria.Should().BeNull();
@@ -423,7 +424,7 @@ namespace MongoDB.Driver
             var sort = BsonDocument.Parse("{a:1}");
             var model = new FindModel<BsonDocument>
             {
-                AwaitData = true,
+                AwaitData = false,
                 BatchSize = 20,
                 Comment = "funny",
                 Criteria = criteria,
@@ -447,7 +448,7 @@ namespace MongoDB.Driver
             _operationExecutor.QueuedCallCount.Should().Be(0);
 
             // this causes execution of the operation
-            await result.GetEnumerator().MoveNextAsync();
+            await result.GetAsyncEnumerator().MoveNextAsync();
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 

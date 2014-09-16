@@ -73,7 +73,7 @@ namespace MongoDB.Driver
                 using (var binding = _collection.Database.Server.GetReadBinding(readPreference))
                 using (var connectionSource = binding.GetReadConnectionSource(Timeout.InfiniteTimeSpan, CancellationToken.None))
                 {
-                    var cursor = new BatchCursor<BsonDocument>(
+                    var cursor = new AsyncCursor<BsonDocument>(
                         connectionSource.Fork(),
                         new CollectionNamespace(_collection.Database.Name, _collection.Name),
                         query,

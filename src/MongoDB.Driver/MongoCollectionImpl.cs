@@ -77,13 +77,14 @@ namespace MongoDB.Driver
             var pipeline = model.Pipeline.Select(x => ConvertToBsonDocument(x)).ToList();
 
             var last = pipeline.LastOrDefault();
-            if (last == null || last.GetElement(0).Name == "$out")
+            if (last != null && last.GetElement(0).Name == "$out")
             {
                 var operation = new AggregateToCollectionOperation(
                     _collectionNamespace,
                     pipeline,
                     _messageEncoderSettings)
                 {
+                    AllowDiskUse = model.AllowDiskUse,
                     MaxTime = model.MaxTime
                 };
 
@@ -164,7 +165,6 @@ namespace MongoDB.Driver
 
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
-
 
         public async Task<DeleteResult> DeleteManyAsync(DeleteManyModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
         {

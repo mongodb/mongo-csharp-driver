@@ -1,4 +1,19 @@
-﻿using System;
+﻿/* Copyright 2013-2014 MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,52 +24,59 @@ using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
-    internal class AsyncCursorAsyncEnumerable<TDocument> : IAsyncEnumerable<TDocument>
+    internal sealed class AsyncCursorAsyncEnumerable<TDocument> : IAsyncEnumerable<TDocument>
     {
-        private readonly Func<Task<IAsyncCursor<TDocument>>> _executor;
+        // fields
+        private readonly Func<Task<IAsyncCursor<TDocument>>> _executorAsync;
         private readonly long? _limit;
 
-        public AsyncCursorAsyncEnumerable(Func<Task<IAsyncCursor<TDocument>>> executor, long? limit)
+        // constructors
+        public AsyncCursorAsyncEnumerable(Func<Task<IAsyncCursor<TDocument>>> executorAsync, long? limit)
         {
-            _executor = Ensure.IsNotNull(executor, "executor");
+            _executorAsync = Ensure.IsNotNull(executorAsync, "executor");
             _limit = limit;
         }
 
-        public IAsyncEnumerator<TDocument> GetEnumerator()
+        // methods
+        public IAsyncEnumerator<TDocument> GetAsyncEnumerator()
         {
-            return new Enumerator(_executor, _limit);
+            return new Enumerator(_executorAsync, _limit);
         }
 
+        // nested classes
         private class Enumerator : IAsyncEnumerator<TDocument>
         {
-            private readonly Func<Task<IAsyncCursor<TDocument>>> _executor;
+            private bool _disposed;
             private IAsyncEnumerator<TDocument> _enumerator;
+            private readonly Func<Task<IAsyncCursor<TDocument>>> _executorAsync;
             private readonly long? _limit;
 
             public Enumerator(Func<Task<IAsyncCursor<TDocument>>> executor, long? limit)
             {
-                _executor = executor;
+                _executorAsync = executor;
                 _limit = limit;
             }
 
             public TDocument Current
             {
-                get 
+                get
                 {
-                    if(_enumerator == null)
+                    ThrowIfDisposed();
+                    if (_enumerator == null)
                     {
                         throw new InvalidOperationException("Enumeration has not started. Call MoveNextAsync.");
                     }
 
-                    return _enumerator.Current; 
+                    return _enumerator.Current;
                 }
             }
 
             public async Task<bool> MoveNextAsync(TimeSpan? timeout, CancellationToken cancellationToken)
             {
-                if(_enumerator == null)
+                ThrowIfDisposed();
+                if (_enumerator == null)
                 {
-                    var cursor = await _executor();
+                    var cursor = await _executorAsync();
                     _enumerator = new AsyncCursorEnumerator<TDocument>(cursor, _limit);
                 }
 
@@ -63,7 +85,19 @@ namespace MongoDB.Driver
 
             public void Dispose()
             {
-                _enumerator.Dispose();
+                if (!_disposed)
+                {
+                    _enumerator.Dispose();
+                    _disposed = true;
+                }
+            }
+
+            private void ThrowIfDisposed()
+            {
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(GetType().FullName);
+                }
             }
         }
 

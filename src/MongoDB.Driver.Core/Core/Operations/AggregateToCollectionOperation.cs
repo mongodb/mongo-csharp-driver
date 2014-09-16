@@ -28,10 +28,11 @@ namespace MongoDB.Driver.Core.Operations
     public class AggregateToCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private bool? _allowDiskUse;
+        private readonly CollectionNamespace _collectionNamespace;
         private TimeSpan? _maxTime;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private IReadOnlyList<BsonDocument> _pipeline;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly IReadOnlyList<BsonDocument> _pipeline;
 
         // constructors
         public AggregateToCollectionOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
@@ -42,6 +43,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        public bool? AllowDiskUse
+        {
+            get { return _allowDiskUse; }
+            set { _allowDiskUse = value; }
+        }
+
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
@@ -80,6 +87,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
+                { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
         }

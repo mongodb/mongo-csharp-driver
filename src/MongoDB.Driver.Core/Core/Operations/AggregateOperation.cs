@@ -36,10 +36,10 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _allowDiskUse;
         private int? _batchSize;
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private TimeSpan? _maxTime;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private IReadOnlyList<BsonDocument> _pipeline;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly IReadOnlyList<BsonDocument> _pipeline;
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private bool? _useCursor;
 
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
-                { "allowDiskUsage", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
+                { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
 
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private BatchCursor<TResult> CreateCursor(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
+        private AsyncCursor<TResult> CreateCursor(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
         {
             if (_useCursor.GetValueOrDefault(true))
             {
@@ -143,9 +143,9 @@ namespace MongoDB.Driver.Core.Operations
             return CreateCursorFromInlineResult(command, result, timeout, cancellationToken);
         }
 
-        private BatchCursor<TResult> CreateCursorFromCursorResult(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
+        private AsyncCursor<TResult> CreateCursorFromCursorResult(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            return new BatchCursor<TResult>(
+            return new AsyncCursor<TResult>(
                 connectionSource.Fork(),
                 CollectionNamespace,
                 command,
@@ -159,9 +159,9 @@ namespace MongoDB.Driver.Core.Operations
                 cancellationToken);
         }
 
-        private BatchCursor<TResult> CreateCursorFromInlineResult(BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
+        private AsyncCursor<TResult> CreateCursorFromInlineResult(BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            return new BatchCursor<TResult>(
+            return new AsyncCursor<TResult>(
                 null, // connectionSource
                 CollectionNamespace,
                 command,

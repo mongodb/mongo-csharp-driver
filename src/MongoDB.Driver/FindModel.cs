@@ -30,6 +30,15 @@ namespace MongoDB.Driver
         private object _sort;
         private bool _tailable;
 
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FindModel{TResult}"/> class.
+        /// </summary>
+        public FindModel()
+        {
+            _awaitData = true;
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether [await data].
         /// </summary>
