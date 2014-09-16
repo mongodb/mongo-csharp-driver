@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -10,9 +11,8 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for finding documents.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindModel<TDocument, TResult>
+    public class FindModel<TResult>
     {
         // fields
         private bool _awaitData;
@@ -25,6 +25,7 @@ namespace MongoDB.Driver
         private bool _noCursorTimeout;
         private bool _partial;
         private object _projection;
+        private IBsonSerializer<TResult> _resultSerializer;
         private int? _skip;
         private object _sort;
         private bool _tailable;
@@ -129,6 +130,15 @@ namespace MongoDB.Driver
         {
             get { return _projection; }
             set { _projection = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the result serializer.
+        /// </summary>
+        public IBsonSerializer<TResult> ResultSerializer
+        {
+            get { return _resultSerializer; }
+            set { _resultSerializer = value; }
         }
 
         /// <summary>

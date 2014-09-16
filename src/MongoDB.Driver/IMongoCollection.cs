@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(AggregateModel<TDocument, TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(AggregateModel<TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Performs multiple write operations at the same time.
@@ -107,7 +107,7 @@ namespace MongoDB.Driver
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The results of the query.</returns>
-        Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindModel<TDocument, TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindModel<TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.

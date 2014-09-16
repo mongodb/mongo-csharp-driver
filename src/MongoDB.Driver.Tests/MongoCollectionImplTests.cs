@@ -66,7 +66,7 @@ namespace MongoDB.Driver
         public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
         {
             var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
-            var model = new AggregateModel<BsonDocument, BsonDocument>(pipeline)
+            var model = new AggregateModel<BsonDocument>(pipeline)
             {
                 AllowDiskUse = true,
                 BatchSize = 10,
@@ -102,7 +102,7 @@ namespace MongoDB.Driver
         public async Task AggregateAsync_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified()
         {
             var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}"), BsonDocument.Parse("{$out: \"funny\"}" )};
-            var model = new AggregateModel<BsonDocument, BsonDocument>(pipeline)
+            var model = new AggregateModel<BsonDocument>(pipeline)
             {
                 AllowDiskUse = true,
                 BatchSize = 10,
@@ -421,7 +421,7 @@ namespace MongoDB.Driver
             var criteria = BsonDocument.Parse("{x:1}");
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var model = new FindModel<BsonDocument, BsonDocument>
+            var model = new FindModel<BsonDocument>
             {
                 AwaitData = true,
                 BatchSize = 20,

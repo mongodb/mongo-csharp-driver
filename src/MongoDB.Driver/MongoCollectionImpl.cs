@@ -68,11 +68,11 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public async Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(AggregateModel<TDocument, TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(AggregateModel<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(model, "model");
 
-            var resultSerializer = _settings.SerializerRegistry.GetSerializer<TResult>();
+            var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
 
             var pipeline = model.Pipeline.Select(x => ConvertToBsonDocument(x)).ToList();
 
@@ -198,13 +198,14 @@ namespace MongoDB.Driver
             }
         }
 
-        public Task<IReadOnlyList<TValue>> DistinctAsync<TValue>(DistinctModel<TValue> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(DistinctModel<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(model, "model");
 
-            var operation = new DistinctOperation<TValue>(
+            var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
+            var operation = new DistinctOperation<TResult>(
                 _collectionNamespace,
-                model.ValueSerializer ?? _settings.SerializerRegistry.GetSerializer<TValue>(),
+                resultSerializer,
                 model.FieldName,
                 _messageEncoderSettings)
             {
@@ -215,11 +216,11 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
-        public Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindModel<TDocument, TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindModel<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(model, "model");
 
-            var resultSerializer = _settings.SerializerRegistry.GetSerializer<TResult>();
+            var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
 
             var operation = new FindOperation<TResult>(
                 _collectionNamespace,

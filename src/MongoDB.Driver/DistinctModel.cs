@@ -25,17 +25,18 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for the distinct command.
     /// </summary>
-    public sealed class DistinctModel<T> : IExplainableModel
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    public sealed class DistinctModel<TResult> : IExplainableModel
     {
         // fields
         private readonly string _fieldName;
         private object _criteria;
         private TimeSpan? _maxTime;
-        private IBsonSerializer<T> _valueSerializer;
+        private IBsonSerializer<TResult> _resultSerializer;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="DistinctModel{T}"/> class.
+        /// Initializes a new instance of the <see cref="DistinctModel{TResult}"/> class.
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         public DistinctModel(string fieldName)
@@ -72,12 +73,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the value serializer.
+        /// Gets or sets the result serializer.
         /// </summary>
-        public IBsonSerializer<T> ValueSerializer
+        public IBsonSerializer<TResult> ResultSerializer
         {
-            get { return _valueSerializer; }
-            set { _valueSerializer = value; }
+            get { return _resultSerializer; }
+            set { _resultSerializer = value; }
         }
     }
 }
