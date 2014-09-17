@@ -27,6 +27,8 @@ namespace MongoDB.Driver.Core.Operations.CountOperationTests
 
         protected override void Given()
         {
+            Require.MinimumServerVersion("2.7.6");
+
             _subject = new CountOperation(CollectionNamespace, MessageEncoderSettings)
             {
                 Criteria = BsonDocument.Parse("{ x : { $gt : 2 } }"),
