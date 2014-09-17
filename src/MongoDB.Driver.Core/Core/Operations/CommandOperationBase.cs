@@ -122,10 +122,17 @@ namespace MongoDB.Driver.Core.Operations
             };
             if (_additionalOptions != null)
             {
-                wrappedCommand.AddRange(_additionalOptions);
+                wrappedCommand.Merge(_additionalOptions, overwriteExistingElements: false);
             }
 
-            return wrappedCommand;
+            if (wrappedCommand.ElementCount == 1)
+            {
+                return _command;
+            }
+            else
+            {
+                return wrappedCommand;
+            }
         }
 
         protected async Task<TCommandResult> ExecuteCommandAsync(

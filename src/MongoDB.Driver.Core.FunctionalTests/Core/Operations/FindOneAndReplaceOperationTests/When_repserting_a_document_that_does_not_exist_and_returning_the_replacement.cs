@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations.FindOneAndReplaceOperationTests
         {
             _subject = new FindOneAndReplaceOperation<BsonDocument>(
                 CollectionNamespace,
-                BsonDocument.Parse("{x: 1}"),
+                BsonDocument.Parse("{_id: 10}"),
                 BsonDocument.Parse("{_id: 10, a: 2}"),
                 BsonDocumentSerializer.Instance,
                 MessageEncoderSettings)

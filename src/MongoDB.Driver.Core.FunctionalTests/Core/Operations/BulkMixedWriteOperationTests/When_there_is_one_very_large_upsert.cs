@@ -34,6 +34,8 @@ namespace MongoDB.Driver.Core.Operations.BulkMixedWriteOperationTests
 
         protected override void Given()
         {
+            Require.MinimumServerVersion("2.6.0");
+
             var smallDocument = new BsonDocument { { "_id", 1 }, { "x", "" } };
             var smallDocumentSize = smallDocument.ToBson().Length;
             var stringSize = 16 * 1024 * 1024 - smallDocumentSize;
