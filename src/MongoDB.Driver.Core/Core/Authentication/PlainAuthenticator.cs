@@ -21,6 +21,12 @@ namespace MongoDB.Driver.Core.Authentication
 {
     public class PlainAuthenticator : SaslAuthenticator
     {
+        // static properties
+        public static string MechanismName
+        {
+            get { return "PLAIN"; }
+        }
+
         // fields
         private readonly string _databaseName;
 
@@ -52,7 +58,7 @@ namespace MongoDB.Driver.Core.Authentication
             // properties
             public string Name
             {
-                get { return "PLAIN"; }
+                get { return MechanismName; }
             }
 
             // methods

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests
         // static constructor
         static Configuration()
         {
-            var connectionString = Environment.GetEnvironmentVariable("CSharpDriverTestsConnectionString")
+            var connectionString = Environment.GetEnvironmentVariable("MONGO_URI")
                 ?? "mongodb://localhost/?w=1"; 
 
             var mongoUrl = new MongoUrl(connectionString);

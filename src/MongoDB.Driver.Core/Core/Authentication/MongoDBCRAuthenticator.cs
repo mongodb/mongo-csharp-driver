@@ -25,18 +25,28 @@ namespace MongoDB.Driver.Core.Authentication
 {
     public sealed class MongoDBCRAuthenticator : IAuthenticator
     {
+        // static properties
+        public static string MechanismName
+        {
+            get { return "MONGODB-CR"; }
+        }
+
+        // fields
         private readonly UsernamePasswordCredential _credential;
 
+        // constructors
         public MongoDBCRAuthenticator(UsernamePasswordCredential credential)
         {
             _credential = Ensure.IsNotNull(credential, "credential");
         }
 
+        // properties
         public string Name
         {
-            get { return "MONGODB-CR"; }
+            get { return MechanismName; }
         }
 
+        // methods
         public async Task AuthenticateAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");

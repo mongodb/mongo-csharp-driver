@@ -25,6 +25,12 @@ namespace MongoDB.Driver.Core.Authentication
 {
     public class MongoDBX509Authenticator : IAuthenticator
     {
+        // static properties
+        public static string MechanismName
+        {
+            get { return "MONGODB-X509"; }
+        }
+
         // fields
         private readonly string _username;
 
@@ -37,7 +43,7 @@ namespace MongoDB.Driver.Core.Authentication
         // properties
         public string Name
         {
-            get { return "MONGODB-X509"; }
+            get { return MechanismName; }
         }
 
         // methods

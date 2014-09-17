@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Net.Sockets;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
@@ -61,8 +63,10 @@ namespace MongoDB.Driver.Core.Configuration
             // Connection
             if (connectionString.Username != null)
             {
-                // TODO: nowhere to set this...
+                var authenticator = CreateAuthenticator(connectionString);
+                configuration.ConfigureConnection(s => s.WithAuthenticators(new[] { authenticator }));
             }
+
             if (connectionString.MaxIdleTime != null)
             {
                 configuration.ConfigureConnection(s => s.WithMaxIdleTime(connectionString.MaxIdleTime.Value));
@@ -106,6 +110,39 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             return configuration;
+        }
+
+        private static IAuthenticator CreateAuthenticator(ConnectionString connectionString)
+        {
+            if (connectionString.Password != null)
+            {
+                var credential = new UsernamePasswordCredential(
+                        connectionString.AuthSource ?? connectionString.DatabaseName ?? "admin",
+                        connectionString.Username,
+                        connectionString.Password);
+
+                if (connectionString.AuthMechanism == null || connectionString.AuthMechanism == MongoDBCRAuthenticator.MechanismName)
+                {
+                    return new MongoDBCRAuthenticator(credential);
+                }
+                else if (connectionString.AuthMechanism == ScramSha1Authenticator.MechanismName)
+                {
+                    return new ScramSha1Authenticator(credential);
+                }
+                else if (connectionString.AuthMechanism == PlainAuthenticator.MechanismName)
+                {
+                    return new PlainAuthenticator(credential);
+                }
+            }
+            else
+            {
+                if (connectionString.AuthMechanism == MongoDBX509Authenticator.MechanismName)
+                {
+                    return new MongoDBX509Authenticator(connectionString.Username);
+                }
+            }
+
+            throw new NotSupportedException("Unable to create an authenticator.");
         }
 
         public static ClusterBuilder UsePerformanceCounters(this ClusterBuilder configuration, string applicationName, bool install = false)
