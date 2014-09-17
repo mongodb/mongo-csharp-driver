@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -340,6 +341,40 @@ namespace MongoDB.Driver
             return copy;
         }
 
+        // internal methods
+        internal IAuthenticator ToAuthenticator()
+        {
+            var passwordEvidence = _evidence as PasswordEvidence;
+            if (passwordEvidence != null)
+            {
+                var credential = new UsernamePasswordCredential(
+                    _identity.Source,
+                    _identity.Username,
+                    MongoUtils.ToInsecureString(passwordEvidence.SecurePassword));
+                if (_mechanism == null || _mechanism == MongoDBCRAuthenticator.MechanismName)
+                {
+                    return new MongoDBCRAuthenticator(credential);
+                }
+                else if (_mechanism == ScramSha1Authenticator.MechanismName)
+                {
+                    return new ScramSha1Authenticator(credential);
+                }
+                else if (_mechanism == PlainAuthenticator.MechanismName)
+                {
+                    return new PlainAuthenticator(credential);
+                }
+            }
+            else if (_identity.Source == "$external" && _evidence is ExternalEvidence)
+            {
+                if (_mechanism == MongoDBX509Authenticator.MechanismName)
+                {
+                    return new MongoDBX509Authenticator(_identity.Username);
+                }
+            }
+
+            throw new NotSupportedException("Unable to create an authenticator.");
+        }
+
         // internal static methods
         internal static MongoCredential FromComponents(string mechanism, string source, string username, string password)
         {
@@ -414,7 +449,7 @@ namespace MongoDB.Driver
                     }
 
                     MongoIdentity identity;
-                    if(source == "$external")
+                    if (source == "$external")
                     {
                         identity = new MongoExternalIdentity(source, username);
                     }

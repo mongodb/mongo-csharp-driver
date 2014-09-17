@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             _source = Ensure.IsNotNullOrEmpty(source, "source");
             _username = Ensure.IsNotNullOrEmpty(username, "username");
-            _password = Ensure.IsNotNullOrEmpty(password, "password");
+            _password = Ensure.IsNotNull(password, "password");
         }
 
         // properties

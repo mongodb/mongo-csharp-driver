@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Communication
         private ConnectionSettings CreateConnectionSettings(ClusterKey clusterKey)
         {
             return new ConnectionSettings()
-                // .WithAuthenticators(_authenticators) // TODO: handle authentication
+                .WithAuthenticators(clusterKey.Credentials.Select(c => c.ToAuthenticator()))
                 .WithMaxIdleTime(clusterKey.MaxConnectionIdleTime)
                 .WithMaxLifeTime(clusterKey.MaxConnectionLifeTime);
         }

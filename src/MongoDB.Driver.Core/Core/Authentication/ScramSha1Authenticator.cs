@@ -10,6 +10,12 @@ namespace MongoDB.Driver.Core.Authentication
 {
     public class ScramSha1Authenticator : SaslAuthenticator
     {
+        // static properties
+        public static string MechanismName
+        {
+            get { return "SCRAM-SHA-1"; }
+        }
+
         // fields
         private readonly string _databaseName;
 
@@ -45,7 +51,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             public string Name
             {
-                get { return "SCRAM-SHA-1"; }
+                get { return MechanismName; }
             }
 
             public ISaslStep Initialize(IConnection connection)
