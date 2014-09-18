@@ -148,6 +148,19 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestEqualsWithCertificateCollections()
+        {
+            var settings = new SslSettings();
+            settings.ClientCertificates = new[] { new X509Certificate2("testcert.pfx", "password") };
+
+            var clone = settings.Clone();
+            Assert.AreEqual(settings, clone);
+
+            clone.ClientCertificates = new[] { new X509Certificate2("testcert.pfx", "password") };
+            Assert.AreEqual(settings, clone);
+        }
+
+        [Test]
         public void TestEnabledSslProtocols()
         {
             var settings = new SslSettings();
