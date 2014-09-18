@@ -542,7 +542,7 @@ namespace MongoDB.Bson
                 case Conversion.SByteToBsonInt32: return new BsonInt32((int)(sbyte)value);
                 case Conversion.SByteToBsonInt64: return new BsonInt64((long)(sbyte)value);
                 case Conversion.SingleToBsonBoolean: var f = (float)value; return (BsonBoolean)(!(float.IsNaN(f) || f == 0.0f));
-                case Conversion.SingleToBsonDouble: return new BsonDouble((double)(float)value);
+                case Conversion.SingleToBsonDouble: return new BsonDouble((double)(decimal)(float)value); // decimal type corrects losing precision issues.
                 case Conversion.StringToBsonBoolean: return (BsonBoolean)((string)value != "");
                 case Conversion.StringToBsonDateTime:
                     var formats = new string[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };

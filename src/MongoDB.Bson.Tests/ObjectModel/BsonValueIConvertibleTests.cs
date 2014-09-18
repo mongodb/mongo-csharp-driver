@@ -137,7 +137,7 @@ namespace MongoDB.Bson.Tests
         [Test]
         public void TestBsonDouble()
         {
-            var value = new BsonDouble(1.5);
+            var value = new BsonDouble(1.5);            
             Assert.AreSame(value, ((IConvertible)value).ToType(typeof(object), null));
             Assert.AreEqual(true, Convert.ToBoolean(value));
             Assert.AreEqual(2, Convert.ToByte(value));
@@ -154,6 +154,24 @@ namespace MongoDB.Bson.Tests
             Assert.AreEqual(2, Convert.ToUInt16(value));
             Assert.AreEqual(2, Convert.ToUInt32(value));
             Assert.AreEqual(2, Convert.ToUInt64(value));
+
+            var value2 = new BsonDouble(1.3f);
+            Assert.AreSame(value2, ((IConvertible)value2).ToType(typeof(object), null));
+            Assert.AreEqual(true, Convert.ToBoolean(value2));
+            Assert.AreEqual(1, Convert.ToByte(value2));
+            Assert.Throws<InvalidCastException>(() => Convert.ToChar(value2));
+            Assert.Throws<InvalidCastException>(() => Convert.ToDateTime(value2));
+            Assert.AreEqual(1.3m, Convert.ToDecimal(value2));
+            Assert.AreEqual(1.3, Convert.ToDouble(value2));
+            Assert.AreEqual(1, Convert.ToInt16(value2));
+            Assert.AreEqual(1, Convert.ToInt32(value2));
+            Assert.AreEqual(1, Convert.ToInt64(value2));
+            Assert.AreEqual(1, Convert.ToSByte(value2));
+            Assert.AreEqual(1.3F, Convert.ToSingle(value2));
+            Assert.AreEqual("1.3", Convert.ToString(value2, CultureInfo.InvariantCulture));
+            Assert.AreEqual(1, Convert.ToUInt16(value2));
+            Assert.AreEqual(1, Convert.ToUInt32(value2));
+            Assert.AreEqual(1, Convert.ToUInt64(value2));
         }
 
         [Test]
