@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 var dataString = string.Format("\0{0}\0{1}",
                     _credential.Username,
-                    _credential.Password);
+                    _credential.GetInsecurePassword());
 
                 var bytes = new UTF8Encoding(false, true).GetBytes(dataString);
                 return new CompletedStep(bytes);

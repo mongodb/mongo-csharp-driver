@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Runtime.InteropServices;
 using System.Security;
 using MongoDB.Driver.Core.Misc;
 
@@ -55,6 +57,20 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // methods
+        public string GetInsecurePassword()
+        {
+            IntPtr unmanagedPassword = IntPtr.Zero;
+            try
+            {
+                unmanagedPassword = Marshal.SecureStringToGlobalAllocUnicode(_password);
+                return Marshal.PtrToStringUni(unmanagedPassword);
+            }
+            finally
+            {
+                Marshal.ZeroFreeGlobalAllocUnicode(unmanagedPassword);
+            }
+        }
+
         private static SecureString ConvertPasswordToSecureString(string password)
         {
             var secureString = new SecureString();

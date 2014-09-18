@@ -81,14 +81,14 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         }
 
         // methods
-        public void Dispose()
+        public void Free()
         {
             if (BufferPtr != IntPtr.Zero)
             {
                 if (NumBuffers == 1)
                 {
                     var buffer = (SecurityBuffer)Marshal.PtrToStructure(BufferPtr, typeof(SecurityBuffer));
-                    buffer.Dispose();
+                    buffer.Free();
                 }
                 else
                 {

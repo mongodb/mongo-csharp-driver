@@ -28,14 +28,14 @@ namespace MongoDB.Driver.Core.Authentication
     public sealed class GssapiAuthenticator : SaslAuthenticator
     {
         // constants
-        private const string __canonicalizeHostName = "CANONICALIZE_HOST_NAME";
-        private const string __realmProperty = "REALM";
+        private const string __canonicalizeHostNameProperty = "CANONICALIZE_HOST_NAME";
         private const string __serviceNameProperty = "SERVICE_NAME";
+        private const string __serviceRealmProperty = "REALM";
 
         // static properties
-        public static string CanonicalizeHostName
+        public static string CanonicalizeHostNameProperty
         {
-            get { return __canonicalizeHostName; }
+            get { return __canonicalizeHostNameProperty; }
         }
 
         public static string DefaultServiceName
@@ -43,9 +43,9 @@ namespace MongoDB.Driver.Core.Authentication
             get { return "mongodb"; }
         }
 
-        public static string RealmProperty
+        public static string MechanismName
         {
-            get { return __realmProperty; }
+            get { return "GSSAPI"; }
         }
 
         public static string ServiceNameProperty
@@ -53,9 +53,9 @@ namespace MongoDB.Driver.Core.Authentication
             get { return __serviceNameProperty; }
         }
 
-        public static string MechanismName
+        public static string ServiceRealmProperty
         {
-            get { return "GSSAPI"; }
+            get { return __serviceRealmProperty; }
         }
 
         // constructors
@@ -98,10 +98,10 @@ namespace MongoDB.Driver.Core.Authentication
                         case __serviceNameProperty:
                             serviceName = (string)pair.Value;
                             break;
-                        case __realmProperty:
+                        case __serviceRealmProperty:
                             realm = (string)pair.Value;
                             break;
-                        case __canonicalizeHostName:
+                        case __canonicalizeHostNameProperty:
                             canonicalizeHostName = (bool)pair.Value;
                             break;
                         default:

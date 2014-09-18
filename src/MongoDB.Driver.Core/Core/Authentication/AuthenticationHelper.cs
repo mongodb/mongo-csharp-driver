@@ -56,22 +56,22 @@ namespace MongoDB.Driver.Core.Authentication
                         }
                         finally
                         {
+                            Array.Clear(passwordBytes, 0, passwordBytes.Length);
+
                             if (passwordBytesHandle.IsAllocated)
                             {
                                 passwordBytesHandle.Free();
                             }
-
-                            Array.Clear(passwordBytes, 0, passwordBytes.Length);
                         }
                     }
                     finally
                     {
+                        Array.Clear(passwordChars, 0, passwordChars.Length);
+
                         if (passwordCharsHandle.IsAllocated)
                         {
                             passwordCharsHandle.Free();
                         }
-
-                        Array.Clear(passwordChars, 0, passwordChars.Length);
                     }
                 }
                 finally

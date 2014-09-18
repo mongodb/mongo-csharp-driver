@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         }
 
         // methods
-        public void Dispose()
+        public void Free()
         {
             if (Token != IntPtr.Zero)
             {

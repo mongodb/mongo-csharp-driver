@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                 }
                 finally
                 {
-                    descriptor.Dispose();
+                    descriptor.Free();
                 }
             }
         }
@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                 }
                 finally
                 {
-                    descriptor.Dispose();
+                    descriptor.Free();
                 }
             }
         }
@@ -298,7 +298,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                         }
                         finally
                         {
-                            serverToken.Dispose();
+                            serverToken.Free();
                         }
                     }
 
@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                 }
                 finally
                 {
-                    outputBuffer.Dispose();
+                    outputBuffer.Free();
                 }
             }
         }
