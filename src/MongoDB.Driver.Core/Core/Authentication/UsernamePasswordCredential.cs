@@ -67,14 +67,17 @@ namespace MongoDB.Driver.Core.Authentication
             }
             finally
             {
-                Marshal.ZeroFreeGlobalAllocUnicode(unmanagedPassword);
+                if (unmanagedPassword != IntPtr.Zero)
+                {
+                    Marshal.ZeroFreeGlobalAllocUnicode(unmanagedPassword);
+                }
             }
         }
 
         private static SecureString ConvertPasswordToSecureString(string password)
         {
             var secureString = new SecureString();
-            foreach(var c in password)
+            foreach (var c in password)
             {
                 secureString.AppendChar(c);
             }

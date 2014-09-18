@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Core.Configuration
                     var properties = new Dictionary<string, object>();
                     if(connectionString.GssapiServiceName != null)
                     {
-                        properties[GssapiAuthenticator.ServiceNameProperty] = connectionString.GssapiServiceName;
+                        properties[GssapiAuthenticator.ServiceNamePropertyName] = connectionString.GssapiServiceName;
                     }
                     return new GssapiAuthenticator(credential, properties);
                 }
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.Configuration
                     var properties = new Dictionary<string, object>();
                     if (connectionString.GssapiServiceName != null)
                     {
-                        properties[GssapiAuthenticator.ServiceNameProperty] = connectionString.GssapiServiceName;
+                        properties[GssapiAuthenticator.ServiceNamePropertyName] = connectionString.GssapiServiceName;
                     }
                     return new GssapiAuthenticator(connectionString.Username, properties);
                 }
