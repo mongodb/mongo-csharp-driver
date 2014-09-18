@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Authentication
 {
-    public class MongoDBX509Authenticator : IAuthenticator
+    public sealed class MongoDBX509Authenticator : IAuthenticator
     {
         // static properties
         public static string MechanismName

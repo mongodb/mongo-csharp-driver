@@ -13,19 +13,25 @@
 * limitations under the License.
 */
 
+using System.Security;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
-    public class UsernamePasswordCredential
+    public sealed class UsernamePasswordCredential
     {
         // fields
         private string _source;
-        private string _password;
+        private SecureString _password;
         private string _username;
 
         // constructors
         public UsernamePasswordCredential(string source, string username, string password)
+            : this(source, username, ConvertPasswordToSecureString(password))
+        {
+        }
+
+        public UsernamePasswordCredential(string source, string username, SecureString password)
         {
             _source = Ensure.IsNotNullOrEmpty(source, "source");
             _username = Ensure.IsNotNullOrEmpty(username, "username");
@@ -33,7 +39,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // properties
-        public string Password
+        public SecureString Password
         {
             get { return _password; }
         }
@@ -46,6 +52,18 @@ namespace MongoDB.Driver.Core.Authentication
         public string Username
         {
             get { return _username; }
+        }
+
+        // methods
+        private static SecureString ConvertPasswordToSecureString(string password)
+        {
+            var secureString = new SecureString();
+            foreach(var c in password)
+            {
+                secureString.AppendChar(c);
+            }
+            secureString.MakeReadOnly();
+            return secureString;
         }
     }
 }

@@ -13,6 +13,9 @@
 * limitations under the License.
 */
 
+using System;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using MongoDB.Bson;
@@ -21,30 +24,64 @@ namespace MongoDB.Driver.Core.Authentication
 {
     internal static class AuthenticationHelper
     {
-        public static string MongoUsernamePasswordDigest(string username, string password)
+        private static readonly UTF8Encoding __encoding = new UTF8Encoding(false, true);
+
+        public static string MongoPasswordDigest(string username, SecureString password)
         {
             using (var md5 = MD5.Create())
             {
-                var encoding = new UTF8Encoding(false, true);
-                return HexMD5(md5, username + ":mongo:" + password, encoding);
-            }
-        }
+                var bytes = __encoding.GetBytes(username + ":mongo:");
+                md5.TransformBlock(bytes, 0, bytes.Length, null, 0);
 
-        public static string HexMD5(string username, string password, string nonce)
-        {
-            using (var md5 = MD5.Create())
-            {
-                var encoding = new UTF8Encoding(false, true);
-                var passwordDigest = HexMD5(md5, username + ":mongo:" + password, encoding);
-                return HexMD5(md5, nonce + username + passwordDigest, encoding);
-            }
-        }
+                IntPtr unmanagedPassword = IntPtr.Zero;
+                try
+                {
+                    unmanagedPassword = Marshal.SecureStringToBSTR(password);
+                    var passwordChars = new char[password.Length];
+                    GCHandle passwordCharsHandle = new GCHandle();
+                    try
+                    {
+                        passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
+                        Marshal.Copy(unmanagedPassword, passwordChars, 0, passwordChars.Length);
 
-        private static string HexMD5(MD5 md5, string value, UTF8Encoding encoding)
-        {
-            var bytes = encoding.GetBytes(value);
-            var hash = md5.ComputeHash(bytes);
-            return BsonUtils.ToHexString(hash);
+                        var byteCount = __encoding.GetByteCount(passwordChars);
+                        var passwordBytes = new byte[byteCount];
+                        GCHandle passwordBytesHandle = new GCHandle();
+                        try
+                        {
+                            passwordBytesHandle = GCHandle.Alloc(passwordBytesHandle, GCHandleType.Pinned);
+                            __encoding.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
+                            md5.TransformFinalBlock(passwordBytes, 0, passwordBytes.Length);
+                            return BsonUtils.ToHexString(md5.Hash);
+                        }
+                        finally
+                        {
+                            if (passwordBytesHandle.IsAllocated)
+                            {
+                                passwordBytesHandle.Free();
+                            }
+
+                            Array.Clear(passwordBytes, 0, passwordBytes.Length);
+                        }
+                    }
+                    finally
+                    {
+                        if (passwordCharsHandle.IsAllocated)
+                        {
+                            passwordCharsHandle.Free();
+                        }
+
+                        Array.Clear(passwordChars, 0, passwordChars.Length);
+                    }
+                }
+                finally
+                {
+                    if (unmanagedPassword != IntPtr.Zero)
+                    {
+                        Marshal.ZeroFreeBSTR(unmanagedPassword);
+                    }
+                }
+            }
         }
     }
 }

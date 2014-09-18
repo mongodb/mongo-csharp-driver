@@ -8,7 +8,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
-    public class ScramSha1Authenticator : SaslAuthenticator
+    public sealed class ScramSha1Authenticator : SaslAuthenticator
     {
         // static properties
         public static string MechanismName
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Authentication
                 var clientFinalMessageWithoutProof = channelBinding + "," + nonce;
 
                 var saltedPassword = Hi(
-                    AuthenticationHelper.MongoUsernamePasswordDigest(_credential.Username, _credential.Password),
+                    AuthenticationHelper.MongoPasswordDigest(_credential.Username, _credential.Password),
                     Convert.FromBase64String(s),
                     int.Parse(i));
 

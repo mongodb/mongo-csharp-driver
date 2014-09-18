@@ -14,6 +14,9 @@
 */
 
 using System;
+using System.Security;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -79,10 +82,21 @@ namespace MongoDB.Driver.Core.Authentication
                 { "authenticate", 1 },
                 { "user", _credential.Username },
                 { "nonce", nonce },
-                { "key", AuthenticationHelper.HexMD5(_credential.Username, _credential.Password, nonce) }
+                { "key", CreateKey(_credential.Username, _credential.Password, nonce) }
             };
             var protocol = new CommandWireProtocol(new DatabaseNamespace(_credential.Source), command, true, null);
             await protocol.ExecuteAsync(connection, timeout, cancellationToken);
+        }
+
+        private string CreateKey(string username, SecureString password, string nonce)
+        {
+            var passwordDigest = AuthenticationHelper.MongoPasswordDigest(username, password);
+            using (var md5 = MD5.Create())
+            {
+                var bytes = new UTF8Encoding(false, true).GetBytes(nonce + username + passwordDigest);
+                bytes = md5.ComputeHash(bytes);
+                return BsonUtils.ToHexString(bytes);
+            }
         }
     }
 }

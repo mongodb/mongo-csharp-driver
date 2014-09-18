@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
-    public class PlainAuthenticator : SaslAuthenticator
+    public sealed class PlainAuthenticator : SaslAuthenticator
     {
         // static properties
         public static string MechanismName

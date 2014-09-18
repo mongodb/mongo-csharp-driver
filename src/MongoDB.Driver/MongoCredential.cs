@@ -363,12 +363,20 @@ namespace MongoDB.Driver
                 {
                     return new PlainAuthenticator(credential);
                 }
+                else if (_mechanism == GssapiAuthenticator.MechanismName)
+                {
+                    return new GssapiAuthenticator(credential, _mechanismProperties);
+                }
             }
             else if (_identity.Source == "$external" && _evidence is ExternalEvidence)
             {
                 if (_mechanism == MongoDBX509Authenticator.MechanismName)
                 {
                     return new MongoDBX509Authenticator(_identity.Username);
+                }
+                else if (_mechanism == GssapiAuthenticator.MechanismName)
+                {
+                    return new GssapiAuthenticator(_identity.Username, _mechanismProperties);
                 }
             }
 

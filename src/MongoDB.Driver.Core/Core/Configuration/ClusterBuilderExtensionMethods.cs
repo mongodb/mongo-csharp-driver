@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2013 10gen Inc.
+﻿/* Copyright 2010-2014 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
@@ -133,12 +134,30 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new PlainAuthenticator(credential);
                 }
+                else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
+                {
+                    var properties = new Dictionary<string, object>();
+                    if(connectionString.GssapiServiceName != null)
+                    {
+                        properties[GssapiAuthenticator.ServiceNameProperty] = connectionString.GssapiServiceName;
+                    }
+                    return new GssapiAuthenticator(credential, properties);
+                }
             }
             else
             {
                 if (connectionString.AuthMechanism == MongoDBX509Authenticator.MechanismName)
                 {
                     return new MongoDBX509Authenticator(connectionString.Username);
+                }
+                else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
+                {
+                    var properties = new Dictionary<string, object>();
+                    if (connectionString.GssapiServiceName != null)
+                    {
+                        properties[GssapiAuthenticator.ServiceNameProperty] = connectionString.GssapiServiceName;
+                    }
+                    return new GssapiAuthenticator(connectionString.Username, properties);
                 }
             }
 
