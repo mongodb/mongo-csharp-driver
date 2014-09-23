@@ -225,17 +225,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the most recent connection attempt number.
-        /// </summary>
-        public virtual int ConnectionAttempt
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        /// <summary>
         /// Gets the one and only instance for this server.
         /// </summary>
         public virtual MongoServerInstance Instance
@@ -407,7 +396,17 @@ namespace MongoDB.Driver
         {
             get
             {
-                throw new NotImplementedException();
+                switch (_cluster.Description.State)
+                {
+                    case ClusterState.Connected:
+                        return MongoServerState.Connected;
+
+                    case ClusterState.Disconnected:
+                        return MongoServerState.Disconnected;
+
+                    default:
+                        throw new MongoInternalException("Invalid ClusterState.");
+                }
             }
         }
 
@@ -497,18 +496,6 @@ namespace MongoDB.Driver
             var readPreference = _settings.ReadPreference;
             var readPreferenceServerSelector = new ReadPreferenceServerSelector(readPreference);
             _cluster.SelectServerAsync(readPreferenceServerSelector, timeout, CancellationToken.None).GetAwaiter().GetResult();
-        }
-
-        // TODO: fromHost parameter?
-        /// <summary>
-        /// Copies a database.
-        /// </summary>
-        /// <param name="from">The name of an existing database.</param>
-        /// <param name="to">The name of the new database.</param>
-        [Obsolete("Will not be implemented because this should not be part of the public API.")]
-        public virtual void CopyDatabase(string from, string to)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -801,14 +788,6 @@ namespace MongoDB.Driver
             var serverSelector = new EndPointServerSelector(endPoint);
             var coreReadPreference = serverInstance.GetServerDescription().Type.IsWritable() ? ReadPreference.Primary : ReadPreference.Secondary;
             return RequestStart(serverSelector, coreReadPreference);
-        }
-
-        /// <summary>
-        /// Shuts down the server.
-        /// </summary>
-        public virtual void Shutdown()
-        {
-            throw new NotImplementedException();
         }
 
         // internal methods

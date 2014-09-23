@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
@@ -116,17 +117,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the exception thrown the last time Connect was called (null if Connect did not throw an exception).
-        /// </summary>
-        public Exception ConnectException
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        /// <summary>
         /// Gets whether this server instance is an arbiter instance.
         /// </summary>
         public bool IsArbiter
@@ -135,17 +125,6 @@ namespace MongoDB.Driver
             {
                 var serverDescription = GetServerDescription();
                 return serverDescription.Type == ServerType.ReplicaSetArbiter;
-            }
-        }
-
-        /// <summary>
-        /// Gets the result of the most recent ismaster command sent to this server instance.
-        /// </summary>
-        public IsMasterResult IsMasterResult
-        {
-            get
-            {
-                throw new NotImplementedException();
             }
         }
 
@@ -281,7 +260,9 @@ namespace MongoDB.Driver
         /// <returns>The IP end point of this server instance.</returns>
         public IPEndPoint GetIPEndPoint()
         {
-            throw new NotImplementedException();
+            var ipAddresses = Dns.GetHostAddresses(_address.Host);
+            var ipAddress = ipAddresses.FirstOrDefault(a => a.AddressFamily == (_settings.IPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork));
+            return new IPEndPoint(ipAddress, _address.Port);
         }
 
         /// <summary>
