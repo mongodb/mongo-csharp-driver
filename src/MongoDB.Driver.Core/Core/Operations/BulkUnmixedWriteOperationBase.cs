@@ -35,8 +35,8 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
-        private int _maxBatchCount = 0;
-        private int _maxBatchLength = int.MaxValue;
+        private int? _maxBatchCount;
+        private int? _maxBatchLength;
         private MessageEncoderSettings _messageEncoderSettings;
         private IEnumerable<WriteRequest> _requests;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
@@ -60,16 +60,16 @@ namespace MongoDB.Driver.Core.Operations
 
         protected abstract string CommandName { get; }
 
-        public int MaxBatchCount
+        public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
-            set { _maxBatchCount = Ensure.IsGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
-        public int MaxBatchLength
+        public int? MaxBatchLength
         {
             get { return _maxBatchLength; }
-            set { _maxBatchLength = Ensure.IsGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxBatchLength = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -157,8 +157,8 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IConnectionHandle connection, BatchableSource<WriteRequest> requestSource, int originalIndex, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var maxBatchCount = Math.Min(_maxBatchCount, connection.Description.MaxBatchCount);
-            var maxBatchLength = Math.Min(_maxBatchLength, connection.Description.MaxDocumentSize);
+            var maxBatchCount = Math.Min(_maxBatchCount ?? int.MaxValue, connection.Description.MaxBatchCount);
+            var maxBatchLength = Math.Min(_maxBatchLength ?? int.MaxValue, connection.Description.MaxDocumentSize);
             var maxDocumentSize = connection.Description.MaxDocumentSize;
             var maxWireDocumentSize = connection.Description.MaxWireDocumentSize;
 

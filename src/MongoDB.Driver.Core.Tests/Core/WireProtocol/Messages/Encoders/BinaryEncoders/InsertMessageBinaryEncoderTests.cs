@@ -119,8 +119,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.ContinueOnError.Should().Be(__continueOnError);
                 message.DocumentSource.Batch.Should().Equal(__documentSource.Batch);
-                message.MaxBatchCount.Should().Be(0);
-                message.MaxMessageSize.Should().Be(0);
+                message.MaxBatchCount.Should().Be(int.MaxValue);
+                message.MaxMessageSize.Should().Be(int.MaxValue);
                 message.RequestId.Should().Be(__requestId);
                 message.Serializer.Should().BeSameAs(__serializer);
             }

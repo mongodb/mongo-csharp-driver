@@ -71,19 +71,19 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
-            set { _maxBatchCount = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
-            set { _maxDocumentSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public int? MaxMessageSize
         {
             get { return _maxMessageSize; }
-            set { _maxMessageSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxMessageSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -119,7 +119,8 @@ namespace MongoDB.Driver.Core.Operations
             var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 IsOrdered = !_continueOnError,
-                MaxBatchCount = _maxBatchCount ?? 0,
+                MaxBatchCount = _maxBatchCount,
+                MaxBatchLength = _maxMessageSize,
                 // ReaderSettings = ?
                 WriteConcern = _writeConcern,
                 // WriteSettings = ?

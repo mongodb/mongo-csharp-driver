@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
-        private int _maxBatchCount = 0;
-        private int _maxBatchLength = int.MaxValue;
+        private int? _maxBatchCount;
+        private int? _maxBatchLength;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<WriteRequest> _requests;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
@@ -55,16 +55,16 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
-        public int MaxBatchCount
+        public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
-            set { _maxBatchCount = Ensure.IsGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
-        public int MaxBatchLength
+        public int? MaxBatchLength
         {
             get { return _maxBatchLength; }
-            set { _maxBatchLength = Ensure.IsGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxBatchLength = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings

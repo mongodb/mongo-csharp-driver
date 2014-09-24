@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
-            _maxBatchCount = Ensure.IsGreaterThanOrEqualToZero(maxBatchCount, "maxBatchCount");
-            _maxMessageSize = Ensure.IsGreaterThanOrEqualToZero(maxMessageSize, "maxMessageSize");
+            _maxBatchCount = Ensure.IsGreaterThanZero(maxBatchCount, "maxBatchCount");
+            _maxMessageSize = Ensure.IsGreaterThanZero(maxMessageSize, "maxMessageSize");
             _continueOnError = continueOnError;
         }
 

@@ -49,8 +49,8 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 MessageEncoderSettings,
                 documentSource,
-                connection.Description.MaxBatchCount,
-                connection.Description.MaxMessageSize,
+                MaxBatchCount,
+                MaxBatchLength,
                 continueOnError: false);               
         }
     }

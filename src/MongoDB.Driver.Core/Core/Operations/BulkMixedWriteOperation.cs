@@ -37,10 +37,10 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
-        private int _maxBatchCount = 0;
-        private int _maxBatchLength = int.MaxValue;
-        private int _maxDocumentSize = int.MaxValue;
-        private int _maxWireDocumentSize = int.MaxValue;
+        private int? _maxBatchCount;
+        private int? _maxBatchLength;
+        private int? _maxDocumentSize;
+        private int? _maxWireDocumentSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<WriteRequest> _requests;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
@@ -68,28 +68,28 @@ namespace MongoDB.Driver.Core.Operations
             set { _isOrdered = value; }
         }
 
-        public int MaxBatchCount
+        public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
-            set { _maxBatchCount = Ensure.IsGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
-        public int MaxBatchLength
+        public int? MaxBatchLength
         {
             get { return _maxBatchLength; }
-            set { _maxBatchLength = Ensure.IsGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxBatchLength = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
-        public int MaxDocumentSize
+        public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
-            set { _maxDocumentSize = Ensure.IsGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
-        public int MaxWireDocumentSize
+        public int? MaxWireDocumentSize
         {
             get { return _maxWireDocumentSize; }
-            set { _maxWireDocumentSize = Ensure.IsGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxWireDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
@@ -117,7 +117,8 @@ namespace MongoDB.Driver.Core.Operations
             var hasWriteErrors = false;
 
             var runCount = 0;
-            foreach (var run in FindRuns())
+            var maxRunLength = Math.Min(_maxBatchCount ?? int.MaxValue, connection.Description.MaxBatchCount);
+            foreach (var run in FindRuns(maxRunLength))
             {
                 runCount++;
 
@@ -218,7 +219,7 @@ namespace MongoDB.Driver.Core.Operations
             return operation.ExecuteAsync(connection, timeout, cancellationToken);
         }
 
-        private IEnumerable<Run> FindOrderedRuns()
+        private IEnumerable<Run> FindOrderedRuns(int maxRunLength)
         {
             Run run = null;
 
@@ -232,7 +233,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 else if (run.RequestType == request.RequestType)
                 {
-                    if (run.Count == _maxBatchCount)
+                    if (run.Count == maxRunLength)
                     {
                         yield return run;
                         run = new Run();
@@ -255,19 +256,19 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private IEnumerable<Run> FindRuns()
+        private IEnumerable<Run> FindRuns(int maxRunLength)
         {
             if (_isOrdered)
             {
-                return FindOrderedRuns();
+                return FindOrderedRuns(maxRunLength);
             }
             else
             {
-                return FindUnorderedRuns();
+                return FindUnorderedRuns(maxRunLength);
             }
         }
 
-        private IEnumerable<Run> FindUnorderedRuns()
+        private IEnumerable<Run> FindUnorderedRuns(int maxRunLength)
         {
             var runs = new List<Run>();
 
@@ -281,7 +282,7 @@ namespace MongoDB.Driver.Core.Operations
                     run = new Run();
                     runs.Add(run);
                 }
-                else if (run.Count == _maxBatchCount)
+                else if (run.Count == maxRunLength)
                 {
                     yield return run;
                     runs.Remove(run);

@@ -2127,8 +2127,16 @@ namespace MongoDB.Driver.Tests
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
             _collection.Drop();
             var documents = Enumerable.Range(0, count).Select(n => new BsonDocument("n", n));
-            var result = _collection.InsertBatch(documents);
-            Assert.AreEqual(1, result.Count()); // it's either one OP_INSERT batch or one consolidated result if emulated
+            var expectedNumberOfResults = maxBatchCountDelta == 1 ? 2 : 1;
+            if (_server.Primary.BuildInfo.Version >= new Version(2, 6, 0))
+            {
+                // emulated InsertOpcodes always return a single emulated result
+                expectedNumberOfResults = 1;
+            }
+
+            var results = _collection.InsertBatch(documents);
+
+            Assert.AreEqual(expectedNumberOfResults, results.Count());
             Assert.AreEqual(count, _collection.Count());
         }
 
