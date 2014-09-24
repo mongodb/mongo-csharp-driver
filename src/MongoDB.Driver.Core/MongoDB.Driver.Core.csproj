@@ -45,7 +45,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
-      <Link>Misc\Hasher.cs</Link>
+      <Link>Core\Misc\Hasher.cs</Link>
     </Compile>
     <Compile Include="Core\Async\AsyncBackgroundTask.cs" />
     <Compile Include="Core\Async\AsyncDropbox.cs" />
