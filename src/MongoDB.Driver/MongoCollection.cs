@@ -205,16 +205,19 @@ namespace MongoDB.Driver
         {
             if (args == null) { throw new ArgumentNullException("args"); }
 
-            var command = new CommandDocument
+            var operation = new CountOperation(_collectionNamespace, GetMessageEncoderSettings())
             {
-                { "count", _collectionNamespace.CollectionName },
-                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
-                { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
-                { "skip", () => args.Skip.Value, args.Skip.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } //optional
+                Criteria = new BsonDocumentWrapper(args.Query),
+                Limit = args.Limit,
+                MaxTime = args.MaxTime,
+                Skip = args.Skip
             };
-            var result = RunCommandAs<CommandResult>(command);
-            return result.Response["n"].ToInt64();
+
+            var readPreference = _settings.ReadPreference ?? ReadPreference.Primary;
+            using (var binding = _server.GetReadBinding(readPreference))
+            {
+                return operation.Execute(binding);
+            }
         }
 
         /// <summary>
