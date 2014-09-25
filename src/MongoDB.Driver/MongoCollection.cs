@@ -292,17 +292,18 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Key == null) { throw new ArgumentException("Key is null.", "args"); }
 
-            var command = new CommandDocument
-            {
-                { "distinct", _collectionNamespace.CollectionName },
-                { "key", args.Key },
-                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
-            };
             var valueSerializer = (IBsonSerializer<TValue>)args.ValueSerializer ?? BsonSerializer.LookupSerializer<TValue>();
-            var resultSerializer = new DistinctCommandResultSerializer<TValue>(valueSerializer);
-            var result = RunCommandAs<DistinctCommandResult<TValue>>(command, resultSerializer);
-            return result.Values;
+            var operation = new DistinctOperation<TValue>(_collectionNamespace, valueSerializer, args.Key, GetMessageEncoderSettings())
+            {
+                Criteria = new BsonDocumentWrapper(args.Query),
+                MaxTime = args.MaxTime,
+            };
+
+            var readPreference = _settings.ReadPreference ?? ReadPreference.Primary;
+            using (var binding = _server.GetReadBinding(readPreference))
+            {
+                return operation.Execute(binding);
+            }
         }
 
         /// <summary>
