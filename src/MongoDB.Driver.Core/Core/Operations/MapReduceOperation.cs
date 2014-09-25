@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<IEnumerable<BsonValue>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            var result = await ExecuteCommandAsync(binding, timeout, cancellationToken);
+            var result = await ExecuteCommandAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
             return result["results"].AsBsonArray;
         }
 
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new ReadCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
         }
     }
 }

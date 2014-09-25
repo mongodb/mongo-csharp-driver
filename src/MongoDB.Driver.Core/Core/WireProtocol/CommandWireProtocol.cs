@@ -116,8 +116,8 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             var message = CreateMessage();
-            await connection.SendMessageAsync(message, _messageEncoderSettings, slidingTimeout, cancellationToken);
-            var reply = await connection.ReceiveMessageAsync<RawBsonDocument>(message.RequestId, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, slidingTimeout, cancellationToken);
+            await connection.SendMessageAsync(message, _messageEncoderSettings, slidingTimeout, cancellationToken).ConfigureAwait(false);
+            var reply = await connection.ReceiveMessageAsync<RawBsonDocument>(message.RequestId, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, slidingTimeout, cancellationToken).ConfigureAwait(false);
             return ProcessReply(reply);
         }
 

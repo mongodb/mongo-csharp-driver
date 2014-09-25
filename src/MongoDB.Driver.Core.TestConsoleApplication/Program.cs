@@ -68,9 +68,9 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             Console.ReadLine();
 
             Console.WriteLine("Clearing Data");
-            await ClearData(cluster).ConfigureAwait(false);
+            await ClearData(cluster);
             Console.WriteLine("Inserting Seed Data");
-            await InsertData(cluster).ConfigureAwait(false);
+            await InsertData(cluster);
 
             var cancellationTokenSource = new CancellationTokenSource();
             Console.WriteLine("Running CRUD (errors will show up as + (query error) or * (insert/update error))");
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             {
                 for (int i = 0; i < 100; i++)
                 {
-                    await Insert(binding, new BsonDocument("i", i)).ConfigureAwait(false);
+                    await Insert(binding, new BsonDocument("i", i));
                 }
             }
         }
@@ -118,8 +118,8 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 IAsyncCursor<BsonDocument> enumerator = null;
                 try
                 {
-                    enumerator = await Query(binding, new BsonDocument("i", i)).ConfigureAwait(false);
-                    if (await enumerator.MoveNextAsync().ConfigureAwait(false))
+                    enumerator = await Query(binding, new BsonDocument("i", i));
+                    if (await enumerator.MoveNextAsync())
                     {
                         docs = enumerator.Current.ToList();
                     }
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 {
                     try
                     {
-                        await Insert(binding, new BsonDocument().Add("i", i)).ConfigureAwait(false);
+                        await Insert(binding, new BsonDocument().Add("i", i));
                         //Console.Write(".");
                     }
                     catch (Exception)
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                     {
                         var criteria = new BsonDocument("_id", docs[0]["_id"]);
                         var update = new BsonDocument("$set", new BsonDocument("i", i + 1));
-                        await Update(binding, criteria, update).ConfigureAwait(false);
+                        await Update(binding, criteria, update);
                         //Console.Write(".");
                     }
                     catch (Exception)

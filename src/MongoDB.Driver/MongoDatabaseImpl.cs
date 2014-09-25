@@ -122,7 +122,7 @@ namespace MongoDB.Driver
         {
             using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -130,7 +130,7 @@ namespace MongoDB.Driver
         {
             using (var binding = new WritableServerBinding(_cluster))
             {
-                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
+                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 

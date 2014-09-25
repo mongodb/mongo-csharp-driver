@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Bindings
         private async Task<IConnectionSourceHandle> GetConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, timeout, cancellationToken);
+            var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, timeout, cancellationToken).ConfigureAwait(false);
             return new ConnectionSourceHandle(new ServerConnectionSource(server));
         }
 

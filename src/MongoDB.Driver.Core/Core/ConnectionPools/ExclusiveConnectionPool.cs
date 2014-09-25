@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     // if one of these is infinite (-1), then we don't timeout properly
                     waitQueueTimeout = (int)Math.Max(slidingTimeout.ToTimeout().TotalMilliseconds, timeout.TotalMilliseconds);
                 }
-                enteredPool = await _poolQueue.WaitAsync(TimeSpan.FromMilliseconds(waitQueueTimeout), cancellationToken);
+                enteredPool = await _poolQueue.WaitAsync(TimeSpan.FromMilliseconds(waitQueueTimeout), cancellationToken).ConfigureAwait(false);
 
                 if (enteredPool)
                 {
@@ -290,8 +290,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             try
             {
-                await PrunePoolAsync(cancellationToken);
-                await EnsureMinSizeAsync(cancellationToken);
+                await PrunePoolAsync(cancellationToken).ConfigureAwait(false);
+                await EnsureMinSizeAsync(cancellationToken).ConfigureAwait(false);
             }
             catch
             {
@@ -308,7 +308,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 // if it takes too long to enter the pool, then the pool is fully utilized
                 // and we don't want to mess with it.
-                enteredPool = await _poolQueue.WaitAsync(TimeSpan.FromMilliseconds(20), cancellationToken);
+                enteredPool = await _poolQueue.WaitAsync(TimeSpan.FromMilliseconds(20), cancellationToken).ConfigureAwait(false);
                 if (!enteredPool)
                 {
                     return;
@@ -339,7 +339,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 bool enteredPool = false;
                 try
                 {
-                    enteredPool = await _poolQueue.WaitAsync(TimeSpan.FromMilliseconds(20), cancellationToken);
+                    enteredPool = await _poolQueue.WaitAsync(TimeSpan.FromMilliseconds(20), cancellationToken).ConfigureAwait(false);
                     if (!enteredPool)
                     {
                         return;
@@ -355,7 +355,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     // when adding in a connection, we need to open it because 
                     // the whole point of having a min pool size is to have
                     // them available and ready...
-                    await connection.OpenAsync(Timeout.InfiniteTimeSpan, cancellationToken);
+                    await connection.OpenAsync(Timeout.InfiniteTimeSpan, cancellationToken).ConfigureAwait(false);
                     _connectionHolder.Return(connection);
                     stopwatch.Stop();
 

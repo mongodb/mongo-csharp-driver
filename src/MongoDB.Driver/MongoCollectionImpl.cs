@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -88,7 +87,7 @@ namespace MongoDB.Driver
                     MaxTime = model.MaxTime
                 };
 
-                await ExecuteWriteOperation(operation, timeout, cancellationToken);
+                await ExecuteWriteOperation(operation, timeout, cancellationToken).ConfigureAwait(false);
 
                 var outputCollectionName = last.GetElement(0).Value.AsString;
                 var findOperation = new FindOperation<TResult>(
@@ -102,7 +101,7 @@ namespace MongoDB.Driver
 
                 return await Task.FromResult<IAsyncEnumerable<TResult>>(new AsyncCursorAsyncEnumerable<TResult>(
                     () => ExecuteReadOperation(findOperation, timeout, cancellationToken),
-                    null));
+                    null)).ConfigureAwait(false);
             }
             else
             {
@@ -110,7 +109,7 @@ namespace MongoDB.Driver
 
                 return await Task.FromResult<IAsyncEnumerable<TResult>>(new AsyncCursorAsyncEnumerable<TResult>(
                     () => ExecuteReadOperation(operation, timeout, cancellationToken),
-                    null));
+                    null)).ConfigureAwait(false);
             }
         }
 
@@ -129,7 +128,7 @@ namespace MongoDB.Driver
 
             try
             {
-                var result = await ExecuteWriteOperation(operation, timeout, cancellationToken);
+                var result = await ExecuteWriteOperation(operation, timeout, cancellationToken).ConfigureAwait(false);
                 return BulkWriteResult<TDocument>.FromCore(result, model.Requests);
             }
             catch (BulkWriteOperationException ex)
@@ -155,7 +154,7 @@ namespace MongoDB.Driver
             try
             {
                 var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -171,7 +170,7 @@ namespace MongoDB.Driver
             try
             {
                 var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -315,7 +314,7 @@ namespace MongoDB.Driver
             try
             {
                 var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
             }
             catch (BulkWriteException<TDocument> ex)
             {
@@ -330,7 +329,7 @@ namespace MongoDB.Driver
             try
             {
                 var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
                 return ReplaceOneResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -346,7 +345,7 @@ namespace MongoDB.Driver
             try
             {
                 var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -362,7 +361,7 @@ namespace MongoDB.Driver
             try
             {
                 var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken);
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -479,7 +478,7 @@ namespace MongoDB.Driver
         {
             using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -487,7 +486,7 @@ namespace MongoDB.Driver
         {
             using (var binding = new WritableServerBinding(_cluster))
             {
-                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken);
+                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 

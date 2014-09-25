@@ -142,18 +142,18 @@ namespace MongoDB.Driver.Core.Operations
                     MaxMessageSize = _maxMessageSize,
                     WriteConcern = _writeConcern
                 };
-                var result = await emulator.ExecuteAsync(connection, timeout, cancellationToken);
+                var result = await emulator.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
                 return new[] { result };
             }
             else
             {
                 if (_documentSource.Batch == null)
                 {
-                    return await InsertMultipleBatchesAsync(connection, timeout, cancellationToken);
+                    return await InsertMultipleBatchesAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    var result = await InsertSingleBatchAsync(connection, timeout, cancellationToken);
+                    var result = await InsertSingleBatchAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
                     return new[] { result };
                 }
             }
@@ -163,10 +163,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                return await ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcernResult result;
                 try
                 {
-                    result = await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                    result = await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 }
                 catch (WriteConcernException ex)
                 {
@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Core.Operations
         private async Task<WriteConcernResult> InsertSingleBatchAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var protocol = CreateProtocol(_writeConcern, null);
-            return await protocol.ExecuteAsync(connection, timeout, cancellationToken);
+            return await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
         }
     }
 }

@@ -31,9 +31,9 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             Ensure.IsNotNull(protocol, "protocol");
             var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
+            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
-                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -45,10 +45,10 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             Ensure.IsNotNull(protocol, "protocol");
             var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
-                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -60,10 +60,10 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             Ensure.IsNotNull(protocol, "protocol");
             var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
-                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
     }

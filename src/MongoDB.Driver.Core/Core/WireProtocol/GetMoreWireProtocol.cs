@@ -66,8 +66,8 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             var message = CreateMessage();
-            await connection.SendMessageAsync(message, _messageEncoderSettings, slidingTimeout, cancellationToken);
-            var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, _messageEncoderSettings, slidingTimeout, cancellationToken);
+            await connection.SendMessageAsync(message, _messageEncoderSettings, slidingTimeout, cancellationToken).ConfigureAwait(false);
+            var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, _messageEncoderSettings, slidingTimeout, cancellationToken).ConfigureAwait(false);
             if (reply.QueryFailure)
             {
                 var failureDocument = reply.QueryFailureDocument;

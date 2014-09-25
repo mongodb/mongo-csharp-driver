@@ -17,9 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -100,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcernException writeConcernException = null;
             try
             {
-                writeConcernResult = await protocol.ExecuteAsync(connection, timeout, cancellationToken);
+                writeConcernResult = await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
             }
             catch (WriteConcernException ex)
             {
@@ -133,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
                     continue;
                 }
 
-                var batchResult = await EmulateSingleRequestAsync(connection, request, originalIndex, slidingTimeout, cancellationToken);
+                var batchResult = await EmulateSingleRequestAsync(connection, request, originalIndex, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 batchResults.Add(batchResult);
 
                 hasWriteErrors |= batchResult.HasWriteErrors;

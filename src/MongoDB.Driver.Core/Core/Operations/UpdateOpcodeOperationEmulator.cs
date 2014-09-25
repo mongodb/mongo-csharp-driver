@@ -16,8 +16,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -89,7 +87,7 @@ namespace MongoDB.Driver.Core.Operations
             BulkWriteOperationException bulkWriteException = null;
             try
             {
-                bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken);
+                bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
             }
             catch (BulkWriteOperationException ex)
             {

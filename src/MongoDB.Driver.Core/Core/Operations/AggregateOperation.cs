@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -104,14 +103,14 @@ namespace MongoDB.Driver.Core.Operations
             EnsureIsReadOnlyPipeline();
 
             var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
                 var command = CreateCommand(connectionSource.ServerDescription.Version);
 
                 var serializer = new AggregateResultDeserializer(_resultSerializer);
                 var operation = new ReadCommandOperation<AggregateResult>(CollectionNamespace.DatabaseNamespace, command, serializer, MessageEncoderSettings);
 
-                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken);
+                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken).ConfigureAwait(false);
 
                 return CreateCursor(connectionSource, command, result, timeout, cancellationToken);
             }

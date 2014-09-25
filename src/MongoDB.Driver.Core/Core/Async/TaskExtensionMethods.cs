@@ -14,9 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -52,7 +49,7 @@ namespace MongoDB.Driver.Core.Async
         {
             var source = new CancellationTokenSource();
             var delay = Task.Delay(timeout, source.Token);
-            await Task.WhenAny(task, delay);
+            await Task.WhenAny(task, delay).ConfigureAwait(false);
             if (task.IsCompleted)
             {
                 source.Cancel();
@@ -78,7 +75,7 @@ namespace MongoDB.Driver.Core.Async
 
             using (registration)
             {
-                await Task.WhenAny(task, delayTask, cancellationTaskCompletionSource.Task);
+                await Task.WhenAny(task, delayTask, cancellationTaskCompletionSource.Task).ConfigureAwait(false);
                 if (task.IsCompleted)
                 {
                     delayCancellationTokenSource.Cancel();
@@ -96,8 +93,8 @@ namespace MongoDB.Driver.Core.Async
 
         public static async Task<T> WithTimeout<T>(this Task<T> task, TimeSpan timeout)
         {
-            await ((Task)task).WithTimeout(timeout);
-            return await task;
+            await ((Task)task).WithTimeout(timeout).ConfigureAwait(false);
+            return await task.ConfigureAwait(false);
         }
 
         public static TaskCompletionSource<T> WithTimeout<T>(this TaskCompletionSource<T> source, TimeSpan timeout)

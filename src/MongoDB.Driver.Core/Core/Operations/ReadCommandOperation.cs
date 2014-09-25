@@ -191,9 +191,9 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteCommandAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken);
+                return await ExecuteCommandAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
     }

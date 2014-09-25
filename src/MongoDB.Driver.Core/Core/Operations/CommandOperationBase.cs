@@ -20,7 +20,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
@@ -142,10 +141,10 @@ namespace MongoDB.Driver.Core.Operations
             CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
+            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
                 var protocol = CreateProtocol(connectionSource.ServerDescription, readPreference);
-                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
     }

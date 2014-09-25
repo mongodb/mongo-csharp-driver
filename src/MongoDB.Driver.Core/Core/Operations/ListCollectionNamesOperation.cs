@@ -59,11 +59,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var operation = new FindOperation<BsonDocument>(_databaseNamespace.SystemNamespacesCollection, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var cursor = await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            var cursor = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
 
             var result = new List<string>();
             var prefix = _databaseNamespace + ".";
-            while (await cursor.MoveNextAsync())
+            while (await cursor.MoveNextAsync().ConfigureAwait(false))
             {
                 var batch = cursor.Current;
                 foreach (var document in batch)

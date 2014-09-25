@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var operation = new ListDatabaseNamesOperation(_messageEncoderSettings);
-            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
             return result.Contains(_databaseNamespace.DatabaseName);
         }
     }

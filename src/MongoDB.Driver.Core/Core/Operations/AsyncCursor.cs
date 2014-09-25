@@ -20,9 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -152,10 +150,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<CursorBatch<TDocument>> GetNextBatchAsync()
         {
-            using (var connection = await _connectionSource.GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None))
+            using (var connection = await _connectionSource.GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).ConfigureAwait(false))
             {
                 var protocol = CreateGetMoreProtocol();
-                return await protocol.ExecuteAsync(connection, _timeout, _cancellationToken);
+                return await protocol.ExecuteAsync(connection, _timeout, _cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -164,10 +162,10 @@ namespace MongoDB.Driver.Core.Operations
             try
             {
                 var slidingTimeout = new SlidingTimeout(TimeSpan.FromSeconds(10));
-                using (var connection = await _connectionSource.GetConnectionAsync(slidingTimeout, default(CancellationToken)))
+                using (var connection = await _connectionSource.GetConnectionAsync(slidingTimeout, default(CancellationToken)).ConfigureAwait(false))
                 {
                     var protocol = CreateKillCursorsProtocol();
-                    await protocol.ExecuteAsync(connection, slidingTimeout, default(CancellationToken));
+                    await protocol.ExecuteAsync(connection, slidingTimeout, default(CancellationToken)).ConfigureAwait(false);
                 }
             }
             catch
@@ -198,7 +196,7 @@ namespace MongoDB.Driver.Core.Operations
                 return false;
             }
 
-            var batch = await GetNextBatchAsync();
+            var batch = await GetNextBatchAsync().ConfigureAwait(false);
             var cursorId = batch.CursorId;
             var documents = batch.Documents;
 

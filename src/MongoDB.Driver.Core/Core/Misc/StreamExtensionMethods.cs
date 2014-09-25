@@ -14,10 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.IO;
@@ -45,7 +42,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             while (count > 0)
             {
-                var bytesRead = await stream.ReadAsync(buffer, offset, count, cancellationToken);
+                var bytesRead = await stream.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -61,7 +58,7 @@ namespace MongoDB.Driver.Core.Misc
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToRead = Math.Min(count, backingBytes.Count);
-                var bytesRead = await stream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead, cancellationToken);
+                var bytesRead = await stream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead, cancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -77,7 +74,7 @@ namespace MongoDB.Driver.Core.Misc
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToWrite = Math.Min(count, backingBytes.Count - backingBytes.Offset);
-                await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite, cancellationToken);
+                await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite, cancellationToken).ConfigureAwait(false);
                 offset += bytesToWrite;
                 count -= bytesToWrite;
             }

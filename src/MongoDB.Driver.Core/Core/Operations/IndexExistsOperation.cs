@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Criteria = filter
             };
-            var count = await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            var count = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
             return count != 0;
         }
     }

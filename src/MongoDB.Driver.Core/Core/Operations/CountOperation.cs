@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<long> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            var document = await ExecuteCommandAsync(binding, timeout, cancellationToken);
+            var document = await ExecuteCommandAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
             return document["n"].ToInt64();
         }
 
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
         }
 
         public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)

@@ -16,7 +16,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -87,12 +86,12 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     WriteConcern = _writeConcern
                 };
-                return await emulator.ExecuteAsync(connection, timeout, cancellationToken);
+                return await emulator.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 var protocol = CreateProtocol();
-                return await protocol.ExecuteAsync(connection, timeout, cancellationToken);
+                return await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -100,10 +99,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                return await ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
     }

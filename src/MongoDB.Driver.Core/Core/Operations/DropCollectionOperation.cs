@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations
             var operation = new WriteCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
             try
             {
-                return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+                return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoCommandException ex)
             {

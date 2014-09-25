@@ -14,9 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
@@ -76,11 +73,11 @@ namespace MongoDB.Driver
                 ThrowIfDisposed();
                 if (_enumerator == null)
                 {
-                    var cursor = await _executorAsync();
+                    var cursor = await _executorAsync().ConfigureAwait(false);
                     _enumerator = new AsyncCursorEnumerator<TDocument>(cursor, _limit);
                 }
 
-                return await _enumerator.MoveNextAsync();
+                return await _enumerator.MoveNextAsync().ConfigureAwait(false);
             }
 
             public void Dispose()

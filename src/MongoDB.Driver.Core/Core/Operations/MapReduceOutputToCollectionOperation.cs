@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -94,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new WriteCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
         }
     }
 }

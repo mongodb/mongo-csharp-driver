@@ -108,11 +108,11 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var slidingTimeout = new SlidingTimeout(timeout);
 
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
                 var command = CreateCommand();
                 var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
-                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken);
+                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken).ConfigureAwait(false);
 
                 var cursors = new List<AsyncCursor<TDocument>>();
 

@@ -15,11 +15,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
@@ -105,7 +102,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (_currentBatch == null)
                 {
-                    if (await _cursor.MoveNextAsync())
+                    if (await _cursor.MoveNextAsync().ConfigureAwait(false))
                     {
                         _currentBatch = _cursor.Current.GetEnumerator();
                     }

@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         public async Task ExecuteAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var message = CreateMessage();
-            await connection.SendMessageAsync(message, _messageEncoderSettings, timeout, cancellationToken);
+            await connection.SendMessageAsync(message, _messageEncoderSettings, timeout, cancellationToken).ConfigureAwait(false);
         }
     }
 }

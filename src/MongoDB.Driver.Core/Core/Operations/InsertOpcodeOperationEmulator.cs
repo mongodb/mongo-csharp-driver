@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
             BulkWriteOperationException bulkWriteException = null;
             try
             {
-                bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken);
+                bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
             }
             catch (BulkWriteOperationException ex)
             {

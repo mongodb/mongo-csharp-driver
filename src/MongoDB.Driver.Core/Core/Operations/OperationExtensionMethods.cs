@@ -17,7 +17,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
@@ -34,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(operation, "operation");
             using (var readBinding = new ConnectionSourceReadWriteBinding(connectionSource.Fork(), readPreference))
             {
-                return await operation.ExecuteAsync(readBinding, timeout, cancellationToken);
+                return await operation.ExecuteAsync(readBinding, timeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -47,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(operation, "operation");
             using (var writeBinding = new ConnectionSourceReadWriteBinding(connectionSource.Fork(), ReadPreference.Primary))
             {
-                return await operation.ExecuteAsync(writeBinding, timeout, cancellationToken);
+                return await operation.ExecuteAsync(writeBinding, timeout, cancellationToken).ConfigureAwait(false);
             }
         }
     }

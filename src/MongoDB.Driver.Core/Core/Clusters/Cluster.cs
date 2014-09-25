@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 Invalidate();
 
-                await descriptionChangedTask.WithTimeout(slidingTimeout, cancellationToken);
+                await descriptionChangedTask.WithTimeout(slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 

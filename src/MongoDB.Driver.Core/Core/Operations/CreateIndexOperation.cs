@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = _writeConcern
             };
-            var results = await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            var results = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
             return results.First().Response;
         }
     }

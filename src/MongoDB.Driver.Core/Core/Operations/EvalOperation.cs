@@ -14,9 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -95,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new ReadCommandOperation(_databaseNamespace, command, _messageEncoderSettings);
-            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
             return result["retval"];
         }
     }

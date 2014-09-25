@@ -20,7 +20,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -55,9 +54,9 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var slidingTimeout = new SlidingTimeout(timeout);
 
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteCommandAsync(connectionSource, ReadPreference.Primary, slidingTimeout, cancellationToken);
+                return await ExecuteCommandAsync(connectionSource, ReadPreference.Primary, slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
     }

@@ -19,7 +19,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 
@@ -54,7 +53,7 @@ namespace MongoDB.Driver.Core.Connections
                 addressFamily = _settings.AddressFamily;
             }
             var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
-            await ConnectAsync(socket, endPoint, slidingTimeout, cancellationToken);
+            await ConnectAsync(socket, endPoint, slidingTimeout, cancellationToken).ConfigureAwait(false);
             socket.NoDelay = true;
             socket.ReceiveBufferSize = _settings.ReceiveBufferSize;
             socket.SendBufferSize = _settings.SendBufferSize;

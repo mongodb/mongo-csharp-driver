@@ -174,10 +174,10 @@ namespace MongoDB.Driver.Core.Servers
             ThrowIfNotOpen();
 
             var slidingTimeout = new SlidingTimeout(timeout);
-            var connection = await _connectionPool.AcquireConnectionAsync(slidingTimeout, cancellationToken);
+            var connection = await _connectionPool.AcquireConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false);
             try
             {
-                await connection.OpenAsync(slidingTimeout, cancellationToken);
+                await connection.OpenAsync(slidingTimeout, cancellationToken).ConfigureAwait(false);
                 return new ServerConnection(this, connection);
             }
             catch
@@ -198,10 +198,10 @@ namespace MongoDB.Driver.Core.Servers
                     if (_heartbeatConnection == null)
                     {
                         _heartbeatConnection = _heartbeatConnectionFactory.CreateConnection(_serverId, _endPoint);
-                        await _heartbeatConnection.OpenAsync(TimeSpan.FromMinutes(1), cancellationToken);
+                        await _heartbeatConnection.OpenAsync(TimeSpan.FromMinutes(1), cancellationToken).ConfigureAwait(false);
                     }
 
-                    heartbeatInfo = await GetHeartbeatInfoAsync(_heartbeatConnection, cancellationToken);
+                    heartbeatInfo = await GetHeartbeatInfoAsync(_heartbeatConnection, cancellationToken).ConfigureAwait(false);
                     break;
                 }
                 catch
@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Core.Servers
                     null);
 
                 var stopwatch = Stopwatch.StartNew();
-                var isMasterResultDocument = await isMasterCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                var isMasterResultDocument = await isMasterCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 stopwatch.Stop();
                 var isMasterResult = new IsMasterResult(isMasterResultDocument);
 
@@ -275,7 +275,7 @@ namespace MongoDB.Driver.Core.Servers
                     true,
                     null);
 
-                var buildInfoResultRocument = await buildInfoCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                var buildInfoResultRocument = await buildInfoCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 var buildInfoResult = new BuildInfoResult(buildInfoResultRocument);
 
                 if (_listener != null)
@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 try
                 {
-                    await base.OpenAsync(timeout, cancellationToken);
+                    await base.OpenAsync(timeout, cancellationToken).ConfigureAwait(false);
                 }
                 catch(Exception ex)
                 {
@@ -395,7 +395,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 try
                 {
-                    return await base.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, timeout, cancellationToken);
+                    return await base.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, timeout, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -408,7 +408,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 try
                 {
-                    await base.SendMessagesAsync(messages, messageEncoderSettings, timeout, cancellationToken);
+                    await base.SendMessagesAsync(messages, messageEncoderSettings, timeout, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

@@ -14,9 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -88,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
             var operation = new WriteCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
             try
             {
-                return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+                return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoCommandException ex)
             {

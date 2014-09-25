@@ -21,7 +21,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Async;
@@ -206,10 +205,10 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var slidingTimeout = new SlidingTimeout(timeout);
                 var stopwatch = Stopwatch.StartNew();
-                _stream = await _streamFactory.CreateStreamAsync(_endPoint, slidingTimeout, cancellationToken);
+                _stream = await _streamFactory.CreateStreamAsync(_endPoint, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 _state.TryChange(State.Initializing);
                 StartBackgroundTasks();
-                _description = await _connectionInitializer.InitializeConnectionAsync(this, _connectionId, slidingTimeout, cancellationToken);
+                _description = await _connectionInitializer.InitializeConnectionAsync(this, _connectionId, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 stopwatch.Stop();
                 _connectionId = _description.ConnectionId;
                 _state.TryChange(State.Open);
@@ -238,11 +237,11 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var messageSizeBytes = new byte[4];
-                await _stream.FillBufferAsync(messageSizeBytes, 0, 4, cancellationToken);
+                await _stream.FillBufferAsync(messageSizeBytes, 0, 4, cancellationToken).ConfigureAwait(false);
                 var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
                 var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, messageSize);
                 buffer.WriteBytes(0, messageSizeBytes, 0, 4);
-                await _stream.FillBufferAsync(buffer, 4, messageSize - 4, cancellationToken);
+                await _stream.FillBufferAsync(buffer, 4, messageSize - 4, cancellationToken).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 var responseToBytes = new byte[4];
                 buffer.ReadBytes(8, responseToBytes, 0, 4);
@@ -277,7 +276,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 var stopwatch = Stopwatch.StartNew();
-                var buffer = await _inboundDropbox.ReceiveAsync(responseTo, slidingTimeout, cancellationToken);
+                var buffer = await _inboundDropbox.ReceiveAsync(responseTo, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 int length = buffer.Length;
                 ReplyMessage<TDocument> reply;
                 using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: true))
@@ -308,10 +307,10 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task<bool> SendBackgroundTask(CancellationToken cancellationToken)
         {
-            var entry = await _outboundQueue.DequeueAsync();
+            var entry = await _outboundQueue.DequeueAsync().ConfigureAwait(false);
             try
             {
-                await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, cancellationToken);
+                await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, cancellationToken).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 entry.TaskCompletionSource.TrySetResult(true);
                 return true;
@@ -359,7 +358,7 @@ namespace MongoDB.Driver.Core.Connections
                     var stopwatch = Stopwatch.StartNew();
                     var entry = new OutboundQueueEntry(buffer, cancellationToken);
                     _outboundQueue.Enqueue(entry);
-                    await entry.Task;
+                    await entry.Task.ConfigureAwait(false);
                     stopwatch.Stop();
 
                     if (_listener != null)

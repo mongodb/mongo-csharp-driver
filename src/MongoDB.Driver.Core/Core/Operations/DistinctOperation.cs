@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
             var valueArraySerializer = new ArraySerializer<TValue>(_valueSerializer);
             var resultSerializer = new ElementDeserializer<TValue[]>("values", valueArraySerializer);
             var operation = new ReadCommandOperation<TValue[]>(_collectionNamespace.DatabaseNamespace, command, resultSerializer, _messageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<BsonDocument> ExecuteCommandAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
         }
     }
 }

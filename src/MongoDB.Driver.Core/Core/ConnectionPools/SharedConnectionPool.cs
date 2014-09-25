@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            await connection.OpenAsync(timeout, cancellationToken);
+            await connection.OpenAsync(timeout, cancellationToken).ConfigureAwait(false);
             var acquiredConnection = new AcquiredConnection(connection);
             var referenceCountedConnection = new ReferenceCountedConnection(acquiredConnection);
             return new ConnectionHandle(referenceCountedConnection);

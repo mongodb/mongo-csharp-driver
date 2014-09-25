@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new WriteCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
         }
     }
 }

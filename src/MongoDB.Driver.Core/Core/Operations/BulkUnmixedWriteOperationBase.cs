@@ -136,22 +136,22 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (connection.Description.ServerVersion >= new SemanticVersion(2, 6, 0))
             {
-                return await ExecuteBatchesAsync(connection, timeout, cancellationToken);
+                return await ExecuteBatchesAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 var emulator = CreateEmulator();
-                return await emulator.ExecuteAsync(connection, timeout, cancellationToken);
+                return await emulator.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
         public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                return await ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Core.Operations
             var batchSerializer = CreateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
             var writeCommand = CreateWriteCommand(batchSerializer, requestSource);
             var protocol = CreateWriteCommandProtocol(writeCommand);
-            var writeCommandResult = await protocol.ExecuteAsync(connection, timeout, cancellationToken);
+            var writeCommandResult = await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
 
             var indexMap = new IndexMap.RangeBased(0, originalIndex, requestSource.Batch.Count);
             return BulkWriteBatchResult.Create(
@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Core.Operations
                         break;
                     }
 
-                    var batchResult = await ExecuteBatchAsync(connection, requestSource, originalIndex, slidingTimeout, cancellationToken);
+                    var batchResult = await ExecuteBatchAsync(connection, requestSource, originalIndex, slidingTimeout, cancellationToken).ConfigureAwait(false);
                     batchResults.Add(batchResult);
                     hasWriteErrors |= batchResult.HasWriteErrors;
                     originalIndex += batchResult.BatchCount;

@@ -18,8 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -128,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
                     continue;
                 }
 
-                var batchResult = await ExecuteBatchAsync(connection, run, slidingTimeout, cancellationToken);
+                var batchResult = await ExecuteBatchAsync(connection, run, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 batchResults.Add(batchResult);
 
                 hasWriteErrors |= batchResult.HasWriteErrors;
@@ -146,10 +144,10 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                return await ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -162,13 +160,13 @@ namespace MongoDB.Driver.Core.Operations
                 switch (run.RequestType)
                 {
                     case WriteRequestType.Delete:
-                        result = await ExecuteDeletesAsync(connection, run.Requests.Cast<DeleteRequest>(), timeout, cancellationToken);
+                        result = await ExecuteDeletesAsync(connection, run.Requests.Cast<DeleteRequest>(), timeout, cancellationToken).ConfigureAwait(false);
                         break;
                     case WriteRequestType.Insert:
-                        result = await ExecuteInsertsAsync(connection, run.Requests.Cast<InsertRequest>(), timeout, cancellationToken);
+                        result = await ExecuteInsertsAsync(connection, run.Requests.Cast<InsertRequest>(), timeout, cancellationToken).ConfigureAwait(false);
                         break;
                     case WriteRequestType.Update:
-                        result = await ExecuteUpdatesAsync(connection, run.Requests.Cast<UpdateRequest>(), timeout, cancellationToken);
+                        result = await ExecuteUpdatesAsync(connection, run.Requests.Cast<UpdateRequest>(), timeout, cancellationToken).ConfigureAwait(false);
                         break;
                     default:
                         throw new MongoInternalException("Unrecognized RequestType.");

@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Async
                     {
                         return;
                     }
-                    await delayTask(cancellationToken);
+                    await delayTask(cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (TaskCanceledException)

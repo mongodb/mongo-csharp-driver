@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Authentication
                     try
                     {
                         var protocol = new CommandWireProtocol(new DatabaseNamespace(DatabaseName), command, true, null);
-                        result = await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                        result = await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
                     }
                     catch(MongoCommandException ex)
                     {

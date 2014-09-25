@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new ReadCommandOperation(DatabaseNamespace.Admin, command, _messageEncoderSettings);
-            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken);
+            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
             var databases = result["databases"];
             return databases.AsBsonArray.Select(x => x["name"].ToString()).ToList();
         }
