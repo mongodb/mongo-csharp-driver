@@ -41,7 +41,7 @@ namespace MongoDB.Driver
         // private fields
         private readonly MongoServer _server;
         private readonly MongoDatabaseSettings _settings;
-        private readonly string _name;
+        private readonly DatabaseNamespace _namespace;
 
         // constructors
         /// <summary>
@@ -76,7 +76,7 @@ namespace MongoDB.Driver
             settings.Freeze();
 
             _server = server;
-            _name = name;
+            _namespace = new DatabaseNamespace(name);
             _settings = settings;
         }
 
@@ -174,7 +174,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual string Name
         {
-            get { return _name; }
+            get { return _namespace.DatabaseName; }
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Drop()
         {
-            _server.DropDatabase(_name);
+            _server.DropDatabase(_namespace.DatabaseName);
         }
 
         /// <summary>
@@ -350,15 +350,17 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Code == null) { throw new ArgumentException("Code is null.", "args"); }
 
-            var command = new CommandDocument
+            var operation = new EvalOperation(_namespace, args.Code, GetMessageEncoderSettings())
             {
-                { "$eval", args.Code },
-                { "args", () => new BsonArray(args.Args), args.Args != null }, // optional
-                { "nolock", () => !args.Lock.Value, args.Lock.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                Args = args.Args,
+                MaxTime = args.MaxTime,
+                NoLock = args.Lock.HasValue ? !args.Lock : null
             };
-            var result = RunCommandAs<CommandResult>(command);
-            return result.Response["retval"];
+
+            using (var binding = _server.GetWriteBinding())
+            {
+                return operation.Execute(binding);
+            }
         }
 
         /// <summary>
@@ -390,7 +392,7 @@ namespace MongoDB.Driver
         /// <returns>An instance of nominalType (or null if the document was not found).</returns>
         public virtual object FetchDBRefAs(Type documentType, MongoDBRef dbRef)
         {
-            if (dbRef.DatabaseName != null && dbRef.DatabaseName != _name)
+            if (dbRef.DatabaseName != null && dbRef.DatabaseName != _namespace.DatabaseName)
             {
                 return _server.FetchDBRefAs(documentType, dbRef);
             }
@@ -569,7 +571,7 @@ namespace MongoDB.Driver
         {
             List<string> collectionNames = new List<string>();
             var namespaces = GetCollection("system.namespaces");
-            var prefix = _name + ".";
+            var prefix = _namespace.DatabaseName + ".";
             foreach (var @namespace in namespaces.FindAll())
             {
                 string collectionName = @namespace["name"].AsString;
@@ -601,7 +603,7 @@ namespace MongoDB.Driver
             var clonedSettings = gridFSSettings.Clone();
             clonedSettings.ApplyDefaultValues(_settings);
             clonedSettings.Freeze();
-            return new MongoGridFS(_server, _name, clonedSettings);
+            return new MongoGridFS(_server, _namespace.DatabaseName, clonedSettings);
         }
 
         /// <summary>
@@ -764,10 +766,13 @@ namespace MongoDB.Driver
                 throw new ArgumentOutOfRangeException("newCollectionName", message);
             }
 
+            var oldCollectionNamespace = new CollectionNamespace(_namespace, oldCollectionName);
+            var newCollectionNamespace = new CollectionNamespace(_namespace, newCollectionName);
+
             var command = new CommandDocument
             {
-                { "renameCollection", string.Format("{0}.{1}", _name, oldCollectionName) },
-                { "to", string.Format("{0}.{1}", _name, newCollectionName) },
+                { "renameCollection", oldCollectionNamespace.FullName },
+                { "to", newCollectionNamespace.FullName },
                 { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
             };
             var adminDatabase = _server.GetDatabase("admin");
@@ -911,7 +916,7 @@ namespace MongoDB.Driver
         /// <returns>A canonical string representation for this database.</returns>
         public override string ToString()
         {
-            return _name;
+            return _namespace.DatabaseName;
         }
 
         // private methods
@@ -936,7 +941,7 @@ namespace MongoDB.Driver
             var usersInfo = RunCommand(new CommandDocument("usersInfo", user.Username));
 
             var roles = new BsonArray();
-            if (_name == "admin")
+            if (_namespace.DatabaseName == "admin")
             {
                 roles.Add(user.IsReadOnly ? "readAnyDatabase" : "root");
             }
@@ -1099,7 +1104,7 @@ namespace MongoDB.Driver
             where TCommandResult : CommandResult
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ReadCommandOperation<TCommandResult>(new DatabaseNamespace(_name), command, resultSerializer, messageEncoderSettings);
+            var operation = new ReadCommandOperation<TCommandResult>(_namespace, command, resultSerializer, messageEncoderSettings);
             using (var binding = _server.GetReadBinding(readPreference))
             using (var connectionSource = binding.GetReadConnectionSource())
             {
@@ -1117,7 +1122,7 @@ namespace MongoDB.Driver
             where TCommandResult : CommandResult
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new WriteCommandOperation<TCommandResult>(new DatabaseNamespace(_name), command, resultSerializer, messageEncoderSettings);
+            var operation = new WriteCommandOperation<TCommandResult>(_namespace, command, resultSerializer, messageEncoderSettings);
             using (var binding = _server.GetWriteBinding())
             using (var connectionSource = binding.GetWriteConnectionSource())
             {

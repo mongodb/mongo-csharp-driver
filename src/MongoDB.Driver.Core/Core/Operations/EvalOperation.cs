@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -23,37 +24,42 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class EvalOperation : IReadOperation<BsonValue>
+    public class EvalOperation : IWriteOperation<BsonValue>
     {
         // fields
-        private DatabaseNamespace _databaseNamespace;
-        private BsonJavaScript _javaScript;
+        private IEnumerable<BsonValue> _args;
+        private readonly DatabaseNamespace _databaseNamespace;
+        private readonly BsonJavaScript _function;
         private TimeSpan? _maxTime;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private bool? _nolock;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private bool? _noLock;
 
         // constructors
         public EvalOperation(
             DatabaseNamespace databaseNamespace,
-            BsonJavaScript javaScript,
+            BsonJavaScript function,
             MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
-            _javaScript = Ensure.IsNotNull(javaScript, "javaScript");
+            _function = Ensure.IsNotNull(function, "function");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
+        public IEnumerable<BsonValue> Args
+        {
+            get { return _args; }
+            set { _args = value; }
+        }
+
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
-            set { _databaseNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
-        public BsonJavaScript JavaScript
+        public BsonJavaScript Function
         {
-            get { return _javaScript; }
-            set { _javaScript = Ensure.IsNotNull(value, "value"); }
+            get { return _function; }
         }
 
         public TimeSpan? MaxTime
@@ -65,33 +71,31 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
-        public bool? Nolock
+        public bool? NoLock
         {
-            get { return _nolock; }
-            set { _nolock = value; }
+            get { return _noLock; }
+            set { _noLock = value; }
         }
 
         // methods
         public BsonDocument CreateCommand()
         {
-            var javaScriptWithScope = _javaScript as BsonJavaScriptWithScope;
             return new BsonDocument
             {
-                { "$eval", _javaScript.Code },
-                { "args", () => javaScriptWithScope.Scope, javaScriptWithScope != null },
-                { "nolock", () => _nolock.Value, _nolock.HasValue },
+                { "$eval", _function },
+                { "args", () => new BsonArray(_args), _args != null },
+                { "nolock", () => _noLock.Value, _noLock.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
         }
 
-        public async Task<BsonValue> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<BsonValue> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(_databaseNamespace, command, _messageEncoderSettings);
+            var operation = new WriteCommandOperation(_databaseNamespace, command, _messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
             return result["retval"];
         }
