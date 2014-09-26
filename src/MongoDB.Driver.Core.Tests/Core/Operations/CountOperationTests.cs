@@ -14,8 +14,12 @@
 */
 
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
@@ -30,8 +34,9 @@ namespace MongoDB.Driver.Core.Operations
         [SetUp]
         public void Setup()
         {
-            _collectionNamespace = new CollectionNamespace("foo", "bar");
-            _messageEncoderSettings = new MessageEncoderSettings();
+            _collectionNamespace = SuiteConfiguration.GetEmptyCollectionForTestFixture(GetType());
+            _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
+            InsertTestData();
         }
 
         [Test]
@@ -53,18 +58,129 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateCommand_should_create_the_correct_command()
         {
+            var criteria = new BsonDocument("x", 1);
+            var hint = "funny";
+            var limit = 10;
+            var skip = 30;
+            var maxTime = TimeSpan.FromSeconds(20);
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                Criteria = new BsonDocument("x", 1),
-                Hint = "funny",
-                Limit = 10,
-                MaxTime = TimeSpan.FromSeconds(20),
-                Skip = 30
+                Criteria = criteria,
+                Hint = hint,
+                Limit = limit,
+                MaxTime = maxTime,
+                Skip = skip
+            };
+            var expectedResult = new BsonDocument
+            {
+                { "count", _collectionNamespace.CollectionName },
+                { "query", criteria },
+                { "limit", limit },
+                { "skip", skip },
+                { "hint", hint },
+                { "maxTimeMS", maxTime.TotalMilliseconds }
             };
 
-            var cmd = subject.CreateCommand();
+            var result = subject.CreateCommand();
 
-            cmd.Should().Be("{ count: \"bar\", query: {x: 1}, limit: 10, skip: 30, hint: \"funny\", maxTimeMS: 20000 }");
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public async Task ExecuteAsync_should_return_expected_result()
+        {
+            var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
+
+            long result;
+            using (var binding = SuiteConfiguration.GetReadBinding())
+            {
+                result = await subject.ExecuteAsync(binding);
+            }
+
+            result.Should().Be(5);
+        }
+
+        [Test]
+        public async Task ExecuteAsync_should_return_expected_result_when_criteria_is_provided()
+        {
+            var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
+            subject.Criteria = BsonDocument.Parse("{ _id : { $gt : 1 } }");
+
+            long result;
+            using (var binding = SuiteConfiguration.GetReadBinding())
+            {
+                result = await subject.ExecuteAsync(binding);
+            }
+
+            result.Should().Be(4);
+        }
+
+        [Test]
+        public async Task ExecuteAsync_should_return_expected_result_when_hint_is_provided()
+        {
+            var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
+            subject.Hint = BsonDocument.Parse("{ _id : 1 }");
+
+            long result;
+            using (var binding = SuiteConfiguration.GetReadBinding())
+            {
+                result = await subject.ExecuteAsync(binding);
+            }
+
+            result.Should().Be(5);
+        }
+
+        [Test]
+        public async Task ExecuteAsync_should_return_expected_result_when_limit_is_provided()
+        {
+            var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
+            subject.Limit = 3;
+
+            long result;
+            using (var binding = SuiteConfiguration.GetReadBinding())
+            {
+                result = await subject.ExecuteAsync(binding);
+            }
+
+            result.Should().Be(3);
+        }
+
+        [Test]
+        public void ExecuteAsync_should_return_expected_result_when_maxTime_is_provided()
+        {
+            if (SuiteConfiguration.ServerVersion >= new SemanticVersion(2, 4, 0))
+            {
+                // TODO: port FailPoint infrastructure from Driver.Tests to Core.Tests
+            }
+        }
+
+        [Test]
+        public async Task ExecuteAsync_should_return_expected_result_when_skip_is_provided()
+        {
+            var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
+            subject.Skip = 3;
+
+            long result;
+            using (var binding = SuiteConfiguration.GetReadBinding())
+            {
+                result = await subject.ExecuteAsync(binding);
+            }
+
+            result.Should().Be(2);
+        }
+
+        // helper methods
+        private void InsertTestData()
+        {
+            var requests = Enumerable.Range(1, 5)
+                .Select(id => new BsonDocument("_id", id))
+                .Select(document => new InsertRequest(document));
+
+            var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            {
+                operation.Execute(binding);
+            }
         }
     }
 }

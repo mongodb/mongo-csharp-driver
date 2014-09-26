@@ -26,12 +26,12 @@ namespace MongoDB.Driver.Core.Operations
     public class CountOperation : IReadOperation<long>
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private BsonDocument _criteria;
         private BsonValue _hint;
         private long? _limit;
         private TimeSpan? _maxTime;
-        private MessageEncoderSettings _messageEncoderSettings;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private long? _skip;
 
         // constructors
@@ -45,7 +45,6 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonDocument Criteria
@@ -75,7 +74,6 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         public long? Skip
@@ -101,16 +99,10 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<long> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            var document = await ExecuteCommandAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
-            return document["n"].ToInt64();
-        }
-
-        public async Task<BsonDocument> ExecuteCommandAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
+            var document = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
+            return document["n"].ToInt64();
         }
 
         public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)
