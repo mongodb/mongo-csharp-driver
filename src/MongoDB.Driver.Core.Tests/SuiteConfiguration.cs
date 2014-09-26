@@ -14,7 +14,9 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -122,18 +124,18 @@ namespace MongoDB.Driver
             return cluster;
         }
 
-        public static CollectionNamespace GetEmptyCollectionForTestFixture(Type testFixtureType)
+        public static CollectionNamespace GetCollectionNamespaceForTestFixture()
         {
+            var testFixtureType = GetTestFixtureTypeFromCallStack();
             var collectionName = testFixtureType.Name;
-            var collectionNamespace = new CollectionNamespace(__databaseNamespace, collectionName);
+            return new CollectionNamespace(__databaseNamespace, collectionName);
+        }
 
-            var operation = new DropCollectionOperation(collectionNamespace, __messageEncoderSettings);
-            using (var binding = GetReadWriteBinding())
-            {
-                operation.Execute(binding);
-            }
-
-            return collectionNamespace;
+        public static CollectionNamespace GetCollectionNamespaceForTestMethod()
+        {
+            var testMethodInfo = GetTestMethodInfoFromCallStack();
+            var collectionName = testMethodInfo.DeclaringType.Name + "-" + testMethodInfo.Name;
+            return new CollectionNamespace(__databaseNamespace, collectionName);
         }
 
         public static IReadBinding GetReadBinding()
@@ -149,6 +151,49 @@ namespace MongoDB.Driver
         public static IReadWriteBinding GetReadWriteBinding()
         {
             return new WritableServerBinding(__cluster.Value);
+        }
+
+        private static Type GetTestFixtureTypeFromCallStack()
+        {
+            var stackTrace = new StackTrace();
+            for (var index = 0; index < stackTrace.FrameCount; index++)
+            {
+                var frame = stackTrace.GetFrame(index);
+                var methodInfo = frame.GetMethod();
+                var declaringType = methodInfo.DeclaringType;
+                var testFixtureAttribute = declaringType.GetCustomAttribute<TestFixtureAttribute>(inherit: false);
+                if (testFixtureAttribute != null)
+                {
+                    return declaringType;
+                }
+            }
+
+            throw new Exception("No [TestFixture] found on the call stack.");
+        }
+
+        private static MethodInfo GetTestMethodInfoFromCallStack()
+        {
+            var stackTrace = new StackTrace();
+            for (var index = 0; index < stackTrace.FrameCount; index++)
+            {
+                var frame = stackTrace.GetFrame(index);
+                var methodInfo = frame.GetMethod() as MethodInfo;
+                if (methodInfo != null)
+                {
+                    var testAttribute = methodInfo.GetCustomAttribute<TestAttribute>(inherit: false);
+                    if (testAttribute != null)
+                    {
+                        return methodInfo;
+                    }
+                    var testCaseAttribute = methodInfo.GetCustomAttribute<TestCaseAttribute>(inherit: false);
+                    if (testCaseAttribute != null)
+                    {
+                        return methodInfo;
+                    }
+                }
+            }
+
+            throw new Exception("No [TestFixture] found on the call stack.");
         }
         #endregion
 
