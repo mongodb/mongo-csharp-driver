@@ -87,10 +87,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer]
+        [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_should_return_expected_result()
         {
-            EnsureTestData();
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
 
             long result;
@@ -103,10 +102,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer]
+        [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_should_return_expected_result_when_criteria_is_provided()
         {
-            EnsureTestData();
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
             subject.Criteria = BsonDocument.Parse("{ _id : { $gt : 1 } }");
 
@@ -120,10 +118,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer]
+        [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_should_return_expected_result_when_hint_is_provided()
         {
-            EnsureTestData();
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
             subject.Hint = BsonDocument.Parse("{ _id : 1 }");
 
@@ -137,10 +134,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer]
+        [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_should_return_expected_result_when_limit_is_provided()
         {
-            EnsureTestData();
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
             subject.Limit = 3;
 
@@ -154,10 +150,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer]
+        [RequiresServer("EnsureTestData")]
         public void ExecuteAsync_should_return_expected_result_when_maxTime_is_provided()
         {
-            EnsureTestData();
             if (SuiteConfiguration.ServerVersion >= new SemanticVersion(2, 4, 0))
             {
                 // TODO: port FailPoint infrastructure from Driver.Tests to Core.Tests
@@ -165,10 +160,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer]
+        [RequiresServer("EnsureTestData")]
         public async Task ExecuteAsync_should_return_expected_result_when_skip_is_provided()
         {
-            EnsureTestData();
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
             subject.Skip = 3;
 

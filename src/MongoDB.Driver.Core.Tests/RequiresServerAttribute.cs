@@ -14,16 +14,57 @@
 */
 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class RequiresServerAttribute : CategoryAttribute
+    public class RequiresServerAttribute : CategoryAttribute, ITestAction
     {
-        public RequiresServerAttribute()
+        // fields
+        private readonly string _afterTestMethodName;
+        private readonly string _beforeTestMethodName;
+
+        // constructors
+        public RequiresServerAttribute(string beforeTestMethodName = null, string afterTestMethodName = null)
             : base("RequiresServer")
         {
+            _beforeTestMethodName = beforeTestMethodName;
+            _afterTestMethodName = afterTestMethodName;
+        }
+
+        // properties
+        public ActionTargets Targets
+        {
+            get { return ActionTargets.Test; }
+        }
+
+        // methods
+        public void AfterTest(TestDetails details)
+        {
+            InvokeMethod(details.Fixture, _afterTestMethodName);
+        }
+
+        public void BeforeTest(TestDetails details)
+        {
+            InvokeMethod(details.Fixture, _beforeTestMethodName);
+        }
+
+        private void InvokeMethod(object fixture, string methodName)
+        {
+            if (methodName != null)
+            {
+                var fixtureType = fixture.GetType();
+                var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+                var methodInfo = fixtureType.GetMethod(methodName, bindingFlags);
+                if (methodInfo == null)
+                {
+                    var message = string.Format("Type '{0}' does not contain a method named '{1}'.", fixtureType.Name, methodName);
+                    Assert.Fail(message);
+                }
+                methodInfo.Invoke(methodInfo.IsStatic ? null : fixture, new object[0]);
+            }
         }
     }
 }
