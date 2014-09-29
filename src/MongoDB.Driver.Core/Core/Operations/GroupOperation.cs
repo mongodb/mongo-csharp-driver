@@ -19,50 +19,58 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class GroupOperation : IReadOperation<IEnumerable<BsonDocument>>
+    public class GroupOperation<TResult> : IReadOperation<IEnumerable<TResult>>
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
+        private readonly BsonDocument _criteria;
         private BsonJavaScript _finalizeFunction;
-        private BsonDocument _initial;
-        private BsonDocument _key;
-        private BsonJavaScript _keyFunction;
+        private readonly BsonDocument _initial;
+        private readonly BsonDocument _key;
+        private readonly BsonJavaScript _keyFunction;
         private TimeSpan? _maxTime;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private BsonDocument _query;
-        private BsonJavaScript _reduceFunction;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly BsonJavaScript _reduceFunction;
+        private IBsonSerializer<TResult> _resultSerializer;
 
         // constructors
-        public GroupOperation(CollectionNamespace collectionNamespace, BsonDocument key, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
+        public GroupOperation(CollectionNamespace collectionNamespace, BsonDocument key, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument criteria, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _key = Ensure.IsNotNull(key, "key");
             _initial = Ensure.IsNotNull(initial, "initial");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _query = query;
+            _criteria = criteria;
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        public GroupOperation(CollectionNamespace collectionNamespace, BsonJavaScript keyFunction, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument query)
+        public GroupOperation(CollectionNamespace collectionNamespace, BsonJavaScript keyFunction, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument criteria, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _keyFunction = Ensure.IsNotNull(keyFunction, "keyFunction");
             _initial = Ensure.IsNotNull(initial, "initial");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _query = query;
+            _criteria = criteria;
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
+        }
+
+        public BsonDocument Criteria
+        {
+            get { return _criteria; }
         }
 
         public BsonJavaScript FinalizeFunction
@@ -74,27 +82,16 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Initial
         {
             get { return _initial; }
-            set { _initial = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonDocument Key
         {
             get { return _key; }
-            set
-            {
-                _key = Ensure.IsNotNull(value, "value");
-                _keyFunction = null;
-            }
         }
 
         public BsonJavaScript KeyFunction
         {
             get { return _keyFunction; }
-            set
-            {
-                _keyFunction = Ensure.IsNotNull(value, "value");
-                _key = null;
-            }
         }
 
         public TimeSpan? MaxTime
@@ -106,19 +103,17 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
-        }
-
-        public BsonDocument Query
-        {
-            get { return _query; }
-            set { _query = value; }
         }
 
         public BsonJavaScript ReduceFunction
         {
             get { return _reduceFunction; }
-            set { _reduceFunction = value; }
+        }
+
+        public IBsonSerializer<TResult> ResultSerializer
+        {
+            get { return _resultSerializer; }
+            set { _resultSerializer = value; }
         }
 
         // methods
@@ -133,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
                         { "$keyf", _keyFunction, _keyFunction != null },
                         { "$reduce", _reduceFunction },
                         { "initial", _initial },
-                        { "cond", _query, _query != null },
+                        { "cond", _criteria, _criteria != null },
                         { "finalize", _finalizeFunction, _finalizeFunction != null }
                     }
                 },
@@ -141,18 +136,14 @@ namespace MongoDB.Driver.Core.Operations
            };
         }
 
-        public async Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(binding, "binding");
-            var document = await ExecuteCommandAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
-            return document["retval"].AsBsonArray.Cast<BsonDocument>();
-        }
-
-        public async Task<BsonDocument> ExecuteCommandAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<TResult>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
+            var resultSerializer = _resultSerializer ?? BsonSerializer.LookupSerializer<TResult>();
+            var resultArraySerializer = new ArraySerializer<TResult>(resultSerializer);
+            var commandResultSerializer = new ElementDeserializer<TResult[]>("retval", resultArraySerializer);
+            var operation = new ReadCommandOperation<TResult[]>(_collectionNamespace.DatabaseNamespace, command, commandResultSerializer, _messageEncoderSettings);
             return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
         }
     }

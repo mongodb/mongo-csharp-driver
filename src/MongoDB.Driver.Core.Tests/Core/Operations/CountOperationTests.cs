@@ -21,6 +21,7 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    [TestFixture]
     public class CountOperationTests
     {
         private CollectionNamespace _collectionNamespace;

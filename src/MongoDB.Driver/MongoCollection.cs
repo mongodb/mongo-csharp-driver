@@ -1133,23 +1133,27 @@ namespace MongoDB.Driver
                 throw new ArgumentException("ReduceFunction is null.", "args");
             }
 
-            var command = new CommandDocument
+            var criteria = args.Query == null ? null : BsonDocumentWrapper.Create(args.Query);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+
+            GroupOperation<BsonDocument> operation;
+            if (args.KeyFields != null)
             {
-                { "group", new BsonDocument
-                    {
-                        { "ns", _collectionNamespace.CollectionName },
-                        { "key", () => BsonDocumentWrapper.Create(args.KeyFields), args.KeyFields != null }, // key and keyf are mutually exclusive
-                        { "$keyf", args.KeyFunction, args.KeyFunction != null },
-                        { "$reduce", args.ReduceFunction },
-                        { "initial", args.Initial },
-                        { "cond", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
-                        { "finalize", args.FinalizeFunction, args.FinalizeFunction != null } // optional
-                    }
-                },
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
-            };
-            var result = RunCommandAs<CommandResult>(command);
-            return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
+                var key = new BsonDocumentWrapper(args.KeyFields);
+                operation = new GroupOperation<BsonDocument>(_collectionNamespace, key, args.Initial, args.ReduceFunction, criteria, messageEncoderSettings);
+            }
+            else
+            {
+                operation = new GroupOperation<BsonDocument>(_collectionNamespace, args.KeyFunction, args.Initial, args.ReduceFunction, criteria, messageEncoderSettings);
+            }
+            operation.FinalizeFunction = args.FinalizeFunction;
+            operation.MaxTime = args.MaxTime;
+
+            var readPreference = _settings.ReadPreference ?? ReadPreference.Primary;
+            using (var binding = _server.GetReadBinding(readPreference))
+            {
+                return operation.Execute(binding);
+            }
         }
 
         /// <summary>
