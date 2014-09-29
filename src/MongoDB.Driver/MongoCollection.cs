@@ -214,10 +214,7 @@ namespace MongoDB.Driver
             };
 
             var readPreference = _settings.ReadPreference ?? ReadPreference.Primary;
-            using (var binding = _server.GetReadBinding(readPreference))
-            {
-                return operation.Execute(binding);
-            }
+            return ExecuteReadOperation(operation, readPreference);
         }
 
         /// <summary>
@@ -300,10 +297,7 @@ namespace MongoDB.Driver
             };
 
             var readPreference = _settings.ReadPreference ?? ReadPreference.Primary;
-            using (var binding = _server.GetReadBinding(readPreference))
-            {
-                return operation.Execute(binding);
-            }
+            return ExecuteReadOperation(operation, readPreference);
         }
 
         /// <summary>
@@ -730,17 +724,15 @@ namespace MongoDB.Driver
                 Sort = args.SortBy.ToBsonDocument()
             };
 
-            using (var binding = _server.GetReadBinding(args.ReadPreference ?? _settings.ReadPreference))
+            var readPreference = args.ReadPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
+            using (var enumerator = ExecuteReadOperation(operation, readPreference))
             {
-                using (var enumerator = operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None))
+                if (enumerator.MoveNextAsync().GetAwaiter().GetResult())
                 {
-                    if (enumerator.MoveNextAsync().GetAwaiter().GetResult())
-                    {
-                        return enumerator.Current.SingleOrDefault();
-                    }
-
-                    return default(TDocument);
+                    return enumerator.Current.SingleOrDefault();
                 }
+
+                return default(TDocument);
             }
         }
 
@@ -1429,10 +1421,7 @@ namespace MongoDB.Driver
                     WriteConcern = writeConcern
                 };
 
-                using (var binding = _server.GetWriteBinding())
-                {
-                    return operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
-                }
+                return ExecuteWriteOperation(operation);
             }
         }
 
@@ -1649,12 +1638,9 @@ namespace MongoDB.Driver
             };
 
             var readPreference = args.ReadPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
-            using (var binding = _server.GetReadBinding(readPreference))
-            {
-                var cursors = operation.Execute(binding);
-                var documentEnumerators = cursors.Select(c => new AsyncCursorEnumeratorAdapter<TDocument>(c).GetEnumerator()).ToList();
-                return new ReadOnlyCollection<IEnumerator<TDocument>>(documentEnumerators);
-            }
+            var cursors = ExecuteReadOperation(operation, readPreference);
+            var documentEnumerators = cursors.Select(c => new AsyncCursorEnumeratorAdapter<TDocument>(c).GetEnumerator()).ToList();
+            return new ReadOnlyCollection<IEnumerator<TDocument>>(documentEnumerators);
         }
 
         /// <summary>
@@ -1758,10 +1744,7 @@ namespace MongoDB.Driver
                 WriteConcern = writeConcern
             };
 
-            using (var binding = _server.GetWriteBinding())
-            {
-                return operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
-            }
+            return ExecuteWriteOperation(operation);
         }
 
         /// <summary>
@@ -1979,10 +1962,7 @@ namespace MongoDB.Driver
                 WriteConcern = writeConcern
             };
 
-            using (var binding = _server.GetWriteBinding())
-            {
-                return operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
-            }
+            return ExecuteWriteOperation(operation);
         }
 
         /// <summary>
@@ -2164,6 +2144,22 @@ namespace MongoDB.Driver
             var indexes = _database.GetCollection("system.indexes");
             var result = indexes.Insert(index, insertOptions);
             return result;
+        }
+
+        private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference)
+        {
+            using (var binding = _server.GetReadBinding(readPreference))
+            {
+                return operation.Execute(binding);
+            }
+        }
+
+        private TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation)
+        {
+            using (var binding = _server.GetWriteBinding())
+            {
+                return operation.Execute(binding);
+            }
         }
 
         private MongoCursor FindAs(Type documentType, IMongoQuery query, IBsonSerializer serializer)
