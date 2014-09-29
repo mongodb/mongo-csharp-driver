@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Core.Configuration
         // from the ctor, they cannot be marked as such.
         private string _authMechanism;
         private string _authSource;
+        private ClusterConnectionMode _connect;
         private TimeSpan? _connectTimeout;
         private string _databaseName;
         private bool? _fsync;
@@ -113,6 +114,14 @@ namespace MongoDB.Driver.Core.Configuration
         public string AuthSource
         {
             get { return _authSource; }
+        }
+
+        /// <summary>
+        /// Gets the connection mode.
+        /// </summary>
+        public ClusterConnectionMode Connect
+        {
+            get { return _connect; }
         }
 
         /// <summary>
@@ -424,6 +433,9 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "authsource":
                     _authSource = value;
+                    break;
+                case "connect":
+                    _connect = GetEnum<ClusterConnectionMode>(name, value);
                     break;
                 case "connecttimeout":
                 case "connecttimeoutms":

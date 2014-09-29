@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Misc
 
             if (value != null)
             {
+                value = value.ToLowerInvariant();
                 var match = Regex.Match(value, @"^(?<address>\[[^]]+\])(:(?<port>\d+))?$");
                 if (match.Success)
                 {

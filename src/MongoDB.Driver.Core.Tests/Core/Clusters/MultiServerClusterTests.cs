@@ -58,6 +58,19 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Test]
+        [TestCase(ClusterConnectionMode.Direct)]
+        [TestCase(ClusterConnectionMode.Standalone)]
+        public void Constructor_should_throw_if_cluster_connection_mode_is_not_supported(ClusterConnectionMode mode)
+        {
+            var settings = new ClusterSettings()
+                .WithEndPoints(new[] { new DnsEndPoint("localhost", 27017) })
+                .WithConnectionMode(mode);
+            Action act = () => new MultiServerCluster(settings, _serverFactory, _clusterListener);
+
+            act.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
         public void Description_should_be_correct_after_initialization()
         {
             _settings = _settings.WithEndPoints(new [] { _firstEndPoint });
@@ -196,13 +209,6 @@ namespace MongoDB.Driver.Core.Clusters
         [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetPrimary)]
         [TestCase(ClusterConnectionMode.Sharded, ServerType.ReplicaSetSecondary)]
         [TestCase(ClusterConnectionMode.Sharded, ServerType.Standalone)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetArbiter)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetGhost)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetOther)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetPassive)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetPrimary)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ReplicaSetSecondary)]
-        [TestCase(ClusterConnectionMode.Standalone, ServerType.ShardRouter)]
         public void Should_remove_server_of_the_wrong_type(ClusterConnectionMode connectionMode, ServerType wrongType)
         {
             _settings = _settings
@@ -297,42 +303,6 @@ namespace MongoDB.Driver.Core.Clusters
             description.Servers.Should().BeEquivalentTo(
                 new[] { GetDisconnectedDescription(_firstEndPoint) }
                 .Concat(GetDescriptions(_secondEndPoint, _thirdEndPoint)));
-        }
-
-        [Test]
-        public void Should_keep_a_standalone_with_a_seed_list_of_1()
-        {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint });
-
-            var subject = CreateSubject();
-            subject.Initialize();
-
-            PublishDescription(_firstEndPoint, ServerType.Standalone);
-            var description = subject.Description;
-            description.Type.Should().Be(ClusterType.Standalone);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint));
-        }
-
-        [Test]
-        public void Should_keep_a_standalone_with_a_seed_list_of_1_after_it_has_reported_a_wrong_server_type()
-        {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint });
-
-            var subject = CreateSubject();
-            subject.Initialize();
-
-            PublishDescription(_firstEndPoint, ServerType.Standalone);
-            PublishDescription(_firstEndPoint, ServerType.ShardRouter);
-
-            var description = subject.Description;
-            description.Type.Should().Be(ClusterType.Standalone);
-            description.Servers.Should().BeEquivalentTo(new[] { GetDisconnectedDescription(_firstEndPoint) });
-
-            PublishDescription(_firstEndPoint, ServerType.Standalone);
-
-            description = subject.Description;
-            description.Type.Should().Be(ClusterType.Standalone);
-            description.Servers.Should().BeEquivalentTo(GetDescriptions(_firstEndPoint));
         }
 
         [Test]

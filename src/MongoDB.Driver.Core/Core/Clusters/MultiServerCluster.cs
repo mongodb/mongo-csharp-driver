@@ -46,6 +46,14 @@ namespace MongoDB.Driver.Core.Clusters
             : base(settings, serverFactory, listener)
         {
             Ensure.IsGreaterThanZero(settings.EndPoints.Count, "settings.EndPoints.Count");
+            if (settings.ConnectionMode == ClusterConnectionMode.Standalone)
+            {
+                throw new ArgumentException("ClusterConnectionMode.StandAlone is not supported for a MultiServerCluster.");
+            }
+            if (settings.ConnectionMode == ClusterConnectionMode.Direct)
+            {
+                throw new ArgumentException("ClusterConnectionMode.Direct is not supported for a MultiServerCluster.");
+            }
 
             _monitorServersCancellationTokenSource = new CancellationTokenSource();
             _serverDescriptionChangedQueue = new AsyncQueue<ServerDescriptionChangedEventArgs>();
@@ -173,9 +181,13 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             ClusterDescription newClusterDescription;
-            if (args.NewServerDescription.State == ServerState.Disconnected)
+            if (newServerDescription.State == ServerState.Disconnected)
             {
                 newClusterDescription = currentClusterDescription.WithServerDescription(args.NewServerDescription);
+            }
+            else if (newServerDescription.Type == ServerType.Standalone)
+            {
+                newClusterDescription = currentClusterDescription.WithoutServerDescription(args.NewServerDescription.EndPoint);
             }
             else
             {
@@ -193,8 +205,7 @@ namespace MongoDB.Driver.Core.Clusters
                         newClusterDescription = ProcessShardedChange(currentClusterDescription, args);
                         break;
                     case ClusterType.Standalone:
-                        newClusterDescription = ProcessStandaloneChange(currentClusterDescription, args);
-                        break;
+                        throw new MongoInternalException("MultiServerCluster does not support a standalone state.");
                     default:
                         newClusterDescription = currentClusterDescription.WithServerDescription(newServerDescription);
                         break;
@@ -268,23 +279,6 @@ namespace MongoDB.Driver.Core.Clusters
             return clusterDescription.WithServerDescription(args.NewServerDescription);
         }
 
-        private ClusterDescription ProcessStandaloneChange(ClusterDescription clusterDescription, ServerDescriptionChangedEventArgs args)
-        {
-            if (Settings.EndPoints.Count > 1)
-            {
-                return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint, "Cluster was provided with multiple endpoints, one of which is a standalone.");
-            }
-            if (args.NewServerDescription.Type != ServerType.Standalone)
-            {
-                return clusterDescription.WithServerDescription(
-                    new ServerDescription(args.NewServerDescription.ServerId, args.NewServerDescription.EndPoint));
-            }
-            else
-            {
-                return clusterDescription.WithServerDescription(args.NewServerDescription);
-            }
-        }
-
         private ClusterDescription EnsureServer(ClusterDescription clusterDescription, EndPoint endPoint)
         {
             if (_state.Value == State.Disposed)
@@ -334,7 +328,7 @@ namespace MongoDB.Driver.Core.Clusters
                     clusterDescription = EnsureServer(clusterDescription, endPoint);
                 }
             }
-            
+
             if (serverDescription.Type == ServerType.ReplicaSetPrimary)
             {
                 var requiredEndPoints = serverDescription.ReplicaSetConfig.Members;

@@ -56,26 +56,28 @@ namespace MongoDB.Driver.Core.Clusters
                 }
             }
 
+            var settings = _settings.WithConnectionMode(connectionMode);
+
             switch (connectionMode)
             {
                 case ClusterConnectionMode.Direct:
                 case ClusterConnectionMode.Standalone:
-                    return CreateSingleServerCluster();
+                    return CreateSingleServerCluster(settings);
                 default:
-                    return CreateMultiServerCluster();
+                    return CreateMultiServerCluster(settings);
             }
         }
 
-        private MultiServerCluster CreateMultiServerCluster()
+        private MultiServerCluster CreateMultiServerCluster(ClusterSettings settings)
         {
-            var shardedCluster = new MultiServerCluster(_settings, _serverFactory, _listener);
+            var shardedCluster = new MultiServerCluster(settings, _serverFactory, _listener);
             shardedCluster.Initialize();
             return shardedCluster;
         }
 
-        private SingleServerCluster CreateSingleServerCluster()
+        private SingleServerCluster CreateSingleServerCluster(ClusterSettings settings)
         {
-            var standaloneCluster = new SingleServerCluster(_settings, _serverFactory, _listener);
+            var standaloneCluster = new SingleServerCluster(settings, _serverFactory, _listener);
             standaloneCluster.Initialize();
             return standaloneCluster;
         }

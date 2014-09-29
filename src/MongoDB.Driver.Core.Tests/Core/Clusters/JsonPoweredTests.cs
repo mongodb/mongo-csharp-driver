@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Clusters
             var isMasterResult = new IsMasterResult((BsonDocument)response[1]);
             var currentDescription = _serverFactory.GetServerDescription(endPoint);
             var description = currentDescription.With(
-                state: isMasterResult.IsOk ? ServerState.Connected : ServerState.Disconnected,
+                state: isMasterResult.Wrapped.GetValue("ok", false).ToBoolean() ? ServerState.Connected : ServerState.Disconnected,
                 type: isMasterResult.ServerType,
                 replicaSetConfig: isMasterResult.GetReplicaSetConfig());
 
@@ -106,8 +106,11 @@ namespace MongoDB.Driver.Core.Clusters
                     _cluster.Should().BeOfType<MultiServerCluster>();
                     _cluster.Description.Type.Should().Be(ClusterType.Sharded);
                     break;
-                default:
+                case "Unknown":
                     _cluster.Description.Type.Should().Be(ClusterType.Unknown);
+                    break;
+                default:
+                    Assert.Fail("Unexpected topology type {0}.", topologyType);
                     break;
             }
         }
@@ -199,9 +202,8 @@ namespace MongoDB.Driver.Core.Clusters
                     {
                         var definition = ReadDefinition(path);
                         var fullName = path.Remove(0, prefix.Length);
-                        var parts = fullName.Split('.');
                         return new TestCaseData(definition)
-                            .SetName(string.Format("{0}_{1}", parts[0], parts[1]))
+                            .SetName(fullName.Replace('.', '_'))
                             .SetDescription(definition["description"].ToString());
                     });
             }
