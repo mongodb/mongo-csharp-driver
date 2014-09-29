@@ -44,6 +44,11 @@ namespace MongoDB.Driver.Core.Connections
             get { return ServerType == ServerType.ReplicaSetArbiter; }
         }
 
+        public bool IsOk
+        {
+            get { return _wrapped.GetValue("ok", false).ToBoolean(); }
+        }
+
         public bool IsReplicaSetMember
         {
             get { return ServerType.IsReplicaSetMember(); }
