@@ -16,11 +16,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Communication
@@ -108,9 +110,22 @@ namespace MongoDB.Driver.Communication
 
         private IStreamFactory CreateStreamFactory(ClusterKey clusterKey)
         {
-            // TODO: handle SSL
             var tcpStreamSettings = CreateTcpStreamSettings(clusterKey);
-            return new TcpStreamFactory(tcpStreamSettings);
+            IStreamFactory streamFactory = new TcpStreamFactory(tcpStreamSettings);
+
+            if (clusterKey.SslSettings != null)
+            {
+                var sslStreamSettings = new SslStreamSettings(
+                    new Optional<IEnumerable<X509Certificate>>(clusterKey.SslSettings.ClientCertificates),
+                    clusterKey.SslSettings.CheckCertificateRevocation,
+                    clusterKey.SslSettings.ClientCertificateSelectionCallback,
+                    clusterKey.SslSettings.EnabledSslProtocols,
+                    clusterKey.SslSettings.ServerCertificateValidationCallback);
+
+                streamFactory = new SslStreamFactory(sslStreamSettings, streamFactory);
+            }
+
+            return streamFactory;
         }
 
         private TcpStreamSettings CreateTcpStreamSettings(ClusterKey clusterKey)

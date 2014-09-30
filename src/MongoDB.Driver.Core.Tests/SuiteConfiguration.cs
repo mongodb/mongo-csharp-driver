@@ -17,6 +17,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -81,21 +82,21 @@ namespace MongoDB.Driver
                 var certificateFilename = Environment.GetEnvironmentVariable("MONGO_SSL_CERT_FILE");
                 if (certificateFilename != null)
                 {
-                    // TODO: configure SSL
-                    //builder.ConfigureSsl(ssl =>
-                    //{
-                    //    var password = Environment.GetEnvironmentVariable("MONGO_SSL_CERT_PASS");
-                    //    X509Certificate cert;
-                    //    if (password == null)
-                    //    {
-                    //        cert = new X509Certificate2(certificateFilename);
-                    //    }
-                    //    else
-                    //    {
-                    //        cert = new X509Certificate2(certificateFilename, password);
-                    //    }
-                    //    ssl.AddClientCertificate(cert);
-                    //});
+                    builder.ConfigureSsl(ssl =>
+                    {
+                        var password = Environment.GetEnvironmentVariable("MONGO_SSL_CERT_PASS");
+                        X509Certificate cert;
+                        if (password == null)
+                        {
+                            cert = new X509Certificate2(certificateFilename);
+                        }
+                        else
+                        {
+                            cert = new X509Certificate2(certificateFilename, password);
+                        }
+                        return ssl.With(
+                            clientCertificates: new[] { cert });
+                    });
                 }
             }
 

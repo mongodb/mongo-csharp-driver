@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Security;
 using System.Net.Sockets;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
@@ -58,7 +59,16 @@ namespace MongoDB.Driver.Core.Configuration
 
             if (connectionString.Ssl != null)
             {
-                // TODO: nowhere to set this
+                configuration.ConfigureSsl(ssl =>
+                {
+                    if (connectionString.SslVerifyCertificate.GetValueOrDefault(true))
+                    {
+                        ssl = ssl.With(
+                            serverCertificateValidator: new RemoteCertificateValidationCallback((obj, cert, chain, errors) => true));
+                    }
+
+                    return ssl;
+                });
             }
 
             // Connection
@@ -137,7 +147,7 @@ namespace MongoDB.Driver.Core.Configuration
                 else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
                 {
                     var properties = new Dictionary<string, object>();
-                    if(connectionString.GssapiServiceName != null)
+                    if (connectionString.GssapiServiceName != null)
                     {
                         properties[GssapiAuthenticator.ServiceNamePropertyName] = connectionString.GssapiServiceName;
                     }

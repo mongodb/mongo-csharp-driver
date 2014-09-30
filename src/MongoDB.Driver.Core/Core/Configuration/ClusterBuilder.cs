@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.Configuration
         private ConnectionSettings _connectionSettings;
         private IServerListener _serverListener;
         private ServerSettings _serverSettings;
+        private SslStreamSettings _sslStreamSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
         private TcpStreamSettings _tcpStreamSettings;
 
@@ -52,7 +53,10 @@ namespace MongoDB.Driver.Core.Configuration
         public ICluster BuildCluster()
         {
             IStreamFactory streamFactory = new TcpStreamFactory(_tcpStreamSettings);
-            // TODO: SSL gets handled here specifically...
+            if (_sslStreamSettings != null)
+            {
+                streamFactory = new SslStreamFactory(_sslStreamSettings, streamFactory);
+            }
 
             streamFactory = _streamFactoryWrapper(streamFactory);
 
@@ -107,6 +111,12 @@ namespace MongoDB.Driver.Core.Configuration
         public ClusterBuilder ConfigureServer(Func<ServerSettings, ServerSettings> configure)
         {
             _serverSettings = configure(_serverSettings);
+            return this;
+        }
+
+        public ClusterBuilder ConfigureSsl(Func<SslStreamSettings, SslStreamSettings> configure)
+        {
+            _sslStreamSettings = configure(_sslStreamSettings ?? new SslStreamSettings());
             return this;
         }
 
