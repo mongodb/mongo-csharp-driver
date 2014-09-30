@@ -219,7 +219,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The cluster.
         /// </value>
-        internal virtual ICluster Cluster
+        internal ICluster Cluster
         {
             get { return _cluster; }
         }
@@ -783,15 +783,14 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase, MongoServerInstance serverInstance)
         {
-            var address = serverInstance.Address;
-            var endPoint = new DnsEndPoint(address.Host, address.Port);
+            var endPoint = serverInstance.EndPoint;
             var serverSelector = new EndPointServerSelector(endPoint);
             var coreReadPreference = serverInstance.GetServerDescription().Type.IsWritable() ? ReadPreference.Primary : ReadPreference.Secondary;
             return RequestStart(serverSelector, coreReadPreference);
         }
 
         // internal methods
-        internal virtual IReadBindingHandle GetReadBinding(ReadPreference readPreference)
+        internal IReadBindingHandle GetReadBinding(ReadPreference readPreference)
         {
             var request = __threadStaticRequest;
             if (request != null)
@@ -810,7 +809,15 @@ namespace MongoDB.Driver
 
         }
 
-        internal virtual IWriteBindingHandle GetWriteBinding()
+        internal MongoServerInstance GetServerInstance(EndPoint endPoint)
+        {
+            lock (_serverLock)
+            {
+                return _serverInstances.FirstOrDefault(i => i.EndPoint.Equals(endPoint));
+            }
+        }
+
+        internal IWriteBindingHandle GetWriteBinding()
         {
             var request = __threadStaticRequest;
             if (request != null)
@@ -825,16 +832,15 @@ namespace MongoDB.Driver
         private void OnClusterDescriptionChanged(object sender, EventArgs args)
         {
             var clusterDescription = _cluster.Description;
-            var endPoints = clusterDescription.Servers.Select(s => s.EndPoint).Cast<DnsEndPoint>();
-            var addresses = endPoints.Select(e => new MongoServerAddress(e.Host, e.Port)).ToList();
+            var endPoints = clusterDescription.Servers.Select(s => s.EndPoint).ToList();
 
             lock (_serverLock)
             {
-                var numberRemoved = _serverInstances.RemoveAll(instance => !addresses.Contains(instance.Address));
-                var newAddresses = addresses.Where(address => !_serverInstances.Any(i => i.Address == address)).ToList();
-                if (newAddresses.Count > 0)
+                _serverInstances.RemoveAll(instance => !endPoints.Contains(instance.EndPoint));
+                var newEndPoints = endPoints.Where(endPoint => !_serverInstances.Any(i => i.EndPoint.Equals(endPoint))).ToList();
+                if (newEndPoints.Count > 0)
                 {
-                    _serverInstances.AddRange(addresses.Select(address => new MongoServerInstance(_settings, address, _cluster)));
+                    _serverInstances.AddRange(endPoints.Select(endPoint => new MongoServerInstance(_settings, ToMongoServerAddress(endPoint), _cluster, endPoint)));
                     _serverInstances.Sort(ServerInstanceAddressComparer.Instance);
                 }
             }
@@ -869,9 +875,7 @@ namespace MongoDB.Driver
             }
 
             var serverDescription = server.Description;
-            var endPoint = (DnsEndPoint)serverDescription.EndPoint;
-            var serverAddress = new MongoServerAddress(endPoint.Host, endPoint.Port);
-            var serverInstance = _serverInstances.Single(i => i.Address == serverAddress);
+            var serverInstance = _serverInstances.Single(i => i.EndPoint.Equals(serverDescription.EndPoint));
             __threadStaticRequest = new Request(serverDescription, serverInstance, connectionBinding);
 
             return new RequestStartResult(this);
@@ -881,12 +885,31 @@ namespace MongoDB.Driver
         {
             _serverInstances.AddRange(_cluster.Description.Servers.Select(serverDescription =>
             {
-                var endPoint = (DnsEndPoint)serverDescription.EndPoint;
-                var address = new MongoServerAddress(endPoint.Host, endPoint.Port);
-                return new MongoServerInstance(_settings, address, _cluster);
+                var endPoint = serverDescription.EndPoint;
+                return new MongoServerInstance(_settings, ToMongoServerAddress(endPoint), _cluster, endPoint);
             }));
             _serverInstances.Sort(ServerInstanceAddressComparer.Instance);
             _cluster.DescriptionChanged += OnClusterDescriptionChanged;
+        }
+
+        private MongoServerAddress ToMongoServerAddress(EndPoint endPoint)
+        {
+            DnsEndPoint dnsEndPoint;
+            IPEndPoint ipEndPoint;
+
+            if ((dnsEndPoint = endPoint as DnsEndPoint) != null)
+            {
+                return new MongoServerAddress(dnsEndPoint.Host, dnsEndPoint.Port);
+            }
+            else if ((ipEndPoint = endPoint as IPEndPoint) != null)
+            {
+                return new MongoServerAddress(ipEndPoint.Address.ToString(), ipEndPoint.Port);
+            }
+            else
+            {
+                var message = string.Format("MongoServer does not support end points of type '{0}'.", endPoint.GetType().Name);
+                throw new ArgumentException(message, "endPoint");
+            }
         }
 
         private IWriteBindingHandle ToWriteBinding(IReadBindingHandle binding)

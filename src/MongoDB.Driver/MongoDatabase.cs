@@ -1108,9 +1108,8 @@ namespace MongoDB.Driver
             using (var binding = _server.GetReadBinding(readPreference))
             using (var connectionSource = binding.GetReadConnectionSource())
             {
-                var endPoint = (DnsEndPoint)connectionSource.ServerDescription.EndPoint;
-                var address = new MongoServerAddress(endPoint.Host, endPoint.Port);
-                serverInstance = _server.GetServerInstance(address);
+                var endPoint = connectionSource.ServerDescription.EndPoint;
+                serverInstance = _server.GetServerInstance(endPoint);
                 return operation.Execute(connectionSource, readPreference, Timeout.InfiniteTimeSpan, CancellationToken.None);
             }
         }
@@ -1126,9 +1125,8 @@ namespace MongoDB.Driver
             using (var binding = _server.GetWriteBinding())
             using (var connectionSource = binding.GetWriteConnectionSource())
             {
-                var endPoint = (DnsEndPoint)connectionSource.ServerDescription.EndPoint;
-                var address = new MongoServerAddress(endPoint.Host, endPoint.Port);
-                serverInstance = _server.GetServerInstance(address);
+                var endPoint = connectionSource.ServerDescription.EndPoint;
+                serverInstance = _server.GetServerInstance(endPoint);
                 return operation.Execute(connectionSource, Timeout.InfiniteTimeSpan, CancellationToken.None);
             }
         }

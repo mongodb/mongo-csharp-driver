@@ -48,22 +48,23 @@ namespace MongoDB.Driver
         private readonly MongoServerAddress _address;
         private readonly int _sequentialId;
         private readonly ICluster _cluster;
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="MongoServerInstance"/> class.
+        /// Initializes a new instance of the <see cref="MongoServerInstance" /> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
         /// <param name="address">The address.</param>
         /// <param name="cluster">The cluster.</param>
-        internal MongoServerInstance(MongoServerSettings settings, MongoServerAddress address, ICluster cluster)
+        /// <param name="endPoint">The end point.</param>
+        internal MongoServerInstance(MongoServerSettings settings, MongoServerAddress address, ICluster cluster, EndPoint endPoint)
         {
             _settings = settings;
             _address = address;
             _cluster = cluster;
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
-            _endPoint = new DnsEndPoint(address.Host, address.Port);
+            _endPoint = endPoint;
         }
 
         // public properties
@@ -251,6 +252,12 @@ namespace MongoDB.Driver
                         return MongoServerState.Disconnected;
                 }
             }
+        }
+
+        // internal properties
+        internal EndPoint EndPoint
+        {
+            get { return _endPoint; }
         }
 
         // public methods
