@@ -66,9 +66,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var nullableDeserializer = new PossiblyNullDeserializer(_resultSerializer);
-            var serializer = new ElementDeserializer<TResult>("value", nullableDeserializer);
-            var operation = new WriteCommandOperation<TResult>(_collectionNamespace.DatabaseNamespace, command, serializer, _messageEncoderSettings)
+            var operation = new WriteCommandOperation<TResult>(_collectionNamespace.DatabaseNamespace, command, _resultSerializer, _messageEncoderSettings)
             {
                 CommandValidator = GetCommandValidator()
             };
@@ -76,27 +74,5 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         protected abstract IElementNameValidator GetCommandValidator();
-
-        private class PossiblyNullDeserializer : SerializerBase<TResult>
-        {
-            private readonly IBsonSerializer<TResult> _resultSerializer;
-
-            public PossiblyNullDeserializer(IBsonSerializer<TResult> resultSerializer)
-            {
-                _resultSerializer = resultSerializer;
-            }
-
-            public override TResult Deserialize(BsonDeserializationContext context)
-            {
-                var reader = context.Reader;
-                if (reader.CurrentBsonType == BsonType.Null)
-                {
-                    reader.SkipValue();
-                    return default(TResult);
-                }
-
-                return _resultSerializer.Deserialize(context);
-            }
-        }
     }
 }

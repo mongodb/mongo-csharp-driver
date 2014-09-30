@@ -20,7 +20,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -577,20 +576,43 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Update == null) { throw new ArgumentException("Update is null.", "args"); }
 
-            var command = new CommandDocument
+            var criteria = args.Query == null ? new BsonDocument() : new BsonDocumentWrapper(args.Query);
+            var updateDocument = args.Update.ToBsonDocument();
+            var resultSerializer = BsonDocumentSerializer.Instance;
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var projection = args.Fields == null ? null : new BsonDocumentWrapper(args.Fields);
+            var returnOriginal = args.VersionReturned == FindAndModifyDocumentVersion.Original;
+            var sort = args.SortBy == null ? null : new BsonDocumentWrapper(args.SortBy);
+
+            IWriteOperation<BsonDocument> operation;
+            if (updateDocument.ElementCount > 0 && updateDocument.GetElement(0).Name.StartsWith("$"))
             {
-                { "findAndModify", _collectionNamespace.CollectionName },
-                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
-                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
-                { "update", BsonDocumentWrapper.Create(args.Update) },
-                { "new", () => args.VersionReturned.Value == FindAndModifyDocumentVersion.Modified, args.VersionReturned.HasValue }, // optional
-                { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
-                { "upsert", true, args.Upsert}, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
-            };
+                operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, criteria, updateDocument, resultSerializer, messageEncoderSettings)
+                {
+                    IsUpsert = args.Upsert,
+                    MaxTime = args.MaxTime,
+                    Projection = projection,
+                    ReturnOriginal = returnOriginal,
+                    Sort = sort
+                };
+            }
+            else
+            {
+                var replacement = updateDocument;
+                operation = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, criteria, replacement, resultSerializer, messageEncoderSettings)
+                {
+                    IsUpsert = args.Upsert,
+                    MaxTime = args.MaxTime,
+                    Projection = projection,
+                    ReturnOriginal = returnOriginal,
+                    Sort = sort
+                };
+            }
+
             try
             {
-                return RunCommandAs<FindAndModifyResult>(command);
+                var response = ExecuteWriteOperation(operation);
+                return new FindAndModifyResult(response);
             }
             catch (MongoCommandException ex)
             {
@@ -603,6 +625,7 @@ namespace MongoDB.Driver
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
+                    var command = ((ICommandOperation)operation).CreateCommand();
                     return new FindAndModifyResult(response) { Command = command };
                 }
                 throw;
@@ -631,18 +654,24 @@ namespace MongoDB.Driver
         {
             if (args == null) { throw new ArgumentNullException("args"); }
 
-            var command = new CommandDocument
+            var criteria = args.Query == null ? new BsonDocument() : new BsonDocumentWrapper(args.Query);
+            var resultSerializer = BsonDocumentSerializer.Instance;
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var projection = args.Fields == null ? null : new BsonDocumentWrapper(args.Fields);
+            var sort = args.SortBy == null ? null : new BsonDocumentWrapper(args.SortBy);
+
+            var operation = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, criteria, resultSerializer, messageEncoderSettings)
             {
-                { "findAndModify", _collectionNamespace.CollectionName },
-                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
-                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
-                { "remove", true },
-                { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                MaxTime = args.MaxTime,
+                Projection = projection,
+                Sort = sort
+               
             };
+
             try
             {
-                return RunCommandAs<FindAndModifyResult>(command);
+                var response = ExecuteWriteOperation(operation);
+                return new FindAndModifyResult(response);
             }
             catch (MongoCommandException ex)
             {
@@ -655,7 +684,7 @@ namespace MongoDB.Driver
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
-                    return new FindAndModifyResult(response) { Command = command };
+                    return new FindAndModifyResult(response) { Command = operation.CreateCommand() };
                 }
                 throw;
             }

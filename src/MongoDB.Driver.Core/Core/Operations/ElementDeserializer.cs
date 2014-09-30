@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -30,26 +31,34 @@ namespace MongoDB.Driver.Core.Operations
     public class ElementDeserializer<TValue> : SerializerBase<TValue>
     {
         // private fields
+        private readonly bool _deserializeNull;
         private readonly string _elementName;
         private readonly IBsonSerializer<TValue> _valueSerializer;
 
         // constructors
         public ElementDeserializer(string elementName, IBsonSerializer<TValue> valueSerializer)
+            : this(elementName, valueSerializer, true)
+        {
+        }
+
+        public ElementDeserializer(string elementName, IBsonSerializer<TValue> valueSerializer, bool deserializeNull)
         {
             _elementName = elementName;
             _valueSerializer = valueSerializer;
+            _deserializeNull = deserializeNull;
         }
 
         // methods
         public override TValue Deserialize(BsonDeserializationContext context)
         {
-            var reader = context.Reader;
             TValue value = default(TValue);
+
+            var reader = context.Reader;
             reader.ReadStartDocument();
             while (reader.ReadBsonType() != 0)
             {
                 var elementName = reader.ReadName();
-                if (elementName == _elementName)
+                if (elementName == _elementName && (reader.CurrentBsonType != BsonType.Null || _deserializeNull))
                 {
                     value = context.DeserializeWithChildContext<TValue>(_valueSerializer);
                 }
@@ -59,6 +68,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
             reader.ReadEndDocument();
+
             return value;
         }
     }

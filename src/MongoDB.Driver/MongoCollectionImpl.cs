@@ -253,7 +253,7 @@ namespace MongoDB.Driver
             var operation = new FindOneAndDeleteOperation<TResult>(
                 _collectionNamespace,
                 ConvertToBsonDocument(model.Criteria),
-                _settings.SerializerRegistry.GetSerializer<TResult>(),
+                GetFindAndModifyResultSerializer<TResult>(),
                 _messageEncoderSettings)
             {
                 MaxTime = model.MaxTime,
@@ -262,7 +262,6 @@ namespace MongoDB.Driver
             };
 
             return ExecuteWriteOperation(operation, timeout, cancellationToken);
-
         }
 
         public Task<TResult> FindOneAndReplaceAsync<TResult>(FindOneAndReplaceModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
@@ -273,7 +272,7 @@ namespace MongoDB.Driver
                 _collectionNamespace,
                 ConvertToBsonDocument(model.Criteria),
                 ConvertToBsonDocument(model.Replacement),
-                _settings.SerializerRegistry.GetSerializer<TResult>(),
+                GetFindAndModifyResultSerializer<TResult>(),
                 _messageEncoderSettings)
             {
                 IsUpsert = model.IsUpsert,
@@ -294,7 +293,7 @@ namespace MongoDB.Driver
                 _collectionNamespace,
                 ConvertToBsonDocument(model.Criteria),
                 ConvertToBsonDocument(model.Update),
-                _settings.SerializerRegistry.GetSerializer<TResult>(),
+                GetFindAndModifyResultSerializer<TResult>(),
                 _messageEncoderSettings)
             {
                 IsUpsert = model.IsUpsert,
@@ -488,6 +487,13 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        private IBsonSerializer<TResult> GetFindAndModifyResultSerializer<TResult>()
+        {
+            var valueSerializer = _settings.SerializerRegistry.GetSerializer<TResult>();
+            var resultSerializer = new ElementDeserializer<TResult>("value", valueSerializer, deserializeNull: false);
+            return resultSerializer;
         }
 
         private AggregateOperation<TResult> CreateAggregateOperation<TResult>(AggregateModel<TResult> model, List<BsonDocument> pipeline)

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations.FindOneAndUpdateOperationTests
                 CollectionNamespace,
                 BsonDocument.Parse("{x: 1}"),
                 BsonDocument.Parse("{$set: {x: 2}}"),
-                BsonDocumentSerializer.Instance,
+                new ElementDeserializer<BsonDocument>("value", BsonDocumentSerializer.Instance, deserializeNull: false),
                 MessageEncoderSettings);
 
             Insert(new[] { BsonDocument.Parse("{_id: 10, x: 1}") });
