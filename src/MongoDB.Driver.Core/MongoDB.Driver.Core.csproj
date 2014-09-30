@@ -91,6 +91,7 @@
     <Compile Include="Core\Operations\ExplainOperation.cs" />
     <Compile Include="Core\Operations\ExplainVerbosity.cs" />
     <Compile Include="Core\Operations\FindAndModifyOperationBase.cs" />
+    <Compile Include="Core\Operations\FindAndModifyValueDeserializer.cs" />
     <Compile Include="Core\Operations\FindOneAndUpdateOperation.cs" />
     <Compile Include="Core\Operations\FindOneAndReplaceOperation.cs" />
     <Compile Include="Core\Operations\FindOneAndDeleteOperation.cs" />

@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations.FindOneAndDeleteOperationTests
             _subject = new FindOneAndDeleteOperation<BsonDocument>(
                 CollectionNamespace,
                 BsonDocument.Parse("{x: 1}"),
-                new ElementDeserializer<BsonDocument>("value", BsonDocumentSerializer.Instance, deserializeNull: false),
+                new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 MessageEncoderSettings);
         }
 

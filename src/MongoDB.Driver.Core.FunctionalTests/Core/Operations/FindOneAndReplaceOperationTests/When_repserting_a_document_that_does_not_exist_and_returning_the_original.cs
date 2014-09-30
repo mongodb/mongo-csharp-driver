@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations.FindOneAndReplaceOperationTests
                 CollectionNamespace,
                 BsonDocument.Parse("{x: 1}"),
                 BsonDocument.Parse("{_id: 10, a: 2}"),
-                new ElementDeserializer<BsonDocument>("value", BsonDocumentSerializer.Instance, deserializeNull: false),
+                new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 MessageEncoderSettings)
             {
                 IsUpsert = true

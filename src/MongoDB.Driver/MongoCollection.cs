@@ -584,7 +584,7 @@ namespace MongoDB.Driver
             var returnOriginal = args.VersionReturned == FindAndModifyDocumentVersion.Original;
             var sort = args.SortBy == null ? null : new BsonDocumentWrapper(args.SortBy);
 
-            IWriteOperation<BsonDocument> operation;
+            FindAndModifyOperationBase<BsonDocument> operation;
             if (updateDocument.ElementCount > 0 && updateDocument.GetElement(0).Name.StartsWith("$"))
             {
                 operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, criteria, updateDocument, resultSerializer, messageEncoderSettings)
@@ -625,8 +625,7 @@ namespace MongoDB.Driver
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
-                    var command = ((ICommandOperation)operation).CreateCommand();
-                    return new FindAndModifyResult(response) { Command = command };
+                    return new FindAndModifyResult(response) { Command = operation.CreateCommand() };
                 }
                 throw;
             }

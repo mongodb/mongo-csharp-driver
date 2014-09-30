@@ -253,7 +253,7 @@ namespace MongoDB.Driver
             var operation = new FindOneAndDeleteOperation<TResult>(
                 _collectionNamespace,
                 ConvertToBsonDocument(model.Criteria),
-                GetFindAndModifyResultSerializer<TResult>(),
+                new FindAndModifyValueDeserializer<TResult>(_settings.SerializerRegistry.GetSerializer<TResult>()),
                 _messageEncoderSettings)
             {
                 MaxTime = model.MaxTime,
@@ -272,7 +272,7 @@ namespace MongoDB.Driver
                 _collectionNamespace,
                 ConvertToBsonDocument(model.Criteria),
                 ConvertToBsonDocument(model.Replacement),
-                GetFindAndModifyResultSerializer<TResult>(),
+                new FindAndModifyValueDeserializer<TResult>(_settings.SerializerRegistry.GetSerializer<TResult>()),
                 _messageEncoderSettings)
             {
                 IsUpsert = model.IsUpsert,
@@ -293,7 +293,7 @@ namespace MongoDB.Driver
                 _collectionNamespace,
                 ConvertToBsonDocument(model.Criteria),
                 ConvertToBsonDocument(model.Update),
-                GetFindAndModifyResultSerializer<TResult>(),
+                new FindAndModifyValueDeserializer<TResult>(_settings.SerializerRegistry.GetSerializer<TResult>()),
                 _messageEncoderSettings)
             {
                 IsUpsert = model.IsUpsert,
@@ -487,13 +487,6 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
-        }
-
-        private IBsonSerializer<TResult> GetFindAndModifyResultSerializer<TResult>()
-        {
-            var valueSerializer = _settings.SerializerRegistry.GetSerializer<TResult>();
-            var resultSerializer = new ElementDeserializer<TResult>("value", valueSerializer, deserializeNull: false);
-            return resultSerializer;
         }
 
         private AggregateOperation<TResult> CreateAggregateOperation<TResult>(AggregateModel<TResult> model, List<BsonDocument> pipeline)
