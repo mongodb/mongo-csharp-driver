@@ -455,6 +455,22 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void TestCreateCollectionSetAutoIndexId(
+            [Values(false, true)]
+            bool autoIndexId)
+        {
+            var collection = _database.GetCollection("cappedcollection");
+            collection.Drop();
+            var options = CollectionOptions.SetAutoIndexId(autoIndexId);
+            var expectedSystemFlags = autoIndexId ? CollectionSystemFlags.HasIdIndex : CollectionSystemFlags.None;
+
+            _database.CreateCollection(collection.Name, options);
+
+            var stats = collection.GetStats();
+            Assert.That(stats.SystemFlags, Is.EqualTo(expectedSystemFlags));
+        }
+
+        [Test]
         public void TestCreateCollectionSetCappedSetMaxDocuments()
         {
             var collection = _database.GetCollection("cappedcollection");
@@ -483,6 +499,25 @@ namespace MongoDB.Driver.Tests
             Assert.IsTrue(stats.IsCapped);
             Assert.IsTrue(stats.StorageSize >= 10000000);
             collection.Drop();
+        }
+
+        [Test]
+        public void TestCreateCollectionSetUsePowerOf2Sizes(
+            [Values(false, true)]
+            bool usePowerOf2Sizes)
+        {
+            var collection = _database.GetCollection("cappedcollection");
+            collection.Drop();
+            var userFlags = usePowerOf2Sizes ? CollectionUserFlags.UsePowerOf2Sizes : CollectionUserFlags.None;
+            var options = new CollectionOptionsDocument
+            {
+                { "flags", (int)userFlags }
+            };
+
+            _database.CreateCollection(collection.Name, options);
+
+            var stats = collection.GetStats();
+            Assert.That(stats.UserFlags, Is.EqualTo(userFlags));
         }
 
         [Test]

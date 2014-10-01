@@ -23,15 +23,16 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class CreateCollectionOperation : IWriteOperation<BsonDocument>
+    public class CreateCollectionOperation : IWriteOperation<BsonDocument>, ICommandOperation
     {
         // fields
         private bool? _autoIndexId;
         private bool? _capped;
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private long? _maxDocuments;
         private long? _maxSize;
-        private MessageEncoderSettings _messageEncoderSettings;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private bool? _usePowerOf2Sizes;
 
         // constructors
         public CreateCollectionOperation(
@@ -58,25 +59,29 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public long? MaxDocuments
         {
             get { return _maxDocuments; }
-            set { _maxDocuments = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxDocuments = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public long? MaxSize
         {
             get { return _maxSize; }
-            set { _maxSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
+            set { _maxSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
+        }
+
+        public bool? UsePowerOf2Sizes
+        {
+            get { return _usePowerOf2Sizes; }
+            set { _usePowerOf2Sizes = value; }
         }
 
         // methods
@@ -86,9 +91,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "create", _collectionNamespace.CollectionName },
                 { "capped", () => _capped.Value, _capped.HasValue },
-                { "autoIndexID", () => _autoIndexId.Value, _autoIndexId.HasValue },
+                { "autoIndexId", () => _autoIndexId.Value, _autoIndexId.HasValue },
                 { "size", () => _maxSize.Value, _maxSize.HasValue },
-                { "max", () => _maxDocuments.Value, _maxDocuments.HasValue }
+                { "max", () => _maxDocuments.Value, _maxDocuments.HasValue },
+                { "flags", () => _usePowerOf2Sizes.Value ? 1 : 0, _usePowerOf2Sizes.HasValue}
             };
         }
 

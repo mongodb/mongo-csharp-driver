@@ -270,12 +270,57 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult CreateCollection(string collectionName, IMongoCollectionOptions options)
         {
-            var command = new CommandDocument("create", collectionName);
+            if (collectionName == null)
+            {
+                throw new ArgumentNullException("collectionName");
+            }
+
+            var collectionNamespace = new CollectionNamespace(_namespace, collectionName);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            bool? autoIndexId = null;
+            bool? capped = null;
+            int? maxDocuments = null;
+            int? maxSize = null;
+            bool? usePowerOf2Sizes = null;
+
             if (options != null)
             {
-                command.Merge(options.ToBsonDocument());
+                var optionsDocument = options.ToBsonDocument();
+
+                BsonValue value;
+                if (optionsDocument.TryGetValue("autoIndexId", out value))
+                {
+                    autoIndexId = value.ToBoolean();
+                }
+                if (optionsDocument.TryGetValue("capped", out value))
+                {
+                    capped = value.ToBoolean();
+                }
+                if (optionsDocument.TryGetValue("max", out value))
+                {
+                    maxDocuments = value.ToInt32();
+                }
+                if (optionsDocument.TryGetValue("size", out value))
+                {
+                    maxSize = value.ToInt32();
+                }
+                if (optionsDocument.TryGetValue("flags", out value))
+                {
+                    usePowerOf2Sizes = value.ToInt32() == 1;
+                }
             }
-            return RunCommandAs<CommandResult>(command);
+
+            var operation = new CreateCollectionOperation(collectionNamespace, messageEncoderSettings)
+            {
+                AutoIndexId = autoIndexId,
+                Capped = capped,
+                MaxDocuments = maxDocuments,
+                MaxSize = maxSize,
+                UsePowerOf2Sizes = usePowerOf2Sizes
+            };
+
+            var response = ExecuteWriteOperation(operation);
+            return new CommandResult(response);
         }
 
         /// <summary>
@@ -968,6 +1013,14 @@ namespace MongoDB.Driver
             RunCommand(userCommand);
         }
         #pragma warning restore
+
+        private TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation)
+        {
+            using (var binding = _server.GetWriteBinding())
+            {
+                return operation.Execute(binding);
+            }
+        }
 
         #pragma warning disable 618
         private MongoUser FindUserWithQuery(string username)
