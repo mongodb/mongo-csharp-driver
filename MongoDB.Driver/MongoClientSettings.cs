@@ -333,7 +333,7 @@ namespace MongoDB.Driver
                 _sslSettings = value;
             }
         }
-        
+
         /// <summary>
         /// Gets or sets whether to use SSL.
         /// </summary>
@@ -508,9 +508,16 @@ namespace MongoDB.Driver
             clientSettings.ConnectTimeout = url.ConnectTimeout;
             if (credential != null)
             {
-                if (!string.IsNullOrEmpty(url.GssapiServiceName))
+                foreach (var authMechProperty in url.AuthenticationMechanismProperties)
                 {
-                    credential = credential.WithMechanismProperty("SERVICE_NAME", url.GssapiServiceName);
+                    if (authMechProperty.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        credential = credential.WithMechanismProperty(authMechProperty.Key, bool.Parse(authMechProperty.Value));
+                    }
+                    else
+                    {
+                        credential = credential.WithMechanismProperty(authMechProperty.Key, authMechProperty.Value);
+                    }
                 }
                 clientSettings.Credentials = new[] { credential };
             }

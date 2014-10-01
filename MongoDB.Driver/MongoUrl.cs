@@ -56,12 +56,12 @@ namespace MongoDB.Driver
 
         // private fields
         private readonly string _authenticationMechanism;
+        private readonly IEnumerable<KeyValuePair<string, string>> _authenticationMechanismProperties;
         private readonly string _authenticationSource;
         private readonly ConnectionMode _connectionMode;
         private readonly TimeSpan _connectTimeout;
         private readonly string _databaseName;
         private readonly bool? _fsync;
-        private readonly string _gssapiServiceName;
         private readonly GuidRepresentation _guidRepresentation;
         private readonly bool _ipv6;
         private readonly bool? _journal;
@@ -95,12 +95,12 @@ namespace MongoDB.Driver
         {
             var builder = new MongoUrlBuilder(url); // parses url
             _authenticationMechanism = builder.AuthenticationMechanism;
+            _authenticationMechanismProperties = builder.AuthenticationMechanismProperties;
             _authenticationSource = builder.AuthenticationSource;
             _connectionMode = builder.ConnectionMode;
             _connectTimeout = builder.ConnectTimeout;
             _databaseName = builder.DatabaseName;
             _fsync = builder.FSync;
-            _gssapiServiceName = builder.GssapiServiceName;
             _guidRepresentation = builder.GuidRepresentation;
             _ipv6 = builder.IPv6;
             _journal = builder.Journal;
@@ -135,6 +135,14 @@ namespace MongoDB.Driver
         public string AuthenticationMechanism
         {
             get { return _authenticationMechanism; }
+        }
+
+        /// <summary>
+        /// Gets the authentication mechanism properties.
+        /// </summary>
+        public IEnumerable<KeyValuePair<string, string>> AuthenticationMechanismProperties
+        {
+            get { return _authenticationMechanismProperties; }
         }
 
         /// <summary>
@@ -198,9 +206,20 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the GSSAPI service name.
         /// </summary>
+        [Obsolete("Use AuthenticationMechanismProperties with the SERVICE_NAME key instead.")]
         public string GssapiServiceName
         {
-            get { return _gssapiServiceName; }
+            get
+            {
+                var pair = _authenticationMechanismProperties
+                    .FirstOrDefault(x => x.Key.Equals("SERVICE_NAME", StringComparison.InvariantCultureIgnoreCase));
+                if (!pair.Equals(default(KeyValuePair<string, string>)))
+                {
+                    return pair.Value;
+                }
+
+                return null;
+            }
         }
 
         /// <summary>

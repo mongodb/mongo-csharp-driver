@@ -35,15 +35,20 @@ namespace MongoDB.DriverUnitTests
                 ReadPreferenceMode = ReadPreferenceMode.Secondary,
                 TagSets = new[] { new ReplicaSetTagSet { { "dc", "1" } } }
             };
+            var authMechanismProperties = new Dictionary<string, string>
+            {
+                { "SERVICE_NAME", "other" },
+                { "CANONICALIZE_HOST_NAME", "true" }
+            };
             var built = new MongoUrlBuilder()
             {
                 AuthenticationMechanism = "GSSAPI",
+                AuthenticationMechanismProperties = authMechanismProperties,
                 AuthenticationSource = "db",
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
                 FSync = true,
-                GssapiServiceName = "other",
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 IPv6 = true,
                 Journal = true,
@@ -68,7 +73,7 @@ namespace MongoDB.DriverUnitTests
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
                 "authMechanism=GSSAPI",
-                "gssapiServiceName=other",
+                "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
                 "ipv6=true",
                 "ssl=true", // UseSsl
@@ -95,13 +100,16 @@ namespace MongoDB.DriverUnitTests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.AreEqual("GSSAPI", builder.AuthenticationMechanism);
+                CollectionAssert.AreEqual(authMechanismProperties, builder.AuthenticationMechanismProperties);
                 Assert.AreEqual("db", builder.AuthenticationSource);
                 Assert.AreEqual(123, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
                 Assert.AreEqual(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
                 Assert.AreEqual("database", builder.DatabaseName);
                 Assert.AreEqual(true, builder.FSync);
+#pragma warning disable 618
                 Assert.AreEqual("other", builder.GssapiServiceName);
+#pragma warning restore
                 Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
                 Assert.AreEqual(true, builder.IPv6);
                 Assert.AreEqual(true, builder.Journal);

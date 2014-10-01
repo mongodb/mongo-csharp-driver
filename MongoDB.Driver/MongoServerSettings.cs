@@ -533,9 +533,9 @@ namespace MongoDB.Driver
         public static MongoServerSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder)
         {
             var credential = MongoCredential.FromComponents(
-                builder.AuthenticationMechanism, 
-                builder.AuthenticationSource ?? builder.DatabaseName, 
-                builder.Username, 
+                builder.AuthenticationMechanism,
+                builder.AuthenticationSource ?? builder.DatabaseName,
+                builder.Username,
                 builder.Password);
 
             var serverSettings = new MongoServerSettings();
@@ -591,9 +591,16 @@ namespace MongoDB.Driver
             serverSettings.ConnectTimeout = url.ConnectTimeout;
             if (credential != null)
             {
-                if (!string.IsNullOrEmpty(url.GssapiServiceName))
+                foreach (var authMechProperty in url.AuthenticationMechanismProperties)
                 {
-                    credential = credential.WithMechanismProperty("SERVICE_NAME", url.GssapiServiceName);
+                    if (authMechProperty.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        credential = credential.WithMechanismProperty(authMechProperty.Key, bool.Parse(authMechProperty.Value));
+                    }
+                    else
+                    {
+                        credential = credential.WithMechanismProperty(authMechProperty.Key, authMechProperty.Value);
+                    }
                 }
                 serverSettings.Credentials = new[] { credential };
             }
