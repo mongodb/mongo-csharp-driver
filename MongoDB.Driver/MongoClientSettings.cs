@@ -508,15 +508,15 @@ namespace MongoDB.Driver
             clientSettings.ConnectTimeout = url.ConnectTimeout;
             if (credential != null)
             {
-                foreach (var authMechProperty in url.AuthenticationMechanismProperties)
+                foreach (var property in url.AuthenticationMechanismProperties)
                 {
-                    if (authMechProperty.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.InvariantCultureIgnoreCase))
+                    if (property.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        credential = credential.WithMechanismProperty(authMechProperty.Key, bool.Parse(authMechProperty.Value));
+                        credential = credential.WithMechanismProperty(property.Key, bool.Parse(property.Value));
                     }
                     else
                     {
-                        credential = credential.WithMechanismProperty(authMechProperty.Key, authMechProperty.Value);
+                        credential = credential.WithMechanismProperty(property.Key, property.Value);
                     }
                 }
                 clientSettings.Credentials = new[] { credential };

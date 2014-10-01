@@ -53,6 +53,10 @@ namespace MongoDB.Driver
         /// </summary>
         ParallelScanCommand,
         /// <summary>
+        /// Supports the SCRAM-SHA-1 authentication mechanism.
+        /// </summary>
+        ScramSha1,
+        /// <summary>
         /// The text search command.
         /// </summary>
         TextSearchCommand,

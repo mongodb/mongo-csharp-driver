@@ -52,7 +52,11 @@ namespace MongoDB.Driver.Communication.FeatureDetection
                 new AndDependency(
                     new ServerVersionDependency(2, 6, 0),
                     new NotDependency(new InstanceTypeDependency(MongoServerInstanceType.ShardRouter))),
-                FeatureId.ParallelScanCommand)
+                FeatureId.ParallelScanCommand),
+
+            new FeatureSetDependency(
+                new ServerVersionDependency(2, 7, 5),
+                FeatureId.ScramSha1)
        };
 
         // public methods

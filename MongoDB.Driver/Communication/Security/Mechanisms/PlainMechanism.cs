@@ -42,11 +42,12 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <summary>
         /// Determines whether this instance can authenticate with the specified credential.
         /// </summary>
+        /// <param name="connection">The connection.</param>
         /// <param name="credential">The credential.</param>
         /// <returns>
         ///   <c>true</c> if this instance can authenticate with the specified credential; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanUse(MongoCredential credential)
+        public bool CanUse(MongoConnection connection, MongoCredential credential)
         {
             return credential.Mechanism.Equals(Name, StringComparison.InvariantCultureIgnoreCase) &&
                 credential.Evidence is PasswordEvidence;

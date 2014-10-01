@@ -36,6 +36,16 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
+        /// Initializes a new instance of the <see cref="MongoCredential"/> class.
+        /// </summary>
+        /// <param name="identity">The identity.</param>
+        /// <param name="evidence">The evidence.</param>
+        public MongoCredential(MongoIdentity identity, MongoIdentityEvidence evidence)
+            : this(null, identity, evidence)
+        {
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MongoCredential" /> class.
         /// </summary>
         /// <param name="mechanism">Mechanism to authenticate with.</param>
@@ -55,7 +65,7 @@ namespace MongoDB.Driver
             _mechanism = mechanism;
             _identity = identity;
             _evidence = evidence;
-            _mechanismProperties = new Dictionary<string, object>();
+            _mechanismProperties = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         // public properties
@@ -142,6 +152,36 @@ namespace MongoDB.Driver
         }
 
         // public static methods
+        /// <summary>
+        /// Creates a default credential.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A default credential.</returns>
+        public static MongoCredential CreateCredential(string databaseName, string username, string password)
+        {
+            return FromComponents(null,
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
+        /// <summary>
+        /// Creates a default credential.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A default credential.</returns>
+        public static MongoCredential CreateCredential(string databaseName, string username, SecureString password)
+        {
+            return FromComponents(null,
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
         /// <summary>
         /// Creates a GSSAPI credential.
         /// </summary>
@@ -394,24 +434,23 @@ namespace MongoDB.Driver
         // private static methods
         private static MongoCredential FromComponents(string mechanism, string source, string username, MongoIdentityEvidence evidence)
         {
-            if (string.IsNullOrEmpty(mechanism))
-            {
-                throw new ArgumentException("Cannot be null or empty.", "mechanism");
-            }
             if (string.IsNullOrEmpty(username))
             {
                 return null;
             }
 
-            switch (mechanism.ToUpperInvariant())
+            var defaultedMechanism = (mechanism ?? "DEFAULT").Trim().ToUpperInvariant();
+            switch (defaultedMechanism)
             {
+                case "DEFAULT":
                 case "MONGODB-CR":
                 case "SCRAM-SHA-1":
                     // it is allowed for a password to be an empty string, but not a username
                     source = source ?? "admin";
                     if (evidence == null || !(evidence is PasswordEvidence))
                     {
-                        throw new ArgumentException("A MONGODB-CR credential must have a password.");
+                        var message = string.Format("A {0} credential must have a password.", defaultedMechanism);
+                        throw new ArgumentException(message);
                     }
 
                     return new MongoCredential(

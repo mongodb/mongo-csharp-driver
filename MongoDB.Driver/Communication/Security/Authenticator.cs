@@ -32,12 +32,11 @@ namespace MongoDB.Driver.Communication.Security
         // private static fields
         private static readonly List<IAuthenticationProtocol> __clientSupportedProtocols = new List<IAuthenticationProtocol>
         {
-            // when we start negotiating, MONGODB-CR should be moved to the bottom of the list...
-            new MongoCRAuthenticationProtocol(),
             new X509AuthenticationProtocol(),
             new SaslAuthenticationProtocol(new ScramSha1Mechanism()),
             new SaslAuthenticationProtocol(new GssapiMechanism()),
-            new SaslAuthenticationProtocol(new PlainMechanism())
+            new SaslAuthenticationProtocol(new PlainMechanism()),
+            new MongoCRAuthenticationProtocol()
         };
 
         // private fields
@@ -81,7 +80,7 @@ namespace MongoDB.Driver.Communication.Security
         {
             foreach (var clientSupportedProtocol in __clientSupportedProtocols)
             {
-                if (clientSupportedProtocol.CanUse(credential))
+                if (clientSupportedProtocol.CanUse(_connection, credential))
                 {
                     clientSupportedProtocol.Authenticate(_connection, credential);
                     return;

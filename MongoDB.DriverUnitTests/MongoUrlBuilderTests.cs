@@ -142,7 +142,8 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase("MONGODB-CR", "mongodb://localhost")]
+        [TestCase(null, "mongodb://localhost")]
+        [TestCase("MONGODB-CR", "mongodb://localhost/?authMechanism=MONGODB-CR")]
         [TestCase("SCRAM-SHA-1", "mongodb://localhost/?authMechanism=SCRAM-SHA-1")]
         [TestCase("MONGODB-X509", "mongodb://localhost/?authMechanism=MONGODB-X509")]
         [TestCase("GSSAPI", "mongodb://localhost/?authMechanism=GSSAPI")]
@@ -292,7 +293,7 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual("MONGODB-CR", builder.AuthenticationMechanism);
+                Assert.AreEqual(null, builder.AuthenticationMechanism);
                 Assert.AreEqual(null, builder.AuthenticationSource);
                 Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);

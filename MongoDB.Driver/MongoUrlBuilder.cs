@@ -68,7 +68,7 @@ namespace MongoDB.Driver
         public MongoUrlBuilder()
         {
             _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
-            _authenticationMechanismProperties = new Dictionary<string, string>();
+            _authenticationMechanismProperties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
             _authenticationSource = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
@@ -628,7 +628,6 @@ namespace MongoDB.Driver
 
         internal static IEnumerable<KeyValuePair<string, string>> ParseAuthMechanismProperties(string name, string s)
         {
-            var properties = new Dictionary<string, string>();
             foreach (var property in s.Split(','))
             {
                 var parts = property.Split(':');
@@ -636,9 +635,8 @@ namespace MongoDB.Driver
                 {
                     throw new FormatException(FormatMessage(name, s));
                 }
-                properties.Add(parts[0].Trim(), parts[1].Trim());
+                yield return new KeyValuePair<string, string>(parts[0].Trim(), parts[1].Trim());
             }
-            return properties;
         }
 
         internal static ConnectionMode ParseConnectionMode(string name, string s)
@@ -1059,7 +1057,7 @@ namespace MongoDB.Driver
                 url.Append(_databaseName);
             }
             var query = new StringBuilder();
-            if (!_authenticationMechanism.Equals("MONGODB-CR", StringComparison.InvariantCultureIgnoreCase))
+            if (_authenticationMechanism != null)
             {
                 query.AppendFormat("authMechanism={0};", _authenticationMechanism);
             }
