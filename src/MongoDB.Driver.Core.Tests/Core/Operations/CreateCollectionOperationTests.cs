@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.SyncExtensionMethods;
@@ -45,22 +46,22 @@ namespace MongoDB.Driver.Core.Operations
         public void AutoIndexId_should_work()
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            Assert.That(subject.AutoIndexId, Is.Null);
+            subject.AutoIndexId.Should().NotHaveValue();
 
             subject.AutoIndexId = true;
 
-            Assert.That(subject.AutoIndexId, Is.True);
+            subject.AutoIndexId.Should().BeTrue();
         }
 
         [Test]
         public void Capped_should_work()
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            Assert.That(subject.Capped, Is.Null);
+            subject.Capped.Should().NotHaveValue();
 
             subject.Capped = true;
 
-            Assert.That(subject.Capped, Is.True);
+            subject.Capped.Should().BeTrue();
         }
 
         [Test]
@@ -68,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            Assert.That(subject.CollectionNamespace, Is.SameAs(_collectionNamespace));
+            subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
         }
 
         [Test]
@@ -76,21 +77,21 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            Assert.That(subject.AutoIndexId, Is.Null);
-            Assert.That(subject.Capped, Is.Null);
-            Assert.That(subject.CollectionNamespace, Is.SameAs(_collectionNamespace));
-            Assert.That(subject.MaxDocuments, Is.Null);
-            Assert.That(subject.MaxSize, Is.Null);
-            Assert.That(subject.MessageEncoderSettings, Is.SameAs(_messageEncoderSettings));
-            Assert.That(subject.UsePowerOf2Sizes, Is.Null);
+            subject.AutoIndexId.Should().NotHaveValue();
+            subject.Capped.Should().NotHaveValue();
+            subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+            subject.MaxDocuments.Should().NotHaveValue();
+            subject.MaxSize.Should().NotHaveValue();
+            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+            subject.UsePowerOf2Sizes.Should().NotHaveValue();
         }
 
         [Test]
         public void constructor_should_throw_when_collectionNamespace_is_null()
         {
-            var ex = Assert.Catch(() => new CreateCollectionOperation(null, _messageEncoderSettings));
+            Action action = () => { new CreateCollectionOperation(null, _messageEncoderSettings); };
 
-            Assert.That(ex, Is.TypeOf<ArgumentNullException>().With.Property("ParamName").EqualTo("collectionNamespace"));
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Equals("value");
         }
 
         [Test]
@@ -104,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = subject.CreateCommand();
 
-            Assert.That(result, Is.EqualTo(expectedResult));
+            result.Should().Be(expectedResult);
         }
 
         [Test]
@@ -124,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = subject.CreateCommand();
 
-            Assert.That(result, Is.EqualTo(expectedResult));
+            result.Should().Be(expectedResult);
         }
 
         [Test]
@@ -144,7 +145,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = subject.CreateCommand();
 
-            Assert.That(result, Is.EqualTo(expectedResult));
+            result.Should().Be(expectedResult);
         }
 
         [Test]
@@ -164,7 +165,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = subject.CreateCommand();
 
-            Assert.That(result, Is.EqualTo(expectedResult));
+            result.Should().Be(expectedResult);
         }
 
         [Test]
@@ -184,7 +185,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = subject.CreateCommand();
 
-            Assert.That(result, Is.EqualTo(expectedResult));
+            result.Should().Be(expectedResult);
         }
 
         [Test]
@@ -204,7 +205,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = subject.CreateCommand();
 
-            Assert.That(result, Is.EqualTo(expectedResult));
+            result.Should().Be(expectedResult);
         }
 
         [Test]
@@ -216,10 +217,11 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding);
-                Assert.That(result["ok"].ToBoolean(), Is.True);
+
+                result["ok"].ToBoolean().Should().BeTrue();
 
                 var stats = await GetCollectionStatsAsync(binding);
-                Assert.That(stats["ns"].ToString(), Is.EqualTo(_collectionNamespace.FullName));
+                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
             }
         }
 
@@ -237,11 +239,12 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding);
-                Assert.That(result["ok"].ToBoolean(), Is.True);
+
+                result["ok"].ToBoolean().Should().BeTrue();
 
                 var stats = await GetCollectionStatsAsync(binding);
-                Assert.That(stats["ns"].ToString(), Is.EqualTo(_collectionNamespace.FullName));
-                Assert.That(stats["systemFlags"].ToInt32(), Is.EqualTo(autoIndexId ? 1 : 0));
+                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
+                stats["systemFlags"].ToInt32().Should().Be(autoIndexId ? 1 : 0);
             }
         }
 
@@ -261,17 +264,18 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding);
-                Assert.That(result["ok"].ToBoolean(), Is.True);
+
+                result["ok"].ToBoolean().Should().BeTrue();
 
                 var stats = await GetCollectionStatsAsync(binding);
-                Assert.That(stats["ns"].ToString(), Is.EqualTo(_collectionNamespace.FullName));
+                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
                 if (capped)
                 {
-                    Assert.That(stats["capped"].ToBoolean(), Is.True);
+                    stats["capped"].ToBoolean().Should().BeTrue();
                 }
                 else
                 {
-                    Assert.That(!stats.Contains("capped"));
+                    stats.Contains("capped").Should().BeFalse();
                 }
             }
         }
@@ -291,12 +295,13 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding);
-                Assert.That(result["ok"].ToBoolean(), Is.True);
+
+                result["ok"].ToBoolean().Should().BeTrue();
 
                 var stats = await GetCollectionStatsAsync(binding);
-                Assert.That(stats["ns"].ToString(), Is.EqualTo(_collectionNamespace.FullName));
-                Assert.That(stats["capped"].ToBoolean(), Is.True);
-                Assert.That(stats["max"].ToInt64(), Is.EqualTo(maxDocuments));
+                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
+                stats["capped"].ToBoolean().Should().BeTrue();
+                stats["max"].ToInt64().Should().Be(maxDocuments);
             }
         }
 
@@ -314,11 +319,12 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding);
-                Assert.That(result["ok"].ToBoolean(), Is.True);
+
+                result["ok"].ToBoolean().Should().BeTrue();
 
                 var stats = await GetCollectionStatsAsync(binding);
-                Assert.That(stats["ns"].ToString(), Is.EqualTo(_collectionNamespace.FullName));
-                Assert.That(stats["capped"].ToBoolean(), Is.True);
+                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
+                stats["capped"].ToBoolean().Should().BeTrue();
                 // TODO: not sure how to verify that the maxSize took effect
             }
         }
@@ -337,11 +343,12 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding);
-                Assert.That(result["ok"].ToBoolean(), Is.True);
+
+                result["ok"].ToBoolean().Should().BeTrue();
 
                 var stats = await GetCollectionStatsAsync(binding);
-                Assert.That(stats["ns"].ToString(), Is.EqualTo(_collectionNamespace.FullName));
-                Assert.That(stats["userFlags"].ToInt32(), Is.EqualTo(usePowerOf2Sizes ? 1 : 0));
+                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
+                stats["userFlags"].ToInt32().Should().Be(usePowerOf2Sizes ? 1 : 0);
             }
         }
 
@@ -349,11 +356,11 @@ namespace MongoDB.Driver.Core.Operations
         public void MaxDocuments_should_work()
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            Assert.That(subject.MaxDocuments, Is.Null);
+            subject.MaxDocuments.Should().NotHaveValue();
 
             subject.MaxDocuments = 1;
 
-            Assert.That(subject.MaxDocuments, Is.EqualTo(1));
+            subject.MaxDocuments.Should().Be(1);
         }
 
         [Test]
@@ -363,20 +370,20 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            var ex = Assert.Catch(() => subject.MaxDocuments = maxDocuments);
+            Action action = () => { subject.MaxDocuments = maxDocuments; };
 
-            Assert.That(ex, Is.TypeOf<ArgumentOutOfRangeException>().With.Property("ParamName").EqualTo("value"));
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Equals("value");
         }
 
         [Test]
         public void MaxSize_should_work()
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            Assert.That(subject.MaxSize, Is.Null);
+            subject.MaxSize.Should().NotHaveValue();
 
             subject.MaxSize = 1;
 
-            Assert.That(subject.MaxSize, Is.EqualTo(1));
+            subject.MaxSize.Should().Be(1);
         }
 
         [Test]
@@ -386,9 +393,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            var ex = Assert.Catch(() => subject.MaxSize = maxSize);
+            Action action = () => { subject.MaxSize = maxSize; };
 
-            Assert.That(ex, Is.TypeOf<ArgumentOutOfRangeException>().With.Property("ParamName").EqualTo("value"));
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Equals("value");
         }
 
         [Test]
@@ -396,18 +403,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            Assert.That(subject.MessageEncoderSettings, Is.SameAs(_messageEncoderSettings));
+            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
 
         [Test]
         public void UsePowerOf2Sizes_should_work()
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            Assert.That(subject.UsePowerOf2Sizes, Is.Null);
+            subject.UsePowerOf2Sizes.Should().NotHaveValue();
 
             subject.UsePowerOf2Sizes = true;
 
-            Assert.That(subject.UsePowerOf2Sizes, Is.True);
+            subject.UsePowerOf2Sizes.Should().BeTrue();
         }
 
         // helper methods
