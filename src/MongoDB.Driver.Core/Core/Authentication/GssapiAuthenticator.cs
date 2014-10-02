@@ -59,12 +59,12 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // constructors
-        public GssapiAuthenticator(UsernamePasswordCredential credential, IEnumerable<KeyValuePair<string, object>> properties)
+        public GssapiAuthenticator(UsernamePasswordCredential credential, IEnumerable<KeyValuePair<string, string>> properties)
             : base(CreateMechanism(credential, properties))
         {
         }
 
-        public GssapiAuthenticator(string username, IEnumerable<KeyValuePair<string, object>> properties)
+        public GssapiAuthenticator(string username, IEnumerable<KeyValuePair<string, string>> properties)
             : base(CreateMechanism(username, null, properties))
         {
         }
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Authentication
             get { return "$external"; }
         }
 
-        private static GssapiMechanism CreateMechanism(UsernamePasswordCredential credential, IEnumerable<KeyValuePair<string, object>> properties)
+        private static GssapiMechanism CreateMechanism(UsernamePasswordCredential credential, IEnumerable<KeyValuePair<string, string>> properties)
         {
             if (credential.Source != "$external")
             {
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Authentication
             return CreateMechanism(credential.Username, credential.Password, properties);
         }
 
-        private static GssapiMechanism CreateMechanism(string username, SecureString password, IEnumerable<KeyValuePair<string, object>> properties)
+        private static GssapiMechanism CreateMechanism(string username, SecureString password, IEnumerable<KeyValuePair<string, string>> properties)
         {
             var serviceName = DefaultServiceName;
             var canonicalizeHostName = false;
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 foreach (var pair in properties)
                 {
-                    switch (pair.Key)
+                    switch (pair.Key.ToUpperInvariant())
                     {
                         case __serviceNamePropertyName:
                             serviceName = (string)pair.Value;
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Core.Authentication
                             realm = (string)pair.Value;
                             break;
                         case __canonicalizeHostNamePropertyName:
-                            canonicalizeHostName = (bool)pair.Value;
+                            canonicalizeHostName = bool.Parse(pair.Value);
                             break;
                         default:
                             var message = string.Format("Unknown GSSAPI property '{0}'.", pair.Key);

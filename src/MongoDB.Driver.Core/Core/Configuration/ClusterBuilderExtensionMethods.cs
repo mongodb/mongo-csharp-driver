@@ -146,12 +146,7 @@ namespace MongoDB.Driver.Core.Configuration
                 }
                 else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
                 {
-                    var properties = new Dictionary<string, object>();
-                    if (connectionString.GssapiServiceName != null)
-                    {
-                        properties[GssapiAuthenticator.ServiceNamePropertyName] = connectionString.GssapiServiceName;
-                    }
-                    return new GssapiAuthenticator(credential, properties);
+                    return new GssapiAuthenticator(credential, connectionString.AuthMechanismProperties);
                 }
             }
             else
@@ -162,12 +157,7 @@ namespace MongoDB.Driver.Core.Configuration
                 }
                 else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
                 {
-                    var properties = new Dictionary<string, object>();
-                    if (connectionString.GssapiServiceName != null)
-                    {
-                        properties[GssapiAuthenticator.ServiceNamePropertyName] = connectionString.GssapiServiceName;
-                    }
-                    return new GssapiAuthenticator(connectionString.Username, properties);
+                    return new GssapiAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties);
                 }
             }
 

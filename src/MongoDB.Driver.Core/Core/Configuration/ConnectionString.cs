@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly string _originalConnectionString;
         private readonly NameValueCollection _allOptions;
         private readonly NameValueCollection _unknownOptions;
+        private readonly Dictionary<string, string> _authMechanismProperties;
 
         // these are all readonly, but since they are not assigned 
         // from the ctor, they cannot be marked as such.
@@ -46,7 +47,6 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _connectTimeout;
         private string _databaseName;
         private bool? _fsync;
-        private string _gssapiServiceName;
         private IReadOnlyList<EndPoint> _hosts;
         private bool? _ipv6;
         private bool? _journal;
@@ -80,6 +80,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             _allOptions = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
             _unknownOptions = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
+            _authMechanismProperties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
             Parse();
         }
 
@@ -106,6 +107,14 @@ namespace MongoDB.Driver.Core.Configuration
         public string AuthMechanism
         {
             get { return _authMechanism; }
+        }
+
+        /// <summary>
+        /// Gets the auth mechanism properties.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> AuthMechanismProperties
+        {
+            get { return _authMechanismProperties; }
         }
 
         /// <summary>
@@ -146,14 +155,6 @@ namespace MongoDB.Driver.Core.Configuration
         public bool? FSync
         {
             get { return _fsync; }
-        }
-
-        /// <summary>
-        /// Gets the name of the gssapi service.
-        /// </summary>
-        public string GssapiServiceName
-        {
-            get { return _gssapiServiceName; }
         }
 
         /// <summary>
@@ -415,7 +416,7 @@ namespace MongoDB.Driver.Core.Configuration
             if (!match.Success)
             {
                 var message = string.Format("The connection string '{0}' is not valid.", _originalConnectionString);
-                throw new ConfigurationException(message);    
+                throw new ConfigurationException(message);
             }
 
             ExtractUsernameAndPassword(match);
@@ -431,6 +432,12 @@ namespace MongoDB.Driver.Core.Configuration
                 case "authmechanism":
                     _authMechanism = value;
                     break;
+                case "authmechanismproperties":
+                    foreach (var property in GetAuthMechanismProperties(name, value))
+                    {
+                        _authMechanismProperties.Add(property.Key, property.Value);
+                    }
+                    break;
                 case "authsource":
                     _authSource = value;
                     break;
@@ -445,7 +452,7 @@ namespace MongoDB.Driver.Core.Configuration
                     _fsync = GetBoolean(name, value);
                     break;
                 case "gssapiservicename":
-                    _gssapiServiceName = value;
+                    _authMechanismProperties.Add("SERVICE_NAME", value);
                     break;
                 case "ipv6":
                     _ipv6 = GetBoolean(name, value);
@@ -524,6 +531,19 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // private static methods
+        private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value)
+        {
+            foreach (var property in value.Split(','))
+            {
+                var parts = property.Split(':');
+                if (parts.Length != 2)
+                {
+                    throw new ConfigurationException(string.Format("{0} has an invalid value of {1}.", name, value));
+                }
+                yield return new KeyValuePair<string, string>(parts[0], parts[1]);
+            }
+        }
+
         private static bool GetBoolean(string name, string value)
         {
             try

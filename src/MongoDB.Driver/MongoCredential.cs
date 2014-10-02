@@ -365,7 +365,9 @@ namespace MongoDB.Driver
                 }
                 else if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
-                    return new GssapiAuthenticator(credential, _mechanismProperties);
+                    return new GssapiAuthenticator(
+                        credential, 
+                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
                 }
             }
             else if (_identity.Source == "$external" && _evidence is ExternalEvidence)
@@ -376,7 +378,9 @@ namespace MongoDB.Driver
                 }
                 else if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
-                    return new GssapiAuthenticator(_identity.Username, _mechanismProperties);
+                    return new GssapiAuthenticator(
+                        _identity.Username, 
+                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
                 }
             }
 

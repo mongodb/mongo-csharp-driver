@@ -137,7 +137,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectTimeout.Should().Be(null);
             subject.DatabaseName.Should().BeNull();
             subject.FSync.Should().Be(null);
-            subject.GssapiServiceName.Should().BeNull();
             subject.Ipv6.Should().Be(null);
             subject.Journal.Should().Be(null);
             subject.MaxIdleTime.Should().Be(null);
@@ -165,10 +164,10 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var connectionString = @"mongodb://user:pass@localhost1,localhost2:30000/test?" +
                 "authMechanism=GSSAPI;" +
+                "authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "authSource=admin;" +
                 "connectTimeout=15ms;" +
                 "fsync=true;" +
-                "gssapiServiceName=serviceName;" +
                 "ipv6=false;" +
                 "j=true;" +
                 "maxIdleTime=10ms;" +
@@ -191,11 +190,12 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.AuthMechanism.Should().Be("GSSAPI");
+            subject.AuthMechanismProperties.Count.Should().Be(1);
+            subject.AuthMechanismProperties["canonicalize_host_name"].Should().Be("true");
             subject.AuthSource.Should().Be("admin");
             subject.ConnectTimeout.Should().Be(TimeSpan.FromMilliseconds(15));
             subject.DatabaseName.Should().Be("test");
             subject.FSync.Should().BeTrue();
-            subject.GssapiServiceName.Should().Be("serviceName");
             subject.Ipv6.Should().BeFalse();
             subject.Journal.Should().BeTrue();
             subject.MaxIdleTime.Should().Be(TimeSpan.FromMilliseconds(10));
@@ -228,6 +228,17 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.AuthMechanism.Should().Be(authMechanism);
+        }
+
+        [Test]
+        public void When_authMechanismProperties_is_specified()
+        {
+            var connectionString = "mongodb://localhost?authMechanismProperties=ONE:1,TWO:2";
+            var subject = new ConnectionString(connectionString);
+
+            subject.AuthMechanismProperties.Count.Should().Be(2);
+            subject.AuthMechanismProperties["one"].Should().Be("1");
+            subject.AuthMechanismProperties["TWO"].Should().Be("2");
         }
 
         [Test]
@@ -277,11 +288,12 @@ namespace MongoDB.Driver.Core.Configuration
         [Test]
         [TestCase("mongodb://localhost?gssapiServiceName=serviceName", "serviceName")]
         [TestCase("mongodb://localhost?gssapiServiceName=mongodb", "mongodb")]
+        [TestCase("mongodb://localhost?authMechanismProperties=SERVICE_NAME:serviceName", "serviceName")]
         public void When_gssapiServiceName_is_specified(string connectionString, string gssapiServiceName)
         {
             var subject = new ConnectionString(connectionString);
 
-            subject.GssapiServiceName.Should().Be(gssapiServiceName);
+            subject.AuthMechanismProperties["service_name"].Should().Be(gssapiServiceName);
         }
 
         [Test]
