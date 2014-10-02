@@ -21,12 +21,15 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.SyncExtensionMethods;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
 {
@@ -525,10 +528,11 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropDatabase(string databaseName)
         {
-            var database = GetDatabase(databaseName);
-            var command = new CommandDocument("dropDatabase", 1);
-            var result = database.RunCommand(command);
-            return result;
+            var databaseNamespace = new DatabaseNamespace(databaseName);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new DropDatabaseOperation(databaseNamespace, messageEncoderSettings);
+            var response = ExecuteWriteOperation(operation);
+            return new CommandResult(response);
         }
 
         /// <summary>
@@ -829,6 +833,24 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation)
+        {
+            using (var binding = GetWriteBinding())
+            {
+                return operation.Execute(binding);
+            }
+        }
+
+        private MessageEncoderSettings GetMessageEncoderSettings()
+        {
+            return new MessageEncoderSettings
+            {
+                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
+                { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Helper.StrictUtf8Encoding },
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Helper.StrictUtf8Encoding }
+            };
+        }
+
         private void OnClusterDescriptionChanged(object sender, EventArgs args)
         {
             var clusterDescription = _cluster.Description;

@@ -139,6 +139,13 @@ namespace MongoDB.Driver
             return new CollectionNamespace(__databaseNamespace, collectionName);
         }
 
+        public static DatabaseNamespace GetDatabaseNamespaceForTestFixture()
+        {
+            var testFixtureType = GetTestFixtureTypeFromCallStack();
+            var databaseName = __databaseNamespace.DatabaseName + "-" + testFixtureType.Name;
+            return new DatabaseNamespace(databaseName);
+        }
+
         public static IReadBinding GetReadBinding()
         {
             return GetReadBinding(ReadPreference.Primary);

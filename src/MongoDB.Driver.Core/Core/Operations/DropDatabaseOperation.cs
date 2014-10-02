@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Core.Operations
     public class DropDatabaseOperation : IWriteOperation<BsonDocument>, ICommandOperation
     {
         // fields
-        private DatabaseNamespace _databaseNamespace;
-        private MessageEncoderSettings _messageEncoderSettings;
+        private readonly DatabaseNamespace _databaseNamespace;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public DropDatabaseOperation(
@@ -42,13 +42,11 @@ namespace MongoDB.Driver.Core.Operations
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
-            set { _databaseNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         // methods

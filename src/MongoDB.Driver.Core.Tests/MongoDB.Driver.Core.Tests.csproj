@@ -57,6 +57,7 @@
     <Compile Include="AssertionExtensions.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\DropCollectionOperationTests.cs" />
+    <Compile Include="Core\Operations\DropDatabaseOperationTests.cs" />
     <Compile Include="Core\Operations\EvalOperationTests.cs" />
     <Compile Include="SuiteConfiguration.cs" />
     <Compile Include="Core\Async\AsyncDropboxTests.cs" />
