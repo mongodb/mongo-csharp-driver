@@ -212,8 +212,7 @@ namespace MongoDB.Driver
                 Skip = args.Skip
             };
 
-            var readPreference = _settings.ReadPreference ?? ReadPreference.Primary;
-            return ExecuteReadOperation(operation, readPreference);
+            return ExecuteReadOperation(operation);
         }
 
         /// <summary>
@@ -295,8 +294,7 @@ namespace MongoDB.Driver
                 MaxTime = args.MaxTime,
             };
 
-            var readPreference = _settings.ReadPreference ?? ReadPreference.Primary;
-            return ExecuteReadOperation(operation, readPreference);
+            return ExecuteReadOperation(operation);
         }
 
         /// <summary>
@@ -752,8 +750,7 @@ namespace MongoDB.Driver
                 Sort = args.SortBy.ToBsonDocument()
             };
 
-            var readPreference = args.ReadPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
-            using (var enumerator = ExecuteReadOperation(operation, readPreference))
+            using (var enumerator = ExecuteReadOperation(operation, args.ReadPreference))
             {
                 if (enumerator.MoveNextAsync().GetAwaiter().GetResult())
                 {
@@ -1669,8 +1666,7 @@ namespace MongoDB.Driver
                 BatchSize = batchSize
             };
 
-            var readPreference = args.ReadPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
-            var cursors = ExecuteReadOperation(operation, readPreference);
+            var cursors = ExecuteReadOperation(operation, args.ReadPreference);
             var documentEnumerators = cursors.Select(c => new AsyncCursorEnumeratorAdapter<TDocument>(c).GetEnumerator()).ToList();
             return new ReadOnlyCollection<IEnumerator<TDocument>>(documentEnumerators);
         }
@@ -2178,8 +2174,9 @@ namespace MongoDB.Driver
             return result;
         }
 
-        private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference)
+        private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference = null)
         {
+            readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
             using (var binding = _server.GetReadBinding(readPreference))
             {
                 return operation.Execute(binding);
