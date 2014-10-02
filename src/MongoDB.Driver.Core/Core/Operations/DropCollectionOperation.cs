@@ -23,11 +23,11 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DropCollectionOperation : IWriteOperation<BsonDocument>
+    public class DropCollectionOperation : IWriteOperation<BsonDocument>, ICommandOperation
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
-        private MessageEncoderSettings _messageEncoderSettings;
+        private readonly CollectionNamespace _collectionNamespace;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public DropCollectionOperation(
@@ -42,13 +42,11 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         // methods

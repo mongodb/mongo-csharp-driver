@@ -338,21 +338,12 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult DropCollection(string collectionName)
         {
-            try
-            {
-                var command = new CommandDocument("drop", collectionName);
-                var result = RunCommandAs<CommandResult>(command);
-                return result;
-            }
-            catch (MongoCommandException ex)
-            {
-                var commandResult = new CommandResult(ex.Result);
-                if (commandResult.ErrorMessage == "ns not found")
-                {
-                    return commandResult;
-                }
-                throw;
-            }
+            var collectionNamespace = new CollectionNamespace(_namespace, collectionName);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+
+            var operation = new DropCollectionOperation(collectionNamespace, messageEncoderSettings);
+            var response = ExecuteWriteOperation(operation);
+            return new CommandResult(response);
         }
 
         /// <summary>
