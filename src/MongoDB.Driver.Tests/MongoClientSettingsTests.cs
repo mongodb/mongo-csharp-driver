@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Tests
         {
             // set everything to non default values to test that all settings are converted
             var connectionString =
-                "mongodb://user1:password1@somehost/?authSource=db;" +
+                "mongodb://user1:password1@somehost/?authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;secondaryAcceptableLatency=128;socketTimeout=129;" +
@@ -245,9 +245,10 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(1, settings.Credentials.Count());
             Assert.AreEqual(url.Username, settings.Credentials.Single().Username);
             Assert.AreEqual(url.AuthenticationMechanism, settings.Credentials.Single().Mechanism);
+            Assert.AreEqual("other", settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", "mongodb"));
+            Assert.AreEqual(true, settings.Credentials.Single().GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", false));
             Assert.AreEqual(url.AuthenticationSource, settings.Credentials.Single().Source);
             Assert.AreEqual(new PasswordEvidence(url.Password), settings.Credentials.Single().Evidence);
-            Assert.AreEqual(url.GssapiServiceName, settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", null));
             Assert.AreEqual(url.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(url.IPv6, settings.IPv6);
             Assert.AreEqual(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);

@@ -31,15 +31,20 @@ namespace MongoDB.Driver.Tests
         public void TestAll()
         {
             var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) });
+            var authMechanismProperties = new Dictionary<string, string>
+            {
+                { "SERVICE_NAME", "other" },
+                { "CANONICALIZE_HOST_NAME", "true" }
+            };
             var built = new MongoUrlBuilder()
             {
                 AuthenticationMechanism = "GSSAPI",
+                AuthenticationMechanismProperties = authMechanismProperties,
                 AuthenticationSource = "db",
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
                 FSync = true,
-                GssapiServiceName = "other",
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 IPv6 = true,
                 Journal = true,
@@ -64,7 +69,7 @@ namespace MongoDB.Driver.Tests
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
                 "authMechanism=GSSAPI",
-                "gssapiServiceName=other",
+                "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
                 "ipv6=true",
                 "ssl=true", // UseSsl
@@ -91,13 +96,13 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.AreEqual("GSSAPI", builder.AuthenticationMechanism);
+                CollectionAssert.AreEqual(authMechanismProperties, builder.AuthenticationMechanismProperties);
                 Assert.AreEqual("db", builder.AuthenticationSource);
                 Assert.AreEqual(123, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
                 Assert.AreEqual(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
                 Assert.AreEqual("database", builder.DatabaseName);
                 Assert.AreEqual(true, builder.FSync);
-                Assert.AreEqual("other", builder.GssapiServiceName);
                 Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
                 Assert.AreEqual(true, builder.IPv6);
                 Assert.AreEqual(true, builder.Journal);
@@ -124,7 +129,9 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [TestCase("MONGODB-CR", "mongodb://localhost")]
+        [TestCase(null, "mongodb://localhost")]
+        [TestCase("MONGODB-CR", "mongodb://localhost/?authMechanism=MONGODB-CR")]
+        [TestCase("SCRAM-SHA-1", "mongodb://localhost/?authMechanism=SCRAM-SHA-1")]
         [TestCase("MONGODB-X509", "mongodb://localhost/?authMechanism=MONGODB-X509")]
         [TestCase("GSSAPI", "mongodb://localhost/?authMechanism=GSSAPI")]
         public void TestAuthMechanism(string mechanism, string connectionString)
@@ -273,7 +280,8 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual("MONGODB-CR", builder.AuthenticationMechanism);
+                Assert.AreEqual(null, builder.AuthenticationMechanism);
+                Assert.AreEqual(0, builder.AuthenticationMechanismProperties.Count());
                 Assert.AreEqual(null, builder.AuthenticationSource);
                 Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);

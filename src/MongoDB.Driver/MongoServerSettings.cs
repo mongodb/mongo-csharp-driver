@@ -506,9 +506,16 @@ namespace MongoDB.Driver
             serverSettings.ConnectTimeout = url.ConnectTimeout;
             if (credential != null)
             {
-                if (!string.IsNullOrEmpty(url.GssapiServiceName))
+                foreach (var property in url.AuthenticationMechanismProperties)
                 {
-                    credential = credential.WithMechanismProperty("SERVICE_NAME", url.GssapiServiceName);
+                    if (property.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        credential = credential.WithMechanismProperty(property.Key, bool.Parse(property.Value));
+                    }
+                    else
+                    {
+                        credential = credential.WithMechanismProperty(property.Key, property.Value);
+                    }
                 }
                 serverSettings.Credentials = new[] { credential };
             }

@@ -143,6 +143,36 @@ namespace MongoDB.Driver
 
         // public static methods
         /// <summary>
+        /// Creates a default credential.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A default credential.</returns>
+        public static MongoCredential CreateCredential(string databaseName, string username, string password)
+        {
+            return FromComponents(null,
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
+        /// <summary>
+        /// Creates a default credential.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A default credential.</returns>
+        public static MongoCredential CreateCredential(string databaseName, string username, SecureString password)
+        {
+            return FromComponents(null,
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
+        /// <summary>
         /// Creates a GSSAPI credential.
         /// </summary>
         /// <param name="username">The username.</param>
@@ -351,7 +381,11 @@ namespace MongoDB.Driver
                     _identity.Source,
                     _identity.Username,
                     MongoUtils.ToInsecureString(passwordEvidence.SecurePassword));
-                if (_mechanism == null || _mechanism == MongoDBCRAuthenticator.MechanismName)
+                if (_mechanism == null)
+                {
+                    return new DefaultAuthenticator(credential);
+                }
+                else if (_mechanism == MongoDBCRAuthenticator.MechanismName)
                 {
                     return new MongoDBCRAuthenticator(credential);
                 }
@@ -366,7 +400,7 @@ namespace MongoDB.Driver
                 else if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(
-                        credential, 
+                        credential,
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
                 }
             }
@@ -379,7 +413,7 @@ namespace MongoDB.Driver
                 else if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(
-                        _identity.Username, 
+                        _identity.Username,
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
                 }
             }
@@ -410,23 +444,22 @@ namespace MongoDB.Driver
         // private static methods
         private static MongoCredential FromComponents(string mechanism, string source, string username, MongoIdentityEvidence evidence)
         {
-            if (string.IsNullOrEmpty(mechanism))
-            {
-                throw new ArgumentException("Cannot be null or empty.", "mechanism");
-            }
             if (string.IsNullOrEmpty(username))
             {
                 return null;
             }
 
-            switch (mechanism.ToUpperInvariant())
+            switch ((mechanism ?? "DEFAULT").ToUpperInvariant())
             {
+                case "DEFAULT":
                 case "MONGODB-CR":
+                case "SCRAM-SHA-1":
                     // it is allowed for a password to be an empty string, but not a username
                     source = source ?? "admin";
                     if (evidence == null || !(evidence is PasswordEvidence))
                     {
-                        throw new ArgumentException("A MONGODB-CR credential must have a password.");
+                        var message = string.Format("A {0} credential must have a password.", mechanism);
+                        throw new ArgumentException(message);
                     }
 
                     return new MongoCredential(

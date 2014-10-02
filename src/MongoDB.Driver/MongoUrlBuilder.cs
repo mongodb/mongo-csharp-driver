@@ -32,12 +32,12 @@ namespace MongoDB.Driver
     {
         // private fields
         private string _authenticationMechanism;
+        private Dictionary<string, string> _authenticationMechanismProperties;
         private string _authenticationSource;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private string _databaseName;
         private bool? _fsync;
-        private string _gssapiServiceName;
         private GuidRepresentation _guidRepresentation;
         private bool _ipv6;
         private bool? _journal;
@@ -68,12 +68,12 @@ namespace MongoDB.Driver
         public MongoUrlBuilder()
         {
             _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
+            _authenticationMechanismProperties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
             _authenticationSource = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
             _fsync = null;
-            _gssapiServiceName = null;
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _ipv6 = false;
             _journal = null;
@@ -116,6 +116,23 @@ namespace MongoDB.Driver
         {
             get { return _authenticationMechanism; }
             set { _authenticationMechanism = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the authentication mechanism properties.
+        /// </summary>
+        public IEnumerable<KeyValuePair<string, string>> AuthenticationMechanismProperties
+        {
+            get { return _authenticationMechanismProperties; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
+                _authenticationMechanismProperties = value.ToDictionary(x => x.Key, x => x.Value, StringComparer.InvariantCultureIgnoreCase);
+            }
         }
 
         /// <summary>
@@ -189,15 +206,6 @@ namespace MongoDB.Driver
             {
                 _fsync = value;
             }
-        }
-
-        /// <summary>
-        /// Gets or sets the GSSAPI service name.
-        /// </summary>
-        public string GssapiServiceName
-        {
-            get { return _gssapiServiceName; }
-            set { _gssapiServiceName = value; }
         }
 
         /// <summary>
@@ -529,6 +537,19 @@ namespace MongoDB.Driver
             }
         }
 
+        internal static IEnumerable<KeyValuePair<string, string>> ParseAuthMechanismProperties(string name, string s)
+        {
+            foreach (var property in s.Split(','))
+            {
+                var parts = property.Split(':');
+                if (parts.Length != 2)
+                {
+                    throw new FormatException(FormatMessage(name, s));
+                }
+                yield return new KeyValuePair<string, string>(parts[0].Trim(), parts[1].Trim());
+            }
+        }
+
         internal static ConnectionMode ParseConnectionMode(string name, string s)
         {
             try
@@ -755,6 +776,9 @@ namespace MongoDB.Driver
                             case "authmechanism":
                                 _authenticationMechanism = value;
                                 break;
+                            case "authmechanismproperties":
+                                AuthenticationMechanismProperties = ParseAuthMechanismProperties(name, value);
+                                break;
                             case "authsource":
                                 _authenticationSource = value;
                                 break;
@@ -769,7 +793,7 @@ namespace MongoDB.Driver
                                 FSync = ParseBoolean(name, value);
                                 break;
                             case "gssapiservicename":
-                                _gssapiServiceName = value;
+                                _authenticationMechanismProperties["SERVICE_NAME"] = value;
                                 break;
                             case "guids":
                             case "uuidrepresentation":
@@ -945,13 +969,16 @@ namespace MongoDB.Driver
                 url.Append(_databaseName);
             }
             var query = new StringBuilder();
-            if (!_authenticationMechanism.Equals("MONGODB-CR", StringComparison.InvariantCultureIgnoreCase))
+            if (_authenticationMechanism != null)
             {
                 query.AppendFormat("authMechanism={0};", _authenticationMechanism);
             }
-            if (_gssapiServiceName != null)
+            if (_authenticationMechanismProperties.Any())
             {
-                query.AppendFormat("gssapiServiceName={0};", _gssapiServiceName);
+                query.AppendFormat(
+                    "authMechanismProperties={0};",
+                    string.Join(",", _authenticationMechanismProperties
+                        .Select(x => string.Format("{0}:{1}", x.Key, x.Value)).ToArray()));
             }
             if (_authenticationSource != null)
             {
