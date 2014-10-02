@@ -804,15 +804,13 @@ namespace MongoDB.Driver
 
             var oldCollectionNamespace = new CollectionNamespace(_namespace, oldCollectionName);
             var newCollectionNamespace = new CollectionNamespace(_namespace, newCollectionName);
-
-            var command = new CommandDocument
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new RenameCollectionOperation(oldCollectionNamespace, newCollectionNamespace, messageEncoderSettings)
             {
-                { "renameCollection", oldCollectionNamespace.FullName },
-                { "to", newCollectionNamespace.FullName },
-                { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
+                DropTarget = dropTarget
             };
-            var adminDatabase = _server.GetDatabase("admin");
-            return adminDatabase.RunCommandAs<CommandResult>(command);
+            var response = ExecuteWriteOperation(operation);
+            return new CommandResult(response);
         }
 
         /// <summary>

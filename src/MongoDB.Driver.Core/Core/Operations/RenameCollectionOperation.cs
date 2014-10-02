@@ -26,29 +26,23 @@ namespace MongoDB.Driver.Core.Operations
     public class RenameCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
         private bool? _dropTarget;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private CollectionNamespace _newCollectionNamespace;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly CollectionNamespace _newCollectionNamespace;
+        private readonly CollectionNamespace _oldCollectionNamespace;
 
         // constructors
         public RenameCollectionOperation(
-            CollectionNamespace collectionNamespace,
+            CollectionNamespace oldCollectionNamespace,
             CollectionNamespace newCollectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
+            _oldCollectionNamespace = Ensure.IsNotNull(oldCollectionNamespace, "oldCollectionNamespace");
             _newCollectionNamespace = Ensure.IsNotNull(newCollectionNamespace, "newCollectionNamespace");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
-        public CollectionNamespace CollectionNamespace
-        {
-            get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
-        }
-
         public bool? DropTarget
         {
             get { return _dropTarget; }
@@ -58,13 +52,16 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         public CollectionNamespace NewCollectionNamespace
         {
             get { return _newCollectionNamespace; }
-            set { _newCollectionNamespace = Ensure.IsNotNull(value, "value"); }
+        }
+
+        public CollectionNamespace OldCollectionNamespace
+        {
+            get { return _oldCollectionNamespace; }
         }
 
         // methods
@@ -72,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "drop", _collectionNamespace.FullName },
+                { "renameCollection", _oldCollectionNamespace.FullName },
                 { "to", _newCollectionNamespace.FullName },
                 { "dropTarget", () => _dropTarget.Value, _dropTarget.HasValue }
             };
