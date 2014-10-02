@@ -59,6 +59,7 @@
     <Compile Include="Core\Operations\DropCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\DropDatabaseOperationTests.cs" />
     <Compile Include="Core\Operations\EvalOperationTests.cs" />
+    <Compile Include="Core\Operations\ListDatabaseNamesOperationTests.cs" />
     <Compile Include="SuiteConfiguration.cs" />
     <Compile Include="Core\Async\AsyncDropboxTests.cs" />
     <Compile Include="Core\Authentication\AuthenticationHelperTests.cs" />

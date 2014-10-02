@@ -162,7 +162,9 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestGetDatabaseNames()
         {
-            _server.GetDatabaseNames();
+            var names = _server.GetDatabaseNames();
+
+            CollectionAssert.IsOrdered(names);
         }
 
         [Test]

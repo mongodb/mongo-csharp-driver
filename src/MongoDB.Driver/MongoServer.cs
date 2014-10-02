@@ -625,16 +625,9 @@ namespace MongoDB.Driver
         /// <returns>A list of database names.</returns>
         public virtual IEnumerable<string> GetDatabaseNames()
         {
-            var adminDatabase = GetDatabase("admin");
-            var result = adminDatabase.RunCommand("listDatabases");
-            var databaseNames = new List<string>();
-            foreach (BsonDocument database in result.Response["databases"].AsBsonArray.Values)
-            {
-                string databaseName = database["name"].AsString;
-                databaseNames.Add(databaseName);
-            }
-            databaseNames.Sort();
-            return databaseNames;
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new ListDatabaseNamesOperation(messageEncoderSettings);
+            return ExecuteReadOperation(operation).OrderBy(name => name);
         }
 
         /// <summary>
@@ -833,6 +826,15 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference = null)
+        {
+            readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
+            using (var binding = GetReadBinding(readPreference))
+            {
+                return operation.Execute(binding);
+            }
+        }
+
         private TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation)
         {
             using (var binding = GetWriteBinding())

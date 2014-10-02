@@ -40,7 +40,6 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         // methods
@@ -54,9 +53,9 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new ReadCommandOperation(DatabaseNamespace.Admin, command, _messageEncoderSettings);
-            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
-            var databases = result["databases"];
-            return databases.AsBsonArray.Select(x => x["name"].ToString()).ToList();
+            var response = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
+            var databases = response["databases"].AsBsonArray;
+            return databases.Select(database => database["name"].ToString()).ToList();
         }
     }
 }
