@@ -64,7 +64,8 @@ namespace MongoDB.Driver.Core.Configuration
         private bool? _sslVerifyCertificate;
         private string _username;
         private GuidRepresentation? _uuidRepresentation;
-        private int? _waitQueueMultiple;
+        private double? _waitQueueMultiple;
+        private int? _waitQueueSize;
         private TimeSpan? _waitQueueTimeout;
         private WriteConcern.WValue _w;
         private TimeSpan? _wTimeout;
@@ -296,9 +297,17 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the wait queue multiple.
         /// </summary>
-        public int? WaitQueueMultiple
+        public double? WaitQueueMultiple
         {
             get { return _waitQueueMultiple; }
+        }
+
+        /// <summary>
+        /// Gets the wait queue size.
+        /// </summary>
+        public int? WaitQueueSize
+        {
+            get { return _waitQueueSize; }
         }
 
         /// <summary>
@@ -382,7 +391,7 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 var parts = option.Value.Split('=');
                 _allOptions.Add(parts[0], parts[1]);
-                ParseOption(parts[0], parts[1]);
+                ParseOption(parts[0].Trim(), parts[1].Trim());
             }
         }
 
@@ -442,44 +451,44 @@ namespace MongoDB.Driver.Core.Configuration
                     _authSource = value;
                     break;
                 case "connect":
-                    _connect = GetEnum<ClusterConnectionMode>(name, value);
+                    _connect = ParseClusterConnectionMode(name, value);
                     break;
                 case "connecttimeout":
                 case "connecttimeoutms":
-                    _connectTimeout = GetTimeSpan(name, value);
+                    _connectTimeout = ParseTimeSpan(name, value);
                     break;
                 case "fsync":
-                    _fsync = GetBoolean(name, value);
+                    _fsync = ParseBoolean(name, value);
                     break;
                 case "gssapiservicename":
                     _authMechanismProperties.Add("SERVICE_NAME", value);
                     break;
                 case "ipv6":
-                    _ipv6 = GetBoolean(name, value);
+                    _ipv6 = ParseBoolean(name, value);
                     break;
                 case "j":
                 case "journal":
-                    _journal = GetBoolean(name, value);
+                    _journal = ParseBoolean(name, value);
                     break;
                 case "maxidletime":
                 case "maxidletimems":
-                    _maxIdleTime = GetTimeSpan(name, value);
+                    _maxIdleTime = ParseTimeSpan(name, value);
                     break;
                 case "maxlifetime":
                 case "maxlifetimems":
-                    _maxLifeTime = GetTimeSpan(name, value);
+                    _maxLifeTime = ParseTimeSpan(name, value);
                     break;
                 case "maxpoolsize":
-                    _maxPoolSize = GetInt32(name, value);
+                    _maxPoolSize = ParseInt32(name, value);
                     break;
                 case "minpoolsize":
-                    _minPoolSize = GetInt32(name, value);
+                    _minPoolSize = ParseInt32(name, value);
                     break;
                 case "readpreference":
-                    _readPreference = GetEnum<ReadPreferenceMode>(name, value);
+                    _readPreference = ParseEnum<ReadPreferenceMode>(name, value);
                     break;
                 case "readpreferencetags":
-                    var tagSet = GetReadPreferenceTagSets(name, value);
+                    var tagSet = ParseReadPreferenceTagSets(name, value);
                     if (_readPreferenceTags == null)
                     {
                         _readPreferenceTags = new List<TagSet> { tagSet }.AsReadOnly();
@@ -492,37 +501,72 @@ namespace MongoDB.Driver.Core.Configuration
                 case "replicaset":
                     _replicaSet = value;
                     break;
+                case "safe":
+                    var safe = ParseBoolean(name, value);
+                    if (_w == null)
+                    {
+                        _w = safe ? 1 : 0;
+                    }
+                    else
+                    {
+                        if (safe)
+                        {
+                            // don't overwrite existing W value unless it's 0
+                            var wCount = _w as WriteConcern.WCount;
+                            if (wCount != null && wCount.Value == 0)
+                            {
+                                _w = 1;
+                            }
+                        }
+                        else
+                        {
+                            _w = 0;
+                        }
+                    }
+                    break;
                 case "secondaryacceptablelatency":
                 case "secondaryacceptablelatencyms":
-                    _secondaryAcceptableLatency = GetTimeSpan(name, value);
+                    _secondaryAcceptableLatency = ParseTimeSpan(name, value);
+                    break;
+                case "slaveok":
+                    if (_readPreference != null)
+                    {
+                        throw new ConfigurationException("ReadPreference has already been configured.");
+                    }
+                    _readPreference = ParseBoolean(name, value) ?
+                        ReadPreferenceMode.SecondaryPreferred :
+                        ReadPreferenceMode.Primary;
                     break;
                 case "sockettimeout":
                 case "sockettimeoutms":
-                    _socketTimeout = GetTimeSpan(name, value);
+                    _socketTimeout = ParseTimeSpan(name, value);
                     break;
                 case "ssl":
-                    _ssl = GetBoolean(name, value);
+                    _ssl = ParseBoolean(name, value);
                     break;
                 case "sslverifycertificate":
-                    _sslVerifyCertificate = GetBoolean(name, value);
+                    _sslVerifyCertificate = ParseBoolean(name, value);
                     break;
                 case "guids":
                 case "uuidrepresentation":
-                    _uuidRepresentation = GetEnum<GuidRepresentation>(name, value);
+                    _uuidRepresentation = ParseEnum<GuidRepresentation>(name, value);
                     break;
                 case "w":
                     _w = WriteConcern.WValue.Parse(value);
                     break;
                 case "wtimeout":
                 case "wtimeoutms":
-                    _wTimeout = GetTimeSpan(name, value);
+                    _wTimeout = ParseTimeSpan(name, value);
                     break;
                 case "waitqueuemultiple":
-                    _waitQueueMultiple = GetInt32(name, value);
+                    _waitQueueMultiple = ParseDouble(name, value);
+                    break;
+                case "waitqueuesize":
+                    _waitQueueSize = ParseInt32(name, value);
                     break;
                 case "waitqueuetimeout":
                 case "waitqueuetimeoutms":
-                    _waitQueueTimeout = GetTimeSpan(name, value);
+                    _waitQueueTimeout = ParseTimeSpan(name, value);
                     break;
                 default:
                     _unknownOptions.Add(name, value);
@@ -544,7 +588,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
-        private static bool GetBoolean(string name, string value)
+        private static bool ParseBoolean(string name, string value)
         {
             try
             {
@@ -556,7 +600,19 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
-        private static TEnum GetEnum<TEnum>(string name, string value)
+        internal static double ParseDouble(string name, string value)
+        {
+            try
+            {
+                return XmlConvert.ToDouble(value);
+            }
+            catch (Exception ex)
+            {
+                throw new ConfigurationException(string.Format("{0} has an invalid double value of {1}.", name, value), ex);
+            }
+        }
+
+        private static TEnum ParseEnum<TEnum>(string name, string value)
             where TEnum : struct
         {
             try
@@ -569,7 +625,16 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
-        private static int GetInt32(string name, string value)
+        private static ClusterConnectionMode ParseClusterConnectionMode(string name, string value)
+        {
+            if (value.Equals("shardrouter", StringComparison.InvariantCultureIgnoreCase))
+            {
+                value = "sharded";
+            }
+            return ParseEnum<ClusterConnectionMode>(name, value);
+        }
+
+        private static int ParseInt32(string name, string value)
         {
             try
             {
@@ -581,7 +646,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
-        private static TagSet GetReadPreferenceTagSets(string name, string value)
+        private static TagSet ParseReadPreferenceTagSets(string name, string value)
         {
             var tags = new List<Tag>();
             foreach (var tagString in value.Split(','))
@@ -597,7 +662,7 @@ namespace MongoDB.Driver.Core.Configuration
             return new TagSet(tags);
         }
 
-        private static TimeSpan GetTimeSpan(string name, string value)
+        private static TimeSpan ParseTimeSpan(string name, string value)
         {
             // all timespan keys can be suffixed with 'MS'
             var lowerName = name.ToLower();

@@ -106,6 +106,16 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Test]
+        public void With_a_2_ipv6_hosts()
+        {
+            var subject = new ConnectionString("mongodb://[::1],[::2]");
+
+            subject.Hosts.Count().Should().Be(2);
+            subject.Hosts[0].Should().Be(new IPEndPoint(IPAddress.Parse("[::1]"), 27017));
+            subject.Hosts[1].Should().Be(new IPEndPoint(IPAddress.Parse("[::2]"), 27017));
+        }
+
+        [Test]
         public void With_an_ipv6_host_and_port()
         {
             var subject = new ConnectionString("mongodb://[::1]:28017");
@@ -134,6 +144,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             subject.AuthMechanism.Should().BeNull();
             subject.AuthSource.Should().BeNull();
+            subject.Connect.Should().Be(ClusterConnectionMode.Automatic);
             subject.ConnectTimeout.Should().Be(null);
             subject.DatabaseName.Should().BeNull();
             subject.FSync.Should().Be(null);
@@ -154,6 +165,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Username.Should().BeNull();
             subject.UuidRepresentation.Should().BeNull();
             subject.WaitQueueMultiple.Should().Be(null);
+            subject.WaitQueueSize.Should().Be(null);
             subject.WaitQueueTimeout.Should().Be(null);
             subject.W.Should().BeNull();
             subject.WTimeout.Should().Be(null);
@@ -166,6 +178,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "authMechanism=GSSAPI;" +
                 "authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "authSource=admin;" +
+                "connect=replicaSet;" +
                 "connectTimeout=15ms;" +
                 "fsync=true;" +
                 "ipv6=false;" +
@@ -183,6 +196,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "sslVerifyCertificate=true;" +
                 "uuidRepresentation=standard;" +
                 "waitQueueMultiple=10;" +
+                "waitQueueSize=30;" +
                 "waitQueueTimeout=60ms;" +
                 "w=4;" +
                 "wtimeout=20ms";
@@ -193,6 +207,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.AuthMechanismProperties.Count.Should().Be(1);
             subject.AuthMechanismProperties["canonicalize_host_name"].Should().Be("true");
             subject.AuthSource.Should().Be("admin");
+            subject.Connect.Should().Be(ClusterConnectionMode.ReplicaSet);
             subject.ConnectTimeout.Should().Be(TimeSpan.FromMilliseconds(15));
             subject.DatabaseName.Should().Be("test");
             subject.FSync.Should().BeTrue();
@@ -213,6 +228,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Username.Should().Be("user");
             subject.UuidRepresentation.Should().Be(GuidRepresentation.Standard);
             subject.WaitQueueMultiple.Should().Be(10);
+            subject.WaitQueueSize.Should().Be(30);
             subject.WaitQueueTimeout.Should().Be(TimeSpan.FromMilliseconds(60));
             subject.W.Should().Be(WriteConcern.WValue.Parse("4"));
             subject.WTimeout.Should().Be(TimeSpan.FromMilliseconds(20));
@@ -249,6 +265,20 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.AuthSource.Should().Be(authSource);
+        }
+
+        [Test]
+        [TestCase("mongodb://localhost?connect=automatic", ClusterConnectionMode.Automatic)]
+        [TestCase("mongodb://localhost?connect=direct", ClusterConnectionMode.Direct)]
+        [TestCase("mongodb://localhost?connect=replicaSet", ClusterConnectionMode.ReplicaSet)]
+        [TestCase("mongodb://localhost?connect=sharded", ClusterConnectionMode.Sharded)]
+        [TestCase("mongodb://localhost?connect=ShardRouter", ClusterConnectionMode.Sharded)]
+        [TestCase("mongodb://localhost?connect=sTaNdAlOnE", ClusterConnectionMode.Standalone)]
+        public void When_connect_is_specified(string connectionString, ClusterConnectionMode connect)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.Connect.Should().Be(connect);
         }
 
         [Test]
@@ -439,6 +469,23 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Test]
+        [TestCase("mongodb://localhost/?safe=false", 0)]
+        [TestCase("mongodb://localhost/?w=1;safe=false", 0)]
+        [TestCase("mongodb://localhost/?w=2;safe=false", 0)]
+        [TestCase("mongodb://localhost/?w=mode;safe=false", 0)]
+        [TestCase("mongodb://localhost/?safe=true", 1)]
+        [TestCase("mongodb://localhost/?w=0;safe=true", 1)]
+        [TestCase("mongodb://localhost/?w=2;safe=true", 2)]
+        [TestCase("mongodb://localhost/?w=mode;safe=true", "mode")]
+        public void When_safe_is_specified(string connectionString, object wobj)
+        {
+            var expectedW = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)(int)wobj : (string)wobj;
+            var subject = new ConnectionString(connectionString);
+
+            subject.W.Should().Be(expectedW);
+        }
+
+        [Test]
         [TestCase("mongodb://localhost?secondaryAcceptableLatency=15ms", 15)]
         [TestCase("mongodb://localhost?secondaryAcceptableLatencyMS=15", 15)]
         [TestCase("mongodb://localhost?secondaryAcceptableLatency=15", 1000 * 15)]
@@ -543,11 +590,24 @@ namespace MongoDB.Driver.Core.Configuration
         [TestCase("mongodb://localhost?waitQueueMultiple=0", 0)]
         [TestCase("mongodb://localhost?waitQueueMultiple=1", 1)]
         [TestCase("mongodb://localhost?waitQueueMultiple=20", 20)]
-        public void When_waitQueueMultiple_is_specified(string connectionString, int waitQueueMultiple)
+        [TestCase("mongodb://localhost?waitQueueMultiple=2.3", 2.3)]
+        public void When_waitQueueMultiple_is_specified(string connectionString, double waitQueueMultiple)
         {
             var subject = new ConnectionString(connectionString);
 
             subject.WaitQueueMultiple.Should().Be(waitQueueMultiple);
+        }
+
+        [Test]
+        [TestCase("mongodb://localhost?waitQueueSize=-1", -1)]
+        [TestCase("mongodb://localhost?waitQueueSize=0", 0)]
+        [TestCase("mongodb://localhost?waitQueueSize=1", 1)]
+        [TestCase("mongodb://localhost?waitQueueSize=20", 20)]
+        public void When_waitQueueSize_is_specified(string connectionString, int waitQueueSize)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.WaitQueueSize.Should().Be(waitQueueSize);
         }
 
         [Test]

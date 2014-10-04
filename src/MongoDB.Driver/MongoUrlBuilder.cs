@@ -16,10 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver
 {
@@ -50,7 +53,6 @@ namespace MongoDB.Driver
         private string _replicaSetName;
         private TimeSpan _secondaryAcceptableLatency;
         private IEnumerable<MongoServerAddress> _servers;
-        private bool? _slaveOk;
         private TimeSpan _socketTimeout;
         private string _username;
         private bool _useSsl;
@@ -85,8 +87,7 @@ namespace MongoDB.Driver
             _readPreference = null;
             _replicaSetName = null;
             _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
-            _servers = null;
-            _slaveOk = null;
+            _servers = new[] { new MongoServerAddress("localhost", 27017) };
             _socketTimeout = MongoDefaults.SocketTimeout;
             _username = null;
             _useSsl = false;
@@ -322,23 +323,12 @@ namespace MongoDB.Driver
                 {
                     return _readPreference;
                 }
-                else if (_slaveOk.HasValue)
-                {
-                    return _slaveOk.Value ? ReadPreference.SecondaryPreferred : ReadPreference.Primary;
-                }
                 else
                 {
                     return null;
                 }
             }
-            set
-            {
-                if (value != null && _slaveOk.HasValue)
-                {
-                    throw new InvalidOperationException("ReadPreference cannot be set because SlaveOk already has a value.");
-                }
-                _readPreference = value;
-            }
+            set { _readPreference = value; }
         }
 
         /// <summary>
@@ -506,199 +496,6 @@ namespace MongoDB.Driver
             }
         }
 
-        // internal static methods
-        // these helper methods are shared with MongoConnectionStringBuilder
-        internal static string FormatTimeSpan(TimeSpan value)
-        {
-            const int msInOneSecond = 1000; // milliseconds
-            const int msInOneMinute = 60 * msInOneSecond;
-            const int msInOneHour = 60 * msInOneMinute;
-
-            var ms = (int)value.TotalMilliseconds;
-            if ((ms % msInOneHour) == 0)
-            {
-                return string.Format("{0}h", ms / msInOneHour);
-            }
-            else if ((ms % msInOneMinute) == 0 && ms < msInOneHour)
-            {
-                return string.Format("{0}m", ms / msInOneMinute);
-            }
-            else if ((ms % msInOneSecond) == 0 && ms < msInOneMinute)
-            {
-                return string.Format("{0}s", ms / msInOneSecond);
-            }
-            else if (ms < 1000)
-            {
-                return string.Format("{0}ms", ms);
-            }
-            else
-            {
-                return value.ToString();
-            }
-        }
-
-        internal static IEnumerable<KeyValuePair<string, string>> ParseAuthMechanismProperties(string name, string s)
-        {
-            foreach (var property in s.Split(','))
-            {
-                var parts = property.Split(':');
-                if (parts.Length != 2)
-                {
-                    throw new FormatException(FormatMessage(name, s));
-                }
-                yield return new KeyValuePair<string, string>(parts[0].Trim(), parts[1].Trim());
-            }
-        }
-
-        internal static ConnectionMode ParseConnectionMode(string name, string s)
-        {
-            try
-            {
-                return (ConnectionMode)Enum.Parse(typeof(ConnectionMode), s, true); // ignoreCase
-            }
-            catch (ArgumentException)
-            {
-                throw new FormatException(FormatMessage(name, s));
-            }
-        }
-
-        internal static bool ParseBoolean(string name, string s)
-        {
-            try
-            {
-                return XmlConvert.ToBoolean(s.ToLower());
-            }
-            catch (FormatException)
-            {
-                throw new FormatException(FormatMessage(name, s));
-            }
-        }
-
-        internal static double ParseDouble(string name, string s)
-        {
-            try
-            {
-                return XmlConvert.ToDouble(s);
-            }
-            catch (FormatException)
-            {
-                throw new FormatException(FormatMessage(name, s));
-            }
-        }
-
-        internal static int ParseInt32(string name, string s)
-        {
-            try
-            {
-                return XmlConvert.ToInt32(s);
-            }
-            catch (FormatException)
-            {
-                throw new FormatException(FormatMessage(name, s));
-            }
-        }
-
-        internal static ReadPreferenceMode ParseReadPreferenceMode(string name, string s)
-        {
-            try
-            {
-                return (ReadPreferenceMode)Enum.Parse(typeof(ReadPreferenceMode), s, true); // ignoreCase
-            }
-            catch (ArgumentException)
-            {
-                throw new FormatException(FormatMessage(name, s));
-            }
-        }
-
-        internal static TagSet ParseReplicaSetTagSet(string name, string s)
-        {
-            var tags = new List<Tag>();
-            foreach (var tagString in s.Split(','))
-            {
-                var parts = tagString.Split(':');
-                if (parts.Length != 2)
-                {
-                    throw new FormatException(FormatMessage(name, s));
-                }
-                var tag = new Tag(parts[0].Trim(), parts[1].Trim());
-                tags.Add(tag);
-            }
-            return new TagSet(tags);
-        }
-
-        internal static TimeSpan ParseTimeSpan(string name, string s)
-        {
-            TimeSpan result;
-            if (TryParseTimeSpan(name, s, out result))
-            {
-                return result;
-            }
-            else
-            {
-                throw new FormatException(FormatMessage(name, s));
-            }
-        }
-
-        internal static bool TryParseTimeSpan(string name, string s, out TimeSpan result)
-        {
-            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(s))
-            {
-                name = name.ToLower();
-                s = s.ToLower();
-                var end = s.Length - 1;
-
-                var multiplier = 1000; // default units are seconds
-                if (name.EndsWith("ms", StringComparison.Ordinal))
-                {
-                    multiplier = 1;
-                }
-                else if (s.EndsWith("ms", StringComparison.Ordinal))
-                {
-                    s = s.Substring(0, s.Length - 2);
-                    multiplier = 1;
-                }
-                else if (s[end] == 's')
-                {
-                    s = s.Substring(0, s.Length - 1);
-                    multiplier = 1000;
-                }
-                else if (s[end] == 'm')
-                {
-                    s = s.Substring(0, s.Length - 1);
-                    multiplier = 60 * 1000;
-                }
-                else if (s[end] == 'h')
-                {
-                    s = s.Substring(0, s.Length - 1);
-                    multiplier = 60 * 60 * 1000;
-                }
-                else if (s.IndexOf(':') != -1)
-                {
-                    return TimeSpan.TryParse(s, out result);
-                }
-
-                try
-                {
-                    result = TimeSpan.FromMilliseconds(multiplier * XmlConvert.ToDouble(s));
-                    return true;
-                }
-                catch (FormatException)
-                {
-                    result = default(TimeSpan);
-                    return false;
-                }
-            }
-
-            result = default(TimeSpan);
-            return false;
-        }
-
-        // private static methods
-        private static string FormatMessage(string name, string value)
-        {
-            return string.Format("Invalid key value pair in connection string. {0}='{1}'.", name, value);
-        }
-
         // public methods
         /// <summary>
         /// Returns a WriteConcern value based on this instance's settings and a default enabled value.
@@ -721,188 +518,88 @@ namespace MongoDB.Driver
         /// <param name="url">The URL.</param>
         public void Parse(string url)
         {
-            const string serverPattern = @"((\[[^]]+?\]|[^:,/?#]+)(:\d+)?)";
-            const string pattern =
-                @"^mongodb://" +
-                @"((?<username>[^:]+)(:(?<password>.*?))?@)?" +
-                @"(?<servers>" + serverPattern + @"(," + serverPattern + ")*)?" +
-                @"(/(?<database>[^?]+)?(\?(?<query>.*))?)?$";
-            Match match = Regex.Match(url, pattern);
-            if (match.Success)
+            var connectionString = new ConnectionString(url);
+            _authenticationMechanism = connectionString.AuthMechanism;
+            _authenticationMechanismProperties = connectionString.AuthMechanismProperties.ToDictionary(x => x.Key, x => x.Value, StringComparer.InvariantCultureIgnoreCase);
+            _authenticationSource = connectionString.AuthSource;
+            switch (connectionString.Connect)
             {
-                var usernameGroup = match.Groups["username"];
-                if (usernameGroup.Success)
-                {
-                    _username = Uri.UnescapeDataString(usernameGroup.Value);
-                }
-                var passwordGroup = match.Groups["password"];
-                if (passwordGroup.Success)
-                {
-                    _password = Uri.UnescapeDataString(passwordGroup.Value);
-                }
-                string servers = match.Groups["servers"].Value;
-                var databaseGroup = match.Groups["database"];
-                if (databaseGroup.Success)
-                {
-                    _databaseName = databaseGroup.Value;
-                }
-                string query = match.Groups["query"].Value;
-
-                if (servers != "")
-                {
-                    List<MongoServerAddress> addresses = new List<MongoServerAddress>();
-                    foreach (string server in servers.Split(','))
-                    {
-                        var address = MongoServerAddress.Parse(server);
-                        addresses.Add(address);
-                    }
-                    _servers = addresses;
-                }
-
-                if (!string.IsNullOrEmpty(query))
-                {
-                    foreach (var pair in query.Split('&', ';'))
-                    {
-                        var parts = pair.Split('=');
-                        if (parts.Length != 2)
-                        {
-                            throw new FormatException(string.Format("Invalid connection string '{0}'.", parts));
-                        }
-                        var name = parts[0];
-                        var value = parts[1];
-
-                        switch (name.ToLower())
-                        {
-                            case "authmechanism":
-                                _authenticationMechanism = value;
-                                break;
-                            case "authmechanismproperties":
-                                AuthenticationMechanismProperties = ParseAuthMechanismProperties(name, value);
-                                break;
-                            case "authsource":
-                                _authenticationSource = value;
-                                break;
-                            case "connect":
-                                ConnectionMode = ParseConnectionMode(name, value);
-                                break;
-                            case "connecttimeout":
-                            case "connecttimeoutms":
-                                ConnectTimeout = ParseTimeSpan(name, value);
-                                break;
-                            case "fsync":
-                                FSync = ParseBoolean(name, value);
-                                break;
-                            case "gssapiservicename":
-                                _authenticationMechanismProperties["SERVICE_NAME"] = value;
-                                break;
-                            case "guids":
-                            case "uuidrepresentation":
-                                GuidRepresentation = (GuidRepresentation)Enum.Parse(typeof(GuidRepresentation), value, true); // ignoreCase
-                                break;
-                            case "ipv6":
-                                IPv6 = ParseBoolean(name, value);
-                                break;
-                            case "j":
-                            case "journal":
-                                Journal = ParseBoolean(name, value);
-                                break;
-                            case "maxidletime":
-                            case "maxidletimems":
-                                MaxConnectionIdleTime = ParseTimeSpan(name, value);
-                                break;
-                            case "maxlifetime":
-                            case "maxlifetimems":
-                                MaxConnectionLifeTime = ParseTimeSpan(name, value);
-                                break;
-                            case "maxpoolsize":
-                                MaxConnectionPoolSize = ParseInt32(name, value);
-                                break;
-                            case "minpoolsize":
-                                MinConnectionPoolSize = ParseInt32(name, value);
-                                break;
-                            case "readpreference":
-                                if (_readPreference == null) { _readPreference = new ReadPreference(ReadPreferenceMode.Primary); }
-                                _readPreference = _readPreference.WithMode(ParseReadPreferenceMode(name, value));
-                                break;
-                            case "readpreferencetags":
-                                if (_readPreference == null) { _readPreference = new ReadPreference(ReadPreferenceMode.Primary); }
-                                _readPreference = _readPreference.WithTagSets(_readPreference.TagSets.Concat(new[] { ParseReplicaSetTagSet(name, value) }));
-                                break;
-                            case "replicaset":
-                                ReplicaSetName = value;
-                                break;
-                            case "safe":
-                                var safe = Convert.ToBoolean(value);
-                                if (_w == null)
-                                {
-                                    W = safe ? 1 : 0;
-                                }
-                                else
-                                {
-                                    if (safe)
-                                    {
-                                        // don't overwrite existing W value unless it's 0
-                                        var wCount = _w as WriteConcern.WCount;
-                                        if (wCount != null && wCount.Value == 0)
-                                        {
-                                            W = 1;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        W = 0;
-                                    }
-                                }
-                                break;
-                            case "secondaryacceptablelatency":
-                            case "secondaryacceptablelatencyms":
-                                SecondaryAcceptableLatency = ParseTimeSpan(name, value);
-                                break;
-                            case "slaveok":
-                                if (_readPreference != null)
-                                {
-                                    throw new InvalidOperationException("SlaveOk cannot be set because ReadPreference already has a value.");
-                                }
-                                _slaveOk = ParseBoolean(name, value);
-                                break;
-                            case "sockettimeout":
-                            case "sockettimeoutms":
-                                SocketTimeout = ParseTimeSpan(name, value);
-                                break;
-                            case "ssl":
-                                UseSsl = ParseBoolean(name, value);
-                                break;
-                            case "sslverifycertificate":
-                                VerifySslCertificate = ParseBoolean(name, value);
-                                break;
-                            case "w":
-                                W = WriteConcern.WValue.Parse(value);
-                                break;
-                            case "waitqueuemultiple":
-                                WaitQueueMultiple = ParseDouble(name, value);
-                                break;
-                            case "waitqueuesize":
-                                WaitQueueSize = ParseInt32(name, value);
-                                break;
-                            case "waitqueuetimeout":
-                            case "waitqueuetimeoutms":
-                                WaitQueueTimeout = ParseTimeSpan(name, value);
-                                break;
-                            case "wtimeout":
-                            case "wtimeoutms":
-                                WTimeout = ParseTimeSpan(name, value);
-                                break;
-                            default:
-                                var message = string.Format("Invalid option '{0}'.", name);
-                                throw new ArgumentException(message, "url");
-                        }
-                    }
-                }
+                case ClusterConnectionMode.Direct:
+                    _connectionMode = Driver.ConnectionMode.Direct;
+                    break;
+                case ClusterConnectionMode.ReplicaSet:
+                    _connectionMode = Driver.ConnectionMode.ReplicaSet;
+                    break;
+                case ClusterConnectionMode.Sharded:
+                    _connectionMode = Driver.ConnectionMode.ShardRouter;
+                    break;
+                case ClusterConnectionMode.Standalone:
+                    _connectionMode = Driver.ConnectionMode.Standalone;
+                    break;
+                default:
+                    _connectionMode = Driver.ConnectionMode.Automatic;
+                    break;
             }
-            else
+            _connectTimeout = connectionString.ConnectTimeout.GetValueOrDefault(MongoDefaults.ConnectTimeout);
+            _databaseName = connectionString.DatabaseName;
+            _fsync = connectionString.FSync;
+            _guidRepresentation = connectionString.UuidRepresentation.GetValueOrDefault(MongoDefaults.GuidRepresentation);
+            _ipv6 = connectionString.Ipv6.GetValueOrDefault(false);
+            _journal = connectionString.Journal;
+            _maxConnectionIdleTime = connectionString.MaxIdleTime.GetValueOrDefault(MongoDefaults.MaxConnectionIdleTime);
+            _maxConnectionLifeTime = connectionString.MaxLifeTime.GetValueOrDefault(MongoDefaults.MaxConnectionLifeTime);
+            _maxConnectionPoolSize = connectionString.MaxPoolSize.GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
+            _minConnectionPoolSize = connectionString.MinPoolSize.GetValueOrDefault(MongoDefaults.MinConnectionPoolSize);
+            _password = connectionString.Password;
+            if (connectionString.ReadPreference != null)
             {
-                throw new FormatException(string.Format("Invalid connection string '{0}'.", url));
+                _readPreference = new ReadPreference(connectionString.ReadPreference.Value);
             }
+            if (connectionString.ReadPreferenceTags != null)
+            {
+                if (_readPreference == null)
+                {
+                    _readPreference = ReadPreference.Primary;
+                }
+                _readPreference = _readPreference.WithTagSets(connectionString.ReadPreferenceTags);
+            }
+
+            _replicaSetName = connectionString.ReplicaSet;
+            _secondaryAcceptableLatency = connectionString.SecondaryAcceptableLatency.GetValueOrDefault(MongoDefaults.SecondaryAcceptableLatency);
+            _servers = connectionString.Hosts.Select(endPoint =>
+            {
+                DnsEndPoint dnsEndPoint;
+                IPEndPoint ipEndPoint;
+                if ((dnsEndPoint = endPoint as DnsEndPoint) != null)
+                {
+                    return new MongoServerAddress(dnsEndPoint.Host, dnsEndPoint.Port);
+                }
+                else if ((ipEndPoint = endPoint as IPEndPoint) != null)
+                {
+                    return new MongoServerAddress(ipEndPoint.Address.ToString(), ipEndPoint.Port);
+                }
+                else
+                {
+                    throw new NotSupportedException("Only DnsEndPoint and IPEndPoints are supported in the connection string.");
+                }
+            });
+            _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
+            _username = connectionString.Username;
+            _useSsl = connectionString.Ssl.GetValueOrDefault(false);
+            _verifySslCertificate = connectionString.SslVerifyCertificate.GetValueOrDefault(true);
+            _w = connectionString.W;
+            if (connectionString.WaitQueueSize != null)
+            {
+                _waitQueueSize = connectionString.WaitQueueSize.Value;
+                _waitQueueMultiple = 0.0;
+            }
+            else if (connectionString.WaitQueueMultiple != null)
+            {
+                _waitQueueMultiple = connectionString.WaitQueueMultiple.Value;
+                _waitQueueSize = 0;
+            }
+            _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
+            _wTimeout = connectionString.WTimeout;
         }
 
         /// <summary>
@@ -912,16 +609,6 @@ namespace MongoDB.Driver
         public MongoUrl ToMongoUrl()
         {
             return MongoUrl.Create(ToString());
-        }
-
-        /// <summary>
-        /// Creates a new instance of MongoServerSettings based on the settings in this MongoUrlBuilder.
-        /// </summary>
-        /// <returns>A new instance of MongoServerSettings.</returns>
-        [Obsolete("Use ToMongoUrl and MongoServerSettings.FromUrl instead.")]
-        public MongoServerSettings ToServerSettings()
-        {
-            return MongoServerSettings.FromUrl(this.ToMongoUrl());
         }
 
         /// <summary>
@@ -1092,6 +779,35 @@ namespace MongoDB.Driver
         private bool AnyWriteConcernSettingsAreSet()
         {
             return _fsync != null || _journal != null || _w != null || _wTimeout != null;
+        }
+
+        private string FormatTimeSpan(TimeSpan value)
+        {
+            const int msInOneSecond = 1000; // milliseconds
+            const int msInOneMinute = 60 * msInOneSecond;
+            const int msInOneHour = 60 * msInOneMinute;
+
+            var ms = (int)value.TotalMilliseconds;
+            if ((ms % msInOneHour) == 0)
+            {
+                return string.Format("{0}h", ms / msInOneHour);
+            }
+            else if ((ms % msInOneMinute) == 0 && ms < msInOneHour)
+            {
+                return string.Format("{0}m", ms / msInOneMinute);
+            }
+            else if ((ms % msInOneSecond) == 0 && ms < msInOneMinute)
+            {
+                return string.Format("{0}s", ms / msInOneSecond);
+            }
+            else if (ms < 1000)
+            {
+                return string.Format("{0}ms", ms);
+            }
+            else
+            {
+                return value.ToString();
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ namespace MongoDB.Driver.Core.Clusters
 {
     public enum ClusterConnectionMode
     {
-        Unspecified,
+        Automatic,
         Direct,
         Standalone,
         ReplicaSet,

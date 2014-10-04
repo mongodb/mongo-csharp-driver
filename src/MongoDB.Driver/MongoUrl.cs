@@ -41,7 +41,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// Connect to one or more shard routers.
         /// </summary>
-        ShardRouter
+        ShardRouter,
+        /// <summary>
+        /// Connect to a standalone server.
+        /// </summary>
+        Standalone
     }
 
     /// <summary>

@@ -449,7 +449,8 @@ namespace MongoDB.Driver
                 return null;
             }
 
-            switch ((mechanism ?? "DEFAULT").ToUpperInvariant())
+            var defaultedMechanism = (mechanism ?? "DEFAULT").Trim().ToUpperInvariant();
+            switch (defaultedMechanism)
             {
                 case "DEFAULT":
                 case "MONGODB-CR":
@@ -458,7 +459,7 @@ namespace MongoDB.Driver
                     source = source ?? "admin";
                     if (evidence == null || !(evidence is PasswordEvidence))
                     {
-                        var message = string.Format("A {0} credential must have a password.", mechanism);
+                        var message = string.Format("A {0} credential must have a password.", defaultedMechanism);
                         throw new ArgumentException(message);
                     }
 

@@ -189,7 +189,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(connectionString, builder.ToString());
             }
         }
-
+        
         [Test]
         [TestCase(null, "mongodb://localhost", new[] { "" })]
         [TestCase(ConnectionMode.Automatic, "mongodb://localhost{0}", new[] { "", "/?connect=automatic", "/?connect=Automatic" })]
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Tests
             var connectTimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
             var built = new MongoUrlBuilder { Server = _localhost };
             if (connectTimeout != null) { built.ConnectTimeout = connectTimeout.Value; }
-
+            
             var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?connectTimeout=30s", "");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
@@ -276,7 +276,7 @@ namespace MongoDB.Driver.Tests
         public void TestDefaults()
         {
             var built = new MongoUrlBuilder();
-            var connectionString = "mongodb://";
+            var connectionString = "mongodb://localhost";
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
@@ -299,8 +299,6 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(null, builder.ReadPreference);
                 Assert.AreEqual(null, builder.ReplicaSetName);
                 Assert.AreEqual(MongoDefaults.SecondaryAcceptableLatency, builder.SecondaryAcceptableLatency);
-                Assert.AreEqual(null, builder.Server);
-                Assert.AreEqual(null, builder.Servers);
                 Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
                 Assert.AreEqual(null, builder.Username);
                 Assert.AreEqual(false, builder.UseSsl);
@@ -711,7 +709,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [TestCase(null, null, "mongodb://")]
         [TestCase("host", null, "mongodb://host")]
         [TestCase("host", 27017, "mongodb://host")]
         [TestCase("host", 27018, "mongodb://host:27018")]
@@ -728,7 +725,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [TestCase(null, null, "mongodb://")]
         [TestCase(new string[] { "host" }, new object[] { null }, "mongodb://host")]
         [TestCase(new string[] { "host" }, new object[] { 27017 }, "mongodb://host")]
         [TestCase(new string[] { "host" }, new object[] { 27018 }, "mongodb://host:27018")]
@@ -774,7 +770,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestSlaveOk_AfterReadPreference()
         {
-            Assert.Throws<InvalidOperationException>(() => new MongoUrlBuilder("mongodb://localhost/?readPreference=primary&slaveOk=true"));
+            Assert.Throws<ConfigurationException>(() => new MongoUrlBuilder("mongodb://localhost/?readPreference=primary&slaveOk=true"));
         }
 
         [Test]

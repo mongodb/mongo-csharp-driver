@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Communication
         {
             switch (value)
             {
-                case ConnectionMode.Automatic: return ClusterConnectionMode.Unspecified;
+                case ConnectionMode.Automatic: return ClusterConnectionMode.Automatic;
                 case ConnectionMode.Direct: return ClusterConnectionMode.Standalone;
                 case ConnectionMode.ReplicaSet: return ClusterConnectionMode.ReplicaSet;
                 case ConnectionMode.ShardRouter: return ClusterConnectionMode.Sharded;

@@ -96,10 +96,14 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 configuration.ConfigureConnectionPool(s => s.WithMinConnections(connectionString.MinPoolSize.Value));
             }
-            if (connectionString.WaitQueueMultiple != null)
+            if (connectionString.WaitQueueSize != null)
+            {
+                configuration.ConfigureConnectionPool(s => s.WithWaitQueueSize(connectionString.WaitQueueSize.Value));
+            }
+            else if (connectionString.WaitQueueMultiple != null)
             {
                 var maxConnections = connectionString.MaxPoolSize ?? new ConnectionPoolSettings().MaxConnections;
-                var waitQueueSize = maxConnections * connectionString.WaitQueueMultiple.Value;
+                var waitQueueSize = (int)Math.Round(maxConnections * connectionString.WaitQueueMultiple.Value);
                 configuration.ConfigureConnectionPool(s => s.WithWaitQueueSize(waitQueueSize));
             }
             if (connectionString.WaitQueueTimeout != null)

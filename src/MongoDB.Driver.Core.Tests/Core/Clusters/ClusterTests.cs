@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Test]
-        [TestCase(ClusterConnectionMode.Unspecified, ClusterType.Unknown)]
+        [TestCase(ClusterConnectionMode.Automatic, ClusterType.Unknown)]
         [TestCase(ClusterConnectionMode.Direct, ClusterType.Unknown)]
         [TestCase(ClusterConnectionMode.ReplicaSet, ClusterType.ReplicaSet)]
         [TestCase(ClusterConnectionMode.Sharded, ClusterType.Sharded)]
@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Core.Clusters
             count.Should().Be(3);
         }
 
-        private StubCluster CreateSubject(ClusterConnectionMode connectionMode = ClusterConnectionMode.Unspecified)
+        private StubCluster CreateSubject(ClusterConnectionMode connectionMode = ClusterConnectionMode.Automatic)
         {
             _settings = _settings.WithConnectionMode(connectionMode);
 
