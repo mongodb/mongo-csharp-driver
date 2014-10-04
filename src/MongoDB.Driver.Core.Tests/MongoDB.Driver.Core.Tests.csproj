@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertionExtensions.cs" />
+    <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\DropCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\DropDatabaseOperationTests.cs" />

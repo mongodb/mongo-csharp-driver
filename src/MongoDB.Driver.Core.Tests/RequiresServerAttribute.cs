@@ -15,6 +15,7 @@
 
 using System;
 using System.Reflection;
+using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core
@@ -35,6 +36,8 @@ namespace MongoDB.Driver.Core
         }
 
         // properties
+        public string MinimumVersion { get; set; }
+
         public ActionTargets Targets
         {
             get { return ActionTargets.Test; }
@@ -48,6 +51,8 @@ namespace MongoDB.Driver.Core
 
         public void BeforeTest(TestDetails details)
         {
+            EnsureVersion();
+
             InvokeMethod(details.Fixture, _beforeTestMethodName);
         }
 
@@ -64,6 +69,20 @@ namespace MongoDB.Driver.Core
                     Assert.Fail(message);
                 }
                 methodInfo.Invoke(methodInfo.IsStatic ? null : fixture, new object[0]);
+            }
+        }
+
+        private void EnsureVersion()
+        {
+            if (MinimumVersion != null)
+            {
+                var minSemanticVersion = SemanticVersion.Parse(MinimumVersion);
+
+                if(SuiteConfiguration.ServerVersion < minSemanticVersion)
+                {
+                    var message = string.Format("Requires a minimum server version of {0}, but currently connected to {1}.", minSemanticVersion, SuiteConfiguration.ServerVersion);
+                    Assert.Ignore(message);
+                }
             }
         }
     }
