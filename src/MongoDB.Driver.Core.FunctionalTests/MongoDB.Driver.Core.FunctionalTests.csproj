@@ -63,12 +63,6 @@
     <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_updating_a_document_that_does_not_exist_and_returning_the_updated.cs" />
     <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_upserting_a_document_that_does_not_exist_and_returning_the_original.cs" />
     <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_upserting_a_document_that_does_not_exist_and_returning_the_updated.cs" />
-    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_replacing_a_document_that_does_exist_and_returning_the_replacement.cs" />
-    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_replacing_a_document_that_does_exist_and_returning_the_original.cs" />
-    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_replacing_a_document_that_does_not_exist_and_returning_the_replacement.cs" />
-    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_repserting_a_document_that_does_not_exist_and_returning_the_replacement.cs" />
-    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_repserting_a_document_that_does_not_exist_and_returning_the_original.cs" />
-    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests\When_replacing_a_document_that_does_not_exist_and_returning_the_original.cs" />
     <Compile Include="Core\Operations\FindOperationTests\When_explaining_a_find.cs" />
     <Compile Include="Core\Operations\FindOperationTests\When_finding_a_subset_of_documents.cs" />
     <Compile Include="Core\Operations\FindOperationTests\When_finding_all_documents.cs" />
