@@ -26,19 +26,8 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
-    public class CountOperationTests
+    public class CountOperationTests : OperationTestBase
     {
-        private CollectionNamespace _collectionNamespace;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private bool _testDataHasBeenCreated;
-
-        [SetUp]
-        public void Setup()
-        {
-            _collectionNamespace = SuiteConfiguration.GetCollectionNamespaceForTestFixture();
-            _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
-        }
-
         [Test]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
@@ -178,24 +167,12 @@ namespace MongoDB.Driver.Core.Operations
         // helper methods
         private void EnsureTestData()
         {
-            if (_testDataHasBeenCreated)
+            RunOncePerFixture(() =>
             {
-                return;
-            }
+                DropCollection();
+                Insert(Enumerable.Range(1, 5).Select(id => new BsonDocument("_id", id)));
 
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
-            {
-                var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                dropCollectionOperation.Execute(binding);
-
-                var requests = Enumerable.Range(1, 5)
-                    .Select(id => new BsonDocument("_id", id))
-                    .Select(document => new InsertRequest(document));
-                var insertOperation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
-                insertOperation.Execute(binding);
-            }
-
-            _testDataHasBeenCreated = true;
+            });
         }
     }
 }
