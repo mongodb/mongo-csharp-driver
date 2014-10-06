@@ -56,7 +56,6 @@
     <Compile Include="ClusterUsingTest.cs" />
     <Compile Include="CollectionUsingSpecification.cs" />
     <Compile Include="CollectionUsingTest.cs" />
-    <Compile Include="Core\Operations\ExplainOperationTests\When_explaining_an_explainable_command.cs" />
     <Compile Include="DatabaseUsingTest.cs" />
     <Compile Include="Core\Helpers\SameAs.cs" />
     <Compile Include="SuiteConfiguration.cs" />

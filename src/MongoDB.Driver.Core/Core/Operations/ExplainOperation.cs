@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
