@@ -66,6 +66,12 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             public string NoElement { get; set; }
         }
 
+        public class TestModel_CustomNotId
+        {
+            [BsonElement("id")]
+            public ObjectId Id { get; set; }
+        }
+
         [Test]
         public void TestDiscriminator()
         {
@@ -115,6 +121,16 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             var isNotId = classMap.GetMemberMap("IsNotId");
             Assert.AreEqual("IsNotId", isNotId.ElementName);
             Assert.AreNotSame(classMap.IdMemberMap, isNotId);
+        }
+
+        [Test]
+        public void TestCustomNotId()
+        {
+            var classMap = BsonClassMap.LookupClassMap(typeof(TestModel_CustomNotId));
+
+            var id = classMap.GetMemberMap("Id");
+            Assert.AreEqual("id", id.ElementName);
+            Assert.IsNull(classMap.IdMemberMap);
         }
 
         [Test]

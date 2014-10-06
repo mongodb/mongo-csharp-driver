@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+/* Copyright 2010-2014 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -109,13 +109,21 @@ namespace MongoDB.Bson.Serialization.Conventions
 
                 if (member != null)
                 {
-                    if (IsValidIdMember(classMap, member))
+                    if (IsValidIdMember(classMap, member) &&
+                        !ConflictWithBsonElementAttribute(member))
                     {
                         classMap.MapIdMember(member);
                         return;
                     }
                 }
             }
+        }
+
+        private bool ConflictWithBsonElementAttribute(MemberInfo member)
+        {
+            return member.GetCustomAttributes(typeof(MongoDB.Bson.Serialization.Attributes.BsonElementAttribute), true)
+                .Cast<MongoDB.Bson.Serialization.Attributes.BsonElementAttribute>()
+                .Any(_ => _.ElementName != null && _.ElementName != "_id");
         }
 
         private bool IsValidIdMember(BsonClassMap classMap, MemberInfo member)
@@ -142,7 +150,8 @@ namespace MongoDB.Bson.Serialization.Conventions
             foreach (string name in _names)
             {
                 var memberInfo = type.GetMember(name).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
-                if (memberInfo != null)
+                if (memberInfo != null &&
+                    !ConflictWithBsonElementAttribute(memberInfo))
                 {
                     return name;
                 }
