@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -23,19 +24,15 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DistinctOperationTests
+    public class DistinctOperationTests : OperationTestBase
     {
-        private CollectionNamespace _collectionNamespace;
         private string _fieldName;
-        private MessageEncoderSettings _messageEncoderSettings;
         private IBsonSerializer<int> _valueSerializer;
 
         [SetUp]
         public void Setup()
         {
-            _collectionNamespace = new CollectionNamespace("foo", "bar");
-            _fieldName = "a.b";
-            _messageEncoderSettings = new MessageEncoderSettings();
+            _fieldName = "y";
             _valueSerializer = new Int32Serializer();
         }
 
@@ -80,9 +77,48 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
-            var cmd = subject.CreateCommand();
+            var expectedResult = new BsonDocument
+            {
+                { "distinct", _collectionNamespace.CollectionName },
+                { "key", _fieldName },
+                { "query", BsonDocument.Parse("{ x: 1 }") },
+                { "maxTimeMS", 20000 }
+            };
 
-            cmd.Should().Be("{ distinct: \"bar\", key: \"a.b\", query: {x: 1}, maxTimeMS: 20000 }");
+            var result = subject.CreateCommand();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        [RequiresServer("EnsureTestData")]
+        public async void ExecuteAsync_should_return_the_correct_results()
+        {
+            var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
+            {
+                Criteria = BsonDocument.Parse("{ _id : { $gt : 2 } }"),
+                MaxTime = TimeSpan.FromSeconds(20),
+            };
+
+            var result = await ExecuteOperation(subject);
+
+            result.Should().HaveCount(2);
+            result.Should().OnlyHaveUniqueItems();
+            result.Should().Contain(new[] { 2, 3 });
+        }
+
+        private void EnsureTestData()
+        {
+            RunOncePerFixture(() =>
+            {
+                DropCollection();
+                Insert(
+                    new BsonDocument("_id", 1).Add("y", 1),
+                    new BsonDocument("_id", 2).Add("y", 1),
+                    new BsonDocument("_id", 3).Add("y", 2),
+                    new BsonDocument("_id", 4).Add("y", 2),
+                    new BsonDocument("_id", 5).Add("y", 3));
+            });
         }
     }
 }
