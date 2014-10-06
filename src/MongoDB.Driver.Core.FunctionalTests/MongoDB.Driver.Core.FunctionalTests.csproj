@@ -56,9 +56,7 @@
     <Compile Include="ClusterUsingTest.cs" />
     <Compile Include="CollectionUsingSpecification.cs" />
     <Compile Include="CollectionUsingTest.cs" />
-    <Compile Include="Core\Operations\CountOperationTests\When_explaining_a_count.cs" />
     <Compile Include="Core\Operations\DistinctOperationTests\When_executing_a_distinct.cs" />
-    <Compile Include="Core\Operations\CountOperationTests\When_executing_a_count.cs" />
     <Compile Include="Core\Operations\DatabaseExistsOperationTests\When_a_database_does_not_exist.cs" />
     <Compile Include="Core\Operations\DatabaseExistsOperationTests\When_a_database_exists.cs" />
     <Compile Include="Core\Operations\DropDatabaseOperationTests\When_dropping_an_existing_database.cs" />

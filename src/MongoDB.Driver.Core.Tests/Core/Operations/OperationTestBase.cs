@@ -27,6 +27,15 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
         }
 
+        protected void DropDatabase()
+        {
+            using(var binding = SuiteConfiguration.GetReadWriteBinding())
+            {
+                var dropDatabaseOperation = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
+                dropDatabaseOperation.Execute(binding);
+            }
+        }
+
         protected void DropCollection()
         {
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
