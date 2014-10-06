@@ -27,7 +27,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
-    public class FindAndDeleteOperationTests : OperationTestBase
+    public class FindOneAndDeleteOperationTests : OperationTestBase
     {
         private BsonDocument _criteria;
 

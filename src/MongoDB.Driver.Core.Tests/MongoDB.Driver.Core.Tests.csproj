@@ -63,7 +63,8 @@
     <Compile Include="Core\Operations\DropCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\DropDatabaseOperationTests.cs" />
     <Compile Include="Core\Operations\EvalOperationTests.cs" />
-    <Compile Include="Core\Operations\FindAndDeleteOperationTests.cs" />
+    <Compile Include="Core\Operations\FindOneAndReplaceOperationTests.cs" />
+    <Compile Include="Core\Operations\FindOneAndDeleteOperationTests.cs" />
     <Compile Include="Core\Operations\ListCollectionNamesOperationTests.cs" />
     <Compile Include="Core\Operations\ListDatabaseNamesOperationTests.cs" />
     <Compile Include="Core\Operations\ListIndexesOperationTests.cs" />
