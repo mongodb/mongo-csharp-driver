@@ -56,7 +56,6 @@
     <Compile Include="ClusterUsingTest.cs" />
     <Compile Include="CollectionUsingSpecification.cs" />
     <Compile Include="CollectionUsingTest.cs" />
-    <Compile Include="Core\Operations\DropDatabaseOperationTests\When_dropping_an_existing_database.cs" />
     <Compile Include="Core\Operations\ExplainOperationTests\When_explaining_an_explainable_command.cs" />
     <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_updating_a_document_that_does_exist_and_returning_the_original.cs" />
     <Compile Include="Core\Operations\FindOneAndUpdateOperationTests\When_updating_a_document_that_does_exist_and_returning_the_updated.cs" />
@@ -77,7 +76,6 @@
     <Compile Include="Core\Operations\FindOperationTests\When_finding_all_documents.cs" />
     <Compile Include="Core\Operations\ListCollectionNamesOperationTests\When_listing_collection_names_on_database_that_does_not_exist.cs" />
     <Compile Include="Core\Operations\ListCollectionNamesOperationTests\When_listing_collection_names_on_an_existing_database.cs" />
-    <Compile Include="Core\Operations\ListsDatabaseNamesOperationTests\When_listing_database_names.cs" />
     <Compile Include="DatabaseUsingTest.cs" />
     <Compile Include="Core\Helpers\SameAs.cs" />
     <Compile Include="SuiteConfiguration.cs" />
