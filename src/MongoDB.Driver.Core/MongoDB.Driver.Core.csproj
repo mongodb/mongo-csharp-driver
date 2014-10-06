@@ -102,6 +102,7 @@
     <Compile Include="Core\Operations\ICommandOperation.cs" />
     <Compile Include="Core\Operations\ListIndexesOperation.cs" />
     <Compile Include="Core\Operations\PingOperation.cs" />
+    <Compile Include="Core\Operations\QueryHelper.cs" />
     <Compile Include="Core\Operations\UpdateType.cs" />
     <Compile Include="Core\Sync\AsyncCursorEnumeratorAdapter.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\MessageBinaryEncoderBase.cs" />
@@ -276,7 +277,6 @@
     <Compile Include="Core\Operations\MapReduceOutputToCollectionOperation.cs" />
     <Compile Include="Core\Operations\OperationExtensionMethods.cs" />
     <Compile Include="Core\Operations\ParallelScanOperation.cs" />
-    <Compile Include="Core\Operations\QueryOperationBase.cs" />
     <Compile Include="Core\Operations\ReadCommandOperation.cs" />
     <Compile Include="Core\Operations\RenameCollectionOperation.cs" />
     <Compile Include="Core\Operations\UpdateOpcodeOperation.cs" />

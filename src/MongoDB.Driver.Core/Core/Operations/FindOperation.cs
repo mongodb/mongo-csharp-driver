@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a Find operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
-    public class FindOperation<TDocument> : QueryOperationBase, IReadOperation<IAsyncCursor<TDocument>>
+    public class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>
     {
         // fields
         private bool _awaitData;
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "serializer");
-            _messageEncoderSettings = messageEncoderSettings;
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
 
             _awaitData = true;
         }
@@ -161,40 +161,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private int CalculateFirstBatchSize()
-        {
-            int firstBatchSize;
-
-            var limit = _limit ?? 0;
-            var batchSize = _batchSize ?? 0;
-            if (limit < 0)
-            {
-                firstBatchSize = limit;
-            }
-            else if (limit == 0)
-            {
-                firstBatchSize = batchSize;
-            }
-            else if (batchSize == 0)
-            {
-                firstBatchSize = limit;
-            }
-            else if (limit < batchSize)
-            {
-                firstBatchSize = limit;
-            }
-            else
-            {
-                firstBatchSize = batchSize;
-            }
-
-            return firstBatchSize;
-        }
-
         private QueryWireProtocol<TDocument> CreateProtocol(BsonDocument wrappedQuery, ReadPreference readPreference)
         {
             var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
-            var firstBatchSize = CalculateFirstBatchSize();
+            var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _batchSize);
 
             return new QueryWireProtocol<TDocument>(
                 _collectionNamespace,
@@ -212,13 +182,9 @@ namespace MongoDB.Driver.Core.Operations
                 _messageEncoderSettings);
         }
 
-        private BsonDocument CreateWrappedQuery(ServerDescription serverDescription, ReadPreference readPreference)
+        internal BsonDocument CreateWrappedQuery(ServerType serverType, ReadPreference readPreference)
         {
-            BsonDocument readPreferenceDocument = null;
-            if (serverDescription.Type == ServerType.ShardRouter)
-            {
-                readPreferenceDocument = CreateReadPreferenceDocument(readPreference);
-            }
+            BsonDocument readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, readPreference);
 
             var wrappedQuery = new BsonDocument
             {
@@ -245,7 +211,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
             {
-                var query = CreateWrappedQuery(connectionSource.ServerDescription, binding.ReadPreference);
+                var query = CreateWrappedQuery(connectionSource.ServerDescription.Type, binding.ReadPreference);
                 var protocol = CreateProtocol(query, binding.ReadPreference);
                 var batch = await protocol.ExecuteAsync(connectionSource, slidingTimeout, cancellationToken).ConfigureAwait(false);
 

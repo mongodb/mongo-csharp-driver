@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the base class for a command operation.
     /// </summary>
-    public abstract class CommandOperationBase<TCommandResult> : QueryOperationBase
+    public abstract class CommandOperationBase<TCommandResult>
     {
         // fields
         private BsonDocument _additionalOptions;
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
             BsonDocument readPreferenceDocument = null;
             if (serverDescription.Type == ServerType.ShardRouter)
             {
-                readPreferenceDocument = CreateReadPreferenceDocument(readPreference);
+                readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverDescription.Type, readPreference);
             }
 
             var wrappedCommand = new BsonDocument

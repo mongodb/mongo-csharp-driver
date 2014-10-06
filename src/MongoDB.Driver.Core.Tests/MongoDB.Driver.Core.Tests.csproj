@@ -60,6 +60,7 @@
     <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\DatabaseExistsOperationTests.cs" />
+    <Compile Include="Core\Operations\FindOperationTests.cs" />
     <Compile Include="Core\Operations\DropCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\DropDatabaseOperationTests.cs" />
     <Compile Include="Core\Operations\EvalOperationTests.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Core\Operations\ListIndexesOperationTests.cs" />
     <Compile Include="Core\Operations\RenameCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\OperationTestBase.cs" />
+    <Compile Include="Core\Operations\QueryHelperTests.cs" />
     <Compile Include="SuiteConfiguration.cs" />
     <Compile Include="Core\Async\AsyncDropboxTests.cs" />
     <Compile Include="Core\Authentication\AuthenticationHelperTests.cs" />
