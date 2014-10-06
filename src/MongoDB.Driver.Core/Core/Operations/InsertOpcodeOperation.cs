@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxMessageSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IBsonSerializer<TDocument> _serializer;
-        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
+        private WriteConcern _writeConcern;
 
         // constructors
         public InsertOpcodeOperation(CollectionNamespace collectionNamespace, BatchableSource<TDocument> documentSource, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings)
@@ -59,7 +59,8 @@ namespace MongoDB.Driver.Core.Operations
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _documentSource = Ensure.IsNotNull(documentSource, "documentSource");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
-            _messageEncoderSettings = messageEncoderSettings;
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
+            _writeConcern = WriteConcern.Acknowledged;
         }
 
         // properties

@@ -82,7 +82,6 @@
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_upsert_matches_multiple_documents.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_upsert_matches_no_documents.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_upsert_matches_one_document.cs" />
-    <Compile Include="Core\Operations\InsertOpcodeOperationTests\When_inserting_a_document_with_an_id.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -68,6 +68,7 @@
     <Compile Include="Core\Operations\FindOneAndUpdateOperationTests.cs" />
     <Compile Include="Core\Operations\FindOneAndReplaceOperationTests.cs" />
     <Compile Include="Core\Operations\FindOneAndDeleteOperationTests.cs" />
+    <Compile Include="Core\Operations\InsertOpcodeOperationTests.cs" />
     <Compile Include="Core\Operations\ListCollectionNamesOperationTests.cs" />
     <Compile Include="Core\Operations\ListDatabaseNamesOperationTests.cs" />
     <Compile Include="Core\Operations\ListIndexesOperationTests.cs" />
