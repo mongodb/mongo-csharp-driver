@@ -56,12 +56,6 @@
     <Compile Include="ClusterUsingTest.cs" />
     <Compile Include="CollectionUsingSpecification.cs" />
     <Compile Include="CollectionUsingTest.cs" />
-    <Compile Include="Core\Operations\AggregateOperationTests\When_aggregating_with_matching_documents_without_a_cursor.cs" />
-    <Compile Include="Core\Operations\AggregateOperationTests\When_aggregating_with_matching_documents_over_multiple_batches.cs" />
-    <Compile Include="Core\Operations\AggregateOperationTests\When_aggregating_with_no_matching_documents_without_a_cursor.cs" />
-    <Compile Include="Core\Operations\AggregateOperationTests\When_aggregating_with_no_matching_documents.cs" />
-    <Compile Include="Core\Operations\AggregateOperationTests\When_aggregating_with_matching_documents.cs" />
-    <Compile Include="Core\Operations\AggregateToCollectionOperationTests\When_aggregating_to_a_collection.cs" />
     <Compile Include="Core\Operations\CountOperationTests\When_explaining_a_count.cs" />
     <Compile Include="Core\Operations\DistinctOperationTests\When_executing_a_distinct.cs" />
     <Compile Include="Core\Operations\CountOperationTests\When_executing_a_count.cs" />

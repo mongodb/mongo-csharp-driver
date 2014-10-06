@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20)
             };
 
-            var result = ReadCursorToEnd(await ExecuteOperation(subject));
+            var result = await ReadCursorToEnd(await ExecuteOperation(subject));
 
             result.Should().NotBeNull();
             result.Should().HaveCount(2);
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Operations
                 UseCursor = true
             };
 
-            var result = ReadCursorToEnd(await ExecuteOperation(subject));
+            var result = await ReadCursorToEnd(await ExecuteOperation(subject));
 
             result.Should().NotBeNull();
             result.Should().HaveCount(2);
@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Core.Operations
                 UseCursor = false
             };
 
-            var result = ReadCursorToEnd(await ExecuteOperation(subject));
+            var result = await ReadCursorToEnd(await ExecuteOperation(subject));
 
             result.Should().NotBeNull();
             result.Should().HaveCount(2);
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Core.Operations
                 UseCursor = false
             };
 
-            var result = ReadCursorToEnd(await ExecuteOperation(subject));
+            var result = await ReadCursorToEnd(await ExecuteOperation(subject));
 
             result.Should().NotBeNull();
             result.Should().BeEmpty();
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.Core.Operations
                 UseCursor = true
             };
 
-            var result = ReadCursorToEnd(await ExecuteOperation(subject));
+            var result = await ReadCursorToEnd(await ExecuteOperation(subject));
 
             result.Should().NotBeNull();
             result.Should().BeEmpty();

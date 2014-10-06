@@ -39,7 +39,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
-            _messageEncoderSettings = messageEncoderSettings;
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
+            
+            EnsureIsOutputToCollectionPipeline();
         }
 
         // properties
@@ -74,14 +76,13 @@ namespace MongoDB.Driver.Core.Operations
         public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            EnsureIsOutputToCollectionPipeline();
 
             var command = CreateCommand();
             var operation = new WriteCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
             return operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
 
-        private BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -94,10 +95,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private void EnsureIsOutputToCollectionPipeline()
         {
-            var lastStage = Pipeline.LastOrDefault();
+            var lastStage = _pipeline.LastOrDefault();
             if (lastStage == null || lastStage.GetElement(0).Name != "$out")
             {
-                throw new ArgumentException("The last stage of the pipeline for an AggregateOutputToCollectionOperation must have a $out operator.");
+                throw new ArgumentException("The last stage of the pipeline for an AggregateOutputToCollectionOperation must have a $out operator.", "pipeline");
             }
         }
     }

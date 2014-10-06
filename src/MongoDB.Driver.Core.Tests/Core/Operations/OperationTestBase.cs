@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
@@ -13,6 +14,7 @@ namespace MongoDB.Driver.Core.Operations
 {
     public abstract class OperationTestBase
     {
+        protected DatabaseNamespace _databaseNamespace;
         protected CollectionNamespace _collectionNamespace;
         protected MessageEncoderSettings _messageEncoderSettings;
         private bool _hasOncePerFixtureRun;
@@ -20,7 +22,8 @@ namespace MongoDB.Driver.Core.Operations
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            _collectionNamespace = new CollectionNamespace(SuiteConfiguration.DatabaseNamespace, GetType().Name);
+            _databaseNamespace = SuiteConfiguration.DatabaseNamespace;
+            _collectionNamespace = new CollectionNamespace(_databaseNamespace, GetType().Name);
             _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
         }
 
@@ -68,10 +71,25 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected List<BsonDocument> ReadCursorToEnd(IAsyncCursor<BsonDocument> cursor)
+        protected Task<List<BsonDocument>> ReadAllFromCollection()
+        {
+            return ReadAllFromCollection(_collectionNamespace); 
+        }
+
+        protected async Task<List<BsonDocument>> ReadAllFromCollection(CollectionNamespace collectionNamespace)
+        {
+            using(var binding = SuiteConfiguration.GetReadBinding())
+            {
+                var op = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+                var cursor = await op.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                return await ReadCursorToEnd(cursor);
+            }
+        }
+
+        protected async Task<List<BsonDocument>> ReadCursorToEnd(IAsyncCursor<BsonDocument> cursor)
         {
             var documents = new List<BsonDocument>();
-            while (cursor.MoveNextAsync().GetAwaiter().GetResult())
+            while (await cursor.MoveNextAsync())
             {
                 foreach (var document in cursor.Current)
                 {
