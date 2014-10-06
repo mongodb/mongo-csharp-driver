@@ -58,6 +58,7 @@
     <Compile Include="Core\Operations\AggregateToCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
+    <Compile Include="Core\Operations\BulkMixedWriteOperationTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\DatabaseExistsOperationTests.cs" />
     <Compile Include="Core\Operations\ExplainOperationTests.cs" />

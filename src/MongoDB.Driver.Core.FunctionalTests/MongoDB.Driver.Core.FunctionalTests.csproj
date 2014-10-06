@@ -59,29 +59,8 @@
     <Compile Include="DatabaseUsingTest.cs" />
     <Compile Include="Core\Helpers\SameAs.cs" />
     <Compile Include="SuiteConfiguration.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_first_batch_has_an_error_and_is_ordered_is_false.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_first_batch_has_an_error_and_is_ordered_is_true.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_fewer_deletes_than_maxBatchCount.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_fewer_inserts_than_maxBatchCount.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_fewer_updates_than_maxBatchCount.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_mixed_operations_and_is_ordered_is_false.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_mixed_operations_and_is_ordered_is_true.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_mixed_upserts_and_is_ordered_is_false.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_mixed_upserts_and_is_ordered_is_true.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_more_deletes_than_maxBatchCount.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_more_inserts_than_maxBatchCount.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_second_batch_has_an_error_and_isOrdered_is_false.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_second_batch_has_an_error_and_isOrdered_is_true.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_more_updates_than_maxBatchSize.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_multiple_deletes.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_are_zero_requests.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_is_one_delete.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_is_one_insert.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_is_one_update.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_there_is_one_very_large_upsert.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_upsert_matches_multiple_documents.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_upsert_matches_no_documents.cs" />
-    <Compile Include="Core\Operations\BulkMixedWriteOperationTests\When_upsert_matches_one_document.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

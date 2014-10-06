@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxWireDocumentSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<WriteRequest> _requests;
-        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
+        private WriteConcern _writeConcern;
 
         // constructors
         public BulkMixedWriteOperation(
@@ -46,7 +46,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _requests = Ensure.IsNotNull(requests, "requests");
-            _messageEncoderSettings = messageEncoderSettings;
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
+            _writeConcern = WriteConcern.Acknowledged;
         }
 
         // properties

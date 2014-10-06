@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly BsonDocument _criteria;
-        private int _limit = 1;
+        private int _limit;
 
         // constructors
         /// <summary>
@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
             : base(WriteRequestType.Delete)
         {
             _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _limit = 1;
         }
 
         // properties

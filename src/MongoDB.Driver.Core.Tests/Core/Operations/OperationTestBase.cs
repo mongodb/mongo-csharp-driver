@@ -27,6 +27,26 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
         }
 
+        protected async Task<TException> Catch<TException>(Func<Task> action)
+            where TException : Exception
+        {
+            try
+            {
+                await action();
+                Assert.Fail("Expected an exception of type {0} but got none.", typeof(TException));
+            }
+            catch(TException ex)
+            {
+                return ex;
+            }
+            catch(Exception ex)
+            {
+                Assert.Fail("Expected an exception of type {0} but got {1}.", typeof(TException), ex.GetType());
+            }
+
+            throw new InvalidOperationException();
+        }
+
         protected void DropDatabase()
         {
             using(var binding = SuiteConfiguration.GetReadWriteBinding())
