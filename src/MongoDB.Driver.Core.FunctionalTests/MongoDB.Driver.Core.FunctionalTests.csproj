@@ -74,8 +74,6 @@
     <Compile Include="Core\Operations\FindOperationTests\When_explaining_a_find.cs" />
     <Compile Include="Core\Operations\FindOperationTests\When_finding_a_subset_of_documents.cs" />
     <Compile Include="Core\Operations\FindOperationTests\When_finding_all_documents.cs" />
-    <Compile Include="Core\Operations\ListCollectionNamesOperationTests\When_listing_collection_names_on_database_that_does_not_exist.cs" />
-    <Compile Include="Core\Operations\ListCollectionNamesOperationTests\When_listing_collection_names_on_an_existing_database.cs" />
     <Compile Include="DatabaseUsingTest.cs" />
     <Compile Include="Core\Helpers\SameAs.cs" />
     <Compile Include="SuiteConfiguration.cs" />
