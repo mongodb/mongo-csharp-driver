@@ -14,17 +14,10 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.SyncExtensionMethods;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations

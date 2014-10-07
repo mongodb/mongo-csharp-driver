@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -35,11 +34,11 @@ namespace MongoDB.Driver.Core.Operations
                 await action();
                 Assert.Fail("Expected an exception of type {0} but got none.", typeof(TException));
             }
-            catch(TException ex)
+            catch (TException ex)
             {
                 return ex;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Assert.Fail("Expected an exception of type {0} but got {1}.", typeof(TException), ex.GetType());
             }
@@ -49,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected void DropDatabase()
         {
-            using(var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
                 var dropDatabaseOperation = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
                 dropDatabaseOperation.Execute(binding);
@@ -67,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<TResult> ExecuteOperation<TResult>(IReadOperation<TResult> operation)
         {
-            using(var binding = SuiteConfiguration.GetReadBinding())
+            using (var binding = SuiteConfiguration.GetReadBinding())
             {
                 return await operation.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
             }
@@ -102,12 +101,12 @@ namespace MongoDB.Driver.Core.Operations
 
         protected Task<List<BsonDocument>> ReadAllFromCollection()
         {
-            return ReadAllFromCollection(_collectionNamespace); 
+            return ReadAllFromCollection(_collectionNamespace);
         }
 
         protected async Task<List<BsonDocument>> ReadAllFromCollection(CollectionNamespace collectionNamespace)
         {
-            using(var binding = SuiteConfiguration.GetReadBinding())
+            using (var binding = SuiteConfiguration.GetReadBinding())
             {
                 var op = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
                 var cursor = await op.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
@@ -130,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected void RunOncePerFixture(Action act)
         {
-            if(!_hasOncePerFixtureRun)
+            if (!_hasOncePerFixtureRun)
             {
                 act();
                 _hasOncePerFixtureRun = true;

@@ -14,9 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -99,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         public void CreateCommand_should_create_the_correct_command(
-            [Values(null, false, true)] bool? allowDiskUse, 
+            [Values(null, false, true)] bool? allowDiskUse,
             [Values(null, 2000)] int? maxTime)
         {
             var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings)
@@ -118,12 +116,12 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             var result = subject.CreateCommand();
-            
+
             result.Should().Be(expectedResult);
         }
 
         [Test]
-        [RequiresServer(MinimumVersion="2.4.0")]
+        [RequiresServer(MinimumVersion = "2.4.0")]
         public async Task ExecuteAsync_should_return_the_result()
         {
             var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings)
@@ -132,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20)
             };
 
-            using(var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
 

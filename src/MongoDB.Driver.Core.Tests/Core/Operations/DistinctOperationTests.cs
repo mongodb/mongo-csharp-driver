@@ -14,12 +14,10 @@
 */
 
 using System;
-using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations

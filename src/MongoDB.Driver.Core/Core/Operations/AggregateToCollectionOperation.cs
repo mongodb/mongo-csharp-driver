@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
-            
+
             EnsureIsOutputToCollectionPipeline();
         }
 

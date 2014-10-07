@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Core.Operations
                 0,
                 0, // batchSize
                 0, // limit
-                _resultSerializer, 
+                _resultSerializer,
                 MessageEncoderSettings,
                 timeout,
                 cancellationToken);
@@ -224,7 +224,7 @@ namespace MongoDB.Driver.Core.Operations
                         var cursorDeserializer = new CursorDeserializer(_resultSerializer);
                         result = context.DeserializeWithChildContext(cursorDeserializer);
                     }
-                    else if(elementName == "result")
+                    else if (elementName == "result")
                     {
                         var arraySerializer = new ArraySerializer<TResult>(_resultSerializer);
                         result = new AggregateResult();

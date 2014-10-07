@@ -14,17 +14,12 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.SyncExtensionMethods;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
@@ -185,7 +180,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task Executing_with_matching_documents_using_a_cursor()
         {
             var pipeline = BsonDocument.Parse("{$match: {_id: { $gt: 3}}}");
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new [] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, new[] { pipeline }, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 UseCursor = true
             };

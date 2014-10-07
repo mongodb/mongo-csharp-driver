@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private InsertWireProtocol<TDocument> CreateProtocol(WriteConcern batchWriteConcern,Func<bool> shouldSendGetLastError)
+        private InsertWireProtocol<TDocument> CreateProtocol(WriteConcern batchWriteConcern, Func<bool> shouldSendGetLastError)
         {
             return new InsertWireProtocol<TDocument>(
                 _collectionNamespace,

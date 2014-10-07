@@ -14,9 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -94,7 +91,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private static string ConvertVerbosityToString(ExplainVerbosity verbosity)
         {
-            switch(verbosity)
+            switch (verbosity)
             {
                 case ExplainVerbosity.AllPlansExecution:
                     return "allPlansExecution";

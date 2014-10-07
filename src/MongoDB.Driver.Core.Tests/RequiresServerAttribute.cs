@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core
             {
                 var minSemanticVersion = SemanticVersion.Parse(MinimumVersion);
 
-                if(SuiteConfiguration.ServerVersion < minSemanticVersion)
+                if (SuiteConfiguration.ServerVersion < minSemanticVersion)
                 {
                     var message = string.Format("Requires a minimum server version of {0}, but currently connected to {1}.", minSemanticVersion, SuiteConfiguration.ServerVersion);
                     Assert.Ignore(message);
