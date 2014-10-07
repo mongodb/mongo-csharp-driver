@@ -26,23 +26,28 @@ namespace MongoDB.Driver.Core.Operations
     public class RenameCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
+        private readonly CollectionNamespace _collectionNamespace;
         private bool? _dropTarget;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly CollectionNamespace _newCollectionNamespace;
-        private readonly CollectionNamespace _oldCollectionNamespace;
 
         // constructors
         public RenameCollectionOperation(
-            CollectionNamespace oldCollectionNamespace,
+            CollectionNamespace collectionNamespace,
             CollectionNamespace newCollectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _oldCollectionNamespace = Ensure.IsNotNull(oldCollectionNamespace, "oldCollectionNamespace");
+            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _newCollectionNamespace = Ensure.IsNotNull(newCollectionNamespace, "newCollectionNamespace");
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
+        public CollectionNamespace CollectionNamespace
+        {
+            get { return _collectionNamespace; }
+        }
+
         public bool? DropTarget
         {
             get { return _dropTarget; }
@@ -59,17 +64,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _newCollectionNamespace; }
         }
 
-        public CollectionNamespace OldCollectionNamespace
-        {
-            get { return _oldCollectionNamespace; }
-        }
-
         // methods
         public BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
-                { "renameCollection", _oldCollectionNamespace.FullName },
+                { "renameCollection", _collectionNamespace.FullName },
                 { "to", _newCollectionNamespace.FullName },
                 { "dropTarget", () => _dropTarget.Value, _dropTarget.HasValue }
             };

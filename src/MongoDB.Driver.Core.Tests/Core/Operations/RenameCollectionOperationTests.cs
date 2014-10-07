@@ -28,55 +28,65 @@ namespace MongoDB.Driver.Core.Operations
     public class RenameCollectionOperationTests
     {
         // fields
+        private CollectionNamespace _collectionNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
         private CollectionNamespace _newCollectionNamespace;
-        private CollectionNamespace _oldCollectionNamespace;
 
         // setup methods
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
             var databaseNamespace = SuiteConfiguration.GetDatabaseNamespaceForTestFixture();
-            _oldCollectionNamespace = new CollectionNamespace(databaseNamespace, "old");
+            _collectionNamespace = new CollectionNamespace(databaseNamespace, "old");
             _newCollectionNamespace = new CollectionNamespace(databaseNamespace, "new");
             _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
         }
 
         // test methods
         [Test]
+        public void CollectionNamespace_get_should_return_expected_result()
+        {
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+
+            var result = subject.CollectionNamespace;
+
+            result.Should().BeSameAs(_collectionNamespace);
+        }
+
+        [Test]
         public void constructor_should_initialize_subject()
         {
-            var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
 
-            subject.OldCollectionNamespace.Should().BeSameAs(_oldCollectionNamespace);
+            subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.NewCollectionNamespace.Should().BeSameAs(_newCollectionNamespace);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
             subject.DropTarget.Should().NotHaveValue();
         }
 
         [Test]
+        public void constructor_should_throw_when_collectionNamespace_is_null()
+        {
+            Action action = () => new RenameCollectionOperation(null, _newCollectionNamespace, _messageEncoderSettings);
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("collectionNamespace");
+        }
+
+        [Test]
         public void constructor_should_throw_when_newCollectionNamespace_is_null()
         {
-            Action action = () => new RenameCollectionOperation(_oldCollectionNamespace, null, _messageEncoderSettings);
+            Action action = () => new RenameCollectionOperation(_collectionNamespace, null, _messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("newCollectionNamespace");
         }
 
         [Test]
-        public void constructor_should_throw_when_oldCollectionNamespace_is_null()
-        {
-            Action action = () => new RenameCollectionOperation(null, _newCollectionNamespace, _messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("oldCollectionNamespace");
-        }
-
-        [Test]
         public void CreateCommand_should_return_expected_result()
         {
-            var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
             var expectedResult = new BsonDocument
             {
-                { "renameCollection", _oldCollectionNamespace.FullName },
+                { "renameCollection", _collectionNamespace.FullName },
                 { "to", _newCollectionNamespace.FullName }
             };
 
@@ -90,13 +100,13 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool dropTarget)
         {
-            var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
             {
                 DropTarget = dropTarget
             };
             var expectedResult = new BsonDocument
             {
-                { "renameCollection", _oldCollectionNamespace.FullName },
+                { "renameCollection", _collectionNamespace.FullName },
                 { "to", _newCollectionNamespace.FullName },
                 { "dropTarget", dropTarget }
             };
@@ -111,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool dropTarget)
         {
-            var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
 
             subject.DropTarget = dropTarget;
             var result = subject.DropTarget;
@@ -125,8 +135,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
-                EnsureCollectionExists(binding, _oldCollectionNamespace);
+                var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+                EnsureCollectionExists(binding, _collectionNamespace);
                 EnsureCollectionDoesNotExist(binding, _newCollectionNamespace);
 
                 var result = await subject.ExecuteAsync(binding);
@@ -141,11 +151,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
+                var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
                 {
                     DropTarget = true
                 };
-                EnsureCollectionExists(binding, _oldCollectionNamespace);
+                EnsureCollectionExists(binding, _collectionNamespace);
                 EnsureCollectionExists(binding, _newCollectionNamespace);
 
                 var result = await subject.ExecuteAsync(binding);
@@ -160,11 +170,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
+                var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
                 {
                     DropTarget = false
                 };
-                EnsureCollectionExists(binding, _oldCollectionNamespace);
+                EnsureCollectionExists(binding, _collectionNamespace);
                 EnsureCollectionExists(binding, _newCollectionNamespace);
 
                 Func<Task> action = () => subject.ExecuteAsync(binding);
@@ -176,7 +186,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void ExecyteAsync_should_throw_when_binding_is_null()
         {
-            var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
 
             Func<Task> action = () => subject.ExecuteAsync(null);
 
@@ -186,7 +196,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void MessageEncoderSettings_get_should_return_expected_result()
         {
-            var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
 
             var result = subject.MessageEncoderSettings;
 
@@ -196,21 +206,11 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void NewCollectionNamespace_get_should_return_expected_result()
         {
-            var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+            var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
 
             var result = subject.NewCollectionNamespace;
 
             result.Should().BeSameAs(_newCollectionNamespace);
-        }
-
-        [Test]
-        public void OldCollectionNamespace_get_should_return_expected_result()
-        {
-            var subject = new RenameCollectionOperation(_oldCollectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
-
-            var result = subject.OldCollectionNamespace;
-
-            result.Should().BeSameAs(_oldCollectionNamespace);
         }
 
         // helper methods
