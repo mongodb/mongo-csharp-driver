@@ -89,6 +89,10 @@ function CSUUID(uuid) {
     return new BinData(3, base64);
 }
 
+function NUUID(uuid) {
+    return new CSUUID(uuid);
+}
+
 function PYUUID(uuid) {
     var hex = uuid.replace(/[{}-]/g, ""); // remove extra characters
     var base64 = HexToBase64(hex);
@@ -123,6 +127,17 @@ BinData.prototype.toCSUUID = function () {
     return 'CSUUID("' + uuid + '")';
 }
 
+BinData.prototype.toNUUID = function () {
+    var hex = Base64ToHex(this.base64()); // don't use BinData's hex function because it has bugs in older versions of the shell
+    var a = hex.substr(6, 2) + hex.substr(4, 2) + hex.substr(2, 2) + hex.substr(0, 2);
+    var b = hex.substr(10, 2) + hex.substr(8, 2);
+    var c = hex.substr(14, 2) + hex.substr(12, 2);
+    var d = hex.substr(16, 16);
+    hex = a + b + c + d;
+    var uuid = hex.substr(0, 8) + '-' + hex.substr(8, 4) + '-' + hex.substr(12, 4) + '-' + hex.substr(16, 4) + '-' + hex.substr(20, 12);
+    return 'NUUID("' + uuid + '")';
+}
+
 BinData.prototype.toPYUUID = function () {
     var hex = Base64ToHex(this.base64()); // don't use BinData's hex function because it has bugs
     var uuid = hex.substr(0, 8) + '-' + hex.substr(8, 4) + '-' + hex.substr(12, 4) + '-' + hex.substr(16, 4) + '-' + hex.substr(20, 12);
@@ -141,13 +156,16 @@ function TestUUIDHelperFunctions() {
     var uuid = UUID(s);
     var juuid = JUUID(s);
     var csuuid = CSUUID(s);
+    var nuuid = NUUID(s);
     var pyuuid = PYUUID(s);
     print(uuid.toUUID());
     print(juuid.toJUUID());
     print(csuuid.toCSUUID());
+    print(nuuid.toNUUID());
     print(pyuuid.toPYUUID());
     print(uuid.toHexUUID());
     print(juuid.toHexUUID());
     print(csuuid.toHexUUID());
+    print(nuuid.toHexUUID());
     print(pyuuid.toHexUUID());
 }
