@@ -265,7 +265,6 @@
     <Compile Include="Core\Operations\ElementDeserializer.cs" />
     <Compile Include="Core\Operations\FindOperation.cs" />
     <Compile Include="Core\Operations\GroupOperation.cs" />
-    <Compile Include="Core\Operations\IndexExistsOperation.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperation.cs" />
     <Compile Include="Core\Operations\IOperation.cs" />
     <Compile Include="Core\Operations\ListCollectionNamesOperation.cs" />
