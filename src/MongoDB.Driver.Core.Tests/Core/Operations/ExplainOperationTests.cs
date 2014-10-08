@@ -26,9 +26,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         private BsonDocument _command;
 
-        [SetUp]
-        public void SetUp()
+        public override void TestFixtureSetUp()
         {
+            base.TestFixtureSetUp();
+
             _command = new BsonDocument
             {
                 { "count", _collectionNamespace.CollectionName }
@@ -64,7 +65,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings);
 
-            subject.DatabaseNamespace.DatabaseName.Should().Be(_databaseNamespace.DatabaseName);
+            subject.DatabaseNamespace.Should().Be(_databaseNamespace);
             subject.Command.Should().Be(_command);
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
             subject.Verbosity.Should().Be(ExplainVerbosity.QueryPlanner);
@@ -98,7 +99,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings);
 
-            var result = await ExecuteOperation((IReadOperation<BsonDocument>)subject);
+            var result = await ExecuteOperationAsync((IReadOperation<BsonDocument>)subject);
 
             result.Should().NotBeNull();
         }

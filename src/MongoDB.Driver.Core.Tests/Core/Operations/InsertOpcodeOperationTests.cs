@@ -23,6 +23,7 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    [TestFixture]
     public class InsertOpcodeOperationTests : OperationTestBase
     {
         private BatchableSource<BsonDocument> _documentSource;
@@ -145,10 +146,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
             result.Should().HaveCount(1);
 
-            var list = await ReadAllFromCollection();
+            var list = await ReadAllFromCollectionAsync();
             list.Should().HaveCount(1);
         }
 
@@ -165,10 +166,10 @@ namespace MongoDB.Driver.Core.Operations
             });
             var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
             result.Should().HaveCount(1);
 
-            var list = await ReadAllFromCollection();
+            var list = await ReadAllFromCollectionAsync();
             list.Should().HaveCount(4);
         }
     }

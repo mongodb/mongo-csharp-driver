@@ -24,9 +24,10 @@ namespace MongoDB.Driver.Core.Operations
     [TestFixture]
     public class DatabaseExistsOperationTests : OperationTestBase
     {
-        [SetUp]
-        public void SetUp()
+        public override void TestFixtureSetUp()
         {
+            base.TestFixtureSetUp();
+
             // override this database and collection using special ones for this...
             _databaseNamespace = new DatabaseNamespace("DatabaseExistsOperationTests");
             _collectionNamespace = new CollectionNamespace(_databaseNamespace, "DatabaseExistsOperationTests");
@@ -65,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var subject = new DatabaseExistsOperation(_databaseNamespace, _messageEncoderSettings);
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().BeTrue();
         }
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new DatabaseExistsOperation(_databaseNamespace, _messageEncoderSettings);
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().BeFalse();
         }

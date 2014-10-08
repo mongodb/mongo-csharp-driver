@@ -27,9 +27,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         private BsonDocument _criteria;
 
-        [SetUp]
-        public void SetUp()
+        public override void TestFixtureSetUp()
         {
+            base.TestFixtureSetUp();
+
             _criteria = new BsonDocument("x", 1);
         }
 
@@ -70,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _criteria, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            subject.CollectionNamespace.CollectionName.Should().Be(_collectionNamespace.CollectionName);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.Criteria.Should().Be(_criteria);
             subject.ResultSerializer.Should().NotBeNull();
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
@@ -116,11 +117,11 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings);
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().Be("{_id: 10, x: 1}");
 
-            var serverList = await ReadAllFromCollection();
+            var serverList = await ReadAllFromCollectionAsync();
 
             serverList.Should().BeEmpty();
         }
@@ -135,11 +136,11 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings);
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().BeNull();
 
-            var serverList = await ReadAllFromCollection();
+            var serverList = await ReadAllFromCollectionAsync();
 
             serverList.Should().HaveCount(1);
         }

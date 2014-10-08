@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Core.Operations
 
         internal BsonDocument CreateWrappedQuery(ServerType serverType, ReadPreference readPreference)
         {
-            BsonDocument readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, readPreference);
+            var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, readPreference);
 
             var wrappedQuery = new BsonDocument
             {

@@ -28,9 +28,10 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _criteria;
         private BsonDocument _replacement;
 
-        [SetUp]
-        public void SetUp()
+        public override void TestFixtureSetUp()
         {
+            base.TestFixtureSetUp();
+
             _criteria = new BsonDocument("x", 1);
             _replacement = BsonDocument.Parse("{_id: 10, a: 2}");
         }
@@ -80,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _criteria, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            subject.CollectionNamespace.CollectionName.Should().Be(_collectionNamespace.CollectionName);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.Criteria.Should().Be(_criteria);
             subject.Replacement.Should().Be(_replacement);
             subject.ResultSerializer.Should().NotBeNull();
@@ -137,11 +138,11 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnOriginal = true
             };
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().Be("{_id: 10, x: 1}");
 
-            var serverList = await ReadAllFromCollection();
+            var serverList = await ReadAllFromCollectionAsync();
 
             serverList[0].Should().Be("{_id: 10, a: 2}");
         }
@@ -160,11 +161,11 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnOriginal = false
             };
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().Be("{_id: 10, a: 2}");
 
-            var serverList = await ReadAllFromCollection();
+            var serverList = await ReadAllFromCollectionAsync();
 
             serverList[0].Should().Be("{_id: 10, a: 2}");
         }
@@ -183,11 +184,11 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnOriginal = true
             };
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().BeNull();
 
-            var serverList = await ReadAllFromCollection();
+            var serverList = await ReadAllFromCollectionAsync();
 
             serverList[0].Should().Be("{_id: 10, x: 1}");
         }
@@ -206,11 +207,11 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnOriginal = false
             };
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().BeNull();
 
-            var serverList = await ReadAllFromCollection();
+            var serverList = await ReadAllFromCollectionAsync();
 
             serverList[0].Should().Be("{_id: 10, x: 1}");
         }
@@ -230,11 +231,11 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnOriginal = true
             };
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().BeNull();
 
-            var serverList = await ReadAllFromCollection();
+            var serverList = await ReadAllFromCollectionAsync();
 
             serverList[0].Should().Be("{_id: 10, a: 2}");
         }
@@ -254,11 +255,11 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnOriginal = false
             };
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().Be("{_id: 10, a: 2}");
 
-            var serverList = await ReadAllFromCollection();
+            var serverList = await ReadAllFromCollectionAsync();
 
             serverList[0].Should().Be("{_id: 10, a: 2}");
         }

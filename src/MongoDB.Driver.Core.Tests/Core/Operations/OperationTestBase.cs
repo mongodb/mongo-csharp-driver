@@ -19,14 +19,14 @@ namespace MongoDB.Driver.Core.Operations
         private bool _hasOncePerFixtureRun;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        public virtual void TestFixtureSetUp()
         {
             _databaseNamespace = SuiteConfiguration.DatabaseNamespace;
             _collectionNamespace = new CollectionNamespace(_databaseNamespace, GetType().Name);
             _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
         }
 
-        protected async Task<TException> Catch<TException>(Func<Task> action)
+        protected async Task<TException> CatchAsync<TException>(Func<Task> action)
             where TException : Exception
         {
             try
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
                 Assert.Fail("Expected an exception of type {0} but got {1}.", typeof(TException), ex.GetType());
             }
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("We should never get here!");
         }
 
         protected void DropDatabase()
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected async Task<TResult> ExecuteOperation<TResult>(IReadOperation<TResult> operation)
+        protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation)
         {
             using (var binding = SuiteConfiguration.GetReadBinding())
             {
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected async Task<TResult> ExecuteOperation<TResult>(IWriteOperation<TResult> operation)
+        protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation)
         {
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
@@ -99,22 +99,22 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected Task<List<BsonDocument>> ReadAllFromCollection()
+        protected Task<List<BsonDocument>> ReadAllFromCollectionAsync()
         {
-            return ReadAllFromCollection(_collectionNamespace);
+            return ReadAllFromCollectionAsync(_collectionNamespace);
         }
 
-        protected async Task<List<BsonDocument>> ReadAllFromCollection(CollectionNamespace collectionNamespace)
+        protected async Task<List<BsonDocument>> ReadAllFromCollectionAsync(CollectionNamespace collectionNamespace)
         {
             using (var binding = SuiteConfiguration.GetReadBinding())
             {
                 var op = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
                 var cursor = await op.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
-                return await ReadCursorToEnd(cursor);
+                return await ReadCursorToEndAsync(cursor);
             }
         }
 
-        protected async Task<List<BsonDocument>> ReadCursorToEnd(IAsyncCursor<BsonDocument> cursor)
+        protected async Task<List<BsonDocument>> ReadCursorToEndAsync(IAsyncCursor<BsonDocument> cursor)
         {
             var documents = new List<BsonDocument>();
             while (await cursor.MoveNextAsync())

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -22,14 +23,16 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    [TestFixture]
     public class DistinctOperationTests : OperationTestBase
     {
         private string _fieldName;
         private IBsonSerializer<int> _valueSerializer;
 
-        [SetUp]
-        public void Setup()
+        public override void TestFixtureSetUp()
         {
+            base.TestFixtureSetUp();
+
             _fieldName = "y";
             _valueSerializer = new Int32Serializer();
         }
@@ -82,7 +85,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "query", BsonDocument.Parse("{ x: 1 }") },
                 { "maxTimeMS", 20000 }
             };
-
             var result = subject.CreateCommand();
 
             result.Should().Be(expectedResult);
@@ -90,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async void ExecuteAsync_should_return_the_correct_results()
+        public async Task ExecuteAsync_should_return_the_correct_results()
         {
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
             {
@@ -98,7 +100,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().HaveCount(2);
             result.Should().OnlyHaveUniqueItems();

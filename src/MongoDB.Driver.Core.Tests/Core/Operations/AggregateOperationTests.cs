@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Enumerable.Empty<BsonDocument>(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            subject.CollectionNamespace.FullName.Should().Be(_collectionNamespace.FullName);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.Pipeline.Should().BeEmpty();
             subject.ResultSerializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20)
             };
 
-            var result = await ReadCursorToEnd(await ExecuteOperation(subject));
+            var result = await ReadCursorToEndAsync(await ExecuteOperationAsync(subject));
 
             result.Should().NotBeNull();
             result.Should().HaveCount(2);
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Operations
                 UseCursor = true
             };
 
-            var result = await ReadCursorToEnd(await ExecuteOperation(subject));
+            var result = await ReadCursorToEndAsync(await ExecuteOperationAsync(subject));
 
             result.Should().NotBeNull();
             result.Should().HaveCount(2);
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.Operations
                 UseCursor = false
             };
 
-            var result = await ReadCursorToEnd(await ExecuteOperation(subject));
+            var result = await ReadCursorToEndAsync(await ExecuteOperationAsync(subject));
 
             result.Should().NotBeNull();
             result.Should().HaveCount(2);
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Operations
                 UseCursor = false
             };
 
-            var result = await ReadCursorToEnd(await ExecuteOperation(subject));
+            var result = await ReadCursorToEndAsync(await ExecuteOperationAsync(subject));
 
             result.Should().NotBeNull();
             result.Should().BeEmpty();
@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Core.Operations
                 UseCursor = true
             };
 
-            var result = await ReadCursorToEnd(await ExecuteOperation(subject));
+            var result = await ReadCursorToEndAsync(await ExecuteOperationAsync(subject));
 
             result.Should().NotBeNull();
             result.Should().BeEmpty();

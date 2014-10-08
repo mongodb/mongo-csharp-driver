@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core
 
                 if (SuiteConfiguration.ServerVersion < minSemanticVersion)
                 {
-                    var message = string.Format("Requires a minimum server version of {0}, but currently connected to {1}.", minSemanticVersion, SuiteConfiguration.ServerVersion);
+                    var message = string.Format("Requires a minimum server version of {0}, but currently connected to version {1}.", minSemanticVersion, SuiteConfiguration.ServerVersion);
                     Assert.Ignore(message);
                 }
             }

@@ -23,6 +23,7 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    [TestFixture]
     public class FindOperationTests : OperationTestBase
     {
         [Test]
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            subject.CollectionNamespace.CollectionName.Should().Be(_collectionNamespace.CollectionName);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.ResultSerializer.Should().NotBeNull();
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
@@ -121,9 +122,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var cursor = await ExecuteOperation(subject);
+            var cursor = await ExecuteOperationAsync(subject);
 
-            var result = await ReadCursorToEnd(cursor);
+            var result = await ReadCursorToEndAsync(cursor);
 
             result.Should().HaveCount(5);
         }
@@ -137,9 +138,9 @@ namespace MongoDB.Driver.Core.Operations
                 BatchSize = 2
             };
 
-            var cursor = await ExecuteOperation(subject);
+            var cursor = await ExecuteOperationAsync(subject);
 
-            var result = await ReadCursorToEnd(cursor);
+            var result = await ReadCursorToEndAsync(cursor);
 
             result.Should().HaveCount(5);
         }
@@ -159,9 +160,9 @@ namespace MongoDB.Driver.Core.Operations
                 Sort = BsonDocument.Parse("{_id: -1}")
             };
 
-            var cursor = await ExecuteOperation(subject);
+            var cursor = await ExecuteOperationAsync(subject);
 
-            var result = await ReadCursorToEnd(cursor);
+            var result = await ReadCursorToEndAsync(cursor);
 
             result.Should().HaveCount(1);
         }

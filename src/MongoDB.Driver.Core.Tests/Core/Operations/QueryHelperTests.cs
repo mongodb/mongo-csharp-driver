@@ -19,6 +19,7 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    [TestFixture]
     public class QueryHelperTests
     {
         [Test]

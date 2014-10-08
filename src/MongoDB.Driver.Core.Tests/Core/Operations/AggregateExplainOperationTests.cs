@@ -25,24 +25,14 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
-    public class AggregateExplainOperationTests
+    public class AggregateExplainOperationTests : OperationTestBase
     {
-        private CollectionNamespace _collectionNamespace;
-        private MessageEncoderSettings _messageEncoderSettings;
-
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            _collectionNamespace = SuiteConfiguration.GetCollectionNamespaceForTestFixture();
-            _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
-        }
-
         [Test]
         public void Constructor_should_create_a_valid_instance()
         {
             var subject = new AggregateExplainOperation(_collectionNamespace, Enumerable.Empty<BsonDocument>(), _messageEncoderSettings);
 
-            subject.CollectionNamespace.FullName.Should().Be(_collectionNamespace.FullName);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.Pipeline.Should().BeEmpty();
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
@@ -130,12 +120,9 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20)
             };
 
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
-            {
-                var result = await subject.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await ExecuteOperationAsync(subject);
 
-                result.Should().NotBeNull();
-            }
+            result.Should().NotBeNull();
         }
     }
 }

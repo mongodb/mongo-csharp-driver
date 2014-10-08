@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new ListCollectionNamesOperation(_databaseNamespace, _messageEncoderSettings);
 
-            subject.DatabaseNamespace.DatabaseName.Should().Be(_databaseNamespace.DatabaseName);
+            subject.DatabaseNamespace.Should().Be(_databaseNamespace);
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
 
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new ListCollectionNamesOperation(_databaseNamespace, _messageEncoderSettings);
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Count.Should().BeGreaterThan(0);
             result.Should().Contain(_collectionNamespace.CollectionName);
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Operations
             var databaseNamespace = new DatabaseNamespace("asdlkjaflkgoiuewkljasdg");
             var subject = new ListCollectionNamesOperation(databaseNamespace, _messageEncoderSettings);
 
-            var result = await ExecuteOperation(subject);
+            var result = await ExecuteOperationAsync(subject);
 
             result.Should().HaveCount(0);
         }

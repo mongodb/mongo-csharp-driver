@@ -27,9 +27,10 @@ namespace MongoDB.Driver.Core.Operations
     {
         private BsonDocument[] _pipeline;
 
-        [SetUp]
-        public void SetUp()
+        public override void TestFixtureSetUp()
         {
+            base.TestFixtureSetUp();
+
             _pipeline = new[] 
             { 
                 BsonDocument.Parse("{$match: {_id: { $gt: 3}}}"),
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new AggregateToCollectionOperation(_collectionNamespace, _pipeline, _messageEncoderSettings);
 
-            subject.CollectionNamespace.FullName.Should().Be(_collectionNamespace.FullName);
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.Pipeline.Should().HaveCount(2);
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
@@ -137,9 +138,9 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20)
             };
 
-            await ExecuteOperation(subject);
+            await ExecuteOperationAsync(subject);
 
-            var result = await ReadAllFromCollection(new CollectionNamespace(_databaseNamespace, "awesome"));
+            var result = await ReadAllFromCollectionAsync(new CollectionNamespace(_databaseNamespace, "awesome"));
 
             result.Should().NotBeNull();
             result.Should().HaveCount(2);
