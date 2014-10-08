@@ -60,6 +60,7 @@
     <Compile Include="Core\Operations\DropDatabaseOperationTests.cs" />
     <Compile Include="Core\Operations\EvalOperationTests.cs" />
     <Compile Include="Core\Operations\ListDatabaseNamesOperationTests.cs" />
+    <Compile Include="Core\Operations\ListIndexesOperationTests.cs" />
     <Compile Include="Core\Operations\RenameCollectionOperationTests.cs" />
     <Compile Include="SuiteConfiguration.cs" />
     <Compile Include="Core\Async\AsyncDropboxTests.cs" />

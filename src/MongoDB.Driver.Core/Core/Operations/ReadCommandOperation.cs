@@ -76,6 +76,7 @@ namespace MongoDB.Driver.Core.Operations
                 "isMaster",
                 "listCommands",
                 "listDatabases",
+                "listIndexes",
                 "parallelCollectionScan",
                 "ping",
                 "replSetGetStatus",

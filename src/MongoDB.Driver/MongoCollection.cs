@@ -1069,9 +1069,9 @@ namespace MongoDB.Driver
         /// <returns>A list of BsonDocuments that describe the indexes.</returns>
         public virtual GetIndexesResult GetIndexes()
         {
-            var indexes = _database.GetCollection("system.indexes");
-            var query = Query.EQ("ns", FullName);
-            return new GetIndexesResult(indexes.Find(query).ToArray()); // ToArray forces execution of the query
+            var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings());
+            var indexes = ExecuteReadOperation(operation).ToArray();
+            return new GetIndexesResult(indexes);
         }
 
         /// <summary>
@@ -1288,9 +1288,9 @@ namespace MongoDB.Driver
         /// <returns>True if the index exists.</returns>
         public virtual bool IndexExistsByName(string indexName)
         {
-            var indexes = _database.GetCollection("system.indexes");
-            var query = Query.And(Query.EQ("name", indexName), Query.EQ("ns", FullName));
-            return indexes.Count(query) != 0;
+            var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings());
+            var indexes = ExecuteReadOperation(operation).ToArray();
+            return indexes.Any(index => index["name"].AsString == indexName);
         }
 
         /// <summary>
