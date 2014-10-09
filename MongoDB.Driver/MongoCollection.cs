@@ -1091,9 +1091,20 @@ namespace MongoDB.Driver
         /// <returns>A list of BsonDocuments that describe the indexes.</returns>
         public virtual GetIndexesResult GetIndexes()
         {
-            var indexes = _database.GetCollection("system.indexes");
-            var query = Query.EQ("ns", FullName);
-            return new GetIndexesResult(indexes.Find(query).ToArray()); // ToArray forces execution of the query
+            var readPreference = ReadPreference.Primary;
+            var connection = _server.AcquireConnection(readPreference);
+            try
+            {
+                var readerSettings = GetReaderSettings(connection);
+                var writerSettings = GetWriterSettings(connection);
+                var operation = new ListIndexesOperation(_database.Name, _name, ReadPreference.Primary, readerSettings, writerSettings);
+                var result = operation.Execute(connection).ToArray();
+                return new GetIndexesResult(result);
+            }
+            finally
+            {
+                _server.ReleaseConnection(connection);
+            }
         }
 
         /// <summary>
@@ -1306,9 +1317,8 @@ namespace MongoDB.Driver
         /// <returns>True if the index exists.</returns>
         public virtual bool IndexExistsByName(string indexName)
         {
-            var indexes = _database.GetCollection("system.indexes");
-            var query = Query.And(Query.EQ("name", indexName), Query.EQ("ns", FullName));
-            return indexes.Count(query) != 0;
+            var result = GetIndexes();
+            return result.Any(index => index.Name == indexName);
         }
 
         /// <summary>
