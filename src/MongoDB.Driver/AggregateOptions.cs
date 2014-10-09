@@ -8,27 +8,26 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Model for running an aggregation pipeline.
+    /// Options for running an aggregation pipeline.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class AggregateModel<TResult>
+    public class AggregateOptions<TResult>
     {
         // fields
         private bool? _allowDiskUse;
         private int? _batchSize;
         private TimeSpan? _maxTime;
-        private readonly IReadOnlyList<object> _pipeline;
+        private IList<object> _pipeline;
         private IBsonSerializer<TResult> _resultSerializer;
         private bool? _useCursor;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateModel{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="AggregateOptions{TResult}" /> class.
         /// </summary>
-        /// <param name="pipeline">The pipeline.</param>
-        public AggregateModel(IEnumerable<object> pipeline)
+        public AggregateOptions()
         {
-            _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
+            _pipeline = new List<object>();
         }
 
         // properties
@@ -65,9 +64,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the pipeline.
         /// </summary>
-        public IReadOnlyList<object> Pipeline
+        public IList<object> Pipeline
         {
             get { return _pipeline; }
+            set { _pipeline = value ?? new List<object>(); }
         }
 
         /// <summary>

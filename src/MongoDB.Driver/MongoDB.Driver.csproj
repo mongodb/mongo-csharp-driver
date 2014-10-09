@@ -88,7 +88,8 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateEnumerableResult.cs" />
-    <Compile Include="AggregateModel.cs" />
+    <Compile Include="AggregateFluent.cs" />
+    <Compile Include="AggregateOptions.cs" />
     <Compile Include="Builders\UpdateCurrentDateType.cs" />
     <Compile Include="BulkWriteModel.cs" />
     <Compile Include="Communication\ClusterKey.cs" />

@@ -63,21 +63,23 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
+        public async Task Aggregate_should_execute_the_AggregateOperation_when_out_is_not_specified()
         {
             var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
-            var model = new AggregateModel<BsonDocument>(pipeline)
-            {
-                AllowDiskUse = true,
-                BatchSize = 10,
-                MaxTime = TimeSpan.FromSeconds(3),
-                UseCursor = false
-            };
+
+            var fluent = _subject.Aggregate()
+                .AllowDiskUse(true)
+                .BatchSize(10)
+                .MaxTime(TimeSpan.FromSeconds(3))
+                .UseCursor(false)
+                .Match("{x:2}");
+
+            var options = fluent.Options;
 
             var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await _subject.AggregateAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await fluent.ToAsyncEnumerable();
 
             // we haven't executed the operation yet.
             _operationExecutor.QueuedCallCount.Should().Be(0);
@@ -90,10 +92,47 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<AggregateOperation<BsonDocument>>();
             var operation = (AggregateOperation<BsonDocument>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.AllowDiskUse.Should().Be(model.AllowDiskUse);
-            operation.BatchSize.Should().Be(model.BatchSize);
-            operation.MaxTime.Should().Be(model.MaxTime);
-            operation.UseCursor.Should().Be(model.UseCursor);
+            operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
+            operation.BatchSize.Should().Be(options.BatchSize);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.UseCursor.Should().Be(options.UseCursor);
+
+            operation.Pipeline.Should().ContainInOrder(pipeline);
+        }
+
+        [Test]
+        public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
+        {
+            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
+            var options = new AggregateOptions<BsonDocument>()
+            {
+                AllowDiskUse = true,
+                BatchSize = 10,
+                MaxTime = TimeSpan.FromSeconds(3),
+                Pipeline = pipeline,
+                UseCursor = false
+            };
+
+            var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(fakeCursor);
+
+            var result = await _subject.AggregateAsync(options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            // we haven't executed the operation yet.
+            _operationExecutor.QueuedCallCount.Should().Be(0);
+
+            // this causes execution of the operation
+            await result.GetAsyncEnumerator().MoveNextAsync();
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+
+            call.Operation.Should().BeOfType<AggregateOperation<BsonDocument>>();
+            var operation = (AggregateOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
+            operation.BatchSize.Should().Be(options.BatchSize);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.UseCursor.Should().Be(options.UseCursor);
 
             operation.Pipeline.Should().ContainInOrder(pipeline);
         }
@@ -102,15 +141,16 @@ namespace MongoDB.Driver
         public async Task AggregateAsync_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified()
         {
             var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}"), BsonDocument.Parse("{$out: \"funny\"}") };
-            var model = new AggregateModel<BsonDocument>(pipeline)
+            var options = new AggregateOptions<BsonDocument>()
             {
                 AllowDiskUse = true,
                 BatchSize = 10,
                 MaxTime = TimeSpan.FromSeconds(3),
+                Pipeline = pipeline,
                 UseCursor = false
             };
 
-            var result = await _subject.AggregateAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await _subject.AggregateAsync(options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             _operationExecutor.QueuedCallCount.Should().Be(1);
             var writeCall = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -118,8 +158,8 @@ namespace MongoDB.Driver
             writeCall.Operation.Should().BeOfType<AggregateToCollectionOperation>();
             var writeOperation = (AggregateToCollectionOperation)writeCall.Operation;
             writeOperation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            writeOperation.AllowDiskUse.Should().Be(model.AllowDiskUse);
-            writeOperation.MaxTime.Should().Be(model.MaxTime);
+            writeOperation.AllowDiskUse.Should().Be(options.AllowDiskUse);
+            writeOperation.MaxTime.Should().Be(options.MaxTime);
             writeOperation.Pipeline.Should().BeEquivalentTo(pipeline);
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
@@ -134,11 +174,11 @@ namespace MongoDB.Driver
             var operation = (FindOperation<BsonDocument>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.funny");
             operation.AwaitData.Should().BeTrue();
-            operation.BatchSize.Should().Be(model.BatchSize);
+            operation.BatchSize.Should().Be(options.BatchSize);
             operation.Comment.Should().BeNull();
             operation.Criteria.Should().BeNull();
             operation.Limit.Should().Be(null);
-            operation.MaxTime.Should().Be(model.MaxTime);
+            operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().BeNull();
             operation.NoCursorTimeout.Should().BeFalse();
             operation.Partial.Should().BeFalse();

@@ -152,8 +152,7 @@ namespace MongoDB.Driver
         /// <returns>The fluent interface.</returns>
         public FindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection)
         {
-            var resultSerializer = _collection.Settings.SerializerRegistry.GetSerializer<TNewResult>();
-            return Projection(projection, resultSerializer);
+            return Projection<TNewResult>(projection, null);
         }
 
         /// <summary>
@@ -175,7 +174,7 @@ namespace MongoDB.Driver
             newFluent._options.NoCursorTimeout = _options.NoCursorTimeout;
             newFluent._options.Partial = _options.Partial;
             newFluent._options.Projection = projection;
-            newFluent._options.ResultSerializer = resultSerializer;
+            newFluent._options.ResultSerializer = resultSerializer ?? _collection.Settings.SerializerRegistry.GetSerializer<TNewResult>();
             newFluent._options.Skip = _options.Skip;
             newFluent._options.Sort = _options.Sort;
             newFluent._options.Tailable = _options.Tailable;

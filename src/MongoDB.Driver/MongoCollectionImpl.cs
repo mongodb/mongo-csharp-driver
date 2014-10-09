@@ -69,7 +69,12 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public async Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(AggregateModel<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public AggregateFluent<TDocument, TDocument> Aggregate()
+        {
+            return new AggregateFluent<TDocument, TDocument>(this, ConvertToBsonDocument);
+        }
+
+        public async Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(AggregateOptions<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(model, "model");
 
@@ -493,7 +498,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private AggregateOperation<TResult> CreateAggregateOperation<TResult>(AggregateModel<TResult> model, List<BsonDocument> pipeline)
+        private AggregateOperation<TResult> CreateAggregateOperation<TResult>(AggregateOptions<TResult> model, List<BsonDocument> pipeline)
         {
             var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
 

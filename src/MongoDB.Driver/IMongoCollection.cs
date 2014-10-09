@@ -41,6 +41,12 @@ namespace MongoDB.Driver
         MongoCollectionSettings Settings { get; }
 
         /// <summary>
+        /// Begins an aggregation pipeline.
+        /// </summary>
+        /// <returns></returns>
+        AggregateFluent<TDocument, TDocument> Aggregate();
+
+        /// <summary>
         /// Runs an aggregation pipeline asynchronously.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
@@ -48,7 +54,7 @@ namespace MongoDB.Driver
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(AggregateModel<TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(AggregateOptions<TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Performs multiple write operations at the same time.
