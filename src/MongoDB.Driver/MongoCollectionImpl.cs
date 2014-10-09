@@ -137,102 +137,73 @@ namespace MongoDB.Driver
             }
         }
 
-        public Task<long> CountAsync(CountModel model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<long> CountAsync(object criteria, CountOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
-
-            var operation = CreateCountOperation(model);
-
-            return ExecuteReadOperation(operation, timeout, cancellationToken);
-        }
-
-
-        public async Task<DeleteResult> DeleteManyAsync(DeleteManyModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(model, "model");
-
-            try
+            Ensure.IsNotNull(criteria, "criteria");
+            options = options ?? new CountOptions();
+            var operation = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
-                return DeleteResult.FromCore(result);
-            }
-            catch (BulkWriteException<TDocument> ex)
-            {
-                throw WriteException.FromBulkWriteException(ex);
-            }
-        }
-
-        public async Task<DeleteResult> DeleteOneAsync(DeleteOneModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(model, "model");
-
-            try
-            {
-                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
-                return DeleteResult.FromCore(result);
-            }
-            catch (BulkWriteException<TDocument> ex)
-            {
-                throw WriteException.FromBulkWriteException(ex);
-            }
-        }
-
-        public Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(DistinctModel<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(model, "model");
-
-            var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
-            var operation = new DistinctOperation<TResult>(
-                _collectionNamespace,
-                resultSerializer,
-                model.FieldName,
-                _messageEncoderSettings)
-            {
-                Criteria = ConvertToBsonDocument(model.Criteria),
-                MaxTime = model.MaxTime
+                Criteria = ConvertToBsonDocument(criteria),
+                Hint = options.Hint is string ? BsonValue.Create((string)options.Hint) : ConvertToBsonDocument(options.Hint),
+                Limit = options.Limit,
+                MaxTime = options.MaxTime,
+                Skip = options.Skip
             };
 
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
-        public Task<BsonDocument> ExplainAsync(ExplainModel model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<DeleteResult> DeleteManyAsync(object criteria, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            Ensure.IsNotNull(criteria, "criteria");
 
-            var commandType = model.Command.GetType();
-            if (commandType == typeof(CountModel))
+            var model = new DeleteManyModel<TDocument>(ConvertToBsonDocument(criteria));
+            try
             {
-                return ExplainCountAsync((CountModel)model.Command, model.Verbosity, timeout, cancellationToken);
+                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
+                return DeleteResult.FromCore(result);
             }
-
-            if (commandType.IsGenericType)
+            catch (BulkWriteException<TDocument> ex)
             {
-                var genericCommandDefinition = commandType.GetGenericTypeDefinition();
-                var genericArgument = commandType.GetGenericArguments()[0];
-                if (genericCommandDefinition == typeof(AggregateModel<>))
-                {
-                    var explainAggregateMethod =
-                        typeof(MongoCollectionImpl<TDocument>)
-                        .GetMethod("ExplainAggregateAsync", BindingFlags.Instance | BindingFlags.NonPublic)
-                        .MakeGenericMethod(genericArgument);
-
-                    return (Task<BsonDocument>)explainAggregateMethod.Invoke(this, new object[] { model.Command, model.Verbosity, timeout, cancellationToken });
-                }
-                if (genericCommandDefinition == typeof(FindModel<>))
-                {
-                    var explainFindMethod =
-                        typeof(MongoCollectionImpl<TDocument>)
-                        .GetMethod("ExplainFindAsync", BindingFlags.Instance | BindingFlags.NonPublic)
-                        .MakeGenericMethod(genericArgument);
-
-                    return (Task<BsonDocument>)explainFindMethod.Invoke(this, new object[] { model.Command, model.Verbosity, timeout, cancellationToken });
-                }
+                throw WriteException.FromBulkWriteException(ex);
             }
+        }
 
-            var message = string.Format("No explanation for {0} is defined.", model.Command.GetType().ToString());
-            throw new ArgumentException(message, "model.Command");
+        public async Task<DeleteResult> DeleteOneAsync(object criteria, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(criteria, "criteria");
+
+            var model = new DeleteOneModel<TDocument>(ConvertToBsonDocument(criteria));
+            try
+            {
+                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
+                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
+                return DeleteResult.FromCore(result);
+            }
+            catch (BulkWriteException<TDocument> ex)
+            {
+                throw WriteException.FromBulkWriteException(ex);
+            }
+        }
+
+        public Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, DistinctOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(fieldName, "fieldName");
+
+            options = options ?? new DistinctOptions<TResult>();
+            var resultSerializer = options.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
+            var operation = new DistinctOperation<TResult>(
+                _collectionNamespace,
+                resultSerializer,
+                fieldName,
+                _messageEncoderSettings)
+            {
+                Criteria = ConvertToBsonDocument(options.Criteria),
+                MaxTime = options.MaxTime
+            };
+
+            return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
         public Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindModel<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
@@ -246,70 +217,78 @@ namespace MongoDB.Driver
                 model.Limit));
         }
 
-        public Task<TResult> FindOneAndDeleteAsync<TResult>(FindOneAndDeleteModel model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<TResult> FindOneAndDeleteAsync<TResult>(object criteria, FindOneAndDeleteOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            Ensure.IsNotNull(criteria, "criteria");
 
+            options = options ?? new FindOneAndDeleteOptions<TResult>();
+            var resultSerializer = options.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
             var operation = new FindOneAndDeleteOperation<TResult>(
                 _collectionNamespace,
-                ConvertToBsonDocument(model.Criteria),
-                new FindAndModifyValueDeserializer<TResult>(_settings.SerializerRegistry.GetSerializer<TResult>()),
+                ConvertToBsonDocument(criteria),
+                new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
             {
-                MaxTime = model.MaxTime,
-                Projection = ConvertToBsonDocument(model.Projection),
-                Sort = ConvertToBsonDocument(model.Sort)
+                MaxTime = options.MaxTime,
+                Projection = ConvertToBsonDocument(options.Projection),
+                Sort = ConvertToBsonDocument(options.Sort)
             };
 
             return ExecuteWriteOperation(operation, timeout, cancellationToken);
         }
 
-        public Task<TResult> FindOneAndReplaceAsync<TResult>(FindOneAndReplaceModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<TResult> FindOneAndReplaceAsync<TResult>(object criteria, TDocument replacement, FindOneAndReplaceOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            Ensure.IsNotNull(criteria, "criteria");
+            // how to check replacement - it could be a struct
 
+            options = options ?? new FindOneAndReplaceOptions<TResult>();
+            var resultSerializer = options.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
             var operation = new FindOneAndReplaceOperation<TResult>(
                 _collectionNamespace,
-                ConvertToBsonDocument(model.Criteria),
-                ConvertToBsonDocument(model.Replacement),
-                new FindAndModifyValueDeserializer<TResult>(_settings.SerializerRegistry.GetSerializer<TResult>()),
+                ConvertToBsonDocument(criteria),
+                ConvertToBsonDocument(replacement),
+                new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
             {
-                IsUpsert = model.IsUpsert,
-                MaxTime = model.MaxTime,
-                Projection = ConvertToBsonDocument(model.Projection),
-                ReturnOriginal = model.ReturnOriginal,
-                Sort = ConvertToBsonDocument(model.Sort)
+                IsUpsert = options.IsUpsert,
+                MaxTime = options.MaxTime,
+                Projection = ConvertToBsonDocument(options.Projection),
+                ReturnOriginal = options.ReturnOriginal,
+                Sort = ConvertToBsonDocument(options.Sort)
             };
 
             return ExecuteWriteOperation(operation, timeout, cancellationToken);
         }
 
-        public Task<TResult> FindOneAndUpdateAsync<TResult>(FindOneAndUpdateModel model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<TResult> FindOneAndUpdateAsync<TResult>(object criteria, object update, FindOneAndUpdateOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            Ensure.IsNotNull(criteria, "criteria");
+            Ensure.IsNotNull(update, "update");
 
+            options = options ?? new FindOneAndUpdateOptions<TResult>();
             var operation = new FindOneAndUpdateOperation<TResult>(
                 _collectionNamespace,
-                ConvertToBsonDocument(model.Criteria),
-                ConvertToBsonDocument(model.Update),
+                ConvertToBsonDocument(criteria),
+                ConvertToBsonDocument(update),
                 new FindAndModifyValueDeserializer<TResult>(_settings.SerializerRegistry.GetSerializer<TResult>()),
                 _messageEncoderSettings)
             {
-                IsUpsert = model.IsUpsert,
-                MaxTime = model.MaxTime,
-                Projection = ConvertToBsonDocument(model.Projection),
-                ReturnOriginal = model.ReturnOriginal,
-                Sort = ConvertToBsonDocument(model.Sort)
+                IsUpsert = options.IsUpsert,
+                MaxTime = options.MaxTime,
+                Projection = ConvertToBsonDocument(options.Projection),
+                ReturnOriginal = options.ReturnOriginal,
+                Sort = ConvertToBsonDocument(options.Sort)
             };
 
             return ExecuteWriteOperation(operation, timeout, cancellationToken);
         }
 
-        public async Task InsertOneAsync(InsertOneModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task InsertOneAsync(TDocument document, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            // how to check replacement - it could be a struct
 
+            var model = new InsertOneModel<TDocument>(document);
             try
             {
                 var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
@@ -321,10 +300,16 @@ namespace MongoDB.Driver
             }
         }
 
-        public async Task<ReplaceOneResult> ReplaceOneAsync(ReplaceOneModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<ReplaceOneResult> ReplaceOneAsync(object criteria, TDocument replacement, UpdateOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            Ensure.IsNotNull(criteria, "criteria");
+            // how to validate replacement - it might be a struct
 
+            options = options ?? new UpdateOptions();
+            var model = new ReplaceOneModel<TDocument>(criteria, replacement)
+            {
+                IsUpsert = options.IsUpsert
+            };
             try
             {
                 var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
@@ -337,10 +322,16 @@ namespace MongoDB.Driver
             }
         }
 
-        public async Task<UpdateResult> UpdateManyAsync(UpdateManyModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<UpdateResult> UpdateManyAsync(object criteria, object update, UpdateOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            Ensure.IsNotNull(criteria, "criteria");
+            Ensure.IsNotNull(update, "update");
 
+            options = options ?? new UpdateOptions();
+            var model = new UpdateManyModel<TDocument>(criteria, update)
+            {
+                IsUpsert = options.IsUpsert
+            };
             try
             {
                 var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
@@ -353,9 +344,16 @@ namespace MongoDB.Driver
             }
         }
 
-        public async Task<UpdateResult> UpdateOneAsync(UpdateOneModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<UpdateResult> UpdateOneAsync(object criteria, object update, UpdateOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            Ensure.IsNotNull(criteria, "criteria");
+            Ensure.IsNotNull(update, "update");
+
+            options = options ?? new UpdateOptions();
+            var model = new UpdateOneModel<TDocument>(criteria, update)
+            {
+                IsUpsert = options.IsUpsert
+            };
 
             try
             {
@@ -506,20 +504,6 @@ namespace MongoDB.Driver
             };
         }
 
-        private CountOperation CreateCountOperation(CountModel model)
-        {
-            return new CountOperation(
-                _collectionNamespace,
-                _messageEncoderSettings)
-            {
-                Criteria = ConvertToBsonDocument(model.Criteria),
-                Hint = model.Hint is string ? BsonValue.Create((string)model.Hint) : ConvertToBsonDocument(model.Hint),
-                Limit = model.Limit,
-                MaxTime = model.MaxTime,
-                Skip = model.Skip
-            };
-        }
-
         private FindOperation<TResult> CreateFindOperation<TResult>(FindModel<TResult> model)
         {
             var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
@@ -543,28 +527,6 @@ namespace MongoDB.Driver
                 Sort = ConvertToBsonDocument(model.Sort),
                 Tailable = model.Tailable
             };
-        }
-
-        private Task<BsonDocument> ExplainAggregateAsync<TResult>(AggregateModel<TResult> model, ExplainVerbosity verbosity, TimeSpan? timeout, CancellationToken cancellationToken)
-        {
-            var pipeline = model.Pipeline.Select(x => ConvertToBsonDocument(x)).ToList();
-            var aggregateOperation = CreateAggregateOperation<TResult>(model, pipeline);
-            var explainOperation = aggregateOperation.ToExplainOperation(verbosity.ToCore());
-            return ExecuteReadOperation(explainOperation, timeout, cancellationToken);
-        }
-
-        private Task<BsonDocument> ExplainCountAsync(CountModel model, ExplainVerbosity verbosity, TimeSpan? timeout, CancellationToken cancellationToken)
-        {
-            var countOperation = CreateCountOperation(model);
-            var explainOperation = countOperation.ToExplainOperation(verbosity.ToCore());
-            return ExecuteReadOperation(explainOperation, timeout, cancellationToken);
-        }
-
-        private Task<BsonDocument> ExplainFindAsync<TResult>(FindModel<TResult> model, ExplainVerbosity verbosity, TimeSpan? timeout, CancellationToken cancellationToken)
-        {
-            var findOperation = CreateFindOperation<TResult>(model);
-            var explainOperation = findOperation.ToExplainOperation(verbosity.ToCore());
-            return ExecuteReadOperation(explainOperation, timeout, cancellationToken);
         }
     }
 }

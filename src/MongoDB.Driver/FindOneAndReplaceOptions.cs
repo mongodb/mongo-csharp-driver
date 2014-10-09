@@ -17,47 +17,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Model for a findAndModify command to replace an object.
+    /// Options for a findAndModify command to replace an object.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class FindOneAndReplaceModel<TDocument>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    public class FindOneAndReplaceOptions<TResult>
     {
         // fields
-        private readonly object _criteria;
         private bool _isUpsert;
         private TimeSpan? _maxTime;
         private object _projection;
-        private readonly TDocument _replacement;
+        private IBsonSerializer<TResult> _resultSerializer;
         private bool _returnOriginal;
         private object _sort;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindOneAndReplaceModel{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="FindOneAndReplaceOptions{TDocument}"/> class.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
-        /// <param name="replacement">The replacement.</param>
-        public FindOneAndReplaceModel(object criteria, TDocument replacement)
+        public FindOneAndReplaceOptions()
         {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
-            _replacement = replacement;
             _returnOriginal = true;
         }
 
         // properties
-        /// <summary>
-        /// Gets the criteria.
-        /// </summary>
-        public object Criteria
-        {
-            get { return _criteria; }
-        }
-
         /// <summary>
         /// Gets or sets a value indicating whether [is upsert].
         /// </summary>
@@ -89,11 +77,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the replacement.
+        /// Gets or sets the result serializer.
         /// </summary>
-        public TDocument Replacement
+        public IBsonSerializer<TResult> ResultSerializer
         {
-            get { return _replacement; }
+            get { return _resultSerializer; }
+            set { _resultSerializer = value; }
         }
 
         /// <summary>

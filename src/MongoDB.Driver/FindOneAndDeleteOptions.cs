@@ -23,35 +23,17 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Model for a findAndModify command to delete an object.
+    /// Options for a findAndModify command to delete an object.
     /// </summary>
-    public class FindOneAndDeleteModel
+    public class FindOneAndDeleteOptions<TResult>
     {
         // fields
-        private readonly object _criteria;
         private TimeSpan? _maxTime;
         private object _projection;
+        private IBsonSerializer<TResult> _resultSerializer;
         private object _sort;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FindOneAndDeleteModel"/> class.
-        /// </summary>
-        /// <param name="criteria">The criteria.</param>
-        public FindOneAndDeleteModel(object criteria)
-        {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
-        }
-
         // properties
-        /// <summary>
-        /// Gets the criteria.
-        /// </summary>
-        public object Criteria
-        {
-            get { return _criteria; }
-        }
-
         /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>
@@ -68,6 +50,15 @@ namespace MongoDB.Driver
         {
             get { return _projection; }
             set { _projection = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the result serializer.
+        /// </summary>
+        public IBsonSerializer<TResult> ResultSerializer
+        {
+            get { return _resultSerializer; }
+            set { _resultSerializer = value; }
         }
 
         /// <summary>

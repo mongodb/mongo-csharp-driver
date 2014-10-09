@@ -23,27 +23,15 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Model for the distinct command.
+    /// Options for the distinct command.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class DistinctModel<TResult> : IExplainableModel
+    public sealed class DistinctOptions<TResult>
     {
         // fields
-        private readonly string _fieldName;
         private object _criteria;
         private TimeSpan? _maxTime;
         private IBsonSerializer<TResult> _resultSerializer;
-
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DistinctModel{TResult}"/> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        public DistinctModel(string fieldName)
-        {
-            // technically, I think we can have empty field names...
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
-        }
 
         // properties
         /// <summary>
@@ -54,13 +42,6 @@ namespace MongoDB.Driver
             get { return _criteria; }
             set { _criteria = value; }
 
-        }
-        /// <summary>
-        /// Gets the name of the field.
-        /// </summary>
-        public string FieldName
-        {
-            get { return _fieldName; }
         }
 
         /// <summary>

@@ -101,7 +101,7 @@ namespace MongoDB.Driver
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified()
         {
-            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}"), BsonDocument.Parse("{$out: \"funny\"}" )};
+            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}"), BsonDocument.Parse("{$out: \"funny\"}") };
             var model = new AggregateModel<BsonDocument>(pipeline)
             {
                 AllowDiskUse = true,
@@ -280,26 +280,26 @@ namespace MongoDB.Driver
         [Test]
         public async Task CountAsync_should_execute_the_CountOperation()
         {
-            var model = new CountModel
+            var criteria = new BsonDocument("x", 1);
+            var options = new CountOptions
             {
-                Criteria = new BsonDocument("x", 1),
                 Hint = "funny",
                 Limit = 10,
                 MaxTime = TimeSpan.FromSeconds(20),
                 Skip = 30
             };
-            await _subject.CountAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.CountAsync(criteria, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<long>();
 
             call.Operation.Should().BeOfType<CountOperation>();
             var operation = (CountOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.Criteria.Should().Be((BsonDocument)model.Criteria);
-            operation.Hint.Should().Be((string)model.Hint);
-            operation.Limit.Should().Be(model.Limit);
-            operation.MaxTime.Should().Be(model.MaxTime);
-            operation.Skip.Should().Be(model.Skip);
+            operation.Criteria.Should().Be(criteria);
+            operation.Hint.Should().Be((string)options.Hint);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.Skip.Should().Be(options.Skip);
         }
 
         [Test]
@@ -311,7 +311,7 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             await _subject.DeleteManyAsync(
-                new DeleteManyModel<BsonDocument>(criteria),
+                criteria,
                 Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
@@ -341,7 +341,7 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             Action act = () => _subject.DeleteManyAsync(
-                    new DeleteManyModel<BsonDocument>(criteria),
+                    criteria,
                     Timeout.InfiniteTimeSpan,
                     CancellationToken.None).GetAwaiter().GetResult();
 
@@ -357,7 +357,7 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             await _subject.DeleteOneAsync(
-                new DeleteOneModel<BsonDocument>(criteria),
+                criteria,
                 Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
@@ -387,7 +387,7 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             Action act = () => _subject.DeleteOneAsync(
-                    new DeleteOneModel<BsonDocument>(criteria),
+                    criteria,
                     Timeout.InfiniteTimeSpan,
                     CancellationToken.None).GetAwaiter().GetResult();
 
@@ -397,96 +397,24 @@ namespace MongoDB.Driver
         [Test]
         public async Task DistinctAsync_should_execute_the_DistinctOperation()
         {
+            var fieldName = "a.b";
             var criteria = new BsonDocument("x", 1);
-            var model = new DistinctModel<int>("a.b")
+            var options = new DistinctOptions<int>()
             {
                 Criteria = criteria,
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
-            await _subject.DistinctAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.DistinctAsync("a.b", options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IReadOnlyList<int>>();
 
             call.Operation.Should().BeOfType<DistinctOperation<int>>();
             var operation = (DistinctOperation<int>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.FieldName.Should().Be("a.b");
+            operation.FieldName.Should().Be(fieldName);
             operation.Criteria.Should().Be(criteria);
-            operation.MaxTime.Should().Be(model.MaxTime);
-        }
-
-        [Test]
-        public async Task ExplainAsync_for_aggregate_should_execute_an_AggregateExplainOperation()
-        {
-            var pipeline = new[] { BsonDocument.Parse("{ $skip: 10 }") };
-            var aggregateModel = new AggregateModel<BsonDocument>(pipeline);
-
-            var model = new ExplainModel(aggregateModel)
-            {
-                Verbosity = ExplainVerbosity.ExecutionStats
-            };
-
-            await _subject.ExplainAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
-
-            var call = _operationExecutor.GetReadCall<BsonDocument>();
-
-            call.Operation.Should().BeOfType<AggregateExplainOperation>();
-            var operation = (AggregateExplainOperation)call.Operation;
-
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.Pipeline.Should().BeEquivalentTo(pipeline);
-            operation.AllowDiskUse.Should().Be(aggregateModel.AllowDiskUse);
-            operation.MaxTime.Should().Be(aggregateModel.MaxTime);
-        }
-
-        [Test]
-        public async Task ExplainAsync_for_count_should_execute_an_ExplainOperation()
-        {
-            var countModel = new CountModel
-            {
-                Criteria = new BsonDocument("x", 1),
-                Hint = "funny",
-                Limit = 10,
-                MaxTime = TimeSpan.FromSeconds(20),
-                Skip = 30
-            };
-
-            var model = new ExplainModel(countModel)
-            {
-                Verbosity = ExplainVerbosity.ExecutionStats
-            };
-
-            await _subject.ExplainAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
-
-            var call = _operationExecutor.GetReadCall<BsonDocument>();
-
-            call.Operation.Should().BeOfType<ExplainOperation>();
-            var operation = (ExplainOperation)call.Operation;
-
-            operation.DatabaseNamespace.DatabaseName.Should().Be("foo");
-            operation.Command.Should().NotBeNull();
-            operation.Verbosity.Should().Be(model.Verbosity.ToCore());
-        }
-
-        [Test]
-        public async Task ExplainAsync_for_find_should_execute_a_read_operation()
-        {
-            var findModel = new FindModel<BsonDocument>
-            {
-                Skip = 20
-            };
-
-            var model = new ExplainModel(findModel)
-            {
-                Verbosity = ExplainVerbosity.ExecutionStats
-            };
-
-            await _subject.ExplainAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
-
-            var call = _operationExecutor.GetReadCall<BsonDocument>();
-
-            call.Operation.Should().BeAssignableTo<IReadOperation<BsonDocument>>();
+            operation.MaxTime.Should().Be(options.MaxTime);
         }
 
         [Test]
@@ -549,14 +477,14 @@ namespace MongoDB.Driver
             var criteria = BsonDocument.Parse("{x: 1}");
             var projection = BsonDocument.Parse("{x: 1}");
             var sort = BsonDocument.Parse("{a: -1}");
-            var model = new FindOneAndDeleteModel(criteria)
+            var options = new FindOneAndDeleteOptions<BsonDocument>()
             {
                 Projection = projection,
                 Sort = sort,
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndDeleteAsync<BsonDocument>(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.FindOneAndDeleteAsync<BsonDocument>(criteria, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -566,7 +494,7 @@ namespace MongoDB.Driver
             operation.Criteria.Should().Be(criteria);
             operation.Projection.Should().Be(projection);
             operation.Sort.Should().Be(sort);
-            operation.MaxTime.Should().Be(model.MaxTime);
+            operation.MaxTime.Should().Be(options.MaxTime);
         }
 
         [Test]
@@ -580,7 +508,7 @@ namespace MongoDB.Driver
             var replacement = BsonDocument.Parse("{a: 2}");
             var projection = BsonDocument.Parse("{x: 1}");
             var sort = BsonDocument.Parse("{a: -1}");
-            var model = new FindOneAndReplaceModel<BsonDocument>(criteria, replacement)
+            var options = new FindOneAndReplaceOptions<BsonDocument>()
             {
                 IsUpsert = isUpsert,
                 Projection = projection,
@@ -589,7 +517,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndReplaceAsync<BsonDocument>(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.FindOneAndReplaceAsync<BsonDocument>(criteria, replacement, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -602,7 +530,7 @@ namespace MongoDB.Driver
             operation.ReturnOriginal.Should().Be(returnOriginal);
             operation.Projection.Should().Be(projection);
             operation.Sort.Should().Be(sort);
-            operation.MaxTime.Should().Be(model.MaxTime);
+            operation.MaxTime.Should().Be(options.MaxTime);
         }
 
         [Test]
@@ -616,7 +544,7 @@ namespace MongoDB.Driver
             var update = BsonDocument.Parse("{$set: {a: 2}}");
             var projection = BsonDocument.Parse("{x: 1}");
             var sort = BsonDocument.Parse("{a: -1}");
-            var model = new FindOneAndUpdateModel(criteria, update)
+            var options = new FindOneAndUpdateOptions<BsonDocument>()
             {
                 IsUpsert = isUpsert,
                 Projection = projection,
@@ -625,7 +553,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndUpdateAsync<BsonDocument>(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.FindOneAndUpdateAsync<BsonDocument>(criteria, update, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -638,7 +566,7 @@ namespace MongoDB.Driver
             operation.ReturnOriginal.Should().Be(returnOriginal);
             operation.Projection.Should().Be(projection);
             operation.Sort.Should().Be(sort);
-            operation.MaxTime.Should().Be(model.MaxTime);
+            operation.MaxTime.Should().Be(options.MaxTime);
         }
 
         [Test]
@@ -650,7 +578,7 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             await _subject.InsertOneAsync(
-                new InsertOneModel<BsonDocument>(document),
+                document,
                 Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
@@ -680,7 +608,7 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             Action act = () => _subject.InsertOneAsync(
-                    new InsertOneModel<BsonDocument>(document),
+                    document,
                     Timeout.InfiniteTimeSpan,
                     CancellationToken.None).GetAwaiter().GetResult();
 
@@ -699,7 +627,9 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             await _subject.ReplaceOneAsync(
-                new ReplaceOneModel<BsonDocument>(criteria, replacement) { IsUpsert = upsert },
+                criteria,
+                replacement,
+                new UpdateOptions { IsUpsert = upsert },
                 Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
@@ -731,9 +661,11 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             Action act = () => _subject.ReplaceOneAsync(
-                    new ReplaceOneModel<BsonDocument>(criteria, replacement) { IsUpsert = upsert },
-                    Timeout.InfiniteTimeSpan,
-                    CancellationToken.None).GetAwaiter().GetResult();
+                criteria,
+                replacement,
+                new UpdateOptions { IsUpsert = upsert },
+                Timeout.InfiniteTimeSpan,
+                CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<WriteException>();
         }
@@ -750,7 +682,9 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             await _subject.UpdateManyAsync(
-                new UpdateManyModel<BsonDocument>(criteria, update) { IsUpsert = upsert },
+                criteria,
+                update,
+                new UpdateOptions { IsUpsert = upsert },
                 Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
@@ -782,9 +716,11 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             Action act = () => _subject.UpdateManyAsync(
-                    new UpdateManyModel<BsonDocument>(criteria, update) { IsUpsert = upsert },
-                    Timeout.InfiniteTimeSpan,
-                    CancellationToken.None).GetAwaiter().GetResult();
+                criteria,
+                update,
+                new UpdateOptions { IsUpsert = upsert },
+                Timeout.InfiniteTimeSpan,
+                CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<WriteException>();
         }
@@ -801,7 +737,9 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             await _subject.UpdateOneAsync(
-                new UpdateOneModel<BsonDocument>(criteria, update) { IsUpsert = upsert },
+                criteria,
+                update,
+                new UpdateOptions { IsUpsert = upsert },
                 Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
@@ -833,9 +771,11 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
             Action act = () => _subject.UpdateOneAsync(
-                    new UpdateOneModel<BsonDocument>(criteria, update) { IsUpsert = upsert },
-                    Timeout.InfiniteTimeSpan,
-                    CancellationToken.None).GetAwaiter().GetResult();
+                criteria,
+                update,
+                new UpdateOptions { IsUpsert = upsert },
+                Timeout.InfiniteTimeSpan,
+                CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<WriteException>();
         }

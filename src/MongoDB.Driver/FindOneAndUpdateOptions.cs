@@ -17,46 +17,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Model for a findAndModify command to update an object.
+    /// Options for a findAndModify command to update an object.
     /// </summary>
-    public class FindOneAndUpdateModel
+    public class FindOneAndUpdateOptions<TResult>
     {
         // fields
-        private readonly object _criteria;
         private bool _isUpsert;
         private TimeSpan? _maxTime;
         private object _projection;
+        private IBsonSerializer<TResult> _resultSerializer;
         private bool _returnOriginal;
         private object _sort;
-        private object _update;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindOneAndUpdateModel"/> class.
+        /// Initializes a new instance of the <see cref="FindOneAndUpdateOptions{TResult}"/> class.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
-        /// <param name="update">The update.</param>
-        public FindOneAndUpdateModel(object criteria, object update)
+        public FindOneAndUpdateOptions()
         {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
-            _update = Ensure.IsNotNull(update, "update");
             _returnOriginal = true;
         }
 
         // properties
-        /// <summary>
-        /// Gets the criteria.
-        /// </summary>
-        public object Criteria
-        {
-            get { return _criteria; }
-        }
-
         /// <summary>
         /// Gets or sets a value indicating whether [is upsert].
         /// </summary>
@@ -88,6 +76,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the result serializer.
+        /// </summary>
+        public IBsonSerializer<TResult> ResultSerializer
+        {
+            get { return _resultSerializer; }
+            set { _resultSerializer = value; }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether [return updated].
         /// </summary>
         /// <value>
@@ -106,14 +103,6 @@ namespace MongoDB.Driver
         {
             get { return _sort; }
             set { _sort = value; }
-        }
-
-        /// <summary>
-        /// Gets the update.
-        /// </summary>
-        public object Update
-        {
-            get { return _update; }
         }
     }
 }

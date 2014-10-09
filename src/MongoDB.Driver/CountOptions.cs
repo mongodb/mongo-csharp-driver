@@ -18,27 +18,17 @@ using System;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Model for the count command.
+    /// Options for the count command.
     /// </summary>
-    public sealed class CountModel : IExplainableModel
+    public sealed class CountOptions
     {
         // fields
-        private object _criteria;
         private object _hint;
         private long? _limit;
         private TimeSpan? _maxTime;
         private long? _skip;
 
         // properties
-        /// <summary>
-        /// Gets or sets the criteria.
-        /// </summary>
-        public object Criteria
-        {
-            get { return _criteria; }
-            set { _criteria = value; }
-        }
-
         /// <summary>
         /// Gets or sets the hint.
         /// </summary>

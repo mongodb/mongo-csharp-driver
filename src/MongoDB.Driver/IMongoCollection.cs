@@ -62,52 +62,49 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents in the collection.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The number of documents in the collection
         /// </returns>
-        Task<long> CountAsync(CountModel model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<long> CountAsync(object criteria = null, CountOptions options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes multiple documents.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="criteria">The criteria.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the delete operation.</returns>
-        Task<DeleteResult> DeleteManyAsync(DeleteManyModel<TDocument> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        Task<DeleteResult> DeleteManyAsync(object criteria, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes a single document.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="criteria">The criteria.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the delete operation.</returns>
-        Task<DeleteResult> DeleteOneAsync(DeleteOneModel<TDocument> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        Task<DeleteResult> DeleteOneAsync(object criteria, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Gets the distinct values for a specified field.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="model">The model.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(DistinctModel<TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Explains the asynchronous.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <param name="timeout">The timeout.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The results of the explanation.</returns>
-        Task<BsonDocument> ExplainAsync(ExplainModel model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, DistinctOptions<TResult> options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds the documents matching the model.
@@ -123,66 +120,91 @@ namespace MongoDB.Driver
         /// Finds a single document and deletes it atomically.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="model">The model.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The deleted document if one was deleted.</returns>
-        Task<TResult> FindOneAndDeleteAsync<TResult>(FindOneAndDeleteModel model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The deleted document if one was deleted.
+        /// </returns>
+        Task<TResult> FindOneAndDeleteAsync<TResult>(object criteria, FindOneAndDeleteOptions<TResult> options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and replaces it atomically.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="model">The model.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <param name="replacement">The replacement.</param>
+        /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the operation.</returns>
-        Task<TResult> FindOneAndReplaceAsync<TResult>(FindOneAndReplaceModel<TDocument> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The result of the operation.
+        /// </returns>
+        Task<TResult> FindOneAndReplaceAsync<TResult>(object criteria, TDocument replacement, FindOneAndReplaceOptions<TResult> options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and updates it atomically.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="model">The model.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The model.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the operation.</returns>
-        Task<TResult> FindOneAndUpdateAsync<TResult>(FindOneAndUpdateModel model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The result of the operation.
+        /// </returns>
+        Task<TResult> FindOneAndUpdateAsync<TResult>(object criteria, object update, FindOneAndUpdateOptions<TResult> options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts a single document.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="document">The document.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the insert operation.</returns>
-        Task InsertOneAsync(InsertOneModel<TDocument> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The result of the insert operation.
+        /// </returns>
+        Task InsertOneAsync(TDocument document, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <param name="replacement">The replacement.</param>
+        /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the replacement.</returns>
-        Task<ReplaceOneResult> ReplaceOneAsync(ReplaceOneModel<TDocument> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The result of the replacement.
+        /// </returns>
+        Task<ReplaceOneResult> ReplaceOneAsync(object criteria, TDocument replacement, UpdateOptions options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates many documents.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the update operation.</returns>
-        Task<UpdateResult> UpdateManyAsync(UpdateManyModel<TDocument> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The result of the update operation.
+        /// </returns>
+        Task<UpdateResult> UpdateManyAsync(object criteria, object update, UpdateOptions options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates a single document.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the update operation.</returns>
-        Task<UpdateResult> UpdateOneAsync(UpdateOneModel<TDocument> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The result of the update operation.
+        /// </returns>
+        Task<UpdateResult> UpdateOneAsync(object criteria, object update, UpdateOptions options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }
