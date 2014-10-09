@@ -206,7 +206,13 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
-        public Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindModel<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public FindFluent<TDocument, TDocument> Find(object criteria)
+        {
+            var find = new FindFluent<TDocument, TDocument>(this, criteria);
+            return find;
+        }
+
+        public Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindOptions<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(model, "model");
 
@@ -504,7 +510,7 @@ namespace MongoDB.Driver
             };
         }
 
-        private FindOperation<TResult> CreateFindOperation<TResult>(FindModel<TResult> model)
+        private FindOperation<TResult> CreateFindOperation<TResult>(FindOptions<TResult> model)
         {
             var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
 

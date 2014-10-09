@@ -11,7 +11,7 @@ namespace MongoDB.Driver
     /// Model for running an aggregation pipeline.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class AggregateModel<TResult> : IExplainableModel
+    public class AggregateModel<TResult>
     {
         // fields
         private bool? _allowDiskUse;

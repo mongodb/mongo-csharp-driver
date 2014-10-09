@@ -97,9 +97,9 @@
     <Compile Include="CountOptions.cs" />
     <Compile Include="AsyncCursorAsyncEnumerable.cs" />
     <Compile Include="DistinctOptions.cs" />
-    <Compile Include="ExplainModel.cs" />
     <Compile Include="ExplainVerbosity.cs" />
-    <Compile Include="FindModel.cs" />
+    <Compile Include="FindFluent.cs" />
+    <Compile Include="FindOptions.cs" />
     <Compile Include="FindOneAndDeleteOptions.cs" />
     <Compile Include="FindOneAndReplaceOptions.cs" />
     <Compile Include="FindOneAndUpdateOptions.cs" />
@@ -107,7 +107,6 @@
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonObjectSerializerHelper.cs" />
     <Compile Include="IAsyncEnumerable.cs" />
     <Compile Include="IAsyncEnumerator.cs" />
-    <Compile Include="IExplainableModel.cs" />
     <Compile Include="IMongoClient.cs" />
     <Compile Include="IMongoCollection.cs" />
     <Compile Include="IMongoDatabase.cs" />

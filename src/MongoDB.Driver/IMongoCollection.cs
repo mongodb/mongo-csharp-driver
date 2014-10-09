@@ -107,14 +107,23 @@ namespace MongoDB.Driver
         Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, DistinctOptions<TResult> options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Begins a fluent find interface.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>A fluent interface.</returns>
+        FindFluent<TDocument, TDocument> Find(object criteria);
+
+        /// <summary>
         /// Finds the documents matching the model.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="model">The model.</param>
+        /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The results of the query.</returns>
-        Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindModel<TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The results of the query.
+        /// </returns>
+        Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindOptions<TResult> options, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.

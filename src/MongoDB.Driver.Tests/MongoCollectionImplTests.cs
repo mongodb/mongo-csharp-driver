@@ -423,7 +423,7 @@ namespace MongoDB.Driver
             var criteria = BsonDocument.Parse("{x:1}");
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var model = new FindModel<BsonDocument>
+            var options = new FindOptions<BsonDocument>
             {
                 AwaitData = false,
                 BatchSize = 20,
@@ -443,7 +443,7 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await _subject.FindAsync(model, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await _subject.FindAsync(options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             // we haven't executed the operation yet.
             _operationExecutor.QueuedCallCount.Should().Be(0);
@@ -456,19 +456,71 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
             var operation = (FindOperation<BsonDocument>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.AwaitData.Should().Be(model.AwaitData);
-            operation.BatchSize.Should().Be(model.BatchSize);
+            operation.AwaitData.Should().Be(options.AwaitData);
+            operation.BatchSize.Should().Be(options.BatchSize);
             operation.Comment.Should().Be("funny");
             operation.Criteria.Should().Be(criteria);
-            operation.Limit.Should().Be(model.Limit);
-            operation.MaxTime.Should().Be(model.MaxTime);
-            operation.Modifiers.Should().Be(model.Modifiers);
-            operation.NoCursorTimeout.Should().Be(model.NoCursorTimeout);
-            operation.Partial.Should().Be(model.Partial);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.Modifiers.Should().Be(options.Modifiers);
+            operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+            operation.Partial.Should().Be(options.Partial);
             operation.Projection.Should().Be(projection);
-            operation.Skip.Should().Be(model.Skip);
+            operation.Skip.Should().Be(options.Skip);
             operation.Sort.Should().Be(sort);
-            operation.Tailable.Should().Be(model.Tailable);
+            operation.Tailable.Should().Be(options.Tailable);
+        }
+
+        [Test]
+        public async Task Find_should_execute_the_FindOperation()
+        {
+            var criteria = BsonDocument.Parse("{x:1}");
+            var projection = BsonDocument.Parse("{y:1}");
+            var sort = BsonDocument.Parse("{a:1}");
+            var fluent = _subject.Find(criteria)
+                .Projection<BsonDocument>(projection)
+                .Sort(sort)
+                .AwaitData(false)
+                .BatchSize(20)
+                .Comment("funny")
+                .Limit(30)
+                .MaxTime(TimeSpan.FromSeconds(3))
+                .Modifiers(BsonDocument.Parse("{$snapshot: true}"))
+                .NoCursorTimeout(true)
+                .Partial(true)
+                .Skip(40)
+                .Tailable(true);
+            var options = fluent.Options;
+
+            var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(fakeCursor);
+
+            var result = await fluent.ToAsyncEnumerable(Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            // we haven't executed the operation yet.
+            _operationExecutor.QueuedCallCount.Should().Be(0);
+
+            // this causes execution of the operation
+            await result.GetAsyncEnumerator().MoveNextAsync();
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+
+            call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
+            var operation = (FindOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.AwaitData.Should().Be(options.AwaitData);
+            operation.BatchSize.Should().Be(options.BatchSize);
+            operation.Comment.Should().Be("funny");
+            operation.Criteria.Should().Be(criteria);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.Modifiers.Should().Be(options.Modifiers);
+            operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+            operation.Partial.Should().Be(options.Partial);
+            operation.Projection.Should().Be(projection);
+            operation.Skip.Should().Be(options.Skip);
+            operation.Sort.Should().Be(sort);
+            operation.Tailable.Should().Be(options.Tailable);
         }
 
         [Test]

@@ -9,10 +9,10 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Model for finding documents.
+    /// Options for finding documents.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindModel<TResult> : IExplainableModel
+    public class FindOptions<TResult>
     {
         // fields
         private bool _awaitData;
@@ -32,9 +32,9 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindModel{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="FindOptions{TResult}"/> class.
         /// </summary>
-        public FindModel()
+        public FindOptions()
         {
             _awaitData = true;
         }

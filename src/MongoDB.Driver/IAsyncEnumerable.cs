@@ -13,6 +13,11 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -26,5 +31,33 @@ namespace MongoDB.Driver
         /// </summary>
         /// <returns></returns>
         IAsyncEnumerator<T> GetAsyncEnumerator();
+    }
+
+    /// <summary>
+    /// Extensions for <see cref="IAsyncEnumerable{T}"/>.
+    /// </summary>
+    public static class IAsyncEnumerableExtensions
+    {
+        /// <summary>
+        /// Creates a list asynchronousnly.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="asyncEnumerable">The asynchronous enumerable.</param>
+        /// <param name="timeout">The timeout.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A list.</returns>
+        public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> asyncEnumerable, TimeSpan? timeout, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(asyncEnumerable, "asyncEnumerable");
+
+            var slidingTimeout = new SlidingTimeout(timeout ?? Timeout.InfiniteTimeSpan);
+            var asyncEnumerator = asyncEnumerable.GetAsyncEnumerator();
+            var list = new List<T>();
+            while(await asyncEnumerator.MoveNextAsync(slidingTimeout, cancellationToken))
+            {
+                list.Add(asyncEnumerator.Current);
+            }
+            return list;
+        }
     }
 }
