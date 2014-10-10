@@ -88,10 +88,7 @@ namespace MongoDB.Driver.Core.Operations
                 var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
                 var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
                 await dropCollectionOperation.ExecuteAsync(binding);
-
-                Func<Task> action = async () => { await subject.ExecuteAsync(binding); };
-
-                action.ShouldNotThrow();
+                await subject.ExecuteAsync(binding); // this will throw if we have a problem...
             }
         }
 

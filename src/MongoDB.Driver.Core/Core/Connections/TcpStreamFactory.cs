@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             var addressFamily = endPoint.AddressFamily;
-            if(addressFamily == AddressFamily.Unspecified || addressFamily == AddressFamily.Unknown)
+            if (addressFamily == AddressFamily.Unspecified || addressFamily == AddressFamily.Unknown)
             {
                 addressFamily = _settings.AddressFamily;
             }
@@ -85,6 +85,13 @@ namespace MongoDB.Driver.Core.Connections
         private Task ConnectAsync(Socket socket, EndPoint endPoint, TimeSpan timeout, CancellationToken cancellationToken)
         {
             // TODO: handle timeout and cancellation token
+            var dnsEndPoint = endPoint as DnsEndPoint;
+            if (dnsEndPoint != null)
+            {
+                // mono doesn't support DnsEndPoint in it's BeginConnect method.
+                return Task.Factory.FromAsync(socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null), socket.EndConnect);
+            }
+
             return Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect);
         }
     }
