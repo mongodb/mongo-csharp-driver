@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         public void TestExampleFromSpecWithHoles()
         {
             var polygon = GeoJson.Polygon(
-                GeoJson.PolygonCoordinates(
+                GeoJson.PolygonCoordinates<GeoJson2DCoordinates>(
                     // exterior
                     GeoJson.LinearRingCoordinates(
                         GeoJson.Position(100.0, 0.0),
