@@ -26,9 +26,8 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private BsonDocument _additionalOptions;
         private bool? _background;
-        private bool? _dropDups;
         private string _indexName;
-        private BsonDocument _keys;
+        private readonly BsonDocument _keys;
         private bool? _sparse;
         private TimeSpan? _timeToLive;
         private bool? _unique;
@@ -53,22 +52,15 @@ namespace MongoDB.Driver.Core.Operations
             set { _background = value; }
         }
 
-        public bool? DropDups
-        {
-            get { return _dropDups; }
-            set { _dropDups = value; }
-        }
-
         public string IndexName
         {
             get { return _indexName; }
-            set { _indexName = Ensure.IsNotNullOrEmpty(value, "value"); }
+            set { _indexName = value; }
         }
 
         public BsonDocument Keys
         {
             get { return _keys; }
-            set { _keys = Ensure.IsNotNull(value, "value"); }
         }
 
         public bool? Sparse
@@ -99,7 +91,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "key", _keys },
                 { "name", name },
                 { "background", () => _background.Value, _background.HasValue },
-                { "dropDups", () => _dropDups.Value, _dropDups.HasValue },
                 { "sparse", () => _sparse.Value, _sparse.HasValue },
                 { "unique", () => _unique.Value, _unique.HasValue },
                 { "expireAfterSeconds", () => _timeToLive.Value.TotalSeconds, _timeToLive.HasValue },
