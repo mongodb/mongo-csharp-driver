@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         protected override BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
         {
-            var isSystemIndexesCollection = CollectionNamespace.CollectionName == "system.indexes";
+            var isSystemIndexesCollection = CollectionNamespace.Equals(CollectionNamespace.DatabaseNamespace.SystemIndexesCollection);
             var elementNameValidator = isSystemIndexesCollection ? (IElementNameValidator)NoOpElementNameValidator.Instance : CollectionElementNameValidator.Instance;
             return new InsertBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize, elementNameValidator);
         }
