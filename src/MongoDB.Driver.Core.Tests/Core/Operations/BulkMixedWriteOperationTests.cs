@@ -812,10 +812,8 @@ namespace MongoDB.Driver.Core.Operations
         public async Task ExecuteAsync_with_an_error_in_the_first_batch_and_ordered_is_true()
         {
             var keys = new BsonDocument("x", 1);
-            var createIndexOperation = new CreateIndexOperation(_collectionNamespace, keys, _messageEncoderSettings)
-            {
-                Unique = true
-            };
+            var createIndexRequests = new[] { new CreateIndexRequest(keys) { Unique = true } };
+            var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, createIndexRequests, _messageEncoderSettings);
             await ExecuteOperationAsync(createIndexOperation);
 
             var requests = new[]
