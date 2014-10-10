@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Operations
             CollectionNamespace collectionNamespace,
             BsonDocument keys,
             MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, CreateIndexOperation.GetDefaultIndexName(keys), messageEncoderSettings)
+            : this(collectionNamespace, CreateIndexesOperation.GetIndexName(keys), messageEncoderSettings)
         {
         }
 

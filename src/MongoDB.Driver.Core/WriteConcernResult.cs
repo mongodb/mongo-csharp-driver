@@ -44,7 +44,11 @@ namespace MongoDB.Driver
         /// </summary>
         public long DocumentsAffected
         {
-            get { return _response["n"].ToInt64(); }
+            get
+            {
+                BsonValue value;
+                return _response.TryGetValue("n", out value) ? value.ToInt64() : 0;
+            }
         }
 
         /// <summary>

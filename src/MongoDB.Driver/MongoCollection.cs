@@ -234,26 +234,19 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult.</returns>
         public virtual WriteConcernResult CreateIndex(IMongoIndexKeys keys, IMongoIndexOptions options)
         {
-            using (_database.RequestStart(ReadPreference.Primary))
+            try
             {
-                if (_server.RequestServerInstance.Supports(FeatureId.CreateIndexCommand))
-                {
-                    try
-                    {
-                        CreateIndexWithCommand(keys, options);
-                        var fakeResponse = new BsonDocument { { "ok", 1 }, { "n", 0 } };
-                        return new WriteConcernResult(fakeResponse);
-                    }
-                    catch (MongoCommandException ex)
-                    {
-                        var translatedResult = new WriteConcernResult(ex.Result);
-                        throw new WriteConcernException(ex.Message, translatedResult);
-                    }
-                }
-                else
-                {
-                    return CreateIndexWithInsert(keys, options);
-                }
+                var keysDocument = keys.ToBsonDocument();
+                var optionsDocument = options.ToBsonDocument();
+                var requests = new[] { new CreateIndexRequest(keysDocument) { AdditionalOptions = optionsDocument } };
+                var operation = new CreateIndexesOperation(_collectionNamespace, requests, GetMessageEncoderSettings());
+                ExecuteWriteOperation(operation);
+                return new WriteConcernResult(new BsonDocument("ok", 1));
+            }
+            catch (MongoCommandException ex)
+            {
+                var writeConcernResult = new WriteConcernResult(ex.Result);
+                throw new WriteConcernException(ex.Message, writeConcernResult);
             }
         }
 
@@ -382,7 +375,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndex(IMongoIndexKeys keys)
         {
-            string indexName = GetIndexName(keys.ToBsonDocument(), null);
+            string indexName = CreateIndexesOperation.GetIndexName(keys.ToBsonDocument());
             return DropIndexByName(indexName);
         }
 
@@ -393,7 +386,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndex(params string[] keyNames)
         {
-            string indexName = GetIndexName(keyNames);
+            string indexName = CreateIndexesOperation.GetIndexName(keyNames);
             return DropIndexByName(indexName);
         }
 
@@ -737,7 +730,7 @@ namespace MongoDB.Driver
             var fields = args.Fields == null ? null : args.Fields.ToBsonDocument();
             if (args.Hint != null)
             {
-                modifiers["$hint"] = CreateIndexOperation.GetDefaultIndexName(args.Hint);
+                modifiers["$hint"] = CreateIndexesOperation.GetIndexName(args.Hint);
             }
 
             var operation = new FindOperation<TDocument>(_collectionNamespace, serializer, messageEncoderSettings)
@@ -1266,7 +1259,7 @@ namespace MongoDB.Driver
         /// <returns>True if the index exists.</returns>
         public virtual bool IndexExists(IMongoIndexKeys keys)
         {
-            string indexName = GetIndexName(keys.ToBsonDocument(), null);
+            string indexName = CreateIndexesOperation.GetIndexName(keys.ToBsonDocument());
             return IndexExistsByName(indexName);
         }
 
@@ -1277,7 +1270,7 @@ namespace MongoDB.Driver
         /// <returns>True if the index exists.</returns>
         public virtual bool IndexExists(params string[] keyNames)
         {
-            string indexName = GetIndexName(keyNames);
+            string indexName = CreateIndexesOperation.GetIndexName(keyNames);
             return IndexExistsByName(indexName);
         }
 
@@ -2132,48 +2125,6 @@ namespace MongoDB.Driver
             }
         }
 
-        private BsonDocument CreateIndexDocument(IMongoIndexKeys keys, IMongoIndexOptions options)
-        {
-            var keysDocument = keys.ToBsonDocument();
-            var optionsDocument = options.ToBsonDocument();
-            var indexName = GetIndexName(keysDocument, optionsDocument);
-            var index = new BsonDocument
-            {
-                { "ns", FullName },
-                { "name", indexName },
-                { "key", keysDocument }
-            };
-            if (optionsDocument != null)
-            {
-                index.Merge(optionsDocument);
-            }
-
-            return index;
-        }
-
-        private CommandResult CreateIndexWithCommand(IMongoIndexKeys keys, IMongoIndexOptions options)
-        {
-            var command = new CommandDocument
-            {
-                { "createIndexes", Name },
-                { "indexes", new BsonArray { CreateIndexDocument(keys, options) } }
-            };
-
-            return RunCommandAs<CommandResult>(command);
-        }
-
-        private WriteConcernResult CreateIndexWithInsert(IMongoIndexKeys keys, IMongoIndexOptions options)
-        {
-            var index = CreateIndexDocument(keys, options);
-            var insertOptions = new MongoInsertOptions
-            {
-                WriteConcern = WriteConcern.Acknowledged
-            };
-            var indexes = _database.GetCollection("system.indexes");
-            var result = indexes.Insert(index, insertOptions);
-            return result;
-        }
-
         private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference = null)
         {
             readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
@@ -2199,55 +2150,6 @@ namespace MongoDB.Driver
         private MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query, IBsonSerializer serializer)
         {
             return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer);
-        }
-
-        private string GetIndexName(BsonDocument keys, BsonDocument options)
-        {
-            if (options != null)
-            {
-                if (options.Contains("name"))
-                {
-                    return options["name"].AsString;
-                }
-            }
-
-            StringBuilder sb = new StringBuilder();
-            foreach (var element in keys)
-            {
-                if (sb.Length > 0)
-                {
-                    sb.Append("_");
-                }
-                sb.Append(element.Name);
-                sb.Append("_");
-                var value = element.Value;
-                string valueString;
-                switch (value.BsonType)
-                {
-                    case BsonType.Int32: valueString = ((BsonInt32)value).Value.ToString(); break;
-                    case BsonType.Int64: valueString = ((BsonInt64)value).Value.ToString(); break;
-                    case BsonType.Double: valueString = ((BsonDouble)value).Value.ToString(); break;
-                    case BsonType.String: valueString = ((BsonString)value).Value; break;
-                    default: valueString = "x"; break;
-                }
-                sb.Append(valueString.Replace(' ', '_'));
-            }
-            return sb.ToString();
-        }
-
-        private string GetIndexName(string[] keyNames)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (string name in keyNames)
-            {
-                if (sb.Length > 0)
-                {
-                    sb.Append("_");
-                }
-                sb.Append(name);
-                sb.Append("_1");
-            }
-            return sb.ToString();
         }
 
 #pragma warning disable 618

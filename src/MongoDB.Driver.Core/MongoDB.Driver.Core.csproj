@@ -87,6 +87,7 @@
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperation.cs" />
     <Compile Include="Core\Operations\BulkWriteOperationException.cs" />
+    <Compile Include="Core\Operations\CreateIndexRequest.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\CollectionElementNameValidator.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\ElementNameValidatorFactory.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\UpdateElementNameValidator.cs" />
@@ -254,7 +255,7 @@
     <Compile Include="Core\Operations\CommandOperationBase.cs" />
     <Compile Include="Core\Operations\CountOperation.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperation.cs" />
-    <Compile Include="Core\Operations\CreateIndexOperation.cs" />
+    <Compile Include="Core\Operations\CreateIndexesOperation.cs" />
     <Compile Include="Core\Operations\AsyncCursor.cs" />
     <Compile Include="Core\Operations\DatabaseExistsOperation.cs" />
     <Compile Include="Core\Operations\DeleteOpcodeOperation.cs" />

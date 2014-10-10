@@ -61,7 +61,9 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         protected override BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
         {
-            return new InsertBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
+            var isSystemIndexesCollection = CollectionNamespace.CollectionName == "system.indexes";
+            var elementNameValidator = isSystemIndexesCollection ? (IElementNameValidator)NoOpElementNameValidator.Instance : CollectionElementNameValidator.Instance;
+            return new InsertBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize, elementNameValidator);
         }
 
         protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
@@ -81,11 +83,13 @@ namespace MongoDB.Driver.Core.Operations
             // fields
             private IBsonSerializer _cachedSerializer;
             private Type _cachedSerializerType;
+            private IElementNameValidator _elementNameValidator;
 
             // constructors
-            public InsertBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
+            public InsertBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize, IElementNameValidator elementNameValidator)
                 : base(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize)
             {
+                _elementNameValidator = elementNameValidator;
             }
 
             // methods
@@ -105,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 var bsonWriter = (BsonBinaryWriter)context.Writer;
                 bsonWriter.PushMaxDocumentSize(MaxDocumentSize);
-                bsonWriter.PushElementNameValidator(CollectionElementNameValidator.Instance);
+                bsonWriter.PushElementNameValidator(_elementNameValidator);
                 try
                 {
                     var documentNominalType = serializer.ValueType;
