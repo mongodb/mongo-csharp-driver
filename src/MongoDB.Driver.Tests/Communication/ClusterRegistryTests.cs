@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             {
                 CheckCertificateRevocation = true,
                 ClientCertificates = certificates,
-                EnabledSslProtocols = SslProtocols.Tls12
+                EnabledSslProtocols = SslProtocols.Ssl3
             };
 
             var clientSettings = new MongoClientSettings

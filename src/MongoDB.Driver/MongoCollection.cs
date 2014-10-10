@@ -1466,7 +1466,7 @@ namespace MongoDB.Driver
             WriteConcern writeConcern)
         {
             var options = new MongoInsertOptions { WriteConcern = writeConcern };
-            return InsertBatch(documents, writeConcern);
+            return InsertBatch(typeof(TNominalType), documents, options);
         }
 
         /// <summary>

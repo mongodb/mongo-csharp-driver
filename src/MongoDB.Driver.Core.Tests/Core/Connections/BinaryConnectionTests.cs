@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Core.Connections
             _streamFactory.CreateStreamAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None)
                 .ReturnsForAnyArgs(completionSource.Task);
 
-            var openTask = _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
             var openTask2 = _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             openTask2.IsCompleted.Should().BeFalse();

@@ -191,7 +191,6 @@ namespace MongoDB.Driver.Core.Clusters
             var clusterId = new ClusterId(1);
             var type = ClusterType.ReplicaSet;
             var servers = new[] { __serverDescription1, __serverDescription2 };
-            var replicaSetConfig = new ReplicaSetConfig(new[] { __endPoint1, __endPoint2 }, "name", __endPoint1, 1);
 
             switch (notEqualField)
             {

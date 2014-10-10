@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Tests
         {
             var operationExecutor = new MockOperationExecutor();
             var client = new MongoClient(operationExecutor);
-            var names = await client.GetDatabaseNamesAsync();
+            await client.GetDatabaseNamesAsync();
 
             var call = operationExecutor.GetReadCall<IReadOnlyList<string>>();
 

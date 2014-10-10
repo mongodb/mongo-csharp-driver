@@ -29,11 +29,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     public class UpdateMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<UpdateMessage>
     {
-        #region static
-        // static fields
-        private static readonly UTF8Encoding __strictEncoding = new UTF8Encoding(false, true);
-        #endregion
-
         // constructors
         public UpdateMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
@@ -60,11 +55,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var binaryReader = CreateBinaryReader();
             var streamReader = binaryReader.StreamReader;
 
-            var messageSize = streamReader.ReadInt32();
+            streamReader.ReadInt32(); // messageSize
             var requestId = streamReader.ReadInt32();
-            var responseTo = streamReader.ReadInt32();
-            var opcode = (Opcode)streamReader.ReadInt32();
-            var reserved = streamReader.ReadInt32();
+            streamReader.ReadInt32(); // responseTo
+            streamReader.ReadInt32(); // opcode
+            streamReader.ReadInt32(); // reserved
             var fullCollectionName = streamReader.ReadCString();
             var flags = (UpdateFlags)streamReader.ReadInt32();
             var context = BsonDeserializationContext.CreateRoot<BsonDocument>(binaryReader);

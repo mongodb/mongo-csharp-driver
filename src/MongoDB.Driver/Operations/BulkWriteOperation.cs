@@ -148,7 +148,7 @@ namespace MongoDB.Driver
                 });
             }
 
-            var operation = new BulkMixedWriteOperation(new CollectionNamespace(_collection.Database.Name, _collection.Name), _requests, messageEncoderSettings)
+            var operation = new BulkMixedWriteOperation(new CollectionNamespace(_collection.Database.Name, _collection.Name), requests, messageEncoderSettings)
             {
                 IsOrdered = _isOrdered,
                 WriteConcern = writeConcern

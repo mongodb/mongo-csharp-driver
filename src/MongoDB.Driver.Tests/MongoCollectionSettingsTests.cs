@@ -23,18 +23,6 @@ namespace MongoDB.Driver.Tests
     [TestFixture]
     public class MongoCollectionSettingsTests
     {
-        private MongoClient _client;
-        private MongoServer _server;
-        private MongoDatabase _database;
-
-        [TestFixtureSetUp()]
-        public void TestFixtureSetUp()
-        {
-            _client = new MongoClient();
-            _server = _client.GetServer();
-            _database = _server.GetDatabase("database");
-        }
-
         [Test]
         public void TestAll()
         {

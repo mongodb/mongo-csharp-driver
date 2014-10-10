@@ -43,7 +43,6 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ExponentiallyWeightedMovingAverage _averageRoundTripTimeCalculator = new ExponentiallyWeightedMovingAverage(0.2);
         private readonly ServerDescription _baseDescription;
         private IConnectionPool _connectionPool;
-        private readonly IConnectionPoolFactory _connectionPoolFactory;
         private ServerDescription _currentDescription;
         private readonly EndPoint _endPoint;
         private readonly CancellationTokenSource _heartbeatCancellationTokenSource = new CancellationTokenSource();
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Core.Servers
             _settings = Ensure.IsNotNull(settings, "settings"); ;
             Ensure.IsNotNull(clusterId, "clusterId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-            _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
+            Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
             _heartbeatConnectionFactory = Ensure.IsNotNull(hearbeatConnectionFactory, "hearbeatConnectionFactory");
             _listener = listener;
 

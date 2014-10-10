@@ -88,8 +88,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             var messageSize = streamReader.ReadInt32();
             var requestId = streamReader.ReadInt32();
-            var responseTo = streamReader.ReadInt32();
-            var opcode = (Opcode)streamReader.ReadInt32();
+            streamReader.ReadInt32(); // responseTo
+            streamReader.ReadInt32(); // opcode
             var flags = (InsertFlags)streamReader.ReadInt32();
             var fullCollectionName = streamReader.ReadCString();
             var documents = new List<TDocument>();

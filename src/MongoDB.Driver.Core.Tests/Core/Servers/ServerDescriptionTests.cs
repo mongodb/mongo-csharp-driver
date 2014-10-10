@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Core.Servers
         private static readonly ClusterId __clusterId;
         private static readonly DnsEndPoint __endPoint;
         private static readonly ServerId __serverId;
-        private static readonly ServerDescription __subject;
 
         // static constructor
         static ServerDescriptionTests()
@@ -41,14 +40,6 @@ namespace MongoDB.Driver.Core.Servers
             __clusterId = new ClusterId();
             __endPoint = new DnsEndPoint("localhost", 27017);
             __serverId = new ServerId(__clusterId, __endPoint);
-            __subject = new ServerDescription(
-                __serverId,
-                __endPoint,
-                state: ServerState.Connected,
-                type: ServerType.Standalone,
-                averageRoundTripTime: TimeSpan.FromSeconds(1),
-                version: new SemanticVersion(2, 6, 3),
-                wireVersionRange:  new Range<int>(0, 2));
         }
         #endregion
 

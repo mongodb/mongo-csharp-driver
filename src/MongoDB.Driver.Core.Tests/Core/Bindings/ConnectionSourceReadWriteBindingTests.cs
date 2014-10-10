@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Test]
         public void Constructor_should_not_fork_connectionSource()
         {
-            var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
+            new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
 
             _connectionSource.DidNotReceive().Fork();
         }

@@ -27,11 +27,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class BulkMixedWriteOperation : IWriteOperation<BulkWriteOperationResult>
     {
-        #region static
-        // static fields
-        private static readonly IReadOnlyList<WriteRequest> __noWriteRequests = new WriteRequest[0];
-        #endregion
-
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;

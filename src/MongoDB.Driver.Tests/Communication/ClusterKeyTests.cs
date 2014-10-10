@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             {
                 CheckCertificateRevocation = true,
                 ClientCertificates = certificates,
-                EnabledSslProtocols = SslProtocols.Tls12
+                EnabledSslProtocols = SslProtocols.Ssl3
             };
 
             var clientSettings = new MongoClientSettings
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             {
                 CheckCertificateRevocation = true,
                 ClientCertificates = certificates,
-                EnabledSslProtocols = SslProtocols.Tls12
+                EnabledSslProtocols = SslProtocols.Ssl3
             };
 
             var serverSettings = new MongoServerSettings
@@ -191,7 +191,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             {
                 CheckCertificateRevocation = true,
                 ClientCertificates = new[] { new X509Certificate() },
-                EnabledSslProtocols = SslProtocols.Tls12
+                EnabledSslProtocols = SslProtocols.Ssl3
             };
             var useSsl = false;
             var verifySslCertificate = false;

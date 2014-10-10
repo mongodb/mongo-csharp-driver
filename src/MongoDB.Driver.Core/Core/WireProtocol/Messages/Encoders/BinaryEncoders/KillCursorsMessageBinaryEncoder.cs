@@ -35,11 +35,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var binaryReader = CreateBinaryReader();
             var streamReader = binaryReader.StreamReader;
 
-            var messageSize = streamReader.ReadInt32();
+            streamReader.ReadInt32(); // messageSize
             var requestId = streamReader.ReadInt32();
-            var responseTo = streamReader.ReadInt32();
-            var opcode = (Opcode)streamReader.ReadInt32();
-            var reserved = streamReader.ReadInt32();
+            streamReader.ReadInt32(); // responseTo
+            streamReader.ReadInt32(); // opcode
+            streamReader.ReadInt32(); // reserved
             var count = streamReader.ReadInt32();
             var cursorIds = new long[count];
             for (var i = 0; i < count; i++)

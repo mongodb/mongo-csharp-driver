@@ -83,6 +83,10 @@ namespace MongoDB.Driver.Core.Bindings
             subject.Dispose();
 
             _connectionSource.DidNotReceive().Dispose();
+
+            forked.Dispose();
+
+            _connectionSource.Received().Dispose();
         }
 
         [Test]
@@ -95,6 +99,10 @@ namespace MongoDB.Driver.Core.Bindings
             forked.Dispose();
 
             _connectionSource.DidNotReceive().Dispose();
+
+            subject.Dispose();
+
+            _connectionSource.Received().Dispose();
         }
 
         [Test]
