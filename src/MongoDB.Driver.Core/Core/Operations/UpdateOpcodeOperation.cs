@@ -76,8 +76,6 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         private UpdateWireProtocol CreateProtocol()
         {
-            var updateValidator = new UpdateOrReplacementElementNameValidator();
-
             return new UpdateWireProtocol(
                 _collectionNamespace,
                 _messageEncoderSettings,

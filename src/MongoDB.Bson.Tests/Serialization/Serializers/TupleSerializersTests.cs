@@ -78,7 +78,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -178,7 +178,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -282,7 +282,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -293,7 +293,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -390,7 +390,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -401,7 +401,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -502,7 +502,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -513,7 +513,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -618,7 +618,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -629,7 +629,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -738,7 +738,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -749,7 +749,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -863,7 +863,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
@@ -874,7 +874,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var value = BsonSerializer.Deserialize<C>(json);
 
-            Assert.That(value, Is.EqualTo(value));
+            Assert.That(value, Is.EqualTo(expectedValue));
         }
 
         [Test]
