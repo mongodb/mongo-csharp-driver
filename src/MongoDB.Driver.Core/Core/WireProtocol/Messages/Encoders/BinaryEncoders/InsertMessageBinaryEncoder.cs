@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var documentSource = new BatchableSource<TDocument>(documents);
             var maxBatchCount = int.MaxValue;
             var maxMessageSize = int.MaxValue;
-            var continueOnError = flags.HasFlag(InsertFlags.ContinueOnError);
+            var continueOnError = (flags & InsertFlags.ContinueOnError) == InsertFlags.ContinueOnError;
 
             return new InsertMessage<TDocument>(
                 requestId,

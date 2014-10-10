@@ -66,8 +66,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var query = BsonDocumentSerializer.Instance.Deserialize(context);
             var update = BsonDocumentSerializer.Instance.Deserialize(context);
 
-            var isMulti = flags.HasFlag(UpdateFlags.Multi);
-            var isUpsert = flags.HasFlag(UpdateFlags.Upsert);
+            var isMulti = (flags & UpdateFlags.Multi) == UpdateFlags.Multi;
+            var isUpsert = (flags & UpdateFlags.Upsert) == UpdateFlags.Upsert;
 
             return new UpdateMessage(
                 requestId,
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         // nested types
         [Flags]
-        public enum UpdateFlags
+        private enum UpdateFlags
         {
             None = 0,
             Upsert = 1,

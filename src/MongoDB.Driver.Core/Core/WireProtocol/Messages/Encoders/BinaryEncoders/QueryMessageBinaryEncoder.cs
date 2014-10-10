@@ -80,11 +80,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 fields = BsonDocumentSerializer.Instance.Deserialize(context);
             }
 
-            var awaitData = flags.HasFlag(QueryFlags.AwaitData);
-            var slaveOk = flags.HasFlag(QueryFlags.SlaveOk);
-            var partialOk = flags.HasFlag(QueryFlags.Partial);
-            var noCursorTimeout = flags.HasFlag(QueryFlags.NoCursorTimeout);
-            var tailableCursor = flags.HasFlag(QueryFlags.TailableCursor);
+            var awaitData = (flags & QueryFlags.AwaitData) == QueryFlags.AwaitData;
+            var slaveOk = (flags & QueryFlags.SlaveOk) == QueryFlags.SlaveOk;
+            var partialOk = (flags & QueryFlags.Partial) == QueryFlags.Partial;
+            var noCursorTimeout = (flags & QueryFlags.NoCursorTimeout) == QueryFlags.NoCursorTimeout;
+            var tailableCursor = (flags & QueryFlags.TailableCursor) == QueryFlags.TailableCursor;
 
             return new QueryMessage(
                 requestId,

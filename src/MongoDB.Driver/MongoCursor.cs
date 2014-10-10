@@ -704,11 +704,11 @@ namespace MongoDB.Driver
             var queryDocument = Query == null ? new BsonDocument() : Query.ToBsonDocument();
             var messageEncoderSettings = Collection.GetMessageEncoderSettings();
 
-            var awaitData = Flags.HasFlag(QueryFlags.AwaitData);
-            var exhaust = Flags.HasFlag(QueryFlags.Exhaust);
-            var noCursorTimeout = Flags.HasFlag(QueryFlags.NoCursorTimeout);
-            var partialOk = Flags.HasFlag(QueryFlags.Partial);
-            var tailableCursor = Flags.HasFlag(QueryFlags.TailableCursor);
+            var awaitData = (Flags & QueryFlags.AwaitData) == QueryFlags.AwaitData;
+            var exhaust = (Flags & QueryFlags.Exhaust) == QueryFlags.Exhaust;
+            var noCursorTimeout = (Flags & QueryFlags.NoCursorTimeout) == QueryFlags.NoCursorTimeout;
+            var partialOk = (Flags & QueryFlags.Partial) == QueryFlags.Partial;
+            var tailableCursor = (Flags & QueryFlags.TailableCursor) == QueryFlags.TailableCursor;
 
             if (exhaust)
             {

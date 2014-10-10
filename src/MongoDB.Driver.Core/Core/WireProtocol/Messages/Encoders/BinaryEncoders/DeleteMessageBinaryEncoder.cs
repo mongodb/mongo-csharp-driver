@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var context = BsonDeserializationContext.CreateRoot<BsonDocument>(binaryReader);
             var query = BsonDocumentSerializer.Instance.Deserialize(context);
 
-            var isMulti = !flags.HasFlag(DeleteFlags.Single);
+            var isMulti = (flags & DeleteFlags.Single) != DeleteFlags.Single;
 
             return new DeleteMessage(
                 requestId,

@@ -56,9 +56,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             List<TDocument> documents = null;
             BsonDocument queryFailureDocument = null;
 
-            var awaitCapable = flags.HasFlag(ResponseFlags.AwaitCapable);
-            var cursorNotFound = flags.HasFlag(ResponseFlags.CursorNotFound);
-            var queryFailure = flags.HasFlag(ResponseFlags.QueryFailure);
+            var awaitCapable = (flags & ResponseFlags.AwaitCapable) == ResponseFlags.AwaitCapable;
+            var cursorNotFound = (flags & ResponseFlags.CursorNotFound) == ResponseFlags.CursorNotFound;
+            var queryFailure = (flags & ResponseFlags.QueryFailure) == ResponseFlags.QueryFailure;
 
             if (queryFailure)
             {
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         // nested types
         [Flags]
-        internal enum ResponseFlags
+        private enum ResponseFlags
         {
             None = 0,
             CursorNotFound = 1,

@@ -1441,7 +1441,7 @@ namespace MongoDB.Driver
                 var documentSource = new BatchableSource<TNominalType>(enumerator);
                 var serializer = BsonSerializer.LookupSerializer<TNominalType>();
                 var messageEncoderSettings = GetMessageEncoderSettings();
-                var continueOnError = options.Flags.HasFlag(InsertFlags.ContinueOnError);
+                var continueOnError = (options.Flags & InsertFlags.ContinueOnError) == InsertFlags.ContinueOnError;
                 var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
 
                 var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documentSource, serializer, messageEncoderSettings)
@@ -1763,7 +1763,7 @@ namespace MongoDB.Driver
         {
             var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var isMulti = !flags.HasFlag(RemoveFlags.Single);
+            var isMulti = (flags & RemoveFlags.Single) != RemoveFlags.Single;
             writeConcern = writeConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
             var request = new DeleteRequest(queryDocument) { Limit = isMulti ? 0 : 1 };
@@ -1976,8 +1976,8 @@ namespace MongoDB.Driver
             var queryDocument = query == null ? new BsonDocument() : query.ToBsonDocument();
             var updateDocument = update.ToBsonDocument();
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var isMulti = options.Flags.HasFlag(UpdateFlags.Multi);
-            var isUpsert = options.Flags.HasFlag(UpdateFlags.Upsert);
+            var isMulti = (options.Flags & UpdateFlags.Multi) == UpdateFlags.Multi;
+            var isUpsert = (options.Flags & UpdateFlags.Upsert) == UpdateFlags.Upsert;
             var writeConcern = options.WriteConcern ?? _settings.WriteConcern ?? WriteConcern.Acknowledged;
 
             var request = new UpdateRequest(UpdateType.Unknown, queryDocument, updateDocument)
