@@ -375,7 +375,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndex(IMongoIndexKeys keys)
         {
-            string indexName = CreateIndexesOperation.GetIndexName(keys.ToBsonDocument());
+            string indexName = IndexNameHelper.GetIndexName(keys.ToBsonDocument());
             return DropIndexByName(indexName);
         }
 
@@ -386,7 +386,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndex(params string[] keyNames)
         {
-            string indexName = CreateIndexesOperation.GetIndexName(keyNames);
+            string indexName = IndexNameHelper.GetIndexName(keyNames);
             return DropIndexByName(indexName);
         }
 
@@ -730,7 +730,7 @@ namespace MongoDB.Driver
             var fields = args.Fields == null ? null : args.Fields.ToBsonDocument();
             if (args.Hint != null)
             {
-                modifiers["$hint"] = CreateIndexesOperation.GetIndexName(args.Hint);
+                modifiers["$hint"] = IndexNameHelper.GetIndexName(args.Hint);
             }
 
             var operation = new FindOperation<TDocument>(_collectionNamespace, serializer, messageEncoderSettings)
@@ -1259,7 +1259,7 @@ namespace MongoDB.Driver
         /// <returns>True if the index exists.</returns>
         public virtual bool IndexExists(IMongoIndexKeys keys)
         {
-            string indexName = CreateIndexesOperation.GetIndexName(keys.ToBsonDocument());
+            string indexName = IndexNameHelper.GetIndexName(keys.ToBsonDocument());
             return IndexExistsByName(indexName);
         }
 
@@ -1270,7 +1270,7 @@ namespace MongoDB.Driver
         /// <returns>True if the index exists.</returns>
         public virtual bool IndexExists(params string[] keyNames)
         {
-            string indexName = CreateIndexesOperation.GetIndexName(keyNames);
+            string indexName = IndexNameHelper.GetIndexName(keyNames);
             return IndexExistsByName(indexName);
         }
 

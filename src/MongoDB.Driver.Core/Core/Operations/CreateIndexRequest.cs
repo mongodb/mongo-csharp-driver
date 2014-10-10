@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument CreateIndexDocument()
         {
             var additionalOptionsName = _additionalOptions == null ? null : _additionalOptions.GetValue("name", null);
-            var name = _indexName ?? additionalOptionsName ?? CreateIndexesOperation.GetIndexName(_keys);
+            var name = _indexName ?? additionalOptionsName ?? IndexNameHelper.GetIndexName(_keys);
             var document = new BsonDocument
             {
                 { "key", _keys },

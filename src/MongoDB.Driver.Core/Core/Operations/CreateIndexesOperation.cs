@@ -32,61 +32,6 @@ namespace MongoDB.Driver.Core.Operations
         #region static
         // static fields
         private static readonly SemanticVersion __serverVersionSupportingCreateIndexesCommand = new SemanticVersion(2, 7, 6);
-
-        // static methods
-        public static string GetIndexName(BsonDocument keys)
-        {
-            Ensure.IsNotNull(keys, "keys");
-            var sb = new StringBuilder();
-
-            foreach (var element in keys)
-            {
-                var value = element.Value;
-                string direction;
-                switch (value.BsonType)
-                {
-                    case BsonType.Double:
-                    case BsonType.Int32:
-                    case BsonType.Int64:
-                        direction = value.ToInt32().ToString();
-                        break;
-                    case BsonType.String:
-                        direction = value.ToString().Replace(' ', '_');
-                        break;
-                    default:
-                        direction = "x";
-                        break;
-                }
-
-                if (sb.Length > 0)
-                {
-                    sb.Append("_");
-                }
-                sb.Append(element.Name.Replace(' ', '_'));
-                sb.Append("_");
-                sb.Append(direction);
-            }
-
-            return sb.ToString();
-        }
-
-        public static string GetIndexName(string[] keyNames)
-        {
-            Ensure.IsNotNull(keyNames, "keyNames");
-            var sb = new StringBuilder();
-
-            foreach (var name in keyNames)
-            {
-                if (sb.Length > 0)
-                {
-                    sb.Append("_");
-                }
-                sb.Append(name.Replace(' ', '_'));
-                sb.Append("_1");
-            }
-
-            return sb.ToString();
-        }
         #endregion
 
         // fields

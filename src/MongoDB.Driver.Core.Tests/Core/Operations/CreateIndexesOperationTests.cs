@@ -190,38 +190,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void GetIndexName_with_BsonDocument_should_return_expected_result()
-        {
-            var keys = new BsonDocument
-            {
-                { "a", new BsonDouble(1.0) },
-                { "b", new BsonInt32(1) },
-                { "c", new BsonInt64(1) },
-                { "d", new BsonDouble(-1.0) },
-                { "e", new BsonInt32(-1) },
-                { "f", new BsonInt64(-1) },
-                { "g g", "s s" },
-                { "h", false }
-            };
-            var expectedResult = "a_1_b_1_c_1_d_-1_e_-1_f_-1_g_g_s_s_h_x";
-
-            var result = CreateIndexesOperation.GetIndexName(keys);
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void GetIndexName_with_names_should_return_expected_result()
-        {
-            var keys = new[] { "a", "b", "c c" };
-            var expectedResult = "a_1_b_1_c_c_1";
-
-            var result = CreateIndexesOperation.GetIndexName(keys);
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
         public void MessageEncoderSettings_get_should_return_expected_value()
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };

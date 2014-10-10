@@ -101,6 +101,7 @@
     <Compile Include="Core\Operations\FindOneAndDeleteOperation.cs" />
     <Compile Include="Core\Operations\IAsyncCursor.cs" />
     <Compile Include="Core\Operations\ICommandOperation.cs" />
+    <Compile Include="Core\Operations\IndexNameHelper.cs" />
     <Compile Include="Core\Operations\ListIndexesOperation.cs" />
     <Compile Include="Core\Operations\PingOperation.cs" />
     <Compile Include="Core\Operations\QueryHelper.cs" />
