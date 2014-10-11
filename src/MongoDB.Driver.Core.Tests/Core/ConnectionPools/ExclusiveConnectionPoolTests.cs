@@ -260,7 +260,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _subject.Initialize();
 
             SpinWait.SpinUntil(
-                () => _subject.CreatedCount == _settings.MinConnections && _subject.AvailableCount == _settings.MaxConnections,
+                () => _subject.CreatedCount == _settings.MinConnections && 
+                    _subject.AvailableCount == _settings.MaxConnections &&
+                    _subject.DormantCount == _settings.MinConnections &&
+                    _subject.UsedCount == 0,
                 TimeSpan.FromSeconds(4));
 
             _subject.AvailableCount.Should().Be(_settings.MaxConnections);
