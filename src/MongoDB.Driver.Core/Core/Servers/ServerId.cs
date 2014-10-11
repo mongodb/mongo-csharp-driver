@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Servers
             }
             return
                 _clusterId.Equals(other._clusterId) &&
-                _endPoint.Equals(other._endPoint);
+                EndPointHelper.Equals(_endPoint, other._endPoint);
         }
 
         public override bool Equals(object obj)

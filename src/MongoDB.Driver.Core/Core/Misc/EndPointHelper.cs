@@ -25,9 +25,33 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    public static class EndPointParser
+    public static class EndPointHelper
     {
+        // static fields
+        private static IEqualityComparer<EndPoint> __endPointEqualityComparer = new EndPointEqualityComparerImpl();
+
+        // static properties
+        public static IEqualityComparer<EndPoint> EndPointEqualityComparer
+        {
+            get { return __endPointEqualityComparer; }
+        }
+
         // static methods
+        public static bool Contains(IEnumerable<EndPoint> endPoints, EndPoint endPoint)
+        {
+            return endPoints.Contains(endPoint, __endPointEqualityComparer);
+        }
+
+        public static bool Equals(EndPoint a, EndPoint b)
+        {
+            return __endPointEqualityComparer.Equals(a, b);
+        }
+
+        public static bool SequenceEquals(IEnumerable<EndPoint> a, IEnumerable<EndPoint> b)
+        {
+            return a.SequenceEqual(b, __endPointEqualityComparer);
+        }
+
         public static EndPoint Parse(string value)
         {
             Ensure.IsNotNull(value, "value");
@@ -94,5 +118,36 @@ namespace MongoDB.Driver.Core.Misc
 
             return false;
         }
+
+        // nested classes
+        private class EndPointEqualityComparerImpl : IEqualityComparer<EndPoint>
+        {
+            public bool Equals(EndPoint x, EndPoint y)
+            {
+                if (x == null && y == null)
+                {
+                    return true;
+                }
+                else if (x == null || y == null)
+                {
+                    return false;
+                }
+
+                // mono has a bug in DnsEndPoint.Equals, so if the types aren't
+                // equal, it will throw a null reference exception.
+                if (x.GetType() != y.GetType())
+                {
+                    return false;
+                }
+
+                return x.Equals(y);
+            }
+
+            public int GetHashCode(EndPoint obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+
     }
 }

@@ -23,12 +23,34 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Misc
 {
     [TestFixture]
-    public class EndPointParserTests
+    public class EndPointHelperTests
     {
+        [Test]
+        [TestCase("localhost:27017", "localhost:27017", true)]
+        [TestCase("localhost:27017", "localhost:27018", false)]
+        [TestCase("localhost:27018", "localhost:27017", false)]
+        [TestCase("127.0.0.1:27017", "localhost:27017", false)]
+        [TestCase("localhost:27017", "127.0.0.1:27017", false)]
+        [TestCase("127.0.0.1:27017", "127.0.0.1:27017", true)]
+        [TestCase("127.0.0.1:27017", "127.0.0.1:27018", false)]
+        [TestCase("127.0.0.1:27018", "127.0.0.1:27017", false)]
+        [TestCase(null, "localhost:27017", false)]
+        [TestCase("localhost:27017", null, false)]
+        [TestCase(null, null, true)]
+        public void Equals_should_return_true_when_endpoints_are_equal(string a, string b, bool expectedResult)
+        {
+            var endPoint1 = a == null ? null : EndPointHelper.Parse(a);
+            var endPoint2 = b == null ? null : EndPointHelper.Parse(b);
+
+            var result = EndPointHelper.Equals(endPoint1, endPoint2);
+
+            result.Should().Be(expectedResult);
+        }
+
         [Test]
         public void Parse_should_throw_an_ArgumentNullException_when_value_is_null()
         {
-            Action act = () => EndPointParser.Parse(null);
+            Action act = () => EndPointHelper.Parse(null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -40,7 +62,7 @@ namespace MongoDB.Driver.Core.Misc
         [TestCase(":21")]
         public void Parse_should_throw_an_ArgumentException_when_value_is_not_a_valid_end_point(string value)
         {
-            Action act = () => EndPointParser.Parse(value);
+            Action act = () => EndPointHelper.Parse(value);
 
             act.ShouldThrow<ArgumentException>();
         }
@@ -53,7 +75,7 @@ namespace MongoDB.Driver.Core.Misc
         public void TryParse_should_return_false_when_the_end_point_is_invalid(string value)
         {
             EndPoint result;
-            var success = EndPointParser.TryParse(value, out result);
+            var success = EndPointHelper.TryParse(value, out result);
 
             success.Should().BeFalse();
         }
@@ -68,7 +90,7 @@ namespace MongoDB.Driver.Core.Misc
         public void TryParse_should_parse_a_hostname(string value, string expectedHost, int expectedPort)
         {
             EndPoint result;
-            var success = EndPointParser.TryParse(value, out result);
+            var success = EndPointHelper.TryParse(value, out result);
 
             success.Should().BeTrue();
             result.Should().Be(new DnsEndPoint(expectedHost, expectedPort));
@@ -81,7 +103,7 @@ namespace MongoDB.Driver.Core.Misc
         public void TryParse_should_parse_an_ipv4_address(string value, string expectedAddress, int expectedPort)
         {
             EndPoint result;
-            var success = EndPointParser.TryParse(value, out result);
+            var success = EndPointHelper.TryParse(value, out result);
 
             success.Should().BeTrue();
             result.Should().Be(new IPEndPoint(IPAddress.Parse(expectedAddress), expectedPort));
@@ -94,7 +116,7 @@ namespace MongoDB.Driver.Core.Misc
         public void TryParse_should_parse_an_ipv6_address(string value, string expectedAddress, int expectedPort)
         {
             EndPoint result;
-            var success = EndPointParser.TryParse(value, out result);
+            var success = EndPointHelper.TryParse(value, out result);
 
             success.Should().BeTrue();
             result.Should().Be(new IPEndPoint(IPAddress.Parse(expectedAddress), expectedPort));

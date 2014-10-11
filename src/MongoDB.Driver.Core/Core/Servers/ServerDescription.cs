@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             Ensure.IsNotNull(endPoint, "endPoint");
             Ensure.IsNotNull(serverId, "serverId");
-            if (!endPoint.Equals(serverId.EndPoint))
+            if (!EndPointHelper.Equals(endPoint, serverId.EndPoint))
             {
                 throw new ArgumentException("EndPoint and ServerId.EndPoint must match.");
             }
@@ -165,10 +165,9 @@ namespace MongoDB.Driver.Core.Servers
                 return false;
             }
 
-            // revision is ignored
             return
                 _averageRoundTripTime == rhs._averageRoundTripTime &&
-                _endPoint.Equals(rhs._endPoint) &&
+                EndPointHelper.Equals(_endPoint, rhs._endPoint) &&
                 _maxBatchCount == rhs._maxBatchCount &&
                 _maxDocumentSize == rhs._maxDocumentSize &&
                 _maxMessageSize == rhs._maxMessageSize &&

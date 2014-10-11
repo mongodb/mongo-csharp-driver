@@ -26,6 +26,7 @@ using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.SyncExtensionMethods;
@@ -810,7 +811,7 @@ namespace MongoDB.Driver
         {
             lock (_serverLock)
             {
-                return _serverInstances.FirstOrDefault(i => i.EndPoint.Equals(endPoint));
+                return _serverInstances.FirstOrDefault(i => EndPointHelper.Equals(i.EndPoint, endPoint));
             }
         }
 
@@ -860,7 +861,7 @@ namespace MongoDB.Driver
 
             lock (_serverLock)
             {
-                _serverInstances.RemoveAll(instance => !endPoints.Contains(instance.EndPoint));
+                _serverInstances.RemoveAll(instance => !EndPointHelper.Contains(endPoints, instance.EndPoint));
                 var newEndPoints = endPoints.Where(endPoint => !_serverInstances.Any(i => i.EndPoint.Equals(endPoint))).ToList();
                 if (newEndPoints.Count > 0)
                 {
@@ -899,7 +900,7 @@ namespace MongoDB.Driver
             }
 
             var serverDescription = server.Description;
-            var serverInstance = _serverInstances.Single(i => i.EndPoint.Equals(serverDescription.EndPoint));
+            var serverInstance = _serverInstances.Single(i => EndPointHelper.Equals(i.EndPoint, serverDescription.EndPoint));
             __threadStaticRequest = new Request(serverDescription, serverInstance, connectionBinding);
 
             return new RequestStartResult(this);

@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Async
         public void Task_should_be_complete_after_the_delay_has_expired()
         {
             var subject = new InterruptibleDelay(TimeSpan.FromMilliseconds(10), CancellationToken.None);
-            subject.Task.Wait(TimeSpan.FromMilliseconds(100)).Should().BeTrue();
+            subject.Task.Wait(TimeSpan.FromSeconds(1)).Should().BeTrue();
         }
 
         [Test]

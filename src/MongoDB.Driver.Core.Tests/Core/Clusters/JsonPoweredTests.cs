@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Clusters
         private void ApplyResponse(BsonValue response)
         {
             var server = (string)response[0];
-            var endPoint = EndPointParser.Parse(server);
+            var endPoint = EndPointHelper.Parse(server);
             var isMasterResult = new IsMasterResult((BsonDocument)response[1]);
             var currentDescription = _serverFactory.GetServerDescription(endPoint);
             var description = currentDescription.With(
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var expectedServers = outcome["servers"].AsBsonDocument.Elements.Select(x => new
             {
-                EndPoint = EndPointParser.Parse(x.Name),
+                EndPoint = EndPointHelper.Parse(x.Name),
                 Description = (BsonDocument)x.Value
             });
 
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             foreach (var actualServer in description.Servers)
             {
-                var expectedServer = expectedServers.Single(x => x.EndPoint.Equals(actualServer.EndPoint));
+                var expectedServer = expectedServers.Single(x => EndPointHelper.Equals(x.EndPoint, actualServer.EndPoint));
                 VerifyServer(actualServer, expectedServer.Description);
             }
         }

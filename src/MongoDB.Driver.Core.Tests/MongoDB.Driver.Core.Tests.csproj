@@ -145,7 +145,7 @@
     <Compile Include="MongoQueryExceptionTests.cs" />
     <Compile Include="WriteProtocolExceptionTests.cs" />
     <Compile Include="Core\Misc\ConstantRandomStringGenerator.cs" />
-    <Compile Include="Core\Misc\EndPointParserTests.cs" />
+    <Compile Include="Core\Misc\EndPointHelperTests.cs" />
     <Compile Include="Core\Misc\ExponentiallyWeightedMovingAverageTests.cs" />
     <Compile Include="Core\Misc\FrozenClock.cs" />
     <Compile Include="Core\Misc\RangeTests.cs" />

@@ -372,7 +372,7 @@ namespace MongoDB.Driver.Core.Configuration
             foreach (Capture host in match.Groups["host"].Captures)
             {
                 EndPoint endPoint;
-                if (EndPointParser.TryParse(host.Value, out endPoint))
+                if (EndPointHelper.TryParse(host.Value, out endPoint))
                 {
                     endPoints.Add(endPoint);
                 }

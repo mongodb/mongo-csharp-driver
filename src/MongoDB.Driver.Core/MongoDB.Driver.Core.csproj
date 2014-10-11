@@ -235,7 +235,7 @@
     <Compile Include="MongoQueryException.cs" />
     <Compile Include="WriteConcernException.cs" />
     <Compile Include="WriteProtocolException.cs" />
-    <Compile Include="Core\Misc\EndPointParser.cs" />
+    <Compile Include="Core\Misc\EndPointHelper.cs" />
     <Compile Include="Core\Misc\Ensure.cs" />
     <Compile Include="Core\Misc\ExponentiallyWeightedMovingAverage.cs" />
     <Compile Include="Core\Misc\IRandomStringGenerator.cs" />

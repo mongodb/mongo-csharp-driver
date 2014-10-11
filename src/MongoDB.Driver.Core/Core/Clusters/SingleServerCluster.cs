@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected override bool TryGetServer(EndPoint endPoint, out IClusterableServer server)
         {
-            if (_server.EndPoint.Equals(endPoint))
+            if (EndPointHelper.Equals(_server.EndPoint, endPoint))
             {
                 server = _server;
                 return true;

@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Core.Clusters
             var currentServerDescription = args.OldServerDescription;
             var newServerDescription = args.NewServerDescription;
 
-            var currentServer = _servers.SingleOrDefault(x => x.EndPoint.Equals(newServerDescription.EndPoint));
+            var currentServer = _servers.SingleOrDefault(x => EndPointHelper.Equals(x.EndPoint, newServerDescription.EndPoint));
             if (currentServer == null)
             {
                 return;
@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 var currentPrimaryEndPoints = clusterDescription.Servers
                     .Where(x => x.Type == ServerType.ReplicaSetPrimary)
-                    .Where(x => !x.EndPoint.Equals(args.NewServerDescription.EndPoint))
+                    .Where(x => !EndPointHelper.Equals(x.EndPoint, args.NewServerDescription.EndPoint))
                     .Select(x => x.EndPoint)
                     .ToList();
 
@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     lock (_serversLock)
                     {
-                        var currentPrimaries = _servers.Where(x => currentPrimaryEndPoints.Contains(x.EndPoint));
+                        var currentPrimaries = _servers.Where(x => EndPointHelper.Contains(currentPrimaryEndPoints, x.EndPoint));
                         foreach (var currentPrimary in currentPrimaries)
                         {
                             // kick off the server to invalidate itself
@@ -290,7 +290,7 @@ namespace MongoDB.Driver.Core.Clusters
             Stopwatch stopwatch = new Stopwatch();
             lock (_serversLock)
             {
-                if (_servers.Any(n => n.EndPoint.Equals(endPoint)))
+                if (_servers.Any(n => EndPointHelper.Equals(n.EndPoint, endPoint)))
                 {
                     return clusterDescription;
                 }
@@ -332,7 +332,7 @@ namespace MongoDB.Driver.Core.Clusters
             if (serverDescription.Type == ServerType.ReplicaSetPrimary)
             {
                 var requiredEndPoints = serverDescription.ReplicaSetConfig.Members;
-                var extraEndPoints = clusterDescription.Servers.Where(x => !requiredEndPoints.Contains(x.EndPoint)).Select(x => x.EndPoint);
+                var extraEndPoints = clusterDescription.Servers.Where(x => !EndPointHelper.Contains(requiredEndPoints, x.EndPoint)).Select(x => x.EndPoint);
                 foreach (var endPoint in extraEndPoints)
                 {
                     clusterDescription = RemoveServer(clusterDescription, endPoint, "Server is not in the host list of the primary.");
@@ -347,7 +347,7 @@ namespace MongoDB.Driver.Core.Clusters
             IClusterableServer server;
             lock (_serversLock)
             {
-                server = _servers.SingleOrDefault(x => x.EndPoint.Equals(endPoint));
+                server = _servers.SingleOrDefault(x => EndPointHelper.Equals(x.EndPoint, endPoint));
                 if (server == null)
                 {
                     return clusterDescription;
@@ -378,7 +378,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             lock (_serversLock)
             {
-                server = _servers.FirstOrDefault(s => s.EndPoint.Equals(endPoint));
+                server = _servers.FirstOrDefault(s => EndPointHelper.Equals(s.EndPoint, endPoint));
                 return server != null;
             }
         }

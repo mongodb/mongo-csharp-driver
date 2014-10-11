@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Core.Configuration
         public ClusterSettings WithEndPoints(IEnumerable<EndPoint> value)
         {
             var list = value.ToList();
-            return _endPoints.SequenceEqual(list) ? this : new Builder(this) { _endPoints = list }.Build();
+            return EndPointHelper.SequenceEquals(_endPoints, list) ? this : new Builder(this) { _endPoints = list }.Build();
         }
 
         public ClusterSettings WithReplicaSetName(string value)

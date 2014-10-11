@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.Connections
                 return new EndPoint[0];
             }
 
-            return ((BsonArray)_wrapped[elementName]).Select(v => EndPointParser.Parse((string)v));
+            return ((BsonArray)_wrapped[elementName]).Select(v => EndPointHelper.Parse((string)v));
         }
 
         private EndPoint GetPrimary()
@@ -210,7 +210,7 @@ namespace MongoDB.Driver.Core.Connections
             if (_wrapped.TryGetValue("primary", out primary))
             {
                 // TODO: what does primary look like when there is no current primary (null, empty string)?
-                return EndPointParser.Parse((string)primary);
+                return EndPointHelper.Parse((string)primary);
             }
 
             return null;

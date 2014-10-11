@@ -22,6 +22,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.SyncExtensionMethods;
@@ -278,7 +279,7 @@ namespace MongoDB.Driver
         /// <returns>The server description.</returns>
         public ServerDescription GetServerDescription()
         {
-            var serverDescription = _cluster.Description.Servers.FirstOrDefault(s => s.EndPoint.Equals(_endPoint));
+            var serverDescription = _cluster.Description.Servers.FirstOrDefault(s => EndPointHelper.Equals(s.EndPoint, _endPoint));
             if (serverDescription == null)
             {
                 throw new InvalidOperationException(string.Format(

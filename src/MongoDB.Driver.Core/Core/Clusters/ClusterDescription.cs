@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Core.Clusters
             return new ClusterDescription(
                     _clusterId,
                     _type,
-                    _servers.Where(s => !s.EndPoint.Equals(endPoint)));
+                    _servers.Where(s => !EndPointHelper.Equals(s.EndPoint, endPoint)));
         }
 
         public ClusterDescription WithType(ClusterType value)
