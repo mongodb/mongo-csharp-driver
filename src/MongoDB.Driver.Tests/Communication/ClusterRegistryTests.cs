@@ -44,11 +44,9 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
             var servers = new[] { new MongoServerAddress("localhost") };
 
-            var certificates = new[] { new X509Certificate() };
             var sslSettings = new SslSettings
             {
                 CheckCertificateRevocation = true,
-                ClientCertificates = certificates,
                 EnabledSslProtocols = SslProtocols.Ssl3
             };
 
