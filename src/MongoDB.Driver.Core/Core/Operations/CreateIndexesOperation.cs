@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
                 document.InsertAt(0, new BsonElement("ns", _collectionNamespace.FullName));
                 var documentSource = new BatchableSource<BsonDocument>(new[] { document });
                 var operation = new InsertOpcodeOperation(systemIndexesCollection, documentSource, _messageEncoderSettings);
-                var result = await operation.ExecuteAsync(connectionSource, slidingTimeout, cancellationToken);
+                await operation.ExecuteAsync(connectionSource, slidingTimeout, cancellationToken);
             }
 
             return new BsonDocument("ok", 1);
