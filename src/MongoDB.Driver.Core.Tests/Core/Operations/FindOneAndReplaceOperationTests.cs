@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(
                 _collectionNamespace,
-                BsonDocument.Parse("{alkjasdf: 10}"),
+                BsonDocument.Parse("{_id: 10}"),
                 _replacement,
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
@@ -246,7 +246,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(
                 _collectionNamespace,
-                BsonDocument.Parse("{alkjasdf: 10}"),
+                BsonDocument.Parse("{_id: 10}"),
                 _replacement,
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
