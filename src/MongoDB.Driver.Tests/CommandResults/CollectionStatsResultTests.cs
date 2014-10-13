@@ -48,12 +48,6 @@ namespace MongoDB.Driver.Tests.CommandResults
             Assert.IsTrue(result.AverageObjectSize > 0.0);
             Assert.IsTrue(result.DataSize > 0);
             Assert.IsTrue(result.ExtentCount > 0);
-            if (_server.BuildInfo.Version != new Version(2, 7, 7))
-            {
-#pragma warning disable 618
-                Assert.AreEqual(1, result.Flags);
-#pragma warning restore
-            }
             Assert.IsTrue(result.IndexCount > 0);
             Assert.IsTrue(result.IndexSizes["_id_"] > 0);
             Assert.IsTrue(result.IndexSizes.ContainsKey("_id_"));
