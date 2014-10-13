@@ -49,11 +49,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             var binaryWriter = state.BinaryWriter;
 
-            IElementNameValidator elementNameValidator = CollectionElementNameValidator.Instance;
-            if (state.Message.CollectionNamespace.CollectionName == "system.indexes")
-            {
-                elementNameValidator = NoOpElementNameValidator.Instance;
-            }
+            var collectionNamespace = state.Message.CollectionNamespace;
+            var isSystemIndexesCollection = collectionNamespace.Equals(collectionNamespace.DatabaseNamespace.SystemIndexesCollection);
+            var elementNameValidator = isSystemIndexesCollection ? (IElementNameValidator)NoOpElementNameValidator.Instance : CollectionElementNameValidator.Instance;
 
             binaryWriter.PushElementNameValidator(elementNameValidator);
             try
