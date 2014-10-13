@@ -204,9 +204,10 @@ namespace MongoDB.Driver
         {
             if (args == null) { throw new ArgumentNullException("args"); }
 
+            var criteria = args.Query == null ? null : new BsonDocumentWrapper(args.Query);
             var operation = new CountOperation(_collectionNamespace, GetMessageEncoderSettings())
             {
-                Criteria = new BsonDocumentWrapper(args.Query),
+                Criteria = criteria,
                 Limit = args.Limit,
                 MaxTime = args.MaxTime,
                 Skip = args.Skip

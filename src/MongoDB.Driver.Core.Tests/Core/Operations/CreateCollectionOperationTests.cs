@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -242,9 +243,9 @@ namespace MongoDB.Driver.Core.Operations
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
-                var stats = await GetCollectionStatsAsync(binding);
-                stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
-                stats["systemFlags"].ToInt32().Should().Be(autoIndexId ? 1 : 0);
+                var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
+                var indexes = await listIndexesOperation.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                indexes.Count().Should().Be(autoIndexId ? 1 : 0);
             }
         }
 

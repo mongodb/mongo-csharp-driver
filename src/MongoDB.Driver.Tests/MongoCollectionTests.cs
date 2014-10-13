@@ -462,12 +462,12 @@ namespace MongoDB.Driver.Tests
             var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             var options = CollectionOptions.SetAutoIndexId(autoIndexId);
-            var expectedSystemFlags = autoIndexId ? CollectionSystemFlags.HasIdIndex : CollectionSystemFlags.None;
+            var expectedIndexCount = autoIndexId ? 1 : 0;
 
             _database.CreateCollection(collection.Name, options);
 
-            var stats = collection.GetStats();
-            Assert.That(stats.SystemFlags, Is.EqualTo(expectedSystemFlags));
+            var indexes = collection.GetIndexes();
+            Assert.That(indexes.Count, Is.EqualTo(expectedIndexCount));
         }
 
         [Test]
@@ -564,31 +564,35 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(_collection.FullName, indexes[1].Namespace);
             Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
 
-            _collection.DropAllIndexes();
-            var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
-            result = _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
+            // note: DropDups is silently ignored in server 2.8
+            if (_primary.BuildInfo.Version < new Version(2, 7, 0))
+            {
+                _collection.DropAllIndexes();
+                var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
+                result = _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
 
-            expectedResult = new ExpectedWriteConcernResult();
-            CheckExpectedResult(expectedResult, result);
+                expectedResult = new ExpectedWriteConcernResult();
+                CheckExpectedResult(expectedResult, result);
 
-            indexes = _collection.GetIndexes().OrderBy(x => x.Name).ToList();
-            Assert.AreEqual(2, indexes.Count);
-            Assert.AreEqual(false, indexes[0].DroppedDups);
-            Assert.AreEqual(false, indexes[0].IsBackground);
-            Assert.AreEqual(false, indexes[0].IsSparse);
-            Assert.AreEqual(false, indexes[0].IsUnique);
-            Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
-            Assert.AreEqual("_id_", indexes[0].Name);
-            Assert.AreEqual(_collection.FullName, indexes[0].Namespace);
-            Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
-            Assert.AreEqual(true, indexes[1].DroppedDups);
-            Assert.AreEqual(true, indexes[1].IsBackground);
-            Assert.AreEqual(true, indexes[1].IsSparse);
-            Assert.AreEqual(true, indexes[1].IsUnique);
-            Assert.AreEqual(new BsonDocument { { "x", 1 }, { "y", -1 } }, indexes[1].Key);
-            Assert.AreEqual("x_1_y_-1", indexes[1].Name);
-            Assert.AreEqual(_collection.FullName, indexes[1].Namespace);
-            Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
+                indexes = _collection.GetIndexes().OrderBy(x => x.Name).ToList();
+                Assert.AreEqual(2, indexes.Count);
+                Assert.AreEqual(false, indexes[0].DroppedDups);
+                Assert.AreEqual(false, indexes[0].IsBackground);
+                Assert.AreEqual(false, indexes[0].IsSparse);
+                Assert.AreEqual(false, indexes[0].IsUnique);
+                Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
+                Assert.AreEqual("_id_", indexes[0].Name);
+                Assert.AreEqual(_collection.FullName, indexes[0].Namespace);
+                Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
+                Assert.AreEqual(true, indexes[1].DroppedDups);
+                Assert.AreEqual(true, indexes[1].IsBackground);
+                Assert.AreEqual(true, indexes[1].IsSparse);
+                Assert.AreEqual(true, indexes[1].IsUnique);
+                Assert.AreEqual(new BsonDocument { { "x", 1 }, { "y", -1 } }, indexes[1].Key);
+                Assert.AreEqual("x_1_y_-1", indexes[1].Name);
+                Assert.AreEqual(_collection.FullName, indexes[1].Namespace);
+                Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
+            }
         }
 
         [Test]
@@ -1874,8 +1878,20 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(1, documents.Length);
                 Assert.AreEqual("abc", documents[0]["x"].AsString);
 
-                var explain = cursor.Explain();
-                Assert.AreEqual("BtreeCursor x_hashed", explain["cursor"].AsString);
+                var plan = cursor.Explain();
+                if (_server.BuildInfo.Version < new Version(2, 7, 0))
+                {
+                    Assert.AreEqual("BtreeCursor x_hashed", plan["cursor"].AsString);
+                }
+                else
+                {
+                    var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                    var inputStage = winningPlan["inputStage"]["inputStage"].AsBsonDocument; // not sure why there are two inputStages
+                    var stage = inputStage["stage"].AsString;
+                    var keyPattern = inputStage["keyPattern"].AsBsonDocument;
+                    Assert.That(stage, Is.EqualTo("IXSCAN"));
+                    Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ x : \"hashed\" }")));
+                }
             }
         }
 
