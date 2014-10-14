@@ -2131,7 +2131,7 @@ namespace MongoDB.Driver
             readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
             using (var binding = _server.GetReadBinding(readPreference))
             {
-                return operation.Execute(binding);
+                return operation.Execute(binding, _settings.OperationTimeout);
             }
         }
 
@@ -2139,7 +2139,7 @@ namespace MongoDB.Driver
         {
             using (var binding = _server.GetWriteBinding())
             {
-                return operation.Execute(binding);
+                return operation.Execute(binding, _settings.OperationTimeout);
             }
         }
 

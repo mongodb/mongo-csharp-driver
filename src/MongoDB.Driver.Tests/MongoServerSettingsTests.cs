@@ -111,6 +111,7 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
             Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.AreEqual(MongoDefaults.OperationTimeout, settings.OperationTimeout);
             Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreEqual(null, settings.ReplicaSetName);
             Assert.AreEqual(_localHost, settings.Server);
@@ -170,6 +171,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.MinConnectionPoolSize = settings.MinConnectionPoolSize + 1;
+            Assert.IsFalse(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.OperationTimeout = TimeSpan.FromMilliseconds(20);
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -420,6 +425,21 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(minConnectionPoolSize, settings.MinConnectionPoolSize);
             Assert.Throws<InvalidOperationException>(() => { settings.MinConnectionPoolSize = minConnectionPoolSize; });
+        }
+
+        [Test]
+        public void TestOperationTimeout()
+        {
+            var settings = new MongoServerSettings();
+            Assert.AreEqual(MongoDefaults.OperationTimeout, settings.OperationTimeout);
+
+            var operationTimeout = new TimeSpan(1, 2, 3);
+            settings.OperationTimeout = operationTimeout;
+            Assert.AreEqual(operationTimeout, settings.OperationTimeout);
+
+            settings.Freeze();
+            Assert.AreEqual(operationTimeout, settings.OperationTimeout);
+            Assert.Throws<InvalidOperationException>(() => { settings.OperationTimeout = operationTimeout; });
         }
 
         [Test]

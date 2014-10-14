@@ -1152,7 +1152,7 @@ namespace MongoDB.Driver
             {
                 var endPoint = connectionSource.ServerDescription.EndPoint;
                 serverInstance = _server.GetServerInstance(endPoint);
-                return operation.Execute(connectionSource, readPreference, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                return operation.Execute(connectionSource, readPreference, _settings.OperationTimeout, CancellationToken.None);
             }
         }
 
@@ -1169,7 +1169,7 @@ namespace MongoDB.Driver
             {
                 var endPoint = connectionSource.ServerDescription.EndPoint;
                 serverInstance = _server.GetServerInstance(endPoint);
-                return operation.Execute(connectionSource, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                return operation.Execute(connectionSource, _settings.OperationTimeout, CancellationToken.None);
             }
         }
     }

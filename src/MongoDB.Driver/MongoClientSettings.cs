@@ -74,7 +74,7 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
-            _operationTimeout = Timeout.InfiniteTimeSpan;
+            _operationTimeout = MongoDefaults.OperationTimeout;
             _readEncoding = null;
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;

@@ -35,7 +35,7 @@ namespace MongoDB.Driver
         private static int __maxConnectionPoolSize = 100;
         private static int __maxMessageLength = 16000000; // 16MB (not 16 MiB!)
         private static int __minConnectionPoolSize = 0;
-        private static TimeSpan __operationTimeout = Timeout.InfiniteTimeSpan;
+        private static TimeSpan __operationTimeout = TimeSpan.FromSeconds(30);
         private static UTF8Encoding __readEncoding = new UTF8Encoding(false, true);
         private static TimeSpan __secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15);
         private static TimeSpan __socketTimeout = TimeSpan.Zero; // use operating system default (presumably infinite)
