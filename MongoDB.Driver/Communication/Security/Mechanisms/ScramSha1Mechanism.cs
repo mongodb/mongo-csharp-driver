@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         // private static fields
         [ThreadStatic]
         private readonly static Random __random = new Random((int)DateTime.Now.Ticks);
+        private readonly static Version __scramSupportedVersion = new Version(2, 7, 5);
 
         // public properties
         /// <summary>
@@ -53,7 +54,9 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// </returns>
         public bool CanUse(MongoConnection connection, MongoCredential credential)
         {
-            return connection.ServerInstance.Supports(FeatureId.ScramSha1) &&
+            var supportsScram = connection.BuildInfo.Version >= __scramSupportedVersion;
+
+            return supportsScram &&
                 (credential.Mechanism == null || credential.Mechanism.Equals(Name, StringComparison.InvariantCultureIgnoreCase)) &&
                 credential.Evidence is PasswordEvidence;
         }

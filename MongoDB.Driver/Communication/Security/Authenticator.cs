@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Communication.Security
                 return;
             }
 
-            if (!IsArbiter())
+            if (!_connection.IsMasterResult.IsArbiterOnly)
             {
                 foreach (var credential in _credentials)
                 {
@@ -89,33 +89,6 @@ namespace MongoDB.Driver.Communication.Security
 
             var message = string.Format("Unable to find a protocol to authenticate. The credential for source {0}, username {1} over mechanism {2} could not be authenticated.", credential.Source, credential.Username, credential.Mechanism);
             throw new MongoSecurityException(message);
-        }
-
-        private bool IsArbiter()
-        {
-            var command = new CommandDocument("isMaster", true);
-            var result = RunCommand(_connection, "admin", command);
-            return result.Response.GetValue("arbiterOnly", false).ToBoolean();
-        }
-
-        private CommandResult RunCommand(MongoConnection connection, string databaseName, IMongoCommand command)
-        {
-            var readerSettings = new BsonBinaryReaderSettings();
-            var writerSettings = new BsonBinaryWriterSettings();
-            var resultSerializer = BsonSerializer.LookupSerializer(typeof(CommandResult));
-
-            var commandOperation = new CommandOperation<CommandResult>(
-                databaseName,
-                readerSettings,
-                writerSettings,
-                command,
-                QueryFlags.SlaveOk,
-                null, // options
-                null, // readPreference
-                null, // serializationOptions
-                resultSerializer);
-
-            return commandOperation.Execute(connection);
         }
     }
 }

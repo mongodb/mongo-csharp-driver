@@ -63,6 +63,8 @@ namespace MongoDB.Driver.Internal
         private DateTime _lastUsedAt; // set every time the connection is Released
         private int _messageCounter;
         private int _requestId;
+        private IsMasterResult _isMasterResult;
+        private MongoServerBuildInfo _buildInfo;
 
         // constructors
         internal MongoConnection(MongoConnectionPool connectionPool)
@@ -143,6 +145,17 @@ namespace MongoDB.Driver.Internal
         public MongoConnectionState State
         {
             get { return _state; }
+        }
+
+        // internal properties
+        internal MongoServerBuildInfo BuildInfo
+        {
+            get { return _buildInfo; }
+        }
+
+        internal IsMasterResult IsMasterResult
+        {
+            get { return _isMasterResult; }
         }
 
         // internal methods
@@ -237,6 +250,13 @@ namespace MongoDB.Driver.Internal
             _tcpClient = tcpClient;
             _stream = stream;
             _state = MongoConnectionState.Open;
+
+            // let's get IsMaster and BuildInfo here...
+            var command = new CommandDocument("isMaster", true);
+            _isMasterResult = RunCommand<IsMasterResult>(this, "admin", command);
+            command = new CommandDocument("buildinfo", true);
+            var buildInfoResult = RunCommand<CommandResult>(this, "admin", command);
+            _buildInfo = MongoServerBuildInfo.FromCommandResult(buildInfoResult);
 
             new Authenticator(this, _serverInstance.Settings.Credentials)
                 .Authenticate();
@@ -377,6 +397,27 @@ namespace MongoDB.Driver.Internal
             // returning ClearConnectionPool frequently can result in Connect/Disconnect storms
 
             return HandleExceptionAction.CloseConnection; // this should always be the default action
+        }
+
+        private TCommandResult RunCommand<TCommandResult>(MongoConnection connection, string databaseName, IMongoCommand command)
+            where TCommandResult : CommandResult
+        {
+            var readerSettings = new BsonBinaryReaderSettings();
+            var writerSettings = new BsonBinaryWriterSettings();
+            var resultSerializer = BsonSerializer.LookupSerializer(typeof(CommandResult));
+
+            var commandOperation = new CommandOperation<TCommandResult>(
+                databaseName,
+                readerSettings,
+                writerSettings,
+                command,
+                QueryFlags.SlaveOk,
+                null, // options
+                null, // readPreference
+                null, // serializationOptions
+                resultSerializer);
+
+            return commandOperation.Execute(connection);
         }
     }
 }
