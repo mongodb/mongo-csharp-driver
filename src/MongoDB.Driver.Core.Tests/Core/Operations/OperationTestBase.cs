@@ -64,6 +64,16 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation)
+        {
+            return ExecuteOperationAsync(operation).GetAwaiter().GetResult();
+        }
+
+        protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation)
+        {
+            return ExecuteOperationAsync(operation).GetAwaiter().GetResult();
+        }
+
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation)
         {
             using (var binding = SuiteConfiguration.GetReadBinding())

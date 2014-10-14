@@ -605,18 +605,9 @@ namespace MongoDB.Driver
         /// <returns>A list of collection names.</returns>
         public virtual IEnumerable<string> GetCollectionNames()
         {
-            List<string> collectionNames = new List<string>();
-            var namespaces = GetCollection("system.namespaces");
-            var prefix = _namespace.DatabaseName + ".";
-            foreach (var @namespace in namespaces.FindAll())
-            {
-                string collectionName = @namespace["name"].AsString;
-                if (!collectionName.StartsWith(prefix, StringComparison.Ordinal)) { continue; }
-                if (collectionName.IndexOf('$') != -1) { continue; }
-                collectionNames.Add(collectionName.Substring(prefix.Length));
-            }
-            collectionNames.Sort();
-            return collectionNames;
+            var operation = new ListCollectionsOperation(_namespace, GetMessageEncoderSettings());
+            var result = ExecuteReadOperation(operation, ReadPreference.Primary);
+            return result.Select(c => c["name"].AsString).OrderBy(n => n).ToList();
         }
 
         /// <summary>
@@ -1002,6 +993,14 @@ namespace MongoDB.Driver
             RunCommand(userCommand);
         }
         #pragma warning restore
+        private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference = null)
+        {
+            readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
+            using (var binding = _server.GetReadBinding(readPreference))
+            {
+                return operation.Execute(binding);
+            }
+        }
 
         private TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation)
         {

@@ -36,12 +36,15 @@ namespace MongoDB.Driver.Core
         }
 
         // properties
+
         public string MinimumVersion { get; set; }
 
         public ActionTargets Targets
         {
             get { return ActionTargets.Test; }
         }
+
+        public string VersionLessThan { get; set; }
 
         // methods
         public void AfterTest(TestDetails details)
@@ -81,6 +84,17 @@ namespace MongoDB.Driver.Core
                 if (SuiteConfiguration.ServerVersion < minSemanticVersion)
                 {
                     var message = string.Format("Requires a minimum server version of {0}, but currently connected to version {1}.", minSemanticVersion, SuiteConfiguration.ServerVersion);
+                    Assert.Ignore(message);
+                }
+            }
+
+            if (VersionLessThan != null)
+            {
+                var version = SemanticVersion.Parse(VersionLessThan);
+
+                if (SuiteConfiguration.ServerVersion >= version)
+                {
+                    var message = string.Format("Requires a server version less than {0}, but currently connected to version {1}.", version, SuiteConfiguration.ServerVersion);
                     Assert.Ignore(message);
                 }
             }

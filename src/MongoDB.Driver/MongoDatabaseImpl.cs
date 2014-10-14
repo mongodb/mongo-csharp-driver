@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -77,11 +78,12 @@ namespace MongoDB.Driver
             return new MongoCollectionImpl<TDocument>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
-        public Task<IReadOnlyList<string>> GetCollectionNamesAsync(TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<string>> GetCollectionNamesAsync(TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ListCollectionNamesOperation(_databaseNamespace, messageEncoderSettings);
-            return ExecuteReadOperation(operation, timeout, cancellationToken);
+            var operation = new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings);
+            var collections = await ExecuteReadOperation(operation, timeout, cancellationToken).ConfigureAwait(false);
+            return collections.Select(c => c["name"].AsString).ToList();
         }
 
         public Task<T> RunCommandAsync<T>(object command, TimeSpan? timeout, CancellationToken cancellationToken)

@@ -103,6 +103,7 @@
     <Compile Include="Core\Operations\ICommandOperation.cs" />
     <Compile Include="Core\Operations\IndexNameHelper.cs" />
     <Compile Include="Core\Operations\ListIndexesOperation.cs" />
+    <Compile Include="Core\Operations\ListCollectionsOperation.cs" />
     <Compile Include="Core\Operations\PingOperation.cs" />
     <Compile Include="Core\Operations\QueryHelper.cs" />
     <Compile Include="Core\Operations\UpdateType.cs" />
@@ -252,7 +253,6 @@
     <Compile Include="MongoCommandException.cs" />
     <Compile Include="Core\Operations\AggregateOperation.cs" />
     <Compile Include="Core\Operations\AggregateToCollectionOperation.cs" />
-    <Compile Include="Core\Operations\CollectionExistsOperation.cs" />
     <Compile Include="Core\Operations\CommandOperationBase.cs" />
     <Compile Include="Core\Operations\CountOperation.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperation.cs" />
@@ -271,7 +271,6 @@
     <Compile Include="Core\Operations\GroupOperation.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperation.cs" />
     <Compile Include="Core\Operations\IOperation.cs" />
-    <Compile Include="Core\Operations\ListCollectionNamesOperation.cs" />
     <Compile Include="Core\Operations\ListDatabaseNamesOperation.cs" />
     <Compile Include="Core\Operations\MapReduceOperation.cs" />
     <Compile Include="Core\Operations\MapReduceOperationBase.cs" />

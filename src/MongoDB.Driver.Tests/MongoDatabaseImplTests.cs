@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -70,14 +71,15 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task GetCollectionNames_should_execute_the_ListCollectionNamesOperation()
+        public async Task GetCollectionNames_should_execute_the_ListCollectionsOperation()
         {
+            _operationExecutor.EnqueueResult<IReadOnlyList<BsonDocument>>(new BsonDocument[0]);
+
             await _subject.GetCollectionNamesAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
 
-            var call = _operationExecutor.GetReadCall<IReadOnlyList<string>>();
-
-            call.Operation.Should().BeOfType<ListCollectionNamesOperation>();
-            var op = (ListCollectionNamesOperation)call.Operation;
+            var call = _operationExecutor.GetReadCall<IReadOnlyList<BsonDocument>>();
+            call.Operation.Should().BeOfType<ListCollectionsOperation>();
+            var op = (ListCollectionsOperation)call.Operation;
             op.DatabaseNamespace.DatabaseName.Should().Be("foo");
         }
 

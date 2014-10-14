@@ -241,6 +241,7 @@ namespace MongoDB.Driver
             {
                 DropDatabase();
                 __cluster.Value.Dispose();
+                __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
             }
         }
     }

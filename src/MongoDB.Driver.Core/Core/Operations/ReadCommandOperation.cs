@@ -74,6 +74,7 @@ namespace MongoDB.Driver.Core.Operations
                 "group",
                 "hostInfo",
                 "isMaster",
+                "listCollections",
                 "listCommands",
                 "listDatabases",
                 "listIndexes",

@@ -466,8 +466,8 @@ namespace MongoDB.Driver.Tests
 
             _database.CreateCollection(collection.Name, options);
 
-            var indexes = collection.GetIndexes();
-            Assert.That(indexes.Count, Is.EqualTo(expectedIndexCount));
+            var indexCount = collection.GetIndexes().Count;
+            Assert.That(indexCount, Is.EqualTo(expectedIndexCount));
         }
 
         [Test]
