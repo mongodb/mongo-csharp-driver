@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Core.Connections
                 StartBackgroundTasks();
                 _description = await _connectionInitializer.InitializeConnectionAsync(this, _connectionId, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 _connectionId = _description.ConnectionId;
-                await AuthenticationHelper.AuthenticateAsync(this, timeout, cancellationToken);
+                await AuthenticationHelper.AuthenticateAsync(this, slidingTimeout, cancellationToken);
                 stopwatch.Stop();
                 _state.TryChange(State.Open);
 

@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -34,9 +35,10 @@ namespace MongoDB.Driver.Core.Authentication
             // authentication is currently broken on arbiters
             if (!connection.Description.IsMasterResult.IsArbiter)
             {
+                var slidingTimeout = new SlidingTimeout(timeout);
                 foreach (var authenticator in connection.Settings.Authenticators)
                 {
-                    await authenticator.AuthenticateAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                    await authenticator.AuthenticateAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 }
             }
         }

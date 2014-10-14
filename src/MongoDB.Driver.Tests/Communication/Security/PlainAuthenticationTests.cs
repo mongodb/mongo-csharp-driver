@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using MongoDB.Driver;
 using NUnit.Framework;
@@ -74,7 +75,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             var client = new MongoClient(_settings);
 
-            Assert.Throws<MongoConnectionException>(() =>
+            Assert.Throws<TimeoutException>(() =>
             {
                 client.GetServer()
                     .GetDatabase(Configuration.TestDatabase.Name)

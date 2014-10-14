@@ -313,7 +313,7 @@ namespace MongoDB.Driver
             {
                 GuidRepresentation = serverSettings.GuidRepresentation;
             }
-            if(!_operationTimeout.HasBeenSet)
+            if (!_operationTimeout.HasBeenSet)
             {
                 OperationTimeout = serverSettings.OperationTimeout;
             }
