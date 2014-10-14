@@ -39,15 +39,6 @@ namespace MongoDB.Driver.Core.Connections
             var isMasterProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, isMasterCommand, true, null);
             var isMasterResult = new IsMasterResult(await isMasterProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false));
 
-            // authentication is currently broken on arbiters
-            if (!isMasterResult.IsArbiter)
-            {
-                foreach (var authenticator in connection.Settings.Authenticators)
-                {
-                    await authenticator.AuthenticateAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
-                }
-            }
-
             var buildInfoCommand = new BsonDocument("buildInfo", 1);
             var buildInfoProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, buildInfoCommand, true, null);
             var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false));

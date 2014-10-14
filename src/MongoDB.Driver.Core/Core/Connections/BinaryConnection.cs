@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Async;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -209,8 +210,9 @@ namespace MongoDB.Driver.Core.Connections
                 _state.TryChange(State.Initializing);
                 StartBackgroundTasks();
                 _description = await _connectionInitializer.InitializeConnectionAsync(this, _connectionId, slidingTimeout, cancellationToken).ConfigureAwait(false);
-                stopwatch.Stop();
                 _connectionId = _description.ConnectionId;
+                await AuthenticationHelper.AuthenticateAsync(this, timeout, cancellationToken);
+                stopwatch.Stop();
                 _state.TryChange(State.Open);
 
                 if (_listener != null)

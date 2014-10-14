@@ -13,9 +13,17 @@
 * limitations under the License.
 */
 
+using System.Net;
 using System.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Servers;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Authentication
@@ -37,6 +45,46 @@ namespace MongoDB.Driver.Core.Authentication
             var passwordDigest = AuthenticationHelper.MongoPasswordDigest(username, securePassword);
 
             passwordDigest.Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void AuthenticateAsync_should_invoke_authenticators_when_they_exist()
+        {
+            var description = new ConnectionDescription(
+                new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017))),
+                new IsMasterResult(new BsonDocument("ok", 1)),
+                new BuildInfoResult(new BsonDocument("version", "2.8.0")));
+
+            var authenticator = Substitute.For<IAuthenticator>();
+            var settings = new ConnectionSettings().WithAuthenticators(new[] { authenticator });
+
+            var connection = Substitute.For<IConnection>();
+            connection.Description.Returns(description);
+            connection.Settings.Returns(settings);
+
+            AuthenticationHelper.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+
+            authenticator.ReceivedWithAnyArgs().AuthenticateAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
+        }
+
+        [Test]
+        public void AuthenticateAsync_should_not_invoke_authenticators_when_connected_to_an_arbiter()
+        {
+            var description = new ConnectionDescription(
+                new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017))),
+                new IsMasterResult(new BsonDocument("ok", 1).Add("setName", "rs").Add("arbiterOnly", true)),
+                new BuildInfoResult(new BsonDocument("version", "2.8.0")));
+
+            var authenticator = Substitute.For<IAuthenticator>();
+            var settings = new ConnectionSettings().WithAuthenticators(new[] { authenticator });
+
+            var connection = Substitute.For<IConnection>();
+            connection.Description.Returns(description);
+            connection.Settings.Returns(settings);
+
+            AuthenticationHelper.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+
+            authenticator.DidNotReceiveWithAnyArgs().AuthenticateAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
         }
     }
 }

@@ -86,51 +86,5 @@ namespace MongoDB.Driver.Core.Connections
             result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
             result.ConnectionId.ServerValue.Should().Be(10);
         }
-
-        [Test]
-        public void InitializeConnectionAsync_should_invoke_authenticators_when_they_exist()
-        {
-            var isMasterReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1 }"));
-            var buildInfoReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"2.6.3\" }"));
-            var gleReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
-
-            var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(isMasterReply);
-            connection.EnqueueReplyMessage(buildInfoReply);
-            connection.EnqueueReplyMessage(gleReply);
-            var authenticator = Substitute.For<IAuthenticator>();
-            connection.Settings = new ConnectionSettings()
-                .WithAuthenticators(new[] { authenticator });
-
-            _subject.InitializeConnectionAsync(connection, __connectionId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
-
-            authenticator.ReceivedWithAnyArgs().AuthenticateAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
-        }
-
-        [Test]
-        public void InitializeConnectionAsync_should_not_invoke_authenticators_when_connected_to_an_arbiter()
-        {
-            var isMasterReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1, setName: \"funny\", arbiterOnly: true }"));
-            var buildInfoReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"2.6.3\" }"));
-            var gleReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
-
-            var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(isMasterReply);
-            connection.EnqueueReplyMessage(buildInfoReply);
-            connection.EnqueueReplyMessage(gleReply);
-            var authenticator = Substitute.For<IAuthenticator>();
-            connection.Settings = new ConnectionSettings()
-                .WithAuthenticators(new[] { authenticator });
-
-            _subject.InitializeConnectionAsync(connection, __connectionId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
-
-            authenticator.DidNotReceiveWithAnyArgs().AuthenticateAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
-        }
     }
 }

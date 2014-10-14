@@ -18,13 +18,28 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Authentication
 {
     internal static class AuthenticationHelper
     {
         private static readonly UTF8Encoding __encoding = new UTF8Encoding(false, true);
+
+        public static async Task AuthenticateAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            // authentication is currently broken on arbiters
+            if (!connection.Description.IsMasterResult.IsArbiter)
+            {
+                foreach (var authenticator in connection.Settings.Authenticators)
+                {
+                    await authenticator.AuthenticateAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                }
+            }
+        }
 
         public static string MongoPasswordDigest(string username, SecureString password)
         {
