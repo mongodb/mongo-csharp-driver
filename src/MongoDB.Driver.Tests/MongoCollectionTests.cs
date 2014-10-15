@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.GeoJsonObjectModel;
 using NUnit.Framework;
 
@@ -471,6 +472,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestCreateCollectionSetCappedSetMaxDocuments()
         {
             var collection = _database.GetCollection("cappedcollection");
@@ -487,6 +489,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestCreateCollectionSetCappedSetMaxSize()
         {
             var collection = _database.GetCollection("cappedcollection");
@@ -502,6 +505,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestCreateCollectionSetUsePowerOf2Sizes(
             [Values(false, true)]
             bool usePowerOf2Sizes)
@@ -2552,12 +2556,14 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1,heap1")]
         public void TestParallelScan()
         {
             if (_primary.Supports(FeatureId.ParallelScanCommand))
             {
                 var numberOfDocuments = 2000;
-                var numberOfCursors = 3;
+                var requestedNumberOfCursors = 3;
+                var expectedNumberOfCursors = SuiteConfiguration.GetStorageEngine() == "mmapv1" ? 3 : 1;
                 var ids = new HashSet<int>();
 
                 _collection.Drop();
@@ -2570,7 +2576,7 @@ namespace MongoDB.Driver.Tests
                 var enumerators = _collection.ParallelScanAs(typeof(BsonDocument), new ParallelScanArgs
                 {
                     BatchSize = 100,
-                    NumberOfCursors = numberOfCursors
+                    NumberOfCursors = requestedNumberOfCursors
                 });
 
                 foreach (var enumerator in enumerators)
@@ -2583,7 +2589,7 @@ namespace MongoDB.Driver.Tests
                     }
                 }
 
-                Assert.AreEqual(3, enumerators.Count);
+                Assert.AreEqual(expectedNumberOfCursors, enumerators.Count);
                 Assert.AreEqual(0, ids.Count);
             }
         }
@@ -2722,6 +2728,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestGetStatsUsePowerOf2Sizes()
         {
             // SERVER-8409: only run this when talking to a non-mongos 2.2 server or >= 2.4.
@@ -2834,12 +2841,14 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestTotalDataSize()
         {
             _collection.GetTotalDataSize();
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestTotalStorageSize()
         {
             _collection.GetTotalStorageSize();
@@ -2991,6 +3000,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestValidate()
         {
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)

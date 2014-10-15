@@ -270,14 +270,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 var stats = await GetCollectionStatsAsync(binding);
                 stats["ns"].ToString().Should().Be(_collectionNamespace.FullName);
-                if (capped)
-                {
-                    stats["capped"].ToBoolean().Should().BeTrue();
-                }
-                else
-                {
-                    stats.Contains("capped").Should().BeFalse();
-                }
+                stats.GetValue("capped", false).ToBoolean().Should().Be(capped);
             }
         }
 
@@ -331,7 +324,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer("DropCollection")]
+        [RequiresServer("DropCollection", StorageEngines = "mmapv1")]
         public async Task ExecuteAsync_should_create_collection_when_UsePowerOf2Sizes_is_set(
             [Values(false, true)]
             bool usePowerOf2Sizes)

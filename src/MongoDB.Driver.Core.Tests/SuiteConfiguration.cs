@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -37,8 +38,8 @@ namespace MongoDB.Driver
         #region static
         // static fields
         private static Lazy<ICluster> __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
-        private static ConnectionString __connectionString;
-        private static DatabaseNamespace __databaseNamespace;
+        private static ConnectionString __connectionString = GetConnectionString();
+        private static DatabaseNamespace __databaseNamespace = GetDatabaseNamespace();
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
 
         // static properties
@@ -139,6 +140,17 @@ namespace MongoDB.Driver
             return new CollectionNamespace(__databaseNamespace, collectionName);
         }
 
+        private static ConnectionString GetConnectionString()
+        {
+            return new ConnectionString(Environment.GetEnvironmentVariable("MONGO_URI") ?? "mongodb://localhost");
+        }
+
+        private static DatabaseNamespace GetDatabaseNamespace()
+        {
+            var timestamp = DateTime.Now.ToString("MMddHHmm");
+            return new DatabaseNamespace("CoreTests" + timestamp);
+        }
+
         public static DatabaseNamespace GetDatabaseNamespaceForTestFixture()
         {
             var testFixtureType = GetTestFixtureTypeFromCallStack();
@@ -159,6 +171,25 @@ namespace MongoDB.Driver
         public static IReadWriteBinding GetReadWriteBinding()
         {
             return new WritableServerBinding(__cluster.Value);
+        }
+
+        public static string GetStorageEngine()
+        {
+            using (var binding = GetReadWriteBinding())
+            {
+                var command = new BsonDocument("serverStatus", 1);
+                var operation = new ReadCommandOperation(DatabaseNamespace.Admin, command, __messageEncoderSettings);
+                var response = operation.Execute(binding);
+                BsonValue storageEngine;
+                if (response.TryGetValue("storageEngine", out storageEngine) && storageEngine.AsBsonDocument.Contains("name"))
+                {
+                    return storageEngine["name"].AsString;
+                }
+                else
+                {
+                    return "mmapv1";
+                }
+            }
         }
 
         private static Type GetTestFixtureTypeFromCallStack()
@@ -214,24 +245,6 @@ namespace MongoDB.Driver
             {
                 operation.Execute(binding);
             }
-        }
-
-        private ConnectionString GetConnectionString()
-        {
-            return new ConnectionString(Environment.GetEnvironmentVariable("MONGO_URI") ?? "mongodb://localhost");
-        }
-
-        private DatabaseNamespace GetDatabaseNamespace()
-        {
-            var timestamp = DateTime.Now.ToString("MMddHHmm");
-            return new DatabaseNamespace("CoreTests" + timestamp);
-        }
-
-        [SetUp]
-        public void SuiteConfigurationSetUp()
-        {
-            __connectionString = GetConnectionString();
-            __databaseNamespace = GetDatabaseNamespace();
         }
 
         [TearDown]

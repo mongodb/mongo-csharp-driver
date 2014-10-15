@@ -76,12 +76,12 @@ namespace MongoDB.Driver.Core.Operations
         public async Task ExecuteAsync_should_return_the_expected_result()
         {
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
-            var expectedNames = new[] { "regular", "capped", "system.indexes" };
+            var expectedNames = new[] { "regular", "capped" };
 
             var result = await ExecuteOperationAsync(subject);
 
             result.Count.Should().BeGreaterThan(0);
-            result.Select(c => c["name"].AsString).Should().BeEquivalentTo(expectedNames);
+            result.Select(c => c["name"].AsString).Where(n => n != "system.indexes").Should().BeEquivalentTo(expectedNames);
         }
 
         [TestCase("{ name : \"regular\" }", "regular")]

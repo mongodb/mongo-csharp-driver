@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.CommandResults
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Tests.CommandResults
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void Test()
         {
             // make sure collection exists and has exactly one document

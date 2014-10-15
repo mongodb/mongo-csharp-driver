@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
@@ -26,6 +27,7 @@ namespace MongoDB.Driver.Core
         // fields
         private readonly string _afterTestMethodName;
         private readonly string _beforeTestMethodName;
+        private IList<string> _storageEngines;
 
         // constructors
         public RequiresServerAttribute(string beforeTestMethodName = null, string afterTestMethodName = null)
@@ -38,6 +40,18 @@ namespace MongoDB.Driver.Core
         // properties
 
         public string MinimumVersion { get; set; }
+
+        public string StorageEngines
+        {
+            get
+            {
+                return _storageEngines == null ? null : string.Join(",", _storageEngines);
+            }
+            set
+            {
+                _storageEngines = value == null ? null : value.Split(',');
+            }
+        }
 
         public ActionTargets Targets
         {
@@ -55,6 +69,7 @@ namespace MongoDB.Driver.Core
         public void BeforeTest(TestDetails details)
         {
             EnsureVersion();
+            EnsureStorageEngine();
 
             InvokeMethod(details.Fixture, _beforeTestMethodName);
         }
@@ -72,6 +87,19 @@ namespace MongoDB.Driver.Core
                     Assert.Fail(message);
                 }
                 methodInfo.Invoke(methodInfo.IsStatic ? null : fixture, new object[0]);
+            }
+        }
+
+        private void EnsureStorageEngine()
+        {
+            if (_storageEngines != null)
+            {
+                var storageEngine = SuiteConfiguration.GetStorageEngine();
+                if (!_storageEngines.Contains(storageEngine))
+                {
+                    var message = string.Format("Requires storage engine \"{0}\", but currently connected to a server using storage engine \"{1}\".", StorageEngines, storageEngine);
+                    Assert.Ignore(message);
+                }
             }
         }
 

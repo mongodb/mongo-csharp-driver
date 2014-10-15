@@ -15,6 +15,7 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.CommandResults
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Tests.CommandResults
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void Test()
         {
             if (_server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)

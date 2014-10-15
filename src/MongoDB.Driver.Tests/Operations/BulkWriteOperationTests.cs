@@ -19,6 +19,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Core;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Operations
@@ -454,6 +455,7 @@ namespace MongoDB.Driver.Tests.Operations
         [Test]
         [TestCase(false)]
         [TestCase(true)]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestNoJournal(bool ordered)
         {
             _collection.Drop();
