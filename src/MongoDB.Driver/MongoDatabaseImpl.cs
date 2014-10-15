@@ -82,7 +82,7 @@ namespace MongoDB.Driver
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings);
-            var collections = await ExecuteReadOperation(operation, timeout, cancellationToken).ConfigureAwait(false);
+            var collections = await ExecuteReadOperation(operation, ReadPreference.Primary, timeout, cancellationToken).ConfigureAwait(false);
             return collections.Select(c => c["name"].AsString).ToList();
         }
 
@@ -120,9 +120,14 @@ namespace MongoDB.Driver
             }
         }
 
-        private async Task<T> ExecuteReadOperation<T>(IReadOperation<T> operation, TimeSpan? timeout, CancellationToken cancellationToken)
+        private Task<T> ExecuteReadOperation<T>(IReadOperation<T> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
+            return ExecuteReadOperation(operation, _settings.ReadPreference, timeout, cancellationToken);
+        }
+
+        private async Task<T> ExecuteReadOperation<T>(IReadOperation<T> operation, ReadPreference readPreference, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
