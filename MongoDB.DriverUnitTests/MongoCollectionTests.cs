@@ -503,6 +503,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestCreateCollectionSetCappedSetMaxDocuments()
         {
             var collection = _database.GetCollection("cappedcollection");
@@ -519,6 +520,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestCreateCollectionSetCappedSetMaxSize()
         {
             var collection = _database.GetCollection("cappedcollection");
@@ -538,6 +540,7 @@ namespace MongoDB.DriverUnitTests
         {
             var expectedIndexVersion = (_server.BuildInfo.Version >= new Version(2, 0, 0)) ? 1 : 0;
 
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.DropAllIndexes(); // doesn't drop the index on _id
 
@@ -577,31 +580,34 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(_collection.FullName, indexes[1].Namespace);
             Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
 
-            _collection.DropAllIndexes();
-            var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
-            result = _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
+            if (Configuration.TestServer.BuildInfo.Version < new Version(2, 7, 0))
+            {
+                _collection.DropAllIndexes();
+                var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
+                result = _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
 
-            expectedResult = new ExpectedWriteConcernResult();
-            CheckExpectedResult(expectedResult, result);
+                expectedResult = new ExpectedWriteConcernResult();
+                CheckExpectedResult(expectedResult, result);
 
-            indexes = _collection.GetIndexes().OrderBy(x => x.Name).ToList();
-            Assert.AreEqual(2, indexes.Count);
-            Assert.AreEqual(false, indexes[0].DroppedDups);
-            Assert.AreEqual(false, indexes[0].IsBackground);
-            Assert.AreEqual(false, indexes[0].IsSparse);
-            Assert.AreEqual(false, indexes[0].IsUnique);
-            Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
-            Assert.AreEqual("_id_", indexes[0].Name);
-            Assert.AreEqual(_collection.FullName, indexes[0].Namespace);
-            Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
-            Assert.AreEqual(true, indexes[1].DroppedDups);
-            Assert.AreEqual(true, indexes[1].IsBackground);
-            Assert.AreEqual(true, indexes[1].IsSparse);
-            Assert.AreEqual(true, indexes[1].IsUnique);
-            Assert.AreEqual(new BsonDocument { { "x", 1 }, { "y", -1 } }, indexes[1].Key);
-            Assert.AreEqual("x_1_y_-1", indexes[1].Name);
-            Assert.AreEqual(_collection.FullName, indexes[1].Namespace);
-            Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
+                indexes = _collection.GetIndexes().OrderBy(x => x.Name).ToList();
+                Assert.AreEqual(2, indexes.Count);
+                Assert.AreEqual(false, indexes[0].DroppedDups);
+                Assert.AreEqual(false, indexes[0].IsBackground);
+                Assert.AreEqual(false, indexes[0].IsSparse);
+                Assert.AreEqual(false, indexes[0].IsUnique);
+                Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
+                Assert.AreEqual("_id_", indexes[0].Name);
+                Assert.AreEqual(_collection.FullName, indexes[0].Namespace);
+                Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
+                Assert.AreEqual(true, indexes[1].DroppedDups);
+                Assert.AreEqual(true, indexes[1].IsBackground);
+                Assert.AreEqual(true, indexes[1].IsSparse);
+                Assert.AreEqual(true, indexes[1].IsUnique);
+                Assert.AreEqual(new BsonDocument { { "x", 1 }, { "y", -1 } }, indexes[1].Key);
+                Assert.AreEqual("x_1_y_-1", indexes[1].Name);
+                Assert.AreEqual(_collection.FullName, indexes[1].Namespace);
+                Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
+            }
         }
 
         [Test]
@@ -1895,8 +1901,20 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(1, documents.Length);
                 Assert.AreEqual("abc", documents[0]["x"].AsString);
 
-                var explain = cursor.Explain();
-                Assert.AreEqual("BtreeCursor x_hashed", explain["cursor"].AsString);
+                var plan = cursor.Explain();
+                if (_server.BuildInfo.Version < new Version(2, 7, 0))
+                {
+                    Assert.AreEqual("BtreeCursor x_hashed", plan["cursor"].AsString);
+                }
+                else
+                {
+                    var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                    var inputStage = winningPlan["inputStage"]["inputStage"].AsBsonDocument; // not sure why there are two inputStages
+                    var stage = inputStage["stage"].AsString;
+                    var keyPattern = inputStage["keyPattern"].AsBsonDocument;
+                    Assert.That(stage, Is.EqualTo("IXSCAN"));
+                    Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ x : \"hashed\" }")));
+                }
             }
         }
 
@@ -2567,13 +2585,11 @@ namespace MongoDB.DriverUnitTests
                 {
                     var numberOfDocuments = 2000;
                     var numberOfCursors = 3;
-                    var ids = new HashSet<int>();
 
                     _collection.Drop();
                     for (int i = 0; i < numberOfDocuments; i++)
                     {
                         _collection.Insert(new BsonDocument("_id", i));
-                        ids.Add(i);
                     }
 
                     var enumerators = _collection.ParallelScanAs(typeof(BsonDocument), new ParallelScanArgs
@@ -2581,19 +2597,20 @@ namespace MongoDB.DriverUnitTests
                         BatchSize = 100,
                         NumberOfCursors = numberOfCursors
                     });
+                    Assert.That(enumerators.Count, Is.GreaterThanOrEqualTo(1));
 
+                    var ids = new List<int>();
                     foreach (var enumerator in enumerators)
                     {
                         while (enumerator.MoveNext())
                         {
                             var document = (BsonDocument)enumerator.Current;
                             var id = document["_id"].ToInt32();
-                            Assert.AreEqual(true, ids.Remove(id));
+                            ids.Add(id);
                         }
                     }
 
-                    Assert.AreEqual(3, enumerators.Count);
-                    Assert.AreEqual(0, ids.Count);
+                    Assert.That(ids, Is.EquivalentTo(Enumerable.Range(0, numberOfDocuments)));
                 }
             }
         }
@@ -2736,6 +2753,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestGetStatsUsePowerOf2Sizes()
         {
             // SERVER-8409: only run this when talking to a non-mongos 2.2 server or >= 2.4.
@@ -2848,12 +2866,14 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestTotalDataSize()
         {
             var dataSize = _collection.GetTotalDataSize();
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestTotalStorageSize()
         {
             var dataSize = _collection.GetTotalStorageSize();
@@ -3005,6 +3025,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestValidate()
         {
             using (_database.RequestStart())

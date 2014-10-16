@@ -37,6 +37,7 @@ namespace MongoDB.DriverUnitTests.CommandResults
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void Test()
         {
             // make sure collection exists and has exactly one document
@@ -50,9 +51,12 @@ namespace MongoDB.DriverUnitTests.CommandResults
             Assert.IsTrue(result.AverageObjectSize > 0.0);
             Assert.IsTrue(result.DataSize > 0);
             Assert.IsTrue(result.ExtentCount > 0);
+            if (Configuration.TestServer.BuildInfo.Version < new Version(2, 7, 0))
+            {
 #pragma warning disable 618
-            Assert.AreEqual(1, result.Flags);
+                Assert.AreEqual(1, result.Flags);
 #pragma warning restore
+            }
             Assert.IsTrue(result.IndexCount > 0);
             Assert.IsTrue(result.IndexSizes["_id_"] > 0);
             Assert.IsTrue(result.IndexSizes.ContainsKey("_id_"));
@@ -67,7 +71,10 @@ namespace MongoDB.DriverUnitTests.CommandResults
             Assert.AreEqual(1, result.ObjectCount);
             Assert.IsTrue(result.PaddingFactor > 0.0);
             Assert.IsTrue(result.StorageSize > 0);
-            Assert.AreEqual(CollectionSystemFlags.HasIdIndex, result.SystemFlags);
+            if (Configuration.TestServer.BuildInfo.Version < new Version(2, 7, 0))
+            {
+                Assert.AreEqual(CollectionSystemFlags.HasIdIndex, result.SystemFlags);
+            }
             Assert.IsTrue(result.TotalIndexSize > 0);
             if (_server.BuildInfo.Version < new Version(2, 6, 0))
             {

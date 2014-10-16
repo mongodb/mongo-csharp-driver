@@ -35,6 +35,7 @@ namespace MongoDB.DriverUnitTests.CommandResults
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void Test()
         {
             using (_database.RequestStart())

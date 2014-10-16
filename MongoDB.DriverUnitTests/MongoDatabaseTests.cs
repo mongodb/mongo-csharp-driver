@@ -214,7 +214,7 @@ namespace MongoDB.DriverUnitTests
             _database.GetCollection("b").Insert(new BsonDocument("b", 1));
             _database.GetCollection("c").Insert(new BsonDocument("c", 1));
             var collectionNames = _database.GetCollectionNames();
-            Assert.AreEqual(new[] { "a", "b", "c", "system.indexes" }, collectionNames);
+            Assert.AreEqual(new[] { "a", "b", "c" }, collectionNames.Where(n => n != "system.indexes"));
         }
 
         [Test]

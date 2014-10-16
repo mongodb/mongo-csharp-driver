@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -234,12 +235,11 @@ namespace MongoDB.DriverUnitTests.Builders
                         var collection = _database.GetCollection<Test>("test_text");
                         collection.Drop();
                         collection.CreateIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
-                        var indexCollection = _database.GetCollection("system.indexes");
-                        var result = indexCollection.FindOne(Query.EQ("name", "custom"));
-                        Assert.AreEqual("custom", result["name"].AsString);
-                        Assert.AreEqual("idioma", result["language_override"].AsString);
-                        Assert.AreEqual("spanish", result["default_language"].AsString);
-                        Assert.AreEqual(1, result["key"]["c"].AsInt32);
+                        var indexes = collection.GetIndexes();
+                        var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
+                        Assert.AreEqual("idioma", index["language_override"].AsString);
+                        Assert.AreEqual("spanish", index["default_language"].AsString);
+                        Assert.AreEqual(1, index["key"]["c"].AsInt32);
                     }
                 }
             }

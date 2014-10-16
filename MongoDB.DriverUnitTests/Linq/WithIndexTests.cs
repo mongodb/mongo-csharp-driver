@@ -107,12 +107,33 @@ namespace MongoDB.DriverUnitTests.Linq
         {
             var query = _collection.AsQueryable().Where(o => o.b == 1);
             var plan = query.Explain();
-            Assert.AreEqual("BasicCursor", plan["cursor"].AsString); //Normally this query would use no index
+            if (Configuration.TestServer.BuildInfo.Version < new Version(2, 7, 0))
+            {
+                Assert.AreEqual("BasicCursor", plan["cursor"].AsString); // Normally this query would use no index
+            }
+            else
+            {
+                var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                var stage = winningPlan["stage"].AsString;
+                Assert.That(stage, Is.EqualTo("COLLSCAN"));
+            }
 
-            //Now check that we can force it to use our index
+            // Now check that we can force it to use our index
             query = _collection.AsQueryable().Where(o => o.a == 1).WithIndex("i");
             plan = query.Explain();
-            Assert.AreEqual("BtreeCursor i", plan["cursor"].AsString);
+            if (Configuration.TestServer.BuildInfo.Version < new Version(2, 7, 0))
+            {
+                Assert.AreEqual("BtreeCursor i", plan["cursor"].AsString);
+            }
+            else
+            {
+                var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                var inputStage = winningPlan["inputStage"].AsBsonDocument;
+                var stage = inputStage["stage"].AsString;
+                var keyPattern = inputStage["keyPattern"].AsBsonDocument;
+                Assert.That(stage, Is.EqualTo("IXSCAN"));
+                Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ a : 1, b : 1 }")));
+            }
         }
 
         [Test]
@@ -167,14 +188,35 @@ namespace MongoDB.DriverUnitTests.Linq
         {
             var query = _collection.AsQueryable().Where(o => o.b == 1);
             var plan = query.Explain();
-            Assert.AreEqual("BasicCursor", plan["cursor"].AsString); //Normally this query would use no index
+            if (Configuration.TestServer.BuildInfo.Version < new Version(2, 7, 0))
+            {
+                Assert.AreEqual("BasicCursor", plan["cursor"].AsString); // Normally this query would use no index
+            }
+            else
+            {
+                var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                var stage = winningPlan["stage"].AsString;
+                Assert.That(stage, Is.EqualTo("COLLSCAN"));
+            }
 
-            //Now check that we can force it to use our index
+            // Now check that we can force it to use our index
             var indexDoc = new BsonDocument()
                 .AddRange(new[] { new BsonElement("a", 1), new BsonElement("b", 1) });
             query = _collection.AsQueryable().Where(o => o.a == 1).WithIndex(indexDoc);
             plan = query.Explain();
-            Assert.AreEqual("BtreeCursor i", plan["cursor"].AsString);
+            if (Configuration.TestServer.BuildInfo.Version < new Version(2, 7, 0))
+            {
+                Assert.AreEqual("BtreeCursor i", plan["cursor"].AsString);
+            }
+            else
+            {
+                var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                var inputStage = winningPlan["inputStage"].AsBsonDocument;
+                var stage = inputStage["stage"].AsString;
+                var keyPattern = inputStage["keyPattern"].AsBsonDocument;
+                Assert.That(stage, Is.EqualTo("IXSCAN"));
+                Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ a : 1, b : 1 }")));
+            }
         }
 
         [Test]

@@ -51,12 +51,9 @@ namespace MongoDB.DriverUnitTests
 
             // connect early so BuildInfo will be populated
             __testServer.Connect();
-            var isMasterResult = __testDatabase.RunCommand("isMaster").Response;
-            BsonValue setName = null;
-            if (isMasterResult.TryGetValue("setName", out setName))
-            {
-                __testServerIsReplicaSet = true;
-            }
+
+            var isMasterResult = __testDatabase.RunCommand("isMaster");
+            __testServerIsReplicaSet = isMasterResult.Response.Contains("setName");
         }
 
         // public static properties
@@ -101,6 +98,25 @@ namespace MongoDB.DriverUnitTests
         }
 
         // public static methods
+        /// <summary>
+        /// Gets the storage engine.
+        /// </summary>
+        /// <returns>The storage engine.</returns>
+        public static string GetStorageEngine()
+        {
+            var adminDatabase = __testServer.GetDatabase("admin");
+            var response = adminDatabase.RunCommand("serverStatus").Response;
+            BsonValue storageEngine;
+            if (response.TryGetValue("storageEngine", out storageEngine) && storageEngine.AsBsonDocument.Contains("name"))
+            {
+                return storageEngine["name"].AsString;
+            }
+            else
+            {
+                return "mmapv1";
+            }
+        }
+
         /// <summary>
         /// Gets the test collection with a default document type of T.
         /// </summary>

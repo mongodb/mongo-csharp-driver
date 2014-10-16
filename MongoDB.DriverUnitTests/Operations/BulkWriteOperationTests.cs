@@ -448,6 +448,7 @@ namespace MongoDB.DriverUnitTests.Operations
         [Test]
         [TestCase(false)]
         [TestCase(true)]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void TestNoJournal(bool ordered)
         {
             _collection.Drop();

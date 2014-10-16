@@ -167,6 +167,7 @@
     <Compile Include="MongoUrlBuilderTests.cs" />
     <Compile Include="MongoUrlTests.cs" />
     <Compile Include="MongoUserTests.cs" />
+    <Compile Include="RequiresServer.cs" />
     <Compile Include="SafeModeTests.cs" />
     <Compile Include="SslSettingsTests.cs" />
     <Compile Include="Support\IndexMapTests.cs" />
