@@ -190,6 +190,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             const int maxRetryCount = 2;
             HeartbeatInfo heartbeatInfo = null;
+            Exception heartbeatException = null;
             for (var attempt = 1; attempt <= maxRetryCount; attempt++)
             {
                 try
@@ -201,10 +202,12 @@ namespace MongoDB.Driver.Core.Servers
                     }
 
                     heartbeatInfo = await GetHeartbeatInfoAsync(_heartbeatConnection, cancellationToken).ConfigureAwait(false);
+                    heartbeatException = null;
                     break;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    heartbeatException = ex;
                     _heartbeatConnection.Dispose();
                     _heartbeatConnection = null;
 
@@ -238,6 +241,11 @@ namespace MongoDB.Driver.Core.Servers
             else
             {
                 newDescription = _baseDescription;
+            }
+
+            if (heartbeatException != null)
+            {
+                newDescription = newDescription.With(heartbeatException: heartbeatException);
             }
 
             OnDescriptionChanged(newDescription);
@@ -369,7 +377,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             private readonly ClusterableServer _server;
             private readonly IConnectionHandle _wrappedHandle;
-            
+
             public ServerConnection(ClusterableServer server, IConnectionHandle wrapped)
                 : base(wrapped)
             {
@@ -383,7 +391,7 @@ namespace MongoDB.Driver.Core.Servers
                 {
                     await base.OpenAsync(timeout, cancellationToken).ConfigureAwait(false);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _server.HandleConnectionException(this, ex);
                     throw;

@@ -120,7 +120,10 @@ namespace MongoDB.Driver
             SpinWait.SpinUntil(() => hasWritableServer, TimeSpan.FromSeconds(30));
             if (!hasWritableServer)
             {
-                throw new Exception("Test cluster has no writable server.");
+                var message = string.Format(
+                    "Test cluster has no writable server. Client view of the cluster is {0}.",
+                    cluster.Description.ToString());
+                throw new Exception(message);
             }
 
             return cluster;

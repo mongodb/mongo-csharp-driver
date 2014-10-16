@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Async;
@@ -177,7 +178,15 @@ namespace MongoDB.Driver.Core.Clusters
 
                 Invalidate();
 
-                await descriptionChangedTask.WithTimeout(slidingTimeout, cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    await descriptionChangedTask.WithTimeout(slidingTimeout, cancellationToken).ConfigureAwait(false);
+                }
+                catch (TimeoutException ex)
+                {
+                    var message = BuildTimeoutExceptionMessage(timeout, description);
+                    throw new TimeoutException(message, ex);
+                }
             }
         }
 
@@ -199,6 +208,15 @@ namespace MongoDB.Driver.Core.Clusters
 
             OnDescriptionChanged(oldClusterDescription, newClusterDescription);
             oldDescriptionChangedTaskCompletionSource.TrySetResult(true);
+        }
+
+        private string BuildTimeoutExceptionMessage(TimeSpan timeout, ClusterDescription clusterDescription)
+        {
+            var ms = (int)Math.Round(timeout.TotalMilliseconds);
+            return string.Format(
+                "A timeout occured after {0}ms selecting a server. Client view of cluster state is {1}.",
+                ms.ToString(),
+                clusterDescription.ToString());
         }
 
         private void ThrowIfDisposed()

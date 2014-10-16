@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var servers = string.Join(", ", _servers.Select(n => n.ToString()).ToArray());
             return string.Format(
-                "{{ ClusterId : {0}, Type : {1}, State : {2}, Servers : [{3}] }}",
+                "{{ ClusterId : \"{0}\", Type : \"{1}\", State : \"{2}\", Servers : [{3}] }}",
                 _clusterId,
                 _type,
                 State,

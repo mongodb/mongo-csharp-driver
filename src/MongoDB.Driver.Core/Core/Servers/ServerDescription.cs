@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Servers
         // fields
         private readonly TimeSpan _averageRoundTripTime;
         private readonly EndPoint _endPoint;
+        private readonly Exception _heartbeatException;
         private readonly int _maxBatchCount;
         private readonly int _maxDocumentSize;
         private readonly int _maxMessageSize;
@@ -53,6 +54,7 @@ namespace MongoDB.Driver.Core.Servers
             ServerId serverId,
             EndPoint endPoint,
             Optional<TimeSpan> averageRoundTripTime = default(Optional<TimeSpan>),
+            Optional<Exception> heartbeatException = default(Optional<Exception>),
             Optional<int> maxBatchCount = default(Optional<int>),
             Optional<int> maxDocumentSize = default(Optional<int>),
             Optional<int> maxMessageSize = default(Optional<int>),
@@ -73,6 +75,7 @@ namespace MongoDB.Driver.Core.Servers
 
             _averageRoundTripTime = averageRoundTripTime.WithDefault(TimeSpan.Zero);
             _endPoint = endPoint;
+            _heartbeatException = heartbeatException.WithDefault(null);
             _maxBatchCount = maxBatchCount.WithDefault(1000);
             _maxDocumentSize = maxDocumentSize.WithDefault(4 * 1024 * 1024);
             _maxMessageSize = maxMessageSize.WithDefault(Math.Max(_maxDocumentSize + 1024, 16000000));
@@ -95,6 +98,11 @@ namespace MongoDB.Driver.Core.Servers
         public EndPoint EndPoint
         {
             get { return _endPoint; }
+        }
+
+        public Exception HeartbeatException
+        {
+            get { return _heartbeatException; }
         }
 
         public int MaxBatchCount
@@ -168,6 +176,7 @@ namespace MongoDB.Driver.Core.Servers
             return
                 _averageRoundTripTime == rhs._averageRoundTripTime &&
                 EndPointHelper.Equals(_endPoint, rhs._endPoint) &&
+                object.Equals(_heartbeatException, rhs._heartbeatException) &&
                 _maxBatchCount == rhs._maxBatchCount &&
                 _maxDocumentSize == rhs._maxDocumentSize &&
                 _maxMessageSize == rhs._maxMessageSize &&
@@ -187,6 +196,7 @@ namespace MongoDB.Driver.Core.Servers
             return new Hasher()
                 .Hash(_averageRoundTripTime)
                 .Hash(_endPoint)
+                .Hash(_heartbeatException)
                 .Hash(_maxBatchCount)
                 .Hash(_maxDocumentSize)
                 .Hash(_maxMessageSize)
@@ -203,18 +213,22 @@ namespace MongoDB.Driver.Core.Servers
 
         public override string ToString()
         {
-            return string.Format(
-                "{{ ServerId : {0}, EndPoint : {1}, State : {2}, Type : {3}, Tags : {4}, WireVersionRange : {5} }}",
-                _serverId,
-                _endPoint,
-                _state,
-                _type,
-                _tags,
-                _wireVersionRange);
+            return new StringBuilder()
+                .Append("{ ")
+                .AppendFormat("ServerId: \"{0}\"", _serverId)
+                .AppendFormat(", EndPoint: \"{0}\"", _endPoint)
+                .AppendFormat(", State: \"{0}\"", _state)
+                .AppendFormat(", Type: \"{0}\"", _type)
+                .AppendFormatIf(_tags != null && !_tags.IsEmpty, ", Tags: \"{0}\"", _tags)
+                .AppendFormatIf( _state == ServerState.Connected, ", WireVersionRange: \"{0}\"", _wireVersionRange)
+                .AppendFormatIf(_heartbeatException != null, ", HeartbeatException: \"{0}\"", _heartbeatException)
+                .Append(" }")
+                .ToString();
         }
 
         public ServerDescription With(
             Optional<TimeSpan> averageRoundTripTime = default(Optional<TimeSpan>),
+            Optional<Exception> heartbeatException = default(Optional<Exception>),
             Optional<int> maxBatchCount = default(Optional<int>),
             Optional<int> maxDocumentSize = default(Optional<int>),
             Optional<int> maxMessageSize = default(Optional<int>),
@@ -228,6 +242,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (
                 averageRoundTripTime.Replaces(_averageRoundTripTime) ||
+                heartbeatException.Replaces(_heartbeatException) ||
                 maxBatchCount.Replaces(_maxBatchCount) ||
                 maxDocumentSize.Replaces(_maxDocumentSize) ||
                 maxMessageSize.Replaces(_maxMessageSize) ||
@@ -243,6 +258,7 @@ namespace MongoDB.Driver.Core.Servers
                     _serverId,
                     _endPoint,
                     averageRoundTripTime: averageRoundTripTime.WithDefault(_averageRoundTripTime),
+                    heartbeatException: heartbeatException.WithDefault(_heartbeatException),
                     maxBatchCount: maxBatchCount.WithDefault(_maxBatchCount),
                     maxDocumentSize: maxDocumentSize.WithDefault(_maxDocumentSize),
                     maxMessageSize: maxMessageSize.WithDefault(_maxMessageSize),

@@ -124,8 +124,8 @@ namespace MongoDB.Driver.Core.Clusters
         public void ToString_should_return_string_representation()
         {
             var subject = new ClusterDescription(new ClusterId(1), ClusterType.Standalone, new[] { __serverDescription1 });
-            var expected = string.Format("{{ ClusterId : 1, Type : Standalone, State : Disconnected, Servers : [{0}] }}",
-                __serverDescription1);
+            var expected = string.Format("{{ ClusterId : \"1\", Type : \"Standalone\", State : \"Disconnected\", Servers : [{0}] }}",
+                __serverDescription1.ToString());
             subject.ToString().Should().Be(expected);
         }
 
