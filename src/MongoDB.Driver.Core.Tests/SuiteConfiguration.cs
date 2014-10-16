@@ -148,7 +148,7 @@ namespace MongoDB.Driver
         private static DatabaseNamespace GetDatabaseNamespace()
         {
             var timestamp = DateTime.Now.ToString("MMddHHmm");
-            return new DatabaseNamespace("CoreTests" + timestamp);
+            return new DatabaseNamespace("DriverTests" + timestamp);
         }
 
         public static DatabaseNamespace GetDatabaseNamespaceForTestFixture()

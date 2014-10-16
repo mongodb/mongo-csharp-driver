@@ -2556,41 +2556,38 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1,heap1")]
         public void TestParallelScan()
         {
             if (_primary.Supports(FeatureId.ParallelScanCommand))
             {
                 var numberOfDocuments = 2000;
-                var requestedNumberOfCursors = 3;
-                var expectedNumberOfCursors = SuiteConfiguration.GetStorageEngine() == "mmapv1" ? 3 : 1;
-                var ids = new HashSet<int>();
+                var numberOfCursors = 3;
 
                 _collection.Drop();
                 for (int i = 0; i < numberOfDocuments; i++)
                 {
                     _collection.Insert(new BsonDocument("_id", i));
-                    ids.Add(i);
                 }
 
                 var enumerators = _collection.ParallelScanAs(typeof(BsonDocument), new ParallelScanArgs
                 {
                     BatchSize = 100,
-                    NumberOfCursors = requestedNumberOfCursors
+                    NumberOfCursors = numberOfCursors
                 });
+                Assert.That(enumerators.Count, Is.GreaterThanOrEqualTo(1));
 
+                var ids = new List<int>();
                 foreach (var enumerator in enumerators)
                 {
                     while (enumerator.MoveNext())
                     {
                         var document = (BsonDocument)enumerator.Current;
                         var id = document["_id"].ToInt32();
-                        Assert.AreEqual(true, ids.Remove(id));
+                        ids.Add(id);
                     }
                 }
 
-                Assert.AreEqual(expectedNumberOfCursors, enumerators.Count);
-                Assert.AreEqual(0, ids.Count);
+                Assert.That(ids, Is.EquivalentTo(Enumerable.Range(0, numberOfDocuments)));
             }
         }
 
