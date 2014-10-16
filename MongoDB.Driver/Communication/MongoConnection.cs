@@ -204,7 +204,15 @@ namespace MongoDB.Driver.Internal
             tcpClient.NoDelay = true; // turn off Nagle
             tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
             tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;
-            tcpClient.Connect(ipEndPoint);
+            try
+            {
+                tcpClient.Connect(ipEndPoint);
+            }
+            catch (SocketException ex)
+            {
+                var message = string.Format("Connection to {0}:{1} failed: {2}.", ipEndPoint.Address.ToString(), ipEndPoint.Port, ex.Message);
+                throw new MongoConnectionException(message, ex);
+            }
 
             var stream = (Stream)tcpClient.GetStream();
             if (_serverInstance.Settings.UseSsl)
