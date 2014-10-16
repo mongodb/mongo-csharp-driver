@@ -136,7 +136,11 @@ namespace MongoDB.Driver.Core.Configuration
                         connectionString.Username,
                         connectionString.Password);
 
-                if (connectionString.AuthMechanism == null || connectionString.AuthMechanism == MongoDBCRAuthenticator.MechanismName)
+                if (connectionString.AuthMechanism == null)
+                {
+                    return new DefaultAuthenticator(credential);
+                }
+                else if (connectionString.AuthMechanism == MongoDBCRAuthenticator.MechanismName)
                 {
                     return new MongoDBCRAuthenticator(credential);
                 }
