@@ -654,18 +654,20 @@ namespace MongoDB.Driver
         /// <returns>A list of collection names.</returns>
         public virtual IEnumerable<string> GetCollectionNames()
         {
-            List<string> collectionNames = new List<string>();
-            var namespaces = GetCollection("system.namespaces");
-            var prefix = _name + ".";
-            foreach (var @namespace in namespaces.FindAll())
+            var readPreference = ReadPreference.Primary;
+            var connection = _server.AcquireConnection(readPreference);
+            try
             {
-                string collectionName = @namespace["name"].AsString;
-                if (!collectionName.StartsWith(prefix, StringComparison.Ordinal)) { continue; }
-                if (collectionName.IndexOf('$') != -1) { continue; }
-                collectionNames.Add(collectionName.Substring(prefix.Length));
+                var readerSettings = GetBinaryReaderSettings();
+                var writerSettings = GetBinaryWriterSettings();
+                var operation = new ListCollectionsOperation(_name, readPreference, readerSettings, writerSettings);
+                return operation.Execute(connection).Select(c => c["name"].AsString).ToList().OrderBy(n => n);
+
             }
-            collectionNames.Sort();
-            return collectionNames;
+            finally
+            {
+                _server.ReleaseConnection(connection);
+            }
         }
 
         /// <summary>
@@ -1126,6 +1128,24 @@ namespace MongoDB.Driver
             return results.ToArray();
         }
         #pragma warning restore
+
+        private BsonBinaryReaderSettings GetBinaryReaderSettings()
+        {
+            return new BsonBinaryReaderSettings
+            {
+                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+        }
+
+        private BsonBinaryWriterSettings GetBinaryWriterSettings()
+        {
+            return new BsonBinaryWriterSettings
+            {
+                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+        }
 
         private TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command,

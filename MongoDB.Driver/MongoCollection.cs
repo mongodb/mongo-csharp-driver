@@ -1095,8 +1095,8 @@ namespace MongoDB.Driver
             var connection = _server.AcquireConnection(readPreference);
             try
             {
-                var readerSettings = GetReaderSettings(connection);
-                var writerSettings = GetWriterSettings(connection);
+                var readerSettings = GetBinaryReaderSettings();
+                var writerSettings = GetBinaryWriterSettings();
                 var operation = new ListIndexesOperation(_database.Name, _name, ReadPreference.Primary, readerSettings, writerSettings);
                 var result = operation.Execute(connection).ToArray();
                 return new GetIndexesResult(result);
