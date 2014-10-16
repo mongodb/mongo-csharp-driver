@@ -129,14 +129,14 @@ namespace MongoDB.Driver
         public static CollectionNamespace GetCollectionNamespaceForTestFixture()
         {
             var testFixtureType = GetTestFixtureTypeFromCallStack();
-            var collectionName = testFixtureType.Name;
+            var collectionName = TruncateCollectionNameIfTooLong(__databaseNamespace, testFixtureType.Name);
             return new CollectionNamespace(__databaseNamespace, collectionName);
         }
 
         public static CollectionNamespace GetCollectionNamespaceForTestMethod()
         {
             var testMethodInfo = GetTestMethodInfoFromCallStack();
-            var collectionName = testMethodInfo.DeclaringType.Name + "-" + testMethodInfo.Name;
+            var collectionName = TruncateCollectionNameIfTooLong(__databaseNamespace, testMethodInfo.DeclaringType.Name + "-" + testMethodInfo.Name);
             return new CollectionNamespace(__databaseNamespace, collectionName);
         }
 
@@ -148,13 +148,13 @@ namespace MongoDB.Driver
         private static DatabaseNamespace GetDatabaseNamespace()
         {
             var timestamp = DateTime.Now.ToString("MMddHHmm");
-            return new DatabaseNamespace("DriverTests" + timestamp);
+            return new DatabaseNamespace("Tests" + timestamp);
         }
 
         public static DatabaseNamespace GetDatabaseNamespaceForTestFixture()
         {
             var testFixtureType = GetTestFixtureTypeFromCallStack();
-            var databaseName = __databaseNamespace.DatabaseName + "-" + testFixtureType.Name;
+            var databaseName = TruncateDatabaseNameIfTooLong(__databaseNamespace.DatabaseName + "-" + testFixtureType.Name);
             return new DatabaseNamespace(databaseName);
         }
 
@@ -233,6 +233,32 @@ namespace MongoDB.Driver
             }
 
             throw new Exception("No [TestFixture] found on the call stack.");
+        }
+
+        private static string TruncateCollectionNameIfTooLong(DatabaseNamespace databaseNamespace, string collectionName)
+        {
+            var fullNameLength = databaseNamespace.DatabaseName.Length + 1 + collectionName.Length;
+            if (fullNameLength < 123)
+            {
+                return collectionName;
+            }
+            else
+            {
+                var maxCollectionNameLength = 123 - (databaseNamespace.DatabaseName.Length + 1);
+                return collectionName.Substring(0, maxCollectionNameLength);
+            }
+        }
+
+        private static string TruncateDatabaseNameIfTooLong(string databaseName)
+        {
+            if (databaseName.Length < 64)
+            {
+                return databaseName;
+            }
+            else
+            {
+                return databaseName.Substring(0, 63);
+            }
         }
         #endregion
 
