@@ -69,7 +69,8 @@ namespace MongoDB.Driver.Communication.Security
         /// </returns>
         public bool CanUse(MongoConnection connection, MongoCredential credential)
         {
-            return credential.Mechanism.Equals(Name, StringComparison.InvariantCultureIgnoreCase) &&
+            return credential.Mechanism != null && 
+                credential.Mechanism.Equals(Name, StringComparison.InvariantCultureIgnoreCase) &&
                 credential.Identity is MongoExternalIdentity &&
                 credential.Evidence is ExternalEvidence;
         }

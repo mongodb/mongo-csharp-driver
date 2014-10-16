@@ -51,6 +51,11 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <exception cref="System.NotImplementedException"></exception>
         public bool CanUse(MongoConnection connection, MongoCredential credential)
         {
+            if (credential.Mechanism == null)
+            {
+                return false;
+            }
+
             if (!credential.Mechanism.Equals(Name, StringComparison.InvariantCultureIgnoreCase) || !(credential.Identity is MongoExternalIdentity))
             {
                 return false;
