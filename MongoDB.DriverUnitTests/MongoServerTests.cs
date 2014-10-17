@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
@@ -218,15 +217,6 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestPing()
         {
-            // the following code is for diagnostic purposes
-            var instances = _server.Instances;
-            if (!instances.All(i => i.State == MongoServerState.Connected))
-            {
-                var status = string.Join(", ", instances.Select(i => string.Format("{0}:{1} is {2}", i.Address.Host, i.Address.Port, i.State)).ToArray());
-                var message = string.Format("Not all instances are connected: {0}.", status);
-                Assert.Fail(message);
-            }
-
             _server.Ping();
         }
 
