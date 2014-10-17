@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
     {
         // private static fields
         [ThreadStatic]
-        private readonly static Random __random = new Random((int)DateTime.Now.Ticks);
         private readonly static Version __scramSupportedVersion = new Version(2, 7, 5);
 
         // public properties
@@ -73,7 +72,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         {
             var gs2Header = "n,,";
             var username = "n=" + PrepUsername(credential.Username);
-            var r =GenerateRandomString();
+            var r = GenerateRandomString();
             var nonce = "r=" + r;
 
             var clientFirstMessageBare = username + "," + nonce;
@@ -81,33 +80,28 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
 
             return new ClientFirst(
                 Encoding.UTF8.GetBytes(clientFirstMessage),
-                clientFirstMessageBare, 
-                credential, 
+                clientFirstMessageBare,
+                credential,
                 r);
         }
 
         private string GenerateRandomString()
         {
-            const int count = 24; // this is what the RFC uses, although it is unspecified
-            const int comma = 44;
-            const int low = 33;
-            const int high = 126;
-            const int range = high - low;
+            const int length = 24; // this is what the RFC uses, although it is unspecified
+            const string legalCharacters = "!\"#$%&'()*+-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
-            var builder = new StringBuilder();
-            int ch;
-            for (int i = 0; i < count; i++)
+            var randomData = new byte[length];
+            var rng = new RNGCryptoServiceProvider();
+            rng.GetBytes(randomData);
+
+            var sb = new StringBuilder(length);
+            for (int i = 0; i < length; i++)
             {
-                ch = __random.Next(range) + low;
-                while (ch == comma)
-                {
-                    ch = __random.Next(range) + low;
-                }
-
-                builder.Append((char)ch);
+                int pos = randomData[i] % legalCharacters.Length;
+                sb.Append(legalCharacters[pos]);
             }
 
-            return builder.ToString();
+            return sb.ToString();
         }
 
         private string PrepUsername(string username)

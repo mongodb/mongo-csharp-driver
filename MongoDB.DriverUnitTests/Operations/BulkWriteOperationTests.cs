@@ -462,18 +462,8 @@ namespace MongoDB.DriverUnitTests.Operations
             bulk.Insert(documents[0]);
 
             var writeConcern = new WriteConcern { W = 2 };
-            if (_primary.BuildInfo.Version < new Version(2, 6, 0) || IsJournalEnabled())
-            {
-                var result = bulk.Execute(writeConcern);
-                var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result);
-                Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
-            }
-            else
-            {
-                Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
-                Assert.AreEqual(0, _collection.Count());
-            }
+            Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
+            Assert.AreEqual(0, _collection.Count());
         }
 
         [Test]
@@ -1259,41 +1249,6 @@ namespace MongoDB.DriverUnitTests.Operations
             return ordered ? collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
         }
 
-        private bool IsJournalEnabled()
-        {
-            var adminDatabase = _server.GetDatabase("admin");
-            var command = new CommandDocument("getCmdLineOpts", 1);
-            var result = adminDatabase.RunCommand(command);
-
-            BsonValue parsed;
-            if (result.Response.TryGetValue("parsed", out parsed))
-            {
-                // server versions prior to 2.6 report nojournal this way
-                BsonValue nojournal;
-                if (parsed.AsBsonDocument.TryGetValue("nojournal", out nojournal))
-                {
-                    return !nojournal.ToBoolean();
-                }
-
-                // server versions starting with 2.6 report nojournal a different way
-                BsonValue storage;
-                if (parsed.AsBsonDocument.TryGetValue("storage", out storage))
-                {
-                    BsonValue journal;
-                    if (storage.AsBsonDocument.TryGetValue("journal", out journal))
-                    {
-                        BsonValue enabled;
-                        if (journal.AsBsonDocument.TryGetValue("enabled", out enabled))
-                        {
-                            return enabled.ToBoolean();
-                        }
-                    }
-                }
-            }
-
-            return true;
-        }
-
         // nested classes
         private class ExpectedResult
         {
@@ -1307,7 +1262,7 @@ namespace MongoDB.DriverUnitTests.Operations
             private int? _processedRequestsCount;
             private int? _requestCount;
             private int? _upsertsCount;
-            
+
             // public properties
             public int? DeletedCount
             {

@@ -128,14 +128,14 @@ namespace MongoDB.DriverUnitTests
             {
                 if (!Configuration.TestClient.Settings.Credentials.Any())
                 {
-                    Assert.Ignore("Requires authentication but no credentials were provided.");
+                    Assert.Ignore("Requires authentication, but no credentials were provided.");
                 }
             }
             else
             {
                 if (Configuration.TestClient.Settings.Credentials.Any())
                 {
-                    Assert.Ignore("Requires no authentication but, credentials were provided.");
+                    Assert.Ignore("Requires no authentication, but credentials were provided.");
                 }
             }
         }
