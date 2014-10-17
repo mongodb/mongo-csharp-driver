@@ -462,8 +462,16 @@ namespace MongoDB.DriverUnitTests.Operations
             bulk.Insert(documents[0]);
 
             var writeConcern = new WriteConcern { W = 2 };
-            Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
-            Assert.AreEqual(0, _collection.Count());
+            if (_primary.BuildInfo.Version < new Version(2, 6, 0))
+            {
+                Assert.Throws<BulkWriteException>(() => { bulk.Execute(writeConcern); });
+                Assert.AreEqual(1, _collection.Count());
+            }
+            else
+            {
+                Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
+                Assert.AreEqual(0, _collection.Count());
+            }
         }
 
         [Test]
