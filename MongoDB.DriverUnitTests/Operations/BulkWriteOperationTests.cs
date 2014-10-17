@@ -448,8 +448,8 @@ namespace MongoDB.DriverUnitTests.Operations
         [Test]
         [TestCase(false)]
         [TestCase(true)]
-        [RequiresServer(StorageEngines = "mmapv1")]
-        public void TestNoJournal(bool ordered)
+        [RequiresServer(ServerTypes = ServerTypes.Standalone)]
+        public void TestNonDefaultWriteConcern(bool ordered)
         {
             _collection.Drop();
 
@@ -461,7 +461,7 @@ namespace MongoDB.DriverUnitTests.Operations
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(documents[0]);
 
-            var writeConcern = new WriteConcern { Journal = true };
+            var writeConcern = new WriteConcern { W = 2 };
             if (_primary.BuildInfo.Version < new Version(2, 6, 0) || IsJournalEnabled())
             {
                 var result = bulk.Execute(writeConcern);

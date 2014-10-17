@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MongoDB.Driver;
 using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests
@@ -28,27 +29,42 @@ namespace MongoDB.DriverUnitTests
         Off
     }
 
+    [Flags]
+    public enum ServerTypes
+    {
+        Standalone = 1,
+        ReplicaSetMember = 2,
+        ShardRouter = 4,
+        StandaloneOrReplicaSetMember = Standalone | ReplicaSetMember,
+        StandaloneOrShardRouter = Standalone | ShardRouter,
+        ReplicaSetMemberOrShardRouter = ReplicaSetMember | ShardRouter,
+        Any = Standalone | ReplicaSetMember | ShardRouter
+    }
+
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RequiresServerAttribute : CategoryAttribute, ITestAction
     {
         // fields
-        private readonly string _afterTestMethodName;
-        private readonly string _beforeTestMethodName;
         private IList<string> _storageEngines;
 
         // constructors
-        public RequiresServerAttribute(string beforeTestMethodName = null, string afterTestMethodName = null)
+        public RequiresServerAttribute()
             : base("RequiresServer")
         {
-            _beforeTestMethodName = beforeTestMethodName;
-            _afterTestMethodName = afterTestMethodName;
+            ServerTypes = ServerTypes.Any;
         }
 
         // properties
 
         public Authentication Authentication { get; set; }
 
+        public string AfterTestMethodName { get; set; }
+
+        public string BeforeTestMethodName { get; set; }
+
         public string MinimumVersion { get; set; }
+
+        public ServerTypes ServerTypes { get; set; }
 
         public string StorageEngines
         {
@@ -72,16 +88,17 @@ namespace MongoDB.DriverUnitTests
         // methods
         public void AfterTest(TestDetails details)
         {
-            InvokeMethod(details.Fixture, _afterTestMethodName);
+            InvokeMethod(details.Fixture, AfterTestMethodName);
         }
 
         public void BeforeTest(TestDetails details)
         {
             EnsureAuthentication();
             EnsureVersion();
+            EnsureServerTypes();
             EnsureStorageEngine();
 
-            InvokeMethod(details.Fixture, _beforeTestMethodName);
+            InvokeMethod(details.Fixture, BeforeTestMethodName);
         }
 
         private void InvokeMethod(object fixture, string methodName)
@@ -121,6 +138,33 @@ namespace MongoDB.DriverUnitTests
                     Assert.Ignore("Requires no authentication but, credentials were provided.");
                 }
             }
+        }
+
+        private void EnsureServerTypes()
+        {
+            if (ServerTypes == ServerTypes.Any)
+            {
+                return;
+            }
+
+            var instanceType = Configuration.TestServer.Primary.InstanceType;
+            if ((ServerTypes & ServerTypes.Standalone) == ServerTypes.Standalone && instanceType == MongoServerInstanceType.StandAlone)
+            {
+                return;
+            }
+
+            if ((ServerTypes & ServerTypes.ReplicaSetMember) == ServerTypes.ReplicaSetMember && instanceType == MongoServerInstanceType.ReplicaSetMember)
+            {
+                return;
+            }
+
+            if ((ServerTypes & ServerTypes.ShardRouter) == ServerTypes.ShardRouter && instanceType == MongoServerInstanceType.ShardRouter)
+            {
+                return;
+            }
+
+            var message = string.Format("Requires server type of {0}, but is connected to {1}.", ServerTypes, instanceType);
+            Assert.Ignore(message);
         }
 
         private void EnsureStorageEngine()
