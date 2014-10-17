@@ -84,6 +84,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(Authentication = Authentication.Off)]
         public void TestEvalNoArgs()
         {
             var code = "function() { return 1; }";
@@ -94,6 +95,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(Authentication = Authentication.Off)]
         public void TestEvalNoArgsNoLock()
         {
             var code = "function() { return 1; }";
@@ -104,6 +106,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(Authentication = Authentication.Off)]
         public void TestEvalWithMaxTime()
         {
             if (_primary.Supports(FeatureId.MaxTime))
@@ -125,6 +128,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(Authentication = Authentication.Off)]
         public void TestEvalWithOneArg()
         {
             var code = "function(x) { return x + 1; }";
@@ -135,6 +139,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(Authentication = Authentication.Off)]
         public void TestEvalWithOneArgNoLock()
         {
             var code = "function(x) { return x + 1; }";
@@ -145,6 +150,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(Authentication = Authentication.Off)]
         public void TestEvalWithTwoArgs()
         {
             var code = "function(x, y) { return x / y; }";
@@ -155,6 +161,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(Authentication = Authentication.Off)]
         public void TestEvalWithTwoArgsNoLock()
         {
             var code = "function(x, y) { return x / y; }";

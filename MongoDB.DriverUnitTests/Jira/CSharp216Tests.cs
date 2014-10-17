@@ -33,6 +33,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp216
         }
 
         [Test]
+        [RequiresServer(Authentication = Authentication.Off)]
         public void TestAmbiguousEvalArguments()
         {
             var code = "function (x, y) { return y; }";
@@ -46,6 +47,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp216
         }
 
         [Test]
+        [RequiresServer(Authentication = Authentication.Off)]
         public void TestNoLock()
         {
             var code = "function (x, y) { return y; }";
