@@ -30,7 +30,6 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
     internal class ScramSha1Mechanism : ISaslMechanism
     {
         // private static fields
-        [ThreadStatic]
         private readonly static Version __scramSupportedVersion = new Version(2, 7, 5);
 
         // public properties
