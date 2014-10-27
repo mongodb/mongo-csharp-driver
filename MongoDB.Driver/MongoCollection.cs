@@ -260,8 +260,10 @@ namespace MongoDB.Driver
                 { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
                 { "skip", () => args.Skip.Value, args.Skip.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } //optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }, //optional
+                { "hint", args.Hint, args.Hint != null}
             };
+
             var result = RunCommandAs<CommandResult>(command);
             return result.Response["n"].ToInt64();
         }
