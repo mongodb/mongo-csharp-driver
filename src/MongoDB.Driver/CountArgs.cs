@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -23,12 +24,21 @@ namespace MongoDB.Driver
     public class CountArgs
     {
         // private fields
+        private BsonValue _hint;
         private long? _limit;
         private TimeSpan? _maxTime;
         private IMongoQuery _query;
         private long? _skip;
 
         // public properties
+        /// <summary>
+        /// Gets or sets the hint.
+        /// </summary>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
+        }
         /// <summary>
         /// Gets or sets the maximum number of matching documents to count.
         /// </summary>

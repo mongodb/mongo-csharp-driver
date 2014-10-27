@@ -208,6 +208,7 @@ namespace MongoDB.Driver
             var operation = new CountOperation(_collectionNamespace, GetMessageEncoderSettings())
             {
                 Criteria = criteria,
+                Hint = args.Hint,
                 Limit = args.Limit,
                 MaxTime = args.MaxTime,
                 Skip = args.Skip
