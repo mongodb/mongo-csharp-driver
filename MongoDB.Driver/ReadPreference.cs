@@ -104,10 +104,6 @@ namespace MongoDB.Driver
             _readPreferenceMode = readPreferenceMode;
             if (tagSets != null)
             {
-                if (readPreferenceMode == ReadPreferenceMode.Primary)
-                {
-                    throw new ArgumentException("Tags cannot be used with ReadPreferenceMode Primary.", "tagSets");
-                }
                 _tagSets = new List<ReplicaSetTagSet>(tagSets);
                 _tagSetsReadOnly = _tagSets.AsReadOnly();
             }
@@ -192,10 +188,6 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    if (_readPreferenceMode == ReadPreferenceMode.Primary)
-                    {
-                        throw new ArgumentException("Tags cannot be used with ReadPreferenceMode Primary.", "value");
-                    }
                     _tagSets = new List<ReplicaSetTagSet>(value);
                     _tagSetsReadOnly = _tagSets.AsReadOnly();
                 }
@@ -253,10 +245,6 @@ namespace MongoDB.Driver
         public ReadPreference AddTagSet(ReplicaSetTagSet tagSet)
         {
             if (_isFrozen) { ThrowFrozenException(); }
-            if (_readPreferenceMode == ReadPreferenceMode.Primary)
-            {
-                throw new ArgumentException("Tags cannot be used with ReadPreferenceMode Primary.");
-            }
             if (_tagSets == null)
             {
                 _tagSets = new List<ReplicaSetTagSet>();
@@ -307,6 +295,14 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
+                if (_readPreferenceMode == ReadPreferenceMode.Primary)
+                {
+                    if (_tagSetsReadOnly != null && _tagSetsReadOnly.Count > 0)
+                    {
+                        throw new InvalidOperationException("Tags cannot be used with ReadPreferenceMode Primary.");
+                    }
+                }
+
                 if (_tagSets != null) { _tagSets.ForEach(s => s.Freeze()); }
                 _frozenHashCode = GetHashCode();
                 _isFrozen = true;
