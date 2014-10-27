@@ -120,8 +120,7 @@ namespace MongoDB.Bson.Serialization
                 {
                     foreach (var argument in _arguments)
                     {
-                        // compare MetadataTokens because ReflectedTypes could be different (see p. 774-5 of C# 5.0 In a Nutshell)
-                        var memberMap = allMemberMaps.FirstOrDefault(m => m.MemberInfo.MetadataToken == argument.MetadataToken);
+                        var memberMap = allMemberMaps.FirstOrDefault(m => IsSameMember(m.MemberInfo, argument));
                         if (memberMap == null)
                         {
                             var message = string.Format("Member '{0}' is not mapped.", argument.Name);
@@ -229,6 +228,12 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private methods
+        private bool IsSameMember(MemberInfo a, MemberInfo b)
+        {
+            // two MemberInfos refer to the same member if the Module and MetadataToken are equal
+            return a.Module == b.Module && a.MetadataToken == b.MetadataToken;
+        }
+
         private void ThrowFrozenException()
         {
             throw new InvalidOperationException("BsonCreatorMap is frozen.");
