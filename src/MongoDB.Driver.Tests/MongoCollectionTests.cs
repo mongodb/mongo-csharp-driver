@@ -462,6 +462,30 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public void TestCountWithHintFromFind()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.CreateIndex(IndexKeys.Ascending("x"));
+            var count = _collection.Find(Query.EQ("x", 1)).SetHint(new BsonDocument("x", 1)).Count();
+            Assert.AreEqual(1, count);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public void TestCountWithHintAndLimitFromFind()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.CreateIndex(IndexKeys.Ascending("x"));
+            var count = _collection.Find(Query.EQ("x", 1)).SetHint(new BsonDocument("x", 1)).SetLimit(2).Size();
+            Assert.AreEqual(1, count);
+        }
+
+        [Test]
         public void TestCreateCollection()
         {
             var collection = Configuration.TestCollection;
