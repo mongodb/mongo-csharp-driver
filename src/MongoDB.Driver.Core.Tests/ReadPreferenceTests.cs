@@ -80,12 +80,14 @@ namespace MongoDB.Driver
             var d = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ca") }) });
             var e = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ca") }) });
             var f = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ac") }) });
+            var g = new ReadPreference(ReadPreferenceMode.PrimaryPreferred, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ac") }) });
 
             a.Should().Be(b);
             b.Should().NotBe(c);
             c.Should().NotBe(d);
             d.Should().Be(e);
             e.Should().NotBe(f);
+            f.Should().NotBe(g);
         }
 
         [Test]

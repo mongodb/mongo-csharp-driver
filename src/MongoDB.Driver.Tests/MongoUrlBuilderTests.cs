@@ -590,6 +590,14 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void TestReadPreference_NoReadPreferenceModeWithOneTagSet()
+        {
+            var connectionString = "mongodb://localhost/?readPreferenceTags=dc:ny,rack:1";
+
+            Assert.Throws<ConfigurationException>(() => new MongoUrlBuilder(connectionString));
+        }
+
+        [Test]
         public void TestReadPreference_SecondaryWithOneTagSet()
         {
             var tagSets = new TagSet[]

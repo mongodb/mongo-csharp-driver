@@ -559,12 +559,9 @@ namespace MongoDB.Driver
             {
                 if (_readPreference == null)
                 {
-                    _readPreference = new ReadPreference(ReadPreferenceMode.PrimaryPreferred, connectionString.ReadPreferenceTags);
+                    throw new ConfigurationException("ReadPreferenceMode is required when using tag sets.");
                 }
-                else
-                {
-                    _readPreference = _readPreference.WithTagSets(connectionString.ReadPreferenceTags);
-                }
+                _readPreference = _readPreference.WithTagSets(connectionString.ReadPreferenceTags);
             }
 
             _replicaSetName = connectionString.ReplicaSet;
