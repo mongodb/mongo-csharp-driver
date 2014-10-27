@@ -267,7 +267,7 @@ namespace MongoDB.Driver
         {
             var cursorDefinition = typeof(MongoCursor<>);
             var cursorType = cursorDefinition.MakeGenericType(documentType);
-            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference), typeof(IBsonSerializer), typeof(IBsonSerializationOptions)});
+            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference), typeof(IBsonSerializer), typeof(IBsonSerializationOptions) });
             return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query, readPreference, serializer, serializationOptions });
         }
 
@@ -337,6 +337,11 @@ namespace MongoDB.Driver
         {
             _isFrozen = true;
             var args = new CountArgs { Query = _query };
+            BsonValue hint;
+            if (_options != null && _options.TryGetValue("$hint", out hint))
+            {
+                args.Hint = hint;
+            }
             return _collection.Count(args);
         }
 
@@ -664,6 +669,11 @@ namespace MongoDB.Driver
                 Limit = (_limit == 0) ? (int?)null : _limit,
                 Skip = (_skip == 0) ? (int?)null : _skip
             };
+            BsonValue hint;
+            if (_options != null && _options.TryGetValue("$hint", out hint))
+            {
+                args.Hint = hint;
+            }
             return _collection.Count(args);
         }
 
