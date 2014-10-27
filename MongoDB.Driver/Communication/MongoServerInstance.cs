@@ -34,7 +34,7 @@ namespace MongoDB.Driver
     {
         // private static fields
         private static int __nextSequentialId;
-        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(0, 2);
+        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(0, 3);
 
         // public events
         /// <summary>
