@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using MongoDB.Driver;
 using NUnit.Framework;
@@ -23,11 +24,28 @@ namespace MongoDB.DriverUnitTests
     public class ReadPreferenceTests
     {
         [Test]
+        public void TestAddTagSetThrowsWhenReadPreferenceModeIsPrimary()
+        {
+            var subject = new ReadPreference(ReadPreferenceMode.Primary);
+            var tagSet = new ReplicaSetTagSet { { "dc", "ny" } };
+
+            Assert.Throws<ArgumentException>(() => { subject.AddTagSet(tagSet); });
+        }
+
+        [Test]
         public void TestConstructor()
         {
             var subject = new ReadPreference();
             Assert.AreEqual(subject.ReadPreferenceMode, ReadPreferenceMode.Primary);
             Assert.IsNull(subject.TagSets);
+        }
+
+        [Test]
+        public void TestConstructorThrowsWhenTagsAreUsedWithReadPreferencePrimary()
+        {
+            var tagSets = new[] { new ReplicaSetTagSet { { "dc", "ny" } } };
+
+            Assert.Throws<ArgumentException>(() => { new ReadPreference(ReadPreferenceMode.Primary, tagSets); });
         }
 
         [Test]
@@ -109,6 +127,15 @@ namespace MongoDB.DriverUnitTests
             var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
 
             Assert.AreEqual(readPreference1, readPreference2);
+        }
+
+        [Test]
+        public void TestTagSetsThrowsWhenReadPreferenceModeIsPrimary()
+        {
+            var subject = new ReadPreference(ReadPreferenceMode.Primary);
+            var tagSets = new[] { new ReplicaSetTagSet { { "dc", "ny" } } };
+
+            Assert.Throws<ArgumentException>(() => { subject.TagSets = tagSets; });
         }
     }
 }

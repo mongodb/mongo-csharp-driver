@@ -39,10 +39,10 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void UsesSameMongoServerWhenReadPreferenceTagsAreTheSame()
         {
-            var client1 = new MongoClient("mongodb://localhost/?readPreferenceTags=dc:ny");
+            var client1 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
             var server1 = client1.GetServer();
 
-            var client2 = new MongoClient("mongodb://localhost/?readPreferenceTags=dc:ny");
+            var client2 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
             var server2 = client2.GetServer();
 
             Assert.AreSame(server1, server2);

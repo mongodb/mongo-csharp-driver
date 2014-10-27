@@ -104,6 +104,10 @@ namespace MongoDB.Driver
             _readPreferenceMode = readPreferenceMode;
             if (tagSets != null)
             {
+                if (readPreferenceMode == ReadPreferenceMode.Primary)
+                {
+                    throw new ArgumentException("Tags cannot be used with ReadPreferenceMode Primary.", "tagSets");
+                }
                 _tagSets = new List<ReplicaSetTagSet>(tagSets);
                 _tagSetsReadOnly = _tagSets.AsReadOnly();
             }
@@ -181,8 +185,20 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                _tagSets = new List<ReplicaSetTagSet>(value);
-                _tagSetsReadOnly = _tagSets.AsReadOnly();
+                if (value == null)
+                {
+                    _tagSets = null;
+                    _tagSetsReadOnly = null;
+                }
+                else
+                {
+                    if (_readPreferenceMode == ReadPreferenceMode.Primary)
+                    {
+                        throw new ArgumentException("Tags cannot be used with ReadPreferenceMode Primary.", "value");
+                    }
+                    _tagSets = new List<ReplicaSetTagSet>(value);
+                    _tagSetsReadOnly = _tagSets.AsReadOnly();
+                }
             }
         }
 
@@ -237,6 +253,10 @@ namespace MongoDB.Driver
         public ReadPreference AddTagSet(ReplicaSetTagSet tagSet)
         {
             if (_isFrozen) { ThrowFrozenException(); }
+            if (_readPreferenceMode == ReadPreferenceMode.Primary)
+            {
+                throw new ArgumentException("Tags cannot be used with ReadPreferenceMode Primary.");
+            }
             if (_tagSets == null)
             {
                 _tagSets = new List<ReplicaSetTagSet>();
