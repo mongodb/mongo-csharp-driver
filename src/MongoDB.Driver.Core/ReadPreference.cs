@@ -75,8 +75,14 @@ namespace MongoDB.Driver
 
         public ReadPreference(ReadPreferenceMode mode, IEnumerable<TagSet> tagSets)
         {
+            Ensure.IsNotNull(tagSets, "tagSets");
+            if (mode == ReadPreferenceMode.Primary && tagSets.Count() > 0)
+            {
+                throw new ArgumentException("TagSets cannot be used with ReadPreferenceMode Primary.", "tagSets");
+            }
+
             _mode = mode;
-            _tagSets = Ensure.IsNotNull(tagSets, "tagSets").ToList();
+            _tagSets = tagSets.ToList();
         }
 
         // properties

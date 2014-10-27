@@ -37,7 +37,7 @@ namespace MongoDB.Driver
         public void Constructor_should_copy_tagSets_list()
         {
             var tagSets = new[] { new TagSet(new[] { new Tag("name", "value") }) };
-            var readPreference = new ReadPreference(ReadPreferenceMode.Primary, tagSets);
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, tagSets);
             readPreference.TagSets.Should().NotBeSameAs(tagSets);
         }
 
@@ -57,6 +57,14 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public void Constructor_should_throw_when_mode_is_primary_and_tagSets_is_not_empty()
+        {
+            var tagSets = new[] { new TagSet(new[] { new Tag("name1", "value1") }), new TagSet(new[] { new Tag("name2", "value2") }) };
+            Action action = () => new ReadPreference(ReadPreferenceMode.Primary, tagSets);
+            action.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
         public void Constructor_should_throw_when_tagSets_is_null()
         {
             Action action = () => new ReadPreference(ReadPreferenceMode.Primary, null);
@@ -72,14 +80,12 @@ namespace MongoDB.Driver
             var d = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ca") }) });
             var e = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ca") }) });
             var f = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ac") }) });
-            var g = new ReadPreference(ReadPreferenceMode.Primary, new[] { new TagSet(new[] { new Tag("dc", "ny"), new Tag("dc", "ac") }) });
 
             a.Should().Be(b);
             b.Should().NotBe(c);
             c.Should().NotBe(d);
             d.Should().Be(e);
             e.Should().NotBe(f);
-            f.Should().NotBe(g);
         }
 
         [Test]
@@ -144,7 +150,7 @@ namespace MongoDB.Driver
         {
             var tagSets1 = new[] { new TagSet(new[] { new Tag("name1", "value1") }) };
             var tagSets2 = new[] { new TagSet(new[] { new Tag("name2", "value2") }) };
-            var readPreference1 = new ReadPreference(ReadPreferenceMode.Primary, tagSets1);
+            var readPreference1 = new ReadPreference(ReadPreferenceMode.Secondary, tagSets1);
             var readPreference2 = readPreference1.WithTagSets(tagSets2);
             readPreference2.Should().NotBeSameAs(readPreference1);
             readPreference2.TagSets.Should().Equal(tagSets2);
@@ -155,7 +161,7 @@ namespace MongoDB.Driver
         {
             var tagSets1 = new[] { new TagSet(new[] { new Tag("name", "value") }) };
             var tagSets2 = new[] { new TagSet(new[] { new Tag("name", "value") }) };
-            var readPreference1 = new ReadPreference(ReadPreferenceMode.Primary, tagSets1);
+            var readPreference1 = new ReadPreference(ReadPreferenceMode.Secondary, tagSets1);
             var readPreference2 = readPreference1.WithTagSets(tagSets2);
             readPreference2.Should().BeSameAs(readPreference1);
         }

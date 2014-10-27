@@ -559,9 +559,12 @@ namespace MongoDB.Driver
             {
                 if (_readPreference == null)
                 {
-                    _readPreference = ReadPreference.Primary;
+                    _readPreference = new ReadPreference(ReadPreferenceMode.PrimaryPreferred, connectionString.ReadPreferenceTags);
                 }
-                _readPreference = _readPreference.WithTagSets(connectionString.ReadPreferenceTags);
+                else
+                {
+                    _readPreference = _readPreference.WithTagSets(connectionString.ReadPreferenceTags);
+                }
             }
 
             _replicaSetName = connectionString.ReplicaSet;

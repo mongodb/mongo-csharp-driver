@@ -57,9 +57,9 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         }
 
         [Test]
-        public void Primary_should_select_the_primary_regardless_of_tags()
+        public void PrimaryPreferred_should_select_the_primary_regardless_of_tags()
         {
-            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.Primary, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
+            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.PrimaryPreferred, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
 
             var result = subject.SelectServers(_description, _description.Servers).ToList();
 
