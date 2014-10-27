@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Clusters
     internal abstract class Cluster : ICluster
     {
         // static fields
-        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(0, 2);
+        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(0, 3);
         private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
 
         // fields
