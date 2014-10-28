@@ -363,12 +363,12 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-#pragma warning disable 618
-                if (ex.CommandResult.ErrorMessage == "ns not found")
+                if (ex.ErrorMessage == "ns not found")
                 {
+#pragma warning disable 618
                     return ex.CommandResult;
-                }
 #pragma warning restore
+                }
                 throw;
             }
         }

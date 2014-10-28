@@ -80,12 +80,36 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
+        /// Gets the error code.
+        /// </summary>
+        public int Code
+        {
+            get { return _commandResult.Code ?? -1; }
+        }
+
+        /// <summary>
+        /// Gets the command.
+        /// </summary>
+        public BsonDocument Command
+        {
+            get { return _commandResult.Command.ToBsonDocument(); }
+        }
+
+        /// <summary>
         /// Gets the command result.
         /// </summary>
         [Obsolete("Use Result instead.")]
         public CommandResult CommandResult
         {
             get { return _commandResult; }
+        }
+
+        /// <summary>
+        /// Gets the error message.
+        /// </summary>
+        public string ErrorMessage
+        {
+            get { return _commandResult.ErrorMessage ?? "Unknown error."; }
         }
 
         /// <summary>

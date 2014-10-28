@@ -24,6 +24,35 @@ namespace MongoDB.DriverUnitTests.Exceptions
     public class MongoCommandExceptionTests
     {
         [Test]
+        public void Code_get_returns_expected_result()
+        {
+            var code = 123;
+            var response = new BsonDocument { { "code", code }, { "ok", 0 } };
+            var commandResult = new CommandResult(response);
+            commandResult.Command = new CommandDocument("commandName", 1);
+            var subject = new MongoCommandException(commandResult);
+
+            var result = subject.Code;
+
+            Assert.That(result, Is.EqualTo(code));
+        }
+
+        [Test]
+        public void Command_get_returns_expected_result()
+        {
+            var code = 123;
+            var response = new BsonDocument { { "code", code }, { "ok", 0 } };
+            var commandResult = new CommandResult(response);
+            var command = new CommandDocument("commandName", 1);
+            commandResult.Command = command;
+            var subject = new MongoCommandException(commandResult);
+
+            var result = subject.Command;
+
+            Assert.That(result, Is.SameAs(command));
+        }
+
+        [Test]
         public void CommandResult_get_should_return_expected_result()
         {
             var response = new BsonDocument("ok", 1);
@@ -87,6 +116,20 @@ namespace MongoDB.DriverUnitTests.Exceptions
             var subject = new MongoCommandException(message);
 
             Assert.That(subject.Message, Is.SameAs(message));
+        }
+
+        [Test]
+        public void ErrorMessage_get_returns_expected_result()
+        {
+            var errorMessage = "abc";
+            var response = new BsonDocument { { "errmsg", errorMessage }, { "ok", 0 } };
+            var commandResult = new CommandResult(response);
+            commandResult.Command = new CommandDocument("commandName", 1);
+            var subject = new MongoCommandException(commandResult);
+
+            var result = subject.ErrorMessage;
+
+            Assert.That(result, Is.EqualTo(errorMessage));
         }
 
         [Test]

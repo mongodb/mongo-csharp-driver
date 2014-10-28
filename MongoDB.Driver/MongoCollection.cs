@@ -299,8 +299,8 @@ namespace MongoDB.Driver
                     }
                     catch (MongoCommandException ex)
                     {
-#pragma warning disable 618
                         var translatedResult = new WriteConcernResult(ex.Result);
+#pragma warning disable 618
                         translatedResult.Command = ex.CommandResult.Command;
 #pragma warning restore
                         throw new WriteConcernException(ex.Message, translatedResult);
@@ -474,12 +474,12 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-#pragma warning disable 618
-                if (ex.CommandResult.ErrorMessage == "ns not found")
+                if (ex.ErrorMessage == "ns not found")
                 {
+#pragma warning disable 618
                     return ex.CommandResult;
-                }
 #pragma warning restore
+                }
                 throw;
             }
         }
@@ -651,8 +651,7 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-#pragma warning disable 618
-                if (ex.CommandResult.ErrorMessage == "No matching object found")
+                if (ex.ErrorMessage == "No matching object found")
                 {
                     // create a new command result with what the server should have responded
                     var response = new BsonDocument
@@ -662,7 +661,6 @@ namespace MongoDB.Driver
                     };
                     return new FindAndModifyResult(response) { Command = command };
                 }
-#pragma warning restore
                 throw;
             }
         }
@@ -704,8 +702,7 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-#pragma warning disable 618
-                if (ex.CommandResult.ErrorMessage == "No matching object found")
+                if (ex.ErrorMessage == "No matching object found")
                 {
                     // create a new command result with what the server should have responded
                     var response = new BsonDocument
@@ -715,7 +712,6 @@ namespace MongoDB.Driver
                     };
                     return new FindAndModifyResult(response) { Command = command };
                 }
-#pragma warning restore
                 throw;
             }
         }
