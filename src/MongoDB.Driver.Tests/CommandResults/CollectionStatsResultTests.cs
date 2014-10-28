@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.CommandResults
             Assert.AreEqual(1, result.ObjectCount);
             Assert.IsTrue(result.PaddingFactor > 0.0);
             Assert.IsTrue(result.StorageSize > 0);
-            if (_server.BuildInfo.Version != new Version(2, 7, 7))
+            if (_server.BuildInfo.Version < new Version(2, 7, 7) || _server.BuildInfo.Version > new Version(2, 7, 8))
             {
                 Assert.AreEqual(CollectionSystemFlags.HasIdIndex, result.SystemFlags);
             }
