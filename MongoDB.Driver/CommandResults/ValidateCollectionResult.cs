@@ -328,10 +328,8 @@ namespace MongoDB.Driver
                     var match = Regex.Match(Response["result"].AsString, @"padding\:(?<value>.+)");
                     return XmlConvert.ToDouble(match.Groups["value"].Value);
                 }
-                else
-                {
-                    return Response["padding"].ToDouble();
-                }
+                    
+                return Response.GetValue("padding", 1.0).ToDouble();
             }
         }
 
