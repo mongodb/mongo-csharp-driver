@@ -193,7 +193,7 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return CollectionSystemFlags.None;
+                    return CollectionSystemFlags.HasIdIndex;
                 }
             }
         }
