@@ -89,10 +89,9 @@ namespace MongoDB.Driver.Core.Operations
             }
             catch (MongoCommandException ex)
             {
-                var result = ex.Result;
-                if ((string)result["errmsg"] == "ns not found")
+                if (ex.ErrorMessage == "ns not found")
                 {
-                    return result;
+                    return ex.Result;
                 }
                 throw;
             }

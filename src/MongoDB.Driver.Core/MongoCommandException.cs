@@ -68,9 +68,19 @@ namespace MongoDB.Driver
         }
 
         // properties
+        public int Code
+        {
+            get { return _result.GetValue("code", -1).ToInt32(); }
+        }
+
         public BsonDocument Command
         {
             get { return _command; }
+        }
+
+        public string ErrorMessage
+        {
+            get { return _result.GetValue("errmsg", "Unknown error.").AsString; }
         }
 
         public BsonDocument Result

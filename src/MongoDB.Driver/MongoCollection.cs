@@ -410,10 +410,9 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-                var commandResult = new CommandResult(ex.Result);
-                if (commandResult.ErrorMessage == "ns not found")
+                if (ex.ErrorMessage == "ns not found")
                 {
-                    return commandResult;
+                    return new CommandResult(ex.Result);
                 }
                 throw;
             }
@@ -609,8 +608,7 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-                var commandResult = new CommandResult(ex.Result);
-                if (commandResult.ErrorMessage == "No matching object found")
+                if (ex.ErrorMessage == "No matching object found")
                 {
                     // create a new command result with what the server should have responded
                     var response = new BsonDocument
@@ -667,8 +665,7 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
-                var commandResult = new CommandResult(ex.Result);
-                if (commandResult.ErrorMessage == "No matching object found")
+                if (ex.ErrorMessage == "No matching object found")
                 {
                     // create a new command result with what the server should have responded
                     var response = new BsonDocument

@@ -138,7 +138,7 @@
     <Compile Include="Core\Connections\ConnectionDescriptionTests.cs" />
     <Compile Include="Core\Connections\BuildInfoResultTests.cs" />
     <Compile Include="Core\Connections\IsMasterResultTests.cs" />
-    <Compile Include="CommandExceptionTests.cs" />
+    <Compile Include="MongoCommandExceptionTests.cs" />
     <Compile Include="Core\Operations\DistinctOperationTests.cs" />
     <Compile Include="Core\Operations\CountOperationTests.cs" />
     <Compile Include="Core\Operations\CursorTests.cs" />
