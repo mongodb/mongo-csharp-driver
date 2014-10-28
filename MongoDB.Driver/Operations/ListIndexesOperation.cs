@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Operations
             }
             catch (MongoCommandException ex)
             {
-                var response = ex.CommandResult.Response;
+                var response = ex.Result;
                 BsonValue code;
                 if (response.TryGetValue("code", out code) && code.IsNumeric && code.ToInt32() == 26)
                 {

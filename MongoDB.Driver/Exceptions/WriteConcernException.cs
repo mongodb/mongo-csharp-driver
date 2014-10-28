@@ -56,7 +56,9 @@ namespace MongoDB.Driver
         /// </value>
         public WriteConcernResult WriteConcernResult
         {
+#pragma warning disable 618
             get { return (WriteConcernResult)CommandResult; }
+#pragma warning restore
         }
     }
 }

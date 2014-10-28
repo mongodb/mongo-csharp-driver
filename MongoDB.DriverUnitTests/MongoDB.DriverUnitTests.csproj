@@ -114,6 +114,7 @@
     <Compile Include="Communication\Security\PlainAuthenticationTests.cs" />
     <Compile Include="Communication\Security\GssapiAuthenticationTests.cs" />
     <Compile Include="Exceptions\ExceptionMapperTests.cs" />
+    <Compile Include="Exceptions\MongoCommandExceptionTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson2DCoordinatesTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson2DGeographicCoordinatesTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson2DProjectedCoordinatesTests.cs" />

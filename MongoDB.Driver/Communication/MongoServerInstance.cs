@@ -646,10 +646,12 @@ namespace MongoDB.Driver
                 catch (MongoCommandException ex)
                 {
                     // short term fix: if buildInfo fails due to auth we don't know the server version; see CSHARP-324
+#pragma warning disable 618
                     if (ex.CommandResult.ErrorMessage != "need to login")
                     {
                         throw;
                     }
+#pragma warning restore
                     buildInfo = null;
                 }
 

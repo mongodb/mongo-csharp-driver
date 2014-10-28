@@ -299,8 +299,10 @@ namespace MongoDB.Driver
                     }
                     catch (MongoCommandException ex)
                     {
-                        var translatedResult = new WriteConcernResult(ex.CommandResult.Response);
+#pragma warning disable 618
+                        var translatedResult = new WriteConcernResult(ex.Result);
                         translatedResult.Command = ex.CommandResult.Command;
+#pragma warning restore
                         throw new WriteConcernException(ex.Message, translatedResult);
                     }
                 }
@@ -472,10 +474,12 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
+#pragma warning disable 618
                 if (ex.CommandResult.ErrorMessage == "ns not found")
                 {
                     return ex.CommandResult;
                 }
+#pragma warning restore
                 throw;
             }
         }
@@ -647,6 +651,7 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
+#pragma warning disable 618
                 if (ex.CommandResult.ErrorMessage == "No matching object found")
                 {
                     // create a new command result with what the server should have responded
@@ -657,6 +662,7 @@ namespace MongoDB.Driver
                     };
                     return new FindAndModifyResult(response) { Command = command };
                 }
+#pragma warning restore
                 throw;
             }
         }
@@ -698,6 +704,7 @@ namespace MongoDB.Driver
             }
             catch (MongoCommandException ex)
             {
+#pragma warning disable 618
                 if (ex.CommandResult.ErrorMessage == "No matching object found")
                 {
                     // create a new command result with what the server should have responded
@@ -708,6 +715,7 @@ namespace MongoDB.Driver
                     };
                     return new FindAndModifyResult(response) { Command = command };
                 }
+#pragma warning restore
                 throw;
             }
         }

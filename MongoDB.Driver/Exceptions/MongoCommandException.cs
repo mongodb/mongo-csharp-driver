@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     public class MongoCommandException : MongoException
     {
         // private fields
-        private CommandResult _commandResult;
+        private readonly CommandResult _commandResult;
 
         // constructors
         /// <summary>
@@ -82,9 +82,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the command result.
         /// </summary>
+        [Obsolete("Use Result instead.")]
         public CommandResult CommandResult
         {
             get { return _commandResult; }
+        }
+
+        /// <summary>
+        /// Gets the command result.
+        /// </summary>
+        public BsonDocument Result
+        {
+            get { return _commandResult.Response; }
         }
 
         // private static methods
