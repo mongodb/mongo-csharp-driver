@@ -399,23 +399,9 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndexByName(string indexName)
         {
-            var command = new CommandDocument
-            {
-                { "deleteIndexes", _collectionNamespace.CollectionName }, // not FullName
-                { "index", indexName }
-            };
-            try
-            {
-                return RunCommandAs<CommandResult>(command);
-            }
-            catch (MongoCommandException ex)
-            {
-                if (ex.ErrorMessage == "ns not found")
-                {
-                    return new CommandResult(ex.Result);
-                }
-                throw;
-            }
+            var operation = new DropIndexOperation(_collectionNamespace, indexName, GetMessageEncoderSettings());
+            var response = ExecuteWriteOperation(operation);
+            return new CommandResult(response);
         }
 
         /// <summary>

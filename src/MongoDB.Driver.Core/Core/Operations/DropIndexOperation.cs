@@ -23,12 +23,12 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DropIndexOperation : IWriteOperation<BsonDocument>
+    public class DropIndexOperation : IWriteOperation<BsonDocument>, ICommandOperation
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
-        private string _indexName;
-        private MessageEncoderSettings _messageEncoderSettings;
+        private readonly CollectionNamespace _collectionNamespace;
+        private readonly string _indexName;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
         public DropIndexOperation(
@@ -46,26 +46,23 @@ namespace MongoDB.Driver.Core.Operations
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _indexName = Ensure.IsNotNullOrEmpty(indexName, "indexName");
-            _messageEncoderSettings = messageEncoderSettings;
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
         // properties
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public string IndexName
         {
             get { return _indexName; }
-            set { _indexName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         // methods
@@ -73,7 +70,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new BsonDocument
             {
-                { "deleteIndexes", _collectionNamespace.CollectionName },
+                { "dropIndexes", _collectionNamespace.CollectionName },
                 { "index", _indexName }
             };
         }

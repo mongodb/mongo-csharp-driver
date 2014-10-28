@@ -63,6 +63,7 @@
     <Compile Include="Core\Operations\CreateIndexesOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexRequestTests.cs" />
     <Compile Include="Core\Operations\DatabaseExistsOperationTests.cs" />
+    <Compile Include="Core\Operations\DropIndexOperationTests.cs" />
     <Compile Include="Core\Operations\ExplainOperationTests.cs" />
     <Compile Include="Core\Operations\FindOperationTests.cs" />
     <Compile Include="Core\Operations\DropCollectionOperationTests.cs" />
