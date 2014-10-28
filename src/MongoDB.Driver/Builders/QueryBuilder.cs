@@ -893,7 +893,7 @@ namespace MongoDB.Driver.Builders
                     }
                     else
                     {
-                        query.Add(clause);
+                        PromoteQueryToDollarAndForm(query, clause);
                     }
                 }
             }
