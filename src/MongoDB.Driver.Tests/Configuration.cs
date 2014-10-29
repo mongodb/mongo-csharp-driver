@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace MongoDB.Driver.Tests
 {
@@ -25,11 +24,11 @@ namespace MongoDB.Driver.Tests
     public static class Configuration
     {
         // private static fields
-        private static MongoClient __testClient;
-        private static MongoServer __testServer;
-        private static MongoDatabase __testDatabase;
-        private static MongoCollection<BsonDocument> __testCollection;
-        private static bool __testServerIsReplicaSet;
+        private static readonly MongoClient __testClient;
+        private static readonly MongoServer __testServer;
+        private static readonly MongoDatabase __testDatabase;
+        private static readonly MongoCollection<BsonDocument> __testCollection;
+        private static readonly bool __testServerIsReplicaSet;
 
         // static constructor
         static Configuration()
