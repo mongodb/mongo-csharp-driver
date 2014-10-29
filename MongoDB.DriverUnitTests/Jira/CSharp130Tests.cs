@@ -56,7 +56,9 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp130
 
                 // insert it once
                 _collection.Insert(c);
+#pragma warning disable 618
                 var lastError = _server.GetLastError();
+#pragma warning restore
                 Assert.AreEqual(0, lastError.DocumentsAffected);
                 Assert.IsFalse(lastError.HasLastErrorMessage);
                 Assert.IsNull(lastError.LastErrorMessage);
@@ -64,7 +66,9 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp130
 
                 // insert it again (expect duplicate key error, but no exception because WriteConcern = WriteConcern.Unacknowledged)
                 _collection.Insert(c);
+#pragma warning disable 618
                 lastError = _server.GetLastError();
+#pragma warning restore
                 Assert.AreEqual(0, lastError.DocumentsAffected);
                 Assert.IsTrue(lastError.HasLastErrorMessage);
                 Assert.IsNotNull(lastError.LastErrorMessage);

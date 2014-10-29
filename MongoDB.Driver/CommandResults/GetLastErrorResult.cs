@@ -24,6 +24,7 @@ namespace MongoDB.Driver
     /// </summary>
     [Serializable]
     [BsonSerializer(typeof(CommandResultSerializer))]
+    [Obsolete("This class will be removed in a later version of the driver.")]
     public class GetLastErrorResult : CommandResult
     {
         // constructors

@@ -42,7 +42,9 @@ namespace MongoDB.DriverUnitTests.CommandResults
             using (_database.RequestStart())
             {
                 _collection.Insert(new BsonDocument());
+#pragma warning disable 618
                 var result = _server.GetLastError();
+#pragma warning restore
                 Assert.IsFalse(result.HasLastErrorMessage);
                 Assert.IsFalse(result.UpdatedExisting);
                 Assert.AreEqual(0, result.DocumentsAffected);
@@ -65,7 +67,9 @@ namespace MongoDB.DriverUnitTests.CommandResults
                 var query = Query.EQ("_id", id);
                 var update = Update.Inc("x", 1);
                 _collection.Update(query, update);
+#pragma warning disable 618
                 var result = _server.GetLastError();
+#pragma warning restore
                 Assert.IsFalse(result.HasLastErrorMessage);
                 Assert.IsTrue(result.UpdatedExisting);
                 Assert.AreEqual(1, result.DocumentsAffected);
