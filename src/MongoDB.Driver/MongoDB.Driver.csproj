@@ -164,7 +164,6 @@
     <Compile Include="CommandResults\FindAndModifyResult.cs" />
     <Compile Include="CommandResults\GeoHaystackSearchResult.cs" />
     <Compile Include="CommandResults\GeoNearResult.cs" />
-    <Compile Include="CommandResults\GetLastErrorResult.cs" />
     <Compile Include="CommandResults\GetProfilingLevelResult.cs" />
     <Compile Include="CommandResults\IsMasterResult.cs" />
     <Compile Include="CommandResults\ValidateCollectionResult.cs" />

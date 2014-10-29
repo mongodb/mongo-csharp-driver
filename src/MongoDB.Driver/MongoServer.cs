@@ -632,16 +632,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the last error (if any) that occurred on this connection. You MUST be within a RequestStart to call this method.
-        /// </summary>
-        /// <returns>The last error (<see cref=" GetLastErrorResult"/>)</returns>
-        public virtual GetLastErrorResult GetLastError()
-        {
-            var adminDatabase = GetDatabase("admin");
-            return adminDatabase.GetLastError();
-        }
-
-        /// <summary>
         /// Gets the server instance.
         /// </summary>
         /// <param name="address">The address.</param>

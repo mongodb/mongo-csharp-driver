@@ -123,7 +123,6 @@
     <Compile Include="CommandResults\CommandResultTests.cs" />
     <Compile Include="CommandResults\IsMasterResultTests.cs" />
     <Compile Include="CommandResults\DatabaseStatsResultTests.cs" />
-    <Compile Include="CommandResults\GetLastErrorResultTests.cs" />
     <Compile Include="CommandResults\ValidateCollectionResultTests.cs" />
     <Compile Include="Communication\ClusterKeyTests.cs" />
     <Compile Include="Communication\ClusterRegistryTests.cs" />
@@ -201,7 +200,6 @@
     <Compile Include="Jira\CSharp110Tests.cs" />
     <Compile Include="Jira\CSharp111Tests.cs" />
     <Compile Include="Jira\CSharp112Tests.cs" />
-    <Compile Include="Jira\CSharp130Tests.cs" />
     <Compile Include="Jira\CSharp134Tests.cs" />
     <Compile Include="Jira\CSharp137Tests.cs" />
     <Compile Include="Jira\CSharp140Tests.cs" />
