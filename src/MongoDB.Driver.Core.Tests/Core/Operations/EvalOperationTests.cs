@@ -150,6 +150,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        [RequiresServer(Authentication = AuthenticationRequirement.Off)]
         public async Task ExecuteAsync_should_return_expected_result()
         {
             var function = "return 1";
@@ -165,6 +166,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        [RequiresServer(Authentication = AuthenticationRequirement.Off)]
         public async Task ExecuteAsync_should_return_expected_result_when_args_are_provided()
         {
             var function = "function(x) { return x; }";
@@ -190,6 +192,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        [RequiresServer(Authentication = AuthenticationRequirement.Off)]
         public async Task ExecuteAsync_should_return_expected_result_when_noLock_is_provided()
         {
             var function = "return 1";

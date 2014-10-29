@@ -86,39 +86,48 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestEvalNoArgs()
         {
-            var code = "function() { return 1; }";
+            if (!Configuration.TestClient.Settings.Credentials.Any())
+            {
+                var code = "function() { return 1; }";
 #pragma warning disable 618
-            var result = _database.Eval(code);
+                var result = _database.Eval(code);
 #pragma warning restore
-            Assert.AreEqual(1, result.ToInt32());
+                Assert.AreEqual(1, result.ToInt32());
+            }
         }
 
         [Test]
         public void TestEvalNoArgsNoLock()
         {
-            var code = "function() { return 1; }";
+            if (!Configuration.TestClient.Settings.Credentials.Any())
+            {
+                var code = "function() { return 1; }";
 #pragma warning disable 618
-            var result = _database.Eval(EvalFlags.NoLock, code);
+                var result = _database.Eval(EvalFlags.NoLock, code);
 #pragma warning restore
-            Assert.AreEqual(1, result.ToInt32());
+                Assert.AreEqual(1, result.ToInt32());
+            }
         }
 
         [Test]
         public void TestEvalWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime))
+            if (!Configuration.TestClient.Settings.Credentials.Any())
             {
-                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                if (_primary.Supports(FeatureId.MaxTime))
                 {
-                    if (failpoint.IsSupported())
+                    using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                     {
-                        failpoint.SetAlwaysOn();
-                        var args = new EvalArgs
+                        if (failpoint.IsSupported())
                         {
-                            Code = "return 0;",
-                            MaxTime = TimeSpan.FromMilliseconds(1)
-                        };
-                        Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
+                            failpoint.SetAlwaysOn();
+                            var args = new EvalArgs
+                            {
+                                Code = "return 0;",
+                                MaxTime = TimeSpan.FromMilliseconds(1)
+                            };
+                            Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
+                        }
                     }
                 }
             }
@@ -127,41 +136,53 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestEvalWithOneArg()
         {
-            var code = "function(x) { return x + 1; }";
+            if (!Configuration.TestClient.Settings.Credentials.Any())
+            {
+                var code = "function(x) { return x + 1; }";
 #pragma warning disable 618
-            var result = _database.Eval(code, 1);
+                var result = _database.Eval(code, 1);
 #pragma warning restore
-            Assert.AreEqual(2, result.ToInt32());
+                Assert.AreEqual(2, result.ToInt32());
+            }
         }
 
         [Test]
         public void TestEvalWithOneArgNoLock()
         {
-            var code = "function(x) { return x + 1; }";
+            if (!Configuration.TestClient.Settings.Credentials.Any())
+            {
+                var code = "function(x) { return x + 1; }";
 #pragma warning disable 618
-            var result = _database.Eval(EvalFlags.NoLock, code, 1);
+                var result = _database.Eval(EvalFlags.NoLock, code, 1);
 #pragma warning restore
-            Assert.AreEqual(2, result.ToInt32());
+                Assert.AreEqual(2, result.ToInt32());
+            }
         }
 
         [Test]
         public void TestEvalWithTwoArgs()
         {
-            var code = "function(x, y) { return x / y; }";
+            if (!Configuration.TestClient.Settings.Credentials.Any())
+            {
+                var code = "function(x, y) { return x / y; }";
 #pragma warning disable 618
-            var result = _database.Eval(code, 6, 2);
+                var result = _database.Eval(code, 6, 2);
 #pragma warning restore
-            Assert.AreEqual(3, result.ToInt32());
+                Assert.AreEqual(3, result.ToInt32());
+            }
         }
 
         [Test]
         public void TestEvalWithTwoArgsNoLock()
         {
-            var code = "function(x, y) { return x / y; }";
+            if (!Configuration.TestClient.Settings.Credentials.Any())
+            {
+                var code = "function(x, y) { return x / y; }";
 #pragma warning disable 618
-            var result = _database.Eval(EvalFlags.NoLock, code, 6, 2);
+                var result = _database.Eval(EvalFlags.NoLock, code, 6, 2);
 #pragma warning restore
-            Assert.AreEqual(3, result.ToInt32());
+                Assert.AreEqual(3, result.ToInt32());
+            }
         }
 
         [Test]

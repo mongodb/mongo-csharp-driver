@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
@@ -33,27 +34,33 @@ namespace MongoDB.Driver.Tests.Jira.CSharp216
         [Test]
         public void TestAmbiguousEvalArguments()
         {
-            var code = "function (x, y) { return y; }";
-            var objectArrayArg = new object[] { 1, 2, 3 };
-            var boolArg = true;
+            if (!Configuration.TestClient.Settings.Credentials.Any())
+            {
+                var code = "function (x, y) { return y; }";
+                var objectArrayArg = new object[] { 1, 2, 3 };
+                var boolArg = true;
 #pragma warning disable 618
-            var result = _database.Eval(code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
+                var result = _database.Eval(code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
 #pragma warning restore
-            Assert.AreEqual(BsonType.Boolean, result.BsonType);
-            Assert.AreEqual(true, result.AsBoolean);
+                Assert.AreEqual(BsonType.Boolean, result.BsonType);
+                Assert.AreEqual(true, result.AsBoolean);
+            }
         }
 
         [Test]
         public void TestNoLock()
         {
-            var code = "function (x, y) { return y; }";
-            var objectArrayArg = new object[] { 1, 2, 3 };
-            var boolArg = true;
+            if (!Configuration.TestClient.Settings.Credentials.Any())
+            {
+                var code = "function (x, y) { return y; }";
+                var objectArrayArg = new object[] { 1, 2, 3 };
+                var boolArg = true;
 #pragma warning disable 618
-            var result = _database.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
+                var result = _database.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
 #pragma warning restore
-            Assert.AreEqual(BsonType.Boolean, result.BsonType);
-            Assert.AreEqual(true, result.AsBoolean);
+                Assert.AreEqual(BsonType.Boolean, result.BsonType);
+                Assert.AreEqual(true, result.AsBoolean);
+            }
         }
     }
 }

@@ -21,6 +21,13 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver.Core
 {
+    public enum AuthenticationRequirement
+    {
+        Unspecified,
+        On,
+        Off
+    }
+
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RequiresServerAttribute : CategoryAttribute, ITestAction
     {
@@ -38,6 +45,8 @@ namespace MongoDB.Driver.Core
         }
 
         // properties
+
+        public AuthenticationRequirement Authentication { get; set; }
 
         public string MinimumVersion { get; set; }
 
@@ -68,6 +77,7 @@ namespace MongoDB.Driver.Core
 
         public void BeforeTest(TestDetails details)
         {
+            EnsureAuthentication();
             EnsureVersion();
             EnsureStorageEngine();
 
@@ -87,6 +97,29 @@ namespace MongoDB.Driver.Core
                     Assert.Fail(message);
                 }
                 methodInfo.Invoke(methodInfo.IsStatic ? null : fixture, new object[0]);
+            }
+        }
+
+        private void EnsureAuthentication()
+        {
+            if (Authentication == AuthenticationRequirement.Unspecified)
+            {
+                return;
+            }
+
+            if (Authentication == AuthenticationRequirement.On)
+            {
+                if (SuiteConfiguration.ConnectionString.Username == null)
+                {
+                    Assert.Ignore("Requires authentication but no credentials were provided.");
+                }
+            }
+            else
+            {
+                if (SuiteConfiguration.ConnectionString.Username != null)
+                {
+                    Assert.Ignore("Requires no authentication but credentials were provided.");
+                }
             }
         }
 
