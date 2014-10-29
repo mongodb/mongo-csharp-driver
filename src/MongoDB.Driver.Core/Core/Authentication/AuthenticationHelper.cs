@@ -30,15 +30,18 @@ namespace MongoDB.Driver.Core.Authentication
     {
         private static readonly UTF8Encoding __encoding = new UTF8Encoding(false, true);
 
-        public static async Task AuthenticateAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, TimeSpan timeout, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(connection, "connection");
+            Ensure.IsNotNull(description, "description");
+
             // authentication is currently broken on arbiters
-            if (!connection.Description.IsMasterResult.IsArbiter)
+            if (!description.IsMasterResult.IsArbiter)
             {
                 var slidingTimeout = new SlidingTimeout(timeout);
                 foreach (var authenticator in connection.Settings.Authenticators)
                 {
-                    await authenticator.AuthenticateAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                    await authenticator.AuthenticateAsync(connection, description, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 }
             }
         }

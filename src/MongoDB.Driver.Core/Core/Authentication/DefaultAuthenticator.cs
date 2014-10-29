@@ -49,10 +49,10 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // methods
-        public Task AuthenticateAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task AuthenticateAsync(IConnection connection, ConnectionDescription description, TimeSpan timeout, CancellationToken cancellationToken)
         {
             IAuthenticator authenticator;
-            if (connection.Description.BuildInfoResult.ServerVersion >= __scramVersionRequirement)
+            if (description.BuildInfoResult.ServerVersion >= __scramVersionRequirement)
             {
                 authenticator = new ScramSha1Authenticator(_credential, _randomStringGenerator);
             }
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Authentication
                 authenticator = new MongoDBCRAuthenticator(_credential);
             }
 
-            return authenticator.AuthenticateAsync(connection, timeout, cancellationToken);
+            return authenticator.AuthenticateAsync(connection, description, timeout, cancellationToken);
         }
     }
 }

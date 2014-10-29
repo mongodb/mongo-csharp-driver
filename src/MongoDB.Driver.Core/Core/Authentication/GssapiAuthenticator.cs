@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Authentication
                 get { return MechanismName; }
             }
 
-            public ISaslStep Initialize(IConnection connection)
+            public ISaslStep Initialize(IConnection connection, ConnectionDescription description)
             {
                 string hostName;
                 var dnsEndPoint = connection.EndPoint as DnsEndPoint;

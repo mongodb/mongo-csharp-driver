@@ -209,10 +209,9 @@ namespace MongoDB.Driver.Core.Connections
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 _state.TryChange(State.Initializing);
                 StartBackgroundTasks();
-                _description = await _connectionInitializer.InitializeConnectionAsync(this, _connectionId, slidingTimeout, cancellationToken).ConfigureAwait(false);
-                _connectionId = _description.ConnectionId;
-                await AuthenticationHelper.AuthenticateAsync(this, slidingTimeout, cancellationToken);
+                _description = await _connectionInitializer.InitializeConnectionAsync(this, slidingTimeout, cancellationToken).ConfigureAwait(false);
                 stopwatch.Stop();
+                _connectionId = _description.ConnectionId;
                 _state.TryChange(State.Open);
 
                 if (_listener != null)

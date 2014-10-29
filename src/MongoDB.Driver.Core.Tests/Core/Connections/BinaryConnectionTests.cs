@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Connections
             var serverId = new ServerId(new ClusterId(), _endPoint);
 
             _connectionInitializer = Substitute.For<IConnectionInitializer>();
-            _connectionInitializer.InitializeConnectionAsync(null, null, Timeout.InfiniteTimeSpan, CancellationToken.None)
+            _connectionInitializer.InitializeConnectionAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None)
                 .ReturnsForAnyArgs(Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
                     new IsMasterResult(new BsonDocument()),
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var result = new TaskCompletionSource<ConnectionDescription>();
             result.SetException(new SocketException());
-            _connectionInitializer.InitializeConnectionAsync(null, null, default(TimeSpan), default(CancellationToken))
+            _connectionInitializer.InitializeConnectionAsync(null, default(TimeSpan), default(CancellationToken))
                 .ReturnsForAnyArgs(result.Task);
 
             Action act = () => _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();

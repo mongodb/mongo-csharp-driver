@@ -29,11 +29,11 @@ namespace MongoDB.Driver.Core.Authentication
         public abstract string DatabaseName { get; }
 
         // methods
-        public async Task AuthenticateAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, TimeSpan timeout, CancellationToken cancellationToken)
         {
             using (var conversation = new SaslConversation())
             {
-                var currentStep = _mechanism.Initialize(connection);
+                var currentStep = _mechanism.Initialize(connection, description);
 
                 var command = new BsonDocument
                 {
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.Authentication
             string Name { get; }
 
             // methods
-            ISaslStep Initialize(IConnection connection);
+            ISaslStep Initialize(IConnection connection, ConnectionDescription description);
         }
 
         protected interface ISaslStep

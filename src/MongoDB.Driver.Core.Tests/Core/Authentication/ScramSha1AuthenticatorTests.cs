@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using NUnit.Framework;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -34,6 +35,10 @@ namespace MongoDB.Driver.Core.Authentication
         private static readonly UsernamePasswordCredential __credential = new UsernamePasswordCredential("source", "user", "pencil");
         private static readonly ClusterId __clusterId = new ClusterId();
         private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
+        private static readonly ConnectionDescription __description = new ConnectionDescription(
+            new ConnectionId(__serverId),
+            new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
+            new BuildInfoResult(new BsonDocument("version", "2.6.0")));
 
         [Test]
         public void Constructor_should_throw_an_ArgumentNullException_when_credential_is_null()
@@ -52,7 +57,7 @@ namespace MongoDB.Driver.Core.Authentication
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
-            Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.AuthenticateAsync(connection, __description, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<MongoAuthenticationException>();
         }
@@ -70,7 +75,7 @@ namespace MongoDB.Driver.Core.Authentication
             connection.EnqueueReplyMessage(saslStartReply);
 
             var currentRequestId = RequestMessage.CurrentGlobalRequestId;
-            Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.AuthenticateAsync(connection, __description, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
             act.ShouldThrow<MongoAuthenticationException>();
         }
 
@@ -90,7 +95,7 @@ namespace MongoDB.Driver.Core.Authentication
             connection.EnqueueReplyMessage(saslContinueReply);
 
             var currentRequestId = RequestMessage.CurrentGlobalRequestId;
-            Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.AuthenticateAsync(connection, __description, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
             act.ShouldThrow<MongoAuthenticationException>();
         }
 
@@ -110,7 +115,7 @@ namespace MongoDB.Driver.Core.Authentication
             connection.EnqueueReplyMessage(saslContinueReply);
 
             var currentRequestId = RequestMessage.CurrentGlobalRequestId;
-            Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.AuthenticateAsync(connection, __description, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
             act.ShouldNotThrow();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());

@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Authentication
                 get { return MechanismName; }
             }
 
-            public ISaslStep Initialize(IConnection connection)
+            public ISaslStep Initialize(IConnection connection, ConnectionDescription description)
             {
                 const string gs2Header = "n,,";
                 var username = "n=" + PrepUsername(_credential.Username);

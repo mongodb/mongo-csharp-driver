@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
 
             // methods
-            public ISaslStep Initialize(IConnection connection)
+            public ISaslStep Initialize(IConnection connection, ConnectionDescription description)
             {
                 var dataString = string.Format("\0{0}\0{1}",
                     _credential.Username,

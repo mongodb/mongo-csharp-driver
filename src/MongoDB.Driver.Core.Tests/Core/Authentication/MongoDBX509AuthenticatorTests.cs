@@ -23,6 +23,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
 using NUnit.Framework;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -31,6 +32,10 @@ namespace MongoDB.Driver.Core.Authentication
     {
         private static readonly ClusterId __clusterId = new ClusterId();
         private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
+        private static readonly ConnectionDescription __description = new ConnectionDescription(
+            new ConnectionId(__serverId),
+            new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
+            new BuildInfoResult(new BsonDocument("version", "2.6.0")));
 
         [Test]
         [TestCase(null)]
@@ -51,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
-            Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.AuthenticateAsync(connection, __description, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<MongoAuthenticationException>();
         }
@@ -67,7 +72,7 @@ namespace MongoDB.Driver.Core.Authentication
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
-            Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.AuthenticateAsync(connection, __description, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldNotThrow();
         }

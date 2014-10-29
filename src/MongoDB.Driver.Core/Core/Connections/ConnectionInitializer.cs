@@ -17,6 +17,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 
@@ -27,10 +28,9 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
-        public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, ConnectionId connectionId, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
-            Ensure.IsNotNull(connectionId, "connectionId");
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
 
             var slidingTimeout = new SlidingTimeout(timeout);
@@ -43,14 +43,27 @@ namespace MongoDB.Driver.Core.Connections
             var buildInfoProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, buildInfoCommand, true, null);
             var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false));
 
-            var getLastErrorCommand = new BsonDocument("getLastError", 1);
-            var getLastErrorProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, getLastErrorCommand, true, null);
-            var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+            var connectionId = connection.ConnectionId;
+            var description = new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
 
-            BsonValue connectionIdBsonValue;
-            if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))
+            await AuthenticationHelper.AuthenticateAsync(connection, description, slidingTimeout, cancellationToken);
+
+            try
             {
-                connectionId = connectionId.WithServerValue(connectionIdBsonValue.ToInt32());
+                var getLastErrorCommand = new BsonDocument("getLastError", 1);
+                var getLastErrorProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, getLastErrorCommand, true, null);
+                var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+
+                BsonValue connectionIdBsonValue;
+                if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))
+                {
+                    connectionId = connectionId.WithServerValue(connectionIdBsonValue.ToInt32());
+                }
+            }
+            catch
+            {
+                // if we couldn't get the server's connection id, so be it.
+                return description;
             }
 
             return new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
