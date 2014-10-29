@@ -15,8 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core
@@ -28,25 +31,52 @@ namespace MongoDB.Driver.Core
         Off
     }
 
+    [Flags]
+    public enum ClusterTypes
+    {
+        Standalone = 1,
+        ReplicaSet = 2,
+        Sharded = 4,
+        StandaloneOrReplicaSet = Standalone | ReplicaSet,
+        StandaloneOrSharded = Standalone | Sharded,
+        ReplicaSetOrSharded = ReplicaSet | Sharded,
+        Any = Standalone | ReplicaSet | Sharded
+    }
+
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RequiresServerAttribute : CategoryAttribute, ITestAction
     {
         // fields
-        private readonly string _afterTestMethodName;
-        private readonly string _beforeTestMethodName;
         private IList<string> _storageEngines;
 
         // constructors
-        public RequiresServerAttribute(string beforeTestMethodName = null, string afterTestMethodName = null)
+        public RequiresServerAttribute()
             : base("RequiresServer")
         {
-            _beforeTestMethodName = beforeTestMethodName;
-            _afterTestMethodName = afterTestMethodName;
+            ClusterTypes = ClusterTypes.Any;
+        }
+
+        public RequiresServerAttribute(string beforeTestMethodName)
+            : this()
+        {
+            BeforeTestMethodName = beforeTestMethodName;
+        }
+
+        public RequiresServerAttribute(string beforeTestMethodName, string afterTestMethodName)
+            : this(beforeTestMethodName)
+        {
+            AfterTestMethodName = afterTestMethodName;
         }
 
         // properties
 
         public AuthenticationRequirement Authentication { get; set; }
+
+        public string AfterTestMethodName { get; set; }
+
+        public string BeforeTestMethodName { get; set; }
+
+        public ClusterTypes ClusterTypes { get; set; }
 
         public string MinimumVersion { get; set; }
 
@@ -72,16 +102,17 @@ namespace MongoDB.Driver.Core
         // methods
         public void AfterTest(TestDetails details)
         {
-            InvokeMethod(details.Fixture, _afterTestMethodName);
+            InvokeMethod(details.Fixture, AfterTestMethodName);
         }
 
         public void BeforeTest(TestDetails details)
         {
             EnsureAuthentication();
             EnsureVersion();
+            EnsureClusterTypes();
             EnsureStorageEngine();
 
-            InvokeMethod(details.Fixture, _beforeTestMethodName);
+            InvokeMethod(details.Fixture, BeforeTestMethodName);
         }
 
         private void InvokeMethod(object fixture, string methodName)
@@ -121,6 +152,33 @@ namespace MongoDB.Driver.Core
                     Assert.Ignore("Requires no authentication but credentials were provided.");
                 }
             }
+        }
+
+        private void EnsureClusterTypes()
+        {
+            if (ClusterTypes == ClusterTypes.Any)
+            {
+                return;
+            }
+
+            var clusterType = SuiteConfiguration.Cluster.Description.Type;
+            if ((ClusterTypes & ClusterTypes.Standalone) == ClusterTypes.Standalone && clusterType == ClusterType.Standalone)
+            {
+                return;
+            }
+
+            if ((ClusterTypes & ClusterTypes.ReplicaSet) == ClusterTypes.ReplicaSet && clusterType == ClusterType.ReplicaSet)
+            {
+                return;
+            }
+
+            if ((ClusterTypes & ClusterTypes.Sharded) == ClusterTypes.Sharded && clusterType == ClusterType.Sharded)
+            {
+                return;
+            }
+
+            var message = string.Format("Requires server type of {0}, but is connected to {1}.", ClusterTypes, clusterType);
+            Assert.Ignore(message);
         }
 
         private void EnsureStorageEngine()

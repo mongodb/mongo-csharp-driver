@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer(afterTestMethodName: "DropDatabase")]
+        [RequiresServer(AfterTestMethodName = "DropDatabase")]
         public async Task ExecuteAsync_should_return_true_when_database_exists()
         {
             Insert(BsonDocument.Parse("{x:1}")); // ensure database exists

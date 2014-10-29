@@ -455,8 +455,8 @@ namespace MongoDB.Driver.Tests.Operations
         [Test]
         [TestCase(false)]
         [TestCase(true)]
-        [RequiresServer(StorageEngines = "mmapv1")]
-        public void TestNoJournal(bool ordered)
+        [RequiresServer(ClusterTypes = ClusterTypes.Standalone)]
+        public void TestNonDefaultWriteConcern(bool ordered)
         {
             _collection.Drop();
 
@@ -468,13 +468,11 @@ namespace MongoDB.Driver.Tests.Operations
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(documents[0]);
 
-            var writeConcern = WriteConcern.Acknowledged.WithJournal(true);
-            if (_primary.BuildInfo.Version < new Version(2, 6, 0) || IsJournalEnabled())
+            var writeConcern = WriteConcern.W2;
+            if (_primary.BuildInfo.Version < new Version(2, 6, 0))
             {
-                var result = bulk.Execute(writeConcern);
-                var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result);
-                Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
+                Assert.Throws<BulkWriteException>(() => { bulk.Execute(writeConcern); });
+                Assert.AreEqual(1, _collection.Count());
             }
             else
             {
@@ -1248,41 +1246,6 @@ namespace MongoDB.Driver.Tests.Operations
             return ordered ? collection.InitializeOrderedBulkOperation() : collection.InitializeUnorderedBulkOperation();
         }
 
-        private bool IsJournalEnabled()
-        {
-            var adminDatabase = _server.GetDatabase("admin");
-            var command = new CommandDocument("getCmdLineOpts", 1);
-            var result = adminDatabase.RunCommand(command);
-
-            BsonValue parsed;
-            if (result.Response.TryGetValue("parsed", out parsed))
-            {
-                // server versions prior to 2.6 report nojournal this way
-                BsonValue nojournal;
-                if (parsed.AsBsonDocument.TryGetValue("nojournal", out nojournal))
-                {
-                    return !nojournal.ToBoolean();
-                }
-
-                // server versions starting with 2.6 report nojournal a different way
-                BsonValue storage;
-                if (parsed.AsBsonDocument.TryGetValue("storage", out storage))
-                {
-                    BsonValue journal;
-                    if (storage.AsBsonDocument.TryGetValue("journal", out journal))
-                    {
-                        BsonValue enabled;
-                        if (journal.AsBsonDocument.TryGetValue("enabled", out enabled))
-                        {
-                            return enabled.ToBoolean();
-                        }
-                    }
-                }
-            }
-
-            return true;
-        }
-
         // nested classes
         private class ExpectedResult
         {
@@ -1296,7 +1259,7 @@ namespace MongoDB.Driver.Tests.Operations
             private int? _processedRequestsCount;
             private int? _requestCount;
             private int? _upsertsCount;
-            
+
             // public properties
             public int? DeletedCount
             {
