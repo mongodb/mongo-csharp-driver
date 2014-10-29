@@ -164,7 +164,6 @@ namespace MongoDB.Driver.Core.Operations
                 var result = await subject.ExecuteAsync(binding);
 
                 result["ok"].ToBoolean().Should().BeTrue();
-                result["nIndexesWas"].ToInt32().Should().Be(2);
             }
         }
 

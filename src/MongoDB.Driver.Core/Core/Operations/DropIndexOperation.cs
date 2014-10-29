@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             catch (MongoCommandException ex)
             {
-                if (ex.ErrorMessage == "ns not found")
+                if (ex.ErrorMessage != null && ex.ErrorMessage.Contains("ns not found"))
                 {
                     return ex.Result;
                 }
