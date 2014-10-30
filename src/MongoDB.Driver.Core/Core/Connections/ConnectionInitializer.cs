@@ -58,15 +58,15 @@ namespace MongoDB.Driver.Core.Connections
                 if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))
                 {
                     connectionId = connectionId.WithServerValue(connectionIdBsonValue.ToInt32());
+                    description = description.WithConnectionId(connectionId);
                 }
             }
             catch
             {
                 // if we couldn't get the server's connection id, so be it.
-                return description;
             }
 
-            return new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
+            return description;
         }
     }
 }

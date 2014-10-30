@@ -111,5 +111,10 @@ namespace MongoDB.Driver.Core.Connections
                 .Hash(_isMasterResult)
                 .GetHashCode();
         }
+
+        public ConnectionDescription WithConnectionId(ConnectionId value)
+        {
+            return _connectionId.Equals(value) ? this : new ConnectionDescription(value, _isMasterResult, _buildInfoResult);
+        }
     }
 }
