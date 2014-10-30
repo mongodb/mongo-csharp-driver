@@ -31,6 +31,9 @@ namespace MongoDB.Driver.Core.Authentication
         // methods
         public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, TimeSpan timeout, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(connection, "connection");
+            Ensure.IsNotNull(description, "description");
+
             using (var conversation = new SaslConversation())
             {
                 var currentStep = _mechanism.Initialize(connection, description);

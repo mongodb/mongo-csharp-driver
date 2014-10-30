@@ -64,6 +64,9 @@ namespace MongoDB.Driver.Core.Authentication
             // methods
             public ISaslStep Initialize(IConnection connection, ConnectionDescription description)
             {
+                Ensure.IsNotNull(connection, "connection");
+                Ensure.IsNotNull(description, "description");
+
                 var dataString = string.Format("\0{0}\0{1}",
                     _credential.Username,
                     _credential.GetInsecurePassword());

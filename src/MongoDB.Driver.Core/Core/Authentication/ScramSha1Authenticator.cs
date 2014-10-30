@@ -56,6 +56,9 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Initialize(IConnection connection, ConnectionDescription description)
             {
+                Ensure.IsNotNull(connection, "connection");
+                Ensure.IsNotNull(description, "description");
+
                 const string gs2Header = "n,,";
                 var username = "n=" + PrepUsername(_credential.Username);
                 var r = GenerateRandomString();

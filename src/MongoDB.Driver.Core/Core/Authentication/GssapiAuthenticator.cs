@@ -140,6 +140,9 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Initialize(IConnection connection, ConnectionDescription description)
             {
+                Ensure.IsNotNull(connection, "connection");
+                Ensure.IsNotNull(description, "description");
+
                 string hostName;
                 var dnsEndPoint = connection.EndPoint as DnsEndPoint;
                 if (dnsEndPoint != null)
