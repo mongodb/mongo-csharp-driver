@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public ConnectionDescription WithConnectionId(ConnectionId value)
         {
-            return _connectionId.Equals(value) ? this : new ConnectionDescription(value, _isMasterResult, _buildInfoResult);
+            return _connectionId.Equals(value) && _connectionId.ServerValue == value.ServerValue ? this : new ConnectionDescription(value, _isMasterResult, _buildInfoResult);
         }
     }
 }
