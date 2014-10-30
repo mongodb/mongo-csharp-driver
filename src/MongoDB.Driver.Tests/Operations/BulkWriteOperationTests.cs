@@ -471,7 +471,7 @@ namespace MongoDB.Driver.Tests.Operations
             var writeConcern = WriteConcern.W2;
             if (_primary.BuildInfo.Version < new Version(2, 6, 0))
             {
-                Assert.Throws<BulkWriteException>(() => { bulk.Execute(writeConcern); });
+                Assert.Throws<BulkWriteException<BsonDocument>>(() => { bulk.Execute(writeConcern); });
                 Assert.AreEqual(1, _collection.Count());
             }
             else
