@@ -1038,7 +1038,20 @@ namespace MongoDB.Driver
         #pragma warning disable 618
         private void AddUserWithUserManagementCommands(MongoUser user)
         {
-            var usersInfo = RunCommand(new CommandDocument("usersInfo", user.Username));
+            CommandResult usersInfo;
+            try
+            {
+                usersInfo = RunCommand(new CommandDocument("usersInfo", user.Username));
+            }
+            catch(MongoCommandException ex)
+            {
+                if(ex.Code != 13)
+                {
+                    throw;
+                }
+
+                usersInfo = null;
+            }
 
             var roles = new BsonArray();
             if (_name == "admin")
@@ -1052,7 +1065,7 @@ namespace MongoDB.Driver
 
             var commandName = "createUser";
 
-            if (usersInfo.Response.Contains("users") && usersInfo.Response["users"].AsBsonArray.Count > 0)
+            if (usersInfo != null && usersInfo.Response.Contains("users") && usersInfo.Response["users"].AsBsonArray.Count > 0)
             {
                 commandName = "updateUser";
             }
