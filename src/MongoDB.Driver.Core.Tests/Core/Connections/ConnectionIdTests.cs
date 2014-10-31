@@ -37,22 +37,40 @@ namespace MongoDB.Driver.Core.Connections
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
-        public void Equals_should_return_correct_results()
+        [TestCase(1, 2, 3, 1, 2, 3, true, true)]
+        [TestCase(1, 2, 3, 4, 2, 3, false, false)]
+        [TestCase(1, 2, 3, 1, 4, 3, false, false)]
+        [TestCase(1, 2, 3, 1, 2, 4, true, false)]
+        public void Equals_should_return_expected_result(
+            int port1,
+            int localValue1,
+            int serverValue1,
+            int port2,
+            int localValue2,
+            int serverValue2,
+            bool expectedEqualsResult,
+            bool expectedStructurallyEqualsResult)
         {
-            var serverId1 = __serverId;
-            var serverId2 = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018));
-            var localValue1 = 10;
-            var localValue2 = 11;
+            var clusterId = new ClusterId();
+            var serverId1 = new ServerId(clusterId, new DnsEndPoint("localhost", port1));
+            var serverId2 = new ServerId(clusterId, new DnsEndPoint("localhost", port2));
 
-            var subject1 = new ConnectionId(serverId1, localValue1);
-            var subject2 = new ConnectionId(serverId1, localValue1);
-            var subject3 = new ConnectionId(serverId1, localValue2);
-            var subject4 = new ConnectionId(serverId2, localValue1);
+            var subject1 = new ConnectionId(serverId1, localValue1).WithServerValue(serverValue1);
+            var subject2 = new ConnectionId(serverId2, localValue2).WithServerValue(serverValue2);
 
-            subject1.Equals(subject2).Should().BeTrue();
-            subject1.Equals(subject3).Should().BeFalse();
-            subject1.Equals(subject4).Should().BeFalse();
+            // note: Equals ignores the server values and StructurallyEquals compares all fields
+            var equalsResult1 = subject1.Equals(subject2);
+            var equalsResult2 = subject2.Equals(subject1);
+            var structurallyEqualsResult1 = subject1.StructurallyEquals(subject2);
+            var structurallyEqualsResult2 = subject2.StructurallyEquals(subject1);
+            var hashCode1 = subject1.GetHashCode();
+            var hashCode2 = subject2.GetHashCode();
+
+            equalsResult1.Should().Be(expectedEqualsResult);
+            equalsResult2.Should().Be(expectedEqualsResult);
+            structurallyEqualsResult1.Should().Be(expectedStructurallyEqualsResult);
+            structurallyEqualsResult2.Should().Be(expectedStructurallyEqualsResult);
+            (hashCode1 == hashCode2).Should().Be(expectedEqualsResult);
         }
 
         [Test]

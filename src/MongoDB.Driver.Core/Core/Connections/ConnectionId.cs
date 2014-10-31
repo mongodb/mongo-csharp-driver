@@ -96,6 +96,19 @@ namespace MongoDB.Driver.Core.Connections
                 .GetHashCode();
         }
 
+        public bool StructurallyEquals(ConnectionId other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            return
+                _serverId.Equals(other._serverId) &&
+                _localValue == other._localValue &&
+                _serverValue == other._serverValue;
+        }
+
         public override string ToString()
         {
             if (_serverValue == null)

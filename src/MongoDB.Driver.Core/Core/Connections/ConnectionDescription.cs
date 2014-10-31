@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Connections
 
             return
                 _buildInfoResult.Equals(other._buildInfoResult) &&
-                _connectionId.Equals(other._connectionId) &&
+                _connectionId.StructurallyEquals(other._connectionId) &&
                 _isMasterResult.Equals(other._isMasterResult);
         }
 
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public ConnectionDescription WithConnectionId(ConnectionId value)
         {
-            return _connectionId.Equals(value) && _connectionId.ServerValue == value.ServerValue ? this : new ConnectionDescription(value, _isMasterResult, _buildInfoResult);
+            return _connectionId.StructurallyEquals(value) ? this : new ConnectionDescription(value, _isMasterResult, _buildInfoResult);
         }
     }
 }

@@ -123,5 +123,22 @@ namespace MongoDB.Driver.Core.Connections
 
             subject.ServerVersion.Should().Be(__buildInfoResult.ServerVersion);
         }
+
+        [Test]
+        public void WithConnectionId_should_return_new_instance_even_when_only_the_serverValue_differs()
+        {
+            var clusterId = new ClusterId();
+            var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 1));
+            var connectionId1 = new ConnectionId(serverId, 1);
+            var connectionId2 = new ConnectionId(serverId, 1).WithServerValue(2);
+            var isMasterResult = new IsMasterResult(new BsonDocument());
+            var buildInfoResult = new BuildInfoResult(new BsonDocument("version", "2.6.0"));
+            var subject = new ConnectionDescription(connectionId1, isMasterResult, buildInfoResult);
+
+            var result = subject.WithConnectionId(connectionId2);
+
+            result.Should().NotBeSameAs(subject);
+            result.ConnectionId.Should().BeSameAs(connectionId2);
+        }
     }
 }
