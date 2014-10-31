@@ -70,7 +70,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 documents = new List<TDocument>();
                 for (var i = 0; i < numberReturned; i++)
                 {
-                    var context = BsonDeserializationContext.CreateRoot<TDocument>(binaryReader);
+                    var allowDuplicateElementNames = typeof(TDocument) == typeof(BsonDocument);
+                    var context = BsonDeserializationContext.CreateRoot<TDocument>(binaryReader, builder => 
+                    {
+                        builder.AllowDuplicateElementNames = allowDuplicateElementNames;
+                    });
                     documents.Add(_serializer.Deserialize(context));
                 }
             }
