@@ -74,22 +74,23 @@ namespace MongoDB.Driver
             return new AggregateFluent<TDocument, TDocument>(this, ConvertToBsonDocument);
         }
 
-        public async Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(AggregateOptions<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            Ensure.IsNotNull(pipeline, "pipeline");
+            options = options ?? new AggregateOptions<TResult>();
 
-            var pipeline = model.Pipeline.Select(x => ConvertToBsonDocument(x)).ToList();
+            var pipelineDocuments = pipeline.Select(x => ConvertToBsonDocument(x)).ToList();
 
-            var last = pipeline.LastOrDefault();
+            var last = pipelineDocuments.LastOrDefault();
             if (last != null && last.GetElement(0).Name == "$out")
             {
                 var operation = new AggregateToCollectionOperation(
                     _collectionNamespace,
-                    pipeline,
+                    pipelineDocuments,
                     _messageEncoderSettings)
                 {
-                    AllowDiskUse = model.AllowDiskUse,
-                    MaxTime = model.MaxTime
+                    AllowDiskUse = options.AllowDiskUse,
+                    MaxTime = options.MaxTime
                 };
 
                 await ExecuteWriteOperation(operation, timeout, cancellationToken).ConfigureAwait(false);
@@ -97,11 +98,11 @@ namespace MongoDB.Driver
                 var outputCollectionName = last.GetElement(0).Value.AsString;
                 var findOperation = new FindOperation<TResult>(
                     new CollectionNamespace(_collectionNamespace.DatabaseNamespace, outputCollectionName),
-                    model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>(),
+                    options.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>(),
                     _messageEncoderSettings)
                 {
-                    BatchSize = model.BatchSize,
-                    MaxTime = model.MaxTime
+                    BatchSize = options.BatchSize,
+                    MaxTime = options.MaxTime
                 };
 
                 return await Task.FromResult<IAsyncEnumerable<TResult>>(new AsyncCursorAsyncEnumerable<TResult>(
@@ -110,7 +111,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                var operation = CreateAggregateOperation<TResult>(model, pipeline);
+                var operation = CreateAggregateOperation<TResult>(options, pipelineDocuments);
 
                 return await Task.FromResult<IAsyncEnumerable<TResult>>(new AsyncCursorAsyncEnumerable<TResult>(
                     () => ExecuteReadOperation(operation, timeout, cancellationToken),
@@ -118,27 +119,33 @@ namespace MongoDB.Driver
             }
         }
 
-        public async Task<BulkWriteResult<TDocument>> BulkWriteAsync(BulkWriteModel<TDocument> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            Ensure.IsNotNull(requests, "requests");
+            if (!requests.Any())
+            {
+                throw new ArgumentException("Must contain at least 1 request.", "requests");
+            }
+
+            options = options ?? new BulkWriteOptions();
 
             var operation = new BulkMixedWriteOperation(
                 _collectionNamespace,
-                model.Requests.Select(ConvertWriteModelToWriteRequest),
+                requests.Select(ConvertWriteModelToWriteRequest),
                 _messageEncoderSettings)
             {
-                IsOrdered = model.IsOrdered,
+                IsOrdered = options.IsOrdered,
                 WriteConcern = _settings.WriteConcern
             };
 
             try
             {
                 var result = await ExecuteWriteOperation(operation, timeout, cancellationToken).ConfigureAwait(false);
-                return BulkWriteResult<TDocument>.FromCore(result, model.Requests);
+                return BulkWriteResult<TDocument>.FromCore(result, requests);
             }
             catch (BulkWriteOperationException ex)
             {
-                throw BulkWriteException<TDocument>.FromCore(ex, model.Requests);
+                throw BulkWriteException<TDocument>.FromCore(ex, requests.ToList());
             }
         }
 
@@ -165,8 +172,7 @@ namespace MongoDB.Driver
             var model = new DeleteManyModel<TDocument>(ConvertToBsonDocument(criteria));
             try
             {
-                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -182,8 +188,7 @@ namespace MongoDB.Driver
             var model = new DeleteOneModel<TDocument>(ConvertToBsonDocument(criteria));
             try
             {
-                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -192,9 +197,10 @@ namespace MongoDB.Driver
             }
         }
 
-        public Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, DistinctOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, object criteria, DistinctOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(fieldName, "fieldName");
+            Ensure.IsNotNull(criteria, "criteria");
 
             options = options ?? new DistinctOptions<TResult>();
             var resultSerializer = options.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
@@ -204,7 +210,7 @@ namespace MongoDB.Driver
                 fieldName,
                 _messageEncoderSettings)
             {
-                Criteria = ConvertToBsonDocument(options.Criteria),
+                Criteria = ConvertToBsonDocument(criteria),
                 MaxTime = options.MaxTime
             };
 
@@ -217,15 +223,16 @@ namespace MongoDB.Driver
             return find;
         }
 
-        public Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindOptions<TResult> model, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(model, "model");
+            Ensure.IsNotNull(criteria, "criteria");
+            Ensure.IsNotNull(options, "options");
 
-            var operation = CreateFindOperation<TResult>(model);
+            var operation = CreateFindOperation<TResult>(criteria, options);
 
             return Task.FromResult<IAsyncEnumerable<TResult>>(new AsyncCursorAsyncEnumerable<TResult>(
                 () => ExecuteReadOperation(operation, timeout, cancellationToken),
-                model.Limit));
+                options.Limit));
         }
 
         public Task<TResult> FindOneAndDeleteAsync<TResult>(object criteria, FindOneAndDeleteOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
@@ -297,13 +304,12 @@ namespace MongoDB.Driver
 
         public async Task InsertOneAsync(TDocument document, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            // how to check replacement - it could be a struct
+            // how to check document - it could be a struct
 
             var model = new InsertOneModel<TDocument>(document);
             try
             {
-                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
+                await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
             }
             catch (BulkWriteException<TDocument> ex)
             {
@@ -314,7 +320,7 @@ namespace MongoDB.Driver
         public async Task<ReplaceOneResult> ReplaceOneAsync(object criteria, TDocument replacement, UpdateOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
-            // how to validate replacement - it might be a struct
+            // how to check replacement - it might be a struct
 
             options = options ?? new UpdateOptions();
             var model = new ReplaceOneModel<TDocument>(criteria, replacement)
@@ -323,8 +329,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
                 return ReplaceOneResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -345,8 +350,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -368,8 +372,7 @@ namespace MongoDB.Driver
 
             try
             {
-                var bulkModel = new BulkWriteModel<TDocument>(new[] { model });
-                var result = await BulkWriteAsync(bulkModel, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -515,7 +518,7 @@ namespace MongoDB.Driver
             };
         }
 
-        private FindOperation<TResult> CreateFindOperation<TResult>(FindOptions<TResult> model)
+        private FindOperation<TResult> CreateFindOperation<TResult>(object criteria, FindOptions<TResult> model)
         {
             var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
 
@@ -527,7 +530,7 @@ namespace MongoDB.Driver
                 AwaitData = model.AwaitData,
                 BatchSize = model.BatchSize,
                 Comment = model.Comment,
-                Criteria = ConvertToBsonDocument(model.Criteria),
+                Criteria = ConvertToBsonDocument(criteria),
                 Limit = model.Limit,
                 MaxTime = model.MaxTime,
                 Modifiers = model.Modifiers,

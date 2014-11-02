@@ -50,20 +50,22 @@ namespace MongoDB.Driver
         /// Runs an aggregation pipeline asynchronously.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="model">The model.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The model.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(AggregateOptions<TResult> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Performs multiple write operations at the same time.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="requests">The requests.</param>
+        /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The result of writing.</returns>
-        Task<BulkWriteResult<TDocument>> BulkWriteAsync(BulkWriteModel<TDocument> model, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Counts the number of documents in the collection.
@@ -75,7 +77,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The number of documents in the collection
         /// </returns>
-        Task<long> CountAsync(object criteria = null, CountOptions options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<long> CountAsync(object criteria, CountOptions options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes multiple documents.
@@ -104,13 +106,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="fieldName">Name of the field.</param>
+        /// <param name="criteria">The criteria.</param>
         /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, DistinctOptions<TResult> options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, object criteria, DistinctOptions<TResult> options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Begins a fluent find interface.
@@ -123,13 +126,14 @@ namespace MongoDB.Driver
         /// Finds the documents matching the model.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="criteria">The criteria.</param>
         /// <param name="options">The options.</param>
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The results of the query.
         /// </returns>
-        Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(FindOptions<TResult> options, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.

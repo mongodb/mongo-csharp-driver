@@ -18,7 +18,6 @@ namespace MongoDB.Driver
         private bool _awaitData;
         private int? _batchSize;
         private string _comment;
-        private object _criteria;
         private int? _limit;
         private TimeSpan? _maxTime;
         private BsonDocument _modifiers;
@@ -70,15 +69,6 @@ namespace MongoDB.Driver
         {
             get { return _comment; }
             set { _comment = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the criteria.
-        /// </summary>
-        public object Criteria
-        {
-            get { return _criteria; }
-            set { _criteria = value; }
         }
 
         /// <summary>

@@ -19,6 +19,7 @@ namespace MongoDB.Driver
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
+        private object _criteria;
         private readonly FindOptions<TResult> _options;
 
         // constructors
@@ -29,14 +30,21 @@ namespace MongoDB.Driver
         /// <param name="criteria">The criteria.</param>
         public FindFluent(IMongoCollection<TDocument> collection, object criteria)
         {
-            _collection = collection;
-            _options = new FindOptions<TResult>
-            {
-                Criteria = criteria
-            };
+            _collection = Ensure.IsNotNull(collection, "collection");
+            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _options = new FindOptions<TResult>();
         }
 
         // properties
+        /// <summary>
+        /// Gets the criteria.
+        /// </summary>
+        public object Criteria
+        {
+            get { return _criteria; }
+            set { _criteria = Ensure.IsNotNull(value, "value"); }
+        }
+
         /// <summary>
         /// Gets the options.
         /// </summary>
@@ -164,7 +172,7 @@ namespace MongoDB.Driver
         /// <returns>The fluent interface.</returns>
         public FindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer)
         {
-            var newFluent = new FindFluent<TDocument, TNewResult>(_collection, _options.Criteria);
+            var newFluent = new FindFluent<TDocument, TNewResult>(_collection, _criteria);
             newFluent._options.AwaitData = _options.AwaitData;
             newFluent._options.BatchSize = _options.BatchSize;
             newFluent._options.Comment = _options.Comment;
@@ -222,7 +230,7 @@ namespace MongoDB.Driver
         /// <returns>An asynchronous enumerable.</returns>
         public Task<IAsyncEnumerable<TResult>> ToAsyncEnumerable(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _collection.FindAsync(_options, timeout, cancellationToken);
+            return _collection.FindAsync(_criteria, _options, timeout, cancellationToken);
         }
 
         /// <summary>

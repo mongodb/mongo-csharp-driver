@@ -29,21 +29,10 @@ namespace MongoDB.Driver
     public sealed class DistinctOptions<TResult>
     {
         // fields
-        private object _criteria;
         private TimeSpan? _maxTime;
         private IBsonSerializer<TResult> _resultSerializer;
 
         // properties
-        /// <summary>
-        /// Gets or sets the criteria.
-        /// </summary>
-        public object Criteria
-        {
-            get { return _criteria; }
-            set { _criteria = value; }
-
-        }
-
         /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>

@@ -109,14 +109,13 @@ namespace MongoDB.Driver
                 AllowDiskUse = true,
                 BatchSize = 10,
                 MaxTime = TimeSpan.FromSeconds(3),
-                Pipeline = pipeline,
                 UseCursor = false
             };
 
             var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await _subject.AggregateAsync(options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await _subject.AggregateAsync(pipeline, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             // we haven't executed the operation yet.
             _operationExecutor.QueuedCallCount.Should().Be(0);
@@ -146,11 +145,10 @@ namespace MongoDB.Driver
                 AllowDiskUse = true,
                 BatchSize = 10,
                 MaxTime = TimeSpan.FromSeconds(3),
-                Pipeline = pipeline,
                 UseCursor = false
             };
 
-            var result = await _subject.AggregateAsync(options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await _subject.AggregateAsync(pipeline, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             _operationExecutor.QueuedCallCount.Should().Be(1);
             var writeCall = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -205,7 +203,7 @@ namespace MongoDB.Driver
                 new UpdateOneModel<BsonDocument>(new BsonDocument("l", 1), new BsonDocument("$set", new BsonDocument("m", 1))),
                 new UpdateOneModel<BsonDocument>(new BsonDocument("n", 1), new BsonDocument("$set", new BsonDocument("o", 1))) { IsUpsert = true },
             };
-            var bulkModel = new BulkWriteModel<BsonDocument>(requests)
+            var bulkOptions = new BulkWriteOptions
             {
                 IsOrdered = isOrdered
             };
@@ -213,7 +211,7 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { new InsertRequest(new BsonDocument("b", 1)) });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            var result = await _subject.BulkWriteAsync(bulkModel, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await _subject.BulkWriteAsync(requests, bulkOptions, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
 
@@ -439,13 +437,12 @@ namespace MongoDB.Driver
         {
             var fieldName = "a.b";
             var criteria = new BsonDocument("x", 1);
-            var options = new DistinctOptions<int>()
+            var options = new DistinctOptions<int>
             {
-                Criteria = criteria,
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
-            await _subject.DistinctAsync("a.b", options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.DistinctAsync("a.b", criteria, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IReadOnlyList<int>>();
 
@@ -468,7 +465,6 @@ namespace MongoDB.Driver
                 AwaitData = false,
                 BatchSize = 20,
                 Comment = "funny",
-                Criteria = criteria,
                 Limit = 30,
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
@@ -483,7 +479,7 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await _subject.FindAsync(options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await _subject.FindAsync(criteria, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
             // we haven't executed the operation yet.
             _operationExecutor.QueuedCallCount.Should().Be(0);

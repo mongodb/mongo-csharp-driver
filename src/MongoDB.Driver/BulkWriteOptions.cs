@@ -22,20 +22,17 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for performing writes in bulk.
     /// </summary>
-    public sealed class BulkWriteModel<T>
+    public sealed class BulkWriteOptions
     {
         // fields
         private bool _isOrdered;
-        private readonly IReadOnlyList<WriteModel<T>> _requests;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteModel{T}"/> class.
+        /// Initializes a new instance of the <see cref="BulkWriteOptions"/> class.
         /// </summary>
-        /// <param name="requests">The operations.</param>
-        public BulkWriteModel(IEnumerable<WriteModel<T>> requests)
+        public BulkWriteOptions()
         {
-            _requests = Ensure.IsNotNull(requests, "requests").ToList();
             _isOrdered = true;
         }
 
@@ -50,14 +47,6 @@ namespace MongoDB.Driver
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
-        }
-
-        /// <summary>
-        /// Gets the requests.
-        /// </summary>
-        public IReadOnlyList<WriteModel<T>> Requests
-        {
-            get { return _requests; }
         }
     }
 }

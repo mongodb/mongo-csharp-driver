@@ -91,7 +91,7 @@
     <Compile Include="AggregateFluent.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="Builders\UpdateCurrentDateType.cs" />
-    <Compile Include="BulkWriteModel.cs" />
+    <Compile Include="BulkWriteOptions.cs" />
     <Compile Include="Communication\ClusterKey.cs" />
     <Compile Include="Communication\ClusterRegistry.cs" />
     <Compile Include="Communication\ConnectionModeExtensionMethods.cs" />

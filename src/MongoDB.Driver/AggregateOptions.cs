@@ -17,18 +17,8 @@ namespace MongoDB.Driver
         private bool? _allowDiskUse;
         private int? _batchSize;
         private TimeSpan? _maxTime;
-        private IList<object> _pipeline;
         private IBsonSerializer<TResult> _resultSerializer;
         private bool? _useCursor;
-
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateOptions{TResult}" /> class.
-        /// </summary>
-        public AggregateOptions()
-        {
-            _pipeline = new List<object>();
-        }
 
         // properties
         /// <summary>
@@ -59,15 +49,6 @@ namespace MongoDB.Driver
         {
             get { return _maxTime; }
             set { _maxTime = value; }
-        }
-
-        /// <summary>
-        /// Gets the pipeline.
-        /// </summary>
-        public IList<object> Pipeline
-        {
-            get { return _pipeline; }
-            set { _pipeline = value ?? new List<object>(); }
         }
 
         /// <summary>

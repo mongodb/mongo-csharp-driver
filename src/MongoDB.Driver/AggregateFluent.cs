@@ -35,6 +35,7 @@ namespace MongoDB.Driver
         // fields
         private readonly IMongoCollection<TDocument> _collection;
         private readonly AggregateOptions<TResult> _options;
+        private readonly List<object> _pipeline;
         private readonly Func<object, BsonDocument> _toBsonDocument;
 
         // constructors
@@ -44,10 +45,16 @@ namespace MongoDB.Driver
         /// <param name="collection">The collection.</param>
         /// <param name="toBsonDocument">To bson document.</param>
         public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument)
+            : this(collection, toBsonDocument, new List<object>())
+        {
+        }
+
+        private AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _toBsonDocument = Ensure.IsNotNull(toBsonDocument, "toBsonDocument");
             _options = new AggregateOptions<TResult>();
+            _pipeline = pipeline;
         }
 
         // properties
@@ -65,6 +72,14 @@ namespace MongoDB.Driver
         public AggregateOptions<TResult> Options
         {
             get { return _options; }
+        }
+
+        /// <summary>
+        /// Gets the pipeline.
+        /// </summary>
+        public IList<object> Pipeline
+        {
+            get { return _pipeline; }
         }
 
         // methods
@@ -86,7 +101,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Append(object stage)
         {
-            _options.Pipeline.Add(stage);
+            _pipeline.Add(stage);
             return this;
         }
 
@@ -260,7 +275,7 @@ namespace MongoDB.Driver
         /// <returns>An asynchronous enumerable.</returns>
         public Task<IAsyncEnumerable<TResult>> ToAsyncEnumerable(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _collection.AggregateAsync(_options, timeout, cancellationToken);
+            return _collection.AggregateAsync(_pipeline, _options, timeout, cancellationToken);
         }
 
         /// <summary>
@@ -278,11 +293,10 @@ namespace MongoDB.Driver
 
         private AggregateFluent<TDocument, TNewResult> CopyToNew<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
         {
-            var newFluent = new AggregateFluent<TDocument, TNewResult>(_collection, _toBsonDocument);
+            var newFluent = new AggregateFluent<TDocument, TNewResult>(_collection, _toBsonDocument, _pipeline);
             newFluent._options.AllowDiskUse = _options.AllowDiskUse;
             newFluent._options.BatchSize = _options.BatchSize;
             newFluent._options.MaxTime = _options.MaxTime;
-            newFluent._options.Pipeline = _options.Pipeline;
             newFluent._options.ResultSerializer = resultSerializer ?? _collection.Settings.SerializerRegistry.GetSerializer<TNewResult>();
             newFluent._options.UseCursor = _options.UseCursor;
 
