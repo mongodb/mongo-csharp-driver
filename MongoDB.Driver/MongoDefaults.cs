@@ -16,6 +16,7 @@
 using System;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver
 {
@@ -34,7 +35,7 @@ namespace MongoDB.Driver
         private static int __maxConnectionPoolSize = 100;
         private static int __maxMessageLength = 16000000; // 16MB (not 16 MiB!)
         private static int __minConnectionPoolSize = 0;
-        private static UTF8Encoding __readEncoding = new UTF8Encoding(false, true);
+        private static UTF8Encoding __readEncoding = Utf8Encodings.Strict;
 #pragma warning disable 612, 618
         private static SafeMode __safeMode = SafeMode.False;
 #pragma warning restore
@@ -45,7 +46,7 @@ namespace MongoDB.Driver
         private static double __waitQueueMultiple = 5.0; // default wait queue multiple is 5.0
         private static int __waitQueueSize = 0; // use multiple by default
         private static TimeSpan __waitQueueTimeout = TimeSpan.FromMinutes(2); // default wait queue timeout is 2 minutes
-        private static UTF8Encoding __writeEncoding = new UTF8Encoding(false, true);
+        private static UTF8Encoding __writeEncoding = Utf8Encodings.Strict;
         private static int __maxDocumentSize = 4 * 1024 * 1024; // 4 MiB. Original MongoDB max document size
 
         // public static properties

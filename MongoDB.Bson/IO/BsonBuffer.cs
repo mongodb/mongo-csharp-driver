@@ -446,7 +446,7 @@ namespace MongoDB.Bson.IO
 
             if (bsonTrie == null)
             {
-                return ReadCString(new UTF8Encoding(false, true)); // always use strict encoding for names
+                return ReadCString(Utf8Encodings.Strict); // always use strict encoding for names
             }
 
             var savedPosition = _byteBuffer.Position;
@@ -466,7 +466,7 @@ namespace MongoDB.Bson.IO
                     {
                         var nullPosition = _byteBuffer.Position - 1;
                         _byteBuffer.Position = savedPosition;
-                        return ReadCString(new UTF8Encoding(false, true), nullPosition); // always use strict encoding for names
+                        return ReadCString(Utf8Encodings.Strict, nullPosition); // always use strict encoding for names
                     }
                 }
 
@@ -475,7 +475,7 @@ namespace MongoDB.Bson.IO
                 {
                     var nullPosition = _byteBuffer.FindNullByte(); // starting from where we got so far
                     _byteBuffer.Position = savedPosition;
-                    return ReadCString(new UTF8Encoding(false, true), nullPosition); // always use strict encoding for names
+                    return ReadCString(Utf8Encodings.Strict, nullPosition); // always use strict encoding for names
                 }
             }
         }

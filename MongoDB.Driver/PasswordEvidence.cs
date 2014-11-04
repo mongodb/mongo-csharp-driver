@@ -19,6 +19,7 @@ using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver
 {
@@ -96,7 +97,7 @@ namespace MongoDB.Driver
         {
             using (var md5 = MD5.Create())
             {
-                var encoding = new UTF8Encoding(false, true);
+                var encoding = Utf8Encodings.Strict;
                 var prefixBytes = encoding.GetBytes(username + ":mongo:");
                 md5.TransformBlock(prefixBytes, 0, prefixBytes.Length, null, 0);
                 TransformFinalBlock(md5, _securePassword);
@@ -149,7 +150,7 @@ namespace MongoDB.Driver
                     var passwordBytesHandle = GCHandle.Alloc(passwordBytes, GCHandleType.Pinned);
                     try
                     {
-                        var encoding = new UTF8Encoding(false, true);
+                        var encoding = Utf8Encodings.Strict;
                         var length = encoding.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
                         hash.TransformFinalBlock(passwordBytes, 0, length);
                     }

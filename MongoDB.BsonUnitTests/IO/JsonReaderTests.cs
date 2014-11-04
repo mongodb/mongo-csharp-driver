@@ -822,7 +822,7 @@ namespace MongoDB.BsonUnitTests.IO
         [Test]
         public void TestUtf8()
         {
-            var encoding = new UTF8Encoding(false, true);
+            var encoding = Utf8Encodings.Strict;
 
             var bytes = BsonUtils.ParseHexString("7b20227822203a2031207d");
             using (var memoryStream = new MemoryStream(bytes))

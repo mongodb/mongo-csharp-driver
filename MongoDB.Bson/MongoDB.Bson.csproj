@@ -100,6 +100,7 @@
     <Compile Include="IO\IByteBuffer.cs" />
     <Compile Include="IO\MultiChunkBuffer.cs" />
     <Compile Include="IO\SingleChunkBuffer.cs" />
+    <Compile Include="IO\Utf8Encodings.cs" />
     <Compile Include="ObjectModel\GuidRepresentation.cs" />
     <Compile Include="ObjectModel\GuidConverter.cs" />
     <Compile Include="IO\JsonReaderSettings.cs" />

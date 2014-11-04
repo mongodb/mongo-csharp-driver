@@ -550,7 +550,7 @@ namespace MongoDB.BsonUnitTests.IO
         [Test]
         public void TestUtf8()
         {
-            var encoding = new UTF8Encoding(true, true);
+            var encoding = new UTF8Encoding(true, true); // emit UTF8 identifier
 
             using (var memoryStream = new MemoryStream())
             {

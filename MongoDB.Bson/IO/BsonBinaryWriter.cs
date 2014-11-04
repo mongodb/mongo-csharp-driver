@@ -25,9 +25,6 @@ namespace MongoDB.Bson.IO
     /// </summary>
     public class BsonBinaryWriter : BsonWriter
     {
-        // private static fields
-        private static readonly UTF8Encoding __strictUtf8Encoding = new UTF8Encoding(false, true);
-
         // private fields
         private Stream _stream; // can be null if we're only writing to the buffer
         private BsonBuffer _buffer;
@@ -747,7 +744,7 @@ namespace MongoDB.Bson.IO
                 name = Name;
             }
 
-            _buffer.WriteCString(__strictUtf8Encoding, name);
+            _buffer.WriteCString(Utf8Encodings.Strict, name);
         }
     }
 }

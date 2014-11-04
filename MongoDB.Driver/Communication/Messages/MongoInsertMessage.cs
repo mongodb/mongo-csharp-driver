@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Internal
             _batchStartPosition = buffer.Position;
             base.WriteHeaderTo(buffer);
             buffer.WriteInt32((int)_flags);
-            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
+            buffer.WriteCString(Utf8Encodings.Strict, _collectionFullName);
         }
 
         // private methods

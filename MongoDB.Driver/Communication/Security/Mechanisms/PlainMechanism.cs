@@ -20,6 +20,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Communication.Security.Mechanisms
@@ -70,7 +71,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
                 credential.Username,
                 MongoUtils.ToInsecureString(securePassword));
 
-            var bytes = new UTF8Encoding(false, true).GetBytes(dataString);
+            var bytes = Utf8Encodings.Strict.GetBytes(dataString);
             return new SaslCompletionStep(bytes);
         }
     }

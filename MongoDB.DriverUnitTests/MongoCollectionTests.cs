@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
@@ -2301,7 +2302,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestLenientRead()
         {
-            var settings = new MongoCollectionSettings { ReadEncoding = new UTF8Encoding(false, false) };
+            var settings = new MongoCollectionSettings { ReadEncoding = Utf8Encodings.Lenient };
             var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
 
             var document = new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "x", "abc" } };
@@ -2319,7 +2320,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestLenientWrite()
         {
-            var settings = new MongoCollectionSettings { WriteEncoding = new UTF8Encoding(false, false) };
+            var settings = new MongoCollectionSettings { WriteEncoding = Utf8Encodings.Lenient };
             var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
 
             var document = new BsonDocument("x", "\udc00"); // invalid lone low surrogate
@@ -2854,7 +2855,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestStrictRead()
         {
-            var settings = new MongoCollectionSettings { ReadEncoding = new UTF8Encoding(false, true) };
+            var settings = new MongoCollectionSettings { ReadEncoding = Utf8Encodings.Strict };
             var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
 
             var document = new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "x", "abc" } };
@@ -2871,7 +2872,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestStrictWrite()
         {
-            var settings = new MongoCollectionSettings { WriteEncoding = new UTF8Encoding(false, true) };
+            var settings = new MongoCollectionSettings { WriteEncoding = Utf8Encodings.Strict };
             var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
 
             var document = new BsonDocument("x", "\udc00"); // invalid lone low surrogate

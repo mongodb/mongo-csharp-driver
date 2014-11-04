@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Internal
         {
             base.WriteHeaderTo(buffer);
             buffer.WriteInt32(0); // reserved
-            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
+            buffer.WriteCString(Utf8Encodings.Strict, _collectionFullName);
             buffer.WriteInt32(_numberToReturn);
         }
     }
