@@ -67,25 +67,21 @@ namespace MongoDB.Driver
         {
             var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
 
-            var fluent = _subject.Aggregate()
-                .AllowDiskUse(true)
-                .BatchSize(10)
-                .MaxTime(TimeSpan.FromSeconds(3))
-                .UseCursor(false)
-                .Match("{x:2}");
+            var fluent = _subject.Aggregate(new AggregateOptions<BsonDocument>
+                {
+                    AllowDiskUse = true,
+                    BatchSize = 10,
+                    MaxTime = TimeSpan.FromSeconds(3),
+                    UseCursor = false
+                })
+                .Match("{x: 2}");
 
             var options = fluent.Options;
 
             var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await fluent.ToAsyncEnumerable();
-
-            // we haven't executed the operation yet.
-            _operationExecutor.QueuedCallCount.Should().Be(0);
-
-            // this causes execution of the operation
-            await result.GetAsyncEnumerator().MoveNextAsync();
+            var result = await fluent.CreateCursor();
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -116,12 +112,6 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult(fakeCursor);
 
             var result = await _subject.AggregateAsync(pipeline, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
-
-            // we haven't executed the operation yet.
-            _operationExecutor.QueuedCallCount.Should().Be(0);
-
-            // this causes execution of the operation
-            await result.GetAsyncEnumerator().MoveNextAsync();
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -163,8 +153,7 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            // this causes execution of the find operation
-            await result.GetAsyncEnumerator().MoveNextAsync();
+            await result.MoveNextAsync();
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -481,12 +470,6 @@ namespace MongoDB.Driver
 
             var result = await _subject.FindAsync(criteria, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
-            // we haven't executed the operation yet.
-            _operationExecutor.QueuedCallCount.Should().Be(0);
-
-            // this causes execution of the operation
-            await result.GetAsyncEnumerator().MoveNextAsync();
-
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
@@ -531,13 +514,7 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await fluent.ToAsyncEnumerable(Timeout.InfiniteTimeSpan, CancellationToken.None);
-
-            // we haven't executed the operation yet.
-            _operationExecutor.QueuedCallCount.Should().Be(0);
-
-            // this causes execution of the operation
-            await result.GetAsyncEnumerator().MoveNextAsync();
+            var result = await fluent.CreateCursor();
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 

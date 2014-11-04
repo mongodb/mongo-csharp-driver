@@ -30,7 +30,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class AggregateFluent<TDocument, TResult>
+    public class AggregateFluent<TDocument, TResult> : IAsyncCursorFactory<TResult>
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
@@ -40,21 +40,29 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateFluent{TDocument, TResult}" /> class.
+        /// Initializes a new instance of the <see cref="AggregateFluent{TDocument, TResult}"/> class.
         /// </summary>
         /// <param name="collection">The collection.</param>
         /// <param name="toBsonDocument">To bson document.</param>
-        public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument)
-            : this(collection, toBsonDocument, new List<object>())
+        /// <param name="pipeline">The pipeline.</param>
+        public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline)
+            : this(collection, toBsonDocument, pipeline, null)
         {
         }
 
-        private AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AggregateFluent{TDocument, TResult}"/> class.
+        /// </summary>
+        /// <param name="collection">The collection.</param>
+        /// <param name="toBsonDocument">To bson document.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The options.</param>
+        public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline, AggregateOptions<TResult> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _toBsonDocument = Ensure.IsNotNull(toBsonDocument, "toBsonDocument");
-            _options = new AggregateOptions<TResult>();
-            _pipeline = pipeline;
+            _options = options ?? new AggregateOptions<TResult>();
+            _pipeline = Ensure.IsNotNull(pipeline, "pipeline");
         }
 
         // properties
@@ -84,35 +92,13 @@ namespace MongoDB.Driver
 
         // methods
         /// <summary>
-        /// Allows the disk use.
-        /// </summary>
-        /// <param name="allowDiskUse">The allow disk use.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> AllowDiskUse(bool? allowDiskUse)
-        {
-            _options.AllowDiskUse = allowDiskUse;
-            return this;
-        }
-
-        /// <summary>
         /// Appends the specified stage.
         /// </summary>
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Append(object stage)
+        public AggregateFluent<TDocument, TResult> AppendStage(object stage)
         {
             _pipeline.Add(stage);
-            return this;
-        }
-
-        /// <summary>
-        /// Batches the size.
-        /// </summary>
-        /// <param name="batchSize">Size of the batch.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> BatchSize(int? batchSize)
-        {
-            _options.BatchSize = batchSize;
             return this;
         }
 
@@ -123,7 +109,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> GeoNear(object geoNear)
         {
-            return Append(new BsonDocument("$geoNear", _toBsonDocument(geoNear)));
+            return AppendStage(new BsonDocument("$geoNear", _toBsonDocument(geoNear)));
         }
 
         /// <summary>
@@ -133,7 +119,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Group(object group)
         {
-            return Append(new BsonDocument("$group", _toBsonDocument(group)));
+            return AppendStage(new BsonDocument("$group", _toBsonDocument(group)));
         }
 
         /// <summary>
@@ -143,7 +129,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Limit(int limit)
         {
-            return Append(new BsonDocument("$limit", limit));
+            return AppendStage(new BsonDocument("$limit", limit));
         }
 
         /// <summary>
@@ -153,18 +139,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Match(object match)
         {
-            return Append(new BsonDocument("$match", _toBsonDocument(match)));
-        }
-
-        /// <summary>
-        /// Maximums the time.
-        /// </summary>
-        /// <param name="maxTime">The maximum time.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> MaxTime(TimeSpan? maxTime)
-        {
-            _options.MaxTime = maxTime;
-            return this;
+            return AppendStage(new BsonDocument("$match", _toBsonDocument(match)));
         }
 
         /// <summary>
@@ -174,7 +149,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Out(string collectionName)
         {
-            return Append(new BsonDocument("$out", collectionName));
+            return AppendStage(new BsonDocument("$out", collectionName));
         }
 
         /// <summary>
@@ -197,7 +172,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project, IBsonSerializer<TNewResult> resultSerializer)
         {
-            Append(new BsonDocument("$project", _toBsonDocument(project)));
+            AppendStage(new BsonDocument("$project", _toBsonDocument(project)));
 
             return CopyToNew<TNewResult>(resultSerializer);
         }
@@ -209,7 +184,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Redact(object redact)
         {
-            return Append(new BsonDocument("$redact", _toBsonDocument(redact)));
+            return AppendStage(new BsonDocument("$redact", _toBsonDocument(redact)));
         }
 
         /// <summary>
@@ -219,7 +194,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Skip(int skip)
         {
-            return Append(new BsonDocument("$skip", skip));
+            return AppendStage(new BsonDocument("$skip", skip));
         }
 
         /// <summary>
@@ -229,7 +204,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Sort(object sort)
         {
-            return Append(new BsonDocument("$sort", _toBsonDocument(sort)));
+            return AppendStage(new BsonDocument("$sort", _toBsonDocument(sort)));
         }
 
         /// <summary>
@@ -252,43 +227,18 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer)
         {
-            Append(new BsonDocument("$unwind", fieldName));
+            AppendStage(new BsonDocument("$unwind", fieldName));
             return CopyToNew<TNewResult>(resultSerializer);
         }
 
         /// <summary>
-        /// Sets the use cursor option.
+        /// Creates a cursor.
         /// </summary>
-        /// <param name="useCursor">The use cursor.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> UseCursor(bool? useCursor)
-        {
-            _options.UseCursor = useCursor;
-            return this;
-        }
-
-        /// <summary>
-        /// To the asynchronous enumerable.
-        /// </summary>
-        /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An asynchronous enumerable.</returns>
-        public Task<IAsyncEnumerable<TResult>> ToAsyncEnumerable(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IAsyncCursor<TResult>> CreateCursor(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _collection.AggregateAsync(_pipeline, _options, timeout, cancellationToken);
-        }
-
-        /// <summary>
-        /// To the list asynchronous.
-        /// </summary>
-        /// <param name="timeout">The timeout.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A list of the result.</returns>
-        public async Task<List<TResult>> ToListAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            timeout = timeout ?? _collection.Settings.OperationTimeout;
-            var asyncEnumerable = await ToAsyncEnumerable(timeout, cancellationToken);
-            return await asyncEnumerable.ToListAsync(timeout, cancellationToken);
+            return _collection.AggregateAsync(_pipeline, _options, null, cancellationToken);
         }
 
         private AggregateFluent<TDocument, TNewResult> CopyToNew<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)

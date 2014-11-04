@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 
-    public class ParallelScanOperation<TDocument> : IReadOperation<IReadOnlyList<AsyncCursor<TDocument>>>
+    public class ParallelScanOperation<TDocument> : IReadOperation<IReadOnlyList<IAsyncCursor<TDocument>>>
     {
         // fields
         private int? _batchSize;
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public async Task<IReadOnlyList<AsyncCursor<TDocument>>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyList<IAsyncCursor<TDocument>>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
             var slidingTimeout = new SlidingTimeout(timeout);

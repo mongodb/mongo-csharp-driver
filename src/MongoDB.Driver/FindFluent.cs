@@ -15,7 +15,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindFluent<TDocument, TResult>
+    public class FindFluent<TDocument, TResult> : IAsyncCursorFactory<TResult>
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
@@ -225,25 +225,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// To the asynchronous enumerable.
         /// </summary>
-        /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An asynchronous enumerable.</returns>
-        public Task<IAsyncEnumerable<TResult>> ToAsyncEnumerable(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IAsyncCursor<TResult>> CreateCursor(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _collection.FindAsync(_criteria, _options, timeout, cancellationToken);
-        }
-
-        /// <summary>
-        /// To the list asynchronous.
-        /// </summary>
-        /// <param name="timeout">The timeout.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A list of the result.</returns>
-        public async Task<List<TResult>> ToListAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            timeout = timeout ?? _collection.Settings.OperationTimeout;
-            var asyncEnumerable = await ToAsyncEnumerable(timeout, cancellationToken);
-            return await asyncEnumerable.ToListAsync(timeout, cancellationToken);
+            return _collection.FindAsync(_criteria, _options, null, cancellationToken);
         }
     }
 }

@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -44,7 +45,7 @@ namespace MongoDB.Driver
         /// Begins an aggregation pipeline.
         /// </summary>
         /// <returns></returns>
-        AggregateFluent<TDocument, TDocument> Aggregate();
+        AggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions<TDocument> options = null);
 
         /// <summary>
         /// Runs an aggregation pipeline asynchronously.
@@ -55,7 +56,7 @@ namespace MongoDB.Driver
         /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Performs multiple write operations at the same time.
@@ -133,7 +134,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The results of the query.
         /// </returns>
-        Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.

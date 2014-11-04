@@ -100,7 +100,8 @@
     <Compile Include="Core\Operations\FindOneAndUpdateOperation.cs" />
     <Compile Include="Core\Operations\FindOneAndReplaceOperation.cs" />
     <Compile Include="Core\Operations\FindOneAndDeleteOperation.cs" />
-    <Compile Include="Core\Operations\IAsyncCursor.cs" />
+    <Compile Include="DeferredAsyncCursor.cs" />
+    <Compile Include="IAsyncCursor.cs" />
     <Compile Include="Core\Operations\ICommandOperation.cs" />
     <Compile Include="Core\Operations\IndexNameHelper.cs" />
     <Compile Include="Core\Operations\ListIndexesOperation.cs" />
@@ -176,6 +177,7 @@
     <Compile Include="Core\Clusters\ICluster.cs" />
     <Compile Include="Core\Clusters\IClusterFactory.cs" />
     <Compile Include="Core\Clusters\MultiServerCluster.cs" />
+    <Compile Include="IAsyncCursorFactory.cs" />
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReadPreferenceMode.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfig.cs" />

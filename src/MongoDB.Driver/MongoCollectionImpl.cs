@@ -69,12 +69,12 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public AggregateFluent<TDocument, TDocument> Aggregate()
+        public AggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions<TDocument> options)
         {
-            return new AggregateFluent<TDocument, TDocument>(this, ConvertToBsonDocument);
+            return new AggregateFluent<TDocument, TDocument>(this, ConvertToBsonDocument, new List<object>(), options);
         }
 
-        public async Task<IAsyncEnumerable<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(pipeline, "pipeline");
             options = options ?? new AggregateOptions<TResult>();
@@ -105,17 +105,15 @@ namespace MongoDB.Driver
                     MaxTime = options.MaxTime
                 };
 
-                return await Task.FromResult<IAsyncEnumerable<TResult>>(new AsyncCursorAsyncEnumerable<TResult>(
-                    () => ExecuteReadOperation(findOperation, timeout, cancellationToken),
-                    null)).ConfigureAwait(false);
+                // we want to delay execution of the find because the user may
+                // not want to iterate the results at all...
+                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(() => ExecuteReadOperation(findOperation, timeout, cancellationToken))).ConfigureAwait(false);
             }
             else
             {
                 var operation = CreateAggregateOperation<TResult>(options, pipelineDocuments);
 
-                return await Task.FromResult<IAsyncEnumerable<TResult>>(new AsyncCursorAsyncEnumerable<TResult>(
-                    () => ExecuteReadOperation(operation, timeout, cancellationToken),
-                    null)).ConfigureAwait(false);
+                return await ExecuteReadOperation(operation, timeout, cancellationToken);
             }
         }
 
@@ -223,16 +221,14 @@ namespace MongoDB.Driver
             return find;
         }
 
-        public Task<IAsyncEnumerable<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<IAsyncCursor<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
             Ensure.IsNotNull(options, "options");
 
             var operation = CreateFindOperation<TResult>(criteria, options);
 
-            return Task.FromResult<IAsyncEnumerable<TResult>>(new AsyncCursorAsyncEnumerable<TResult>(
-                () => ExecuteReadOperation(operation, timeout, cancellationToken),
-                options.Limit));
+            return ExecuteReadOperation(operation, timeout, cancellationToken);
         }
 
         public Task<TResult> FindOneAndDeleteAsync<TResult>(object criteria, FindOneAndDeleteOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
