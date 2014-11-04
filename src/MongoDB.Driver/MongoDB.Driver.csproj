@@ -96,7 +96,6 @@
     <Compile Include="Communication\ClusterRegistry.cs" />
     <Compile Include="Communication\ConnectionModeExtensionMethods.cs" />
     <Compile Include="CountOptions.cs" />
-    <Compile Include="AsyncCursorAsyncEnumerable.cs" />
     <Compile Include="DistinctOptions.cs" />
     <Compile Include="ExplainVerbosity.cs" />
     <Compile Include="FindFluent.cs" />
@@ -104,10 +103,7 @@
     <Compile Include="FindOneAndDeleteOptions.cs" />
     <Compile Include="FindOneAndReplaceOptions.cs" />
     <Compile Include="FindOneAndUpdateOptions.cs" />
-    <Compile Include="AsyncCursorEnumerator.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonObjectSerializerHelper.cs" />
-    <Compile Include="IAsyncEnumerable.cs" />
-    <Compile Include="IAsyncEnumerator.cs" />
     <Compile Include="IMongoClient.cs" />
     <Compile Include="IMongoCollection.cs" />
     <Compile Include="IMongoDatabase.cs" />
