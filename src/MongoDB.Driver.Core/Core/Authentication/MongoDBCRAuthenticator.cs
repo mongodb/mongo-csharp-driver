@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Core.Authentication
             var passwordDigest = AuthenticationHelper.MongoPasswordDigest(username, password);
             using (var md5 = MD5.Create())
             {
-                var bytes = new UTF8Encoding(false, true).GetBytes(nonce + username + passwordDigest);
+                var bytes = Utf8Encodings.Strict.GetBytes(nonce + username + passwordDigest);
                 bytes = md5.ComputeHash(bytes);
                 return BsonUtils.ToHexString(bytes);
             }

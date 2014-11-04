@@ -611,14 +611,14 @@ namespace MongoDB.Bson.IO
         /// </exception>
         void IBsonStream.WriteBsonCString(string value)
         {
-            var maxLength = Utf8Helper.StrictUtf8Encoding.GetMaxByteCount(value.Length) + 1;
+            var maxLength = Utf8Encodings.Strict.GetMaxByteCount(value.Length) + 1;
             PrepareToWrite(maxLength);
 
             int actualLength;
             var segment = _byteBuffer.AccessBackingBytes(_position);
             if (segment.Count >= maxLength)
             {
-                actualLength = Utf8Helper.StrictUtf8Encoding.GetBytes(value, 0, value.Length, segment.Array, segment.Offset);
+                actualLength = Utf8Encodings.Strict.GetBytes(value, 0, value.Length, segment.Array, segment.Offset);
                 if (Array.IndexOf<byte>(segment.Array, 0, segment.Offset, actualLength) != -1)
                 {
                     throw new ArgumentException("UTF8 representation of a CString cannot contain null bytes.");
@@ -628,7 +628,7 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = Utf8Helper.StrictUtf8Encoding.GetBytes(value);
+                var bytes = Utf8Encodings.Strict.GetBytes(value);
                 if (bytes.Contains<byte>(0))
                 {
                     throw new ArgumentException("UTF8 representation of a CString cannot contain null bytes.");

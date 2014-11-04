@@ -14,6 +14,7 @@
 */
 
 using System.Text;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -71,7 +72,7 @@ namespace MongoDB.Driver.Core.Authentication
                     _credential.Username,
                     _credential.GetInsecurePassword());
 
-                var bytes = new UTF8Encoding(false, true).GetBytes(dataString);
+                var bytes = Utf8Encodings.Strict.GetBytes(dataString);
                 return new CompletedStep(bytes);
             }
         }

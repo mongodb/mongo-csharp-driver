@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -28,8 +29,6 @@ namespace MongoDB.Driver.Core.Authentication
 {
     internal static class AuthenticationHelper
     {
-        private static readonly UTF8Encoding __encoding = new UTF8Encoding(false, true);
-
         public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
@@ -50,7 +49,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             using (var md5 = MD5.Create())
             {
-                var bytes = __encoding.GetBytes(username + ":mongo:");
+                var bytes = Utf8Encodings.Strict.GetBytes(username + ":mongo:");
                 md5.TransformBlock(bytes, 0, bytes.Length, null, 0);
 
                 IntPtr unmanagedPassword = IntPtr.Zero;
@@ -64,13 +63,13 @@ namespace MongoDB.Driver.Core.Authentication
                         passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
                         Marshal.Copy(unmanagedPassword, passwordChars, 0, passwordChars.Length);
 
-                        var byteCount = __encoding.GetByteCount(passwordChars);
+                        var byteCount = Utf8Encodings.Strict.GetByteCount(passwordChars);
                         var passwordBytes = new byte[byteCount];
                         GCHandle passwordBytesHandle = new GCHandle();
                         try
                         {
                             passwordBytesHandle = GCHandle.Alloc(passwordBytesHandle, GCHandleType.Pinned);
-                            __encoding.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
+                            Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
                             md5.TransformFinalBlock(passwordBytes, 0, passwordBytes.Length);
                             return BsonUtils.ToHexString(md5.Hash);
                         }

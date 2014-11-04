@@ -154,7 +154,7 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = Utf8Helper.StrictUtf8Encoding.GetBytes(value);
+                var bytes = Utf8Encodings.Strict.GetBytes(value);
                 if (bytes.Contains<byte>(0))
                 {
                     throw new ArgumentException("UTF8 representation cannot contain null bytes when writing a BSON CString.", "value");

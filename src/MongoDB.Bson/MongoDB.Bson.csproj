@@ -112,6 +112,7 @@
     <Compile Include="IO\MultiChunkBuffer.cs" />
     <Compile Include="IO\NoOpElementNameValidator.cs" />
     <Compile Include="IO\TrieNameDecoder.cs" />
+    <Compile Include="IO\Utf8Encodings.cs" />
     <Compile Include="IO\Utf8NameDecoder.cs" />
     <Compile Include="IO\SingleChunkBuffer.cs" />
     <Compile Include="IO\Utf8Helper.cs" />

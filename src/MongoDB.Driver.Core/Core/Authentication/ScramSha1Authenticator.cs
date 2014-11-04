@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -68,7 +69,7 @@ namespace MongoDB.Driver.Core.Authentication
                 var clientFirstMessage = gs2Header + clientFirstMessageBare;
 
                 return new ClientFirst(
-                    new UTF8Encoding(false, true).GetBytes(clientFirstMessage),
+                    Utf8Encodings.Strict.GetBytes(clientFirstMessage),
                     clientFirstMessageBare,
                     _credential,
                     r);
@@ -114,7 +115,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
             {
-                var encoding = new UTF8Encoding(false, true);
+                var encoding = Utf8Encodings.Strict;
                 var serverFirstMessage = encoding.GetString(bytesReceivedFromServer);
                 var map = NVParser.Parse(serverFirstMessage);
 
@@ -209,7 +210,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
             {
-                var encoding = new UTF8Encoding(false, true);
+                var encoding = Utf8Encodings.Strict;
                 var map = NVParser.Parse(encoding.GetString(bytesReceivedFromServer));
 
                 var serverSignature = map['v'];

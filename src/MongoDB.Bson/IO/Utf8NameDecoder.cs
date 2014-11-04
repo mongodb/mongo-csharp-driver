@@ -48,7 +48,7 @@ namespace MongoDB.Bson.IO
         public string Decode(BsonStreamReader streamReader)
         {
             var utf8 = streamReader.ReadCStringBytes();
-            return Utf8Helper.DecodeUtf8String(utf8.Array, utf8.Offset, utf8.Count, Utf8Helper.StrictUtf8Encoding);
+            return Utf8Helper.DecodeUtf8String(utf8.Array, utf8.Offset, utf8.Count, Utf8Encodings.Strict);
         }
 
         /// <summary>

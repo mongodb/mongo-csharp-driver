@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Core.Helpers
                 while (stream.Length > bytesRead)
                 {
                     int startPosition = bytesRead;
-                    var streamReader = new BsonStreamReader(stream, Utf8Helper.StrictUtf8Encoding);
+                    var streamReader = new BsonStreamReader(stream, Utf8Encodings.Strict);
                     var length = streamReader.ReadInt32();
                     streamReader.ReadInt32(); // requestId
                     streamReader.ReadInt32(); // responseTo

@@ -512,7 +512,7 @@ namespace MongoDB.Bson.IO
             using (var memoryStream = new MemoryStream(documentLength))
             {
                 // wrap the array in a fake document so we can deserialize it
-                var streamWriter = new BsonStreamWriter(memoryStream, Utf8Helper.StrictUtf8Encoding);
+                var streamWriter = new BsonStreamWriter(memoryStream, Utf8Encodings.Strict);
                 streamWriter.WriteInt32(documentLength);
                 streamWriter.WriteBsonType(BsonType.Array);
                 streamWriter.WriteByte((byte)'x');

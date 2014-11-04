@@ -57,7 +57,7 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The value to add. The value can be null for reference types.</param>
         public void Add(string elementName, TValue value)
         {
-            var utf8 = Utf8Helper.StrictUtf8Encoding.GetBytes(elementName);
+            var utf8 = Utf8Encodings.Strict.GetBytes(elementName);
 
             var node = _root;
             foreach (var keyByte in utf8)
@@ -152,7 +152,7 @@ namespace MongoDB.Bson.IO
         /// <returns>True if the value was found; otherwise, false.</returns>
         public bool TryGetValue(string elementName, out TValue value)
         {
-            var bytes = Utf8Helper.StrictUtf8Encoding.GetBytes(elementName);
+            var bytes = Utf8Encodings.Strict.GetBytes(elementName);
             var utf8 = new ArraySegment<byte>(bytes, 0, bytes.Length);
             return TryGetValue(utf8, out value);
         }
