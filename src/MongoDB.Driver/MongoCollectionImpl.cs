@@ -69,12 +69,12 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public AggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions<TDocument> options)
+        public AggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options)
         {
             return new AggregateFluent<TDocument, TDocument>(this, ConvertToBsonDocument, new List<object>(), options);
         }
 
-        public async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(pipeline, "pipeline");
             options = options ?? new AggregateOptions<TResult>();
@@ -93,7 +93,7 @@ namespace MongoDB.Driver
                     MaxTime = options.MaxTime
                 };
 
-                await ExecuteWriteOperation(operation, timeout, cancellationToken).ConfigureAwait(false);
+                await ExecuteWriteOperation(operation,  cancellationToken).ConfigureAwait(false);
 
                 var outputCollectionName = last.GetElement(0).Value.AsString;
                 var findOperation = new FindOperation<TResult>(
@@ -107,17 +107,17 @@ namespace MongoDB.Driver
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
-                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(() => ExecuteReadOperation(findOperation, timeout, cancellationToken))).ConfigureAwait(false);
+                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(() => ExecuteReadOperation(findOperation,  cancellationToken))).ConfigureAwait(false);
             }
             else
             {
                 var operation = CreateAggregateOperation<TResult>(options, pipelineDocuments);
 
-                return await ExecuteReadOperation(operation, timeout, cancellationToken);
+                return await ExecuteReadOperation(operation,  cancellationToken);
             }
         }
 
-        public async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(requests, "requests");
             if (!requests.Any())
@@ -138,7 +138,7 @@ namespace MongoDB.Driver
 
             try
             {
-                var result = await ExecuteWriteOperation(operation, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await ExecuteWriteOperation(operation,  cancellationToken).ConfigureAwait(false);
                 return BulkWriteResult<TDocument>.FromCore(result, requests);
             }
             catch (BulkWriteOperationException ex)
@@ -147,7 +147,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public Task<long> CountAsync(object criteria, CountOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<long> CountAsync(object criteria, CountOptions options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
             options = options ?? new CountOptions();
@@ -160,17 +160,17 @@ namespace MongoDB.Driver
                 Skip = options.Skip
             };
 
-            return ExecuteReadOperation(operation, timeout, cancellationToken);
+            return ExecuteReadOperation(operation, cancellationToken);
         }
 
-        public async Task<DeleteResult> DeleteManyAsync(object criteria, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<DeleteResult> DeleteManyAsync(object criteria,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
 
             var model = new DeleteManyModel<TDocument>(ConvertToBsonDocument(criteria));
             try
             {
-                var result = await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new [] { model }, null, cancellationToken).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -179,14 +179,14 @@ namespace MongoDB.Driver
             }
         }
 
-        public async Task<DeleteResult> DeleteOneAsync(object criteria, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<DeleteResult> DeleteOneAsync(object criteria,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
 
             var model = new DeleteOneModel<TDocument>(ConvertToBsonDocument(criteria));
             try
             {
-                var result = await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new [] { model }, null, cancellationToken).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -195,7 +195,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, object criteria, DistinctOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, object criteria, DistinctOptions<TResult> options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(fieldName, "fieldName");
             Ensure.IsNotNull(criteria, "criteria");
@@ -212,7 +212,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime
             };
 
-            return ExecuteReadOperation(operation, timeout, cancellationToken);
+            return ExecuteReadOperation(operation, cancellationToken);
         }
 
         public FindFluent<TDocument, TDocument> Find(object criteria)
@@ -221,17 +221,17 @@ namespace MongoDB.Driver
             return find;
         }
 
-        public Task<IAsyncCursor<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<IAsyncCursor<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
             Ensure.IsNotNull(options, "options");
 
             var operation = CreateFindOperation<TResult>(criteria, options);
 
-            return ExecuteReadOperation(operation, timeout, cancellationToken);
+            return ExecuteReadOperation(operation, cancellationToken);
         }
 
-        public Task<TResult> FindOneAndDeleteAsync<TResult>(object criteria, FindOneAndDeleteOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<TResult> FindOneAndDeleteAsync<TResult>(object criteria, FindOneAndDeleteOptions<TResult> options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
 
@@ -248,10 +248,10 @@ namespace MongoDB.Driver
                 Sort = ConvertToBsonDocument(options.Sort)
             };
 
-            return ExecuteWriteOperation(operation, timeout, cancellationToken);
+            return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task<TResult> FindOneAndReplaceAsync<TResult>(object criteria, TDocument replacement, FindOneAndReplaceOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<TResult> FindOneAndReplaceAsync<TResult>(object criteria, TDocument replacement, FindOneAndReplaceOptions<TResult> options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
             // how to check replacement - it could be a struct
@@ -272,10 +272,10 @@ namespace MongoDB.Driver
                 Sort = ConvertToBsonDocument(options.Sort)
             };
 
-            return ExecuteWriteOperation(operation, timeout, cancellationToken);
+            return ExecuteWriteOperation(operation,  cancellationToken);
         }
 
-        public Task<TResult> FindOneAndUpdateAsync<TResult>(object criteria, object update, FindOneAndUpdateOptions<TResult> options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public Task<TResult> FindOneAndUpdateAsync<TResult>(object criteria, object update, FindOneAndUpdateOptions<TResult> options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
             Ensure.IsNotNull(update, "update");
@@ -295,17 +295,17 @@ namespace MongoDB.Driver
                 Sort = ConvertToBsonDocument(options.Sort)
             };
 
-            return ExecuteWriteOperation(operation, timeout, cancellationToken);
+            return ExecuteWriteOperation(operation,  cancellationToken);
         }
 
-        public async Task InsertOneAsync(TDocument document, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task InsertOneAsync(TDocument document,  CancellationToken cancellationToken)
         {
             // how to check document - it could be a struct
 
             var model = new InsertOneModel<TDocument>(document);
             try
             {
-                await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
+                await BulkWriteAsync(new [] { model }, null,  cancellationToken).ConfigureAwait(false);
             }
             catch (BulkWriteException<TDocument> ex)
             {
@@ -313,7 +313,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public async Task<ReplaceOneResult> ReplaceOneAsync(object criteria, TDocument replacement, UpdateOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<ReplaceOneResult> ReplaceOneAsync(object criteria, TDocument replacement, UpdateOptions options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
             // how to check replacement - it might be a struct
@@ -325,7 +325,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                var result = await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new [] { model }, null,  cancellationToken).ConfigureAwait(false);
                 return ReplaceOneResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -334,7 +334,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public async Task<UpdateResult> UpdateManyAsync(object criteria, object update, UpdateOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<UpdateResult> UpdateManyAsync(object criteria, object update, UpdateOptions options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
             Ensure.IsNotNull(update, "update");
@@ -346,7 +346,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                var result = await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new [] { model }, null,  cancellationToken).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -355,7 +355,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public async Task<UpdateResult> UpdateOneAsync(object criteria, object update, UpdateOptions options, TimeSpan? timeout, CancellationToken cancellationToken)
+        public async Task<UpdateResult> UpdateOneAsync(object criteria, object update, UpdateOptions options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
             Ensure.IsNotNull(update, "update");
@@ -368,7 +368,7 @@ namespace MongoDB.Driver
 
             try
             {
-                var result = await BulkWriteAsync(new [] { model }, null, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new [] { model }, null,  cancellationToken).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -481,19 +481,19 @@ namespace MongoDB.Driver
             return new BsonDocumentWrapper(document, serializer);
         }
 
-        private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
+        private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation,  CancellationToken cancellationToken)
         {
             using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task<TResult> ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
+        private async Task<TResult> ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation,  CancellationToken cancellationToken)
         {
             using (var binding = new WritableServerBinding(_cluster))
             {
-                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 

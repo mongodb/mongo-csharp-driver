@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -34,8 +33,9 @@ namespace MongoDB.Driver
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
-        private readonly AggregateOptions<TResult> _options;
+        private readonly AggregateOptions _options;
         private readonly List<object> _pipeline;
+        private IBsonSerializer<TResult> _resultSerializer;
         private readonly Func<object, BsonDocument> _toBsonDocument;
 
         // constructors
@@ -45,24 +45,13 @@ namespace MongoDB.Driver
         /// <param name="collection">The collection.</param>
         /// <param name="toBsonDocument">To bson document.</param>
         /// <param name="pipeline">The pipeline.</param>
-        public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline)
-            : this(collection, toBsonDocument, pipeline, null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateFluent{TDocument, TResult}"/> class.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        /// <param name="toBsonDocument">To bson document.</param>
-        /// <param name="pipeline">The pipeline.</param>
         /// <param name="options">The options.</param>
-        public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline, AggregateOptions<TResult> options)
+        public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline, AggregateOptions options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _toBsonDocument = Ensure.IsNotNull(toBsonDocument, "toBsonDocument");
-            _options = options ?? new AggregateOptions<TResult>();
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline");
+            _options = options ?? new AggregateOptions();
         }
 
         // properties
@@ -77,7 +66,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the options.
         /// </summary>
-        public AggregateOptions<TResult> Options
+        public AggregateOptions Options
         {
             get { return _options; }
         }
@@ -88,6 +77,15 @@ namespace MongoDB.Driver
         public IList<object> Pipeline
         {
             get { return _pipeline; }
+        }
+
+        /// <summary>
+        /// Gets or sets the result serializer.
+        /// </summary>
+        public IBsonSerializer<TResult> ResultSerializer
+        {
+            get { return _resultSerializer; }
+            set { _resultSerializer = value; }
         }
 
         // methods
@@ -238,19 +236,131 @@ namespace MongoDB.Driver
         /// <returns>An asynchronous enumerable.</returns>
         public Task<IAsyncCursor<TResult>> CreateCursor(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _collection.AggregateAsync(_pipeline, _options, null, cancellationToken);
+            var options = new AggregateOptions<TResult>
+            {
+                AllowDiskUse = _options.AllowDiskUse,
+                BatchSize = _options.BatchSize,
+                MaxTime = _options.MaxTime,
+                ResultSerializer = _resultSerializer,
+                UseCursor = _options.UseCursor
+            };
+            return _collection.AggregateAsync(_pipeline, options, cancellationToken);
         }
 
         private AggregateFluent<TDocument, TNewResult> CopyToNew<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
         {
-            var newFluent = new AggregateFluent<TDocument, TNewResult>(_collection, _toBsonDocument, _pipeline);
-            newFluent._options.AllowDiskUse = _options.AllowDiskUse;
-            newFluent._options.BatchSize = _options.BatchSize;
-            newFluent._options.MaxTime = _options.MaxTime;
-            newFluent._options.ResultSerializer = resultSerializer ?? _collection.Settings.SerializerRegistry.GetSerializer<TNewResult>();
-            newFluent._options.UseCursor = _options.UseCursor;
+            var newFluent = new AggregateFluent<TDocument, TNewResult>(_collection, _toBsonDocument, _pipeline, _options);
+            newFluent._resultSerializer = resultSerializer;
 
             return newFluent;
+        }
+    }
+
+    /// <summary>
+    /// Extension methods for <see cref="AggregateFluent{TDocument, TResult}"/>
+    /// </summary>
+    public static class AggregateFluentExtensionMethods
+    {
+        /// <summary>
+        /// Firsts the asynchronous.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
+        public async static Task<TResult> FirstAsync<TDocument, TResult>(this AggregateFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(source, "source");
+
+            using (var cursor = await source.Limit(1).CreateCursor())
+            {
+                if (await cursor.MoveNextAsync())
+                {
+                    return cursor.Current.First();
+                }
+                else
+                {
+                    throw new InvalidOperationException("The source sequence is empty.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Firsts the or default asynchronous.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this AggregateFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(source, "source");
+
+            using (var cursor = await source.Limit(1).CreateCursor())
+            {
+                if (await cursor.MoveNextAsync())
+                {
+                    return cursor.Current.FirstOrDefault();
+                }
+                else
+                {
+                    return default(TResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Singles the asynchronous.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
+        public async static Task<TResult> SingleAsync<TDocument, TResult>(this AggregateFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(source, "source");
+
+            using (var cursor = await source.Limit(2).CreateCursor())
+            {
+                if (await cursor.MoveNextAsync())
+                {
+                    return cursor.Current.Single();
+                }
+                else
+                {
+                    throw new InvalidOperationException("The source sequence is empty.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Singles the or default asynchronous.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this AggregateFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(source, "source");
+
+            using (var cursor = await source.Limit(2).CreateCursor())
+            {
+                if (await cursor.MoveNextAsync())
+                {
+                    return cursor.Current.SingleOrDefault();
+                }
+                else
+                {
+                    return default(TResult);
+                }
+            }
         }
     }
 }

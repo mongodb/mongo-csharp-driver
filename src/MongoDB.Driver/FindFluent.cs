@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -229,7 +227,115 @@ namespace MongoDB.Driver
         /// <returns>An asynchronous enumerable.</returns>
         public Task<IAsyncCursor<TResult>> CreateCursor(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _collection.FindAsync(_criteria, _options, null, cancellationToken);
+            return _collection.FindAsync(_criteria, _options, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Extension methods for <see cref="FindFluent{TDocument, TResult}"/>
+    /// </summary>
+    public static class FindFluentExtensionMethods
+    {
+        /// <summary>
+        /// Firsts the asynchronous.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
+        public async static Task<TResult> FirstAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(source, "source");
+
+            using (var cursor = await source.Limit(1).CreateCursor())
+            {
+                if(await cursor.MoveNextAsync())
+                {
+                    return cursor.Current.First();
+                }
+                else
+                {
+                    throw new InvalidOperationException("The source sequence is empty.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Firsts the or default asynchronous.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(source, "source");
+
+            using (var cursor = await source.Limit(1).CreateCursor())
+            {
+                if (await cursor.MoveNextAsync())
+                {
+                    return cursor.Current.FirstOrDefault();
+                }
+                else
+                {
+                    return default(TResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Singles the asynchronous.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
+        public async static Task<TResult> SingleAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(source, "source");
+
+            using (var cursor = await source.Limit(2).CreateCursor())
+            {
+                if (await cursor.MoveNextAsync())
+                {
+                    return cursor.Current.Single();
+                }
+                else
+                {
+                    throw new InvalidOperationException("The source sequence is empty.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Singles the or default asynchronous.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(source, "source");
+
+            using (var cursor = await source.Limit(2).CreateCursor())
+            {
+                if (await cursor.MoveNextAsync())
+                {
+                    return cursor.Current.SingleOrDefault();
+                }
+                else
+                {
+                    return default(TResult);
+                }
+            }
         }
     }
 }

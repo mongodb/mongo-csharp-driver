@@ -67,7 +67,7 @@ namespace MongoDB.Driver
         {
             var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
 
-            var fluent = _subject.Aggregate(new AggregateOptions<BsonDocument>
+            var fluent = _subject.Aggregate(new AggregateOptions
                 {
                     AllowDiskUse = true,
                     BatchSize = 10,
@@ -111,7 +111,7 @@ namespace MongoDB.Driver
             var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await _subject.AggregateAsync(pipeline, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await _subject.AggregateAsync(pipeline, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -138,7 +138,7 @@ namespace MongoDB.Driver
                 UseCursor = false
             };
 
-            var result = await _subject.AggregateAsync(pipeline, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await _subject.AggregateAsync(pipeline, options, CancellationToken.None);
 
             _operationExecutor.QueuedCallCount.Should().Be(1);
             var writeCall = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -200,7 +200,7 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { new InsertRequest(new BsonDocument("b", 1)) });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            var result = await _subject.BulkWriteAsync(requests, bulkOptions, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await _subject.BulkWriteAsync(requests, bulkOptions, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
 
@@ -315,7 +315,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(20),
                 Skip = 30
             };
-            await _subject.CountAsync(criteria, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.CountAsync(criteria, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<long>();
 
@@ -339,7 +339,6 @@ namespace MongoDB.Driver
 
             await _subject.DeleteManyAsync(
                 criteria,
-                Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
@@ -369,7 +368,6 @@ namespace MongoDB.Driver
 
             Action act = () => _subject.DeleteManyAsync(
                     criteria,
-                    Timeout.InfiniteTimeSpan,
                     CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<WriteException>();
@@ -385,7 +383,6 @@ namespace MongoDB.Driver
 
             await _subject.DeleteOneAsync(
                 criteria,
-                Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
@@ -415,7 +412,6 @@ namespace MongoDB.Driver
 
             Action act = () => _subject.DeleteOneAsync(
                     criteria,
-                    Timeout.InfiniteTimeSpan,
                     CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<WriteException>();
@@ -431,7 +427,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
-            await _subject.DistinctAsync("a.b", criteria, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.DistinctAsync("a.b", criteria, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IReadOnlyList<int>>();
 
@@ -468,7 +464,7 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await _subject.FindAsync(criteria, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await _subject.FindAsync(criteria, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -549,7 +545,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndDeleteAsync<BsonDocument>(criteria, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.FindOneAndDeleteAsync<BsonDocument>(criteria, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -582,7 +578,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndReplaceAsync<BsonDocument>(criteria, replacement, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.FindOneAndReplaceAsync<BsonDocument>(criteria, replacement, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -618,7 +614,7 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndUpdateAsync<BsonDocument>(criteria, update, options, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.FindOneAndUpdateAsync<BsonDocument>(criteria, update, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -644,7 +640,6 @@ namespace MongoDB.Driver
 
             await _subject.InsertOneAsync(
                 document,
-                Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
@@ -674,7 +669,6 @@ namespace MongoDB.Driver
 
             Action act = () => _subject.InsertOneAsync(
                     document,
-                    Timeout.InfiniteTimeSpan,
                     CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<WriteException>();
@@ -695,7 +689,6 @@ namespace MongoDB.Driver
                 criteria,
                 replacement,
                 new UpdateOptions { IsUpsert = upsert },
-                Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
@@ -729,7 +722,6 @@ namespace MongoDB.Driver
                 criteria,
                 replacement,
                 new UpdateOptions { IsUpsert = upsert },
-                Timeout.InfiniteTimeSpan,
                 CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<WriteException>();
@@ -750,7 +742,6 @@ namespace MongoDB.Driver
                 criteria,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
-                Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
@@ -784,7 +775,6 @@ namespace MongoDB.Driver
                 criteria,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
-                Timeout.InfiniteTimeSpan,
                 CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<WriteException>();
@@ -805,7 +795,6 @@ namespace MongoDB.Driver
                 criteria,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
-                Timeout.InfiniteTimeSpan,
                 CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
@@ -839,7 +828,6 @@ namespace MongoDB.Driver
                 criteria,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
-                Timeout.InfiniteTimeSpan,
                 CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<WriteException>();
