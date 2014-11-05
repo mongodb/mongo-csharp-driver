@@ -435,6 +435,23 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer]
+        public void TestCountWithMaxTimeFromFind()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        failpoint.SetAlwaysOn();
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Find(Query.EQ("x", 1)).SetMaxTime(TimeSpan.FromMilliseconds(1)).Count());
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void TestCountWithQuery()
         {
             _collection.RemoveAll();
@@ -442,6 +459,18 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument("x", 2));
             var query = Query.EQ("x", 1);
             var count = _collection.Count(query);
+            Assert.AreEqual(1, count);
+        }
+
+        [Test]
+        [RequiresServer]
+        public void TestCountWithReadPreferenceFromFind()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.CreateIndex(IndexKeys.Ascending("x"));
+            var count = _collection.Find(Query.EQ("x", 1)).SetReadPreference(ReadPreference.Secondary).Count();
             Assert.AreEqual(1, count);
         }
 

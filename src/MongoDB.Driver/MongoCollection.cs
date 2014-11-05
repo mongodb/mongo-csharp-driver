@@ -214,7 +214,7 @@ namespace MongoDB.Driver
                 Skip = args.Skip
             };
 
-            return ExecuteReadOperation(operation);
+            return ExecuteReadOperation(operation, args.ReadPreference);
         }
 
         /// <summary>
