@@ -534,6 +534,30 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public void TestCountWithMaxTimeFromFind()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.CreateIndex(IndexKeys.Ascending("x"));
+            var count = _collection.Find(Query.EQ("x", 1)).SetMaxTime(TimeSpan.FromSeconds(1)).Count();
+            Assert.AreEqual(1, count);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public void TestCountWithReadPreferenceFromFind()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.CreateIndex(IndexKeys.Ascending("x"));
+            var count = _collection.Find(Query.EQ("x", 1)).SetReadPreference(ReadPreference.Secondary).Count();
+            Assert.AreEqual(1, count);
+        }
+
+        [Test]
         public void TestCreateCollection()
         {
             var collection = Configuration.TestCollection;

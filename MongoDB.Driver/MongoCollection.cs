@@ -264,7 +264,7 @@ namespace MongoDB.Driver
                 { "hint", args.Hint, args.Hint != null}
             };
 
-            var result = RunCommandAs<CommandResult>(command);
+            var result = RunCommandAs<CommandResult>(command, args.ReadPreference);
             return result.Response["n"].ToInt64();
         }
 
@@ -352,7 +352,7 @@ namespace MongoDB.Driver
             };
             var valueSerializer = args.ValueSerializer ?? BsonSerializer.LookupSerializer(typeof(TValue));
             var resultSerializer = new DistinctCommandResultSerializer<TValue>(valueSerializer, args.ValueSerializationOptions);
-            var result = RunCommandAs<DistinctCommandResult<TValue>>(command, resultSerializer, null);
+            var result = RunCommandAs<DistinctCommandResult<TValue>>(command, null, resultSerializer, null);
             return result.Values;
         }
 
@@ -2436,16 +2436,22 @@ namespace MongoDB.Driver
 
         private TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult
         {
+            return RunCommandAs<TCommandResult>(command, null);
+        }
+
+        private TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command, ReadPreference readPreference) where TCommandResult : CommandResult
+        {
             var resultSerializer = BsonSerializer.LookupSerializer(typeof(TCommandResult));
-            return RunCommandAs<TCommandResult>(command, resultSerializer, null);
+            return RunCommandAs<TCommandResult>(command, readPreference, resultSerializer, null);
         }
 
         private TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command,
+            ReadPreference readPreference,
             IBsonSerializer resultSerializer,
             IBsonSerializationOptions resultSerializationOptions) where TCommandResult : CommandResult
         {
-            var readPreference = _settings.ReadPreference;
+            readPreference = readPreference ?? _settings.ReadPreference;
             if (readPreference != ReadPreference.Primary)
             {
                 if (_server.ProxyType == MongoServerProxyType.Unknown)

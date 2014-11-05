@@ -336,11 +336,24 @@ namespace MongoDB.Driver
         public virtual long Count()
         {
             _isFrozen = true;
-            var args = new CountArgs { Query = _query };
-            BsonValue hint;
-            if (_options != null && _options.TryGetValue("$hint", out hint))
+            var args = new CountArgs
             {
-                args.Hint = hint;
+                Query = _query,
+                ReadPreference = _readPreference
+            };
+            if (_options != null)
+            {
+                BsonValue hint;
+                if (_options.TryGetValue("$hint", out hint))
+                {
+                    args.Hint = hint;
+                }
+
+                BsonValue maxTimeMS;
+                if (_options.TryGetValue("$maxTimeMS", out maxTimeMS))
+                {
+                    args.MaxTime = TimeSpan.FromMilliseconds(maxTimeMS.ToDouble());
+                }
             }
             return _collection.Count(args);
         }
@@ -667,12 +680,22 @@ namespace MongoDB.Driver
             {
                 Query = _query,
                 Limit = (_limit == 0) ? (int?)null : _limit,
+                ReadPreference = _readPreference,
                 Skip = (_skip == 0) ? (int?)null : _skip
             };
-            BsonValue hint;
-            if (_options != null && _options.TryGetValue("$hint", out hint))
+            if (_options != null)
             {
-                args.Hint = hint;
+                BsonValue hint;
+                if (_options.TryGetValue("$hint", out hint))
+                {
+                    args.Hint = hint;
+                }
+
+                BsonValue maxTimeMS;
+                if (_options.TryGetValue("$maxTimeMS", out maxTimeMS))
+                {
+                    args.MaxTime = TimeSpan.FromMilliseconds(maxTimeMS.ToDouble());
+                }
             }
             return _collection.Count(args);
         }

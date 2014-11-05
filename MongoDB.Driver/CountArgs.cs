@@ -28,6 +28,7 @@ namespace MongoDB.Driver
         private long? _limit;
         private TimeSpan? _maxTime;
         private IMongoQuery _query;
+        private ReadPreference _readPreference;
         private long? _skip;
 
         // public properties
@@ -74,6 +75,18 @@ namespace MongoDB.Driver
         {
             get { return _query; }
             set { _query = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the read preference.
+        /// </summary>
+        /// <value>
+        /// The read preference.
+        /// </value>
+        public ReadPreference ReadPreference
+        {
+            get { return _readPreference; }
+            set { _readPreference = value; }
         }
 
         /// <summary>
