@@ -15,8 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
@@ -25,14 +23,14 @@ namespace MongoDB.Driver
     public sealed class DeferredAsyncCursor<TDocument> : IAsyncCursor<TDocument>
     {
         // fields
-        private readonly Func<Task<IAsyncCursor<TDocument>>> _factory;
+        private readonly Func<Task<IAsyncCursor<TDocument>>> _executeAsync;
         private IAsyncCursor<TDocument> _cursor;
         private bool _disposed;
 
         // constructors
-        public DeferredAsyncCursor(Func<Task<IAsyncCursor<TDocument>>> factory)
+        public DeferredAsyncCursor(Func<Task<IAsyncCursor<TDocument>>> executeAsync)
         {
-            _factory = Ensure.IsNotNull(factory, "factory");
+            _executeAsync = Ensure.IsNotNull(executeAsync, "executeAsync");
         }
 
         // properties
@@ -57,7 +55,7 @@ namespace MongoDB.Driver
 
             if (_cursor == null)
             {
-                _cursor = await _factory().ConfigureAwait(false);
+                _cursor = await _executeAsync().ConfigureAwait(false);
             }
 
             return await _cursor.MoveNextAsync().ConfigureAwait(false);

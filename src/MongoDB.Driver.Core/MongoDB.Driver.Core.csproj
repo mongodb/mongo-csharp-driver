@@ -177,7 +177,7 @@
     <Compile Include="Core\Clusters\ICluster.cs" />
     <Compile Include="Core\Clusters\IClusterFactory.cs" />
     <Compile Include="Core\Clusters\MultiServerCluster.cs" />
-    <Compile Include="IAsyncCursorFactory.cs" />
+    <Compile Include="IAsyncCursorSource.cs" />
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReadPreferenceMode.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfig.cs" />

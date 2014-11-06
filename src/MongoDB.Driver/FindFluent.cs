@@ -13,7 +13,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindFluent<TDocument, TResult> : IAsyncCursorFactory<TResult>
+    public class FindFluent<TDocument, TResult> : IAsyncCursorSource<TResult>
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
@@ -22,15 +22,16 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindFluent{TDocument, TResult}"/> class.
+        /// Initializes a new instance of the <see cref="FindFluent{TDocument, TResult}" /> class.
         /// </summary>
         /// <param name="collection">The collection.</param>
         /// <param name="criteria">The criteria.</param>
-        public FindFluent(IMongoCollection<TDocument> collection, object criteria)
+        /// <param name="options">The options.</param>
+        public FindFluent(IMongoCollection<TDocument> collection, object criteria, FindOptions<TResult> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _criteria = Ensure.IsNotNull(criteria, "criteria");
-            _options = new FindOptions<TResult>();
+            _options = Ensure.IsNotNull(options, "options");
         }
 
         // properties
@@ -170,21 +171,23 @@ namespace MongoDB.Driver
         /// <returns>The fluent interface.</returns>
         public FindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer)
         {
-            var newFluent = new FindFluent<TDocument, TNewResult>(_collection, _criteria);
-            newFluent._options.AwaitData = _options.AwaitData;
-            newFluent._options.BatchSize = _options.BatchSize;
-            newFluent._options.Comment = _options.Comment;
-            newFluent._options.Limit = _options.Limit;
-            newFluent._options.MaxTime = _options.MaxTime;
-            newFluent._options.Modifiers = _options.Modifiers;
-            newFluent._options.NoCursorTimeout = _options.NoCursorTimeout;
-            newFluent._options.Partial = _options.Partial;
-            newFluent._options.Projection = projection;
-            newFluent._options.ResultSerializer = resultSerializer ?? _collection.Settings.SerializerRegistry.GetSerializer<TNewResult>();
-            newFluent._options.Skip = _options.Skip;
-            newFluent._options.Sort = _options.Sort;
-            newFluent._options.Tailable = _options.Tailable;
-            return newFluent;
+            var newOptions = new FindOptions<TNewResult>
+            {
+                AwaitData = _options.AwaitData,
+                BatchSize = _options.BatchSize,
+                Comment = _options.Comment,
+                Limit = _options.Limit,
+                MaxTime = _options.MaxTime,
+                Modifiers = _options.Modifiers,
+                NoCursorTimeout = _options.NoCursorTimeout,
+                Partial = _options.Partial,
+                Projection = projection,
+                ResultSerializer = resultSerializer ?? _collection.Settings.SerializerRegistry.GetSerializer<TNewResult>(),
+                Skip = _options.Skip,
+                Sort = _options.Sort,
+                Tailable = _options.Tailable
+            };
+            return new FindFluent<TDocument, TNewResult>(_collection, _criteria, newOptions);
         }
 
         /// <summary>
@@ -225,7 +228,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An asynchronous enumerable.</returns>
-        public Task<IAsyncCursor<TResult>> CreateCursor(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _collection.FindAsync(_criteria, _options, cancellationToken);
         }
@@ -249,9 +252,9 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(1).CreateCursor())
+            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
             {
-                if(await cursor.MoveNextAsync())
+                if (await cursor.MoveNextAsync())
                 {
                     return cursor.Current.First();
                 }
@@ -274,7 +277,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(1).CreateCursor())
+            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
             {
                 if (await cursor.MoveNextAsync())
                 {
@@ -300,7 +303,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(2).CreateCursor())
+            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
             {
                 if (await cursor.MoveNextAsync())
                 {
@@ -325,7 +328,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(2).CreateCursor())
+            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
             {
                 if (await cursor.MoveNextAsync())
                 {

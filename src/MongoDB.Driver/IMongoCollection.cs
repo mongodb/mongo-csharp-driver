@@ -127,7 +127,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The results of the query.
         /// </returns>
-        Task<IAsyncCursor<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.

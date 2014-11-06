@@ -29,29 +29,31 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class AggregateFluent<TDocument, TResult> : IAsyncCursorFactory<TResult>
+    public class AggregateFluent<TDocument, TResult> : IAsyncCursorSource<TResult>
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
         private readonly AggregateOptions _options;
         private readonly List<object> _pipeline;
-        private IBsonSerializer<TResult> _resultSerializer;
+        private readonly IBsonSerializer<TResult> _resultSerializer;
         private readonly Func<object, BsonDocument> _toBsonDocument;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateFluent{TDocument, TResult}"/> class.
+        /// Initializes a new instance of the <see cref="AggregateFluent{TDocument, TResult}" /> class.
         /// </summary>
         /// <param name="collection">The collection.</param>
         /// <param name="toBsonDocument">To bson document.</param>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="options">The options.</param>
-        public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline, AggregateOptions options)
+        /// <param name="resultSerializer">The result serializer.</param>
+        public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline, AggregateOptions options, IBsonSerializer<TResult> resultSerializer)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _toBsonDocument = Ensure.IsNotNull(toBsonDocument, "toBsonDocument");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline");
-            _options = options ?? new AggregateOptions();
+            _options = Ensure.IsNotNull(options, "options");
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
         }
 
         // properties
@@ -80,12 +82,11 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the result serializer.
+        /// Gets the result serializer.
         /// </summary>
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer; }
-            set { _resultSerializer = value; }
         }
 
         // methods
@@ -172,7 +173,7 @@ namespace MongoDB.Driver
         {
             AppendStage(new BsonDocument("$project", _toBsonDocument(project)));
 
-            return CopyToNew<TNewResult>(resultSerializer);
+            return CloneWithNewResultType<TNewResult>(resultSerializer);
         }
 
         /// <summary>
@@ -226,15 +227,15 @@ namespace MongoDB.Driver
         public AggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer)
         {
             AppendStage(new BsonDocument("$unwind", fieldName));
-            return CopyToNew<TNewResult>(resultSerializer);
+            return CloneWithNewResultType<TNewResult>(resultSerializer);
         }
 
         /// <summary>
-        /// Creates a cursor.
+        /// Executes the aggregate operation and returns a cursor.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An asynchronous enumerable.</returns>
-        public Task<IAsyncCursor<TResult>> CreateCursor(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var options = new AggregateOptions<TResult>
             {
@@ -247,12 +248,9 @@ namespace MongoDB.Driver
             return _collection.AggregateAsync(_pipeline, options, cancellationToken);
         }
 
-        private AggregateFluent<TDocument, TNewResult> CopyToNew<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
+        private AggregateFluent<TDocument, TNewResult> CloneWithNewResultType<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
         {
-            var newFluent = new AggregateFluent<TDocument, TNewResult>(_collection, _toBsonDocument, _pipeline, _options);
-            newFluent._resultSerializer = resultSerializer;
-
-            return newFluent;
+            return new AggregateFluent<TDocument, TNewResult>(_collection, _toBsonDocument, _pipeline, _options, resultSerializer);
         }
     }
 
@@ -274,7 +272,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(1).CreateCursor())
+            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
             {
                 if (await cursor.MoveNextAsync())
                 {
@@ -299,7 +297,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(1).CreateCursor())
+            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
             {
                 if (await cursor.MoveNextAsync())
                 {
@@ -325,7 +323,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(2).CreateCursor())
+            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
             {
                 if (await cursor.MoveNextAsync())
                 {
@@ -350,7 +348,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(2).CreateCursor())
+            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
             {
                 if (await cursor.MoveNextAsync())
                 {

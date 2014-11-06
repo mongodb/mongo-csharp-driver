@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -71,14 +70,15 @@ namespace MongoDB.Driver
         // methods
         public AggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options)
         {
-            return new AggregateFluent<TDocument, TDocument>(this, ConvertToBsonDocument, new List<object>(), options);
+            options = options ?? new AggregateOptions();
+            return new AggregateFluent<TDocument, TDocument>(this, ConvertToBsonDocument, new List<object>(), options, _serializer);
         }
 
         public async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(pipeline, "pipeline");
-            options = options ?? new AggregateOptions<TResult>();
 
+            options = options ?? new AggregateOptions<TResult>();
             var pipelineDocuments = pipeline.Select(x => ConvertToBsonDocument(x)).ToList();
 
             var last = pipelineDocuments.LastOrDefault();
@@ -93,12 +93,14 @@ namespace MongoDB.Driver
                     MaxTime = options.MaxTime
                 };
 
-                await ExecuteWriteOperation(operation,  cancellationToken).ConfigureAwait(false);
+                await ExecuteWriteOperation(operation, cancellationToken).ConfigureAwait(false);
 
                 var outputCollectionName = last.GetElement(0).Value.AsString;
+                var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
+
                 var findOperation = new FindOperation<TResult>(
                     new CollectionNamespace(_collectionNamespace.DatabaseNamespace, outputCollectionName),
-                    options.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>(),
+                    resultSerializer,
                     _messageEncoderSettings)
                 {
                     BatchSize = options.BatchSize,
@@ -112,7 +114,6 @@ namespace MongoDB.Driver
             else
             {
                 var operation = CreateAggregateOperation<TResult>(options, pipelineDocuments);
-
                 return await ExecuteReadOperation(operation,  cancellationToken);
             }
         }
@@ -150,7 +151,9 @@ namespace MongoDB.Driver
         public Task<long> CountAsync(object criteria, CountOptions options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
+
             options = options ?? new CountOptions();
+
             var operation = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Criteria = ConvertToBsonDocument(criteria),
@@ -170,7 +173,7 @@ namespace MongoDB.Driver
             var model = new DeleteManyModel<TDocument>(ConvertToBsonDocument(criteria));
             try
             {
-                var result = await BulkWriteAsync(new [] { model }, null, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -186,7 +189,7 @@ namespace MongoDB.Driver
             var model = new DeleteOneModel<TDocument>(ConvertToBsonDocument(criteria));
             try
             {
-                var result = await BulkWriteAsync(new [] { model }, null, cancellationToken).ConfigureAwait(false);
+                var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
             }
             catch (BulkWriteException<TDocument> ex)
@@ -201,7 +204,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(criteria, "criteria");
 
             options = options ?? new DistinctOptions<TResult>();
-            var resultSerializer = options.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
+            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
+
             var operation = new DistinctOperation<TResult>(
                 _collectionNamespace,
                 resultSerializer,
@@ -217,17 +221,16 @@ namespace MongoDB.Driver
 
         public FindFluent<TDocument, TDocument> Find(object criteria)
         {
-            var find = new FindFluent<TDocument, TDocument>(this, criteria);
-            return find;
+            var options = new FindOptions<TDocument>();
+            return new FindFluent<TDocument, TDocument>(this, criteria, options);
         }
 
         public Task<IAsyncCursor<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
-            Ensure.IsNotNull(options, "options");
 
+            options = options ?? new FindOptions<TResult>();
             var operation = CreateFindOperation<TResult>(criteria, options);
-
             return ExecuteReadOperation(operation, cancellationToken);
         }
 
@@ -236,7 +239,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(criteria, "criteria");
 
             options = options ?? new FindOneAndDeleteOptions<TResult>();
-            var resultSerializer = options.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
+            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
+
             var operation = new FindOneAndDeleteOperation<TResult>(
                 _collectionNamespace,
                 ConvertToBsonDocument(criteria),
@@ -253,15 +257,17 @@ namespace MongoDB.Driver
 
         public Task<TResult> FindOneAndReplaceAsync<TResult>(object criteria, TDocument replacement, FindOneAndReplaceOptions<TResult> options,  CancellationToken cancellationToken)
         {
+            var replacementObject = (object)replacement; // only box once if it's a struct
             Ensure.IsNotNull(criteria, "criteria");
-            // how to check replacement - it could be a struct
+            Ensure.IsNotNull(replacementObject, "replacement");
 
             options = options ?? new FindOneAndReplaceOptions<TResult>();
-            var resultSerializer = options.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
+            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
+
             var operation = new FindOneAndReplaceOperation<TResult>(
                 _collectionNamespace,
                 ConvertToBsonDocument(criteria),
-                ConvertToBsonDocument(replacement),
+                ConvertToBsonDocument(replacementObject),
                 new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
             {
@@ -281,11 +287,13 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(update, "update");
 
             options = options ?? new FindOneAndUpdateOptions<TResult>();
+            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
+
             var operation = new FindOneAndUpdateOperation<TResult>(
                 _collectionNamespace,
                 ConvertToBsonDocument(criteria),
                 ConvertToBsonDocument(update),
-                new FindAndModifyValueDeserializer<TResult>(_settings.SerializerRegistry.GetSerializer<TResult>()),
+                new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
             {
                 IsUpsert = options.IsUpsert,
@@ -300,7 +308,7 @@ namespace MongoDB.Driver
 
         public async Task InsertOneAsync(TDocument document,  CancellationToken cancellationToken)
         {
-            // how to check document - it could be a struct
+            Ensure.IsNotNull((object)document, "document");
 
             var model = new InsertOneModel<TDocument>(document);
             try
@@ -316,13 +324,14 @@ namespace MongoDB.Driver
         public async Task<ReplaceOneResult> ReplaceOneAsync(object criteria, TDocument replacement, UpdateOptions options,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(criteria, "criteria");
-            // how to check replacement - it might be a struct
+            Ensure.IsNotNull((object)replacement, "replacement");
 
             options = options ?? new UpdateOptions();
             var model = new ReplaceOneModel<TDocument>(criteria, replacement)
             {
                 IsUpsert = options.IsUpsert
             };
+
             try
             {
                 var result = await BulkWriteAsync(new [] { model }, null,  cancellationToken).ConfigureAwait(false);
@@ -344,6 +353,7 @@ namespace MongoDB.Driver
             {
                 IsUpsert = options.IsUpsert
             };
+
             try
             {
                 var result = await BulkWriteAsync(new [] { model }, null,  cancellationToken).ConfigureAwait(false);
@@ -497,9 +507,9 @@ namespace MongoDB.Driver
             }
         }
 
-        private AggregateOperation<TResult> CreateAggregateOperation<TResult>(AggregateOptions<TResult> model, List<BsonDocument> pipeline)
+        private AggregateOperation<TResult> CreateAggregateOperation<TResult>(AggregateOptions<TResult> options, List<BsonDocument> pipeline)
         {
-            var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
+            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
 
             return new AggregateOperation<TResult>(
                 _collectionNamespace,
@@ -507,36 +517,51 @@ namespace MongoDB.Driver
                 resultSerializer,
                 _messageEncoderSettings)
             {
-                AllowDiskUse = model.AllowDiskUse,
-                BatchSize = model.BatchSize,
-                MaxTime = model.MaxTime,
-                UseCursor = model.UseCursor
+                AllowDiskUse = options.AllowDiskUse,
+                BatchSize = options.BatchSize,
+                MaxTime = options.MaxTime,
+                UseCursor = options.UseCursor
             };
         }
 
-        private FindOperation<TResult> CreateFindOperation<TResult>(object criteria, FindOptions<TResult> model)
+        private FindOperation<TResult> CreateFindOperation<TResult>(object criteria, FindOptions<TResult> options)
         {
-            var resultSerializer = model.ResultSerializer ?? _settings.SerializerRegistry.GetSerializer<TResult>();
+            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
 
             return new FindOperation<TResult>(
                 _collectionNamespace,
                 resultSerializer,
                 _messageEncoderSettings)
             {
-                AwaitData = model.AwaitData,
-                BatchSize = model.BatchSize,
-                Comment = model.Comment,
+                AwaitData = options.AwaitData,
+                BatchSize = options.BatchSize,
+                Comment = options.Comment,
                 Criteria = ConvertToBsonDocument(criteria),
-                Limit = model.Limit,
-                MaxTime = model.MaxTime,
-                Modifiers = model.Modifiers,
-                NoCursorTimeout = model.NoCursorTimeout,
-                Partial = model.Partial,
-                Projection = ConvertToBsonDocument(model.Projection),
-                Skip = model.Skip,
-                Sort = ConvertToBsonDocument(model.Sort),
-                Tailable = model.Tailable
+                Limit = options.Limit,
+                MaxTime = options.MaxTime,
+                Modifiers = options.Modifiers,
+                NoCursorTimeout = options.NoCursorTimeout,
+                Partial = options.Partial,
+                Projection = ConvertToBsonDocument(options.Projection),
+                Skip = options.Skip,
+                Sort = ConvertToBsonDocument(options.Sort),
+                Tailable = options.Tailable
             };
+        }
+
+        private IBsonSerializer<TResult> ResolveResultSerializer<TResult>(IBsonSerializer<TResult> resultSerializer)
+        {
+            if (resultSerializer != null)
+            {
+                return resultSerializer;
+            }
+
+            if (typeof(TResult) == typeof(TDocument) && _serializer != null)
+            {
+                return (IBsonSerializer<TResult>)_serializer;
+            }
+
+            return _settings.SerializerRegistry.GetSerializer<TResult>();
         }
     }
 }
