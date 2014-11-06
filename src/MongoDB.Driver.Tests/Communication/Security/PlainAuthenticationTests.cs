@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 client
                     .GetDatabase(Configuration.TestDatabase.Name)
                     .GetCollection<BsonDocument>(__collectionName)
-                    .FindAsync<BsonDocument>(new BsonDocument())
+                    .Find(new BsonDocument())
                     .ToListAsync()
                     .GetAwaiter()
                     .GetResult();
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var result = client
                 .GetDatabase(Configuration.TestDatabase.Name)
                 .GetCollection<BsonDocument>(__collectionName)
-                .FindAsync<BsonDocument>(new BsonDocument())
+                .Find(new BsonDocument())
                 .ToListAsync()
                 .GetAwaiter()
                 .GetResult();
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 client
                     .GetDatabase(Configuration.TestDatabase.Name)
                     .GetCollection<BsonDocument>(__collectionName)
-                    .FindAsync<BsonDocument>(new BsonDocument())
+                    .Find(new BsonDocument())
                     .ToListAsync()
                     .GetAwaiter()
                     .GetResult();
