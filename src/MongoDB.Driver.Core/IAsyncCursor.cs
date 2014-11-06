@@ -45,11 +45,11 @@ namespace MongoDB.Driver
             using (source)
             {
                 var index = 0;
-                while (await source.MoveNextAsync())
+                while (await source.MoveNextAsync().ConfigureAwait(false))
                 {
                     foreach (var document in source.Current)
                     {
-                        await processor(document, index++);
+                        await processor(document, index++).ConfigureAwait(false);
                         cancellationToken.ThrowIfCancellationRequested();
                     }
                 }
@@ -66,13 +66,21 @@ namespace MongoDB.Driver
             // exhausted the thing and don't need it anymore.
             using (source)
             {
-                while (await source.MoveNextAsync())
+                while (await source.MoveNextAsync().ConfigureAwait(false))
                 {
                     list.AddRange(source.Current);
                     cancellationToken.ThrowIfCancellationRequested();
                 }
             }
             return list;
+        }
+
+        public async static Task<List<TDocument>> ToListAsync<TDocument>(this Task<IAsyncCursor<TDocument>> sourceTask, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull((object)sourceTask, "sourceTask");
+
+            var source = await sourceTask.ConfigureAwait(false);
+            return await ToListAsync(source, cancellationToken).ConfigureAwait(false);
         }
     }
 }

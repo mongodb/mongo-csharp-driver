@@ -28,17 +28,17 @@ namespace MongoDB.Driver
     {
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Func<TDocument, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await (await source.ToCursorAsync(cancellationToken)).ForEachAsync(processor, cancellationToken);
+            await (await source.ToCursorAsync(cancellationToken).ConfigureAwait(false)).ForEachAsync(processor, cancellationToken);
         }
 
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Func<TDocument, int, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await (await source.ToCursorAsync(cancellationToken)).ForEachAsync(processor, cancellationToken);
+            await (await source.ToCursorAsync(cancellationToken).ConfigureAwait(false)).ForEachAsync(processor, cancellationToken);
         }
 
         public static async Task<List<TDocument>> ToListAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await (await source.ToCursorAsync(cancellationToken)).ToListAsync(cancellationToken);
+            return await (await source.ToCursorAsync(cancellationToken).ConfigureAwait(false)).ToListAsync(cancellationToken);
         }
     }
 }

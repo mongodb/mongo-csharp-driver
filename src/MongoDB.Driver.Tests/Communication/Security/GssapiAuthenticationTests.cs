@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using MongoDB.Driver;
+using MongoDB.Bson;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Communication.Security
@@ -44,12 +44,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             Assert.Throws<MongoQueryException>(() =>
             {
-#pragma warning disable 618
-                client.GetServer()
-#pragma warning restore
+                client
                     .GetDatabase(Configuration.TestDatabase.Name)
-                    .GetCollection(__collectionName)
-                    .FindOne();
+                    .GetCollection<BsonDocument>(__collectionName)
+                    .FindAsync<BsonDocument>(new BsonDocument())
+                    .ToListAsync()
+                    .GetAwaiter()
+                    .GetResult();
             });
         }
 
@@ -58,12 +59,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
         {
             var client = new MongoClient(_settings);
 
-#pragma warning disable 618
-            var result = client.GetServer()
-#pragma warning restore
+            var result = client
                 .GetDatabase(Configuration.TestDatabase.Name)
-                .GetCollection(__collectionName)
-                .FindOne();
+                .GetCollection<BsonDocument>(__collectionName)
+                .FindAsync<BsonDocument>(new BsonDocument())
+                .ToListAsync()
+                .GetAwaiter()
+                .GetResult();
 
             Assert.IsNotNull(result);
         }
@@ -81,12 +83,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             Assert.Throws<TimeoutException>(() =>
             {
-#pragma warning disable 618
-                client.GetServer()
-#pragma warning restore
+                client
                     .GetDatabase(Configuration.TestDatabase.Name)
-                    .GetCollection(__collectionName)
-                    .FindOne();
+                    .GetCollection<BsonDocument>(__collectionName)
+                    .FindAsync<BsonDocument>(new BsonDocument())
+                    .ToListAsync()
+                    .GetAwaiter()
+                    .GetResult();
             });
         }
     }
