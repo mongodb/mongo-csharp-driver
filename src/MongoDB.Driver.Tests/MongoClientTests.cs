@@ -28,10 +28,14 @@ namespace MongoDB.Driver.Tests
         public void UsesSameMongoServerForIdenticalSettings()
         {
             var client1 = new MongoClient("mongodb://localhost");
+#pragma warning disable 618
             var server1 = client1.GetServer();
+#pragma warning restore
 
             var client2 = new MongoClient("mongodb://localhost");
+#pragma warning disable 618
             var server2 = client2.GetServer();
+#pragma warning restore
 
             Assert.AreSame(server1, server2);
         }
@@ -40,10 +44,14 @@ namespace MongoDB.Driver.Tests
         public void UsesSameMongoServerWhenReadPreferenceTagsAreTheSame()
         {
             var client1 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
+#pragma warning disable 618
             var server1 = client1.GetServer();
+#pragma warning restore
 
             var client2 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
+#pragma warning disable 618
             var server2 = client2.GetServer();
+#pragma warning restore
 
             Assert.AreSame(server1, server2);
         }

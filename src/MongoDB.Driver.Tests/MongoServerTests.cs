@@ -84,17 +84,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestCreateNoArgs()
-        {
-#pragma warning disable 618
-            var server = MongoServer.Create(); // no args!
-#pragma warning restore 618
-            Assert.AreEqual(MongoDefaults.GuidRepresentation, server.Settings.GuidRepresentation);
-            Assert.AreEqual(ReadPreference.Primary, server.Settings.ReadPreference);
-            Assert.AreEqual(new MongoServerAddress("localhost"), server.Instance.Address);
-        }
-
-        [Test]
         public void TestDatabaseExists()
         {
             if (!_isMasterSlavePair)

@@ -44,7 +44,9 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             Assert.Throws<MongoQueryException>(() =>
             {
+#pragma warning disable 618
                 client.GetServer()
+#pragma warning restore
                     .GetDatabase(Configuration.TestDatabase.Name)
                     .GetCollection(__collectionName)
                     .FindOne();
@@ -56,7 +58,9 @@ namespace MongoDB.Driver.Tests.Communication.Security
         {
             var client = new MongoClient(_settings);
 
+#pragma warning disable 618
             var result = client.GetServer()
+#pragma warning restore
                 .GetDatabase(Configuration.TestDatabase.Name)
                 .GetCollection(__collectionName)
                 .FindOne();
@@ -77,7 +81,9 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             Assert.Throws<TimeoutException>(() =>
             {
+#pragma warning disable 618
                 client.GetServer()
+#pragma warning restore
                     .GetDatabase(Configuration.TestDatabase.Name)
                     .GetCollection(__collectionName)
                     .FindOne();

@@ -149,12 +149,11 @@ namespace MongoDB.Driver
         /// Gets a MongoServer object using this client's settings.
         /// </summary>
         /// <returns>A MongoServer.</returns>
+        [Obsolete("Use the new high level API instead. See GetDatabase.")]
         public MongoServer GetServer()
         {
             var serverSettings = MongoServerSettings.FromClientSettings(_settings);
-#pragma warning disable 618
             return MongoServer.Create(serverSettings);
-#pragma warning restore
         }
 
         // private methods

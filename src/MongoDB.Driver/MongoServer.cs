@@ -86,25 +86,11 @@ namespace MongoDB.Driver
         /// Creates a new instance or returns an existing instance of MongoServer. Only one instance
         /// is created for each combination of server settings.
         /// </summary>
-        /// <returns>
-        /// A new or existing instance of MongoServer.
-        /// </returns>
-        [Obsolete("Use MongoClient.GetServer instead.")]
-        public static MongoServer Create()
-        {
-            return Create("mongodb://localhost");
-        }
-
-        /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoServer. Only one instance
-        /// is created for each combination of server settings.
-        /// </summary>
         /// <param name="settings">Server settings.</param>
         /// <returns>
         /// A new or existing instance of MongoServer.
         /// </returns>
-        [Obsolete("Use MongoClient.GetServer instead.")]
-        public static MongoServer Create(MongoServerSettings settings)
+        internal static MongoServer Create(MongoServerSettings settings)
         {
             lock (__staticLock)
             {
@@ -127,44 +113,15 @@ namespace MongoDB.Driver
         /// Creates a new instance or returns an existing instance of MongoServer. Only one instance
         /// is created for each combination of server settings.
         /// </summary>
-        /// <param name="url">Server settings in the form of a MongoUrl.</param>
-        /// <returns>
-        /// A new or existing instance of MongoServer.
-        /// </returns>
-        [Obsolete("Use MongoClient.GetServer instead.")]
-        public static MongoServer Create(MongoUrl url)
-        {
-            return Create(MongoServerSettings.FromUrl(url));
-        }
-
-        /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoServer. Only one instance
-        /// is created for each combination of server settings.
-        /// </summary>
         /// <param name="connectionString">Server settings in the form of a connection string.</param>
         /// <returns>
         /// A new or existing instance of MongoServer.
         /// </returns>
-        [Obsolete("Use MongoClient.GetServer instead.")]
-        public static MongoServer Create(string connectionString)
+        internal static MongoServer Create(string connectionString)
         {
             var url = MongoUrl.Create(connectionString);
-            return Create(url);
-        }
-
-        /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoServer. Only one instance
-        /// is created for each combination of server settings.
-        /// </summary>
-        /// <param name="uri">Server settings in the form of a Uri.</param>
-        /// <returns>
-        /// A new or existing instance of MongoServer.
-        /// </returns>
-        [Obsolete("Use MongoClient.GetServer instead.")]
-        public static MongoServer Create(Uri uri)
-        {
-            var url = MongoUrl.Create(uri.ToString());
-            return Create(url);
+            var serverSettings = MongoServerSettings.FromUrl(url);
+            return Create(serverSettings);
         }
 
         // public static properties
