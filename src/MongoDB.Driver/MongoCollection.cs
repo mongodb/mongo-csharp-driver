@@ -126,43 +126,41 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Pipeline == null) { throw new ArgumentException("Pipeline is null.", "args"); }
 
-            var lastStage = args.Pipeline.LastOrDefault();
-
-            string outputCollectionName = null;
-            if (lastStage != null && lastStage.GetElement(0).Name == "$out")
-            {
-                outputCollectionName = lastStage["$out"].AsString;
-                RunAggregateCommand(args);
-            }
             var messageEncoderSettings = GetMessageEncoderSettings();
 
-            return new AggregateEnumerableResult(this, args, outputCollectionName, messageEncoderSettings);
-        }
+            var last = args.Pipeline.LastOrDefault();
+            if (last != null && last.GetElement(0).Name == "$out")
+            {
+                var aggregateOperation = new AggregateToCollectionOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings)
+                {
+                    AllowDiskUse = args.AllowDiskUse,
+                    MaxTime = args.MaxTime
+                };
+                ExecuteWriteOperation(aggregateOperation);
 
-        /// <summary>
-        /// Runs an aggregation framework command.
-        /// </summary>
-        /// <param name="pipeline">The pipeline operations.</param>
-        /// <returns>
-        /// An AggregateResult.
-        /// </returns>
-        [Obsolete("Use the overload with an AggregateArgs parameter.")]
-        public virtual AggregateResult Aggregate(IEnumerable<BsonDocument> pipeline)
-        {
-            var args = new AggregateArgs { Pipeline = pipeline, OutputMode = AggregateOutputMode.Inline };
-            return RunAggregateCommand(args);
-        }
+                var outputCollectionName = last[0].AsString;
+                var outputCollectionNamespace = new CollectionNamespace(_collectionNamespace.DatabaseNamespace, outputCollectionName);
+                var resultSerializer = BsonDocumentSerializer.Instance;
+                var findOperation = new FindOperation<BsonDocument>(outputCollectionNamespace, resultSerializer, messageEncoderSettings)
+                {
+                     BatchSize = args.BatchSize,
+                     MaxTime = args.MaxTime
+                };
 
-        /// <summary>
-        /// Runs an aggregation framework command.
-        /// </summary>
-        /// <param name="pipeline">The pipeline operations.</param>
-        /// <returns>An AggregateResult.</returns>
-        [Obsolete("Use the overload with an AggregateArgs parameter.")]
-        public virtual AggregateResult Aggregate(params BsonDocument[] pipeline)
-        {
-            var args = new AggregateArgs { Pipeline = pipeline, OutputMode = AggregateOutputMode.Inline };
-            return RunAggregateCommand(args);
+                return new AggregateEnumerable(this, findOperation, ReadPreference.Primary);
+            }
+            else
+            {
+                var resultSerializer = BsonDocumentSerializer.Instance;
+                var operation = new AggregateOperation<BsonDocument>(_collectionNamespace, args.Pipeline, resultSerializer, messageEncoderSettings)
+                {
+                    AllowDiskUse = args.AllowDiskUse,
+                    BatchSize = args.BatchSize,
+                    MaxTime = args.MaxTime,
+                    UseCursor = args.OutputMode == AggregateOutputMode.Cursor
+                };
+                return new AggregateEnumerable(this, operation, _settings.ReadPreference);
+            }
         }
 
         /// <summary>
@@ -2073,29 +2071,6 @@ namespace MongoDB.Driver
         }
 
         // internal methods
-        internal AggregateResult RunAggregateCommand(AggregateArgs args)
-        {
-            BsonDocument cursor = null;
-            if (args.OutputMode == AggregateOutputMode.Cursor)
-            {
-                cursor = new BsonDocument
-                {
-                    { "batchSize", () => args.BatchSize.Value, args.BatchSize.HasValue }
-                };
-            }
-
-            var aggregateCommand = new CommandDocument
-            {
-                { "aggregate", _collectionNamespace.CollectionName },
-                { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
-                { "cursor", cursor, cursor != null }, // optional
-                { "allowDiskUse", () => args.AllowDiskUse.Value, args.AllowDiskUse.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
-            };
-
-            return RunCommandAs<AggregateResult>(aggregateCommand);
-        }
-
         internal MessageEncoderSettings GetMessageEncoderSettings()
         {
             return new MessageEncoderSettings
@@ -2135,7 +2110,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference = null)
+        internal TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference = null)
         {
             readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
             using (var binding = _server.GetReadBinding(readPreference))
@@ -2144,7 +2119,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation)
+        internal TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation)
         {
             using (var binding = _server.GetWriteBinding())
             {

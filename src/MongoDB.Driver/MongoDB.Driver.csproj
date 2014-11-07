@@ -87,9 +87,9 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Support\Hasher.cs</Link>
     </Compile>
-    <Compile Include="AggregateEnumerableResult.cs" />
     <Compile Include="AggregateFluent.cs" />
     <Compile Include="AggregateOptions.cs" />
+    <Compile Include="AggregateEnumerable.cs" />
     <Compile Include="Builders\UpdateCurrentDateType.cs" />
     <Compile Include="BulkWriteOptions.cs" />
     <Compile Include="Communication\ClusterKey.cs" />
@@ -151,7 +151,6 @@
     <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
     <Compile Include="CanCommandBeSentToSecondary.cs" />
-    <Compile Include="CommandResults\AggregateResult.cs" />
     <Compile Include="CommandResults\CollectionStatsResult.cs" />
     <Compile Include="CommandResults\CommandResult.cs" />
     <Compile Include="CommandResults\CommandResultSerializer.cs" />

@@ -65,22 +65,20 @@ namespace MongoDB.Driver.Tests
                 _collection.Insert(new BsonDocument("x", 3));
                 _collection.Insert(new BsonDocument("x", 3));
 
-#pragma warning disable 618
-                var commandResult = _collection.Aggregate(
-                    new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } })
-                );
-#pragma warning restore
-                var dictionary = new Dictionary<int, int>();
-                foreach (var result in commandResult.ResultDocuments)
+                var pipeline = new[]
                 {
-                    var x = result["_id"].AsInt32;
-                    var count = result["count"].AsInt32;
-                    dictionary[x] = count;
-                }
-                Assert.AreEqual(3, dictionary.Count);
-                Assert.AreEqual(1, dictionary[1]);
-                Assert.AreEqual(1, dictionary[2]);
-                Assert.AreEqual(2, dictionary[3]);
+                    new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } })
+                };
+                var expectedResult = new[]
+                {
+                    new BsonDocument { { "_id", 1 }, { "count", 1 }},
+                    new BsonDocument { { "_id", 2 }, { "count", 1 }},
+                    new BsonDocument { { "_id", 3 }, { "count", 2 }},
+                };
+
+                var result = _collection.Aggregate(new AggregateArgs { Pipeline = pipeline });
+
+                Assert.That(result, Is.EquivalentTo(expectedResult));
             }
         }
 
