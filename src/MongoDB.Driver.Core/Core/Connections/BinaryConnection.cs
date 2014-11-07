@@ -178,10 +178,8 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public Task OpenAsync()
         {
-            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
-
             ThrowIfDisposed();
 
             lock (_openLock)
@@ -189,13 +187,13 @@ namespace MongoDB.Driver.Core.Connections
                 if (_state.TryChange(State.Initial, State.Connecting))
                 {
                     _openedAtUtc = DateTime.UtcNow;
-                    _openTask = OpenAsyncHelper(timeout, cancellationToken);
+                    _openTask = OpenAsyncHelper();
                 }
                 return _openTask;
             }
         }
 
-        private async Task OpenAsyncHelper(TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task OpenAsyncHelper()
         {
             if (_listener != null)
             {
@@ -204,12 +202,11 @@ namespace MongoDB.Driver.Core.Connections
 
             try
             {
-                var slidingTimeout = new SlidingTimeout(timeout);
                 var stopwatch = Stopwatch.StartNew();
-                _stream = await _streamFactory.CreateStreamAsync(_endPoint, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                _stream = await _streamFactory.CreateStreamAsync(_endPoint).ConfigureAwait(false);
                 _state.TryChange(State.Initializing);
                 StartBackgroundTasks();
-                _description = await _connectionInitializer.InitializeConnectionAsync(this, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                _description = await _connectionInitializer.InitializeConnectionAsync(this).ConfigureAwait(false);
                 stopwatch.Stop();
                 _connectionId = _description.ConnectionId;
                 _state.TryChange(State.Open);
@@ -261,14 +258,11 @@ namespace MongoDB.Driver.Core.Connections
             int responseTo,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
-            TimeSpan timeout,
             CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(serializer, "serializer");
-            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
             ThrowIfDisposedOrNotOpen();
 
-            var slidingTimeout = new SlidingTimeout(timeout);
             try
             {
                 if (_listener != null)
@@ -277,7 +271,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 var stopwatch = Stopwatch.StartNew();
-                var buffer = await _inboundDropbox.ReceiveAsync(responseTo, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                var buffer = await _inboundDropbox.ReceiveAsync(responseTo, cancellationToken).ConfigureAwait(false);
                 int length = buffer.Length;
                 ReplyMessage<TDocument> reply;
                 using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: true))
@@ -309,8 +303,19 @@ namespace MongoDB.Driver.Core.Connections
         private async Task<bool> SendBackgroundTask(CancellationToken cancellationToken)
         {
             var entry = await _outboundQueue.DequeueAsync().ConfigureAwait(false);
+            // Before we might blow up the stream, let's see if we have been
+            // asked to cancel. No reason to do work on the stream if the user
+            // no longer cares.
+            if(entry.CancellationToken.IsCancellationRequested)
+            {
+                entry.TaskCompletionSource.TrySetCanceled();
+                return true; // means to not exit the background task...
+            }
             try
             {
+                // Don't use the entry's cancellation token because once we
+                // start writing the message, we don't want to stop arbitrarily
+                // and render the connection unusable at the whim of a user.
                 await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, cancellationToken).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 entry.TaskCompletionSource.TrySetResult(true);
@@ -318,16 +323,18 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
+                // We have to kill the connection off here because we may have
+                // partially written the bytes to the stream, leaving it
+                // unusable.
                 ConnectionFailed(ex);
                 entry.TaskCompletionSource.TrySetException(ex);
-                return false;
+                return false; // stop the loop, we are done!!!
             }
         }
 
-        public async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(messages, "messages");
-            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
             ThrowIfDisposedOrNotOpen();
 
             var messagesToSend = messages.ToList();
@@ -339,6 +346,7 @@ namespace MongoDB.Driver.Core.Connections
                     _listener.ConnectionBeforeSendingMessages(_connectionId, messagesToSend);
                 }
 
+                cancellationToken.ThrowIfCancellationRequested();
                 using (var buffer = new MultiChunkBuffer(BsonChunkPool.Default))
                 {
                     using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: false))
@@ -352,6 +360,11 @@ namespace MongoDB.Driver.Core.Connections
                                 encoder.WriteMessage(message);
                                 message.WasSent = true;
                             }
+
+                            // Encoding messages includes serializing the
+                            // documents, so encoding message could be expensive
+                            // and worthy of us honoring cancellation here.
+                            cancellationToken.ThrowIfCancellationRequested();
                         }
                         buffer.Length = (int)stream.Length;
                     }

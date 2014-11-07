@@ -28,31 +28,28 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
-        public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection)
         {
             Ensure.IsNotNull(connection, "connection");
-            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
-
-            var slidingTimeout = new SlidingTimeout(timeout);
 
             var isMasterCommand = new BsonDocument("isMaster", 1);
             var isMasterProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, isMasterCommand, true, null);
-            var isMasterResult = new IsMasterResult(await isMasterProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false));
+            var isMasterResult = new IsMasterResult(await isMasterProtocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false));
 
             var buildInfoCommand = new BsonDocument("buildInfo", 1);
             var buildInfoProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, buildInfoCommand, true, null);
-            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false));
+            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false));
 
             var connectionId = connection.ConnectionId;
             var description = new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
 
-            await AuthenticationHelper.AuthenticateAsync(connection, description, slidingTimeout, cancellationToken);
+            await AuthenticationHelper.AuthenticateAsync(connection, description);
 
             try
             {
                 var getLastErrorCommand = new BsonDocument("getLastError", 1);
                 var getLastErrorProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, getLastErrorCommand, true, null);
-                var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false);
 
                 BsonValue connectionIdBsonValue;
                 if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))

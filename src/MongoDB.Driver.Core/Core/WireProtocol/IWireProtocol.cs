@@ -22,11 +22,11 @@ namespace MongoDB.Driver.Core.WireProtocol
 {
     public interface IWireProtocol
     {
-        Task ExecuteAsync(IConnection connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
+        Task ExecuteAsync(IConnection connection, CancellationToken cancellationToken = default(CancellationToken));
     }
 
     public interface IWireProtocol<TResult>
     {
-        Task<TResult> ExecuteAsync(IConnection connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
+        Task<TResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

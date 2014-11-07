@@ -29,6 +29,6 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     public interface IStreamFactory
     {
-        Task<Stream> CreateStreamAsync(EndPoint endPoint, TimeSpan timeout, CancellationToken cancellationToken);
+        Task<Stream> CreateStreamAsync(EndPoint endPoint);
     }
 }

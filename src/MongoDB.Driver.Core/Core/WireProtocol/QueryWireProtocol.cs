@@ -92,12 +92,11 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _awaitData);
         }
 
-        public async Task<CursorBatch<TDocument>> ExecuteAsync(IConnection connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<CursorBatch<TDocument>> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
             var message = CreateMessage();
-            await connection.SendMessageAsync(message, _messageEncoderSettings, slidingTimeout, cancellationToken).ConfigureAwait(false);
-            var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, _messageEncoderSettings, slidingTimeout, cancellationToken).ConfigureAwait(false);
+            await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+            var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             return ProcessReply(reply);
         }
 

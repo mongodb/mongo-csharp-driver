@@ -112,12 +112,11 @@ namespace MongoDB.Driver.Core.WireProtocol
                 false);
         }
 
-        public async Task<TCommandResult> ExecuteAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
             var message = CreateMessage();
-            await connection.SendMessageAsync(message, _messageEncoderSettings, slidingTimeout, cancellationToken).ConfigureAwait(false);
-            var reply = await connection.ReceiveMessageAsync<RawBsonDocument>(message.RequestId, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, slidingTimeout, cancellationToken).ConfigureAwait(false);
+            await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+            var reply = await connection.ReceiveMessageAsync<RawBsonDocument>(message.RequestId, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             return ProcessReply(reply);
         }
 

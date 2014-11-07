@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // methods
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(description, "description");
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Authentication
                     { "user", _username }
                 };
                 var protocol = new CommandWireProtocol(new DatabaseNamespace("$external"), command, true, null);
-                await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                await protocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false);
             }
             catch (MongoCommandException ex)
             {

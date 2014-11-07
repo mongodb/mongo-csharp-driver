@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -32,16 +33,16 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
-        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, System.Threading.CancellationToken cancellationToken)
+        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadConnectionSourceAsync(timeout, cancellationToken);
+            return _reference.Instance.GetReadConnectionSourceAsync(cancellationToken);
         }
 
-        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(TimeSpan timeout, System.Threading.CancellationToken cancellationToken)
+        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteConnectionSourceAsync(timeout, cancellationToken);
+            return _reference.Instance.GetWriteConnectionSourceAsync(cancellationToken);
         }
 
         public void Dispose()

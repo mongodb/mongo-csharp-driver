@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Authentication
 {
     internal static class AuthenticationHelper
     {
-        public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, TimeSpan timeout, CancellationToken cancellationToken)
+        public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(description, "description");
@@ -37,10 +37,9 @@ namespace MongoDB.Driver.Core.Authentication
             // authentication is currently broken on arbiters
             if (!description.IsMasterResult.IsArbiter)
             {
-                var slidingTimeout = new SlidingTimeout(timeout);
                 foreach (var authenticator in connection.Settings.Authenticators)
                 {
-                    await authenticator.AuthenticateAsync(connection, description, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                    await authenticator.AuthenticateAsync(connection, description).ConfigureAwait(false);
                 }
             }
         }

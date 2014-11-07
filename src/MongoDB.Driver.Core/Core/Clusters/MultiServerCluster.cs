@@ -150,6 +150,10 @@ namespace MongoDB.Driver.Core.Clusters
 
         private async Task<bool> MonitorServersAsync(CancellationToken cancellationToken)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return false;
+            }
             try
             {
                 var eventArgs = await _serverDescriptionChangedQueue.DequeueAsync().ConfigureAwait(false); // TODO: add timeout and cancellationToken to DequeueAsync

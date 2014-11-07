@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
     /// <summary>
     /// Represents a connection pool factory.
     /// </summary>
-    public class SharedConnectionPoolFactory : IConnectionPoolFactory
+    internal class SharedConnectionPoolFactory : IConnectionPoolFactory
     {
         // fields
         private readonly IConnectionFactory _connectionFactory;

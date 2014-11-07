@@ -42,6 +42,6 @@ namespace MongoDB.Driver.Core.Clusters
 
         // methods
         void Initialize();
-        Task<IServer> SelectServerAsync(IServerSelector selector, TimeSpan timeout, CancellationToken cancellationToken);
+        Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken);
     }
 }

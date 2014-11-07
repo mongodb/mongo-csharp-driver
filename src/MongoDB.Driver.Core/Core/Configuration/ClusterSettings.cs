@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -35,21 +36,25 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly ClusterConnectionMode _connectionMode;
         private readonly IReadOnlyList<EndPoint> _endPoints;
         private readonly string _replicaSetName;
+        private readonly TimeSpan _serverSelectionTimeout;
 
         // constructors
         public ClusterSettings()
         {
             _endPoints = __defaultEndPoints;
+            _serverSelectionTimeout = TimeSpan.FromSeconds(30);
         }
 
         internal ClusterSettings(
             ClusterConnectionMode connectionMode,
             IReadOnlyList<EndPoint> endPoints,
-            string replicaSetName)
+            string replicaSetName,
+            TimeSpan serverSelectionTimeout)
         {
             _connectionMode = connectionMode;
             _endPoints = endPoints;
             _replicaSetName = replicaSetName;
+            _serverSelectionTimeout = serverSelectionTimeout;
         }
 
         // properties
@@ -66,6 +71,11 @@ namespace MongoDB.Driver.Core.Configuration
         public string ReplicaSetName
         {
             get { return _replicaSetName; }
+        }
+
+        public TimeSpan ServerSelectionTimeout
+        {
+            get { return _serverSelectionTimeout; }
         }
 
         // methods
@@ -85,6 +95,11 @@ namespace MongoDB.Driver.Core.Configuration
             return object.Equals(_replicaSetName, value) ? this : new Builder(this) { _replicaSetName = value }.Build();
         }
 
+        public ClusterSettings WithServerSelectionTimeout(TimeSpan value)
+        {
+            return (_serverSelectionTimeout == value) ? this : new Builder(this) { _serverSelectionTimeout = value }.Build();
+        }
+
         // nested types
         private struct Builder
         {
@@ -92,6 +107,7 @@ namespace MongoDB.Driver.Core.Configuration
             public ClusterConnectionMode _connectionMode;
             public IReadOnlyList<EndPoint> _endPoints;
             public string _replicaSetName;
+            public TimeSpan _serverSelectionTimeout;
 
             // constructors
             public Builder(ClusterSettings other)
@@ -99,6 +115,7 @@ namespace MongoDB.Driver.Core.Configuration
                 _connectionMode = other._connectionMode;
                 _endPoints = other._endPoints;
                 _replicaSetName = other._replicaSetName;
+                _serverSelectionTimeout = other._serverSelectionTimeout;
             }
 
             // methods
@@ -107,7 +124,8 @@ namespace MongoDB.Driver.Core.Configuration
                 return new ClusterSettings(
                     _connectionMode,
                     _endPoints,
-                    _replicaSetName);
+                    _replicaSetName,
+                    _serverSelectionTimeout);
             }
         }
     }

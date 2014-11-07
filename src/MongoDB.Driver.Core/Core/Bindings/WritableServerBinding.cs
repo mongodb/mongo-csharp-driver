@@ -41,21 +41,21 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
-        private async Task<IConnectionSourceHandle> GetConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<IConnectionSourceHandle> GetConnectionSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, timeout, cancellationToken).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
             return new ConnectionSourceHandle(new ServerConnectionSource(server));
         }
 
-        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(CancellationToken cancellationToken)
         {
-            return GetConnectionSourceAsync(timeout, cancellationToken);
+            return GetConnectionSourceAsync(cancellationToken);
         }
 
-        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(CancellationToken cancellationToken)
         {
-            return GetConnectionSourceAsync(timeout, cancellationToken);
+            return GetConnectionSourceAsync(cancellationToken);
         }
 
         public void Dispose()

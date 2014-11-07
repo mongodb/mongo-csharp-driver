@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // methods
-        public async Task<IConnectionHandle> AcquireConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             PooledConnection connection;
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            await connection.OpenAsync(timeout, cancellationToken).ConfigureAwait(false);
+            await connection.OpenAsync().ConfigureAwait(false);
             var acquiredConnection = new AcquiredConnection(connection);
             var referenceCountedConnection = new ReferenceCountedConnection(acquiredConnection);
             return new ConnectionHandle(referenceCountedConnection);

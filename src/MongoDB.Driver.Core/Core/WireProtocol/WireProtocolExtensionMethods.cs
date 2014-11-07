@@ -26,14 +26,12 @@ namespace MongoDB.Driver.Core.WireProtocol
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IWireProtocol<TResult> protocol,
             IConnectionSource connectionSource,
-            TimeSpan timeout = default(TimeSpan),
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(protocol, "protocol");
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -44,26 +42,23 @@ namespace MongoDB.Driver.Core.WireProtocol
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(protocol, "protocol");
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IWireProtocol<TResult> protocol,
             IWriteBinding binding,
-            TimeSpan timeout = default(TimeSpan),
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(protocol, "protocol");
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
         }
     }

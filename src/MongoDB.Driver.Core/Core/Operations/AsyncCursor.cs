@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var connection = await _connectionSource.GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).ConfigureAwait(false))
             {
                 var protocol = CreateGetMoreProtocol();
-                return await protocol.ExecuteAsync(connection, _timeout, _cancellationToken).ConfigureAwait(false);
+                return await protocol.ExecuteAsync(connection, _cancellationToken).ConfigureAwait(false);
             }
         }
 

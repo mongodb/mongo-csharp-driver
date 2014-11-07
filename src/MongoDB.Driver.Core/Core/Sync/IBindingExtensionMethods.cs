@@ -23,27 +23,27 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
     public static class IReadBindingExtensionMethods
     {
         // static methods
-        public static IConnectionSourceHandle GetReadConnectionSource(this IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public static IConnectionSourceHandle GetReadConnectionSource(this IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return binding.GetReadConnectionSourceAsync(timeout, cancellationToken).GetAwaiter().GetResult();
+            return binding.GetReadConnectionSourceAsync(cancellationToken).GetAwaiter().GetResult();
         }
     }
 
     public static class IWriteBindingExtensionMethods
     {
         // static methods
-        public static IConnectionSourceHandle GetWriteConnectionSource(this IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public static IConnectionSourceHandle GetWriteConnectionSource(this IWriteBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return binding.GetWriteConnectionSourceAsync(timeout, cancellationToken).GetAwaiter().GetResult();
+            return binding.GetWriteConnectionSourceAsync(cancellationToken).GetAwaiter().GetResult();
         }
     }
 
     public static class IConnectionSourceExtensionMethods
     {
         // static methods
-        public static IConnectionHandle GetConnection(this IConnectionSource connectionSource, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public static IConnectionHandle GetConnection(this IConnectionSource connectionSource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return connectionSource.GetConnectionAsync(timeout, cancellationToken).GetAwaiter().GetResult();
+            return connectionSource.GetConnectionAsync(cancellationToken).GetAwaiter().GetResult();
         }
     }
 }

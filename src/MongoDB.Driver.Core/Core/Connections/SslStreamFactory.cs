@@ -38,9 +38,9 @@ namespace MongoDB.Driver.Core.Connections
             _wrapped = Ensure.IsNotNull(wrapped, "wrapped");
         }
 
-        public async Task<Stream> CreateStreamAsync(EndPoint endPoint, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<Stream> CreateStreamAsync(EndPoint endPoint)
         {
-            var stream = await _wrapped.CreateStreamAsync(endPoint, timeout, cancellationToken);
+            var stream = await _wrapped.CreateStreamAsync(endPoint);
 
             var sslStream = new SslStream(
                 stream,

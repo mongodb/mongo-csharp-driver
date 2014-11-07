@@ -29,22 +29,6 @@ namespace MongoDB.Driver.Core.Async
     public class TaskExtensionMethodsTests
     {
         [Test]
-        public async Task WithTimeout_with_task_and_timeout_parameters_should_not_timeout()
-        {
-            var task = Task.Run(() => 1);
-            var result = await task.WithTimeout(TimeSpan.FromSeconds(1));
-            result.Should().Be(1);
-        }
-
-        [Test]
-        public void WithTimeout_with_task_and_timeout_parameters_should_timeout()
-        {
-            var task = Task.Run(() => { Thread.Sleep(TimeSpan.FromSeconds(1)); return 1; });
-            Action action = () => task.WithTimeout(TimeSpan.FromMilliseconds(1)).Wait();
-            action.ShouldThrow<TimeoutException>();
-        }
-
-        [Test]
         public void WithTimeout_with_task_timeout_and_cancellationToken_parameters_should_be_cancellable()
         {
             var task = Task.Run(() => { Thread.Sleep(TimeSpan.FromMilliseconds(500)); });

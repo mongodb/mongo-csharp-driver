@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Authentication
         public abstract string DatabaseName { get; }
 
         // methods
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(description, "description");
@@ -45,15 +45,13 @@ namespace MongoDB.Driver.Core.Authentication
                     { "payload", currentStep.BytesToSendToServer }
                 };
 
-                var slidingTimeout = new SlidingTimeout(timeout);
-
                 while (true)
                 {
                     BsonDocument result;
                     try
                     {
                         var protocol = new CommandWireProtocol(new DatabaseNamespace(DatabaseName), command, true, null);
-                        result = await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                        result = await protocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false);
                     }
                     catch(MongoCommandException ex)
                     {

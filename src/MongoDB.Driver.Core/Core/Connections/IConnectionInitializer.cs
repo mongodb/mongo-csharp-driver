@@ -22,6 +22,6 @@ namespace MongoDB.Driver.Core.Connections
 {
     public interface IConnectionInitializer
     {
-        Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken);
+        Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection);
     }
 }

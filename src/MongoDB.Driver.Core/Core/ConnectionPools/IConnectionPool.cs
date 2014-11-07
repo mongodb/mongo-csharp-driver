@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         ServerId ServerId { get; }
 
         // methods
-        Task<IConnectionHandle> AcquireConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken);
+        Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken);
         void Clear();
         void Initialize();
     }

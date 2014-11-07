@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Bindings
     public interface IConnectionSource : IDisposable
     {
         ServerDescription ServerDescription { get; }
-        Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken);
+        Task<IConnectionHandle> GetConnectionAsync(CancellationToken cancellationToken);
     }
 
     public interface IConnectionSourceHandle : IConnectionSource

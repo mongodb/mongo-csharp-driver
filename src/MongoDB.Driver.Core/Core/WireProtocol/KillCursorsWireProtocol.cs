@@ -45,10 +45,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             return new KillCursorsMessage(RequestMessage.GetNextRequestId(), _cursorIds);
         }
 
-        public async Task ExecuteAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
             var message = CreateMessage();
-            await connection.SendMessageAsync(message, _messageEncoderSettings, timeout, cancellationToken).ConfigureAwait(false);
+            await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
         }
     }
 }

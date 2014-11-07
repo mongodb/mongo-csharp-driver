@@ -65,13 +65,7 @@ namespace MongoDB.Driver.Core.Async
             var delayCancellationTokenSource = new CancellationTokenSource();
             var delayTask = Task.Delay(timeout, delayCancellationTokenSource.Token);
             var cancellationTaskCompletionSource = new TaskCompletionSource<bool>();
-            var registration = cancellationToken.Register(
-                state =>
-                {
-                    var source = (TaskCompletionSource<bool>)state;
-                    source.TrySetResult(true);
-                },
-                cancellationTaskCompletionSource);
+            var registration = cancellationToken.Register(() => cancellationTaskCompletionSource.TrySetResult(true));
 
             using (registration)
             {
@@ -89,12 +83,6 @@ namespace MongoDB.Driver.Core.Async
                     throw new TimeoutException();
                 }
             }
-        }
-
-        public static async Task<T> WithTimeout<T>(this Task<T> task, TimeSpan timeout)
-        {
-            await ((Task)task).WithTimeout(timeout).ConfigureAwait(false);
-            return await task.ConfigureAwait(false);
         }
 
         public static TaskCompletionSource<T> WithTimeout<T>(this TaskCompletionSource<T> source, TimeSpan timeout)

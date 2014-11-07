@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        public Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<IConnectionHandle> GetConnectionAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return Task.FromResult(_connection.Fork());

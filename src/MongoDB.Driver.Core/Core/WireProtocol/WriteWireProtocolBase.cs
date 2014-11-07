@@ -95,10 +95,8 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         protected abstract RequestMessage CreateWriteMessage(IConnection connection);
 
-        public async Task<WriteConcernResult> ExecuteAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<WriteConcernResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
-
             var writeMessage = CreateWriteMessage(connection);
             var getLastErrorMessage = CreateGetLastErrorMessage();
 
@@ -109,10 +107,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 messages.Add(getLastErrorMessage);
             }
 
-            await connection.SendMessagesAsync(messages, _messageEncoderSettings, slidingTimeout, cancellationToken).ConfigureAwait(false);
+            await connection.SendMessagesAsync(messages, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             if (getLastErrorMessage != null && getLastErrorMessage.WasSent)
             {
-                var reply = await connection.ReceiveMessageAsync<BsonDocument>(getLastErrorMessage.RequestId, BsonDocumentSerializer.Instance, _messageEncoderSettings, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                var reply = await connection.ReceiveMessageAsync<BsonDocument>(getLastErrorMessage.RequestId, BsonDocumentSerializer.Instance, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
                 return ProcessReply(reply);
             }
             else

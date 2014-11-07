@@ -51,16 +51,15 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // methods
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(description, "description");
 
             try
             {
-                var slidingTimeout = new SlidingTimeout(timeout);
-                var nonce = await GetNonceAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
-                await AuthenticateAsync(connection, nonce, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                var nonce = await GetNonceAsync(connection).ConfigureAwait(false);
+                await AuthenticateAsync(connection, nonce).ConfigureAwait(false);
             }
             catch(MongoCommandException ex)
             {
@@ -69,15 +68,15 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-        private async Task<string> GetNonceAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<string> GetNonceAsync(IConnection connection)
         {
             var command = new BsonDocument("getnonce", 1);
             var protocol = new CommandWireProtocol(new DatabaseNamespace(_credential.Source), command, true, null);
-            var document = await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+            var document = await protocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false);
             return (string)document["nonce"];
         }
 
-        private async Task AuthenticateAsync(IConnection connection, string nonce, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task AuthenticateAsync(IConnection connection, string nonce)
         {
             var command = new BsonDocument
             {
@@ -87,7 +86,7 @@ namespace MongoDB.Driver.Core.Authentication
                 { "key", CreateKey(_credential.Username, _credential.Password, nonce) }
             };
             var protocol = new CommandWireProtocol(new DatabaseNamespace(_credential.Source), command, true, null);
-            await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+            await protocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false);
         }
 
         private string CreateKey(string username, SecureString password, string nonce)

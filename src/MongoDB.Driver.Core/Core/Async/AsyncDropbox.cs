@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Async
             }
         }
 
-        public Task<TMessage> ReceiveAsync(TId id, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<TMessage> ReceiveAsync(TId id, CancellationToken cancellationToken)
         {
             lock (_lock)
             {
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Async
                 }
                 else
                 {
-                    var awaiter = new TaskCompletionSource<TMessage>().WithTimeout(timeout).WithCancellationToken(cancellationToken);
+                    var awaiter = new TaskCompletionSource<TMessage>().WithCancellationToken(cancellationToken);
                     _awaiters.Add(id, awaiter);
                     return awaiter.Task;
                 }

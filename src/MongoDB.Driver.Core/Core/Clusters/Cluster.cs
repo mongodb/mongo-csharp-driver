@@ -138,11 +138,12 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
         {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, "selector");
-            var slidingTimeout = new SlidingTimeout(timeout);
+
+            var slidingTimeout = new SlidingTimeout(_settings.ServerSelectionTimeout);
 
             while (true)
             {
@@ -180,11 +181,19 @@ namespace MongoDB.Driver.Core.Clusters
 
                 try
                 {
+                    // This WithTimeout task does NOT cancel the
+                    // descriptionChangedTask. That is very important cause
+                    // others may be waiting on the descriptionChangedTask with
+                    // a different timeout or cancellationToken. I think that
+                    // maybe this WithTimeout method should be made private to
+                    // this class as we are the only ones who call it and the
+                    // semantics of it may not be what is actually wanted
+                    // elsewhere.
                     await descriptionChangedTask.WithTimeout(slidingTimeout, cancellationToken).ConfigureAwait(false);
                 }
                 catch (TimeoutException ex)
                 {
-                    var message = BuildTimeoutExceptionMessage(timeout, description);
+                    var message = BuildTimeoutExceptionMessage(_settings.ServerSelectionTimeout, description);
                     throw new TimeoutException(message, ex);
                 }
             }

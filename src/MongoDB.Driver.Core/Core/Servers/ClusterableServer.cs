@@ -167,16 +167,14 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public async Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IConnectionHandle> GetConnectionAsync(CancellationToken cancellationToken)
         {
-            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
             ThrowIfNotOpen();
 
-            var slidingTimeout = new SlidingTimeout(timeout);
-            var connection = await _connectionPool.AcquireConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false);
+            var connection = await _connectionPool.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                await connection.OpenAsync(slidingTimeout, cancellationToken).ConfigureAwait(false);
+                await connection.OpenAsync().ConfigureAwait(false);
                 return new ServerConnection(this, connection);
             }
             catch
@@ -198,7 +196,7 @@ namespace MongoDB.Driver.Core.Servers
                     if (_heartbeatConnection == null)
                     {
                         _heartbeatConnection = _heartbeatConnectionFactory.CreateConnection(_serverId, _endPoint);
-                        await _heartbeatConnection.OpenAsync(TimeSpan.FromMinutes(1), cancellationToken).ConfigureAwait(false);
+                        await _heartbeatConnection.OpenAsync().ConfigureAwait(false);
                     }
 
                     heartbeatInfo = await GetHeartbeatInfoAsync(_heartbeatConnection, cancellationToken).ConfigureAwait(false);
@@ -272,7 +270,7 @@ namespace MongoDB.Driver.Core.Servers
                     null);
 
                 var stopwatch = Stopwatch.StartNew();
-                var isMasterResultDocument = await isMasterCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                var isMasterResultDocument = await isMasterCommand.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                 stopwatch.Stop();
                 var isMasterResult = new IsMasterResult(isMasterResultDocument);
 
@@ -282,7 +280,7 @@ namespace MongoDB.Driver.Core.Servers
                     true,
                     null);
 
-                var buildInfoResultRocument = await buildInfoCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                var buildInfoResultRocument = await buildInfoCommand.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                 var buildInfoResult = new BuildInfoResult(buildInfoResultRocument);
 
                 if (_listener != null)
@@ -333,12 +331,28 @@ namespace MongoDB.Driver.Core.Servers
 
         private void HandleConnectionException(IConnection connection, Exception ex)
         {
-            if (_state.Value == State.Open)
+            if (_state.Value != State.Open)
             {
-                // For any connection exception, we are going to immediately
-                // invalidate the server
-                Invalidate();
+                return;
             }
+
+            var aggregateException = ex as AggregateException;
+            if (aggregateException != null && aggregateException.InnerExceptions.Count == 1)
+            {
+                ex = aggregateException.InnerException;
+            }
+
+            // For most connection exceptions, we are going to immediately
+            // invalidate the server. However, we aren't going to invalidate
+            // because of OperationCanceledExceptions. We trust that the
+            // implementations of connection don't leave themselves in a state
+            // where they can't be used based on user cancellation.
+            if (ex.GetType() == typeof(OperationCanceledException))
+            {
+                return;
+            }
+
+            Invalidate();
         }
 
         private void ThrowIfDisposed()
@@ -385,11 +399,11 @@ namespace MongoDB.Driver.Core.Servers
                 _server = server;
             }
 
-            public override async Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken)
+            public override async Task OpenAsync()
             {
                 try
                 {
-                    await base.OpenAsync(timeout, cancellationToken).ConfigureAwait(false);
+                    await base.OpenAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -398,11 +412,11 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public override async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken)
+            public override async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
                 try
                 {
-                    return await base.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, timeout, cancellationToken).ConfigureAwait(false);
+                    return await base.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -411,11 +425,11 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public override async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken)
+            public override async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
                 try
                 {
-                    await base.SendMessagesAsync(messages, messageEncoderSettings, timeout, cancellationToken).ConfigureAwait(false);
+                    await base.SendMessagesAsync(messages, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
