@@ -48,20 +48,24 @@ namespace MongoDB.Driver.Core.Operations
 
         protected void DropDatabase()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
-            {
-                var dropDatabaseOperation = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
-                dropDatabaseOperation.Execute(binding);
-            }
+            DropDatabaseAsync().GetAwaiter().GetResult();
+        }
+
+        protected Task DropDatabaseAsync()
+        {
+            var dropDatabaseOperation = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
+            return ExecuteOperationAsync(dropDatabaseOperation);
         }
 
         protected void DropCollection()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
-            {
-                var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                dropCollectionOperation.Execute(binding);
-            }
+            DropCollectionAsync().GetAwaiter().GetResult();
+        }
+
+        protected Task DropCollectionAsync()
+        {
+            var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            return ExecuteOperationAsync(dropCollectionOperation);
         }
 
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation)
@@ -90,23 +94,26 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected void Insert(params BsonDocument[] data)
+        protected void Insert(params BsonDocument[] documents)
         {
-            Insert((IEnumerable<BsonDocument>)data);
+            Insert((IEnumerable<BsonDocument>)documents);
         }
 
-        protected void Insert(IEnumerable<BsonDocument> data)
+        protected void Insert(IEnumerable<BsonDocument> documents)
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
-            {
-                var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                dropCollectionOperation.Execute(binding);
+            InsertAsync(documents).GetAwaiter().GetResult();
+        }
 
-                var requests = data
-                    .Select(document => new InsertRequest(document));
-                var insertOperation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
-                insertOperation.Execute(binding);
-            }
+        protected Task InsertAsync(params BsonDocument[] documents)
+        {
+            return InsertAsync((IEnumerable<BsonDocument>)documents);
+        }
+
+        protected async Task InsertAsync(IEnumerable<BsonDocument> documents)
+        {
+            var requests = documents.Select(d => new InsertRequest(d));
+            var insertOperation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            await ExecuteOperationAsync(insertOperation);
         }
 
         protected Task<List<BsonDocument>> ReadAllFromCollectionAsync()
@@ -116,12 +123,9 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<List<BsonDocument>> ReadAllFromCollectionAsync(CollectionNamespace collectionNamespace)
         {
-            using (var binding = SuiteConfiguration.GetReadBinding())
-            {
-                var op = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                var cursor = await op.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
-                return await ReadCursorToEndAsync(cursor);
-            }
+            var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var cursor = await ExecuteOperationAsync(operation);
+            return await ReadCursorToEndAsync(cursor);
         }
 
         protected async Task<List<BsonDocument>> ReadCursorToEndAsync(IAsyncCursor<BsonDocument> cursor)

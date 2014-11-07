@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private bool? _nonAtomicOutput;
-        private CollectionNamespace _outputCollectionNamespace;
+        private readonly CollectionNamespace _outputCollectionNamespace;
         private MapReduceOutputMode _outputMode;
         private bool? _shardedOutput;
 
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
                 query,
                 messageEncoderSettings)
         {
-            _outputCollectionNamespace = Ensure.IsNotNull(outputCollectionNamespace, "outputCollectionName");
+            _outputCollectionNamespace = Ensure.IsNotNull(outputCollectionNamespace, "outputCollectionNamespace");
             _outputMode = MapReduceOutputMode.Replace;
         }
 
@@ -60,7 +60,6 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace OutputCollectionNamespace
         {
             get { return _outputCollectionNamespace; }
-            set { _outputCollectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public MapReduceOutputMode OutputMode
@@ -88,12 +87,12 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new WriteCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
+            return operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }
 }

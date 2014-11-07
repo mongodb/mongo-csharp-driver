@@ -18,16 +18,20 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class MapReduceOperation : MapReduceOperationBase, IReadOperation<IEnumerable<BsonValue>>
+    public class MapReduceOperation<TResult> : MapReduceOperationBase, IReadOperation<TResult>
     {
+        // fields
+        private readonly IBsonSerializer<TResult> _resultSerializer;
+
         // constructors
-        public MapReduceOperation(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
+        public MapReduceOperation(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(
                 collectionNamespace,
                 mapFunction,
@@ -35,6 +39,13 @@ namespace MongoDB.Driver.Core.Operations
                 query,
                 messageEncoderSettings)
         {
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+        }
+
+        // properties
+        public IBsonSerializer<TResult> ResultSerializer
+        {
+            get { return _resultSerializer;}
         }
 
         // methods
@@ -43,19 +54,12 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument("inline", 1);
         }
 
-        public async Task<IEnumerable<BsonValue>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(binding, "binding");
-            var result = await ExecuteCommandAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
-            return result["results"].AsBsonArray;
-        }
-
-        public async Task<BsonDocument> ExecuteCommandAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public Task<TResult> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(CollectionNamespace.DatabaseNamespace, command, MessageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
+            var operation = new ReadCommandOperation<TResult>(CollectionNamespace.DatabaseNamespace, command, _resultSerializer, MessageEncoderSettings);
+            return operation.ExecuteAsync(binding, timeout, cancellationToken);
         }
     }
 }

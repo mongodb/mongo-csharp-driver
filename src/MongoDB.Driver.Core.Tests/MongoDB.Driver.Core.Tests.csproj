@@ -77,6 +77,9 @@
     <Compile Include="Core\Operations\ListCollectionsOperationTests.cs" />
     <Compile Include="Core\Operations\ListDatabaseNamesOperationTests.cs" />
     <Compile Include="Core\Operations\ListIndexesOperationTests.cs" />
+    <Compile Include="Core\Operations\MapReduceOperationBaseTests.cs" />
+    <Compile Include="Core\Operations\MapReduceOperationTests.cs" />
+    <Compile Include="Core\Operations\MapReduceOutputToCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\RenameCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\OperationTestBase.cs" />
     <Compile Include="Core\Operations\QueryHelperTests.cs" />

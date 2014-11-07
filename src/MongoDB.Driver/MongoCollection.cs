@@ -1588,40 +1588,65 @@ namespace MongoDB.Driver
             if (args.MapFunction == null) { throw new ArgumentException("MapFunction is null.", "args"); }
             if (args.ReduceFunction == null) { throw new ArgumentException("ReduceFunction is null.", "args"); }
 
-            BsonDocument output;
+            var query = args.Query == null ? new BsonDocument() : BsonDocumentWrapper.Create(args.Query);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var scope = args.Scope == null ? null : BsonDocumentWrapper.Create(args.Scope);
+            var sort = args.SortBy == null ? null : BsonDocumentWrapper.Create(args.SortBy);
+
+            BsonDocument response;
             if (args.OutputMode == MapReduceOutputMode.Inline)
             {
-                output = new BsonDocument("inline", 1);
+                var resultSerializer = BsonDocumentSerializer.Instance;
+
+                var operation = new MapReduceOperation<BsonDocument>(
+                    _collectionNamespace,
+                    args.MapFunction,
+                    args.ReduceFunction,
+                    query,
+                    resultSerializer,
+                    messageEncoderSettings)
+                {
+                    FinalizeFunction = args.FinalizeFunction,
+                    JavaScriptMode = args.JsMode,
+                    Limit = args.Limit,
+                    MaxTime = args.MaxTime,
+                    Scope = scope,
+                    Sort = sort,
+                    Verbose = args.Verbose
+                };
+
+                response = ExecuteReadOperation(operation);
             }
             else
             {
-                if (args.OutputCollectionName == null) { throw new ArgumentException("OutputCollectionName is null and OutputMode is not Inline.", "args"); }
-                var action = MongoUtils.ToCamelCase(args.OutputMode.ToString());
-                output = new BsonDocument
+                var outputDatabaseNamespace = args.OutputDatabaseName == null ? _collectionNamespace.DatabaseNamespace : new DatabaseNamespace(args.OutputDatabaseName);
+                var outputCollectionNamespace = new CollectionNamespace(outputDatabaseNamespace, args.OutputCollectionName);
+                var outputMode = args.OutputMode.ToCore();
+
+                var operation = new MapReduceOutputToCollectionOperation(
+                    _collectionNamespace,
+                    outputCollectionNamespace,
+                    args.MapFunction,
+                    args.ReduceFunction,
+                    query,
+                    messageEncoderSettings)
                 {
-                    { action, args.OutputCollectionName },
-                    { "db", args.OutputDatabaseName, args.OutputDatabaseName != null }, // optional
-                    { "sharded", () => args.OutputIsSharded.Value, args.OutputIsSharded.HasValue }, // optional
-                    { "nonAtomic", () => args.OutputIsNonAtomic.Value, args.OutputIsNonAtomic.HasValue } // optional
+                    FinalizeFunction = args.FinalizeFunction,
+                    JavaScriptMode = args.JsMode,
+                    Limit = args.Limit,
+                    MaxTime = args.MaxTime,
+                    NonAtomicOutput = args.OutputIsNonAtomic,
+                    OutputMode = outputMode,
+                    Scope = scope,
+                    ShardedOutput = args.OutputIsSharded,
+                    Sort = sort,
+                    Verbose = args.Verbose
                 };
+
+                response = ExecuteWriteOperation(operation);
             }
 
-            var command = new CommandDocument
-            {
-                { "mapreduce", _collectionNamespace.CollectionName }, // all lowercase for backwards compatibility
-                { "map", args.MapFunction },
-                { "reduce", args.ReduceFunction },
-                { "out", output },
-                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
-                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
-                { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
-                { "finalize", args.FinalizeFunction, args.FinalizeFunction != null }, // optional
-                { "scope", () => BsonDocumentWrapper.Create(args.Scope), args.Scope != null }, // optional
-                { "jsMode", () => args.JsMode.Value, args.JsMode.HasValue }, // optional
-                { "verbose", () => args.Verbose.Value, args.Verbose.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
-            };
-            var result = RunCommandAs<MapReduceResult>(command);
+            var result = new MapReduceResult(response);
             result.SetInputDatabase(_database);
 
             return result;

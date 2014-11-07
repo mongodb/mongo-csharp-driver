@@ -26,15 +26,15 @@ namespace MongoDB.Driver.Core.Operations
     public abstract class MapReduceOperationBase
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private BsonJavaScript _finalizeFunction;
         private bool? _javaScriptMode;
         private long? _limit;
-        private BsonJavaScript _mapFunction;
+        private readonly BsonJavaScript _mapFunction;
         private TimeSpan? _maxTime;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private BsonDocument _query;
-        private BsonJavaScript _reduceFunction;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly BsonDocument _query;
+        private readonly BsonJavaScript _reduceFunction;
         private BsonDocument _scope;
         private BsonDocument _sort;
         private bool? _verbose;
@@ -45,15 +45,14 @@ namespace MongoDB.Driver.Core.Operations
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _mapFunction = Ensure.IsNotNull(mapFunction, "mapFunction");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _query = query;
-            _messageEncoderSettings = messageEncoderSettings;
+            _query = Ensure.IsNotNull(query, "query");
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
         // properties
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
         public BsonJavaScript FinalizeFunction
@@ -77,7 +76,6 @@ namespace MongoDB.Driver.Core.Operations
         public BsonJavaScript MapFunction
         {
             get { return _mapFunction; }
-            set { _mapFunction = Ensure.IsNotNull(value, "value"); }
         }
 
         public TimeSpan? MaxTime
@@ -89,19 +87,16 @@ namespace MongoDB.Driver.Core.Operations
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
         public BsonDocument Query
         {
             get { return _query; }
-            set { _query = value; }
         }
 
         public BsonJavaScript ReduceFunction
         {
             get { return _reduceFunction; }
-            set { _reduceFunction = value; }
         }
 
         public BsonDocument Scope

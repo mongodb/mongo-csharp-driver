@@ -41,6 +41,25 @@ namespace MongoDB.Driver
         Reduce
     }
 
+    internal static class MapReduceOutputModeExtensionMethods
+    {
+        public static Core.Operations.MapReduceOutputMode ToCore(this MapReduceOutputMode outputMode)
+        {
+            switch (outputMode)
+            {
+                case MapReduceOutputMode.Merge:
+                    return Core.Operations.MapReduceOutputMode.Merge;
+                case MapReduceOutputMode.Reduce:
+                    return Core.Operations.MapReduceOutputMode.Reduce;
+                case MapReduceOutputMode.Replace:
+                    return Core.Operations.MapReduceOutputMode.Replace;
+                default:
+                    var message = string.Format("Invalid output mode: {0}.", outputMode);
+                    throw new ArgumentException(message, "outputMode");
+            }
+        }
+    }
+
     /// <summary>
     /// Represents arguments for the MapReduce command helper method.
     /// </summary>
