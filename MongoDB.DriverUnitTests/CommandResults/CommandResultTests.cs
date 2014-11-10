@@ -57,7 +57,9 @@ namespace MongoDB.DriverUnitTests.CommandResults
         {
             var command = new CommandDocument("invalid", 1);
             var document = new BsonDocument();
+#pragma warning disable 618
             var result = new CommandResult(document) { Command = command };
+#pragma warning restore
             try
             {
                 var dummy = result.Ok;

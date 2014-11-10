@@ -49,7 +49,9 @@ namespace MongoDB.Driver.Operations
                 throw new MongoCommandException("Command 'getLastError' failed. No response returned");
             }
             var writeConcernResult = replyMessage.Documents[0];
+#pragma warning disable 618
             writeConcernResult.Command = sendMessageResult.GetLastErrorCommand;
+#pragma warning restore
 
             var mappedException = ExceptionMapper.Map(writeConcernResult);
             if (mappedException != null)

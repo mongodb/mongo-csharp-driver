@@ -84,7 +84,9 @@ namespace MongoDB.Driver.Operations
             var result = operation.Execute(connection);
             var response = result.Response;
 
+#pragma warning disable 618
             var connectionProvider = new ServerInstanceConnectionProvider(result.ServerInstance);
+#pragma warning restore
             var collectionFullName = _databaseName + "." + _collectionName;
 
             var enumerators = new List<IEnumerator<TDocument>>();

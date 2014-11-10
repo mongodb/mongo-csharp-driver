@@ -29,7 +29,9 @@ namespace MongoDB.DriverUnitTests.Exceptions
             var code = 123;
             var response = new BsonDocument { { "code", code }, { "ok", 0 } };
             var commandResult = new CommandResult(response);
+#pragma warning disable 618
             commandResult.Command = new CommandDocument("commandName", 1);
+#pragma warning restore
             var subject = new MongoCommandException(commandResult);
 
             var result = subject.Code;
@@ -44,7 +46,9 @@ namespace MongoDB.DriverUnitTests.Exceptions
             var response = new BsonDocument { { "code", code }, { "ok", 0 } };
             var commandResult = new CommandResult(response);
             var command = new CommandDocument("commandName", 1);
+#pragma warning disable 618
             commandResult.Command = command;
+#pragma warning restore
             var subject = new MongoCommandException(commandResult);
 
             var result = subject.Command;
@@ -57,7 +61,10 @@ namespace MongoDB.DriverUnitTests.Exceptions
         {
             var response = new BsonDocument("ok", 1);
             var commandResult = new CommandResult(response);
+#pragma warning disable 618
             commandResult.Command = new CommandDocument("commandName", 1);
+#pragma warning restore
+
             var subject = new MongoCommandException(commandResult);
 
 #pragma warning disable 618
@@ -72,7 +79,9 @@ namespace MongoDB.DriverUnitTests.Exceptions
         {
             var response = new BsonDocument("ok", 1);
             var commandResult = new CommandResult(response);
+#pragma warning disable 618
             commandResult.Command = new CommandDocument("commandName", 1);
+#pragma warning restore
 
             var subject = new MongoCommandException(commandResult);
 
@@ -124,7 +133,9 @@ namespace MongoDB.DriverUnitTests.Exceptions
             var errorMessage = "abc";
             var response = new BsonDocument { { "errmsg", errorMessage }, { "ok", 0 } };
             var commandResult = new CommandResult(response);
+#pragma warning disable 618
             commandResult.Command = new CommandDocument("commandName", 1);
+#pragma warning restore
             var subject = new MongoCommandException(commandResult);
 
             var result = subject.ErrorMessage;
@@ -137,7 +148,9 @@ namespace MongoDB.DriverUnitTests.Exceptions
         {
             var response = new BsonDocument("ok", 1);
             var commandResult = new CommandResult(response);
+#pragma warning disable 618
             commandResult.Command = new CommandDocument("commandName", 1);
+#pragma warning restore
             var subject = new MongoCommandException(commandResult);
 
             var result = subject.Result;

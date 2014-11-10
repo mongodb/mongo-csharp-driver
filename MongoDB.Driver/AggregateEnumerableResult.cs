@@ -55,7 +55,9 @@ namespace MongoDB.Driver
             var result = _collection.RunAggregateCommand(_args);
             if (result.CursorId != 0)
             {
+#pragma warning disable 618
                 var connectionProvider = new ServerInstanceConnectionProvider(result.ServerInstance);
+#pragma warning restore
                 var readerSettings = new BsonBinaryReaderSettings
                 {
                     Encoding = _collection.Settings.ReadEncoding ?? MongoDefaults.ReadEncoding,

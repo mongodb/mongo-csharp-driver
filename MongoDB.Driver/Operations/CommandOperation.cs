@@ -67,8 +67,10 @@ namespace MongoDB.Driver.Operations
                 throw new MongoCommandException(message);
             }
             var commandResult = reply.Documents[0];
+#pragma warning disable 618
             commandResult.ServerInstance = connection.ServerInstance;
             commandResult.Command = _command;
+#pragma warning restore
 
             if (!commandResult.Ok)
             {

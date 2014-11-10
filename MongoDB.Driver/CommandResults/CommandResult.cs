@@ -53,6 +53,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the command.
         /// </summary>
+        [Obsolete("This property will be removed in 2.0 and there is no replacement.")]
         public IMongoCommand Command
         {
             get { return _command; }
@@ -69,6 +70,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the command name.
         /// </summary>
+        [Obsolete("This property will be removed in 2.0 and there is no replacement.")]
         public string CommandName
         {
             get { return _command.ToBsonDocument().GetElement(0).Name; }
@@ -123,7 +125,9 @@ namespace MongoDB.Driver
                 }
                 else
                 {
+#pragma warning disable 618
                     var message = string.Format("Command '{0}' failed. Response has no ok element (response was {1}).", CommandName, _response.ToJson());
+#pragma warning restore
                     throw new MongoCommandException(message, this);
                 }
             }
@@ -135,6 +139,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The server instance.
         /// </value>
+        [Obsolete("This property will be removed in 2.0 and there is no replacement.")]
         public MongoServerInstance ServerInstance
         {
             get { return _serverInstance; }

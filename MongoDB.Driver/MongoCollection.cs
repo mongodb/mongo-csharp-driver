@@ -659,7 +659,9 @@ namespace MongoDB.Driver
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
+#pragma warning disable 618
                     return new FindAndModifyResult(response) { Command = command };
+#pragma warning restore
                 }
                 throw;
             }
@@ -710,7 +712,9 @@ namespace MongoDB.Driver
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
+#pragma warning disable 618
                     return new FindAndModifyResult(response) { Command = command };
+#pragma warning restore
                 }
                 throw;
             }

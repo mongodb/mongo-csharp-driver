@@ -92,7 +92,9 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument Command
         {
+#pragma warning disable 618
             get { return _commandResult.Command.ToBsonDocument(); }
+#pragma warning restore
         }
 
         /// <summary>
@@ -123,7 +125,9 @@ namespace MongoDB.Driver
         // private static methods
         private static string FormatErrorMessage(CommandResult commandResult)
         {
+#pragma warning disable 618
             return string.Format("Command '{0}' failed: {1} (response: {2})", commandResult.CommandName, commandResult.ErrorMessage, commandResult.Response.ToJson());
+#pragma warning restore
         }
     }
 }
