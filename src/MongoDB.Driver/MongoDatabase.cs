@@ -1042,18 +1042,14 @@ namespace MongoDB.Driver
 
             TCommandResult commandResult;
             var wrappedCommand = new BsonDocumentWrapper(command);
-            MongoServerInstance serverInstance;
             if (isReadCommand)
             {
-                commandResult = RunReadCommandAs<TCommandResult>(wrappedCommand, resultSerializer, readPreference, out serverInstance);
+                commandResult = RunReadCommandAs<TCommandResult>(wrappedCommand, resultSerializer, readPreference);
             }
             else
             {
-                commandResult = RunWriteCommandAs<TCommandResult>(wrappedCommand, resultSerializer, out serverInstance);
+                commandResult = RunWriteCommandAs<TCommandResult>(wrappedCommand, resultSerializer);
             }
-
-            commandResult.Command = command.ToBsonDocument();
-            commandResult.ServerInstance = serverInstance;
 
             return commandResult;
         }
@@ -1061,36 +1057,22 @@ namespace MongoDB.Driver
         private TCommandResult RunReadCommandAs<TCommandResult>(
             BsonDocument command,
             IBsonSerializer<TCommandResult> resultSerializer,
-            ReadPreference readPreference,
-            out MongoServerInstance serverInstance)
+            ReadPreference readPreference)
             where TCommandResult : CommandResult
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ReadCommandOperation<TCommandResult>(_namespace, command, resultSerializer, messageEncoderSettings);
-            using (var binding = _server.GetReadBinding(readPreference))
-            using (var connectionSource = binding.GetReadConnectionSource())
-            {
-                var endPoint = connectionSource.ServerDescription.EndPoint;
-                serverInstance = _server.GetServerInstance(endPoint);
-                return operation.Execute(connectionSource, readPreference, _settings.OperationTimeout, CancellationToken.None);
-            }
+            return ExecuteReadOperation(operation, readPreference);
         }
 
         private TCommandResult RunWriteCommandAs<TCommandResult>(
             BsonDocument command,
-            IBsonSerializer<TCommandResult> resultSerializer,
-            out MongoServerInstance serverInstance)
+            IBsonSerializer<TCommandResult> resultSerializer)
             where TCommandResult : CommandResult
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new WriteCommandOperation<TCommandResult>(_namespace, command, resultSerializer, messageEncoderSettings);
-            using (var binding = _server.GetWriteBinding())
-            using (var connectionSource = binding.GetWriteConnectionSource())
-            {
-                var endPoint = connectionSource.ServerDescription.EndPoint;
-                serverInstance = _server.GetServerInstance(endPoint);
-                return operation.Execute(connectionSource, _settings.OperationTimeout, CancellationToken.None);
-            }
+            return ExecuteWriteOperation(operation);
         }
     }
 }

@@ -170,15 +170,10 @@ namespace MongoDB.Driver
         /// <returns>The explain result.</returns>
         public virtual CommandResult AggregateExplain(AggregateArgs args)
         {
-            using (_server.RequestStart(null, ReadPreference.Primary))
-            {
-                var messageEncoderSettings = GetMessageEncoderSettings();
-                var operation = new AggregateExplainOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings);
-                var response = ExecuteReadOperation(operation);
-                var commandResult = new CommandResult(response);
-                commandResult.ServerInstance = _server.RequestServerInstance;
-                return commandResult;
-            }
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new AggregateExplainOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings);
+            var response = ExecuteReadOperation(operation);
+            return new CommandResult(response);
         }
 
         /// <summary>
@@ -600,7 +595,7 @@ namespace MongoDB.Driver
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
-                    return new FindAndModifyResult(response) { Command = operation.CreateCommand() };
+                    return new FindAndModifyResult(response);
                 }
                 throw;
             }
@@ -657,7 +652,7 @@ namespace MongoDB.Driver
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
-                    return new FindAndModifyResult(response) { Command = operation.CreateCommand() };
+                    return new FindAndModifyResult(response);
                 }
                 throw;
             }

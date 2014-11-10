@@ -55,17 +55,9 @@ namespace MongoDB.Driver.Tests.CommandResults
         [Test]
         public void TestOkMissing()
         {
-            var command = new CommandDocument("invalid", 1);
             var document = new BsonDocument();
-            var result = new CommandResult(document) { Command = command };
-            try
-            {
-                var dummy = result.Ok;
-            }
-            catch (MongoCommandException ex)
-            {
-                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed. Response has no ok element (response was ", StringComparison.Ordinal));
-            }
+            var result = new CommandResult(document);
+            Assert.That(result.Ok, Is.False);
         }
 
         [Test]
