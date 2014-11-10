@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Xml;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
@@ -104,7 +103,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return false;
 
                 case BsonType.String:
-                    return XmlConvert.ToBoolean(bsonReader.ReadString().ToLower());
+                    return JsonConvert.ToBoolean(bsonReader.ReadString().ToLower());
 
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
@@ -139,7 +138,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.String:
-                    bsonWriter.WriteString(XmlConvert.ToString(value));
+                    bsonWriter.WriteString(JsonConvert.ToString(value));
                     break;
 
                 default:

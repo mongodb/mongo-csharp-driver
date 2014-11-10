@@ -15,8 +15,8 @@
 
 using System;
 using System.Linq;
-using System.Xml;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
@@ -298,7 +298,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             c.D = c.DT.Date;
 
             var json = c.ToJson();
-            var rep1 = XmlConvert.ToString(c.DT, XmlDateTimeSerializationMode.RoundtripKind);
+            var rep1 = JsonConvert.ToString(c.DT);
             var rep2 = c.D.ToString("yyyy-MM-dd");
             var expected = "{ 'DT' : '#1', 'D' : '#2' }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -316,7 +316,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOpti
             c.D = c.DT.Date;
 
             var json = c.ToJson();
-            var rep1 = XmlConvert.ToString(c.DT, XmlDateTimeSerializationMode.RoundtripKind);
+            var rep1 = JsonConvert.ToString(c.DT);
             var rep2 = c.D.ToString("yyyy-MM-dd");
             var expected = "{ 'DT' : '#1', 'D' : '#2' }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
             Assert.AreEqual(expected, json);

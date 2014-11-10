@@ -14,7 +14,7 @@
 */
 
 using System;
-using System.Xml;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson
 {
@@ -189,7 +189,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return XmlConvert.ToString(_value);
+            return JsonConvert.ToString(_value);
         }
     }
 }

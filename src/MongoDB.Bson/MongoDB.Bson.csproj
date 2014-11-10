@@ -71,14 +71,10 @@
     <Reference Include="System.ServiceModel">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +105,7 @@
     <Compile Include="IO\IBsonStream.cs" />
     <Compile Include="IO\IByteBuffer.cs" />
     <Compile Include="IO\ISliceableStream.cs" />
+    <Compile Include="IO\JsonConvert.cs" />
     <Compile Include="IO\MultiChunkBuffer.cs" />
     <Compile Include="IO\NoOpElementNameValidator.cs" />
     <Compile Include="IO\TrieNameDecoder.cs" />

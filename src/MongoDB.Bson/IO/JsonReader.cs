@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Xml;
 
 namespace MongoDB.Bson.IO
 {
@@ -245,7 +244,7 @@ namespace MongoDB.Bson.IO
                         case "false":
                         case "true":
                             CurrentBsonType = BsonType.Boolean;
-                            _currentValue = XmlConvert.ToBoolean(valueToken.Lexeme);
+                            _currentValue = JsonConvert.ToBoolean(valueToken.Lexeme);
                             break;
                         case "Infinity":
                             CurrentBsonType = BsonType.Double;

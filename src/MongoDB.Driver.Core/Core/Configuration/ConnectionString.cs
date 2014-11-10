@@ -20,8 +20,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using System.Xml;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -592,7 +592,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             try
             {
-                return XmlConvert.ToBoolean(value.ToLower());
+                return JsonConvert.ToBoolean(value.ToLower());
             }
             catch (Exception ex)
             {
@@ -604,7 +604,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             try
             {
-                return XmlConvert.ToDouble(value);
+                return JsonConvert.ToDouble(value);
             }
             catch (Exception ex)
             {
@@ -638,7 +638,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             try
             {
-                return XmlConvert.ToInt32(value);
+                return JsonConvert.ToInt32(value);
             }
             catch (Exception ex)
             {
@@ -708,7 +708,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             try
             {
-                return TimeSpan.FromMilliseconds(multiplier * XmlConvert.ToDouble(lowerValue));
+                return TimeSpan.FromMilliseconds(multiplier * JsonConvert.ToDouble(lowerValue));
             }
             catch (Exception ex)
             {

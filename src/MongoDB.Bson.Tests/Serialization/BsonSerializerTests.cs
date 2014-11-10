@@ -15,8 +15,8 @@
 
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
-using System.Xml;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -53,13 +53,13 @@ namespace MongoDB.Bson.Tests.Serialization
                 public override DateTime Deserialize(BsonDeserializationContext context)
                 {
                     var bsonReader = context.Reader;
-                    return XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind);
+                    return DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo);
                 }
 
                 public override void Serialize(BsonSerializationContext context, DateTime value)
                 {
                     var bsonWriter = context.Writer;
-                    bsonWriter.WriteString(value.ToString("yyyy-MM-dd"));
+                    bsonWriter.WriteString(value.ToString("yyyy-MM-dd", DateTimeFormatInfo.InvariantInfo));
                 }
             }
 

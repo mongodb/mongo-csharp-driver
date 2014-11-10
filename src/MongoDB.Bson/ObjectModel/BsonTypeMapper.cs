@@ -18,7 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Xml;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson
 {
@@ -548,15 +548,15 @@ namespace MongoDB.Bson
                     var formats = new string[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
                     var dt = DateTime.ParseExact((string)value, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
                     return new BsonDateTime(dt);
-                case Conversion.StringToBsonDouble: return new BsonDouble(XmlConvert.ToDouble((string)value));
-                case Conversion.StringToBsonInt32: return new BsonInt32(XmlConvert.ToInt32((string)value));
-                case Conversion.StringToBsonInt64: return new BsonInt64(XmlConvert.ToInt64((string)value));
+                case Conversion.StringToBsonDouble: return new BsonDouble(JsonConvert.ToDouble((string)value));
+                case Conversion.StringToBsonInt32: return new BsonInt32(JsonConvert.ToInt32((string)value));
+                case Conversion.StringToBsonInt64: return new BsonInt64(JsonConvert.ToInt64((string)value));
                 case Conversion.StringToBsonJavaScript: return new BsonJavaScript((string)value);
                 case Conversion.StringToBsonJavaScriptWithScope: return new BsonJavaScriptWithScope((string)value, new BsonDocument());
                 case Conversion.StringToBsonObjectId: return new BsonObjectId(ObjectId.Parse((string)value));
                 case Conversion.StringToBsonRegularExpression: return new BsonRegularExpression((string)value);
                 case Conversion.StringToBsonSymbol: return BsonSymbolTable.Lookup((string)value);
-                case Conversion.StringToBsonTimestamp: return new BsonTimestamp(XmlConvert.ToInt64((string)value));
+                case Conversion.StringToBsonTimestamp: return new BsonTimestamp(JsonConvert.ToInt64((string)value));
                 case Conversion.UInt16ToBsonBoolean: return (BsonValue)((ushort)value != 0);
                 case Conversion.UInt16ToBsonDouble: return new BsonDouble((double)(ushort)value);
                 case Conversion.UInt16ToBsonInt32: return new BsonInt32((int)(ushort)value);

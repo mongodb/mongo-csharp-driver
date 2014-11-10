@@ -17,8 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Xml;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
@@ -56,7 +56,7 @@ namespace MongoDB.Driver
                 if (Response.Contains("result") && !Response.Contains("datasize"))
                 {
                     var match = Regex.Match(Response["result"].AsString, @"datasize\?\:(?<value>\d+)");
-                    return XmlConvert.ToInt64(match.Groups["value"].Value);
+                    return JsonConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
@@ -75,7 +75,7 @@ namespace MongoDB.Driver
                 if (Response.Contains("result") && !Response.Contains("deletedCount"))
                 {
                     var match = Regex.Match(Response["result"].AsString, @"deleted\: n\: (?<value>\d+)");
-                    return XmlConvert.ToInt64(match.Groups["value"].Value);
+                    return JsonConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
@@ -94,7 +94,7 @@ namespace MongoDB.Driver
                 if (Response.Contains("result") && !Response.Contains("deletedSize"))
                 {
                     var match = Regex.Match(Response["result"].AsString, @"deleted\: n\: \d+ size\: (?<value>\d+)");
-                    return XmlConvert.ToInt64(match.Groups["value"].Value);
+                    return JsonConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
@@ -135,7 +135,7 @@ namespace MongoDB.Driver
                 if (Response.Contains("result") && !Response.Contains("extentCount"))
                 {
                     var match = Regex.Match(Response["result"].AsString, @"# extents\:(?<value>\d+)");
-                    return XmlConvert.ToInt64(match.Groups["value"].Value);
+                    return JsonConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
@@ -198,7 +198,7 @@ namespace MongoDB.Driver
                 if (Response.Contains("result") && !Response.Contains("nIndexes"))
                 {
                     var match = Regex.Match(Response["result"].AsString, @"nIndexes\:(?<value>\d+)");
-                    return XmlConvert.ToInt32(match.Groups["value"].Value);
+                    return JsonConvert.ToInt32(match.Groups["value"].Value);
                 }
                 else
                 {
@@ -251,7 +251,7 @@ namespace MongoDB.Driver
                             var trimmedIndexString = indexString.Substring(4 + prefixLength); // lines start with 4 blanks
                             match = Regex.Match(trimmedIndexString, @"(?<indexName>.+) keys\:(?<keys>\d+)");
                             var indexName = match.Groups["indexName"].Value;
-                            var keys = XmlConvert.ToInt64(match.Groups["keys"].Value);
+                            var keys = JsonConvert.ToInt64(match.Groups["keys"].Value);
                             dictionary.Add(indexName, keys);
                         }
                     }
@@ -299,7 +299,7 @@ namespace MongoDB.Driver
                 if (Response.Contains("result") && !Response.Contains("lastExtentSize"))
                 {
                     var match = Regex.Match(Response["result"].AsString, @"lastExtentSize\:(?<value>\d+)");
-                    return XmlConvert.ToInt64(match.Groups["value"].Value);
+                    return JsonConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
@@ -326,7 +326,7 @@ namespace MongoDB.Driver
                 if (Response.Contains("result") && !Response.Contains("padding"))
                 {
                     var match = Regex.Match(Response["result"].AsString, @"padding\:(?<value>.+)");
-                    return XmlConvert.ToDouble(match.Groups["value"].Value);
+                    return JsonConvert.ToDouble(match.Groups["value"].Value);
                 }
 
                 return Response.GetValue("padding", 1.0).ToDouble();
@@ -343,7 +343,7 @@ namespace MongoDB.Driver
                 if (Response.Contains("result") && !Response.Contains("nrecords"))
                 {
                     var match = Regex.Match(Response["result"].AsString, @"nrecords\?\:(?<value>\d+)");
-                    return XmlConvert.ToInt64(match.Groups["value"].Value);
+                    return JsonConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
@@ -479,7 +479,7 @@ namespace MongoDB.Driver
                     if (_detailsDocument == null)
                     {
                         var match = Regex.Match(_detailsString, @"size\:(?<value>\d+)");
-                        return XmlConvert.ToInt64(match.Groups["value"].Value);
+                        return JsonConvert.ToInt64(match.Groups["value"].Value);
                     }
                     else
                     {

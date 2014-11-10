@@ -19,8 +19,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 
@@ -704,11 +704,11 @@ namespace MongoDB.Driver
             }
             if (_fsync != null)
             {
-                query.AppendFormat("fsync={0};", XmlConvert.ToString(_fsync.Value));
+                query.AppendFormat("fsync={0};", JsonConvert.ToString(_fsync.Value));
             }
             if (_journal != null)
             {
-                query.AppendFormat("journal={0};", XmlConvert.ToString(_journal.Value));
+                query.AppendFormat("journal={0};", JsonConvert.ToString(_journal.Value));
             }
             if (_w != null)
             {

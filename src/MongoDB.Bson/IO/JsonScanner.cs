@@ -16,7 +16,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Xml;
 
 namespace MongoDB.Bson.IO
 {
@@ -334,12 +333,12 @@ namespace MongoDB.Bson.IO
                         var lexeme = buffer.GetSubstring(start, buffer.Position - start);
                         if (type == JsonTokenType.Double)
                         {
-                            var value = XmlConvert.ToDouble(lexeme);
+                            var value = JsonConvert.ToDouble(lexeme);
                             return new DoubleJsonToken(lexeme, value);
                         }
                         else
                         {
-                            var value = XmlConvert.ToInt64(lexeme);
+                            var value = JsonConvert.ToInt64(lexeme);
                             if (value < int.MinValue || value > int.MaxValue)
                             {
                                 return new Int64JsonToken(lexeme, value);
