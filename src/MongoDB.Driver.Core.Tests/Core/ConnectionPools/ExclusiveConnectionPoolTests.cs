@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Test]
         public void AcquireConnectionAsync_should_throw_an_InvalidOperationException_if_not_initialized()
         {
-            Action act = () => _subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.AcquireConnectionAsync(CancellationToken.None).Wait();
 
             act.ShouldThrow<InvalidOperationException>();
         }
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             _subject.Dispose();
 
-            Action act = () => _subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.AcquireConnectionAsync(CancellationToken.None).Wait();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             InitializeAndWait();
 
-            var connection = _subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var connection = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
 
             connection.Should().NotBeNull();
             _subject.AvailableCount.Should().Be(_settings.MaxConnections - 1);
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             for (int i = 0; i < _settings.MaxConnections; i++)
             {
-                connections.Add(_subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Result);
+                connections.Add(_subject.AcquireConnectionAsync(CancellationToken.None).Result);
             }
 
             _subject.AvailableCount.Should().Be(0);
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             InitializeAndWait();
 
-            var connection = _subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var connection = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
             _subject.DormantCount.Should().Be(_settings.MinConnections - 1);
             connection.Dispose();
             _subject.DormantCount.Should().Be(_settings.MinConnections);
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             InitializeAndWait();
 
-            var connection = _subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var connection = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
             _subject.DormantCount.Should().Be(_settings.MinConnections - 1);
 
             createdConnections.ForEach(c => c.IsExpired = true);
@@ -184,10 +184,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var connections = new List<IConnection>();
             for (int i = 0; i < _settings.MaxConnections; i++)
             {
-                connections.Add(_subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Result);
+                connections.Add(_subject.AcquireConnectionAsync(CancellationToken.None).Result);
             }
 
-            Action act = () => _subject.AcquireConnectionAsync(TimeSpan.FromMilliseconds(10), CancellationToken.None).Wait();
+            Action act = () => _subject.AcquireConnectionAsync(CancellationToken.None).Wait();
 
             act.ShouldThrow<TimeoutException>();
         }
@@ -197,8 +197,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             InitializeAndWait();
 
-            var connection1 = _subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
-            var connection2 = _subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var connection1 = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
+            var connection2 = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
 
             connection1.Dispose();
             _subject.Dispose();
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             _subject.Initialize();
 
-            var connection = _subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var connection = _subject.AcquireConnectionAsync(CancellationToken.None).Result;
 
             connection.IsExpired.Should().BeFalse();
             _subject.Clear();

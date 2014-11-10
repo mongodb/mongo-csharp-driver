@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -41,7 +42,7 @@ namespace MongoDB.Driver.Core.Sync
                 throw new ObjectDisposedException(GetType().FullName);
             }
 
-            while (_cursor.MoveNextAsync().GetAwaiter().GetResult())
+            while (_cursor.MoveNextAsync(CancellationToken.None).GetAwaiter().GetResult())
             {
                 var batch = _cursor.Current;
                 foreach (var document in batch)

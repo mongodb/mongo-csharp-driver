@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -28,7 +29,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public abstract class FindAndModifyOperationBase<TResult> : IWriteOperation<TResult>, ICommandOperation
+    public abstract class FindAndModifyOperationBase<TResult> : IWriteOperation<TResult>
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
@@ -62,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         public abstract BsonDocument CreateCommand();
 
-        public Task<TResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, System.Threading.CancellationToken cancellationToken)
+        public Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
@@ -70,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 CommandValidator = GetCommandValidator()
             };
-            return operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return operation.ExecuteAsync(binding, cancellationToken);
         }
 
         protected abstract IElementNameValidator GetCommandValidator();

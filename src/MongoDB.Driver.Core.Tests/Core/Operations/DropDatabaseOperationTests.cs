@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
                 EnsureDatabaseExists(binding);
                 var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
 
-                var result = await subject.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
                 result["dropped"].ToString().Should().Be(_databaseNamespace.DatabaseName);
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
 
-            Func<Task> action = () => subject.ExecuteAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => subject.ExecuteAsync(null, CancellationToken.None);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }

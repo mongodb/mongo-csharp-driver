@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new ServerConnectionSource(_server);
             subject.Dispose();
 
-            Action act = () => subject.GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Action act = () => subject.GetConnectionAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -78,9 +78,9 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new ServerConnectionSource(_server);
 
-            subject.GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            subject.GetConnectionAsync(CancellationToken.None);
 
-            _server.Received().GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            _server.Received().GetConnectionAsync(CancellationToken.None);
         }
     }
 }

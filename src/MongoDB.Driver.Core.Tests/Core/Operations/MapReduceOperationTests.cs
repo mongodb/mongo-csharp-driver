@@ -15,6 +15,7 @@
 
 using System;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _query, _resultSerializer, _messageEncoderSettings);
 
-            Action action = () => subject.ExecuteAsync(null);
+            Action action = () => subject.ExecuteAsync(null, CancellationToken.None);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }

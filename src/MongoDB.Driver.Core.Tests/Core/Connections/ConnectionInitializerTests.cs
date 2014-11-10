@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void InitializeConnectionAsync_should_throw_an_ArgumentNullException_if_the_connection_is_null()
         {
-            Action act = () => _subject.InitializeConnectionAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.InitializeConnectionAsync(null).Wait();
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Connections
             connection.EnqueueReplyMessage(buildInfoReply);
             connection.EnqueueReplyMessage(gleReply);
 
-            var result = _subject.InitializeConnectionAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var result = _subject.InitializeConnectionAsync(connection).Result;
 
             result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
             result.ConnectionId.ServerValue.Should().Be(10);

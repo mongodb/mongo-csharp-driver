@@ -153,7 +153,7 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            await result.MoveNextAsync();
+            await result.MoveNextAsync(CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 

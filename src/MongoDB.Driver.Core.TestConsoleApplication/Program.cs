@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             using (var binding = new WritableServerBinding(cluster))
             {
                 var commandOp = new DropDatabaseOperation(__collection.DatabaseNamespace, __messageEncoderSettings);
-                await commandOp.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                await commandOp.ExecuteAsync(binding, CancellationToken.None);
             }
         }
 
@@ -115,13 +115,13 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             {
                 var i = rand.Next(0, 10000);
                 IReadOnlyList<BsonDocument> docs;
-                IAsyncCursor<BsonDocument> enumerator = null;
+                IAsyncCursor<BsonDocument> cursor = null;
                 try
                 {
-                    enumerator = await Query(binding, new BsonDocument("i", i));
-                    if (await enumerator.MoveNextAsync())
+                    cursor = await Query(binding, new BsonDocument("i", i));
+                    if (await cursor.MoveNextAsync(cancellationToken))
                     {
-                        docs = enumerator.Current.ToList();
+                        docs = cursor.Current.ToList();
                     }
                     else
                     {
@@ -136,9 +136,9 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 }
                 finally
                 {
-                    if (enumerator != null)
+                    if (cursor != null)
                     {
-                        enumerator.Dispose();
+                        cursor.Dispose();
                     }
                 }
 
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             var documentSource = new BatchableSource<BsonDocument>(new[] { document });
             var insertOp = new InsertOpcodeOperation<BsonDocument>(__collection, documentSource, BsonDocumentSerializer.Instance, __messageEncoderSettings);
 
-            return insertOp.ExecuteAsync(binding);
+            return insertOp.ExecuteAsync(binding, CancellationToken.None);
         }
 
         private static Task<IAsyncCursor<BsonDocument>> Query(IReadBinding binding, BsonDocument query)
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 Limit = -1
             };
 
-            return findOp.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            return findOp.ExecuteAsync(binding, CancellationToken.None);
         }
 
         private static Task Update(IWriteBinding binding, BsonDocument criteria, BsonDocument update)
@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 new UpdateRequest(UpdateType.Update, criteria, update),
                 __messageEncoderSettings);
 
-            return updateOp.ExecuteAsync(binding);
+            return updateOp.ExecuteAsync(binding, CancellationToken.None);
         }
     }
 }

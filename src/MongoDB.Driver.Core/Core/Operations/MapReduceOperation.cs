@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -54,12 +55,12 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument("inline", 1);
         }
 
-        public Task<TResult> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public Task<TResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new ReadCommandOperation<TResult>(CollectionNamespace.DatabaseNamespace, command, _resultSerializer, MessageEncoderSettings);
-            return operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return operation.ExecuteAsync(binding, cancellationToken);
         }
     }
 }

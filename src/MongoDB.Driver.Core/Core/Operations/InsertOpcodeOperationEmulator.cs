@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
 
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
             BulkWriteOperationException bulkWriteException = null;
             try
             {
-                bulkWriteResult = await operation.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                bulkWriteResult = await operation.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
             catch (BulkWriteOperationException ex)
             {

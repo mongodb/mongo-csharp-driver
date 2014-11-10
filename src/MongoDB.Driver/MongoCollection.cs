@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -721,11 +722,11 @@ namespace MongoDB.Driver
                 Sort = args.SortBy.ToBsonDocument()
             };
 
-            using (var enumerator = ExecuteReadOperation(operation, args.ReadPreference))
+            using (var cursor = ExecuteReadOperation(operation, args.ReadPreference))
             {
-                if (enumerator.MoveNextAsync().GetAwaiter().GetResult())
+                if (cursor.MoveNextAsync(CancellationToken.None).GetAwaiter().GetResult())
                 {
-                    return enumerator.Current.SingleOrDefault();
+                    return cursor.Current.SingleOrDefault();
                 }
 
                 return default(TDocument);
@@ -2110,7 +2111,7 @@ namespace MongoDB.Driver
             readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
             using (var binding = _server.GetReadBinding(readPreference))
             {
-                return operation.Execute(binding, _settings.OperationTimeout);
+                return operation.Execute(binding, CancellationToken.None);
             }
         }
 
@@ -2118,7 +2119,7 @@ namespace MongoDB.Driver
         {
             using (var binding = _server.GetWriteBinding())
             {
-                return operation.Execute(binding, _settings.OperationTimeout);
+                return operation.Execute(binding, CancellationToken.None);
             }
         }
 

@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var selector = Substitute.For<IServerSelector>();
             var subject = CreateSubject();
-            Action act = () => subject.SelectServerAsync(selector, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.SelectServerAsync(selector, CancellationToken.None).Wait();
 
             act.ShouldThrow<InvalidOperationException>();
         }
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Clusters
             var selector = Substitute.For<IServerSelector>();
             var subject = CreateSubject();
             subject.Dispose();
-            Action act = () => subject.SelectServerAsync(selector, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.SelectServerAsync(selector, CancellationToken.None).Wait();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var subject = CreateSubject();
             subject.Initialize();
-            Action act = () => subject.SelectServerAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.SelectServerAsync(null, CancellationToken.None).Wait();
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var selector = new DelegateServerSelector((c, s) => s);
 
-            var result = subject.SelectServerAsync(selector, Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var result = subject.SelectServerAsync(selector, CancellationToken.None).Result;
 
             result.Should().NotBeNull();
         }
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var selector = new DelegateServerSelector((c, s) => s);
 
-            var result = subject.SelectServerAsync(selector, TimeSpan.FromMilliseconds(50), CancellationToken.None).Result;
+            var result = subject.SelectServerAsync(selector, CancellationToken.None).Result;
 
             result.Should().NotBeNull();
         }
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var selector = new DelegateServerSelector((c, s) => Enumerable.Empty<ServerDescription>());
 
-            Action act = () => subject.SelectServerAsync(selector, TimeSpan.FromMilliseconds(50), CancellationToken.None).Wait();
+            Action act = () => subject.SelectServerAsync(selector, CancellationToken.None).Wait();
 
             act.ShouldThrow<TimeoutException>();
         }
@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var selector = new DelegateServerSelector((c, s) => s);
 
-            Action act = () => subject.SelectServerAsync(selector, TimeSpan.FromMilliseconds(50), CancellationToken.None).Wait();
+            Action act = () => subject.SelectServerAsync(selector, CancellationToken.None).Wait();
 
             act.ShouldThrow<TimeoutException>();
         }
@@ -198,7 +198,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var selector = new DelegateServerSelector((c, s) => s);
 
-            Action act = () => subject.SelectServerAsync(selector, TimeSpan.FromMilliseconds(50), CancellationToken.None).Wait();
+            Action act = () => subject.SelectServerAsync(selector, CancellationToken.None).Wait();
 
             act.ShouldThrow<MongoException>();
         }
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             var selector = new DelegateServerSelector((c, s) => s);
 
-            var result = subject.SelectServerAsync(selector, Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var result = subject.SelectServerAsync(selector, CancellationToken.None).Result;
 
             result.Should().NotBeNull();
         }

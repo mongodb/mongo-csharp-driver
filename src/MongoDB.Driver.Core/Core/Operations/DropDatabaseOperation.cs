@@ -17,13 +17,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DropDatabaseOperation : IWriteOperation<BsonDocument>, ICommandOperation
+    public class DropDatabaseOperation : IWriteOperation<BsonDocument>
     {
         // fields
         private readonly DatabaseNamespace _databaseNamespace;
@@ -55,12 +56,12 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument { { "dropDatabase", 1 } };
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new WriteCommandOperation(_databaseNamespace, command, _messageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
+            var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
     }
 }

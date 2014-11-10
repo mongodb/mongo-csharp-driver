@@ -23,6 +23,7 @@ using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Communication;
+using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -456,7 +457,10 @@ namespace MongoDB.Driver
         {
             var readPreference = _settings.ReadPreference;
             var readPreferenceServerSelector = new ReadPreferenceServerSelector(readPreference);
-            _cluster.SelectServerAsync(readPreferenceServerSelector, timeout, CancellationToken.None).GetAwaiter().GetResult();
+            _cluster.SelectServerAsync(readPreferenceServerSelector, CancellationToken.None)
+                .WithTimeout(timeout)
+                .GetAwaiter()
+                .GetResult();
         }
 
         /// <summary>

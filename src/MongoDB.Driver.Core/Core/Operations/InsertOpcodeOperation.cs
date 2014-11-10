@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
                 shouldSendGetLastError);
         }
 
-        public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
 
@@ -143,38 +143,35 @@ namespace MongoDB.Driver.Core.Operations
                     MaxMessageSize = _maxMessageSize,
                     WriteConcern = _writeConcern
                 };
-                var result = await emulator.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                var result = await emulator.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                 return new[] { result };
             }
             else
             {
                 if (_documentSource.Batch == null)
                 {
-                    return await InsertMultipleBatchesAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                    return await InsertMultipleBatchesAsync(connection, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    var result = await InsertSingleBatchAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                    var result = await InsertSingleBatchAsync(connection, cancellationToken).ConfigureAwait(false);
                     return new[] { result };
                 }
             }
         }
 
-        public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task<IEnumerable<WriteConcernResult>> InsertMultipleBatchesAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<IEnumerable<WriteConcernResult>> InsertMultipleBatchesAsync(IConnectionHandle connection, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
-
             var results = _writeConcern.Enabled ? new List<WriteConcernResult>() : null;
             Exception finalException = null;
 
@@ -193,7 +190,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcernResult result;
                 try
                 {
-                    result = await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                    result = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                 }
                 catch (WriteConcernException ex)
                 {
@@ -231,10 +228,10 @@ namespace MongoDB.Driver.Core.Operations
             return results;
         }
 
-        private async Task<WriteConcernResult> InsertSingleBatchAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<WriteConcernResult> InsertSingleBatchAsync(IConnectionHandle connection, CancellationToken cancellationToken)
         {
             var protocol = CreateProtocol(_writeConcern, null);
-            return await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+            return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
         }
     }
 }

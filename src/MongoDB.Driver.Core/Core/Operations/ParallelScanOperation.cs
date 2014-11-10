@@ -28,18 +28,6 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class ParallelScanOperation : ParallelScanOperation<BsonDocument>
-    {
-        // constructors
-        public ParallelScanOperation(
-            CollectionNamespace collectionNamespace,
-            int numberOfCursors,
-            MessageEncoderSettings messageEncoderSettings)
-            : base(collectionNamespace, numberOfCursors, BsonDocumentSerializer.Instance, messageEncoderSettings)
-        {
-        }
-    }
-
     public class ParallelScanOperation<TDocument> : IReadOperation<IReadOnlyList<IAsyncCursor<TDocument>>>
     {
         // fields
@@ -103,16 +91,15 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public async Task<IReadOnlyList<IAsyncCursor<TDocument>>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyList<IAsyncCursor<TDocument>>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            var slidingTimeout = new SlidingTimeout(timeout);
 
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
             {
                 var command = CreateCommand();
-                var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
-                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                var operation = new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
 
                 var cursors = new List<AsyncCursor<TDocument>>();
 
@@ -140,9 +127,8 @@ namespace MongoDB.Driver.Core.Operations
                         _batchSize ?? 0,
                         0, // limit
                         _serializer,
-                        _messageEncoderSettings,
-                        timeout,
-                        cancellationToken);
+                        _messageEncoderSettings);
+
                     cursors.Add(cursor);
                 }
 

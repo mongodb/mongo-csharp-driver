@@ -21,7 +21,7 @@ namespace MongoDB.Driver
 {
     public interface IAsyncCursorSource<TDocument>
     {
-        Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken);
     }
 
     public static class IAsyncCursorSourceExtensions

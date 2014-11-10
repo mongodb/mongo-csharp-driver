@@ -17,20 +17,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
     internal sealed class OperationExecutor : IOperationExecutor
     {
-        public Task<TResult> ExecuteReadOperationAsync<TResult>(Core.Bindings.IReadBinding binding, Core.Operations.IReadOperation<TResult> operation, TimeSpan timeout, System.Threading.CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            return operation.ExecuteAsync(binding, timeout, cancellationToken);
+            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                cancellationTokenSource.CancelAfter(timeout);
+                return await operation.ExecuteAsync(binding, cancellationTokenSource.Token);
+            }
         }
 
-        public Task<TResult> ExecuteWriteOperationAsync<TResult>(Core.Bindings.IWriteBinding binding, Core.Operations.IWriteOperation<TResult> operation, TimeSpan timeout, System.Threading.CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            return operation.ExecuteAsync(binding, timeout, cancellationToken);
+            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                cancellationTokenSource.CancelAfter(timeout);
+                return await operation.ExecuteAsync(binding, cancellationTokenSource.Token);
+            }
         }
     }
 }

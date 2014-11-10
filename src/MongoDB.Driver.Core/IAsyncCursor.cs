@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     {
         IEnumerable<TDocument> Current { get; }
 
-        Task<bool> MoveNextAsync();
+        Task<bool> MoveNextAsync(CancellationToken cancellationToken);
     }
 
     public static class IAsyncCursorExtensions
@@ -45,7 +45,7 @@ namespace MongoDB.Driver
             using (source)
             {
                 var index = 0;
-                while (await source.MoveNextAsync())
+                while (await source.MoveNextAsync(cancellationToken))
                 {
                     foreach (var document in source.Current)
                     {
@@ -66,7 +66,7 @@ namespace MongoDB.Driver
             // exhausted the thing and don't need it anymore.
             using (source)
             {
-                while (await source.MoveNextAsync())
+                while (await source.MoveNextAsync(cancellationToken))
                 {
                     list.AddRange(source.Current);
                     cancellationToken.ThrowIfCancellationRequested();

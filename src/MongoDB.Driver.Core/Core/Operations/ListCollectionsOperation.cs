@@ -65,37 +65,36 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<IReadOnlyList<BsonDocument>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
 
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (connectionSource.ServerDescription.Version >= __versionSupportingListCollectionsCommand)
                 {
-                    return await ExecuteUsingCommandAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteUsingCommandAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    return await ExecuteUsingQueryAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteUsingQueryAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var command = new BsonDocument
             {
                 { "listCollections", 1 },
                 { "filter", _criteria, _criteria != null }
             };
-            var operation = new ReadCommandOperation(_databaseNamespace, command, _messageEncoderSettings);
-            var response = await operation.ExecuteAsync(connectionSource, readPreference, timeout, cancellationToken).ConfigureAwait(false);
+            var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var response = await operation.ExecuteAsync(connectionSource, readPreference, cancellationToken).ConfigureAwait(false);
             return response["collections"].AsBsonArray.Select(value => (BsonDocument)value).ToList();
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             // if the criteria includes a comparison to the "name" we must convert the value to a full namespace
             var criteria = _criteria;
@@ -114,12 +113,12 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Criteria = criteria
             };
-            var cursor = await operation.ExecuteAsync(connectionSource, readPreference, timeout, cancellationToken).ConfigureAwait(false);
+            var cursor = await operation.ExecuteAsync(connectionSource, readPreference, cancellationToken).ConfigureAwait(false);
 
             var collections = new List<BsonDocument>();
             var prefix = _databaseNamespace + ".";
 
-            while (await cursor.MoveNextAsync().ConfigureAwait(false))
+            while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
             {
                 var batch = cursor.Current;
                 foreach (var collection in batch)

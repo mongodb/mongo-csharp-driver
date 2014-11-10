@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
                 await EnsureCollectionExistsAsync(binding);
                 var expectedNames = new[] { "_id_" };
 
-                var result = await subject.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result.Select(index => index["name"].AsString).Should().BeEquivalentTo(expectedNames);
             }
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
                 var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
                 await DropCollectionAsync(binding);
 
-                var result = await subject.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result.Count().Should().Be(0);
             }
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Operations
                 var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
                 await DropDatabaseAsync(binding);
 
-                var result = await subject.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result.Count().Should().Be(0);
             }
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
 
-            Func<Task> action = () => subject.ExecuteAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => subject.ExecuteAsync(null, CancellationToken.None);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
@@ -137,20 +137,20 @@ namespace MongoDB.Driver.Core.Operations
         public Task DropCollectionAsync(IWriteBinding binding)
         {
             var operation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            return operation.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            return operation.ExecuteAsync(binding, CancellationToken.None);
         }
 
         public Task DropDatabaseAsync(IWriteBinding binding)
         {
             var operation = new DropDatabaseOperation(_collectionNamespace.DatabaseNamespace, _messageEncoderSettings);
-            return operation.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            return operation.ExecuteAsync(binding, CancellationToken.None);
         }
 
         public Task EnsureCollectionExistsAsync(IWriteBinding binding)
         {
             var requests = new[] { new InsertRequest(new BsonDocument("_id", 1)) };
             var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
-            return operation.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            return operation.ExecuteAsync(binding, CancellationToken.None);
         }
     }
 }

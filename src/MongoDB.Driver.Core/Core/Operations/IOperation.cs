@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     public interface IReadOperation<TResult>
     {
         // methods
-        Task<TResult> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken);
+        Task<TResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken);
     }
 
     /// <summary>
@@ -40,6 +40,6 @@ namespace MongoDB.Driver.Core.Operations
     public interface IWriteOperation<TResult>
     {
         // methods
-        Task<TResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken);
+        Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken);
     }
 }

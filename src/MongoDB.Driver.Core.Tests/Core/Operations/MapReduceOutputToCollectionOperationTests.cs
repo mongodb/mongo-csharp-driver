@@ -26,6 +26,7 @@ using NUnit.Framework;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization;
 using System.Reflection;
+using System.Threading;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -153,7 +154,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
 
-            Action action = () => subject.ExecuteAsync(null);
+            Action action = () => subject.ExecuteAsync(null, CancellationToken.None);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }

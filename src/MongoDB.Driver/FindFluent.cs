@@ -254,7 +254,7 @@ namespace MongoDB.Driver
 
             using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
             {
-                if (await cursor.MoveNextAsync())
+                if (await cursor.MoveNextAsync(cancellationToken))
                 {
                     return cursor.Current.First();
                 }
@@ -279,7 +279,7 @@ namespace MongoDB.Driver
 
             using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
             {
-                if (await cursor.MoveNextAsync())
+                if (await cursor.MoveNextAsync(cancellationToken))
                 {
                     return cursor.Current.FirstOrDefault();
                 }
@@ -305,7 +305,7 @@ namespace MongoDB.Driver
 
             using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
             {
-                if (await cursor.MoveNextAsync())
+                if (await cursor.MoveNextAsync(cancellationToken))
                 {
                     return cursor.Current.Single();
                 }
@@ -330,7 +330,7 @@ namespace MongoDB.Driver
 
             using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
             {
-                if (await cursor.MoveNextAsync())
+                if (await cursor.MoveNextAsync(cancellationToken))
                 {
                     return cursor.Current.SingleOrDefault();
                 }

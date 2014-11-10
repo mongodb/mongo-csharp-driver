@@ -86,17 +86,17 @@ namespace MongoDB.Driver.Core.Helpers
             return _sentMessages;
         }
 
-        public Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public Task OpenAsync()
         {
             return Task.FromResult<object>(null);
         }
 
-        public Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, Bson.Serialization.IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, Bson.Serialization.IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
             return Task.FromResult<ReplyMessage<TDocument>>((ReplyMessage<TDocument>)_replyMessages.Dequeue());
         }
 
-        public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
             _sentMessages.AddRange(messages);
             return Task.FromResult<object>(null);

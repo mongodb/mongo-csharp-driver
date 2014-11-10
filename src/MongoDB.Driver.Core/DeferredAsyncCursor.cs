@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
@@ -49,7 +50,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public async Task<bool> MoveNextAsync()
+        public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
 
@@ -58,7 +59,7 @@ namespace MongoDB.Driver
                 _cursor = await _executeAsync().ConfigureAwait(false);
             }
 
-            return await _cursor.MoveNextAsync().ConfigureAwait(false);
+            return await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public void Dispose()

@@ -39,9 +39,7 @@ namespace MongoDB.Driver.Core.Operations
                 0, // batchSize
                 0, // limit
                 BsonDocumentSerializer.Instance,
-                null, // messageEncoderSettings
-                Timeout.InfiniteTimeSpan,
-                CancellationToken.None);
+                null); // messageEncoderSettings
 
             connectionSource.Received(shouldCallDispose ? 1 : 0).Dispose();
         }

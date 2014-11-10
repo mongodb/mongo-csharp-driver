@@ -132,30 +132,29 @@ namespace MongoDB.Driver.Core.Operations
             return requests;
         }
 
-        public async Task<BulkWriteOperationResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
         {
             if (connection.Description.ServerVersion >= new SemanticVersion(2, 6, 0))
             {
-                return await ExecuteBatchesAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                return await ExecuteBatchesAsync(connection, cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 var emulator = CreateEmulator();
-                return await emulator.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                return await emulator.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IConnectionHandle connection, BatchableSource<WriteRequest> requestSource, int originalIndex, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IConnectionHandle connection, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
         {
             var maxBatchCount = Math.Min(_maxBatchCount ?? int.MaxValue, connection.Description.MaxBatchCount);
             var maxBatchLength = Math.Min(_maxBatchLength ?? int.MaxValue, connection.Description.MaxDocumentSize);
@@ -165,7 +164,7 @@ namespace MongoDB.Driver.Core.Operations
             var batchSerializer = CreateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
             var writeCommand = CreateWriteCommand(batchSerializer, requestSource);
             var protocol = CreateWriteCommandProtocol(writeCommand);
-            var writeCommandResult = await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+            var writeCommandResult = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
 
             var indexMap = new IndexMap.RangeBased(0, originalIndex, requestSource.Batch.Count);
             return BulkWriteBatchResult.Create(
@@ -175,9 +174,8 @@ namespace MongoDB.Driver.Core.Operations
                 indexMap);
         }
 
-        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(IConnectionHandle connection, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
             var batchResults = new List<BulkWriteBatchResult>();
             var remainingRequests = Enumerable.Empty<WriteRequest>();
             var hasWriteErrors = false;
@@ -197,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
                         break;
                     }
 
-                    var batchResult = await ExecuteBatchAsync(connection, requestSource, originalIndex, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                    var batchResult = await ExecuteBatchAsync(connection, requestSource, originalIndex, cancellationToken).ConfigureAwait(false);
                     batchResults.Add(batchResult);
                     hasWriteErrors |= batchResult.HasWriteErrors;
                     originalIndex += batchResult.BatchCount;

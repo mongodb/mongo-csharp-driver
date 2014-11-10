@@ -301,7 +301,7 @@ namespace MongoDB.Driver
             using (var connectionSource = new ConnectionSourceHandle(new ServerConnectionSource(server)))
             using (var connectionSourceBinding = new ConnectionSourceReadWriteBinding(connectionSource, ReadPreference.PrimaryPreferred))
             {
-                operation.Execute(connectionSourceBinding, _settings.ConnectTimeout, CancellationToken.None);
+                operation.Execute(connectionSourceBinding, CancellationToken.None);
             }
         }
 
@@ -358,7 +358,7 @@ namespace MongoDB.Driver
         private IServer GetServer()
         {
             var serverSelector = new EndPointServerSelector(_endPoint);
-            var server = _cluster.SelectServer(serverSelector, _settings.ConnectTimeout, CancellationToken.None);
+            var server = _cluster.SelectServer(serverSelector, CancellationToken.None);
             return server;
         }
 

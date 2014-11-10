@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -82,7 +83,7 @@ namespace MongoDB.Driver.Core.Operations
             long result;
             using (var binding = SuiteConfiguration.GetReadBinding())
             {
-                result = await subject.ExecuteAsync(binding);
+                result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
             result.Should().Be(5);
@@ -98,7 +99,7 @@ namespace MongoDB.Driver.Core.Operations
             long result;
             using (var binding = SuiteConfiguration.GetReadBinding())
             {
-                result = await subject.ExecuteAsync(binding);
+                result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
             result.Should().Be(4);
@@ -114,7 +115,7 @@ namespace MongoDB.Driver.Core.Operations
             long result;
             using (var binding = SuiteConfiguration.GetReadBinding())
             {
-                result = await subject.ExecuteAsync(binding);
+                result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
             result.Should().Be(5);
@@ -130,7 +131,7 @@ namespace MongoDB.Driver.Core.Operations
             long result;
             using (var binding = SuiteConfiguration.GetReadBinding())
             {
-                result = await subject.ExecuteAsync(binding);
+                result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
             result.Should().Be(3);
@@ -156,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
             long result;
             using (var binding = SuiteConfiguration.GetReadBinding())
             {
-                result = await subject.ExecuteAsync(binding);
+                result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
             result.Should().Be(2);

@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
             subject.Dispose();
 
-            Action act = () => subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
+            Action act = () => subject.GetReadConnectionSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -67,9 +67,9 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
 
-            subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            subject.GetReadConnectionSourceAsync(CancellationToken.None).Wait();
 
-            _cluster.Received().SelectServerAsync(Arg.Any<ReadPreferenceServerSelector>(), Timeout.InfiniteTimeSpan, CancellationToken.None);
+            _cluster.Received().SelectServerAsync(Arg.Any<ReadPreferenceServerSelector>(), CancellationToken.None);
         }
 
         [Test]

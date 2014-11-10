@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
             subject.Dispose();
 
-            Action act = () => subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Action act = () => subject.GetReadConnectionSourceAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
 
-            subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            subject.GetReadConnectionSourceAsync(CancellationToken.None);
 
             _connectionSource.Received().Fork();
         }
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
             subject.Dispose();
 
-            Action act = () => subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Action act = () => subject.GetWriteConnectionSourceAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new ConnectionSourceReadWriteBinding(_connectionSource, ReadPreference.Primary);
 
-            subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            subject.GetWriteConnectionSourceAsync(CancellationToken.None);
 
             _connectionSource.Received().Fork();
         }

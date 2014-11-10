@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             set { _verbosity = value; }
         }
 
-        public Task<BsonDocument> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             var command = CreateCommand();
 
@@ -73,10 +73,10 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings);
 
-            return operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return operation.ExecuteAsync(binding, cancellationToken);
         }
 
-        public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             var command = CreateCommand();
 
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings);
 
-            return operation.ExecuteAsync(binding, timeout, cancellationToken);
+            return operation.ExecuteAsync(binding, cancellationToken);
         }
 
         private static string ConvertVerbosityToString(ExplainVerbosity verbosity)

@@ -158,7 +158,7 @@ namespace MongoDB.Driver
             {
                 try
                 {
-                    var result = operation.Execute(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                    var result = operation.Execute(binding, CancellationToken.None);
                     return BulkWriteResult<TDocument>.FromCore(result);
                 }
                 catch (BulkWriteOperationException ex)

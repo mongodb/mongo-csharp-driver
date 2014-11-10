@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         protected abstract IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request);
 
-        protected virtual async Task<BulkWriteBatchResult> EmulateSingleRequestAsync(IConnectionHandle connection, WriteRequest request, int originalIndex, TimeSpan timeout, CancellationToken cancellationToken)
+        protected virtual async Task<BulkWriteBatchResult> EmulateSingleRequestAsync(IConnectionHandle connection, WriteRequest request, int originalIndex, CancellationToken cancellationToken)
         {
             var protocol = CreateProtocol(connection, request);
 
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcernException writeConcernException = null;
             try
             {
-                writeConcernResult = await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                writeConcernResult = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
             catch (WriteConcernException ex)
             {
@@ -113,10 +113,8 @@ namespace MongoDB.Driver.Core.Operations
                 indexMap);
         }
 
-        public async Task<BulkWriteOperationResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
-
             var batchResults = new List<BulkWriteBatchResult>();
             var remainingRequests = new List<WriteRequest>();
             var hasWriteErrors = false;
@@ -130,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
                     continue;
                 }
 
-                var batchResult = await EmulateSingleRequestAsync(connection, request, originalIndex, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                var batchResult = await EmulateSingleRequestAsync(connection, request, originalIndex, cancellationToken).ConfigureAwait(false);
                 batchResults.Add(batchResult);
 
                 hasWriteErrors |= batchResult.HasWriteErrors;

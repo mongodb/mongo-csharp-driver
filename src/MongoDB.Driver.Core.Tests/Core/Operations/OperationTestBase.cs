@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var binding = SuiteConfiguration.GetReadBinding())
             {
-                return await operation.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                return await operation.ExecuteAsync(binding, CancellationToken.None);
             }
         }
 
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                return await operation.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                return await operation.ExecuteAsync(binding, CancellationToken.None);
             }
         }
 
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Operations
         protected async Task<List<BsonDocument>> ReadCursorToEndAsync(IAsyncCursor<BsonDocument> cursor)
         {
             var documents = new List<BsonDocument>();
-            while (await cursor.MoveNextAsync())
+            while (await cursor.MoveNextAsync(CancellationToken.None))
             {
                 foreach (var document in cursor.Current)
                 {

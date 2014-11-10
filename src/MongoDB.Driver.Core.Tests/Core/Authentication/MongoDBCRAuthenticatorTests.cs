@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
-            Action act = () => subject.AuthenticateAsync(connection, __description, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.AuthenticateAsync(connection, __description).Wait();
 
             act.ShouldThrow<MongoAuthenticationException>();
         }
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Authentication
             connection.EnqueueReplyMessage(authenticateReply);
 
             var currentRequestId = RequestMessage.CurrentGlobalRequestId;
-            Action act = () => subject.AuthenticateAsync(connection, __description, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => subject.AuthenticateAsync(connection, __description).Wait();
             act.ShouldNotThrow();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());

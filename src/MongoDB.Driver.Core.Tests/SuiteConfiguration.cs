@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -181,7 +182,7 @@ namespace MongoDB.Driver
             using (var binding = GetReadWriteBinding())
             {
                 var command = new BsonDocument("serverStatus", 1);
-                var operation = new ReadCommandOperation(DatabaseNamespace.Admin, command, __messageEncoderSettings);
+                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
                 var response = operation.Execute(binding);
                 BsonValue storageEngine;
                 if (response.TryGetValue("storageEngine", out storageEngine) && storageEngine.AsBsonDocument.Contains("name"))

@@ -19,13 +19,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class ListDatabaseNamesOperation : IReadOperation<IReadOnlyList<string>>, ICommandOperation
+    public class ListDatabaseNamesOperation : IReadOperation<IReadOnlyList<string>>
     {
         // fields
         private MessageEncoderSettings _messageEncoderSettings;
@@ -48,12 +49,12 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument { { "listDatabases", 1 } };
         }
 
-        public async Task<IReadOnlyList<string>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<string>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation(DatabaseNamespace.Admin, command, _messageEncoderSettings);
-            var response = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
+            var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var response = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             var databases = response["databases"].AsBsonArray;
             return databases.Select(database => database["name"].ToString()).ToList();
         }

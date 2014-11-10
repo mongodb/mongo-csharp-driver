@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -159,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
             BsonValue result;
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                result = await subject.ExecuteAsync(binding);
+                result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
             result.Should().Be(1);
@@ -176,7 +177,7 @@ namespace MongoDB.Driver.Core.Operations
             BsonValue result;
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                result = await subject.ExecuteAsync(binding);
+                result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
             result.Should().Be(1);
@@ -202,7 +203,7 @@ namespace MongoDB.Driver.Core.Operations
             BsonValue result;
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                result = await subject.ExecuteAsync(binding);
+                result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
 
             result.Should().Be(1);
@@ -214,7 +215,7 @@ namespace MongoDB.Driver.Core.Operations
             var function = "return 1";
             var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
 
-            Action action = () => subject.ExecuteAsync(null).GetAwaiter().GetResult();
+            Action action = () => subject.ExecuteAsync(null, CancellationToken.None).GetAwaiter().GetResult();
 
             action.ShouldThrow<ArgumentNullException>();
         }

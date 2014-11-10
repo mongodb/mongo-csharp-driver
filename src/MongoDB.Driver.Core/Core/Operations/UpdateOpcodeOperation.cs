@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Operations
                 _request.IsUpsert);
         }
 
-        public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
 
@@ -98,23 +98,22 @@ namespace MongoDB.Driver.Core.Operations
                     MaxDocumentSize = _maxDocumentSize,
                     WriteConcern = _writeConcern
                 };
-                return await emulator.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                return await emulator.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 var protocol = CreateProtocol();
-                return await protocol.ExecuteAsync(connection, timeout, cancellationToken).ConfigureAwait(false);
+                return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
         }
     }

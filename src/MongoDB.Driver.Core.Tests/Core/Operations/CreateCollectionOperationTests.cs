@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -217,7 +218,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
@@ -239,12 +240,12 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
                 var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-                var indexes = await listIndexesOperation.ExecuteAsync(binding, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                var indexes = await listIndexesOperation.ExecuteAsync(binding, CancellationToken.None);
                 indexes.Count().Should().Be(autoIndexId ? 1 : 0);
             }
         }
@@ -264,7 +265,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
@@ -288,7 +289,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
@@ -312,7 +313,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
@@ -336,7 +337,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                var result = await subject.ExecuteAsync(binding);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
 
@@ -428,9 +429,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "collStats", _collectionNamespace.CollectionName }
             };
-            var operation = new ReadCommandOperation(_collectionNamespace.DatabaseNamespace, command, _messageEncoderSettings);
+            var operation = new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            return operation.ExecuteAsync(binding);
+            return operation.ExecuteAsync(binding, CancellationToken.None);
         }
     }
 }

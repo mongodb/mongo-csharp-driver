@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly int _batchSize;
-        private readonly CancellationToken _cancellationToken;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly IConnectionSource _connectionSource;
         private int _count;
@@ -43,7 +42,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly BsonDocument _query;
         private readonly IBsonSerializer<TDocument> _serializer;
-        private readonly TimeSpan _timeout;
 
         // constructors
         public AsyncCursor(
@@ -55,9 +53,7 @@ namespace MongoDB.Driver.Core.Operations
             int batchSize,
             int limit,
             IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            TimeSpan timeout,
-            CancellationToken cancellationToken)
+            MessageEncoderSettings messageEncoderSettings)
         {
             _connectionSource = connectionSource;
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
@@ -68,8 +64,6 @@ namespace MongoDB.Driver.Core.Operations
             _limit = Ensure.IsGreaterThanOrEqualToZero(limit, "limit");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _messageEncoderSettings = messageEncoderSettings;
-            _timeout = timeout;
-            _cancellationToken = cancellationToken;
 
             if (_limit == 0)
             {
@@ -148,12 +142,12 @@ namespace MongoDB.Driver.Core.Operations
             _disposed = true;
         }
 
-        private async Task<CursorBatch<TDocument>> GetNextBatchAsync()
+        private async Task<CursorBatch<TDocument>> GetNextBatchAsync(CancellationToken cancellationToken)
         {
-            using (var connection = await _connectionSource.GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).ConfigureAwait(false))
+            using (var connection = await _connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
                 var protocol = CreateGetMoreProtocol();
-                return await protocol.ExecuteAsync(connection, _cancellationToken).ConfigureAwait(false);
+                return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -161,11 +155,14 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                var slidingTimeout = new SlidingTimeout(TimeSpan.FromSeconds(10));
-                using (var connection = await _connectionSource.GetConnectionAsync(slidingTimeout, default(CancellationToken)).ConfigureAwait(false))
+                using (var cancellationTokenSource = new CancellationTokenSource())
                 {
-                    var protocol = CreateKillCursorsProtocol();
-                    await protocol.ExecuteAsync(connection, slidingTimeout, default(CancellationToken)).ConfigureAwait(false);
+                    cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));
+                    using (var connection = await _connectionSource.GetConnectionAsync(cancellationTokenSource.Token).ConfigureAwait(false))
+                    {
+                        var protocol = CreateKillCursorsProtocol();
+                        await protocol.ExecuteAsync(connection, cancellationTokenSource.Token).ConfigureAwait(false);
+                    }
                 }
             }
             catch
@@ -174,7 +171,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<bool> MoveNextAsync()
+        public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
 
@@ -196,7 +193,7 @@ namespace MongoDB.Driver.Core.Operations
                 return false;
             }
 
-            var batch = await GetNextBatchAsync().ConfigureAwait(false);
+            var batch = await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
             var cursorId = batch.CursorId;
             var documents = batch.Documents;
 

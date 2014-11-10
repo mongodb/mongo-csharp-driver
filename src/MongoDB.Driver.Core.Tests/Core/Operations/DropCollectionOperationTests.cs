@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -87,8 +88,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
                 var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                await dropCollectionOperation.ExecuteAsync(binding);
-                await subject.ExecuteAsync(binding); // this will throw if we have a problem...
+                await dropCollectionOperation.ExecuteAsync(binding, CancellationToken.None);
+                await subject.ExecuteAsync(binding, CancellationToken.None); // this will throw if we have a problem...
             }
         }
 
@@ -100,9 +101,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
                 var createCollectionOperation = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-                await createCollectionOperation.ExecuteAsync(binding);
+                await createCollectionOperation.ExecuteAsync(binding, CancellationToken.None);
 
-                var result = await subject.ExecuteAsync(binding);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
                 result["ns"].ToString().Should().Be(_collectionNamespace.FullName);

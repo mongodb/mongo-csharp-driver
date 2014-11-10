@@ -28,18 +28,6 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a write command operation.
     /// </summary>
-    public class WriteCommandOperation : WriteCommandOperation<BsonDocument>
-    {
-        // constructors
-        public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, MessageEncoderSettings messageEncoderSettings)
-            : base(databaseNamespace, command, BsonDocumentSerializer.Instance, messageEncoderSettings)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Represents a write command operation.
-    /// </summary>
     public class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
         // constructors
@@ -49,14 +37,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<TCommandResult> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TCommandResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
-            var slidingTimeout = new SlidingTimeout(timeout);
 
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteCommandAsync(connectionSource, ReadPreference.Primary, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                return await ExecuteCommandAsync(connectionSource, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
             }
         }
     }

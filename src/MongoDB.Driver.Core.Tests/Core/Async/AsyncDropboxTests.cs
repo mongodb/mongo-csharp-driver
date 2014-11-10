@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Async
             var subject = new AsyncDropbox<int, int>();
             for (var i = 0; i < n; i++)
             {
-                subject.ReceiveAsync(i, Timeout.InfiniteTimeSpan, CancellationToken.None);
+                subject.ReceiveAsync(i, CancellationToken.None);
             }
 
             subject.AwaiterCount.Should().Be(n);
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Async
         {
             var subject = new AsyncDropbox<int, int>();
 
-            var result = subject.ReceiveAsync(10, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = subject.ReceiveAsync(10, CancellationToken.None);
 
             result.IsCompleted.Should().BeFalse();
         }
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Async
             var subject = new AsyncDropbox<int, int>();
             subject.Post(10, 11);
 
-            var result = subject.ReceiveAsync(10, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = subject.ReceiveAsync(10, CancellationToken.None);
 
             result.Result.Should().Be(11);
         }
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Async
             subject.Post(10, 11);
 
             subject.MessageCount.Should().Be(1);
-            var result = await subject.ReceiveAsync(10, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = await subject.ReceiveAsync(10, CancellationToken.None);
             subject.MessageCount.Should().Be(0);
 
             result.Should().Be(11);
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Async
         {
             var subject = new AsyncDropbox<int, int>();
 
-            var result = subject.ReceiveAsync(10, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var result = subject.ReceiveAsync(10, CancellationToken.None);
             subject.Post(10, 11);
 
             result.Result.Should().Be(11);

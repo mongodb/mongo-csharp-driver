@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void GetConnectionAsync_should_throw_when_not_initialized()
         {
-            Action act = () => _subject.GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.GetConnectionAsync(CancellationToken.None).Wait();
 
             act.ShouldThrow<InvalidOperationException>();
         }
@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             _subject.Dispose();
 
-            Action act = () => _subject.GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.GetConnectionAsync(CancellationToken.None).Wait();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             _subject.Initialize();
 
-            var connection = _subject.GetConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var connection = _subject.GetConnectionAsync(CancellationToken.None).Result;
 
             connection.Should().NotBeNull();
         }

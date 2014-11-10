@@ -137,14 +137,12 @@ namespace MongoDB.Driver.Core.Operations
         protected async Task<TCommandResult> ExecuteCommandAsync(
             IConnectionSource connectionSource,
             ReadPreference readPreference,
-            TimeSpan timeout,
             CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connection = await connectionSource.GetConnectionAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
             {
                 var protocol = CreateProtocol(connectionSource.ServerDescription, readPreference);
-                return await protocol.ExecuteAsync(connection, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
         }
     }

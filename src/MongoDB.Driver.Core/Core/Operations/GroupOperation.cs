@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Operations
            };
         }
 
-        public async Task<IEnumerable<TResult>> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Core.Operations
             var resultArraySerializer = new ArraySerializer<TResult>(resultSerializer);
             var commandResultSerializer = new ElementDeserializer<TResult[]>("retval", resultArraySerializer);
             var operation = new ReadCommandOperation<TResult[]>(_collectionNamespace.DatabaseNamespace, command, commandResultSerializer, _messageEncoderSettings);
-            return await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
+            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
     }
 }

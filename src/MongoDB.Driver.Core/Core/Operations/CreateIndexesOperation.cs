@@ -83,34 +83,32 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(slidingTimeout, cancellationToken))
+            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken))
             {
                 if (connectionSource.ServerDescription.Version >= __serverVersionSupportingCreateIndexesCommand)
                 {
-                    return await ExecuteUsingCommandAsync(connectionSource, slidingTimeout, cancellationToken);
+                    return await ExecuteUsingCommandAsync(connectionSource, cancellationToken);
                 }
                 else
                 {
-                    return await ExecuteUsingInsertAsync(connectionSource, slidingTimeout, cancellationToken);
+                    return await ExecuteUsingInsertAsync(connectionSource, cancellationToken);
                 }
             }
         }
 
-        private Task<BsonDocument> ExecuteUsingCommandAsync(IConnectionSourceHandle connectionSource, TimeSpan timeout, CancellationToken cancellationToken)
+        private Task<BsonDocument> ExecuteUsingCommandAsync(IConnectionSourceHandle connectionSource, CancellationToken cancellationToken)
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
             var command = CreateCommand();
             var resultSerializer = BsonDocumentSerializer.Instance;
             var operation = new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings);
-            return operation.ExecuteAsync(connectionSource, timeout, cancellationToken);
+            return operation.ExecuteAsync(connectionSource, cancellationToken);
         }
 
-        private async Task<BsonDocument> ExecuteUsingInsertAsync(IConnectionSourceHandle connectionSource, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<BsonDocument> ExecuteUsingInsertAsync(IConnectionSourceHandle connectionSource, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
             var systemIndexesCollection = _collectionNamespace.DatabaseNamespace.SystemIndexesCollection;
 
             foreach (var createIndexRequest in _requests)
@@ -119,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
                 document.InsertAt(0, new BsonElement("ns", _collectionNamespace.FullName));
                 var documentSource = new BatchableSource<BsonDocument>(new[] { document });
                 var operation = new InsertOpcodeOperation(systemIndexesCollection, documentSource, _messageEncoderSettings);
-                await operation.ExecuteAsync(connectionSource, slidingTimeout, cancellationToken);
+                await operation.ExecuteAsync(connectionSource, cancellationToken);
             }
 
             return new BsonDocument("ok", 1);

@@ -203,17 +203,15 @@ namespace MongoDB.Driver.Core.Operations
             return wrappedQuery;
         }
 
-        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
 
-            var slidingTimeout = new SlidingTimeout(timeout);
-
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
             {
                 var query = CreateWrappedQuery(connectionSource.ServerDescription.Type, binding.ReadPreference);
                 var protocol = CreateProtocol(query, binding.ReadPreference);
-                var batch = await protocol.ExecuteAsync(connectionSource, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                var batch = await protocol.ExecuteAsync(connectionSource, cancellationToken).ConfigureAwait(false);
 
                 return new AsyncCursor<TDocument>(
                     connectionSource.Fork(),
@@ -224,9 +222,7 @@ namespace MongoDB.Driver.Core.Operations
                     _batchSize ?? 0,
                     Math.Abs(_limit ?? 0),
                     _resultSerializer,
-                    _messageEncoderSettings,
-                    timeout,
-                    cancellationToken);
+                    _messageEncoderSettings);
             }
         }
 
@@ -271,11 +267,11 @@ namespace MongoDB.Driver.Core.Operations
                 _explainOperation = explainOperation;
             }
 
-            public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+            public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
             {
-                using (var cursor = await _explainOperation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false))
+                using (var cursor = await _explainOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false))
                 {
-                    if (await cursor.MoveNextAsync().ConfigureAwait(false))
+                    if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                     {
                         var batch = cursor.Current;
                         return batch.Single();

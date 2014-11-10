@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -143,7 +144,7 @@ namespace MongoDB.Driver.Core.Operations
                 var indexName = "x_1";
                 var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
 
-                await subject.ExecuteAsync(binding); // should not throw
+                await subject.ExecuteAsync(binding, CancellationToken.None); // should not throw
             }
         }
 
@@ -156,12 +157,12 @@ namespace MongoDB.Driver.Core.Operations
                 var keys = new BsonDocument("x", 1);
                 var requests = new[] { new CreateIndexRequest(keys) };
                 var createIndexOperation = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
-                await createIndexOperation.ExecuteAsync(binding);
+                await createIndexOperation.ExecuteAsync(binding, CancellationToken.None);
 
                 var indexName = "x_1";
                 var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
 
-                var result = await subject.ExecuteAsync(binding);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
             }
@@ -173,7 +174,7 @@ namespace MongoDB.Driver.Core.Operations
             var indexName = "x_1";
             var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
 
-            var ex = await CatchAsync<ArgumentNullException>(() => subject.ExecuteAsync(null));
+            var ex = await CatchAsync<ArgumentNullException>(() => subject.ExecuteAsync(null, CancellationToken.None));
 
             ex.ParamName.Should().Be("binding");
         }

@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new WritableServerBinding(_cluster);
             subject.Dispose();
 
-            Action act = () => subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
+            Action act = () => subject.GetReadConnectionSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -67,9 +67,9 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new WritableServerBinding(_cluster);
 
-            subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            subject.GetReadConnectionSourceAsync(CancellationToken.None).Wait();
 
-            _cluster.Received().SelectServerAsync(Arg.Any<WritableServerSelector>(), Timeout.InfiniteTimeSpan, CancellationToken.None);
+            _cluster.Received().SelectServerAsync(Arg.Any<WritableServerSelector>(), CancellationToken.None);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new WritableServerBinding(_cluster);
             subject.Dispose();
 
-            Action act = () => subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).GetAwaiter().GetResult();
+            Action act = () => subject.GetWriteConnectionSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -88,9 +88,9 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new WritableServerBinding(_cluster);
 
-            subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            subject.GetWriteConnectionSourceAsync(CancellationToken.None).Wait();
 
-            _cluster.Received().SelectServerAsync(Arg.Any<WritableServerSelector>(), Timeout.InfiniteTimeSpan, CancellationToken.None);
+            _cluster.Received().SelectServerAsync(Arg.Any<WritableServerSelector>(), CancellationToken.None);
         }
 
         [Test]

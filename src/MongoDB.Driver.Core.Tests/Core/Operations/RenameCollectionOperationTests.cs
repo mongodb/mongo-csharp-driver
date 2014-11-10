@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -139,7 +140,7 @@ namespace MongoDB.Driver.Core.Operations
                 EnsureCollectionExists(binding, _collectionNamespace);
                 EnsureCollectionDoesNotExist(binding, _newCollectionNamespace);
 
-                var result = await subject.ExecuteAsync(binding);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
             }
@@ -158,7 +159,7 @@ namespace MongoDB.Driver.Core.Operations
                 EnsureCollectionExists(binding, _collectionNamespace);
                 EnsureCollectionExists(binding, _newCollectionNamespace);
 
-                var result = await subject.ExecuteAsync(binding);
+                var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
                 result["ok"].ToBoolean().Should().BeTrue();
             }
@@ -177,7 +178,7 @@ namespace MongoDB.Driver.Core.Operations
                 EnsureCollectionExists(binding, _collectionNamespace);
                 EnsureCollectionExists(binding, _newCollectionNamespace);
 
-                Func<Task> action = () => subject.ExecuteAsync(binding);
+                Func<Task> action = () => subject.ExecuteAsync(binding, CancellationToken.None);
 
                 action.ShouldThrow<MongoCommandException>();
             }
@@ -188,7 +189,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
 
-            Func<Task> action = () => subject.ExecuteAsync(null);
+            Func<Task> action = () => subject.ExecuteAsync(null, CancellationToken.None);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }

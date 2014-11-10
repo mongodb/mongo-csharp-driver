@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
             subject.Dispose();
 
-            Action act = () => subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Action act = () => subject.GetReadConnectionSourceAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -68,9 +68,9 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
 
-            subject.GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            subject.GetReadConnectionSourceAsync(CancellationToken.None);
 
-            _readBinding.Received().GetReadConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            _readBinding.Received().GetReadConnectionSourceAsync(CancellationToken.None);
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
             subject.Dispose();
 
-            Action act = () => subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Action act = () => subject.GetWriteConnectionSourceAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -89,9 +89,9 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
 
-            subject.GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            subject.GetWriteConnectionSourceAsync(CancellationToken.None);
 
-            _writeBinding.Received().GetWriteConnectionSourceAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            _writeBinding.Received().GetWriteConnectionSourceAsync(CancellationToken.None);
         }
 
         [Test]

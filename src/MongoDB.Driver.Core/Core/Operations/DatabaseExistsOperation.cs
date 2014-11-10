@@ -50,11 +50,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<bool> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<bool> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var operation = new ListDatabaseNamesOperation(_messageEncoderSettings);
-            var result = await operation.ExecuteAsync(binding, timeout, cancellationToken).ConfigureAwait(false);
+            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             return result.Contains(_databaseNamespace.DatabaseName);
         }
     }

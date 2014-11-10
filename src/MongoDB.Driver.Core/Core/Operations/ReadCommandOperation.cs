@@ -31,21 +31,6 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a read command operation.
     /// </summary>
-    public class ReadCommandOperation : ReadCommandOperation<BsonDocument>
-    {
-        // constructors
-        public ReadCommandOperation(
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
-            MessageEncoderSettings messageEncoderSettings)
-            : base(databaseNamespace, command, BsonDocumentSerializer.Instance, messageEncoderSettings)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Represents a read command operation.
-    /// </summary>
     public class ReadCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IReadOperation<TCommandResult>
     {
         #region static
@@ -184,7 +169,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<TCommandResult> ExecuteAsync(IReadBinding binding, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TCommandResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             if (_ensureIsReadCommandAction != null)
@@ -192,10 +177,9 @@ namespace MongoDB.Driver.Core.Operations
                 _ensureIsReadCommandAction(Command);
             }
 
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteCommandAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                return await ExecuteCommandAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
             }
         }
     }

@@ -100,7 +100,6 @@
     <Compile Include="Core\Operations\FindOneAndDeleteOperation.cs" />
     <Compile Include="DeferredAsyncCursor.cs" />
     <Compile Include="IAsyncCursor.cs" />
-    <Compile Include="Core\Operations\ICommandOperation.cs" />
     <Compile Include="Core\Operations\IndexNameHelper.cs" />
     <Compile Include="Core\Operations\ListIndexesOperation.cs" />
     <Compile Include="Core\Operations\ListCollectionsOperation.cs" />

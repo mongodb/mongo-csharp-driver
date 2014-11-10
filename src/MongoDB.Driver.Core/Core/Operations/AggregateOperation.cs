@@ -97,22 +97,21 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             EnsureIsReadOnlyPipeline();
 
-            var slidingTimeout = new SlidingTimeout(timeout);
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(slidingTimeout, cancellationToken).ConfigureAwait(false))
+            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
             {
                 var command = CreateCommand(connectionSource.ServerDescription.Version);
 
                 var serializer = new AggregateResultDeserializer(_resultSerializer);
                 var operation = new ReadCommandOperation<AggregateResult>(CollectionNamespace.DatabaseNamespace, command, serializer, MessageEncoderSettings);
 
-                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, slidingTimeout, cancellationToken).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
 
-                return CreateCursor(connectionSource, command, result, timeout, cancellationToken);
+                return CreateCursor(connectionSource, command, result, cancellationToken);
             }
         }
 
@@ -146,17 +145,17 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private AsyncCursor<TResult> CreateCursor(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
+        private AsyncCursor<TResult> CreateCursor(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, CancellationToken cancellationToken)
         {
             if (_useCursor.GetValueOrDefault(true))
             {
-                return CreateCursorFromCursorResult(connectionSource, command, result, timeout, cancellationToken);
+                return CreateCursorFromCursorResult(connectionSource, command, result, cancellationToken);
             }
 
-            return CreateCursorFromInlineResult(command, result, timeout, cancellationToken);
+            return CreateCursorFromInlineResult(command, result, cancellationToken);
         }
 
-        private AsyncCursor<TResult> CreateCursorFromCursorResult(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
+        private AsyncCursor<TResult> CreateCursorFromCursorResult(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, CancellationToken cancellationToken)
         {
             return new AsyncCursor<TResult>(
                 connectionSource.Fork(),
@@ -167,12 +166,10 @@ namespace MongoDB.Driver.Core.Operations
                 _batchSize ?? 0,
                 0, // limit
                 _resultSerializer,
-                MessageEncoderSettings,
-                timeout,
-                cancellationToken);
+                MessageEncoderSettings);
         }
 
-        private AsyncCursor<TResult> CreateCursorFromInlineResult(BsonDocument command, AggregateResult result, TimeSpan timeout, CancellationToken cancellationToken)
+        private AsyncCursor<TResult> CreateCursorFromInlineResult(BsonDocument command, AggregateResult result, CancellationToken cancellationToken)
         {
             return new AsyncCursor<TResult>(
                 null, // connectionSource
@@ -183,9 +180,7 @@ namespace MongoDB.Driver.Core.Operations
                 0, // batchSize
                 0, // limit
                 _resultSerializer,
-                MessageEncoderSettings,
-                timeout,
-                cancellationToken);
+                MessageEncoderSettings);
         }
 
         private void EnsureIsReadOnlyPipeline()
