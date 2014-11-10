@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Async;
-using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -178,7 +177,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public Task OpenAsync()
+        public Task OpenAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
 
@@ -187,13 +186,13 @@ namespace MongoDB.Driver.Core.Connections
                 if (_state.TryChange(State.Initial, State.Connecting))
                 {
                     _openedAtUtc = DateTime.UtcNow;
-                    _openTask = OpenAsyncHelper();
+                    _openTask = OpenAsyncHelper(cancellationToken);
                 }
                 return _openTask;
             }
         }
 
-        private async Task OpenAsyncHelper()
+        private async Task OpenAsyncHelper(CancellationToken cancellationToken)
         {
             if (_listener != null)
             {
@@ -206,7 +205,7 @@ namespace MongoDB.Driver.Core.Connections
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint).ConfigureAwait(false);
                 _state.TryChange(State.Initializing);
                 StartBackgroundTasks();
-                _description = await _connectionInitializer.InitializeConnectionAsync(this).ConfigureAwait(false);
+                _description = await _connectionInitializer.InitializeConnectionAsync(this, cancellationToken).ConfigureAwait(false);
                 stopwatch.Stop();
                 _connectionId = _description.ConnectionId;
                 _state.TryChange(State.Open);
@@ -306,7 +305,7 @@ namespace MongoDB.Driver.Core.Connections
             // Before we might blow up the stream, let's see if we have been
             // asked to cancel. No reason to do work on the stream if the user
             // no longer cares.
-            if(entry.CancellationToken.IsCancellationRequested)
+            if (entry.CancellationToken.IsCancellationRequested)
             {
                 entry.TaskCompletionSource.TrySetCanceled();
                 return true; // means to not exit the background task...

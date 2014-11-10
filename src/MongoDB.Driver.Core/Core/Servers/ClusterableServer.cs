@@ -174,7 +174,12 @@ namespace MongoDB.Driver.Core.Servers
             var connection = await _connectionPool.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                await connection.OpenAsync().ConfigureAwait(false);
+                // ignoring the user's cancellation token here because we don't
+                // want to throw this connection away simply because the user
+                // wanted to cancel their operation. It will be better for the
+                // collective to complete opening the connection than the throw
+                // it away.
+                await connection.OpenAsync(CancellationToken.None).ConfigureAwait(false);
                 return new ServerConnection(this, connection);
             }
             catch
@@ -196,7 +201,9 @@ namespace MongoDB.Driver.Core.Servers
                     if (_heartbeatConnection == null)
                     {
                         _heartbeatConnection = _heartbeatConnectionFactory.CreateConnection(_serverId, _endPoint);
-                        await _heartbeatConnection.OpenAsync().ConfigureAwait(false);
+                        // if we are cancelling, it's because the server has
+                        // been shut down and we really don't need to wait.
+                        await _heartbeatConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
                     }
 
                     heartbeatInfo = await GetHeartbeatInfoAsync(_heartbeatConnection, cancellationToken).ConfigureAwait(false);
@@ -399,11 +406,11 @@ namespace MongoDB.Driver.Core.Servers
                 _server = server;
             }
 
-            public override async Task OpenAsync()
+            public override async Task OpenAsync(CancellationToken cancellationToken)
             {
                 try
                 {
-                    await base.OpenAsync().ConfigureAwait(false);
+                    await base.OpenAsync(cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

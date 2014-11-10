@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Connections
             var serverId = new ServerId(new ClusterId(), _endPoint);
 
             _connectionInitializer = Substitute.For<IConnectionInitializer>();
-            _connectionInitializer.InitializeConnectionAsync(null)
+            _connectionInitializer.InitializeConnectionAsync(null, CancellationToken.None)
                 .ReturnsForAnyArgs(Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
                     new IsMasterResult(new BsonDocument()),
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             _subject.Dispose();
 
-            Action act = () => _subject.OpenAsync().Wait();
+            Action act = () => _subject.OpenAsync(CancellationToken.None).Wait();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -95,10 +95,10 @@ namespace MongoDB.Driver.Core.Connections
         {
             var result = new TaskCompletionSource<ConnectionDescription>();
             result.SetException(new SocketException());
-            _connectionInitializer.InitializeConnectionAsync(null)
+            _connectionInitializer.InitializeConnectionAsync(null, CancellationToken.None)
                 .ReturnsForAnyArgs(result.Task);
 
-            Action act = () => _subject.OpenAsync().Wait();
+            Action act = () => _subject.OpenAsync(CancellationToken.None).Wait();
 
             act.ShouldThrow<SocketException>();
 
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void OpenAsync_should_setup_the_description()
         {
-            _subject.OpenAsync().Wait();
+            _subject.OpenAsync(CancellationToken.None).Wait();
 
             _subject.Description.Should().NotBeNull();
         }
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Connections
         [Test]
         public void OpenAsync_should_raise_the_correct_events_on_success()
         {
-            _subject.OpenAsync().Wait();
+            _subject.OpenAsync(CancellationToken.None).Wait();
 
             _listener.ReceivedWithAnyArgs().ConnectionBeforeOpening(null, null);
             _listener.ReceivedWithAnyArgs().ConnectionAfterOpening(null, null, default(TimeSpan));
@@ -131,8 +131,8 @@ namespace MongoDB.Driver.Core.Connections
             _streamFactory.CreateStreamAsync(null)
                 .ReturnsForAnyArgs(completionSource.Task);
 
-            _subject.OpenAsync();
-            var openTask2 = _subject.OpenAsync();
+            _subject.OpenAsync(CancellationToken.None);
+            var openTask2 = _subject.OpenAsync(CancellationToken.None);
 
             openTask2.IsCompleted.Should().BeFalse();
 
@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Core.Connections
                 _streamFactory.CreateStreamAsync(null)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
-                _subject.OpenAsync().Wait();
+                _subject.OpenAsync(CancellationToken.None).Wait();
 
                 var messageToReceive = MessageHelper.BuildSuccessReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
                 MessageHelper.WriteRepliesToStream(stream, new[] { messageToReceive });
@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Core.Connections
                 _streamFactory.CreateStreamAsync(null)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
-                _subject.OpenAsync().Wait();
+                _subject.OpenAsync(CancellationToken.None).Wait();
 
                 var receivedTask = _subject.ReceiveMessageAsync(10, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
 
@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Core.Connections
                 _streamFactory.CreateStreamAsync(null)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
-                _subject.OpenAsync().Wait();
+                _subject.OpenAsync(CancellationToken.None).Wait();
 
                 var receivedTask11 = _subject.ReceiveMessageAsync(11, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
                 var receivedTask10 = _subject.ReceiveMessageAsync(10, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
@@ -269,7 +269,7 @@ namespace MongoDB.Driver.Core.Connections
                 stream.WriteAsync(null, 0, 0, CancellationToken.None)
                     .ReturnsForAnyArgs(writeTcs.Task);
 
-                _subject.OpenAsync().Wait();
+                _subject.OpenAsync(CancellationToken.None).Wait();
 
                 var task1 = _subject.ReceiveMessageAsync<BsonDocument>(1, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
                 var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Core.Connections
                 stream.WriteAsync(null, 0, 0, CancellationToken.None)
                     .ReturnsForAnyArgs(writeTcs.Task);
 
-                _subject.OpenAsync().Wait();
+                _subject.OpenAsync(CancellationToken.None).Wait();
 
                 var task1 = _subject.ReceiveMessageAsync<BsonDocument>(1, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
 
@@ -362,7 +362,7 @@ namespace MongoDB.Driver.Core.Connections
                 var message1 = MessageHelper.BuildQueryMessage(query: new BsonDocument("x", 1));
                 var message2 = MessageHelper.BuildQueryMessage(query: new BsonDocument("y", 2));
 
-                _subject.OpenAsync().Wait();
+                _subject.OpenAsync(CancellationToken.None).Wait();
                 _subject.SendMessagesAsync(new[] { message1, message2 }, _messageEncoderSettings, CancellationToken.None).Wait();
 
                 var expectedRequests = MessageHelper.TranslateMessagesToBsonDocuments(new[] { message1, message2 });
@@ -390,7 +390,7 @@ namespace MongoDB.Driver.Core.Connections
                 stream.WriteAsync(null, 0, 0, CancellationToken.None)
                     .ReturnsForAnyArgs(writeTcs.Task);
 
-                _subject.OpenAsync().Wait();
+                _subject.OpenAsync(CancellationToken.None).Wait();
 
                 var message1 = new KillCursorsMessage(1, new[] { 1L });
                 var task1 = _subject.SendMessageAsync(message1, _messageEncoderSettings, CancellationToken.None);

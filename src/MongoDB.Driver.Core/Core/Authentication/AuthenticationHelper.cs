@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Authentication
 {
     internal static class AuthenticationHelper
     {
-        public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description)
+        public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(description, "description");
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 foreach (var authenticator in connection.Settings.Authenticators)
                 {
-                    await authenticator.AuthenticateAsync(connection, description).ConfigureAwait(false);
+                    await authenticator.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
                 }
             }
         }

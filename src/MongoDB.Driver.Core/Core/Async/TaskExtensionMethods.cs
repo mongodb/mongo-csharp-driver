@@ -60,31 +60,6 @@ namespace MongoDB.Driver.Core.Async
             }
         }
 
-        public static async Task WithTimeout(this Task task, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            var delayCancellationTokenSource = new CancellationTokenSource();
-            var delayTask = Task.Delay(timeout, delayCancellationTokenSource.Token);
-            var cancellationTaskCompletionSource = new TaskCompletionSource<bool>();
-            var registration = cancellationToken.Register(() => cancellationTaskCompletionSource.TrySetResult(true));
-
-            using (registration)
-            {
-                await Task.WhenAny(task, delayTask, cancellationTaskCompletionSource.Task).ConfigureAwait(false);
-                if (task.IsCompleted)
-                {
-                    delayCancellationTokenSource.Cancel();
-                }
-                else if (cancellationToken.IsCancellationRequested)
-                {
-                    throw new TaskCanceledException();
-                }
-                else
-                {
-                    throw new TimeoutException();
-                }
-            }
-        }
-
         public static TaskCompletionSource<T> WithTimeout<T>(this TaskCompletionSource<T> source, TimeSpan timeout)
         {
             if (timeout != TimeSpan.Zero && timeout != Timeout.InfiniteTimeSpan)

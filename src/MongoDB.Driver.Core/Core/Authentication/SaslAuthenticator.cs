@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Authentication
         public abstract string DatabaseName { get; }
 
         // methods
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description)
+        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(description, "description");
@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Authentication
 
                 while (true)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     BsonDocument result;
                     try
                     {

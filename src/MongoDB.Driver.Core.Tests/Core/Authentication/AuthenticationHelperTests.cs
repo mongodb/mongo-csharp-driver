@@ -62,9 +62,9 @@ namespace MongoDB.Driver.Core.Authentication
             connection.Description.Returns(description);
             connection.Settings.Returns(settings);
 
-            AuthenticationHelper.AuthenticateAsync(connection, description).Wait();
+            AuthenticationHelper.AuthenticateAsync(connection, description, CancellationToken.None).Wait();
 
-            authenticator.ReceivedWithAnyArgs().AuthenticateAsync(null, null);
+            authenticator.ReceivedWithAnyArgs().AuthenticateAsync(null, null, CancellationToken.None);
         }
 
         [Test]
@@ -82,9 +82,9 @@ namespace MongoDB.Driver.Core.Authentication
             connection.Description.Returns(description);
             connection.Settings.Returns(settings);
 
-            AuthenticationHelper.AuthenticateAsync(connection, description).Wait();
+            AuthenticationHelper.AuthenticateAsync(connection, description, CancellationToken.None).Wait();
 
-            authenticator.DidNotReceiveWithAnyArgs().AuthenticateAsync(null, null);
+            authenticator.DidNotReceiveWithAnyArgs().AuthenticateAsync(null, null, CancellationToken.None);
         }
     }
 }

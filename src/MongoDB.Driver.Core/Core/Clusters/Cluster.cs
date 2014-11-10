@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, "selector");
 
-            var slidingTimeout = new SlidingTimeout(_settings.ServerSelectionTimeout);
+            var expirationDateTime = DateTime.UtcNow + _settings.ServerSelectionTimeout;
 
             while (true)
             {
@@ -179,23 +179,12 @@ namespace MongoDB.Driver.Core.Clusters
 
                 Invalidate();
 
-                try
+                var remainingTimeSpan = expirationDateTime - DateTime.UtcNow;
+                if (remainingTimeSpan <= TimeSpan.Zero)
                 {
-                    // This WithTimeout task does NOT cancel the
-                    // descriptionChangedTask. That is very important cause
-                    // others may be waiting on the descriptionChangedTask with
-                    // a different timeout or cancellationToken. I think that
-                    // maybe this WithTimeout method should be made private to
-                    // this class as we are the only ones who call it and the
-                    // semantics of it may not be what is actually wanted
-                    // elsewhere.
-                    await descriptionChangedTask.WithTimeout(slidingTimeout, cancellationToken).ConfigureAwait(false);
+                    ThrowTimeoutException(description);
                 }
-                catch (TimeoutException ex)
-                {
-                    var message = BuildTimeoutExceptionMessage(_settings.ServerSelectionTimeout, description);
-                    throw new TimeoutException(message, ex);
-                }
+                await WaitForDescriptionChanged(description, descriptionChangedTask, remainingTimeSpan, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -257,6 +246,36 @@ namespace MongoDB.Driver.Core.Clusters
                 ThrowIfDisposed();
                 throw new InvalidOperationException("Server must be initialized.");
             }
+        }
+
+        private async Task WaitForDescriptionChanged(ClusterDescription description, Task descriptionChangedTask, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            var cancellationTaskSource = new TaskCompletionSource<bool>();
+            using (cancellationToken.Register(() => cancellationTaskSource.TrySetCanceled()))
+            using (var timeoutCancellationTokenSource = new CancellationTokenSource())
+            {
+                var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
+                var completedTask = await Task.WhenAny(descriptionChangedTask, timeoutTask, cancellationTaskSource.Task).ConfigureAwait(false);
+                if (completedTask == descriptionChangedTask)
+                {
+                    timeoutCancellationTokenSource.Cancel();
+                    return;
+                }
+                if (completedTask == timeoutTask)
+                {
+                    ThrowTimeoutException(description);
+                    return;
+                }
+
+                // it must be this guy cause it's not the other ones.
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+        }
+
+        private void ThrowTimeoutException(ClusterDescription description)
+        {
+            var message = BuildTimeoutExceptionMessage(_settings.ServerSelectionTimeout, description);
+            throw new TimeoutException(message);
         }
 
         // nested classes

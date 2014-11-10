@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // methods
-        public Task AuthenticateAsync(IConnection connection, ConnectionDescription description)
+        public Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(description, "description");
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Authentication
                 authenticator = new MongoDBCRAuthenticator(_credential);
             }
 
-            return authenticator.AuthenticateAsync(connection, description);
+            return authenticator.AuthenticateAsync(connection, description, cancellationToken);
         }
     }
 }

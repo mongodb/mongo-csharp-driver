@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // methods
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description)
+        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(description, "description");
@@ -59,6 +59,7 @@ namespace MongoDB.Driver.Core.Authentication
             try
             {
                 var nonce = await GetNonceAsync(connection).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
                 await AuthenticateAsync(connection, nonce).ConfigureAwait(false);
             }
             catch(MongoCommandException ex)

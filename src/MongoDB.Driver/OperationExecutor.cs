@@ -31,7 +31,20 @@ namespace MongoDB.Driver
             using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
                 cancellationTokenSource.CancelAfter(timeout);
-                return await operation.ExecuteAsync(binding, cancellationTokenSource.Token);
+                try
+                {
+                    return await operation.ExecuteAsync(binding, cancellationTokenSource.Token);
+                }
+                catch (OperationCanceledException ex)
+                {
+                    if (cancellationTokenSource.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+                    {
+                        var msg = string.Format("Operation timed out after {0}.", timeout);
+                        throw new TimeoutException(msg, ex);
+                    }
+
+                    throw;
+                }
             }
         }
 
@@ -40,7 +53,20 @@ namespace MongoDB.Driver
             using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
                 cancellationTokenSource.CancelAfter(timeout);
-                return await operation.ExecuteAsync(binding, cancellationTokenSource.Token);
+                try
+                {
+                    return await operation.ExecuteAsync(binding, cancellationTokenSource.Token);
+                }
+                catch(OperationCanceledException ex)
+                {
+                    if (cancellationTokenSource.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+                    {
+                        var msg = string.Format("Operation timed out after {0}.", timeout);
+                        throw new TimeoutException(msg, ex);
+                    }
+
+                    throw;
+                }
             }
         }
     }

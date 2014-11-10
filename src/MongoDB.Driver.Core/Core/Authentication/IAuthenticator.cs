@@ -24,6 +24,6 @@ namespace MongoDB.Driver.Core.Authentication
     {
         string Name { get; }
 
-        Task AuthenticateAsync(IConnection connection, ConnectionDescription description);
+        Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
     }
 }

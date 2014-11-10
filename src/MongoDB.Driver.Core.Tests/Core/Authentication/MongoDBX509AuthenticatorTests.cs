@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
-            Action act = () => subject.AuthenticateAsync(connection, __description).Wait();
+            Action act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).Wait();
 
             act.ShouldThrow<MongoAuthenticationException>();
         }
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Authentication
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
-            Action act = () => subject.AuthenticateAsync(connection, __description).Wait();
+            Action act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).Wait();
 
             act.ShouldNotThrow();
         }

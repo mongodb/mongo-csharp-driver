@@ -155,14 +155,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                using (var cancellationTokenSource = new CancellationTokenSource())
+                using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                using (var connection = await _connectionSource.GetConnectionAsync(cancellationTokenSource.Token).ConfigureAwait(false))
                 {
-                    cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));
-                    using (var connection = await _connectionSource.GetConnectionAsync(cancellationTokenSource.Token).ConfigureAwait(false))
-                    {
-                        var protocol = CreateKillCursorsProtocol();
-                        await protocol.ExecuteAsync(connection, cancellationTokenSource.Token).ConfigureAwait(false);
-                    }
+                    var protocol = CreateKillCursorsProtocol();
+                    await protocol.ExecuteAsync(connection, cancellationTokenSource.Token).ConfigureAwait(false);
                 }
             }
             catch

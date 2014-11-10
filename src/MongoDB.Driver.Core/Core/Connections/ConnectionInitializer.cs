@@ -28,28 +28,28 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
-        public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection)
+        public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
 
             var isMasterCommand = new BsonDocument("isMaster", 1);
             var isMasterProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, isMasterCommand, true, null);
-            var isMasterResult = new IsMasterResult(await isMasterProtocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false));
+            var isMasterResult = new IsMasterResult(await isMasterProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
 
             var buildInfoCommand = new BsonDocument("buildInfo", 1);
             var buildInfoProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, buildInfoCommand, true, null);
-            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false));
+            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
 
             var connectionId = connection.ConnectionId;
             var description = new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
 
-            await AuthenticationHelper.AuthenticateAsync(connection, description);
+            await AuthenticationHelper.AuthenticateAsync(connection, description, cancellationToken);
 
             try
             {
                 var getLastErrorCommand = new BsonDocument("getLastError", 1);
                 var getLastErrorProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, getLastErrorCommand, true, null);
-                var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false);
+                var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
 
                 BsonValue connectionIdBsonValue;
                 if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))

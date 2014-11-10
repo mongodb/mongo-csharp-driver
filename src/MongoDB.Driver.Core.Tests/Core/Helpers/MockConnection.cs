@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Helpers
             return _sentMessages;
         }
 
-        public Task OpenAsync()
+        public Task OpenAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult<object>(null);
         }

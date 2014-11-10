@@ -94,10 +94,10 @@ namespace MongoDB.Driver.Core.Connections
             _disposed = true;
         }
 
-        public virtual Task OpenAsync()
+        public virtual Task OpenAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _wrapped.OpenAsync();
+            return _wrapped.OpenAsync(cancellationToken);
         }
 
         public virtual Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)

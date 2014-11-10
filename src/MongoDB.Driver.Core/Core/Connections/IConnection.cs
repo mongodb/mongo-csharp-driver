@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Connections
         ConnectionSettings Settings { get; }
 
         // methods
-        Task OpenAsync();
+        Task OpenAsync(CancellationToken cancellationToken);
         Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
         Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
     }
