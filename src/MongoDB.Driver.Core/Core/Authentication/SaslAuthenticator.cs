@@ -47,12 +47,11 @@ namespace MongoDB.Driver.Core.Authentication
 
                 while (true)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
                     BsonDocument result;
                     try
                     {
                         var protocol = new CommandWireProtocol(new DatabaseNamespace(DatabaseName), command, true, null);
-                        result = await protocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false);
+                        result = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                     }
                     catch(MongoCommandException ex)
                     {
