@@ -170,15 +170,15 @@ namespace MongoDB.Driver
         /// <returns>The explain result.</returns>
         public virtual CommandResult AggregateExplain(AggregateArgs args)
         {
-            var aggregateCommand = new CommandDocument
+            using (_server.RequestStart(null, ReadPreference.Primary))
             {
-                { "aggregate", _collectionNamespace.CollectionName },
-                { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
-                { "allowDiskUse", () => args.AllowDiskUse.Value, args.AllowDiskUse.HasValue },
-                { "explain", true }
-            };
-
-            return RunCommandAs<CommandResult>(aggregateCommand);
+                var messageEncoderSettings = GetMessageEncoderSettings();
+                var operation = new AggregateExplainOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings);
+                var response = ExecuteReadOperation(operation);
+                var commandResult = new CommandResult(response);
+                commandResult.ServerInstance = _server.RequestServerInstance;
+                return commandResult;
+            }
         }
 
         /// <summary>
