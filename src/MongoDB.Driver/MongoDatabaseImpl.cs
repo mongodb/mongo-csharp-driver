@@ -103,6 +103,23 @@ namespace MongoDB.Driver
             return collections.Select(c => c["name"].AsString).ToList();
         }
 
+        public Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNullOrEmpty(oldName, "oldName");
+            Ensure.IsNotNullOrEmpty(newName, "newName");
+
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new RenameCollectionOperation(
+                new CollectionNamespace(_databaseNamespace, oldName),
+                new CollectionNamespace(_databaseNamespace, newName),
+                messageEncoderSettings)
+            {
+                DropTarget = options == null ? null : options.DropTarget
+            };
+
+            return ExecuteWriteOperation(operation, cancellationToken);
+        }
+
         public Task<T> RunCommandAsync<T>(object command, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(command, "command");

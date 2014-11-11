@@ -109,6 +109,24 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task RenameCollectionAsync_should_execute_the_RenameCollectionOperation()
+        {
+            var options = new RenameCollectionOptions
+            {
+                DropTarget = false,
+            };
+            await _subject.RenameCollectionAsync("bar", "baz", options, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<RenameCollectionOperation>();
+            var op = (RenameCollectionOperation)call.Operation;
+            op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
+            op.NewCollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "baz"));
+            op.DropTarget.Should().Be(options.DropTarget);
+        }
+
+        [Test]
         public async Task RunCommand_should_execute_the_ReadCommandOperation()
         {
             var cmd = new BsonDocument("count", "foo");

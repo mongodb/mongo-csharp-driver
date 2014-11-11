@@ -78,6 +78,16 @@ namespace MongoDB.Driver
         Task<IReadOnlyList<string>> GetCollectionNamesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Renames the collection.
+        /// </summary>
+        /// <param name="oldName">The old name.</param>
+        /// <param name="newName">The new name.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Runs the command.
         /// </summary>
         /// <typeparam name="T">The result type of the command.</typeparam>
