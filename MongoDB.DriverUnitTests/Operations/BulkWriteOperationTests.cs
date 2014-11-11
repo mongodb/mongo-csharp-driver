@@ -1194,12 +1194,13 @@ namespace MongoDB.DriverUnitTests.Operations
         }
 
         [Test]
-        [RequiresServer(ServerTypes = ServerTypes.ReplicaSetMember)]
+        [RequiresServer(MinimumVersion = "2.4.0", ServerTypes = ServerTypes.ReplicaSetMember)]
         public void TestWTimeoutPlusDuplicateKeyError()
         {
             _collection.Drop();
 
-            using (Configuration.StopReplication())
+            var secondary = Configuration.TestServer.Secondaries.First();
+            using (Configuration.StopReplication(secondary))
             {
                 var bulk = _collection.InitializeUnorderedBulkOperation();
                 bulk.Insert(new BsonDocument("_id", 1));

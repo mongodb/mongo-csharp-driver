@@ -33,6 +33,7 @@ namespace MongoDB.Driver
         {
             "collStats",
             "dbStats",
+            "configureFailPoint",
             "count",
             "distinct",
             "geoNear",

@@ -127,36 +127,51 @@ namespace MongoDB.DriverUnitTests
             return __testDatabase.GetCollection<T>(__testCollection.Name);
         }
 
-        public static void StartReplication()
+        public static void StartReplication(MongoServerInstance secondary)
         {
-            var adminDatabase = __testServer.GetDatabase("admin");
-            var command = new CommandDocument
+            using (__testServer.RequestStart(null, secondary))
             {
-                { "configureFailPoint", "rsSyncApplyStop"},
-                { "mode", "off" }
-            };
-            adminDatabase.RunCommand(command);
+                var adminDatabaseSettings = new MongoDatabaseSettings { ReadPreference = ReadPreference.Secondary };
+                var adminDatabase = __testServer.GetDatabase("admin", adminDatabaseSettings);
+                var command = new CommandDocument
+                {
+                    { "configureFailPoint", "rsSyncApplyStop"},
+                    { "mode", "off" }
+                };
+                adminDatabase.RunCommand(command);
+            }
         }
 
-        public static IDisposable StopReplication()
+        public static IDisposable StopReplication(MongoServerInstance secondary)
         {
-            var adminDatabase = __testServer.GetDatabase("admin");
-            var command = new CommandDocument
+            using (__testServer.RequestStart(null, secondary))
             {
-                { "configureFailPoint", "rsSyncApplyStop"},
-                { "mode", "alwaysOn" }
-            };
-            adminDatabase.RunCommand(command);
+                var adminDatabaseSettings = new MongoDatabaseSettings { ReadPreference = ReadPreference.Secondary };
+                var adminDatabase = __testServer.GetDatabase("admin", adminDatabaseSettings);
+                var command = new CommandDocument
+                {
+                    { "configureFailPoint", "rsSyncApplyStop"},
+                    { "mode", "alwaysOn" }
+                };
+                adminDatabase.RunCommand(command);
 
-            return new ReplicationRestarter();
+                return new ReplicationRestarter(secondary);
+            }
         }
 
         // nested types
         private class ReplicationRestarter : IDisposable
         {
+            MongoServerInstance _secondary;
+
+            public ReplicationRestarter(MongoServerInstance secondary)
+            {
+                _secondary = secondary;
+            }
+
             public void Dispose()
             {
-                Configuration.StartReplication();
+                Configuration.StartReplication(_secondary);
             }
         }
     }
