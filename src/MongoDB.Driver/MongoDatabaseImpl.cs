@@ -57,6 +57,23 @@ namespace MongoDB.Driver
         }
 
         // methods
+        public Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNullOrEmpty(name, "name");
+            options = options ?? new CreateCollectionOptions();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
+            {
+                AutoIndexId = options.AutoIndexId,
+                Capped = options.Capped,
+                MaxDocuments = options.MaxDocuments,
+                MaxSize = options.MaxSize,
+                UsePowerOf2Sizes = options.UsePowerOf2Sizes
+            };
+
+            return ExecuteWriteOperation(operation, cancellationToken);
+        }
+
         public Task DropCollectionAsync(string name, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();

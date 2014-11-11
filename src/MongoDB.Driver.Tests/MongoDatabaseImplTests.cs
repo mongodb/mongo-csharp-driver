@@ -59,6 +59,31 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task CreateCollectionAsync_should_execute_the_CreateCollectionOperation()
+        {
+            var options = new CreateCollectionOptions
+            {
+                AutoIndexId = false,
+                Capped = true,
+                MaxDocuments = 10,
+                MaxSize = 11,
+                UsePowerOf2Sizes = false
+            };
+            await _subject.CreateCollectionAsync("bar", options, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<CreateCollectionOperation>();
+            var op = (CreateCollectionOperation)call.Operation;
+            op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
+            op.AutoIndexId.Should().Be(options.AutoIndexId);
+            op.Capped.Should().Be(options.Capped);
+            op.MaxDocuments.Should().Be(options.MaxDocuments);
+            op.MaxSize.Should().Be(options.MaxSize);
+            op.UsePowerOf2Sizes.Should().Be(options.UsePowerOf2Sizes);
+        }
+
+        [Test]
         public async Task DropCollectionAsync_should_execute_the_DropCollectionOperation()
         {
             await _subject.DropCollectionAsync("bar", CancellationToken.None);

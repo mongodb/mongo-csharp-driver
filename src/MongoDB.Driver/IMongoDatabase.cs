@@ -37,6 +37,15 @@ namespace MongoDB.Driver
         MongoDatabaseSettings Settings { get; }
 
         /// <summary>
+        /// Creates the collection with the specified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task CreateCollectionAsync(string name, CreateCollectionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Drops the collection with the specified name.
         /// </summary>
         /// <returns>A task.</returns>
