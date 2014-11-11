@@ -1194,16 +1194,18 @@ namespace MongoDB.DriverUnitTests.Operations
         }
 
         [Test]
+        [RequiresServer(ServerTypes = ServerTypes.ReplicaSetMember)]
         public void TestWTimeoutPlusDuplicateKeyError()
         {
-            if (_primary.InstanceType == MongoServerInstanceType.ReplicaSetMember)
-            {
-                _collection.Drop();
+            _collection.Drop();
 
+            using (Configuration.StopReplication())
+            {
                 var bulk = _collection.InitializeUnorderedBulkOperation();
                 bulk.Insert(new BsonDocument("_id", 1));
                 bulk.Insert(new BsonDocument("_id", 1));
-                var exception = Assert.Throws<BulkWriteException>(() => bulk.Execute(new WriteConcern { W = 999, WTimeout = TimeSpan.FromMilliseconds(1) }));
+                var all = Configuration.TestServer.Secondaries.Length + 1;
+                var exception = Assert.Throws<BulkWriteException>(() => bulk.Execute(new WriteConcern { W = all, WTimeout = TimeSpan.FromMilliseconds(1) }));
                 var result = exception.Result;
 
                 var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 2 };

@@ -126,5 +126,38 @@ namespace MongoDB.DriverUnitTests
         {
             return __testDatabase.GetCollection<T>(__testCollection.Name);
         }
+
+        public static void StartReplication()
+        {
+            var adminDatabase = __testServer.GetDatabase("admin");
+            var command = new CommandDocument
+            {
+                { "configureFailPoint", "rsSyncApplyStop"},
+                { "mode", "off" }
+            };
+            adminDatabase.RunCommand(command);
+        }
+
+        public static IDisposable StopReplication()
+        {
+            var adminDatabase = __testServer.GetDatabase("admin");
+            var command = new CommandDocument
+            {
+                { "configureFailPoint", "rsSyncApplyStop"},
+                { "mode", "alwaysOn" }
+            };
+            adminDatabase.RunCommand(command);
+
+            return new ReplicationRestarter();
+        }
+
+        // nested types
+        private class ReplicationRestarter : IDisposable
+        {
+            public void Dispose()
+            {
+                Configuration.StartReplication();
+            }
+        }
     }
 }
