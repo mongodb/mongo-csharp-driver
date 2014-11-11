@@ -51,7 +51,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 .WithMaintenanceInterval(Timeout.InfiniteTimeSpan)
                 .WithMaxConnections(4)
                 .WithMinConnections(2)
-                .WithWaitQueueSize(1);
+                .WithWaitQueueSize(1)
+                .WithWaitQueueTimeout(TimeSpan.FromSeconds(2));
 
             _subject = new ExclusiveConnectionPool(
                 _serverId,

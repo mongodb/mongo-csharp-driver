@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Clusters
         [SetUp]
         public void Setup()
         {
-            _settings = new ClusterSettings();
+            _settings = new ClusterSettings().WithServerSelectionTimeout(TimeSpan.FromSeconds(2));
             _serverFactory = Substitute.For<IClusterableServerFactory>();
             _clusterListener = Substitute.For<IClusterListener>();
         }
