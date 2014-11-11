@@ -58,9 +58,8 @@ namespace MongoDB.Driver.Core.Authentication
 
             try
             {
-                var nonce = await GetNonceAsync(connection).ConfigureAwait(false);
-                cancellationToken.ThrowIfCancellationRequested();
-                await AuthenticateAsync(connection, nonce).ConfigureAwait(false);
+                var nonce = await GetNonceAsync(connection, cancellationToken).ConfigureAwait(false);
+                await AuthenticateAsync(connection, nonce, cancellationToken).ConfigureAwait(false);
             }
             catch(MongoCommandException ex)
             {
@@ -69,15 +68,15 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-        private async Task<string> GetNonceAsync(IConnection connection)
+        private async Task<string> GetNonceAsync(IConnection connection, CancellationToken cancellationToken)
         {
             var command = new BsonDocument("getnonce", 1);
             var protocol = new CommandWireProtocol(new DatabaseNamespace(_credential.Source), command, true, null);
-            var document = await protocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false);
+            var document = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             return (string)document["nonce"];
         }
 
-        private async Task AuthenticateAsync(IConnection connection, string nonce)
+        private async Task AuthenticateAsync(IConnection connection, string nonce, CancellationToken cancellationToken)
         {
             var command = new BsonDocument
             {
@@ -87,7 +86,7 @@ namespace MongoDB.Driver.Core.Authentication
                 { "key", CreateKey(_credential.Username, _credential.Password, nonce) }
             };
             var protocol = new CommandWireProtocol(new DatabaseNamespace(_credential.Source), command, true, null);
-            await protocol.ExecuteAsync(connection, CancellationToken.None).ConfigureAwait(false);
+            await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
         }
 
         private string CreateKey(string username, SecureString password, string nonce)

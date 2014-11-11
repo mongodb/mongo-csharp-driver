@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
 
-                return CreateCursor(connectionSource, command, result, cancellationToken);
+                return CreateCursor(connectionSource, command, result);
             }
         }
 
@@ -145,17 +145,17 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private AsyncCursor<TResult> CreateCursor(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, CancellationToken cancellationToken)
+        private AsyncCursor<TResult> CreateCursor(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result)
         {
             if (_useCursor.GetValueOrDefault(true))
             {
-                return CreateCursorFromCursorResult(connectionSource, command, result, cancellationToken);
+                return CreateCursorFromCursorResult(connectionSource, command, result);
             }
 
-            return CreateCursorFromInlineResult(command, result, cancellationToken);
+            return CreateCursorFromInlineResult(command, result);
         }
 
-        private AsyncCursor<TResult> CreateCursorFromCursorResult(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result, CancellationToken cancellationToken)
+        private AsyncCursor<TResult> CreateCursorFromCursorResult(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result)
         {
             return new AsyncCursor<TResult>(
                 connectionSource.Fork(),
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Core.Operations
                 MessageEncoderSettings);
         }
 
-        private AsyncCursor<TResult> CreateCursorFromInlineResult(BsonDocument command, AggregateResult result, CancellationToken cancellationToken)
+        private AsyncCursor<TResult> CreateCursorFromInlineResult(BsonDocument command, AggregateResult result)
         {
             return new AsyncCursor<TResult>(
                 null, // connectionSource

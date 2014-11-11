@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var stopwatch = Stopwatch.StartNew();
-                _stream = await _streamFactory.CreateStreamAsync(_endPoint).ConfigureAwait(false);
+                _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
                 _state.TryChange(State.Initializing);
                 StartBackgroundTasks();
                 _description = await _connectionInitializer.InitializeConnectionAsync(this, cancellationToken).ConfigureAwait(false);

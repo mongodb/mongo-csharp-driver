@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Connections
         public void OpenAsync_should_not_complete_the_second_call_until_the_first_is_completed()
         {
             var completionSource = new TaskCompletionSource<Stream>();
-            _streamFactory.CreateStreamAsync(null)
+            _streamFactory.CreateStreamAsync(null, CancellationToken.None)
                 .ReturnsForAnyArgs(completionSource.Task);
 
             _subject.OpenAsync(CancellationToken.None);
@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = new BlockingMemoryStream())
             {
-                _streamFactory.CreateStreamAsync(null)
+                _streamFactory.CreateStreamAsync(null, CancellationToken.None)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
                 _subject.OpenAsync(CancellationToken.None).Wait();
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = new BlockingMemoryStream())
             {
-                _streamFactory.CreateStreamAsync(null)
+                _streamFactory.CreateStreamAsync(null, CancellationToken.None)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
                 _subject.OpenAsync(CancellationToken.None).Wait();
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = new BlockingMemoryStream())
             {
-                _streamFactory.CreateStreamAsync(null)
+                _streamFactory.CreateStreamAsync(null, CancellationToken.None)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
                 _subject.OpenAsync(CancellationToken.None).Wait();
@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = Substitute.For<Stream>())
             {
-                _streamFactory.CreateStreamAsync(null)
+                _streamFactory.CreateStreamAsync(null, CancellationToken.None)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
                 var readTcs = new TaskCompletionSource<int>();
@@ -292,7 +292,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = Substitute.For<Stream>())
             {
-                _streamFactory.CreateStreamAsync(null)
+                _streamFactory.CreateStreamAsync(null, CancellationToken.None)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
                 var readTcs = new TaskCompletionSource<int>();
@@ -356,7 +356,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = new MemoryStream())
             {
-                _streamFactory.CreateStreamAsync(null)
+                _streamFactory.CreateStreamAsync(null, CancellationToken.None)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
                 var message1 = MessageHelper.BuildQueryMessage(query: new BsonDocument("x", 1));
@@ -379,7 +379,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = Substitute.For<Stream>())
             {
-                _streamFactory.CreateStreamAsync(null)
+                _streamFactory.CreateStreamAsync(null, CancellationToken.None)
                     .ReturnsForAnyArgs(Task.FromResult<Stream>(stream));
 
                 var readTcs = new TaskCompletionSource<int>();

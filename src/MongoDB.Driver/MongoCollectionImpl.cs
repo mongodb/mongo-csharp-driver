@@ -109,7 +109,7 @@ namespace MongoDB.Driver
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
-                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(() => ExecuteReadOperation(findOperation,  cancellationToken))).ConfigureAwait(false);
+                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperation(findOperation,  ct))).ConfigureAwait(false);
             }
             else
             {

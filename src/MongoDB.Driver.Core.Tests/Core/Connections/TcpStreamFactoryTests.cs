@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var subject = new TcpStreamFactory();
 
-            Action act = () => subject.CreateStreamAsync(new DnsEndPoint("not-gonna-exist-i-hope", 27017)).Wait();
+            Action act = () => subject.CreateStreamAsync(new DnsEndPoint("not-gonna-exist-i-hope", 27017), CancellationToken.None).Wait();
 
             act.ShouldThrow<SocketException>();
         }
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var subject = new TcpStreamFactory();
 
-            var stream = subject.CreateStreamAsync(new DnsEndPoint("localhost", 27017));
+            var stream = subject.CreateStreamAsync(new DnsEndPoint("localhost", 27017), CancellationToken.None);
             stream.Should().NotBeNull();
         }
     }

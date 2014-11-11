@@ -24,12 +24,12 @@ namespace MongoDB.Driver
     public sealed class DeferredAsyncCursor<TDocument> : IAsyncCursor<TDocument>
     {
         // fields
-        private readonly Func<Task<IAsyncCursor<TDocument>>> _executeAsync;
+        private readonly Func<CancellationToken, Task<IAsyncCursor<TDocument>>> _executeAsync;
         private IAsyncCursor<TDocument> _cursor;
         private bool _disposed;
 
         // constructors
-        public DeferredAsyncCursor(Func<Task<IAsyncCursor<TDocument>>> executeAsync)
+        public DeferredAsyncCursor(Func<CancellationToken, Task<IAsyncCursor<TDocument>>> executeAsync)
         {
             _executeAsync = Ensure.IsNotNull(executeAsync, "executeAsync");
         }
@@ -56,7 +56,7 @@ namespace MongoDB.Driver
 
             if (_cursor == null)
             {
-                _cursor = await _executeAsync().ConfigureAwait(false);
+                _cursor = await _executeAsync(cancellationToken).ConfigureAwait(false);
             }
 
             return await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);

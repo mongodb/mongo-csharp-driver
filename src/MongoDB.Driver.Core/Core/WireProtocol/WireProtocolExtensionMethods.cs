@@ -38,7 +38,6 @@ namespace MongoDB.Driver.Core.WireProtocol
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IWireProtocol<TResult> protocol,
             IReadBinding binding,
-            TimeSpan timeout = default(TimeSpan),
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(protocol, "protocol");

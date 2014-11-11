@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
-        public async Task<Stream> CreateStreamAsync(EndPoint endPoint)
+        public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
             var addressFamily = endPoint.AddressFamily;
             if (addressFamily == AddressFamily.Unspecified || addressFamily == AddressFamily.Unknown)
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Connections
                 addressFamily = _settings.AddressFamily;
             }
             var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
-            await ConnectAsync(socket, endPoint).ConfigureAwait(false);
+            await ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
             socket.NoDelay = true;
             socket.ReceiveBufferSize = _settings.ReceiveBufferSize;
             socket.SendBufferSize = _settings.SendBufferSize;
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // non-public methods
-        private Task ConnectAsync(Socket socket, EndPoint endPoint)
+        private Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
             var dnsEndPoint = endPoint as DnsEndPoint;
             if (dnsEndPoint != null)
