@@ -31,6 +31,14 @@ namespace MongoDB.Driver
         MongoClientSettings Settings { get; }
 
         /// <summary>
+        /// Drops the database with the specified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Gets the database.
         /// </summary>
         /// <param name="name">The name.</param>
@@ -48,9 +56,8 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the database names.
         /// </summary>
-        /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A list of the database on the server.</returns>
-        Task<IReadOnlyList<string>> GetDatabaseNamesAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyList<string>> GetDatabaseNamesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

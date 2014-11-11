@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
@@ -57,7 +58,20 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public async Task ListDatabaseNames()
+        public async Task DropDatabaseAsync_should_invoke_the_correct_operation()
+        {
+            var operationExecutor = new MockOperationExecutor();
+            var client = new MongoClient(operationExecutor);
+            await client.DropDatabaseAsync("awesome");
+
+            var call = operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<DropDatabaseOperation>();
+            ((DropDatabaseOperation)call.Operation).DatabaseNamespace.Should().Be(new DatabaseNamespace("awesome"));
+        }
+
+        [Test]
+        public async Task ListDatabaseNamesAsync_should_invoke_the_correct_operation()
         {
             var operationExecutor = new MockOperationExecutor();
             var client = new MongoClient(operationExecutor);

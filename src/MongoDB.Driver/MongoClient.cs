@@ -106,6 +106,23 @@ namespace MongoDB.Driver
 
         // public methods
         /// <summary>
+        /// Drops the database.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings);
+
+            using (var binding = new WritableServerBinding(_cluster))
+            {
+                await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
         /// Gets the database.
         /// </summary>
         /// <param name="name">The name.</param>
@@ -131,17 +148,16 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the database names.
         /// </summary>
-        /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A list of the database on the server.</returns>
-        public async Task<IReadOnlyList<string>> GetDatabaseNamesAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IReadOnlyList<string>> GetDatabaseNamesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListDatabaseNamesOperation(messageEncoderSettings);
 
             using(var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, timeout ?? _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
         }
 
