@@ -92,6 +92,7 @@
     <Compile Include="Communication\ClusterRegistry.cs" />
     <Compile Include="Communication\ConnectionModeExtensionMethods.cs" />
     <Compile Include="CountOptions.cs" />
+    <Compile Include="IMongoIndexManager.cs" />
     <Compile Include="RenameCollectionOptions.cs" />
     <Compile Include="CreateCollectionOptions.cs" />
     <Compile Include="DistinctOptions.cs" />

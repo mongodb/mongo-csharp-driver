@@ -440,6 +440,32 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task DropIndexAsync_with_a_name_should_execute_the_DropIndexOperation()
+        {
+            await _subject.DropIndexAsync("name", CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<DropIndexOperation>();
+            var operation = (DropIndexOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.IndexName.Should().Be("name");
+        }
+
+        [Test]
+        public async Task DropIndexAsync_with_keys_should_execute_the_DropIndexOperation()
+        {
+            await _subject.DropIndexAsync(new { A = 1, B = -1 }, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<DropIndexOperation>();
+            var operation = (DropIndexOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.IndexName.Should().Be("A_1_B_-1");
+        }
+
+        [Test]
         public async Task FindAsync_should_execute_the_FindOperation()
         {
             var criteria = BsonDocument.Parse("{x:1}");

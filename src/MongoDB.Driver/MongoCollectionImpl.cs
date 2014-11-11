@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
 {
-    internal sealed class MongoCollectionImpl<TDocument> : IMongoCollection<TDocument>
+    internal sealed class MongoCollectionImpl<TDocument> : IMongoCollection<TDocument>, IMongoIndexManager<TDocument>
     {
         // fields
         private readonly ICluster _cluster;
@@ -60,6 +60,11 @@ namespace MongoDB.Driver
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        public IMongoIndexManager<TDocument> IndexManager
+        {
+            get { return this; }
         }
 
         public MongoCollectionSettings Settings
@@ -223,6 +228,25 @@ namespace MongoDB.Driver
         {
             var options = new FindOptions<TDocument>();
             return new FindFluent<TDocument, TDocument>(this, criteria, options);
+        }
+
+        public Task DropIndexAsync(string name, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNullOrEmpty(name, "name");
+
+            var operation = new DropIndexOperation(_collectionNamespace, name, _messageEncoderSettings);
+
+            return ExecuteWriteOperation(operation, cancellationToken);
+        }
+
+        public Task DropIndexAsync(object keys, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(keys, "keys");
+
+            var keysDocument = ConvertToBsonDocument(keys);
+            var operation = new DropIndexOperation(_collectionNamespace, keysDocument, _messageEncoderSettings);
+
+            return ExecuteWriteOperation(operation, cancellationToken);
         }
 
         public Task<IAsyncCursor<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options,  CancellationToken cancellationToken)

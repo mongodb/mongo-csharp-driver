@@ -37,6 +37,11 @@ namespace MongoDB.Driver
         CollectionNamespace CollectionNamespace { get; }
 
         /// <summary>
+        /// Gets the index manager.
+        /// </summary>
+        IMongoIndexManager<TDocument> IndexManager { get; }
+
+        /// <summary>
         /// Gets the settings.
         /// </summary>
         MongoCollectionSettings Settings { get; }
