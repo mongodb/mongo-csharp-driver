@@ -37,10 +37,10 @@ namespace MongoDB.Driver
         MongoDatabaseSettings Settings { get; }
 
         /// <summary>
-        /// Drops the database.
+        /// Drops the collection with the specified name.
         /// </summary>
         /// <returns>A task.</returns>
-        Task DropAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task DropCollectionAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Gets the collection.
@@ -62,22 +62,22 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the collection names.
         /// </summary>
-        /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The list of collection names.</returns>
-        Task<IReadOnlyList<string>> GetCollectionNamesAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The list of collection names.
+        /// </returns>
+        Task<IReadOnlyList<string>> GetCollectionNamesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Runs the command.
         /// </summary>
         /// <typeparam name="T">The result type of the command.</typeparam>
         /// <param name="command">The command.</param>
-        /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the command.
         /// </returns>
-        Task<T> RunCommandAsync<T>(object command, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<T> RunCommandAsync<T>(object command, CancellationToken cancellationToken = default(CancellationToken));
     }
 
     /// <summary>
@@ -91,14 +91,13 @@ namespace MongoDB.Driver
         /// <typeparam name="T">The result type of the command.</typeparam>
         /// <param name="database">The database.</param>
         /// <param name="command">The command.</param>
-        /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the command.
         /// </returns>
-        public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, string command, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, string command, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return database.RunCommandAsync<T>(command, timeout, cancellationToken);
+            return database.RunCommandAsync<T>(command, cancellationToken);
         }
 
         /// <summary>
@@ -107,14 +106,13 @@ namespace MongoDB.Driver
         /// <typeparam name="T">The result type of the command.</typeparam>
         /// <param name="database">The database.</param>
         /// <param name="command">The command.</param>
-        /// <param name="timeout">The timeout.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the command.
         /// </returns>
-        public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, BsonDocument command, TimeSpan? timeout = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, BsonDocument command, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return database.RunCommandAsync<T>(command, timeout, cancellationToken);
+            return database.RunCommandAsync<T>(command, cancellationToken);
         }
     }
 }

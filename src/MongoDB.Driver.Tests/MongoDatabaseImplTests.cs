@@ -59,15 +59,15 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task DropAsync_should_execute_the_DropDatabaseOperation()
+        public async Task DropCollectionAsync_should_execute_the_DropCollectionOperation()
         {
-            await _subject.DropAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.DropCollectionAsync("bar", CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
-            call.Operation.Should().BeOfType<DropDatabaseOperation>();
-            var op = (DropDatabaseOperation)call.Operation;
-            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
+            call.Operation.Should().BeOfType<DropCollectionOperation>();
+            var op = (DropCollectionOperation)call.Operation;
+            op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace MongoDB.Driver
         {
             _operationExecutor.EnqueueResult<IReadOnlyList<BsonDocument>>(new BsonDocument[0]);
 
-            await _subject.GetCollectionNamesAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.GetCollectionNamesAsync(CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IReadOnlyList<BsonDocument>>();
             call.Operation.Should().BeOfType<ListCollectionsOperation>();
@@ -87,7 +87,7 @@ namespace MongoDB.Driver
         public async Task RunCommand_should_execute_the_ReadCommandOperation()
         {
             var cmd = new BsonDocument("count", "foo");
-            await _subject.RunCommandAsync<BsonDocument>(cmd, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.RunCommandAsync<BsonDocument>(cmd, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<BsonDocument>();
 
@@ -101,7 +101,7 @@ namespace MongoDB.Driver
         public async Task RunCommand_should_run_a_non_read_command()
         {
             var cmd = new BsonDocument("shutdown", 1);
-            await _subject.RunCommandAsync<BsonDocument>(cmd, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.RunCommandAsync<BsonDocument>(cmd, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -114,7 +114,7 @@ namespace MongoDB.Driver
         [Test]
         public async Task RunCommand_should_run_a_json_command()
         {
-            await _subject.RunCommandAsync<BsonDocument>("{count: \"foo\"}", Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.RunCommandAsync<BsonDocument>("{count: \"foo\"}", CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<BsonDocument>();
 
@@ -128,7 +128,7 @@ namespace MongoDB.Driver
         public async Task RunCommand_should_run_a_serialized_command()
         {
             var cmd = new CountCommand { Collection = "foo" };
-            await _subject.RunCommandAsync<BsonDocument>(cmd, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await _subject.RunCommandAsync<BsonDocument>(cmd, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<BsonDocument>();
 
