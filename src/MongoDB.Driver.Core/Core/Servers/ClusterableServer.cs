@@ -268,8 +268,6 @@ namespace MongoDB.Driver.Core.Servers
 
             try
             {
-                var slidingTimeout = new SlidingTimeout(_settings.HeartbeatTimeout);
-
                 var isMasterCommand = new CommandWireProtocol(
                     DatabaseNamespace.Admin,
                     new BsonDocument("isMaster", 1),
