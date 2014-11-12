@@ -1,5 +1,5 @@
 Properties {
-    $base_version = "1.10"
+    $base_version = "1.10.0"
     $pre_release = "local"
     $build_number = Get-BuildNumber
     $config = "Release"
