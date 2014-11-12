@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var query = new BsonDocument();
             var mapFunction = "function() { emit(this.x, this.v); }";
-            var reduceFunction = "function(key, values) { return values.reduce(function(pv, cv) { return pv + cv; }, 0); }";
+            var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, mapFunction, reduceFunction, query, _resultSerializer, _messageEncoderSettings);
             BsonValue expectedResults = new BsonArray
             {
