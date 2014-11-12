@@ -159,6 +159,8 @@ task Zip -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) }{
     $items = @("$45_bin_dir\MongoDB.Bson.dll", `
         "$45_bin_dir\MongoDB.Bson.pdb", `
         "$45_bin_dir\MongoDB.Bson.xml", `
+        "$45_bin_dir\MongoDB.Driver.Core.dll", `
+        "$45_bin_dir\MongoDB.Driver.Core.pdb", `
         "$45_bin_dir\MongoDB.Driver.dll", `
         "$45_bin_dir\MongoDB.Driver.pdb", `
         "$45_bin_dir\MongoDB.Driver.xml")
