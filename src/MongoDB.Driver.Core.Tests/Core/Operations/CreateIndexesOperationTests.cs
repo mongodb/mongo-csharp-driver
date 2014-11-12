@@ -156,10 +156,10 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("DropCollection")]
-        public async Task ExecuteAsync_should_work_when_timeToLive_has_value()
+        public async Task ExecuteAsync_should_work_when_expireAfter_has_value()
         {
-            var timeToLiveSeconds = 1.5;
-            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { TimeToLive = TimeSpan.FromSeconds(timeToLiveSeconds) } };
+            var expireAfterSeconds = 1.5;
+            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { ExpireAfter = TimeSpan.FromSeconds(expireAfterSeconds) } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
             var result = await ExecuteOperationAsync(subject);
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Core.Operations
             var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
             var indexes = (await ExecuteOperationAsync(listIndexesOperation)).ToList();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
-            index["expireAfterSeconds"].ToDouble().Should().Be(timeToLiveSeconds);
+            index["expireAfterSeconds"].ToDouble().Should().Be(expireAfterSeconds);
         }
 
         [Test]

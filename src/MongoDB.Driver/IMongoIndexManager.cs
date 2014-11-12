@@ -24,6 +24,15 @@ namespace MongoDB.Driver
         MongoCollectionSettings Settings { get; }
 
         /// <summary>
+        /// Creates the indexes.
+        /// </summary>
+        /// <param name="keys">The keys.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task CreateIndex(object keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Drops the index asynchronous.
         /// </summary>
         /// <param name="name">The name.</param>

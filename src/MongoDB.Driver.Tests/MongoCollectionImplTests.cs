@@ -330,6 +330,57 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task CreateIndexAsync_should_execute_the_CreateIndexesOperation()
+         {
+            var keys = new BsonDocument("x", 1);
+            var weights = new BsonDocument("y", 1);
+            var options = new CreateIndexOptions
+            {
+                Background = true,
+                Bits = 10,
+                BucketSize = 20,
+                DefaultLanguage = "en",
+                ExpireAfter = TimeSpan.FromSeconds(20),
+                LanguageOverride = "es",
+                Max = 30,
+                Min = 40,
+                Name = "awesome",
+                Sparse = false,
+                SphereIndexVersion = 50,
+                TextIndexVersion = 60,
+                Unique = true,
+                Version = 70,
+                Weights = weights
+            };
+            await _subject.CreateIndex(keys, options, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<CreateIndexesOperation>();
+            var operation = (CreateIndexesOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Requests.Count().Should().Be(1);
+            var request = operation.Requests.Single();
+            request.AdditionalOptions.Should().BeNull();
+            request.Background.Should().Be(options.Background);
+            request.Bits.Should().Be(options.Bits);
+            request.BucketSize.Should().Be(options.BucketSize);
+            request.DefaultLanguage.Should().Be(options.DefaultLanguage);
+            request.ExpireAfter.Should().Be(options.ExpireAfter);
+            request.Keys.Should().Be(keys);
+            request.LanguageOverride.Should().Be(options.LanguageOverride);
+            request.Max.Should().Be(options.Max);
+            request.Min.Should().Be(options.Min);
+            request.Name.Should().Be(options.Name);
+            request.Sparse.Should().Be(options.Sparse);
+            request.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
+            request.TextIndexVersion.Should().Be(options.TextIndexVersion);
+            request.Unique.Should().Be(options.Unique);
+            request.Version.Should().Be(options.Version);
+            request.Weights.Should().Be(weights);
+        }
+
+        [Test]
         public async Task DeleteManyAsync_should_execute_the_BulkMixedOperation()
         {
             var criteria = new BsonDocument("a", 1);

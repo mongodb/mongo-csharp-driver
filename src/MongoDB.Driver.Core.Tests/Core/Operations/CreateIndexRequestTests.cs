@@ -60,9 +60,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.Keys.Should().BeSameAs(keys);
             subject.AdditionalOptions.Should().BeNull();
             subject.Background.Should().NotHaveValue();
-            subject.IndexName.Should().BeNull();
+            subject.Name.Should().BeNull();
             subject.Sparse.Should().NotHaveValue();
-            subject.TimeToLive.Should().NotHaveValue();
+            subject.ExpireAfter.Should().NotHaveValue();
             subject.Unique.Should().NotHaveValue();
         }
 
@@ -135,16 +135,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void CreateIndexDocument_should_return_expected_result_when_indexName_has_value()
+        public void CreateIndexDocument_should_return_expected_result_when_bits_has_value()
         {
             var keys = new BsonDocument("x", 1);
             var subject = new CreateIndexRequest(keys);
-            subject.IndexName = "i";
-            subject.AdditionalOptions = new BsonDocument("name", "a"); // IndexName takes precedence
+            subject.Bits = 20;
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
-                { "name", "i" }
+                { "name", "x_1" },
+                { "bits", 20 }
             };
 
             var result = subject.CreateIndexDocument();
@@ -153,7 +153,223 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void CreateIndexDocument_should_return_expected_result_when_indexName_is_in_additionalOptions()
+        public void CreateIndexDocument_should_return_expected_result_when_bucketSize_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.BucketSize = 20;
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "bucketSize", 20 }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_defaultLanguage_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.DefaultLanguage = "es";
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "default_language", "es" }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_expireAfter_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.ExpireAfter = TimeSpan.FromSeconds(3);
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "expireAfterSeconds", 3 }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_languageOverride_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.LanguageOverride = "en";
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "language_override", "en" }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_max_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.Max = 20;
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "max", 20 }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_min_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.Min = 20;
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "min", 20 }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_sparse_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.Sparse = true;
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "sparse", true }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_sphereIndexVersion_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.SphereIndexVersion = 30;
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "2dsphereIndexVersion", 30 }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_textIndexVersion_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.TextIndexVersion = 30;
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "textIndexVersion", 30 }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_unique_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.Unique = true;
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "unique", true }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_version_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.Version = 11;
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "v", 11 }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_weights_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.Weights = new BsonDocument("a", 1);
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "weights", new BsonDocument("a", 1) }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateIndexDocument_should_return_expected_result_when_name_is_in_additionalOptions()
         {
             var keys = new BsonDocument("x", 1);
             var subject = new CreateIndexRequest(keys);
@@ -170,72 +386,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void CreateIndexDocument_should_return_expected_result_when_sparse_has_value(
-            [Values(false, true)]
-            bool value)
-        {
-            var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Sparse = value;
-            var expectedResult = new BsonDocument
-            {
-                { "key", keys },
-                { "name", "x_1" },
-                { "sparse", value }
-            };
-
-            var result = subject.CreateIndexDocument();
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void CreateIndexDocument_should_return_expected_result_when_timeToLive_has_value()
-        {
-            var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.TimeToLive = TimeSpan.FromSeconds(1);
-            var expectedResult = new BsonDocument
-            {
-                { "key", keys },
-                { "name", "x_1" },
-                { "expireAfterSeconds", 1 }
-            };
-
-            var result = subject.CreateIndexDocument();
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void CreateIndexDocument_should_return_expected_result_when_unique_has_value(
-            [Values(false, true)]
-            bool value)
-        {
-            var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys);
-            subject.Unique = value;
-            var expectedResult = new BsonDocument
-            {
-                { "key", keys },
-                { "name", "x_1" },
-                { "unique", value }
-            };
-
-            var result = subject.CreateIndexDocument();
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void IndexName_get_and_set_should_work(
+        public void Name_get_and_set_should_work(
             [Values(null, "name")]
             string value)
         {
             var subject = new CreateIndexRequest(new BsonDocument("x", 1));
 
-            subject.IndexName = value;
-            var result = subject.IndexName;
+            subject.Name = value;
+            var result = subject.Name;
 
             result.Should().Be(value);
         }
@@ -272,23 +430,10 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateIndexRequest(new BsonDocument("x", 1));
             var value = seconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(seconds.Value) : null;
 
-            subject.TimeToLive = value;
-            var result = subject.TimeToLive;
+            subject.ExpireAfter = value;
+            var result = subject.ExpireAfter;
 
             result.Should().Be(value);
-        }
-
-        [Test]
-        public void TimeToLive_set_should_throw_when_value_is_not_valid(
-            [Values(-1, 0)]
-            int seconds)
-        {
-            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
-            var value = TimeSpan.FromSeconds(seconds);
-
-            Action action = () => { subject.TimeToLive = value; };
-
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
 
         [Test]
