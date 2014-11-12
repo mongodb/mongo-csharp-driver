@@ -33,6 +33,20 @@ The issues fixed in 1.10 are:
 - Deprecate classes, properties and methods that will be removed in version 2.0
 - other minor fixes (see JIRA tickets)
 
+Note about SCRAM-SHA1 authenticaton
+-----------------------------------
+
+Starting with the MongoDB 2.8 release, the SCRAM-SHA1 authentication protocol is supported. By
+itself, this will not cause any compatibility issues. However, before updating the server's
+authentication schema such that the MONGODB-CR protocol is no longer available, you must
+replace any calls to:
+
+    MongoCredential.CreateMongoCRCredential(...)
+
+with calls to:
+
+    MongoCredential.CreateCredential(...)
+
 Compatibility Changes
 ---------------------
 
