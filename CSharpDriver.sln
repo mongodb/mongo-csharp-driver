@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Bson", "MongoDB.Bson\MongoDB.Bson.csproj", "{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}"
 EndProject
@@ -53,6 +53,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Release Notes v0.9.txt = Release Notes\Release Notes v0.9.txt
 		Release Notes\Release Notes v1.0.txt = Release Notes\Release Notes v1.0.txt
 		Release Notes\Release Notes v1.1.txt = Release Notes\Release Notes v1.1.txt
+		Release Notes\Release Notes v1.10.md = Release Notes\Release Notes v1.10.md
 		Release Notes\Release Notes v1.2.txt = Release Notes\Release Notes v1.2.txt
 		Release Notes\Release Notes v1.3.1.txt = Release Notes\Release Notes v1.3.1.txt
 		Release Notes\Release Notes v1.3.txt = Release Notes\Release Notes v1.3.txt
@@ -69,7 +70,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Release Notes v1.8.md = Release Notes\Release Notes v1.8.md
 		Release Notes\Release Notes v1.9.1.md = Release Notes\Release Notes v1.9.1.md
 		Release Notes\Release Notes v1.9.2.md = Release Notes\Release Notes v1.9.2.md
-		Release Notes\Release Notes v1.9.3.md = Release Notes\Release Notes v1.9.3.md
 		Release Notes\Release Notes v1.9.md = Release Notes\Release Notes v1.9.md
 	EndProjectSection
 EndProject
