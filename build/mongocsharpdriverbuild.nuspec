@@ -15,12 +15,6 @@
     <language>en-US</language>
   </metadata>
   <files>
-    <file src="artifacts\bin\net40\MongoDB.Bson.dll" target="lib\net40" />
-    <file src="artifacts\bin\net40\MongoDB.Bson.pdb" target="lib\net40" />
-    <file src="artifacts\bin\net40\MongoDB.Bson.xml" target="lib\net40" />
-    <file src="artifacts\bin\net40\MongoDB.Driver.dll" target="lib\net40" />
-    <file src="artifacts\bin\net40\MongoDB.Driver.pdb" target="lib\net40" />
-    <file src="artifacts\bin\net40\MongoDB.Driver.XML" target="lib\net40" />
     <file src="artifacts\bin\net45\MongoDB.Bson.dll" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Bson.pdb" target="lib\net45" />
     <file src="artifacts\bin\net45\MongoDB.Bson.xml" target="lib\net45" />
