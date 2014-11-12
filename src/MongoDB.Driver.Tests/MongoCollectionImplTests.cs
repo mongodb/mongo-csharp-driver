@@ -352,7 +352,7 @@ namespace MongoDB.Driver
                 Version = 70,
                 Weights = weights
             };
-            await _subject.CreateIndex(keys, options, CancellationToken.None);
+            await _subject.CreateIndexAsync(keys, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 

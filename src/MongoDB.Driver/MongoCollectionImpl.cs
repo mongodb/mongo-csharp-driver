@@ -171,7 +171,7 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, cancellationToken);
         }
 
-        public Task CreateIndex(object keys, CreateIndexOptions options, CancellationToken cancellationToken)
+        public Task CreateIndexAsync(object keys, CreateIndexOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(keys, "keys");
 

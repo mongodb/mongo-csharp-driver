@@ -42,12 +42,14 @@ namespace MongoDB.Driver
         /// <param name="name">The name.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>A task.</returns>
         Task CreateCollectionAsync(string name, CreateCollectionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Drops the collection with the specified name.
         /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
         Task DropCollectionAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -84,7 +86,7 @@ namespace MongoDB.Driver
         /// <param name="newName">The new name.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>A task.</returns>
         Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>

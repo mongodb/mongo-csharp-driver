@@ -35,7 +35,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>A task.</returns>
         Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
