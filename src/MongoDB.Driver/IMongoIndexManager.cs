@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -37,5 +38,12 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task DropIndexAsync(object keys, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Gets the indexes asynchronous.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<IReadOnlyList<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

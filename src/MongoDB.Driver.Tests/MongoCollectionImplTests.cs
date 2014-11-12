@@ -657,6 +657,18 @@ namespace MongoDB.Driver
         }
 
         [Test]
+        public async Task GetIndexesAsync_should_execute_the_ListIndexesOperation()
+        {
+            await _subject.GetIndexesAsync(CancellationToken.None);
+
+            var call = _operationExecutor.GetReadCall<IReadOnlyList<BsonDocument>>();
+
+            call.Operation.Should().BeOfType<ListIndexesOperation>();
+            var operation = (ListIndexesOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+        }
+
+        [Test]
         public async Task InsertOneAsync_should_execute_the_BulkMixedOperation()
         {
             var document = BsonDocument.Parse("{_id:1,a:1}");

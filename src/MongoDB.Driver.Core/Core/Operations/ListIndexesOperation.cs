@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class ListIndexesOperation : IReadOperation<IEnumerable<BsonDocument>>
+    public class ListIndexesOperation : IReadOperation<IReadOnlyList<BsonDocument>>
     {
         #region static
         // static fields
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
 
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private async Task<IEnumerable<BsonDocument>> ExecuteUsingCommandAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
             var command = new BsonDocument("listIndexes", _collectionNamespace.CollectionName);
@@ -90,15 +90,15 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (ex.Code == 26)
                 {
-                    return Enumerable.Empty<BsonDocument>();
+                    return new List<BsonDocument>();
                 }
                 throw;
             }
 
-            return result["indexes"].AsBsonArray.Cast<BsonDocument>();
+            return result["indexes"].AsBsonArray.Cast<BsonDocument>().ToList();
         }
 
-        private async Task<IEnumerable<BsonDocument>> ExecuteUsingQueryAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var indexes = new List<BsonDocument>();
 

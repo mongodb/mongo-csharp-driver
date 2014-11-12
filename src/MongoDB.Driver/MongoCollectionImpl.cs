@@ -330,6 +330,12 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation,  cancellationToken);
         }
 
+        public Task<IReadOnlyList<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var op = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
+            return ExecuteReadOperation(op, cancellationToken);
+        }
+
         public async Task InsertOneAsync(TDocument document,  CancellationToken cancellationToken)
         {
             Ensure.IsNotNull((object)document, "document");
