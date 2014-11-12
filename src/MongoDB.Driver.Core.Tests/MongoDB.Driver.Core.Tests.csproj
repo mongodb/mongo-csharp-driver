@@ -155,7 +155,6 @@
     <Compile Include="Core\Misc\FrozenClock.cs" />
     <Compile Include="Core\Misc\RangeTests.cs" />
     <Compile Include="Core\Misc\SemanticVersionTests.cs" />
-    <Compile Include="Core\Misc\SlidingTimeoutTests.cs" />
     <Compile Include="Core\Misc\InterlockedInt32Tests.cs" />
     <Compile Include="Core\Misc\TimeSpanParserTests.cs" />
     <Compile Include="WriteConcernTests.cs" />

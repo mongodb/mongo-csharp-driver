@@ -1022,14 +1022,17 @@ namespace MongoDB.Driver
 
             if (readPreference != ReadPreference.Primary)
             {
-                var slidingTimeout = new SlidingTimeout(_server.Settings.ConnectTimeout);
+                var timeoutAt = DateTime.UtcNow + _server.Settings.ConnectTimeout;
                 var cluster = _server.Cluster;
 
                 var clusterType = cluster.Description.Type;
                 while (clusterType == ClusterType.Unknown)
                 {
                     // TODO: find a way to block until the cluster description changes
-                    slidingTimeout.ThrowIfExpired();
+                    if (DateTime.UtcNow >= timeoutAt)
+                    {
+                        throw new TimeoutException();
+                    }
                     Thread.Sleep(TimeSpan.FromMilliseconds(20));
                     clusterType = cluster.Description.Type;
                 }
