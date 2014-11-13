@@ -50,7 +50,16 @@ namespace MongoDB.Driver.Operations
             var command = new BsonDocument("usersInfo", criteria);
             var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, cancellationToken);
-            return result["users"].AsBsonArray.Select(v => v.AsBsonDocument);
+
+            BsonValue users;
+            if (result.TryGetValue("users", out users) && users.IsBsonArray)
+            {
+                return users.AsBsonArray.Select(v => v.AsBsonDocument);
+            }
+            else
+            {
+                return Enumerable.Empty<BsonDocument>();
+            }
         }
     }
 }

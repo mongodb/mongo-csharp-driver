@@ -21,7 +21,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -69,6 +68,7 @@ namespace MongoDB.Driver.Core.Operations
                 "serverStatus",
                 "setParameter",
                 "text",
+                "usersInfo",
                 "whatsmyuri"
             };
 
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<TCommandResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            if (binding.ReadPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && _ensureIsReadCommandAction != null)
+            if (_ensureIsReadCommandAction != null)
             {
                 _ensureIsReadCommandAction(Command);
             }
