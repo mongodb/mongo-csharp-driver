@@ -383,6 +383,17 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(isReadOnly, users[0].IsReadOnly);
             }
 
+            // test updating existing user
+            _database.AddUser(new MongoUser(username, new PasswordEvidence("newpassword"), !isReadOnly));
+            user = _database.FindUser(username);
+            Assert.IsNotNull(user);
+            Assert.AreEqual(username, user.Username);
+            if (!usesCommands)
+            {
+                Assert.AreEqual(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, "newpassword")), user.PasswordHash);
+                Assert.AreEqual(!isReadOnly, user.IsReadOnly);
+            }
+
             _database.RemoveUser(user);
             user = _database.FindUser(username);
             Assert.IsNull(user);

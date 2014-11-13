@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<TCommandResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            if (_ensureIsReadCommandAction != null)
+            if (binding.ReadPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && _ensureIsReadCommandAction != null)
             {
                 _ensureIsReadCommandAction(Command);
             }

@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal static class OperationExtensionMethods
+    public static class OperationExtensionMethods
     {
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IReadOperation<TResult> operation,
