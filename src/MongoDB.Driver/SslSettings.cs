@@ -29,6 +29,9 @@ namespace MongoDB.Driver
     /// </summary>
     public class SslSettings : IEquatable<SslSettings>
     {
+        // private static fields
+        private static readonly IEqualityComparer<X509CertificateCollection> __certificateCollectionEqualityComparer = new X509CertificateCollectionEqualityComparer();
+
         // private fields
         private bool _checkCertificateRevocation = true;
         private X509CertificateCollection _clientCertificateCollection;
@@ -180,7 +183,7 @@ namespace MongoDB.Driver
             var rhs = (SslSettings)obj;
             return
                 _checkCertificateRevocation == rhs._checkCertificateRevocation &&
-                object.Equals(_clientCertificateCollection, rhs._clientCertificateCollection) &&
+                __certificateCollectionEqualityComparer.Equals(_clientCertificateCollection, rhs._clientCertificateCollection) &&
                 object.Equals(_clientCertificateSelectionCallback, rhs._clientCertificateSelectionCallback) &&
                 _enabledSslProtocols == rhs._enabledSslProtocols &&
                 object.Equals(_serverCertificateValidationCallback, rhs._serverCertificateValidationCallback);
@@ -262,7 +265,7 @@ namespace MongoDB.Driver
         }
 
         // nested classes
-        private class X509CertificateCollectionComparer : IEqualityComparer<X509CertificateCollection>
+        private class X509CertificateCollectionEqualityComparer : IEqualityComparer<X509CertificateCollection>
         {
             public bool Equals(X509CertificateCollection lhs, X509CertificateCollection rhs)
             {

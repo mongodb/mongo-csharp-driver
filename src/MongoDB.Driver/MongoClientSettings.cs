@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Shared;
 
@@ -38,6 +39,7 @@ namespace MongoDB.Driver
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
+        private TimeSpan _operationTimeout;
         private UTF8Encoding _readEncoding;
         private ReadPreference _readPreference;
         private string _replicaSetName;
@@ -72,6 +74,7 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            _operationTimeout = MongoDefaults.OperationTimeout;
             _readEncoding = null;
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
@@ -218,6 +221,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        public TimeSpan OperationTimeout
+        {
+            get { return _operationTimeout; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _operationTimeout = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the Read Encoding.
         /// </summary>
         public UTF8Encoding ReadEncoding
@@ -333,7 +349,7 @@ namespace MongoDB.Driver
                 _sslSettings = value;
             }
         }
-        
+
         /// <summary>
         /// Gets or sets whether to use SSL.
         /// </summary>
@@ -445,52 +461,6 @@ namespace MongoDB.Driver
 
         // public static methods
         /// <summary>
-        /// Gets a MongoClientSettings object intialized with values from a connection string builder.
-        /// </summary>
-        /// <param name="builder">The connection string builder.</param>
-        /// <returns>A MongoClientSettings.</returns>
-        public static MongoClientSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder)
-        {
-            var credential = MongoCredential.FromComponents(
-                builder.AuthenticationMechanism,
-                builder.AuthenticationSource ?? builder.DatabaseName,
-                builder.Username,
-                builder.Password);
-
-            var clientSettings = new MongoClientSettings();
-            clientSettings.ConnectionMode = builder.ConnectionMode;
-            clientSettings.ConnectTimeout = builder.ConnectTimeout;
-            if (credential != null)
-            {
-                if (!string.IsNullOrEmpty(builder.GssapiServiceName))
-                {
-                    credential = credential.WithMechanismProperty("SERVICE_NAME", builder.GssapiServiceName);
-                }
-                clientSettings.Credentials = new[] { credential };
-            }
-            clientSettings.GuidRepresentation = builder.GuidRepresentation;
-            clientSettings.IPv6 = builder.IPv6;
-            clientSettings.MaxConnectionIdleTime = builder.MaxConnectionIdleTime;
-            clientSettings.MaxConnectionLifeTime = builder.MaxConnectionLifeTime;
-            clientSettings.MaxConnectionPoolSize = builder.MaxConnectionPoolSize;
-            clientSettings.MinConnectionPoolSize = builder.MinConnectionPoolSize;
-            clientSettings.ReadEncoding = null; // ReadEncoding must be provided in code
-            clientSettings.ReadPreference = (builder.ReadPreference == null) ? ReadPreference.Primary : builder.ReadPreference.Clone();
-            clientSettings.ReplicaSetName = builder.ReplicaSetName;
-            clientSettings.SecondaryAcceptableLatency = builder.SecondaryAcceptableLatency;
-            clientSettings.Servers = new List<MongoServerAddress>(builder.Servers);
-            clientSettings.SocketTimeout = builder.SocketTimeout;
-            clientSettings.SslSettings = null; // SSL settings must be provided in code
-            clientSettings.UseSsl = builder.UseSsl;
-            clientSettings.VerifySslCertificate = builder.VerifySslCertificate;
-            clientSettings.WaitQueueSize = builder.ComputedWaitQueueSize;
-            clientSettings.WaitQueueTimeout = builder.WaitQueueTimeout;
-            clientSettings.WriteConcern = builder.GetWriteConcern(true); // WriteConcern is enabled by default for MongoClient
-            clientSettings.WriteEncoding = null; // WriteEncoding must be provided in code
-            return clientSettings;
-        }
-
-        /// <summary>
         /// Gets a MongoClientSettings object intialized with values from a MongoURL.
         /// </summary>
         /// <param name="url">The MongoURL.</param>
@@ -508,9 +478,16 @@ namespace MongoDB.Driver
             clientSettings.ConnectTimeout = url.ConnectTimeout;
             if (credential != null)
             {
-                if (!string.IsNullOrEmpty(url.GssapiServiceName))
+                foreach (var property in url.AuthenticationMechanismProperties)
                 {
-                    credential = credential.WithMechanismProperty("SERVICE_NAME", url.GssapiServiceName);
+                    if (property.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        credential = credential.WithMechanismProperty(property.Key, bool.Parse(property.Value));
+                    }
+                    else
+                    {
+                        credential = credential.WithMechanismProperty(property.Key, property.Value);
+                    }
                 }
                 clientSettings.Credentials = new[] { credential };
             }
@@ -553,8 +530,9 @@ namespace MongoDB.Driver
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
             clone._minConnectionPoolSize = _minConnectionPoolSize;
+            clone._operationTimeout = _operationTimeout;
             clone._readEncoding = _readEncoding;
-            clone._readPreference = _readPreference.Clone();
+            clone._readPreference = _readPreference;
             clone._replicaSetName = _replicaSetName;
             clone._secondaryAcceptableLatency = _secondaryAcceptableLatency;
             clone._servers = new List<MongoServerAddress>(_servers);
@@ -564,7 +542,7 @@ namespace MongoDB.Driver
             clone._verifySslCertificate = _verifySslCertificate;
             clone._waitQueueSize = _waitQueueSize;
             clone._waitQueueTimeout = _waitQueueTimeout;
-            clone._writeConcern = _writeConcern.Clone();
+            clone._writeConcern = _writeConcern;
             clone._writeEncoding = _writeEncoding;
             return clone;
         }
@@ -602,6 +580,7 @@ namespace MongoDB.Driver
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
+                _operationTimeout == rhs._operationTimeout &&
                 object.Equals(_readEncoding, rhs._readEncoding) &&
                 _readPreference == rhs._readPreference &&
                 _replicaSetName == rhs._replicaSetName &&
@@ -625,8 +604,6 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                _readPreference = _readPreference.FrozenCopy();
-                _writeConcern = _writeConcern.FrozenCopy();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
                 _isFrozen = true;
@@ -671,6 +648,7 @@ namespace MongoDB.Driver
                 .Hash(_maxConnectionLifeTime)
                 .Hash(_maxConnectionPoolSize)
                 .Hash(_minConnectionPoolSize)
+                .Hash(_operationTimeout)
                 .Hash(_readEncoding)
                 .Hash(_readPreference)
                 .Hash(_replicaSetName)
@@ -708,6 +686,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
             sb.AppendFormat("MinConnectionPoolSize={0};", _minConnectionPoolSize);
+            sb.AppendFormat("OperationTimeout={0};", _operationTimeout);
             if (_readEncoding != null)
             {
                 sb.Append("ReadEncoding=UTF8Encoding;");

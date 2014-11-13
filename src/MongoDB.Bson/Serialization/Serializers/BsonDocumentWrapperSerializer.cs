@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
@@ -71,28 +70,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="value">The object.</param>
         protected override void SerializeValue(BsonSerializationContext context, BsonDocumentWrapper value)
         {
-            var bsonWriter = context.Writer;
-
-            if (value.IsUpdateDocument)
-            {
-                var savedCheckElementNames = bsonWriter.CheckElementNames;
-                var savedCheckUpdateDocument = bsonWriter.CheckUpdateDocument;
-                try
-                {
-                    bsonWriter.CheckElementNames = false;
-                    bsonWriter.CheckUpdateDocument = true;
-                    context.SerializeWithChildContext(value.Serializer, value.Wrapped);
-                }
-                finally
-                {
-                    bsonWriter.CheckElementNames = savedCheckElementNames;
-                    bsonWriter.CheckUpdateDocument = savedCheckUpdateDocument;
-                }
-            }
-            else
-            {
-                context.SerializeWithChildContext(value.Serializer, value.Wrapped);
-            }
+            context.SerializeWithChildContext(value.Serializer, value.Wrapped);
         }
     }
 }

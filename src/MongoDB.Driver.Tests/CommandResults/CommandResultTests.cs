@@ -55,17 +55,9 @@ namespace MongoDB.Driver.Tests.CommandResults
         [Test]
         public void TestOkMissing()
         {
-            var command = new CommandDocument("invalid", 1);
             var document = new BsonDocument();
-            var result = new CommandResult(document) { Command = command };
-            try
-            {
-                var dummy = result.Ok;
-            }
-            catch (MongoCommandException ex)
-            {
-                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed. Response has no ok element (response was ", StringComparison.Ordinal));
-            }
+            var result = new CommandResult(document);
+            Assert.That(result.Ok, Is.False);
         }
 
         [Test]
@@ -156,29 +148,24 @@ namespace MongoDB.Driver.Tests.CommandResults
         [Test]
         public void TestInvalidCommand()
         {
-            using (_database.RequestStart())
+            try
             {
-                try
-                {
-                    _database.RunCommand("invalid");
-                }
-                catch (Exception ex)
-                {
-                    // when connected to mongod a MongoCommandException is thrown
-                    // but when connected to mongos a MongoQueryException is thrown
-                    // this should be considered a server bug that they don't report the error in the same way
+                _database.RunCommand("invalid");
+            }
+            catch (Exception ex)
+            {
+                // when connected to mongod a MongoCommandException is thrown
+                // but when connected to mongos a MongoQueryException is thrown
+                // this should be considered a server bug that they don't report the error in the same way
 
-                    var instance = _server.RequestConnection.ServerInstance;
-                    if (instance.InstanceType == MongoServerInstanceType.ShardRouter && instance.BuildInfo.Version < new Version(2, 4, 0))
-                    {
-                        Assert.IsInstanceOf<MongoQueryException>(ex);
-                        Assert.IsTrue(ex.Message.StartsWith("QueryFailure flag was unrecognized command: ", StringComparison.Ordinal));
-                    }
-                    else
-                    {
-                        Assert.IsInstanceOf<MongoCommandException>(ex);
-                        Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: no such cmd", StringComparison.Ordinal));
-                    }
+                var primary = _server.Primary;
+                if (primary.InstanceType == MongoServerInstanceType.ShardRouter && primary.BuildInfo.Version < new Version(2, 4, 0))
+                {
+                    Assert.IsInstanceOf<MongoQueryException>(ex);
+                }
+                else
+                {
+                    Assert.IsInstanceOf<MongoCommandException>(ex);
                 }
             }
         }

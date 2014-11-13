@@ -56,6 +56,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NSubstitute">
+      <HintPath>..\packages\NSubstitute.1.7.2.0\lib\NET45\NSubstitute.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.5.9.10348, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Tools\NUnit\nunit.framework.dll</HintPath>
@@ -68,14 +71,11 @@
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.XML" />
     <Reference Include="WindowsBase">
     </Reference>
   </ItemGroup>
@@ -94,7 +94,6 @@
     <Compile Include="Jira\CSharp728Tests.cs" />
     <Compile Include="Jira\CSharp708Tests.cs" />
     <Compile Include="Jira\CSharp476Tests.cs" />
-    <Compile Include="Jira\CSharp624Tests.cs" />
     <Compile Include="Jira\CSharp637Tests.cs" />
     <Compile Include="Jira\CSharp648Tests.cs" />
     <Compile Include="Jira\CSharp783Tests.cs" />
@@ -148,6 +147,7 @@
     <Compile Include="Serialization\Serializers\ObjectSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\ThreeDimensionalArraySerializerTests.cs" />
     <Compile Include="Serialization\Serializers\TimeSpanSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\TupleSerializersTests.cs" />
     <Compile Include="Serialization\Serializers\TwoDimensionalArraySerializerTests.cs" />
     <Compile Include="Serialization\Serializers\DateTimeSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\CollectionSerializerGenericTests.cs" />
@@ -263,6 +263,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

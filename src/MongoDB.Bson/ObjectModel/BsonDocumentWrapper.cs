@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson
@@ -38,7 +37,6 @@ namespace MongoDB.Bson
         // private fields
         private readonly object _wrapped;
         private readonly IBsonSerializer _serializer;
-        private readonly bool _isUpdateDocument;
 
         // constructors
         /// <summary>
@@ -56,18 +54,6 @@ namespace MongoDB.Bson
         /// <param name="value">The value.</param>
         /// <param name="serializer">The serializer.</param>
         public BsonDocumentWrapper(object value, IBsonSerializer serializer)
-            : this(value, serializer, false)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentWrapper"/> class.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="isUpdateDocument">if set to <c>true</c> then value is an update document.</param>
-        /// <exception cref="System.ArgumentNullException">serializer</exception>
-        public BsonDocumentWrapper(object value, IBsonSerializer serializer, bool isUpdateDocument)
         {
             if (serializer == null)
             {
@@ -76,18 +62,9 @@ namespace MongoDB.Bson
 
             _wrapped = value;
             _serializer = serializer;
-            _isUpdateDocument = isUpdateDocument;
         }
 
         // public properties
-        /// <summary>
-        /// Gets whether the wrapped value is an update document.
-        /// </summary>
-        public bool IsUpdateDocument
-        {
-            get { return _isUpdateDocument; }
-        }
-
         /// <summary>
         /// Gets the serializer.
         /// </summary>
@@ -122,37 +99,13 @@ namespace MongoDB.Bson
         /// <summary>
         /// Creates a new instance of the BsonDocumentWrapper class.
         /// </summary>
-        /// <typeparam name="TNominalType">The nominal type of the wrapped object.</typeparam>
-        /// <param name="value">The wrapped object.</param>
-        /// <param name="isUpdateDocument">Whether the wrapped object is an update document.</param>
-        /// <returns>A BsonDocumentWrapper.</returns>
-        public static BsonDocumentWrapper Create<TNominalType>(TNominalType value, bool isUpdateDocument)
-        {
-            return Create(typeof(TNominalType), value, isUpdateDocument);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonDocumentWrapper class.
-        /// </summary>
         /// <param name="nominalType">The nominal type of the wrapped object.</param>
         /// <param name="value">The wrapped object.</param>
         /// <returns>A BsonDocumentWrapper.</returns>
         public static BsonDocumentWrapper Create(Type nominalType, object value)
         {
-            return Create(nominalType, value, false); // isUpdateDocument = false
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonDocumentWrapper class.
-        /// </summary>
-        /// <param name="nominalType">The nominal type of the wrapped object.</param>
-        /// <param name="value">The wrapped object.</param>
-        /// <param name="isUpdateDocument">Whether the wrapped object is an update document.</param>
-        /// <returns>A BsonDocumentWrapper.</returns>
-        public static BsonDocumentWrapper Create(Type nominalType, object value, bool isUpdateDocument)
-        {
             var serializer = BsonSerializer.LookupSerializer(nominalType);
-            return new BsonDocumentWrapper(value, serializer, isUpdateDocument);
+            return new BsonDocumentWrapper(value, serializer);
         }
 
         /// <summary>
@@ -210,8 +163,7 @@ namespace MongoDB.Bson
             {
                 return new BsonDocumentWrapper(
                     _wrapped,
-                    _serializer,
-                    _isUpdateDocument);
+                    _serializer);
             }
         }
 

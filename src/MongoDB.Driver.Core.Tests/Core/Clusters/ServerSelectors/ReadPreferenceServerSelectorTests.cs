@@ -1,0 +1,209 @@
+﻿/* Copyright 2013-2014 MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System.Linq;
+using System.Net;
+using FluentAssertions;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.Helpers;
+using NUnit.Framework;
+
+namespace MongoDB.Driver.Core.Clusters.ServerSelectors
+{
+    [TestFixture]
+    public class ReadPreferenceServerSelectorTests
+    {
+        private ClusterDescription _description;
+        private ServerDescription _primary;
+        private ServerDescription _secondary1;
+        private ServerDescription _secondary2;
+
+        [SetUp]
+        public void Setup()
+        {
+            var clusterId = new ClusterId();
+            _primary = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017), ServerType.ReplicaSetPrimary, new TagSet(new [] { new Tag("a", "1") }));
+            _secondary1 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), ServerType.ReplicaSetSecondary, new TagSet(new [] { new Tag("a", "1") }));
+            _secondary2 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27019), ServerType.ReplicaSetSecondary, new TagSet(new[] { new Tag("a", "2") }));
+
+            _description = new ClusterDescription(
+                clusterId,
+                ClusterType.ReplicaSet,
+                new[] { _primary, _secondary1, _secondary2 });
+        }
+
+        [Test]
+        public void Primary_should_select_the_primary()
+        {
+            var subject = new ReadPreferenceServerSelector(ReadPreference.Primary);
+
+            var result = subject.SelectServers(_description, _description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _primary });
+        }
+
+        [Test]
+        public void PrimaryPreferred_should_select_the_primary_regardless_of_tags()
+        {
+            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.PrimaryPreferred, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
+
+            var result = subject.SelectServers(_description, _description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _primary });
+        }
+
+        [Test]
+        public void Primary_should_select_none_when_no_primary_exists()
+        {
+            var subject = new ReadPreferenceServerSelector(ReadPreference.Primary);
+
+            var result = subject.SelectServers(_description, new [] { _secondary1, _secondary2 }).ToList();
+
+            result.Should().BeEmpty();
+        }
+
+        [Test]
+        public void Secondary_should_select_a_secondary()
+        {
+            var subject = new ReadPreferenceServerSelector(ReadPreference.Secondary);
+
+            var result = subject.SelectServers(_description, _description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _secondary1, _secondary2 });
+        }
+
+        [Test]
+        public void Secondary_should_select_only_secondaries_when_they_match_the_tags()
+        {
+            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("a", "1") }) }));
+
+            var result = subject.SelectServers(_description, _description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _secondary1 });
+        }
+
+        [Test]
+        public void Secondary_should_select_none_when_no_secondaries_exist()
+        {
+            var subject = new ReadPreferenceServerSelector(ReadPreference.Secondary);
+
+            var result = subject.SelectServers(_description, new [] { _primary }).ToList();
+
+            result.Should().BeEmpty();
+        }
+
+        [Test]
+        public void SecondaryPreferred_should_select_all_the_secondaries()
+        {
+            var subject = new ReadPreferenceServerSelector(ReadPreference.SecondaryPreferred);
+
+            var result = subject.SelectServers(_description, _description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _secondary1, _secondary2 });
+        }
+
+        [Test]
+        public void SecondaryPreferred_should_select_the_primary_when_no_secondaries_exist()
+        {
+            var subject = new ReadPreferenceServerSelector(ReadPreference.SecondaryPreferred);
+
+            var result = subject.SelectServers(_description, new [] { _primary }).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _primary });
+        }
+
+        [Test]
+        public void SecondaryPreferred_should_select_secondaries_that_match_the_tags()
+        {
+            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.SecondaryPreferred, new[] { new TagSet(new[] { new Tag("a", "1") }) }));
+
+            var result = subject.SelectServers(_description, _description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _secondary1 });
+        }
+
+        [Test]
+        public void SecondaryPreferred_should_select_the_primary_when_no_secondaries_exist_regardless_of_tags()
+        {
+            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.SecondaryPreferred, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
+
+            var result = subject.SelectServers(_description, new [] { _primary, _secondary1 }).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _primary });
+        }
+
+        [Test]
+        public void PrimaryPreferred_should_select_the_primary_when_it_exists()
+        {
+            var subject = new ReadPreferenceServerSelector(ReadPreference.PrimaryPreferred);
+
+            var result = subject.SelectServers(_description, _description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _primary });
+        }
+
+        [Test]
+        public void PrimaryPreferred_should_select_the_primary_when_it_exists_regardless_of_tags()
+        {
+            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.PrimaryPreferred, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
+
+            var result = subject.SelectServers(_description, _description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _primary });
+        }
+
+        [Test]
+        public void PrimaryPreferred_should_select_the_secondaries_when_no_primary_exists()
+        {
+            var subject = new ReadPreferenceServerSelector(ReadPreference.PrimaryPreferred);
+
+            var result = subject.SelectServers(_description, new [] { _secondary1, _secondary2 }).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _secondary1, _secondary2 });
+        }
+
+        [Test]
+        public void PrimaryPreferred_should_select_the_secondaries_when_no_primary_exists_when_tags_exist()
+        {
+            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.PrimaryPreferred, new[] { new TagSet(new[] { new Tag("a", "2") }) }));
+
+            var result = subject.SelectServers(_description, new[] { _secondary1, _secondary2 }).ToList();
+
+            result.Should().BeEquivalentTo(new[] { _secondary2 });
+        }
+
+        [Test]
+        public void Nearest_should_select_all_the_servers()
+        {
+            var subject = new ReadPreferenceServerSelector(ReadPreference.Nearest);
+
+            var result = subject.SelectServers(_description, _description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(_description.Servers);
+        }
+
+        [Test]
+        public void Nearest_should_select_all_the_servers_respecting_tags()
+        {
+            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.Nearest, new[] { new TagSet(new[] { new Tag("a", "1") }) }));
+
+            var result = subject.SelectServers(_description, _description.Servers).ToList();
+
+            result.Should().BeEquivalentTo(new [] { _primary, _secondary1 });
+        }
+    }
+}

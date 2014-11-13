@@ -34,18 +34,20 @@ namespace MongoDB.Driver.Tests
         // static constructor
         static Configuration()
         {
-            var connectionString = Environment.GetEnvironmentVariable("CSharpDriverTestsConnectionString")
+            var connectionString = Environment.GetEnvironmentVariable("MONGO_URI")
                 ?? "mongodb://localhost/?w=1"; 
 
             var mongoUrl = new MongoUrl(connectionString);
             var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
             if (!clientSettings.WriteConcern.Enabled)
             {
-                clientSettings.WriteConcern.W = 1; // ensure WriteConcern is enabled regardless of what the URL says
+                clientSettings.WriteConcern = WriteConcern.Acknowledged; // ensure WriteConcern is enabled regardless of what the URL says
             }
 
             __testClient = new MongoClient(clientSettings);
+#pragma warning disable 618
             __testServer = __testClient.GetServer();
+#pragma warning restore
             __testDatabase = __testServer.GetDatabase(mongoUrl.DatabaseName ?? "csharpdriverunittests");
             __testCollection = __testDatabase.GetCollection("testcollection");
 

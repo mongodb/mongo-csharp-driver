@@ -904,11 +904,11 @@ namespace MongoDB.Bson.IO
             }
             EnsureWriteable();
 
-            var maxLength = Utf8Helper.StrictUtf8Encoding.GetMaxByteCount(value.Length) + 1;
+            var maxLength = Utf8Encodings.Strict.GetMaxByteCount(value.Length) + 1;
             var maxNewPosition = _position + maxLength;
             EnsurePosition(maxNewPosition);
 
-            var length = Utf8Helper.StrictUtf8Encoding.GetBytes(value, 0, value.Length, _buffer, _position);
+            var length = Utf8Encodings.Strict.GetBytes(value, 0, value.Length, _buffer, _position);
             _buffer[_position + length] = 0;
 
             SetPositionAfterWrite(length + 1);

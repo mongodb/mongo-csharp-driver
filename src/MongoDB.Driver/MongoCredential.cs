@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -141,6 +142,36 @@ namespace MongoDB.Driver
         }
 
         // public static methods
+        /// <summary>
+        /// Creates a default credential.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A default credential.</returns>
+        public static MongoCredential CreateCredential(string databaseName, string username, string password)
+        {
+            return FromComponents(null,
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
+        /// <summary>
+        /// Creates a default credential.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A default credential.</returns>
+        public static MongoCredential CreateCredential(string databaseName, string username, SecureString password)
+        {
+            return FromComponents(null,
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
         /// <summary>
         /// Creates a GSSAPI credential.
         /// </summary>
@@ -340,6 +371,56 @@ namespace MongoDB.Driver
             return copy;
         }
 
+        // internal methods
+        internal IAuthenticator ToAuthenticator()
+        {
+            var passwordEvidence = _evidence as PasswordEvidence;
+            if (passwordEvidence != null)
+            {
+                var credential = new UsernamePasswordCredential(
+                    _identity.Source,
+                    _identity.Username,
+                    MongoUtils.ToInsecureString(passwordEvidence.SecurePassword));
+                if (_mechanism == null)
+                {
+                    return new DefaultAuthenticator(credential);
+                }
+                else if (_mechanism == MongoDBCRAuthenticator.MechanismName)
+                {
+                    return new MongoDBCRAuthenticator(credential);
+                }
+                else if (_mechanism == ScramSha1Authenticator.MechanismName)
+                {
+                    return new ScramSha1Authenticator(credential);
+                }
+                else if (_mechanism == PlainAuthenticator.MechanismName)
+                {
+                    return new PlainAuthenticator(credential);
+                }
+                else if (_mechanism == GssapiAuthenticator.MechanismName)
+                {
+                    return new GssapiAuthenticator(
+                        credential,
+                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
+                }
+            }
+            else if (_identity.Source == "$external" && _evidence is ExternalEvidence)
+            {
+                if (_mechanism == MongoDBX509Authenticator.MechanismName)
+                {
+                    return new MongoDBX509Authenticator(_identity.Username);
+                }
+                else if (_mechanism == GssapiAuthenticator.MechanismName)
+                {
+                    return new GssapiAuthenticator(
+                        _identity.Username,
+                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
+                }
+            }
+
+            throw new NotSupportedException("Unable to create an authenticator.");
+        }
+
         // internal static methods
         internal static MongoCredential FromComponents(string mechanism, string source, string username, string password)
         {
@@ -363,23 +444,23 @@ namespace MongoDB.Driver
         // private static methods
         private static MongoCredential FromComponents(string mechanism, string source, string username, MongoIdentityEvidence evidence)
         {
-            if (string.IsNullOrEmpty(mechanism))
-            {
-                throw new ArgumentException("Cannot be null or empty.", "mechanism");
-            }
             if (string.IsNullOrEmpty(username))
             {
                 return null;
             }
 
-            switch (mechanism.ToUpperInvariant())
+            var defaultedMechanism = (mechanism ?? "DEFAULT").Trim().ToUpperInvariant();
+            switch (defaultedMechanism)
             {
+                case "DEFAULT":
                 case "MONGODB-CR":
+                case "SCRAM-SHA-1":
                     // it is allowed for a password to be an empty string, but not a username
                     source = source ?? "admin";
                     if (evidence == null || !(evidence is PasswordEvidence))
                     {
-                        throw new ArgumentException("A MONGODB-CR credential must have a password.");
+                        var message = string.Format("A {0} credential must have a password.", defaultedMechanism);
+                        throw new ArgumentException(message);
                     }
 
                     return new MongoCredential(
@@ -414,7 +495,7 @@ namespace MongoDB.Driver
                     }
 
                     MongoIdentity identity;
-                    if(source == "$external")
+                    if (source == "$external")
                     {
                         identity = new MongoExternalIdentity(source, username);
                     }

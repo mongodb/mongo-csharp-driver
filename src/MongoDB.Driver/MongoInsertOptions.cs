@@ -23,7 +23,6 @@ namespace MongoDB.Driver
     public class MongoInsertOptions
     {
         // private fields
-        private bool _checkElementNames;
         private InsertFlags _flags;
         private WriteConcern _writeConcern;
 
@@ -33,7 +32,6 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoInsertOptions()
         {
-            _checkElementNames = true;
             _flags = InsertFlags.None;
         }
 
@@ -49,31 +47,12 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets or sets whether to check element names before proceeding with the Insert.
-        /// </summary>
-        public bool CheckElementNames
-        {
-            get { return _checkElementNames; }
-            set { _checkElementNames = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the insert flags.
         /// </summary>
         public InsertFlags Flags
         {
             get { return _flags; }
             set { _flags = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the SafeMode to use for the Insert.
-        /// </summary>
-        [Obsolete("Use WriteConcern instead.")]
-        public SafeMode SafeMode
-        {
-            get { return (_writeConcern == null) ? null : new SafeMode(_writeConcern); }
-            set { _writeConcern = (value == null) ? null : value.WriteConcern; }
         }
 
         /// <summary>

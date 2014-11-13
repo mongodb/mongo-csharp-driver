@@ -16,7 +16,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Xml;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
@@ -120,7 +119,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return _converter.ToDouble(bsonReader.ReadInt64());
 
                 case BsonType.String:
-                    return XmlConvert.ToDouble(bsonReader.ReadString());
+                    return JsonConvert.ToDouble(bsonReader.ReadString());
 
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);

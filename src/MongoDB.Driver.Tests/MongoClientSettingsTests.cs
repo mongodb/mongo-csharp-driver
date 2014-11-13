@@ -99,6 +99,7 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
             Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.AreEqual(MongoDefaults.OperationTimeout, settings.OperationTimeout);
             Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreEqual(null, settings.ReplicaSetName);
             Assert.AreEqual(_localHost, settings.Server);
@@ -161,6 +162,10 @@ namespace MongoDB.Driver.Tests
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.OperationTimeout = TimeSpan.FromMilliseconds(20);
+            Assert.IsFalse(clone.Equals(settings));
+
+            clone = settings.Clone();
             clone.ReadPreference = ReadPreference.Secondary;
             Assert.IsFalse(clone.Equals(settings));
 
@@ -209,61 +214,15 @@ namespace MongoDB.Driver.Tests
         public void TestFreeze()
         {
             var settings = new MongoClientSettings();
-            settings.ReadPreference = new ReadPreference();
-            settings.WriteConcern = new WriteConcern();
 
             Assert.IsFalse(settings.IsFrozen);
-            Assert.IsFalse(settings.ReadPreference.IsFrozen);
-            Assert.IsFalse(settings.WriteConcern.IsFrozen);
             var hashCode = settings.GetHashCode();
             var stringRepresentation = settings.ToString();
 
             settings.Freeze();
             Assert.IsTrue(settings.IsFrozen);
-            Assert.IsTrue(settings.ReadPreference.IsFrozen);
-            Assert.IsTrue(settings.WriteConcern.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
-        }
-
-        [Test]
-        public void TestFromMongoConnectionStringBuilder()
-        {
-            // set everything to non default values to test that all settings are converted
-            var connectionString =
-                "server=somehost;username=user1;password=password1;" +
-                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
-                "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
-                "readPreference=secondary;readPreferenceTags=a:1,b:2|c:3,d:4;secondaryAcceptableLatency=128;socketTimeout=129;" +
-                "ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
-                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
-            var builder = new MongoConnectionStringBuilder(connectionString);
-
-            var settings = MongoClientSettings.FromConnectionStringBuilder(builder);
-            Assert.AreEqual(builder.ConnectionMode, settings.ConnectionMode);
-            Assert.AreEqual(builder.ConnectTimeout, settings.ConnectTimeout);
-            Assert.AreEqual(1, settings.Credentials.Count());
-            Assert.AreEqual(builder.Username, settings.Credentials.Single().Username);
-            Assert.AreEqual(builder.GssapiServiceName, settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", null));
-            Assert.AreEqual("admin", settings.Credentials.Single().Source);
-            Assert.AreEqual(new PasswordEvidence(builder.Password), settings.Credentials.Single().Evidence);
-            Assert.AreEqual(builder.GuidRepresentation, settings.GuidRepresentation);
-            Assert.AreEqual(builder.IPv6, settings.IPv6);
-            Assert.AreEqual(builder.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
-            Assert.AreEqual(builder.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
-            Assert.AreEqual(builder.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
-            Assert.AreEqual(builder.MinConnectionPoolSize, settings.MinConnectionPoolSize);
-            Assert.AreEqual(builder.ReadPreference, settings.ReadPreference);
-            Assert.AreEqual(builder.ReplicaSetName, settings.ReplicaSetName);
-            Assert.AreEqual(builder.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
-            Assert.IsTrue(builder.Servers.SequenceEqual(settings.Servers));
-            Assert.AreEqual(builder.SocketTimeout, settings.SocketTimeout);
-            Assert.AreEqual(null, settings.SslSettings);
-            Assert.AreEqual(builder.UseSsl, settings.UseSsl);
-            Assert.AreEqual(builder.VerifySslCertificate, settings.VerifySslCertificate);
-            Assert.AreEqual(builder.ComputedWaitQueueSize, settings.WaitQueueSize);
-            Assert.AreEqual(builder.WaitQueueTimeout, settings.WaitQueueTimeout);
-            Assert.AreEqual(builder.GetWriteConcern(true), settings.WriteConcern);
         }
 
         [Test]
@@ -271,7 +230,7 @@ namespace MongoDB.Driver.Tests
         {
             // set everything to non default values to test that all settings are converted
             var connectionString =
-                "mongodb://user1:password1@somehost/?authSource=db;" +
+                "mongodb://user1:password1@somehost/?authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;secondaryAcceptableLatency=128;socketTimeout=129;" +
@@ -286,9 +245,10 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(1, settings.Credentials.Count());
             Assert.AreEqual(url.Username, settings.Credentials.Single().Username);
             Assert.AreEqual(url.AuthenticationMechanism, settings.Credentials.Single().Mechanism);
+            Assert.AreEqual("other", settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", "mongodb"));
+            Assert.AreEqual(true, settings.Credentials.Single().GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", false));
             Assert.AreEqual(url.AuthenticationSource, settings.Credentials.Single().Source);
             Assert.AreEqual(new PasswordEvidence(url.Password), settings.Credentials.Single().Evidence);
-            Assert.AreEqual(url.GssapiServiceName, settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", null));
             Assert.AreEqual(url.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(url.IPv6, settings.IPv6);
             Assert.AreEqual(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
@@ -426,19 +386,32 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void TestOperationTimeout()
+        {
+            var settings = new MongoClientSettings();
+            Assert.AreEqual(MongoDefaults.OperationTimeout, settings.OperationTimeout);
+
+            var operationTimeout = new TimeSpan(1, 2, 3);
+            settings.OperationTimeout = operationTimeout;
+            Assert.AreEqual(operationTimeout, settings.OperationTimeout);
+
+            settings.Freeze();
+            Assert.AreEqual(operationTimeout, settings.OperationTimeout);
+            Assert.Throws<InvalidOperationException>(() => { settings.OperationTimeout = operationTimeout; });
+        }
+
+        [Test]
         public void TestReadPreference()
         {
             var settings = new MongoClientSettings();
             Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
 
-            var readPreference = new ReadPreference();
+            var readPreference = ReadPreference.Primary;
             settings.ReadPreference = readPreference;
             Assert.AreSame(readPreference, settings.ReadPreference);
-            Assert.IsFalse(settings.ReadPreference.IsFrozen);
 
             settings.Freeze();
             Assert.AreEqual(readPreference, settings.ReadPreference);
-            Assert.IsTrue(settings.ReadPreference.IsFrozen);
             Assert.Throws<InvalidOperationException>(() => { settings.ReadPreference = readPreference; });
         }
 
@@ -631,11 +604,9 @@ namespace MongoDB.Driver.Tests
             var writeConcern = new WriteConcern();
             settings.WriteConcern = writeConcern;
             Assert.AreSame(writeConcern, settings.WriteConcern);
-            Assert.IsFalse(settings.WriteConcern.IsFrozen);
 
             settings.Freeze();
             Assert.AreEqual(writeConcern, settings.WriteConcern);
-            Assert.IsTrue(settings.WriteConcern.IsFrozen);
             Assert.Throws<InvalidOperationException>(() => { settings.WriteConcern = writeConcern; });
         }
     }

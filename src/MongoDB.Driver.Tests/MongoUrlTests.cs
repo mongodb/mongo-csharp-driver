@@ -28,20 +28,21 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestAll()
         {
-            var readPreference = new ReadPreference
+            var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new [] { new Tag("dc", "1") }) });
+            var authMechanismProperties = new Dictionary<string, string>
             {
-                ReadPreferenceMode = ReadPreferenceMode.Secondary,
-                TagSets = new[] { new ReplicaSetTagSet { { "dc", "1" } } }
+                { "SERVICE_NAME", "other" },
+                { "CANONICALIZE_HOST_NAME", "true" }
             };
             var built = new MongoUrlBuilder()
             {
                 AuthenticationMechanism = "GSSAPI",
+                AuthenticationMechanismProperties = authMechanismProperties,
                 AuthenticationSource = "db",
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
                 FSync = true,
-                GssapiServiceName = "other",
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 IPv6 = true,
                 Journal = true,
@@ -66,7 +67,7 @@ namespace MongoDB.Driver.Tests
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
                 "authMechanism=GSSAPI",
-                "gssapiServiceName=other",
+                "authMechanismProperties=SERVICE_NAME:other,CANONICALIZE_HOST_NAME:true",
                 "authSource=db",
                 "ipv6=true",
                 "ssl=true", // UseSsl
@@ -93,13 +94,13 @@ namespace MongoDB.Driver.Tests
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
                 Assert.AreEqual("GSSAPI", url.AuthenticationMechanism);
+                CollectionAssert.AreEqual(authMechanismProperties, url.AuthenticationMechanismProperties);
                 Assert.AreEqual("db", url.AuthenticationSource);
                 Assert.AreEqual(123, url.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
                 Assert.AreEqual(TimeSpan.FromSeconds(1), url.ConnectTimeout);
                 Assert.AreEqual("database", url.DatabaseName);
                 Assert.AreEqual(true, url.FSync);
-                Assert.AreEqual("other", url.GssapiServiceName);
                 Assert.AreEqual(GuidRepresentation.PythonLegacy, url.GuidRepresentation);
                 Assert.AreEqual(true, url.IPv6);
                 Assert.AreEqual(true, url.Journal);
@@ -110,14 +111,8 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual("password", url.Password);
                 Assert.AreEqual(readPreference, url.ReadPreference);
                 Assert.AreEqual("name", url.ReplicaSetName);
-#pragma warning disable 618
-                Assert.AreEqual(new SafeMode(true) { FSync = true, Journal = true, W = 2, WTimeout = TimeSpan.FromSeconds(9) }, url.SafeMode);
-#pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(6), url.SecondaryAcceptableLatency);
                 Assert.AreEqual(new MongoServerAddress("host", 27017), url.Server);
-#pragma warning disable 618
-                Assert.AreEqual(true, url.SlaveOk);
-#pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(7), url.SocketTimeout);
                 Assert.AreEqual("username", url.Username);
                 Assert.AreEqual(true, url.UseSsl);

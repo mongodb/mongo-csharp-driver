@@ -99,19 +99,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the flags.
-        /// </summary>
-        [Obsolete("Use SystemFlags or UserFlags instead.")]
-        public int Flags
-        {
-            get
-            {
-                // flags was renamed to systemFlags in server version 2.2
-                return (int)SystemFlags;
-            }
-        }
-
-        /// <summary>
         /// Gets the index count.
         /// </summary>
         public int IndexCount
@@ -206,7 +193,7 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return CollectionSystemFlags.None;
+                    return CollectionSystemFlags.HasIdIndex;
                 }
             }
         }

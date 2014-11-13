@@ -15,7 +15,9 @@
 
 using System;
 using System.Text;
+using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver
 {
@@ -26,7 +28,7 @@ namespace MongoDB.Driver
     {
         // private static fields
         private static bool __assignIdOnInsert = true;
-        private static string __authenticationMechanism = "MONGODB-CR";
+        private static string __authenticationMechanism = null;
         private static TimeSpan __connectTimeout = TimeSpan.FromSeconds(30);
         private static TimeSpan __maxConnectionIdleTime = TimeSpan.FromMinutes(10);
         private static TimeSpan __maxConnectionLifeTime = TimeSpan.FromMinutes(30);
@@ -34,10 +36,8 @@ namespace MongoDB.Driver
         private static int __maxConnectionPoolSize = 100;
         private static int __maxMessageLength = 16000000; // 16MB (not 16 MiB!)
         private static int __minConnectionPoolSize = 0;
-        private static UTF8Encoding __readEncoding = new UTF8Encoding(false, true);
-#pragma warning disable 612, 618
-        private static SafeMode __safeMode = SafeMode.False;
-#pragma warning restore
+        private static TimeSpan __operationTimeout = TimeSpan.FromSeconds(30);
+        private static UTF8Encoding __readEncoding = Utf8Encodings.Strict;
         private static TimeSpan __secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15);
         private static TimeSpan __socketTimeout = TimeSpan.Zero; // use operating system default (presumably infinite)
         private static int __tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
@@ -45,7 +45,7 @@ namespace MongoDB.Driver
         private static double __waitQueueMultiple = 5.0; // default wait queue multiple is 5.0
         private static int __waitQueueSize = 0; // use multiple by default
         private static TimeSpan __waitQueueTimeout = TimeSpan.FromMinutes(2); // default wait queue timeout is 2 minutes
-        private static UTF8Encoding __writeEncoding = new UTF8Encoding(false, true);
+        private static UTF8Encoding __writeEncoding = Utf8Encodings.Strict;
         private static int __maxDocumentSize = 4 * 1024 * 1024; // 4 MiB. Original MongoDB max document size
 
         // public static properties
@@ -167,6 +167,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        public static TimeSpan OperationTimeout
+        {
+            get { return __operationTimeout; }
+            set { __operationTimeout = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the Read Encoding.
         /// </summary>
         public static UTF8Encoding ReadEncoding
@@ -180,16 +189,6 @@ namespace MongoDB.Driver
                 }
                 __readEncoding = value;
             }
-        }
-
-        /// <summary>
-        /// Gets or sets the safe mode.
-        /// </summary>
-        [Obsolete("SafeMode has been replaced by WriteConcern and the default for WriteConcern is always Acknowledged and is not configurable.")]
-        public static SafeMode SafeMode
-        {
-            get { return __safeMode; }
-            set { __safeMode = value; }
         }
 
         /// <summary>

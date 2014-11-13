@@ -18,8 +18,8 @@ using System.Collections;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using System.Xml;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
@@ -539,7 +539,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeDateTimeOffset()
         {
             var value = new DateTimeOffset(new DateTime(2010, 10, 8, 11, 29, 0), TimeSpan.FromHours(-4));
-            var isoDate = value.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
+            var isoDate = value.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK");
             var obj = new TestClass
             {
                 A = value,
@@ -553,7 +553,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 "{ 'DateTime' : ISODate('#D'), 'Ticks' : NumberLong('#T'), 'Offset' : #O }"
                     .Replace("#D", isoDate)
                     .Replace("#T", value.DateTime.Ticks.ToString())
-                    .Replace("#O", XmlConvert.ToString(value.Offset.TotalMinutes)));
+                    .Replace("#O", JsonConvert.ToString(value.Offset.TotalMinutes)));
             expected = expected.Replace("#S", "2010-10-08T11:29:00-04:00");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -596,10 +596,10 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var json = obj.ToJson();
             var expected = "{ 'X' : '#S', 'A' : [-1, -1, -1, -2147483648], 'D' : #D, 'I' : #I, 'L' : NumberLong('#L'), 'S' : '#S' }";
-            expected = expected.Replace("#S", XmlConvert.ToString(decimal.MinValue));
+            expected = expected.Replace("#S", JsonConvert.ToString(decimal.MinValue));
             expected = expected.Replace("#D", "-1.7976931348623157E+308");
-            expected = expected.Replace("#I", XmlConvert.ToString(int.MinValue));
-            expected = expected.Replace("#L", XmlConvert.ToString(long.MinValue));
+            expected = expected.Replace("#I", JsonConvert.ToString(int.MinValue));
+            expected = expected.Replace("#L", JsonConvert.ToString(long.MinValue));
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -622,10 +622,10 @@ namespace MongoDB.Bson.Tests.Serialization
             };
             var json = obj.ToJson();
             var expected = "{ 'X' : '#S', 'A' : [-1, -1, -1, 0], 'D' : #D, 'I' : #I, 'L' : NumberLong('#L'), 'S' : '#S' }";
-            expected = expected.Replace("#S", XmlConvert.ToString(decimal.MaxValue));
+            expected = expected.Replace("#S", JsonConvert.ToString(decimal.MaxValue));
             expected = expected.Replace("#D", "1.7976931348623157E+308");
-            expected = expected.Replace("#I", XmlConvert.ToString(int.MaxValue));
-            expected = expected.Replace("#L", XmlConvert.ToString(long.MaxValue));
+            expected = expected.Replace("#I", JsonConvert.ToString(int.MaxValue));
+            expected = expected.Replace("#L", JsonConvert.ToString(long.MaxValue));
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 

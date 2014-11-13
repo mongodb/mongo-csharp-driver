@@ -50,6 +50,8 @@ namespace MongoDB.Driver.Tests.Linq
             // millis could be different, so we'll ignore that difference.
             linqExplain.Remove("millis");
             queryExplain.Remove("millis");
+            linqExplain.Remove("executionTimeMillis");
+            queryExplain.Remove("executionTimeMillis");
 
             Assert.AreEqual(linqExplain, queryExplain);
         }
@@ -63,6 +65,8 @@ namespace MongoDB.Driver.Tests.Linq
             // millis could be different, so we'll ignore that difference.
             linqExplain.Remove("millis");
             queryExplain.Remove("millis");
+            linqExplain.Remove("executionTimeMillis");
+            queryExplain.Remove("executionTimeMillis");
 
             Assert.AreEqual(linqExplain, queryExplain);
         }

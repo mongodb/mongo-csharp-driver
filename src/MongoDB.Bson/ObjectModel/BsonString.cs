@@ -14,7 +14,7 @@
 */
 
 using System;
-using System.Xml;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson
 {
@@ -204,7 +204,7 @@ namespace MongoDB.Bson
         /// <returns>A Double.</returns>
         public override double ToDouble()
         {
-            return XmlConvert.ToDouble(_value);
+            return JsonConvert.ToDouble(_value);
         }
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace MongoDB.Bson
         /// <returns>An Int32.</returns>
         public override int ToInt32()
         {
-            return XmlConvert.ToInt32(_value);
+            return JsonConvert.ToInt32(_value);
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace MongoDB.Bson
         /// <returns>An Int32.</returns>
         public override long ToInt64()
         {
-            return XmlConvert.ToInt64(_value);
+            return JsonConvert.ToInt64(_value);
         }
 
         /// <summary>

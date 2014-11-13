@@ -191,7 +191,7 @@ namespace MongoDB.Driver.GridFS
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName);
                 return fileInfo.AppendText();
             }
@@ -259,7 +259,7 @@ namespace MongoDB.Driver.GridFS
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName);
                 return fileInfo.Create();
             }
@@ -280,7 +280,7 @@ namespace MongoDB.Driver.GridFS
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName, createOptions);
                 return fileInfo.Create();
             }
@@ -300,7 +300,7 @@ namespace MongoDB.Driver.GridFS
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName);
                 return fileInfo.CreateText();
             }
@@ -321,7 +321,7 @@ namespace MongoDB.Driver.GridFS
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName, createOptions);
                 return fileInfo.CreateText();
             }
@@ -642,7 +642,7 @@ namespace MongoDB.Driver.GridFS
         {
             using (_server.RequestStart(null, _settings.ReadPreference))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var database = GetDatabase();
                 var filesCollection = GetFilesCollection(database);
                 var serializer = new MongoGridFSFileInfoSerializer(
@@ -693,7 +693,7 @@ namespace MongoDB.Driver.GridFS
         {
             using (_server.RequestStart(null, _settings.ReadPreference))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var database = GetDatabase();
                 var filesCollection = GetFilesCollection(database);
 
@@ -785,7 +785,7 @@ namespace MongoDB.Driver.GridFS
         {
             using (_server.RequestStart(null, DetermineReadPreference(mode)))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName);
                 return fileInfo.Open(mode);
             }
@@ -802,7 +802,7 @@ namespace MongoDB.Driver.GridFS
         {
             using (_server.RequestStart(null, DetermineReadPreference(mode, access)))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName);
                 return fileInfo.Open(mode, access);
             }
@@ -824,7 +824,7 @@ namespace MongoDB.Driver.GridFS
         {
             using (_server.RequestStart(null, DetermineReadPreference(mode, access)))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName, createOptions);
                 return fileInfo.Open(mode, access);
             }
@@ -839,7 +839,7 @@ namespace MongoDB.Driver.GridFS
         {
             using (_server.RequestStart(null, _settings.ReadPreference))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName);
                 return fileInfo.OpenRead();
             }
@@ -854,7 +854,7 @@ namespace MongoDB.Driver.GridFS
         {
             using (_server.RequestStart(null, _settings.ReadPreference))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName);
                 return fileInfo.OpenText();
             }
@@ -874,7 +874,7 @@ namespace MongoDB.Driver.GridFS
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName);
                 return fileInfo.OpenWrite();
             }
@@ -895,7 +895,7 @@ namespace MongoDB.Driver.GridFS
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
             {
-                var serverInstance = _server.RequestConnection.ServerInstance;
+                var serverInstance = _server.RequestServerInstance;
                 var fileInfo = new MongoGridFSFileInfo(_server, serverInstance, _databaseName, _settings, remoteFileName, createOptions);
                 return fileInfo.OpenWrite();
             }

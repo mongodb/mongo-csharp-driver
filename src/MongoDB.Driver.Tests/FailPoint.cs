@@ -16,7 +16,6 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Tests
 {
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Tests
             if (server == null) { throw new ArgumentNullException("server"); }
             if (serverInstance == null) { throw new ArgumentNullException("serverInstance"); }
 
-            if (server.RequestConnection != null)
+            if (server.RequestServerInstance != null)
             {
                 throw new InvalidOperationException("FailPoint cannot be used when you are already in a RequestStart.");
             }

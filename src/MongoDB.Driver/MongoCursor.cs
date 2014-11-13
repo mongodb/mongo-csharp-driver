@@ -17,13 +17,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
-using MongoDB.Driver.Internal;
-using MongoDB.Driver.Operations;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Sync;
+using MongoDB.Driver.Core.SyncExtensionMethods;
 
 namespace MongoDB.Driver
 {
@@ -158,23 +161,6 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { ThrowFrozen(); }
                 _readPreference = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets whether the query can be sent to a secondary server.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public virtual bool SlaveOk
-        {
-            get
-            {
-                return _readPreference.ToSlaveOk();
-            }
-            set
-            {
-                if (_isFrozen) { ThrowFrozen(); }
-                _readPreference = ReadPreference.FromSlaveOk(value);
             }
         }
 
@@ -316,7 +302,25 @@ namespace MongoDB.Driver
         public virtual long Count()
         {
             _isFrozen = true;
-            var args = new CountArgs { Query = _query };
+            var args = new CountArgs
+            {
+                Query = _query,
+                ReadPreference = _readPreference
+            };
+            if (_options != null)
+            {
+                BsonValue hint;
+                if (_options.TryGetValue("$hint", out hint))
+                {
+                    args.Hint = hint;
+                }
+
+                BsonValue maxTimeMS;
+                if (_options.TryGetValue("$maxTimeMS", out maxTimeMS))
+                {
+                    args.MaxTime = TimeSpan.FromMilliseconds(maxTimeMS.ToDouble());
+                }
+            }
             return _collection.Count(args);
         }
 
@@ -581,19 +585,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Sets whether the query should be sent to a secondary server.
-        /// </summary>
-        /// <param name="slaveOk">Whether the query can be sent to a secondary server.</param>
-        /// <returns>The cursor (so you can chain method calls to it).</returns>
-        [Obsolete("Use SetReadPreference instead.")]
-        public virtual MongoCursor SetSlaveOk(bool slaveOk)
-        {
-            if (_isFrozen) { ThrowFrozen(); }
-            _readPreference = ReadPreference.FromSlaveOk(slaveOk);
-            return this;
-        }
-
-        /// <summary>
         /// Sets the $snapshot option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
@@ -642,8 +633,23 @@ namespace MongoDB.Driver
             {
                 Query = _query,
                 Limit = (_limit == 0) ? (int?)null : _limit,
+                ReadPreference = _readPreference,
                 Skip = (_skip == 0) ? (int?)null : _skip
             };
+            if (_options != null)
+            {
+                BsonValue hint;
+                if (_options.TryGetValue("$hint", out hint))
+                {
+                    args.Hint = hint;
+                }
+
+                BsonValue maxTimeMS;
+                if (_options.TryGetValue("$maxTimeMS", out maxTimeMS))
+                {
+                    args.MaxTime = TimeSpan.FromMilliseconds(maxTimeMS.ToDouble());
+                }
+            }
             return _collection.Count(args);
         }
 
@@ -707,54 +713,63 @@ namespace MongoDB.Driver
         {
             IsFrozen = true;
 
-            var readerSettings = new BsonBinaryReaderSettings
-            {
-                Encoding = Collection.Settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
-                GuidRepresentation = Collection.Settings.GuidRepresentation
-            };
-
-            var writerSettings = new BsonBinaryWriterSettings
-            {
-                Encoding = Collection.Settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
-                GuidRepresentation = Collection.Settings.GuidRepresentation
-            };
-
-            // the following values are overridden for commands that can't be sent to a secondary
-            var flags = Flags;
             var readPreference = ReadPreference;
-
             if (readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && Collection.Name == "$cmd")
             {
-                if (Server.ProxyType == MongoServerProxyType.Unknown)
+                var timeoutAt = DateTime.UtcNow + Server.Settings.ConnectTimeout;
+                var cluster = Server.Cluster;
+
+                var clusterType = cluster.Description.Type;
+                while (clusterType == ClusterType.Unknown)
                 {
-                    Server.Connect();
+                    // TODO: find a way to block until the cluster description changes
+                    if (DateTime.UtcNow >= timeoutAt)
+                    {
+                        throw new TimeoutException();
+                    }
+                    Thread.Sleep(TimeSpan.FromMilliseconds(20));
+                    clusterType = cluster.Description.Type;
                 }
-                if (Server.ProxyType == MongoServerProxyType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(Query.ToBsonDocument()))
+
+                if (clusterType == ClusterType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(Query.ToBsonDocument()))
                 {
-                    // if the command can't be sent to a secondary, then we use primary here
-                    // regardless of the user's choice.
                     readPreference = ReadPreference.Primary;
-                    // remove the slaveOk bit from the flags
-                    flags &= ~QueryFlags.SlaveOk;
                 }
             }
 
-            var readOperation = new QueryOperation<TDocument>(
-                Database.Name,
-                Collection.Name,
-                readerSettings,
-                writerSettings,
-                BatchSize,
-                Fields,
-                flags,
-                Limit,
-                Options,
-                Query,
-                readPreference,
-                Serializer,
-                Skip);
+            var queryDocument = Query == null ? new BsonDocument() : Query.ToBsonDocument();
+            var messageEncoderSettings = Collection.GetMessageEncoderSettings();
 
-            return readOperation.Execute(new MongoCursorConnectionProvider(Server, readPreference));
+            var awaitData = (Flags & QueryFlags.AwaitData) == QueryFlags.AwaitData;
+            var exhaust = (Flags & QueryFlags.Exhaust) == QueryFlags.Exhaust;
+            var noCursorTimeout = (Flags & QueryFlags.NoCursorTimeout) == QueryFlags.NoCursorTimeout;
+            var partialOk = (Flags & QueryFlags.Partial) == QueryFlags.Partial;
+            var tailableCursor = (Flags & QueryFlags.TailableCursor) == QueryFlags.TailableCursor;
+
+            if (exhaust)
+            {
+                throw new NotSupportedException("The Exhaust QueryFlag is not yet supported.");
+            }
+
+            var operation = new FindOperation<TDocument>(new CollectionNamespace(Database.Name, Collection.Name), Serializer, messageEncoderSettings)
+            {
+                AwaitData = awaitData,
+                BatchSize = BatchSize,
+                Criteria = queryDocument,
+                Limit = Limit,
+                Modifiers = Options,
+                NoCursorTimeout = noCursorTimeout,
+                Partial = partialOk,
+                Projection = Fields.ToBsonDocument(),
+                Skip = Skip,
+                Tailable = tailableCursor,
+            };
+
+            using (var binding = Server.GetReadBinding(readPreference))
+            {
+                var cursor = operation.Execute(binding);
+                return new AsyncCursorEnumeratorAdapter<TDocument>(cursor).GetEnumerator();
+            }
         }
 
         /// <summary>
@@ -930,19 +945,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Sets whether the query should be sent to a secondary server.
-        /// </summary>
-        /// <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
-        /// <returns>The cursor (so you can chain method calls to it).</returns>
-        [Obsolete("Use SetReadPreference instead.")]
-        public new virtual MongoCursor<TDocument> SetSlaveOk(bool slaveOk)
-        {
-#pragma warning disable 618
-            return (MongoCursor<TDocument>)base.SetSlaveOk(slaveOk);
-#pragma warning restore 618
-        }
-
-        /// <summary>
         /// Sets the $snapshot option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
@@ -979,41 +981,6 @@ namespace MongoDB.Driver
         protected override IEnumerator IEnumerableGetEnumerator()
         {
             return GetEnumerator();
-        }
-
-        // nested classes
-        private class MongoCursorConnectionProvider : IConnectionProvider
-        {
-            private readonly MongoServer _server;
-            private readonly ReadPreference _readPreference;
-            private MongoServerInstance _serverInstance;
-
-            public MongoCursorConnectionProvider(MongoServer server, ReadPreference readPreference)
-            {
-                _server = server;
-                _readPreference = readPreference;
-            }
-
-            public MongoConnection AcquireConnection()
-            {
-                if (_serverInstance == null)
-                {
-                    // first time we need a connection let Server.AcquireConnection pick the server instance
-                    var connection = _server.AcquireConnection(_readPreference);
-                    _serverInstance = connection.ServerInstance;
-                    return connection;
-                }
-                else
-                {
-                    // all subsequent requests for the same cursor must go to the same server instance
-                    return _server.AcquireConnection(_serverInstance);
-                }
-            }
-
-            public void ReleaseConnection(MongoConnection connection)
-            {
-                _server.ReleaseConnection(connection);
-            }
         }
     }
 }

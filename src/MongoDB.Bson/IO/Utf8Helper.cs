@@ -24,7 +24,6 @@ namespace MongoDB.Bson.IO
     {
         // private static fields
         private static readonly string[] __asciiStringTable = new string[128];
-        private static readonly UTF8Encoding __strictUtf8Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
         // static constructor
         static Utf8Helper()
@@ -33,18 +32,6 @@ namespace MongoDB.Bson.IO
             {
                 __asciiStringTable[i] = new string((char)i, 1);
             }
-        }
-
-        // public static properties
-        /// <summary>
-        /// Gets a strict UTF8 encoding.
-        /// </summary>
-        /// <value>
-        /// A strict UTF8 encoding.
-        /// </value>
-        public static UTF8Encoding StrictUtf8Encoding
-        {
-            get { return __strictUtf8Encoding; }
         }
 
         // public static methods

@@ -13,10 +13,11 @@
 * limitations under the License.
 */
 
-using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver;
+using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -28,10 +29,14 @@ namespace MongoDB.Driver.Tests
         public void UsesSameMongoServerForIdenticalSettings()
         {
             var client1 = new MongoClient("mongodb://localhost");
+#pragma warning disable 618
             var server1 = client1.GetServer();
+#pragma warning restore
 
             var client2 = new MongoClient("mongodb://localhost");
+#pragma warning disable 618
             var server2 = client2.GetServer();
+#pragma warning restore
 
             Assert.AreSame(server1, server2);
         }
@@ -39,13 +44,42 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void UsesSameMongoServerWhenReadPreferenceTagsAreTheSame()
         {
-            var client1 = new MongoClient("mongodb://localhost/?readPreferenceTags=dc:ny");
+            var client1 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
+#pragma warning disable 618
             var server1 = client1.GetServer();
+#pragma warning restore
 
-            var client2 = new MongoClient("mongodb://localhost/?readPreferenceTags=dc:ny");
+            var client2 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
+#pragma warning disable 618
             var server2 = client2.GetServer();
+#pragma warning restore
 
             Assert.AreSame(server1, server2);
+        }
+
+        [Test]
+        public async Task DropDatabaseAsync_should_invoke_the_correct_operation()
+        {
+            var operationExecutor = new MockOperationExecutor();
+            var client = new MongoClient(operationExecutor);
+            await client.DropDatabaseAsync("awesome");
+
+            var call = operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<DropDatabaseOperation>();
+            ((DropDatabaseOperation)call.Operation).DatabaseNamespace.Should().Be(new DatabaseNamespace("awesome"));
+        }
+
+        [Test]
+        public async Task ListDatabaseNamesAsync_should_invoke_the_correct_operation()
+        {
+            var operationExecutor = new MockOperationExecutor();
+            var client = new MongoClient(operationExecutor);
+            await client.GetDatabaseNamesAsync();
+
+            var call = operationExecutor.GetReadCall<IReadOnlyList<string>>();
+
+            call.Operation.Should().BeOfType<ListDatabaseNamesOperation>();
         }
     }
 }

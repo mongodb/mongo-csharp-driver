@@ -27,8 +27,6 @@ namespace MongoDB.Driver
     public class CommandResult
     {
         // private fields
-        private MongoServerInstance _serverInstance;
-        private IMongoCommand _command;
         private BsonDocument _response;
 
         // constructors
@@ -48,30 +46,6 @@ namespace MongoDB.Driver
         public int? Code
         {
             get { return _response.GetValue("code", BsonNull.Value).AsNullableInt32; }
-        }
-
-        /// <summary>
-        /// Gets the command.
-        /// </summary>
-        public IMongoCommand Command
-        {
-            get { return _command; }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-                _command = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets the command name.
-        /// </summary>
-        public string CommandName
-        {
-            get { return _command.ToBsonDocument().GetElement(0).Name; }
         }
 
         /// <summary>
@@ -123,22 +97,9 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    var message = string.Format("Command '{0}' failed. Response has no ok element (response was {1}).", CommandName, _response.ToJson());
-                    throw new MongoCommandException(message, this);
+                    return false;
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets the server instance this command was executed on.
-        /// </summary>
-        /// <value>
-        /// The server instance.
-        /// </value>
-        public MongoServerInstance ServerInstance
-        {
-            get { return _serverInstance; }
-            internal set { _serverInstance = value; }
         }
     }
 }

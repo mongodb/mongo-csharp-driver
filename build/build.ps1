@@ -1,4 +1,4 @@
-Properties {
+properties {
     if(-not (Test-Path variable:base_version)) {
         $base_version = "2.0.0"
     }
@@ -37,7 +37,6 @@ Properties {
     $tools_dir = "$base_dir\tools"
     $artifacts_dir = "$base_dir\artifacts"
     $bin_dir = "$artifacts_dir\bin"
-    $40_bin_dir = "$bin_dir\net40\"
     $45_bin_dir = "$bin_dir\net45\"
     $test_results_dir = "$artifacts_dir\test_results"
     $docs_dir = "$artifacts_dir\docs"
@@ -67,7 +66,7 @@ Framework('4.0')
 Include build-helpers.ps1
 
 function BuildHasBeenRun {
-    $build_exists = (Test-Path $40_bin_dir) -and (Test-Path $45_bin_dir)
+    $build_exists = (Test-Path $45_bin_dir)
     Assert $build_exists "Build task has not been run."
     $true
 }
@@ -113,9 +112,7 @@ Task Build -Depends Clean, OutputVersion {
             -config $config `
             -sem_version $sem_version `
 
-        mkdir -path $40_bin_dir | out-null
-        Write-Host "Building $sln_file for .NET 4.0" -ForegroundColor Green
-        Exec { msbuild "$sln_file" /t:Rebuild /p:Configuration=$config /p:TargetFrameworkVersion=v4.0 /v:quiet /p:OutDir=$40_bin_dir } 
+        Exec { &$nuget_tool restore $sln_file }
 
         mkdir -path $45_bin_dir | out-null
         Write-Host "Building $sln_file for .NET 4.5" -ForegroundColor Green
@@ -129,11 +126,7 @@ Task Build -Depends Clean, OutputVersion {
 Task Test -precondition { BuildHasBeenRun } {
     mkdir -path $test_results_dir | out-null
 
-    $test_assemblies = ls -rec $40_bin_dir/*Tests*.dll
-    Write-Host "Testing $test_assemblies for .NET 4.0" -ForegroundColor Green
-    Exec { &$nunit_tool $test_assemblies /xml=$test_results_dir\net40-test-results.xml /framework=net-4.0 /nologo /noshadow }
-
-    $test_assemblies = ls -rec $45_bin_dir/*Tests*.dll
+    $test_assemblies = ls -rec $45_bin_dir/*Tests.dll
     Write-Host "Testing $test_assemblies for .NET 4.5" -ForegroundColor Green
     Exec { &$nunit_tool $test_assemblies /xml=$test_results_dir\net45-test-results.xml /framework=net-4.0 /nologo /noshadow }
 }
@@ -163,18 +156,11 @@ task Zip -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) }{
 
     mkdir -path $zip_dir | out-null
 
-    $items = @("$40_bin_dir\MongoDB.Bson.dll", `
-        "$40_bin_dir\MongoDB.Bson.pdb", `
-        "$40_bin_dir\MongoDB.Bson.xml", `
-        "$40_bin_dir\MongoDB.Driver.dll", `
-        "$40_bin_dir\MongoDB.Driver.pdb", `
-        "$40_bin_dir\MongoDB.Driver.xml")
-    mkdir -path "$zip_dir\net40" | out-null
-    cp $items "$zip_dir\net40"
-    
     $items = @("$45_bin_dir\MongoDB.Bson.dll", `
         "$45_bin_dir\MongoDB.Bson.pdb", `
         "$45_bin_dir\MongoDB.Bson.xml", `
+        "$45_bin_dir\MongoDB.Driver.Core.dll", `
+        "$45_bin_dir\MongoDB.Driver.Core.pdb", `
         "$45_bin_dir\MongoDB.Driver.dll", `
         "$45_bin_dir\MongoDB.Driver.pdb", `
         "$45_bin_dir\MongoDB.Driver.xml")

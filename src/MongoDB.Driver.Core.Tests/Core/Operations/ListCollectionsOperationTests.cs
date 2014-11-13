@@ -1,0 +1,175 @@
+﻿/* Copyright 2013-2014 MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Bson;
+using NUnit.Framework;
+
+namespace MongoDB.Driver.Core.Operations
+{
+    [TestFixture]
+    public class ListCollectionsOperationTests : OperationTestBase
+    {
+        // setup method
+        public override void TestFixtureSetUp()
+        {
+            base.TestFixtureSetUp();
+            _databaseNamespace = SuiteConfiguration.GetDatabaseNamespaceForTestFixture();
+        }
+
+        // test methods
+        [Test]
+        public void constructor_should_initialize_subject()
+        {
+            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
+
+            subject.DatabaseNamespace.Should().BeSameAs(_databaseNamespace);
+            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+            subject.Criteria.Should().BeNull();
+        }
+
+        [Test]
+        public void constructor_should_throw_when_databaseNamespace_is_null()
+        {
+            Action action = () => new ListCollectionsOperation(null, _messageEncoderSettings);
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("databaseNamespace");
+        }
+
+        [Test]
+        public void constructor_should_throw_when_messageEncoderSettings_is_null()
+        {
+            Action action = () => new ListCollectionsOperation(_databaseNamespace, null);
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("messageEncoderSettings");
+        }
+
+        [Test]
+        public void Criteria_get_and_set_should_work()
+        {
+            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
+            var criteria = new BsonDocument("name", "abc");
+
+            subject.Criteria = criteria;
+            var result = subject.Criteria;
+
+            result.Should().BeSameAs(criteria);
+        }
+
+        [Test]
+        [RequiresServer("EnsureCollectionsExist")]
+        public async Task ExecuteAsync_should_return_the_expected_result()
+        {
+            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
+            var expectedNames = new[] { "regular", "capped" };
+
+            var result = await ExecuteOperationAsync(subject);
+
+            result.Count.Should().BeGreaterThan(0);
+            result.Select(c => c["name"].AsString).Where(n => n != "system.indexes").Should().BeEquivalentTo(expectedNames);
+        }
+
+        [TestCase("{ name : \"regular\" }", "regular")]
+        [TestCase("{ \"options.capped\" : true }", "capped")]
+        [RequiresServer("EnsureCollectionsExist")]
+        public async Task ExecuteAsync_should_return_the_expected_result_when_criteria_is_used(string criteriaString, string expectedName)
+        {
+            var criteria = BsonDocument.Parse(criteriaString);
+            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
+            {
+                Criteria = criteria
+            };
+
+            var result = await ExecuteOperationAsync(subject);
+
+            result.Should().HaveCount(1);
+            result[0]["name"].AsString.Should().Be(expectedName);
+        }
+
+        [Test]
+        [RequiresServer]
+        public async Task ExecuteAsync_should_return_the_expected_result_when_the_database_does_not_exist()
+        {
+            var databaseNamespace = new DatabaseNamespace(_databaseNamespace.DatabaseName + "-does-not-exist");
+            var subject = new ListCollectionsOperation(databaseNamespace, _messageEncoderSettings);
+
+            var result = await ExecuteOperationAsync(subject);
+
+            result.Should().HaveCount(0);
+        }
+
+        [Test]
+        [RequiresServer(VersionLessThan = "2.7.0")]
+        public void ExecuteAsync_should_throw_when_criteria_name_is_not_a_string_and_connected_to_older_server()
+        {
+            var criteria = new BsonDocument("name", new BsonRegularExpression("^abc"));
+            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
+            {
+                Criteria = criteria
+            };
+
+            Func<Task> action = () => ExecuteOperationAsync(subject);
+
+            action.ShouldThrow<NotSupportedException>();
+        }
+
+        // helper methods
+        private void CreateCappedCollection()
+        {
+            var collectionNamespace = new CollectionNamespace(_databaseNamespace, "capped");
+            var createCollectionOperation = new CreateCollectionOperation(collectionNamespace, _messageEncoderSettings)
+            {
+                Capped = true,
+                MaxSize = 100000
+            };
+            ExecuteOperation(createCollectionOperation);
+
+            CreateIndexAndInsertData(collectionNamespace);
+        }
+
+        private void CreateIndexAndInsertData(CollectionNamespace collectionNamespace)
+        {
+            var createIndexRequests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
+            var createIndexOperation = new CreateIndexesOperation(collectionNamespace, createIndexRequests, _messageEncoderSettings);
+            ExecuteOperation(createIndexOperation);
+
+            var insertRequests = new[] { new InsertRequest(new BsonDocument("x", 1)) };
+            var insertOperation = new BulkInsertOperation(collectionNamespace, insertRequests, _messageEncoderSettings);
+            ExecuteOperation(insertOperation);
+        }
+
+        private void CreateRegularCollection()
+        {
+            var collectionNamespace = new CollectionNamespace(_databaseNamespace, "regular");
+            var createCollectionOperation = new CreateCollectionOperation(collectionNamespace, _messageEncoderSettings);
+            ExecuteOperation(createCollectionOperation);
+
+            CreateIndexAndInsertData(collectionNamespace);
+        }
+
+        private void EnsureCollectionsExist()
+        {
+            RunOncePerFixture(() =>
+            {
+                DropDatabase();
+                CreateRegularCollection();
+                CreateCappedCollection();
+            });
+        }
+    }
+}

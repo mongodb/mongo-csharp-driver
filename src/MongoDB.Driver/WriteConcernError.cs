@@ -13,13 +13,7 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -73,6 +67,12 @@ namespace MongoDB.Driver
         public string Message
         {
             get { return _message; }
+        }
+
+        // internal static methods
+        internal static WriteConcernError FromCore(Core.Operations.BulkWriteConcernError error)
+        {
+            return error == null ? null : new WriteConcernError(error.Code, error.Message, error.Details);
         }
     }
 }

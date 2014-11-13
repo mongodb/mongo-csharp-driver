@@ -13,8 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
-using MongoDB.Driver;
+using MongoDB.Bson;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Communication.Security
@@ -43,10 +44,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             Assert.Throws<MongoQueryException>(() =>
             {
-                client.GetServer()
+                client
                     .GetDatabase(Configuration.TestDatabase.Name)
-                    .GetCollection(__collectionName)
-                    .FindOne();
+                    .GetCollection<BsonDocument>(__collectionName)
+                    .Find(new BsonDocument())
+                    .ToListAsync()
+                    .GetAwaiter()
+                    .GetResult();
             });
         }
 
@@ -55,10 +59,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
         {
             var client = new MongoClient(_settings);
 
-            var result = client.GetServer()
+            var result = client
                 .GetDatabase(Configuration.TestDatabase.Name)
-                .GetCollection(__collectionName)
-                .FindOne();
+                .GetCollection<BsonDocument>(__collectionName)
+                .Find(new BsonDocument())
+                .ToListAsync()
+                .GetAwaiter()
+                .GetResult();
 
             Assert.IsNotNull(result);
         }
@@ -74,12 +81,15 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             var client = new MongoClient(_settings);
 
-            Assert.Throws<MongoConnectionException>(() =>
+            Assert.Throws<TimeoutException>(() =>
             {
-                client.GetServer()
+                client
                     .GetDatabase(Configuration.TestDatabase.Name)
-                    .GetCollection(__collectionName)
-                    .FindOne();
+                    .GetCollection<BsonDocument>(__collectionName)
+                    .Find(new BsonDocument())
+                    .ToListAsync()
+                    .GetAwaiter()
+                    .GetResult();
             });
         }
     }

@@ -23,52 +23,21 @@ namespace MongoDB.Driver.Tests
     [TestFixture]
     public class MongoDatabaseSettingsTests
     {
-        private MongoClient _client;
-        private MongoServer _server;
-
-        [TestFixtureSetUp()]
-        public void TestFixtureSetUp()
-        {
-            _client = new MongoClient();
-            _server = _client.GetServer();
-        }
-
         [Test]
         public void TestAll()
         {
             var settings = new MongoDatabaseSettings
             {
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
+                OperationTimeout = TimeSpan.FromMilliseconds(20),
                 ReadPreference = ReadPreference.Primary,
                 WriteConcern = WriteConcern.Acknowledged
             };
 
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(20), settings.OperationTimeout);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
-#pragma warning disable 618
-            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
-#pragma warning restore
             Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
-        }
-
-        [Test]
-        public void TestAllObsolete()
-        {
-#pragma warning disable 618
-            var settings = new MongoDatabaseSettings(_server, "database")
-            {
-                GuidRepresentation = GuidRepresentation.PythonLegacy,
-                ReadPreference = ReadPreference.Primary,
-                WriteConcern = WriteConcern.Acknowledged
-            };
-
-            Assert.AreEqual("database", settings.DatabaseName);
-            Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
-            Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
-            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
-            Assert.AreEqual(false, settings.SlaveOk);
-            Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
-#pragma warning restore
         }
 
         [Test]
@@ -78,6 +47,7 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoDatabaseSettings
             {
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
+                OperationTimeout = TimeSpan.FromMilliseconds(20),
                 ReadPreference = ReadPreference.Secondary,
                 WriteConcern = WriteConcern.W2
             };
@@ -90,37 +60,9 @@ namespace MongoDB.Driver.Tests
         {
             var settings = new MongoDatabaseSettings();
             Assert.AreEqual(GuidRepresentation.Unspecified, settings.GuidRepresentation);
+            Assert.AreEqual(default(TimeSpan), settings.OperationTimeout);
             Assert.AreEqual(null, settings.ReadPreference);
-#pragma warning disable 618
-            Assert.AreEqual(null, settings.SafeMode);
-#pragma warning restore
             Assert.AreEqual(null, settings.WriteConcern);
-        }
-
-        [Test]
-        public void TestConstructorObsolete()
-        {
-#pragma warning disable 618
-            var settings = new MongoDatabaseSettings(_server, "database");
-            Assert.AreEqual("database", settings.DatabaseName);
-            Assert.AreEqual(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
-            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
-            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
-            Assert.AreEqual(false, settings.SlaveOk);
-            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
-#pragma warning restore
-        }
-
-        [Test]
-        public void TestDatabaseNameObsolete()
-        {
-#pragma warning disable 618
-            var settings = new MongoDatabaseSettings(_server, "database");
-            Assert.AreEqual("database", settings.DatabaseName);
-
-            settings.Freeze();
-            Assert.AreEqual("database", settings.DatabaseName);
-#pragma warning restore
         }
 
         [Test]
@@ -139,18 +81,12 @@ namespace MongoDB.Driver.Tests
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.OperationTimeout = TimeSpan.FromMilliseconds(20);
+            Assert.IsFalse(clone.Equals(settings));
+
+            clone = settings.Clone();
             clone.ReadPreference = ReadPreference.Secondary;
             Assert.IsFalse(clone.Equals(settings));
-
-#pragma warning disable 618
-            clone = settings.Clone();
-            clone.SafeMode = SafeMode.W2;
-            Assert.IsFalse(clone.Equals(settings));
-
-            clone = settings.Clone();
-            clone.SlaveOk = !settings.SlaveOk;
-            Assert.IsFalse(clone.Equals(settings));
-#pragma warning restore
 
             clone = settings.Clone();
             clone.WriteConcern = WriteConcern.W2;
@@ -158,23 +94,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestFeeze()
+        public void TestFreeze()
         {
             var settings = new MongoDatabaseSettings
             {
-                ReadPreference = new ReadPreference(),
                 WriteConcern = new WriteConcern()
             };
             Assert.IsFalse(settings.IsFrozen);
-            Assert.IsFalse(settings.ReadPreference.IsFrozen);
-            Assert.IsFalse(settings.WriteConcern.IsFrozen);
             var hashCode = settings.GetHashCode();
             var stringRepresentation = settings.ToString();
 
             settings.Freeze();
             Assert.IsTrue(settings.IsFrozen);
-            Assert.IsTrue(settings.ReadPreference.IsFrozen);
-            Assert.IsTrue(settings.WriteConcern.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
         }
@@ -211,6 +142,21 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void TestOperationTimeout()
+        {
+            var settings = new MongoDatabaseSettings();
+            Assert.AreEqual(default(TimeSpan), settings.OperationTimeout);
+
+            var operationTimeout = new TimeSpan(1, 2, 3);
+            settings.OperationTimeout = operationTimeout;
+            Assert.AreEqual(operationTimeout, settings.OperationTimeout);
+
+            settings.Freeze();
+            Assert.AreEqual(operationTimeout, settings.OperationTimeout);
+            Assert.Throws<InvalidOperationException>(() => { settings.OperationTimeout = operationTimeout; });
+        }
+
+        [Test]
         public void TestReadPreference()
         {
             var settings = new MongoDatabaseSettings();
@@ -223,40 +169,6 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(readPreference, settings.ReadPreference);
             Assert.Throws<InvalidOperationException>(() => { settings.ReadPreference = readPreference; });
-        }
-
-        [Test]
-        public void TestSafeMode()
-        {
-#pragma warning disable 618
-            var settings = new MongoDatabaseSettings();
-            Assert.AreEqual(null, settings.SafeMode);
-
-            var safeMode = SafeMode.W2;
-            settings.SafeMode = safeMode;
-            Assert.AreEqual(safeMode, settings.SafeMode);
-
-            settings.Freeze();
-            Assert.AreEqual(safeMode, settings.SafeMode);
-            Assert.Throws<InvalidOperationException>(() => { settings.SafeMode = safeMode; });
-#pragma warning restore
-        }
-
-        [Test]
-        public void TestSlaveOk()
-        {
-#pragma warning disable 618
-            var settings = new MongoDatabaseSettings(_server, "database");
-            Assert.AreEqual(false, settings.SlaveOk);
-
-            var slaveOk = true;
-            settings.SlaveOk = slaveOk;
-            Assert.AreEqual(slaveOk, settings.SlaveOk);
-
-            settings.Freeze();
-            Assert.AreEqual(slaveOk, settings.SlaveOk);
-            Assert.Throws<InvalidOperationException>(() => { settings.SlaveOk = slaveOk; });
-#pragma warning restore
         }
 
         [Test]

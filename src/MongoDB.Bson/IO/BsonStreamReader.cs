@@ -138,7 +138,7 @@ namespace MongoDB.Bson.IO
         public string ReadCString()
         {
             var utf8 = ReadCStringBytes();
-            return Utf8Helper.DecodeUtf8String(utf8.Array, utf8.Offset, utf8.Count, Utf8Helper.StrictUtf8Encoding);
+            return Utf8Helper.DecodeUtf8String(utf8.Array, utf8.Offset, utf8.Count, Utf8Encodings.Strict);
         }
 
         /// <summary>

@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.CommandResults
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Tests.CommandResults
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "mmapv1")]
         public void Test()
         {
             // make sure collection exists and has exactly one document
@@ -48,9 +50,6 @@ namespace MongoDB.Driver.Tests.CommandResults
             Assert.IsTrue(result.AverageObjectSize > 0.0);
             Assert.IsTrue(result.DataSize > 0);
             Assert.IsTrue(result.ExtentCount > 0);
-#pragma warning disable 618
-            Assert.AreEqual(1, result.Flags);
-#pragma warning restore
             Assert.IsTrue(result.IndexCount > 0);
             Assert.IsTrue(result.IndexSizes["_id_"] > 0);
             Assert.IsTrue(result.IndexSizes.ContainsKey("_id_"));

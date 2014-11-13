@@ -252,21 +252,17 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the tags.
         /// </summary>
-        public ReplicaSetTagSet Tags
+        public TagSet Tags
         {
             get
             {
-                var tagSet = new ReplicaSetTagSet();
+                var tags = Enumerable.Empty<Tag>();
                 if (Response.Contains("tags"))
                 {
-                    var tags = Response["tags"].AsBsonDocument;
-                    foreach (var tag in tags)
-                    {
-                        tagSet.Add(tag.Name, tag.Value.ToString());
-                    }
+                    tags = Response["tags"].AsBsonDocument.Select(e => new Tag(e.Name, e.Value.ToString()));
                 }
 
-                return tagSet;
+                return new TagSet(tags);
             }
         }
 

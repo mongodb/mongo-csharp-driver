@@ -41,8 +41,20 @@ namespace MongoDB.Driver.Tests.Jira.CSharp365
                 var query = Query.EQ("A", 1);
                 var fields = Fields.Include("_id");
                 var cursor = collection.Find(query).SetFields(fields).SetHint("A_1__id_1"); // make sure it uses the index
-                var explain = cursor.Explain();
-                Assert.IsTrue(explain["indexOnly"].ToBoolean());
+                var plan = cursor.Explain();
+                if (server.BuildInfo.Version < new Version(2, 7, 0))
+                {
+                    Assert.IsTrue(plan["indexOnly"].ToBoolean());
+                }
+                else
+                {
+                    var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+                    var inputStage = winningPlan["inputStage"].AsBsonDocument;
+                    var stage = inputStage["stage"].AsString;
+                    var keyPattern = inputStage["keyPattern"].AsBsonDocument;
+                    Assert.That(stage, Is.EqualTo("IXSCAN"));
+                    Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ A : 1, _id : 1 }")));
+                }
             }
         }
     }

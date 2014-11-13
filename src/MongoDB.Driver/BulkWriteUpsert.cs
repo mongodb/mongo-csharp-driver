@@ -65,6 +65,12 @@ namespace MongoDB.Driver
             get { return _index; }
         }
 
+        // internal static methods
+        internal static BulkWriteUpsert FromCore(Core.Operations.BulkWriteOperationUpsert upsert)
+        {
+            return new BulkWriteUpsert(upsert.Index, upsert.Id);
+        }
+
         // internal methods
         internal BulkWriteUpsert WithMappedIndex(IndexMap indexMap)
         {

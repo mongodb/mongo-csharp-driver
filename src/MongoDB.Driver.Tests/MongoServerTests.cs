@@ -65,36 +65,22 @@ namespace MongoDB.Driver.Tests
         {
             var versionZero = new Version(0, 0, 0);
             var buildInfo = _server.BuildInfo;
-            Assert.IsTrue(buildInfo.Bits == 32 || buildInfo.Bits == 64);
             Assert.AreNotEqual(versionZero, buildInfo.Version);
         }
 
         [Test]
         public void TestCreateMongoServerSettings()
         {
-#pragma warning disable 618
             var settings = new MongoServerSettings
             {
                 Server = new MongoServerAddress("localhost"),
-                SafeMode = SafeMode.True
             };
+#pragma warning disable 618
             var server1 = MongoServer.Create(settings);
             var server2 = MongoServer.Create(settings);
+#pragma warning restore 618
             Assert.AreSame(server1, server2);
             Assert.AreEqual(settings, server1.Settings);
-#pragma warning restore
-        }
-
-        [Test]
-        public void TestCreateNoArgs()
-        {
-#pragma warning disable 618
-            var server = MongoServer.Create(); // no args!
-            Assert.AreEqual(MongoDefaults.GuidRepresentation, server.Settings.GuidRepresentation);
-            Assert.AreEqual(SafeMode.False, server.Settings.SafeMode);
-            Assert.AreEqual(ReadPreference.Primary, server.Settings.ReadPreference);
-            Assert.AreEqual(new MongoServerAddress("localhost"), server.Instance.Address);
-#pragma warning restore
         }
 
         [Test]
@@ -165,7 +151,9 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestGetDatabaseNames()
         {
-            _server.GetDatabaseNames();
+            var names = _server.GetDatabaseNames();
+
+            CollectionAssert.IsOrdered(names);
         }
 
         [Test]
@@ -317,46 +305,9 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestRequestStartSlaveOk()
-        {
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-#pragma warning disable 618
-            using (_server.RequestStart(_database, true))
-            {
-                Assert.AreEqual(1, _server.RequestNestingLevel);
-            }
-#pragma warning restore
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-        }
-
-        [Test]
-        public void TestRequestStartSlaveOkNested()
-        {
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-#pragma warning disable 618
-            using (_server.RequestStart(_database, false))
-            {
-                Assert.AreEqual(1, _server.RequestNestingLevel);
-                using (_server.RequestStart(_database, true))
-                {
-                    Assert.AreEqual(2, _server.RequestNestingLevel);
-                }
-                Assert.AreEqual(1, _server.RequestNestingLevel);
-            }
-#pragma warning restore
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-        }
-
-        [Test]
         public void TestSecondaries()
         {
             Assert.IsTrue(_server.Secondaries.Length < _server.Instances.Length);
-        }
-
-        [Test]
-        public void TestVerifyState()
-        {
-            _server.VerifyState();
         }
 
         [Test]

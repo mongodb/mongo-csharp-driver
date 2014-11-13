@@ -71,14 +71,10 @@
     <Reference Include="System.ServiceModel">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +96,7 @@
     <Compile Include="IO\BsonStreamWriter.cs" />
     <Compile Include="IO\BsonTrie.cs" />
     <Compile Include="IO\BsonWriterSettings.cs" />
+    <Compile Include="IO\IElementNameValidator.cs" />
     <Compile Include="IO\INameDecoder.cs" />
     <Compile Include="IO\JsonBuffer.cs" />
     <Compile Include="IO\ByteBufferFactory.cs" />
@@ -108,8 +105,11 @@
     <Compile Include="IO\IBsonStream.cs" />
     <Compile Include="IO\IByteBuffer.cs" />
     <Compile Include="IO\ISliceableStream.cs" />
+    <Compile Include="IO\JsonConvert.cs" />
     <Compile Include="IO\MultiChunkBuffer.cs" />
+    <Compile Include="IO\NoOpElementNameValidator.cs" />
     <Compile Include="IO\TrieNameDecoder.cs" />
+    <Compile Include="IO\Utf8Encodings.cs" />
     <Compile Include="IO\Utf8NameDecoder.cs" />
     <Compile Include="IO\SingleChunkBuffer.cs" />
     <Compile Include="IO\Utf8Helper.cs" />
@@ -182,8 +182,10 @@
     <Compile Include="Serialization\Conventions\StringObjectIdIdGeneratorConvention.cs" />
     <Compile Include="Serialization\CreatorMapDelegateCompiler.cs" />
     <Compile Include="Serialization\ExpressionVisitor.cs" />
+    <Compile Include="Serialization\GlobalBsonSerializerRegistry.cs" />
     <Compile Include="Serialization\IBsonDictionarySerializer.cs" />
     <Compile Include="Serialization\IBsonPolymorphicSerializer.cs" />
+    <Compile Include="Serialization\IBsonSerializerRegistry.cs" />
     <Compile Include="Serialization\IChildSerializerConfigurable.cs" />
     <Compile Include="Serialization\ICreatorSelector.cs" />
     <Compile Include="Serialization\IdGenerators\AscendingGuidGenerator.cs" />
@@ -364,6 +366,7 @@
     <Compile Include="Serialization\Serializers\StringSerializer.cs" />
     <Compile Include="Serialization\Serializers\ThreeDimensionalArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\TimeSpanSerializer.cs" />
+    <Compile Include="Serialization\Serializers\TupleSerializers.cs" />
     <Compile Include="Serialization\Serializers\TwoDimensionalArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\UInt16Serializer.cs" />
     <Compile Include="Serialization\Serializers\UInt32Serializer.cs" />

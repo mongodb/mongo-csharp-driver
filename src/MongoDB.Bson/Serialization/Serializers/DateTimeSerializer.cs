@@ -217,15 +217,13 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.String:
-                    // note: we're not using XmlConvert because of bugs in Mono
                     if (_dateOnly)
                     {
                         value = DateTime.SpecifyKind(DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", null), DateTimeKind.Utc);
                     }
                     else
                     {
-                        var formats = new string[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
-                        value = DateTime.ParseExact(bsonReader.ReadString(), formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+                        value = JsonConvert.ToDateTime(bsonReader.ReadString());
                     }
                     break;
 
@@ -306,7 +304,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
                     else
                     {
-                        // we're not using XmlConvert.ToString because of bugs in Mono
                         if (value == DateTime.MinValue || value == DateTime.MaxValue)
                         {
                             // serialize MinValue and MaxValue as Unspecified so we do NOT get the time zone offset
@@ -317,7 +314,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                             // serialize Unspecified as Local se we get the time zone offset
                             value = DateTime.SpecifyKind(value, DateTimeKind.Local);
                         }
-                        bsonWriter.WriteString(value.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK"));
+                        bsonWriter.WriteString(JsonConvert.ToString(value));
                     }
                     break;
 

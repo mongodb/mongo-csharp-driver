@@ -26,46 +26,19 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the details of a write error for a particular request.
     /// </summary>
-    public class BulkWriteError
+    public class BulkWriteError : WriteError
     {
         // private fields
-        private readonly int _code;
-        private readonly BsonDocument _details;
         private readonly int _index;
-        private readonly string _message;
 
         // constructors
         internal BulkWriteError(int index, int code, string message, BsonDocument details)
+            : base(code, message, details)
         {
-            _code = code;
-            _details = details;
             _index = index;
-            _message = message;
         }
 
         // public properties
-        /// <summary>
-        /// Gets the error code.
-        /// </summary>
-        /// <value>
-        /// The error code.
-        /// </value>
-        public int Code
-        {
-            get { return _code; }
-        }
-
-        /// <summary>
-        /// Gets the error information.
-        /// </summary>
-        /// <value>
-        /// The error information.
-        /// </value>
-        public BsonDocument Details
-        {
-            get { return _details; }
-        }
-
         /// <summary>
         /// Gets the index of the request that had an error.
         /// </summary>
@@ -77,15 +50,10 @@ namespace MongoDB.Driver
             get { return _index; }
         }
 
-        /// <summary>
-        /// Gets the error message.
-        /// </summary>
-        /// <value>
-        /// The error message.
-        /// </value>
-        public string Message
+        // internal static methods
+        internal static BulkWriteError FromCore(Core.Operations.BulkWriteOperationError error)
         {
-            get { return _message; }
+            return new BulkWriteError(error.Index, error.Code, error.Message, error.Details);
         }
 
         // internal methods

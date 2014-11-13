@@ -25,9 +25,9 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         [Test]
         public void TestExampleFromSpec()
         {
-            var multiPolygon = GeoJson.MultiPolygon(
+            var multiPolygon = GeoJson.MultiPolygon<GeoJson2DCoordinates>(
                 GeoJson.PolygonCoordinates(GeoJson.Position(102.0, 2.0), GeoJson.Position(103.0, 2.0), GeoJson.Position(103.0, 3.0), GeoJson.Position(102.0, 3.0), GeoJson.Position(102.0, 2.0)),
-                GeoJson.PolygonCoordinates(
+                GeoJson.PolygonCoordinates<GeoJson2DCoordinates>(
                     GeoJson.LinearRingCoordinates(GeoJson.Position(102.0, 2.0), GeoJson.Position(103.0, 2.0), GeoJson.Position(103.0, 3.0), GeoJson.Position(102.0, 3.0), GeoJson.Position(102.0, 2.0)),
                     GeoJson.LinearRingCoordinates(GeoJson.Position(102.0, 2.0), GeoJson.Position(103.0, 2.0), GeoJson.Position(103.0, 3.0), GeoJson.Position(102.0, 3.0), GeoJson.Position(102.0, 2.0))));
 

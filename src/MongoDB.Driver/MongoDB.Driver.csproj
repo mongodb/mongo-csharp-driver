@@ -68,14 +68,10 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -87,49 +83,58 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Support\Hasher.cs</Link>
     </Compile>
-    <Compile Include="AggregateEnumerableResult.cs" />
+    <Compile Include="AggregateFluent.cs" />
+    <Compile Include="AggregateOptions.cs" />
+    <Compile Include="AggregateEnumerable.cs" />
     <Compile Include="Builders\UpdateCurrentDateType.cs" />
-    <Compile Include="Communication\FeatureDetection\AndDependency.cs" />
-    <Compile Include="Communication\FeatureDetection\InstanceTypeDependency.cs" />
-    <Compile Include="Communication\FeatureDetection\NotDependency.cs" />
+    <Compile Include="BulkWriteOptions.cs" />
+    <Compile Include="Communication\ClusterKey.cs" />
+    <Compile Include="Communication\ClusterRegistry.cs" />
+    <Compile Include="Communication\ConnectionModeExtensionMethods.cs" />
+    <Compile Include="CountOptions.cs" />
+    <Compile Include="CreateIndexOptions.cs" />
+    <Compile Include="IMongoIndexManager.cs" />
+    <Compile Include="RenameCollectionOptions.cs" />
+    <Compile Include="CreateCollectionOptions.cs" />
+    <Compile Include="DistinctOptions.cs" />
+    <Compile Include="ExplainVerbosity.cs" />
+    <Compile Include="FindFluent.cs" />
+    <Compile Include="FindOptions.cs" />
+    <Compile Include="FindOneAndDeleteOptions.cs" />
+    <Compile Include="FindOneAndReplaceOptions.cs" />
+    <Compile Include="FindOneAndUpdateOptions.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonObjectSerializerHelper.cs" />
-    <Compile Include="Operations\ParallelScanOperation.cs" />
+    <Compile Include="IMongoClient.cs" />
+    <Compile Include="IMongoCollection.cs" />
+    <Compile Include="IMongoDatabase.cs" />
+    <Compile Include="DeleteResult.cs" />
+    <Compile Include="InsertOneModel.cs" />
+    <Compile Include="ReplaceOneModel.cs" />
+    <Compile Include="UpdateOptions.cs" />
+    <Compile Include="UpdateOneModel.cs" />
+    <Compile Include="UpdateManyModel.cs" />
+    <Compile Include="DeleteManyModel.cs" />
+    <Compile Include="DeleteOneModel.cs" />
+    <Compile Include="IOperationExecutor.cs" />
+    <Compile Include="MongoCollectionImpl.cs" />
+    <Compile Include="MongoDatabaseImpl.cs" />
+    <Compile Include="OperationExecutor.cs" />
     <Compile Include="ParallelScanArgs.cs" />
+    <Compile Include="ReplaceOneResult.cs" />
+    <Compile Include="UpdateResult.cs" />
     <Compile Include="WriteConcernError.cs" />
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="BulkWriteResult.cs" />
     <Compile Include="BulkWriteUpsert.cs" />
-    <Compile Include="Exceptions\BulkWriteException.cs" />
-    <Compile Include="Operations\BulkWriteBatchResult.cs" />
-    <Compile Include="Operations\BulkWriteResultConverter.cs" />
-    <Compile Include="Operations\BulkWriteBatchResultCombiner.cs" />
-    <Compile Include="Operations\BulkUnmixedWriteOperationEmulatorBase.cs" />
-    <Compile Include="Support\Batch.cs" />
-    <Compile Include="Support\BatchProgress.cs" />
+    <Compile Include="BulkWriteException.cs" />
     <Compile Include="Support\IndexMap.cs" />
     <Compile Include="Operations\BulkWriteOperation.cs" />
     <Compile Include="Operations\BulkWriteRequestBuilder.cs" />
     <Compile Include="Operations\BulkUpdateRequestBuilder.cs" />
-    <Compile Include="Operations\InsertRequest.cs" />
-    <Compile Include="Operations\BulkUnmixedWriteOperationBase.cs" />
-    <Compile Include="Operations\BulkWriteOperationArgs.cs" />
-    <Compile Include="Operations\WriteRequest.cs" />
-    <Compile Include="Communication\FeatureDetection\FeatureContext.cs" />
-    <Compile Include="Communication\FeatureDetection\FeatureSetDependency.cs" />
-    <Compile Include="Communication\FeatureDetection\IFeatureDependency.cs" />
-    <Compile Include="Communication\FeatureDetection\FeatureSetDetector.cs" />
-    <Compile Include="Communication\FeatureDetection\ServerVersionDependency.cs" />
-    <Compile Include="Communication\Security\X509AuthenticationProtocol.cs" />
     <Compile Include="DistinctArgs.cs" />
-    <Compile Include="Exceptions\MongoDuplicateKeyException.cs" />
     <Compile Include="FeatureId.cs" />
-    <Compile Include="Communication\FeatureDetection\FeatureSet.cs" />
-    <Compile Include="Operations\BulkWriteArgs.cs" />
-    <Compile Include="AcknowledgedBulkWriteResult.cs" />
     <Compile Include="CountArgs.cs" />
     <Compile Include="EvalArgs.cs" />
-    <Compile Include="Exceptions\ExceptionMapper.cs" />
-    <Compile Include="Exceptions\ExecutionTimeoutException.cs" />
     <Compile Include="FindAndModifyArgs.cs" />
     <Compile Include="AggregateArgs.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
@@ -146,7 +151,6 @@
     <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
     <Compile Include="CanCommandBeSentToSecondary.cs" />
-    <Compile Include="CommandResults\AggregateResult.cs" />
     <Compile Include="CommandResults\CollectionStatsResult.cs" />
     <Compile Include="CommandResults\CommandResult.cs" />
     <Compile Include="CommandResults\CommandResultSerializer.cs" />
@@ -156,52 +160,10 @@
     <Compile Include="CommandResults\FindAndModifyResult.cs" />
     <Compile Include="CommandResults\GeoHaystackSearchResult.cs" />
     <Compile Include="CommandResults\GeoNearResult.cs" />
-    <Compile Include="CommandResults\WriteConcernResult.cs" />
-    <Compile Include="CommandResults\GetLastErrorResult.cs" />
     <Compile Include="CommandResults\GetProfilingLevelResult.cs" />
     <Compile Include="CommandResults\IsMasterResult.cs" />
-    <Compile Include="CommandResults\SafeModeResult.cs" />
     <Compile Include="CommandResults\ValidateCollectionResult.cs" />
-    <Compile Include="Communication\Proxies\MongoServerProxyType.cs" />
-    <Compile Include="Communication\Security\Authenticator.cs" />
     <Compile Include="Communication\MongoServerInstanceType.cs" />
-    <Compile Include="Communication\Security\IAuthenticationProtocol.cs" />
-    <Compile Include="Communication\Security\Mechanisms\PlainMechanism.cs" />
-    <Compile Include="Communication\Security\Mechanisms\SaslImplementationBase.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Gsasl\Gsasl.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslContext.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslException.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslProperty.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslSession.cs" />
-    <Compile Include="Communication\Security\ISaslStep.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityPackageInfo.cs" />
-    <Compile Include="Communication\Security\MongoCRAuthenticationProtocol.cs" />
-    <Compile Include="Communication\Security\Mechanisms\GsaslImplementationBase.cs" />
-    <Compile Include="Communication\Security\Mechanisms\GsaslGssapiImplementation.cs" />
-    <Compile Include="Communication\Security\Mechanisms\GssapiMechanism.cs" />
-    <Compile Include="Communication\Security\ISaslMechanism.cs" />
-    <Compile Include="Communication\Security\Mechanisms\WindowsGssapiImplementation.cs" />
-    <Compile Include="Communication\Security\MongoSecurityException.cs" />
-    <Compile Include="Communication\Security\SaslAuthenticationProtocol.cs" />
-    <Compile Include="Communication\Security\SaslCompletionStep.cs" />
-    <Compile Include="Communication\Security\SaslConversation.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\AuthIdentity.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\AuthIdentityFlag.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\DataRepresentation.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\EncryptQualityOfProtection.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\QueryContextAttribute.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityBuffer.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityBufferDescriptor.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityBufferType.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityContext.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityCredential.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityCredentialUse.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityPackageContextSizes.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SspiContextFlags.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SspiHandle.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SspiPackage.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\Win32.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\Win32Exception.cs" />
     <Compile Include="EvalFlags.cs" />
     <Compile Include="FindAndRemoveArgs.cs" />
     <Compile Include="FindOneArgs.cs" />
@@ -302,42 +264,12 @@
     <Compile Include="MongoUpdateOptions.cs" />
     <Compile Include="MongoUrlBuilder.cs" />
     <Compile Include="MongoUser.cs" />
-    <Compile Include="Operations\BulkMixedWriteOperation.cs" />
-    <Compile Include="Operations\BulkDeleteOperation.cs" />
-    <Compile Include="Operations\DeleteOpcodeOperationEmulator.cs" />
-    <Compile Include="Operations\BulkDeleteOperationArgs.cs" />
-    <Compile Include="Operations\BulkInsertOperation.cs" />
-    <Compile Include="Operations\InsertOpcodeOperationEmulator.cs" />
-    <Compile Include="Operations\BulkInsertOperationArgs.cs" />
-    <Compile Include="Operations\BulkUpdateOperation.cs" />
-    <Compile Include="Operations\CommandOperation.cs" />
-    <Compile Include="Operations\DatabaseOperationBase.cs" />
-    <Compile Include="Operations\CursorEnumerator.cs" />
-    <Compile Include="Operations\BulkDeleteOperationEmulator.cs" />
-    <Compile Include="Operations\BulkInsertOperationEmulator.cs" />
-    <Compile Include="Operations\BulkUpdateOperationEmulator.cs" />
-    <Compile Include="Operations\IConnectionProvider.cs" />
-    <Compile Include="Operations\InsertOpcodeOperation.cs" />
-    <Compile Include="Operations\QueryOperation.cs" />
-    <Compile Include="Operations\ReadOperationBase.cs" />
-    <Compile Include="Operations\DeleteOpcodeOperation.cs" />
-    <Compile Include="Operations\UpdateOpcodeOperationEmulator.cs" />
-    <Compile Include="Operations\UpdateOpcodeOperation.cs" />
-    <Compile Include="Operations\BulkUpdateOperationArgs.cs" />
-    <Compile Include="Operations\WriteOpcodeOperationBase.cs" />
     <Compile Include="PasswordEvidence.cs" />
     <Compile Include="ProfilingLevel.cs" />
     <Compile Include="Range.cs" />
-    <Compile Include="ReadPreference.cs" />
-    <Compile Include="ReplicaSetTag.cs" />
-    <Compile Include="ReplicaSetTagSet.cs" />
-    <Compile Include="Operations\DeleteRequest.cs" />
-    <Compile Include="Operations\UpdateRequest.cs" />
-    <Compile Include="ServerInstanceConnectionProvider.cs" />
     <Compile Include="Setting.cs" />
     <Compile Include="SslSettings.cs" />
     <Compile Include="SystemProfileInfo.cs" />
-    <Compile Include="UnacknowledgedBulkWriteResult.cs" />
     <Compile Include="ValidateCollectionArgs.cs" />
     <Compile Include="Wrappers\BaseWrapper.cs" />
     <Compile Include="Wrappers\CollectionOptionsDocument.cs" />
@@ -366,39 +298,8 @@
     <Compile Include="Wrappers\SortByWrapper.cs" />
     <Compile Include="Wrappers\UpdateDocument.cs" />
     <Compile Include="Wrappers\UpdateWrapper.cs" />
-    <Compile Include="WriteConcern.cs" />
-    <Compile Include="Exceptions\MongoAuthenticationException.cs" />
-    <Compile Include="Exceptions\MongoCommandException.cs" />
-    <Compile Include="Exceptions\MongoConnectionException.cs" />
-    <Compile Include="Exceptions\WriteConcernException.cs" />
     <Compile Include="GridFS\MongoGridFSException.cs" />
-    <Compile Include="Exceptions\MongoInternalException.cs" />
-    <Compile Include="Exceptions\MongoQueryException.cs" />
-    <Compile Include="Exceptions\MongoSafeModeException.cs" />
     <Compile Include="GridFS\MongoGridFSCreateOptions.cs" />
-    <Compile Include="Communication\Proxies\MultipleInstanceMongoServerProxy.cs" />
-    <Compile Include="Communication\Proxies\ShardedMongoServerProxy.cs" />
-    <Compile Include="Communication\Proxies\DirectMongoServerProxy.cs" />
-    <Compile Include="Communication\Proxies\ConnectedInstanceCollection.cs" />
-    <Compile Include="Communication\Proxies\MongoServerProxyFactory.cs" />
-    <Compile Include="Communication\Proxies\DiscoveringMongoServerProxy.cs" />
-    <Compile Include="Communication\Proxies\IMongoServerProxy.cs" />
-    <Compile Include="MongoCursorEnumerator.cs" />
-    <Compile Include="Communication\Messages\MongoKillCursorsMessage.cs" />
-    <Compile Include="Communication\Proxies\BlockingQueue.cs" />
-    <Compile Include="Communication\MongoConnection.cs" />
-    <Compile Include="Communication\MongoConnectionPool.cs" />
-    <Compile Include="Communication\Messages\MongoDeleteMessage.cs" />
-    <Compile Include="Communication\Messages\MongoGetMoreMessage.cs" />
-    <Compile Include="Communication\Messages\MongoInsertMessage.cs" />
-    <Compile Include="Communication\Messages\MongoMessage.cs" />
-    <Compile Include="Communication\Messages\MongoRequestMessage.cs" />
-    <Compile Include="Communication\Messages\MongoQueryMessage.cs" />
-    <Compile Include="Communication\Messages\MongoReplyMessage.cs" />
-    <Compile Include="Communication\Messages\MongoUpdateMessage.cs" />
-    <Compile Include="Communication\PingTimeAggregator.cs" />
-    <Compile Include="Communication\ReplicaSetInformation.cs" />
-    <Compile Include="Communication\Proxies\ReplicaSetMongoServerProxy.cs" />
     <Compile Include="Linq\Expressions\ExpressionVisitorGeneric.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoFinder.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoHelper.cs" />
@@ -430,25 +331,22 @@
     <Compile Include="GridFS\MongoGridFSStream.cs" />
     <Compile Include="MongoServerState.cs" />
     <Compile Include="QueryFlags.cs" />
-    <Compile Include="Communication\Messages\MessageOpcode.cs" />
-    <Compile Include="ResponseFlags.cs" />
     <Compile Include="MongoCollection.cs" />
-    <Compile Include="MongoConnectionStringBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="MongoCredential.cs" />
     <Compile Include="CommandResults\MapReduceResult.cs" />
     <Compile Include="MongoServer.cs" />
     <Compile Include="MongoCursor.cs" />
     <Compile Include="MongoDatabase.cs" />
-    <Compile Include="Exceptions\MongoException.cs" />
     <Compile Include="MongoServerAddress.cs" />
     <Compile Include="MongoUrl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoveFlags.cs" />
-    <Compile Include="SafeMode.cs" />
     <Compile Include="UpdateFlags.cs" />
     <Compile Include="ExternalEvidence.cs" />
+    <Compile Include="WriteError.cs" />
+    <Compile Include="WriteException.cs" />
+    <Compile Include="WriteModel.cs" />
+    <Compile Include="WriteModelType.cs" />
     <Compile Include="XYPoint.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -475,6 +373,10 @@
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
       <Name>MongoDB.Bson</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
+      <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
+      <Name>MongoDB.Driver.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

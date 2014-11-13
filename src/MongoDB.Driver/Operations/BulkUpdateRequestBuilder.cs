@@ -14,12 +14,15 @@
 */
 
 using System;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Operations;
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a fluent builder for one update request.
     /// </summary>
-    public sealed class BulkUpdateRequestBuilder
+    public sealed class BulkUpdateRequestBuilder<TDocument>
     {
         // private fields
         private readonly Action<WriteRequest> _addRequest;
@@ -38,16 +41,15 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds an update request to replace one matching document to the bulk operation.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="document">The document.</param>
-        public void ReplaceOne<TDocument>(TDocument document)
+        public void ReplaceOne(TDocument document)
         {
             if (document == null)
             {
                 throw new ArgumentNullException("document");
             }
-            var update = Builders.Update.Replace(document);
-            Update(update, false);
+            var serializer = BsonSerializer.LookupSerializer<TDocument>();
+            Update(UpdateType.Replacement, new BsonDocumentWrapper(document, serializer), false);
         }
 
         /// <summary>
@@ -60,7 +62,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            Update(update, true);
+            Update(UpdateType.Update, new BsonDocumentWrapper(update), true);
         }
 
         /// <summary>
@@ -73,15 +75,15 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("update");
             }
-            Update(update, false);
+            Update(UpdateType.Update, new BsonDocumentWrapper(update), false);
         }
 
         // private methods
-        private void Update(IMongoUpdate update, bool multi)
+        private void Update(UpdateType updateType, BsonDocument update, bool multi)
         {
-            var request = new UpdateRequest(_query, update)
+            var request = new UpdateRequest(updateType, new BsonDocumentWrapper(_query), update)
             {
-                IsMultiUpdate = multi,
+                IsMulti = multi,
                 IsUpsert = _upsert
             };
             _addRequest(request);

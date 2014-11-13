@@ -17,7 +17,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using System.Xml;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver
 {
@@ -89,7 +89,7 @@ namespace MongoDB.Driver
                 {
                     string host = match.Groups["host"].Value;
                     string portString = match.Groups["port"].Value;
-                    int port = (portString == "") ? 27017 : XmlConvert.ToInt32(portString);
+                    int port = (portString == "") ? 27017 : JsonConvert.ToInt32(portString);
                     address = new MongoServerAddress(host, port);
                     return true;
                 }

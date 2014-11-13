@@ -36,7 +36,9 @@ namespace MongoDB.Driver.Tests.Jira.CSharp269
             var clientSettings = Configuration.TestClient.Settings.Clone();
             clientSettings.ReadPreference = ReadPreference.SecondaryPreferred;
             var client = new MongoClient(clientSettings); // ReadPreference=SecondaryPreferred
+#pragma warning disable 618
             _server = client.GetServer();
+#pragma warning restore
             _database = _server.GetDatabase(Configuration.TestDatabase.Name);
             _database.GridFS.Files.Drop();
             _database.GridFS.Chunks.Drop();

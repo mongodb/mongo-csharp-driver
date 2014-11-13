@@ -82,26 +82,6 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        [TestCase("")]
-        [TestCase("$x")]
-        [TestCase("x.y")]
-        [TestCase("x\0")]
-        [TestCase("x\u0000")]
-        public void TestInvalidKey(string key)
-        {
-            var d = new Dictionary<object, object> { { key, 1 } };
-            var sd = CreateSortedDictionary(d);
-            var sl = CreateSortedList(d);
-            var obj = new T { D = d, ID = d, SD = sd, SL = sl };
-
-            using (var stream = new MemoryStream())
-            using (var bsonWriter = new BsonBinaryWriter(stream, BsonBinaryWriterSettings.Defaults))
-            {
-                bsonWriter.CheckElementNames = true;
-                Assert.Throws<BsonSerializationException>(() => BsonSerializer.Serialize(bsonWriter, obj));
-            }
-        }
-
         [Test]
         public void TestOneC()
         {

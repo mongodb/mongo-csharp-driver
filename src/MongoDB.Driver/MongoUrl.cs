@@ -41,7 +41,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// Connect to one or more shard routers.
         /// </summary>
-        ShardRouter
+        ShardRouter,
+        /// <summary>
+        /// Connect to a standalone server.
+        /// </summary>
+        Standalone
     }
 
     /// <summary>
@@ -56,12 +60,12 @@ namespace MongoDB.Driver
 
         // private fields
         private readonly string _authenticationMechanism;
+        private readonly IEnumerable<KeyValuePair<string, string>> _authenticationMechanismProperties;
         private readonly string _authenticationSource;
         private readonly ConnectionMode _connectionMode;
         private readonly TimeSpan _connectTimeout;
         private readonly string _databaseName;
         private readonly bool? _fsync;
-        private readonly string _gssapiServiceName;
         private readonly GuidRepresentation _guidRepresentation;
         private readonly bool _ipv6;
         private readonly bool? _journal;
@@ -74,7 +78,6 @@ namespace MongoDB.Driver
         private readonly string _replicaSetName;
         private readonly TimeSpan _secondaryAcceptableLatency;
         private readonly IEnumerable<MongoServerAddress> _servers;
-        private readonly bool _slaveOk;
         private readonly TimeSpan _socketTimeout;
         private readonly string _username;
         private readonly bool _useSsl;
@@ -95,12 +98,12 @@ namespace MongoDB.Driver
         {
             var builder = new MongoUrlBuilder(url); // parses url
             _authenticationMechanism = builder.AuthenticationMechanism;
+            _authenticationMechanismProperties = builder.AuthenticationMechanismProperties;
             _authenticationSource = builder.AuthenticationSource;
             _connectionMode = builder.ConnectionMode;
             _connectTimeout = builder.ConnectTimeout;
             _databaseName = builder.DatabaseName;
             _fsync = builder.FSync;
-            _gssapiServiceName = builder.GssapiServiceName;
             _guidRepresentation = builder.GuidRepresentation;
             _ipv6 = builder.IPv6;
             _journal = builder.Journal;
@@ -113,9 +116,6 @@ namespace MongoDB.Driver
             _replicaSetName = builder.ReplicaSetName;
             _secondaryAcceptableLatency = builder.SecondaryAcceptableLatency;
             _servers = builder.Servers;
-#pragma warning disable 618
-            _slaveOk = builder.SlaveOk;
-#pragma warning restore
             _socketTimeout = builder.SocketTimeout;
             _username = builder.Username;
             _useSsl = builder.UseSsl;
@@ -135,6 +135,14 @@ namespace MongoDB.Driver
         public string AuthenticationMechanism
         {
             get { return _authenticationMechanism; }
+        }
+
+        /// <summary>
+        /// Gets the authentication mechanism properties.
+        /// </summary>
+        public IEnumerable<KeyValuePair<string, string>> AuthenticationMechanismProperties
+        {
+            get { return _authenticationMechanismProperties; }
         }
 
         /// <summary>
@@ -193,14 +201,6 @@ namespace MongoDB.Driver
         public bool? FSync
         {
             get { return _fsync; }
-        }
-
-        /// <summary>
-        /// Gets the GSSAPI service name.
-        /// </summary>
-        public string GssapiServiceName
-        {
-            get { return _gssapiServiceName; }
         }
 
         /// <summary>
@@ -284,27 +284,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the SafeMode to use.
-        /// </summary>
-        [Obsolete("Use FSync, Journal, W and WTimeout instead.")]
-        public SafeMode SafeMode
-        {
-            get
-            {
-                if (AnyWriteConcernSettingsAreSet())
-                {
-#pragma warning disable 618
-                    return new SafeMode(GetWriteConcern(false));
-#pragma warning restore
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets the acceptable latency for considering a replica set member for inclusion in load balancing
         /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
         /// </summary>
@@ -327,17 +306,6 @@ namespace MongoDB.Driver
         public IEnumerable<MongoServerAddress> Servers
         {
             get { return _servers; }
-        }
-
-        /// <summary>
-        /// Gets whether queries can be sent to secondary servers.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public bool SlaveOk
-        {
-#pragma warning disable 618
-            get { return _slaveOk; }
-#pragma warning restore
         }
 
         /// <summary>
@@ -523,23 +491,12 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcern.</returns>
         public WriteConcern GetWriteConcern(bool enabledDefault)
         {
-            return new WriteConcern(enabledDefault)
+            if (_w == null && !_wTimeout.HasValue && !_fsync.HasValue && !_journal.HasValue)
             {
-                FSync = _fsync,
-                Journal = _journal,
-                W = _w,
-                WTimeout = _wTimeout
-            };
-        }
+                return enabledDefault ? WriteConcern.Acknowledged : WriteConcern.Unacknowledged;
+            }
 
-        /// <summary>
-        /// Creates a new instance of MongoServerSettings based on the settings in this MongoUrlBuilder.
-        /// </summary>
-        /// <returns>A new instance of MongoServerSettings.</returns>
-        [Obsolete("Use MongoServerSettings.FromUrl instead.")]
-        public MongoServerSettings ToServerSettings()
-        {
-            return MongoServerSettings.FromUrl(this);
+            return new WriteConcern(_w, _wTimeout, _fsync, _journal);
         }
 
         /// <summary>

@@ -16,14 +16,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.SyncExtensionMethods;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.GridFS;
-using MongoDB.Driver.Internal;
-using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver
 {
@@ -33,23 +39,11 @@ namespace MongoDB.Driver
     public class MongoDatabase
     {
         // private fields
-        private MongoServer _server;
-        private MongoDatabaseSettings _settings;
-        private string _name;
+        private readonly MongoServer _server;
+        private readonly MongoDatabaseSettings _settings;
+        private readonly DatabaseNamespace _namespace;
 
         // constructors
-        /// <summary>
-        /// Creates a new instance of MongoDatabase. Normally you would call one of the indexers or GetDatabase methods
-        /// of MongoServer instead.
-        /// </summary>
-        /// <param name="server">The server that contains this database.</param>
-        /// <param name="settings">The settings to use to access this database.</param>
-        [Obsolete("Use MongoDatabase(MongoServer server, string name, MongoDatabaseSettings settings) instead.")]
-        public MongoDatabase(MongoServer server, MongoDatabaseSettings settings)
-            : this(server, settings.DatabaseName, settings)
-        {
-        }
-
         /// <summary>
         /// Creates a new instance of MongoDatabase. Normally you would call one of the indexers or GetDatabase methods
         /// of MongoServer instead.
@@ -82,98 +76,8 @@ namespace MongoDB.Driver
             settings.Freeze();
 
             _server = server;
+            _namespace = new DatabaseNamespace(name);
             _settings = settings;
-            _name = name;
-        }
-
-        // factory methods
-        /// <summary>
-        /// Creates an instance of a MongoDatabase.
-        /// Automatically creates an instance of MongoServer if needed.
-        /// </summary>
-        /// <param name="builder">Server and database settings in the form of a MongoConnectionStringBuilder.</param>
-        /// <returns>
-        /// A new or existing instance of MongoDatabase.
-        /// </returns>
-        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
-        public static MongoDatabase Create(MongoConnectionStringBuilder builder)
-        {
-            var serverSettings = MongoServerSettings.FromConnectionStringBuilder(builder);
-            var databaseName = builder.DatabaseName;
-            return Create(serverSettings, databaseName);
-        }
-
-        /// <summary>
-        /// Creates an instance of a MongoDatabase.
-        /// Automatically creates an instance of MongoServer if needed.
-        /// </summary>
-        /// <param name="serverSettings">The server settings for the server that contains this database.</param>
-        /// <param name="databaseName">The name of this database (will be accessed using default settings).</param>
-        /// <returns>
-        /// A new or existing instance of MongoDatabase.
-        /// </returns>
-        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
-        public static MongoDatabase Create(MongoServerSettings serverSettings, string databaseName)
-        {
-            if (databaseName == null)
-            {
-                throw new ArgumentException("Database name is missing.");
-            }
-            var server = MongoServer.Create(serverSettings);
-            return server.GetDatabase(databaseName);
-        }
-
-        /// <summary>
-        /// Creates an instance of a MongoDatabase.
-        /// Automatically creates an instance of MongoServer if needed.
-        /// </summary>
-        /// <param name="url">Server and database settings in the form of a MongoUrl.</param>
-        /// <returns>
-        /// A new or existing instance of MongoDatabase.
-        /// </returns>
-        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
-        public static MongoDatabase Create(MongoUrl url)
-        {
-            var serverSettings = MongoServerSettings.FromUrl(url);
-            var databaseName = url.DatabaseName;
-            return Create(serverSettings, databaseName);
-        }
-
-        /// <summary>
-        /// Creates an instance of a MongoDatabase.
-        /// Automatically creates an instance of MongoServer if needed.
-        /// </summary>
-        /// <param name="connectionString">Server and database settings in the form of a connection string.</param>
-        /// <returns>
-        /// A new or existing instance of MongoDatabase.
-        /// </returns>
-        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
-        public static MongoDatabase Create(string connectionString)
-        {
-            if (connectionString.StartsWith("mongodb://", StringComparison.Ordinal))
-            {
-                MongoUrl url = MongoUrl.Create(connectionString);
-                return Create(url);
-            }
-            else
-            {
-                MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
-                return Create(builder);
-            }
-        }
-
-        /// <summary>
-        /// Creates an instance of a MongoDatabase.
-        /// Automatically creates an instance of MongoServer if needed.
-        /// </summary>
-        /// <param name="uri">Server and database settings in the form of a Uri.</param>
-        /// <returns>
-        /// A new or existing instance of MongoDatabase.
-        /// </returns>
-        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
-        public static MongoDatabase Create(Uri uri)
-        {
-            return Create(MongoUrl.Create(uri.ToString()));
         }
 
         // public properties
@@ -204,7 +108,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual string Name
         {
-            get { return _name; }
+            get { return _namespace.DatabaseName; }
         }
 
         /// <summary>
@@ -259,7 +163,7 @@ namespace MongoDB.Driver
         {
             using (RequestStart(ReadPreference.Primary))
             {
-                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
                 {
                     AddUserWithUserManagementCommands(user);
                 }
@@ -300,44 +204,57 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult CreateCollection(string collectionName, IMongoCollectionOptions options)
         {
-            var command = new CommandDocument("create", collectionName);
+            if (collectionName == null)
+            {
+                throw new ArgumentNullException("collectionName");
+            }
+
+            var collectionNamespace = new CollectionNamespace(_namespace, collectionName);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            bool? autoIndexId = null;
+            bool? capped = null;
+            int? maxDocuments = null;
+            int? maxSize = null;
+            bool? usePowerOf2Sizes = null;
+
             if (options != null)
             {
-                command.Merge(options.ToBsonDocument());
+                var optionsDocument = options.ToBsonDocument();
+
+                BsonValue value;
+                if (optionsDocument.TryGetValue("autoIndexId", out value))
+                {
+                    autoIndexId = value.ToBoolean();
+                }
+                if (optionsDocument.TryGetValue("capped", out value))
+                {
+                    capped = value.ToBoolean();
+                }
+                if (optionsDocument.TryGetValue("max", out value))
+                {
+                    maxDocuments = value.ToInt32();
+                }
+                if (optionsDocument.TryGetValue("size", out value))
+                {
+                    maxSize = value.ToInt32();
+                }
+                if (optionsDocument.TryGetValue("flags", out value))
+                {
+                    usePowerOf2Sizes = value.ToInt32() == 1;
+                }
             }
-            return RunCommandAs<CommandResult>(command);
-        }
 
-        /// <summary>
-        /// Creates an instance of MongoCollectionSettings for the named collection with the rest of the settings inherited.
-        /// You can override some of these settings before calling GetCollection.
-        /// </summary>
-        /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
-        /// <param name="collectionName">The name of this collection.</param>
-        /// <returns>A MongoCollectionSettings.</returns>
-        [Obsolete("Use new MongoCollectionSettings() instead.")]
-        public virtual MongoCollectionSettings<TDefaultDocument> CreateCollectionSettings<TDefaultDocument>(
-            string collectionName)
-        {
-            return new MongoCollectionSettings<TDefaultDocument>(this, collectionName);
-        }
+            var operation = new CreateCollectionOperation(collectionNamespace, messageEncoderSettings)
+            {
+                AutoIndexId = autoIndexId,
+                Capped = capped,
+                MaxDocuments = maxDocuments,
+                MaxSize = maxSize,
+                UsePowerOf2Sizes = usePowerOf2Sizes
+            };
 
-        /// <summary>
-        /// Creates an instance of MongoCollectionSettings for the named collection with the rest of the settings inherited.
-        /// You can override some of these settings before calling GetCollection.
-        /// </summary>
-        /// <param name="defaultDocumentType">The default document type for this collection.</param>
-        /// <param name="collectionName">The name of this collection.</param>
-        /// <returns>A MongoCollectionSettings.</returns>
-        [Obsolete("Use new MongoCollectionSettings() instead.")]
-        public virtual MongoCollectionSettings CreateCollectionSettings(
-            Type defaultDocumentType,
-            string collectionName)
-        {
-            var settingsDefinition = typeof(MongoCollectionSettings<>);
-            var settingsType = settingsDefinition.MakeGenericType(defaultDocumentType);
-            var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string) });
-            return (MongoCollectionSettings)constructorInfo.Invoke(new object[] { this, collectionName });
+            var response = ExecuteWriteOperation(operation);
+            return new CommandResult(response);
         }
 
         /// <summary>
@@ -345,7 +262,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Drop()
         {
-            _server.DropDatabase(_name);
+            _server.DropDatabase(_namespace.DatabaseName);
         }
 
         /// <summary>
@@ -355,20 +272,12 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult DropCollection(string collectionName)
         {
-            try
-            {
-                var command = new CommandDocument("drop", collectionName);
-                var result = RunCommandAs<CommandResult>(command);
-                return result;
-            }
-            catch (MongoCommandException ex)
-            {
-                if (ex.CommandResult.ErrorMessage == "ns not found")
-                {
-                    return ex.CommandResult;
-                }
-                throw;
-            }
+            var collectionNamespace = new CollectionNamespace(_namespace, collectionName);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+
+            var operation = new DropCollectionOperation(collectionNamespace, messageEncoderSettings);
+            var response = ExecuteWriteOperation(operation);
+            return new CommandResult(response);
         }
 
         /// <summary>
@@ -411,15 +320,17 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Code == null) { throw new ArgumentException("Code is null.", "args"); }
 
-            var command = new CommandDocument
+            var operation = new EvalOperation(_namespace, args.Code, GetMessageEncoderSettings())
             {
-                { "$eval", args.Code },
-                { "args", () => new BsonArray(args.Args), args.Args != null }, // optional
-                { "nolock", () => !args.Lock.Value, args.Lock.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                Args = args.Args,
+                MaxTime = args.MaxTime,
+                NoLock = args.Lock.HasValue ? !args.Lock : null
             };
-            var result = RunCommandAs<CommandResult>(command);
-            return result.Response["retval"];
+
+            using (var binding = _server.GetWriteBinding())
+            {
+                return operation.Execute(binding);
+            }
         }
 
         /// <summary>
@@ -451,7 +362,7 @@ namespace MongoDB.Driver
         /// <returns>An instance of nominalType (or null if the document was not found).</returns>
         public virtual object FetchDBRefAs(Type documentType, MongoDBRef dbRef)
         {
-            if (dbRef.DatabaseName != null && dbRef.DatabaseName != _name)
+            if (dbRef.DatabaseName != null && dbRef.DatabaseName != _namespace.DatabaseName)
             {
                 return _server.FetchDBRefAs(documentType, dbRef);
             }
@@ -470,7 +381,7 @@ namespace MongoDB.Driver
         {
             using (RequestStart(ReadPreference.Primary))
             {
-                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
                 {
                     return FindAllUsersWithUserManagementCommands();
                 }
@@ -489,27 +400,13 @@ namespace MongoDB.Driver
         {
             using (RequestStart(ReadPreference.Primary))
             {
-                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
                 {
                     return FindUserWithUserManagementCommands(username);
                 }
 
                 return FindUserWithQuery(username);
             }
-        }
-
-        /// <summary>
-        /// Gets a MongoCollection instance representing a collection on this database
-        /// with a default document type of TDefaultDocument.
-        /// </summary>
-        /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
-        /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
-        /// <returns>An instance of MongoCollection.</returns>
-        [Obsolete("Use GetCollection<TDefaultDocument>(string collectionName, MongoCollectionSettings collectionSettings) instead.")]
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
-            MongoCollectionSettings<TDefaultDocument> collectionSettings)
-        {
-            return GetCollection<TDefaultDocument>(collectionSettings.CollectionName, collectionSettings);
         }
 
         /// <summary>
@@ -553,18 +450,6 @@ namespace MongoDB.Driver
         {
             var collectionSettings = new MongoCollectionSettings { WriteConcern = writeConcern };
             return GetCollection<TDefaultDocument>(collectionName, collectionSettings);
-        }
-
-        /// <summary>
-        /// Gets a MongoCollection instance representing a collection on this database
-        /// with a default document type of TDefaultDocument.
-        /// </summary>
-        /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
-        /// <returns>An instance of MongoCollection.</returns>
-        [Obsolete("Use GetCollection(Type defaultDocumentType, string collectionName, MongoCollectionSettings settings) instead.")]
-        public virtual MongoCollection GetCollection(MongoCollectionSettings collectionSettings)
-        {
-            return GetCollection(collectionSettings.DefaultDocumentType, collectionSettings.CollectionName, collectionSettings);
         }
 
         /// <summary>
@@ -654,18 +539,9 @@ namespace MongoDB.Driver
         /// <returns>A list of collection names.</returns>
         public virtual IEnumerable<string> GetCollectionNames()
         {
-            List<string> collectionNames = new List<string>();
-            var namespaces = GetCollection("system.namespaces");
-            var prefix = _name + ".";
-            foreach (var @namespace in namespaces.FindAll())
-            {
-                string collectionName = @namespace["name"].AsString;
-                if (!collectionName.StartsWith(prefix, StringComparison.Ordinal)) { continue; }
-                if (collectionName.IndexOf('$') != -1) { continue; }
-                collectionNames.Add(collectionName.Substring(prefix.Length));
-            }
-            collectionNames.Sort();
-            return collectionNames;
+            var operation = new ListCollectionsOperation(_namespace, GetMessageEncoderSettings());
+            var result = ExecuteReadOperation(operation, ReadPreference.Primary);
+            return result.Select(c => c["name"].AsString).OrderBy(n => n).ToList();
         }
 
         /// <summary>
@@ -688,20 +564,7 @@ namespace MongoDB.Driver
             var clonedSettings = gridFSSettings.Clone();
             clonedSettings.ApplyDefaultValues(_settings);
             clonedSettings.Freeze();
-            return new MongoGridFS(_server, _name, clonedSettings);
-        }
-
-        /// <summary>
-        /// Gets the last error (if any) that occurred on this connection. You MUST be within a RequestStart to call this method.
-        /// </summary>
-        /// <returns>The last error (<see cref=" GetLastErrorResult"/>)</returns>
-        public virtual GetLastErrorResult GetLastError()
-        {
-            if (Server.RequestNestingLevel == 0)
-            {
-                throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first.");
-            }
-            return RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
+            return new MongoGridFS(_server, _namespace.DatabaseName, clonedSettings);
         }
 
         // TODO: mongo shell has GetPrevError at the database level?
@@ -805,7 +668,7 @@ namespace MongoDB.Driver
         {
             using (RequestStart(ReadPreference.Primary))
             {
-                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
                 {
                     RunCommand(new CommandDocument("dropUser", username));
                 }
@@ -851,14 +714,15 @@ namespace MongoDB.Driver
                 throw new ArgumentOutOfRangeException("newCollectionName", message);
             }
 
-            var command = new CommandDocument
+            var oldCollectionNamespace = new CollectionNamespace(_namespace, oldCollectionName);
+            var newCollectionNamespace = new CollectionNamespace(_namespace, newCollectionName);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new RenameCollectionOperation(oldCollectionNamespace, newCollectionNamespace, messageEncoderSettings)
             {
-                { "renameCollection", string.Format("{0}.{1}", _name, oldCollectionName) },
-                { "to", string.Format("{0}.{1}", _name, newCollectionName) },
-                { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
+                DropTarget = dropTarget
             };
-            var adminDatabase = _server.GetDatabase("admin");
-            return adminDatabase.RunCommandAs<CommandResult>(command);
+            var response = ExecuteWriteOperation(operation);
+            return new CommandResult(response);
         }
 
         /// <summary>
@@ -879,19 +743,6 @@ namespace MongoDB.Driver
         public virtual IDisposable RequestStart()
         {
             return RequestStart(ReadPreference.Primary);
-        }
-
-        /// <summary>
-        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
-        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
-        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
-        /// </summary>
-        /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
-        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        [Obsolete("Use the overload of RequestStart that has a ReadPreference parameter instead.")]
-        public virtual IDisposable RequestStart(bool slaveOk)
-        {
-            return _server.RequestStart(this, ReadPreference.FromSlaveOk(slaveOk));
         }
 
         /// <summary>
@@ -1011,7 +862,7 @@ namespace MongoDB.Driver
         /// <returns>A canonical string representation for this database.</returns>
         public override string ToString()
         {
-            return _name;
+            return _namespace.DatabaseName;
         }
 
         // private methods
@@ -1036,7 +887,7 @@ namespace MongoDB.Driver
             var usersInfo = RunCommand(new CommandDocument("usersInfo", user.Username));
 
             var roles = new BsonArray();
-            if (_name == "admin")
+            if (_namespace.DatabaseName == "admin")
             {
                 roles.Add(user.IsReadOnly ? "readAnyDatabase" : "root");
             }
@@ -1063,6 +914,22 @@ namespace MongoDB.Driver
             RunCommand(userCommand);
         }
         #pragma warning restore
+        private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference = null)
+        {
+            readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
+            using (var binding = _server.GetReadBinding(readPreference))
+            {
+                return operation.Execute(binding);
+            }
+        }
+
+        private TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation)
+        {
+            using (var binding = _server.GetWriteBinding())
+            {
+                return operation.Execute(binding);
+            }
+        }
 
         #pragma warning disable 618
         private MongoUser FindUserWithQuery(string username)
@@ -1127,53 +994,88 @@ namespace MongoDB.Driver
         }
         #pragma warning restore
 
-        private TCommandResult RunCommandAs<TCommandResult>(
-            IMongoCommand command,
-            IBsonSerializer<TCommandResult> resultSerializer) where TCommandResult : CommandResult
+        private MessageEncoderSettings GetMessageEncoderSettings()
         {
-            var readerSettings = new BsonBinaryReaderSettings
+            return new MessageEncoderSettings
             {
-                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
+                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
+                { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
             };
-            var writerSettings = new BsonBinaryWriterSettings
-            {
-                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-            var readPreference = _settings.ReadPreference;
+        }
+
+        internal TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command,
+            IBsonSerializer<TCommandResult> resultSerializer)
+            where TCommandResult : CommandResult
+        {
+            return RunCommandAs<TCommandResult>(command, resultSerializer, _settings.ReadPreference);
+        }
+
+        internal TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            ReadPreference readPreference)
+            where TCommandResult : CommandResult
+        {
+            var isReadCommand = CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument());
+
             if (readPreference != ReadPreference.Primary)
             {
-                if (_server.ProxyType == MongoServerProxyType.Unknown)
+                var timeoutAt = DateTime.UtcNow + _server.Settings.ConnectTimeout;
+                var cluster = _server.Cluster;
+
+                var clusterType = cluster.Description.Type;
+                while (clusterType == ClusterType.Unknown)
                 {
-                    _server.Connect();
+                    // TODO: find a way to block until the cluster description changes
+                    if (DateTime.UtcNow >= timeoutAt)
+                    {
+                        throw new TimeoutException();
+                    }
+                    Thread.Sleep(TimeSpan.FromMilliseconds(20));
+                    clusterType = cluster.Description.Type;
                 }
-                if (_server.ProxyType == MongoServerProxyType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
+
+                if (clusterType == ClusterType.ReplicaSet && !isReadCommand)
                 {
                     readPreference = ReadPreference.Primary;
                 }
             }
-            var flags = (readPreference == ReadPreference.Primary) ? QueryFlags.None : QueryFlags.SlaveOk;
 
-            var commandOperation = new CommandOperation<TCommandResult>(
-                _name,
-                readerSettings,
-                writerSettings,
-                command,
-                flags,
-                null, // options
-                readPreference,
-                resultSerializer);
+            TCommandResult commandResult;
+            var wrappedCommand = new BsonDocumentWrapper(command);
+            if (isReadCommand)
+            {
+                commandResult = RunReadCommandAs<TCommandResult>(wrappedCommand, resultSerializer, readPreference);
+            }
+            else
+            {
+                commandResult = RunWriteCommandAs<TCommandResult>(wrappedCommand, resultSerializer);
+            }
 
-            var connection = _server.AcquireConnection(readPreference);
-            try
-            {
-                return commandOperation.Execute(connection);
-            }
-            finally
-            {
-                _server.ReleaseConnection(connection);
-            }
+            return commandResult;
+        }
+
+        private TCommandResult RunReadCommandAs<TCommandResult>(
+            BsonDocument command,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            ReadPreference readPreference)
+            where TCommandResult : CommandResult
+        {
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new ReadCommandOperation<TCommandResult>(_namespace, command, resultSerializer, messageEncoderSettings);
+            return ExecuteReadOperation(operation, readPreference);
+        }
+
+        private TCommandResult RunWriteCommandAs<TCommandResult>(
+            BsonDocument command,
+            IBsonSerializer<TCommandResult> resultSerializer)
+            where TCommandResult : CommandResult
+        {
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var operation = new WriteCommandOperation<TCommandResult>(_namespace, command, resultSerializer, messageEncoderSettings);
+            return ExecuteWriteOperation(operation);
         }
     }
 }

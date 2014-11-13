@@ -27,20 +27,6 @@ namespace MongoDB.Driver.Tests.Jira
     public class CSharp893CheckElementNameTests
     {
         [Test]
-        public void TestEmptyElementNameAllowed()
-        {
-            var collection = Configuration.GetTestCollection<BsonDocument>();
-            collection.Drop();
-            var document = new BsonDocument { { "_id", 1 }, { "", 2 } };
-            var insertOptions = new MongoInsertOptions { CheckElementNames = false };
-            collection.Insert(document, insertOptions);
-            var rehydrated = collection.FindOne();
-            Assert.AreEqual(2, rehydrated.ElementCount);
-            Assert.AreEqual(1, rehydrated["_id"].AsInt32);
-            Assert.AreEqual(2, rehydrated[""].AsInt32);
-        }
-
-        [Test]
         public void TestEmptyElementNameNotAllowed()
         {
             var collection = Configuration.GetTestCollection<BsonDocument>();

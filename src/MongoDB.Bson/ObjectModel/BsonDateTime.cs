@@ -14,7 +14,7 @@
 */
 
 using System;
-using System.Xml;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson
 {
@@ -256,7 +256,7 @@ namespace MongoDB.Bson
             }
             else
             {
-                return XmlConvert.ToString(_millisecondsSinceEpoch);
+                return JsonConvert.ToString(_millisecondsSinceEpoch);
             }
         }
     }

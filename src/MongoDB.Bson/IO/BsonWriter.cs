@@ -14,9 +14,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -28,12 +28,13 @@ namespace MongoDB.Bson.IO
     public abstract class BsonWriter : IDisposable
     {
         // private fields
+        private Func<IElementNameValidator> _childElementNameValidatorFactory = () => NoOpElementNameValidator.Instance;
         private bool _disposed = false;
+        private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
+        private Stack<IElementNameValidator> _elementNameValidatorStack = new Stack<IElementNameValidator>();
         private BsonWriterSettings _settings;
         private BsonWriterState _state;
         private string _name;
-        private bool _checkElementNames;
-        private bool _checkUpdateDocument;
         private int _serializationDepth;
 
         // constructors
@@ -53,24 +54,6 @@ namespace MongoDB.Bson.IO
         }
 
         // public properties
-        /// <summary>
-        /// Gets or sets whether to check element names (no periods or leading $).
-        /// </summary>
-        public bool CheckElementNames
-        {
-            get { return _checkElementNames; }
-            set { _checkElementNames = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets whether to check an update document (turns CheckElementNames on if first element name does *not* start with $).
-        /// </summary>
-        public bool CheckUpdateDocument
-        {
-            get { return _checkUpdateDocument; }
-            set { _checkUpdateDocument = value; }
-        }
-
         /// <summary>
         /// Gets the current serialization depth.
         /// </summary>
@@ -137,6 +120,32 @@ namespace MongoDB.Bson.IO
         /// Flushes any pending data to the output destination.
         /// </summary>
         public abstract void Flush();
+
+        /// <summary>
+        /// Pops the element name validator.
+        /// </summary>
+        /// <returns>The popped element validator.</returns>
+        public void PopElementNameValidator()
+        {
+            _elementNameValidator = _elementNameValidatorStack.Pop();
+            _childElementNameValidatorFactory = () => _elementNameValidator;
+        }
+
+        /// <summary>
+        /// Pushes the element name validator.
+        /// </summary>
+        /// <param name="validator">The validator.</param>
+        public void PushElementNameValidator(IElementNameValidator validator)
+        {
+            if (validator == null)
+            {
+                throw new ArgumentNullException("validator");
+            }
+
+            _elementNameValidatorStack.Push(_elementNameValidator);
+            _elementNameValidator = validator;
+            _childElementNameValidatorFactory = () => _elementNameValidator;
+        }
 
         /// <summary>
         /// Writes BSON binary data to the writer.
@@ -296,6 +305,8 @@ namespace MongoDB.Bson.IO
         public virtual void WriteEndDocument()
         {
             _serializationDepth--;
+
+            PopElementNameValidator();
         }
 
         /// <summary>
@@ -415,7 +426,13 @@ namespace MongoDB.Bson.IO
             {
                 ThrowInvalidState("WriteName", BsonWriterState.Name);
             }
-            CheckElementName(name);
+
+            if (!_elementNameValidator.IsValidElementName(name))
+            {
+                var message = string.Format("Element name '{0}' is not valid'.", name);
+                throw new BsonSerializationException(message);
+            }
+            _childElementNameValidatorFactory = () => _elementNameValidator.GetValidatorForChildContent(name);
 
             _name = name;
             _state = BsonWriterState.Value;
@@ -495,7 +512,7 @@ namespace MongoDB.Bson.IO
             using (var memoryStream = new MemoryStream(documentLength))
             {
                 // wrap the array in a fake document so we can deserialize it
-                var streamWriter = new BsonStreamWriter(memoryStream, Utf8Helper.StrictUtf8Encoding);
+                var streamWriter = new BsonStreamWriter(memoryStream, Utf8Encodings.Strict);
                 streamWriter.WriteInt32(documentLength);
                 streamWriter.WriteBsonType(BsonType.Array);
                 streamWriter.WriteByte((byte)'x');
@@ -634,6 +651,8 @@ namespace MongoDB.Bson.IO
             {
                 throw new BsonSerializationException("Maximum serialization depth exceeded (does the object being serialized have a circular reference?).");
             }
+
+            PushElementNameValidator(_childElementNameValidatorFactory());
         }
 
         /// <summary>
@@ -713,52 +732,6 @@ namespace MongoDB.Bson.IO
         }
 
         // protected methods
-        /// <summary>
-        /// Checks that the element name is valid.
-        /// </summary>
-        /// <param name="name">The element name to be checked.</param>
-        protected void CheckElementName(string name)
-        {
-            if (_checkUpdateDocument)
-            {
-                _checkElementNames = name == "" || name[0] != '$';
-                _checkUpdateDocument = false;
-                return;
-            }
-
-            if (_checkElementNames)
-            {
-                if (name == "")
-                {
-                    var message = "Element name '' is not valid because it is an empty string.";
-                    throw new BsonSerializationException(message);
-                }
-
-                if (name[0] == '$')
-                {
-                    // a few element names starting with $ have to be allowed for historical reasons
-                    switch (name)
-                    {
-                        case "$code":
-                        case "$db":
-                        case "$id":
-                        case "$ref":
-                        case "$scope":
-                            break;
-                        default:
-                            var message = string.Format("Element name '{0}' is not valid because it starts with a '$'.", name);
-                            throw new BsonSerializationException(message);
-                    }
-                }
-
-                if (name.IndexOf('.') != -1)
-                {
-                    var message = string.Format("Element name '{0}' is not valid because it contains a '.'.", name);
-                    throw new BsonSerializationException(message);
-                }
-            }
-        }
-
         /// <summary>
         /// Disposes of any resources used by the writer.
         /// </summary>
