@@ -918,6 +918,15 @@ namespace MongoDB.Driver
             return commandResult;
         }
 
+        internal TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command,
+            ReadPreference readPreference)
+            where TCommandResult : CommandResult
+        {
+            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
+            return RunCommandAs<TCommandResult>(command, resultSerializer, readPreference);
+        }
+
         private TCommandResult RunReadCommandAs<TCommandResult>(
             BsonDocument command,
             IBsonSerializer<TCommandResult> resultSerializer,

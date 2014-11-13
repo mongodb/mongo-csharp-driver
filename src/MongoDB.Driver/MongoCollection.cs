@@ -866,7 +866,7 @@ namespace MongoDB.Driver
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            return RunCommandAs<GeoHaystackSearchResult<TDocument>>(command);
+            return _database.RunCommandAs<GeoHaystackSearchResult<TDocument>>(command, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -926,7 +926,7 @@ namespace MongoDB.Driver
                 { "uniqueDocs", () => args.UniqueDocs.Value, args.UniqueDocs.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            var result = RunCommandAs<GeoNearResult<TDocument>>(command);
+            var result = _database.RunCommandAs<GeoNearResult<TDocument>>(command, _settings.ReadPreference);
             result.Response["ns"] = FullName;
             return result;
         }
@@ -1070,7 +1070,7 @@ namespace MongoDB.Driver
                 { "scale", () => args.Scale.Value, args.Scale.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            return RunCommandAs<CollectionStatsResult>(command);
+            return _database.RunCommandAs<CollectionStatsResult>(command, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -1714,7 +1714,7 @@ namespace MongoDB.Driver
         public virtual CommandResult ReIndex()
         {
             var command = new CommandDocument("reIndex", _collectionNamespace.CollectionName);
-            return RunCommandAs<CommandResult>(command);
+            return _database.RunCommandAs<CommandResult>(command, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -2063,7 +2063,7 @@ namespace MongoDB.Driver
                 { "scandata", () => args.ScanData.Value, args.ScanData.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            return RunCommandAs<ValidateCollectionResult>(command);
+            return _database.RunCommandAs<ValidateCollectionResult>(command, ReadPreference.Primary);
         }
 
         // internal methods
@@ -2226,19 +2226,6 @@ namespace MongoDB.Driver
             }
 
             return args;
-        }
-
-        private TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult
-        {
-            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
-            return RunCommandAs<TCommandResult>(command, resultSerializer);
-        }
-
-        private TCommandResult RunCommandAs<TCommandResult>(
-            IMongoCommand command,
-            IBsonSerializer<TCommandResult> resultSerializer) where TCommandResult : CommandResult
-        {
-            return _database.RunCommandAs<TCommandResult>(command, resultSerializer, _settings.ReadPreference);
         }
     }
 
