@@ -67,7 +67,6 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
@@ -258,7 +257,6 @@
     <Compile Include="Serialization\Serializers\DictionarySerializerBase.cs" />
     <Compile Include="Serialization\Serializers\DiscriminatedInterfaceSerializer.cs" />
     <Compile Include="Serialization\Serializers\DoubleSerializer.cs" />
-    <Compile Include="Serialization\Serializers\DrawingSizeSerializer.cs" />
     <Compile Include="Serialization\Serializers\DynamicDocumentBaseSerializer.cs" />
     <Compile Include="Serialization\Serializers\EnumerableInterfaceImplementerSerializer.cs" />
     <Compile Include="Serialization\Serializers\EnumerableInterfaceImplementerSerializerBase.cs" />

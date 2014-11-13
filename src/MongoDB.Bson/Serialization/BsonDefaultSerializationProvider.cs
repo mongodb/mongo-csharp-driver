@@ -70,7 +70,6 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Decimal), typeof(DecimalSerializer) },
                 { typeof(Double), typeof(DoubleSerializer) },
                 { typeof(ExpandoObject), typeof(ExpandoObjectSerializer) },
-                { typeof(System.Drawing.Size), typeof(DrawingSizeSerializer) },
                 { typeof(Guid), typeof(GuidSerializer) },
                 { typeof(Int16), typeof(Int16Serializer) },
                 { typeof(Int32), typeof(Int32Serializer) },
