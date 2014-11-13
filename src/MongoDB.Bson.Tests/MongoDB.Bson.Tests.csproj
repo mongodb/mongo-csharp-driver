@@ -76,8 +76,6 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.XML" />
-    <Reference Include="WindowsBase">
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">

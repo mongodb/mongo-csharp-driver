@@ -89,8 +89,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="WindowsBase">
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
