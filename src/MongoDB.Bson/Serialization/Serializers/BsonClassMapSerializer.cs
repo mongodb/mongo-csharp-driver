@@ -118,7 +118,7 @@ namespace MongoDB.Bson.Serialization
                 var message = string.Format(
                     "Expected a nested document representing the serialized form of a {0} value, but found a value of type {1} instead.",
                     typeof(TClass).FullName, bsonType);
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
 
             Dictionary<string, object> values = null;
@@ -205,7 +205,7 @@ namespace MongoDB.Bson.Serialization
                         var message = string.Format(
                             "Element '{0}' does not match any field or property of class {1}.",
                             elementName, _classMap.ClassType.FullName);
-                        throw new FileFormatException(message);
+                        throw new FormatException(message);
                     }
                 }
             }
@@ -235,7 +235,7 @@ namespace MongoDB.Bson.Serialization
                             var message = string.Format(
                                 "Required element '{0}' for {1} '{2}' of class {3} is missing.",
                                 memberMap.ElementName, fieldOrProperty, memberMap.MemberName, _classMap.ClassType.FullName);
-                            throw new FileFormatException(message);
+                            throw new FormatException(message);
                         }
 
                         if (document != null)
@@ -484,7 +484,7 @@ namespace MongoDB.Bson.Serialization
                 var message = string.Format(
                     "An error occurred while deserializing the {0} {1} of class {2}: {3}", // terminating period provided by nested message
                     memberMap.MemberName, (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property", memberMap.ClassMap.ClassType.FullName, ex.Message);
-                throw new FileFormatException(message, ex);
+                throw new FormatException(message, ex);
             }
         }
 

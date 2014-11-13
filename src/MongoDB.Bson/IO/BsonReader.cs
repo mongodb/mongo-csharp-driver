@@ -842,7 +842,7 @@ namespace MongoDB.Bson.IO
                 var message = string.Format(
                     "Expected element name to be '{0}', not '{1}'.",
                     expectedName, actualName);
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
         }
     }

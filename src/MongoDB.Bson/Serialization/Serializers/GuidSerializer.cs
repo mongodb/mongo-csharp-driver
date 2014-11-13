@@ -92,12 +92,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                     if (bytes.Length != 16)
                     {
                         message = string.Format("Expected length to be 16, not {0}.", bytes.Length);
-                        throw new FileFormatException(message);
+                        throw new FormatException(message);
                     }
                     if (subType != BsonBinarySubType.UuidStandard && subType != BsonBinarySubType.UuidLegacy)
                     {
                         message = string.Format("Expected binary sub type to be UuidStandard or UuidLegacy, not {0}.", subType);
-                        throw new FileFormatException(message);
+                        throw new FormatException(message);
                     }
                     if (guidRepresentation == GuidRepresentation.Unspecified)
                     {

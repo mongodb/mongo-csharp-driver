@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -40,7 +41,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp270
         {
             var document = new BsonDocument("bogus", 0);
             var message = "Element 'bogus' does not match any field or property of class MongoDB.Bson.Tests.Jira.CSharp270.C.";
-            var ex = Assert.Throws<FileFormatException>(() => { BsonSerializer.Deserialize<C>(document); });
+            var ex = Assert.Throws<FormatException>(() => { BsonSerializer.Deserialize<C>(document); });
             Assert.AreEqual(message, ex.Message);
         }
 
@@ -53,7 +54,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp270
                 { "property", 0 }
             };
             var message = "Required element 'field' for field 'Field' of class MongoDB.Bson.Tests.Jira.CSharp270.C is missing.";
-            var ex = Assert.Throws<FileFormatException>(() => { BsonSerializer.Deserialize<C>(document); });
+            var ex = Assert.Throws<FormatException>(() => { BsonSerializer.Deserialize<C>(document); });
             Assert.AreEqual(message, ex.Message);
         }
 
@@ -66,7 +67,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp270
                 { "field", 0 }
             };
             var message = "Required element 'property' for property 'Property' of class MongoDB.Bson.Tests.Jira.CSharp270.C is missing.";
-            var ex = Assert.Throws<FileFormatException>(() => { BsonSerializer.Deserialize<C>(document); });
+            var ex = Assert.Throws<FormatException>(() => { BsonSerializer.Deserialize<C>(document); });
             Assert.AreEqual(message, ex.Message);
         }
     }

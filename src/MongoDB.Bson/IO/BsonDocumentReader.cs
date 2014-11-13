@@ -175,7 +175,7 @@ namespace MongoDB.Bson.IO
             if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
             {
                 var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {2}.", subType);
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
 
             return binaryData.Bytes;

@@ -710,7 +710,7 @@ namespace MongoDB.Bson.IO
             if (size > _maxDocumentSizeStack.Peek())
             {
                 var message = string.Format("Size {0} is larger than MaxDocumentSize {1}.", size, _maxDocumentSizeStack.Peek());
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
 
             var currentPosition = _streamWriter.Position;

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Dynamic;
 using System.IO;
 using System.Linq.Expressions;
@@ -62,7 +63,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 default:
                     message = string.Format("Cannot deserialize a '{0}' from BsonType '{1}'.", BsonUtils.GetFriendlyTypeName(typeof(T)), bsonType);
-                    throw new FileFormatException(message);
+                    throw new FormatException(message);
             }
         }
 

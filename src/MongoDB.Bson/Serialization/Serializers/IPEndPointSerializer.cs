@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -60,7 +61,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             var message = string.Format("Invalid IPEndPoint value '{0}'.", stringValue);
-            throw new FileFormatException(message);
+            throw new FormatException(message);
         }
 
         /// <summary>

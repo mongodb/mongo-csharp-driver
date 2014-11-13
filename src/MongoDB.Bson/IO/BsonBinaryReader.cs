@@ -132,7 +132,7 @@ namespace MongoDB.Bson.IO
                 int size2 = ReadSize();
                 if (size2 != size - 4)
                 {
-                    throw new FileFormatException("Binary sub type OldBinary has inconsistent sizes");
+                    throw new FormatException("Binary sub type OldBinary has inconsistent sizes");
                 }
                 size = size2;
 
@@ -155,7 +155,7 @@ namespace MongoDB.Bson.IO
                         var message = string.Format(
                             "The GuidRepresentation for the reader is {0}, which requires the binary sub type to be {1}, not {2}.",
                             _settings.GuidRepresentation, expectedSubType, subType);
-                        throw new FileFormatException(message);
+                        throw new FormatException(message);
                     }
                 }
                 guidRepresentation = (subType == BsonBinarySubType.UuidStandard) ? GuidRepresentation.Standard : _settings.GuidRepresentation;
@@ -212,7 +212,7 @@ namespace MongoDB.Bson.IO
                         return BsonType.EndOfDocument;
                     default:
                         var message = string.Format("BsonType EndOfDocument is not valid when ContextType is {0}.", _context.ContextType);
-                        throw new FileFormatException(message);
+                        throw new FormatException(message);
                 }
             }
             else
@@ -251,7 +251,7 @@ namespace MongoDB.Bson.IO
             if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
             {
                 var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {2}.", subType);
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
 
             State = GetNextState();
@@ -728,12 +728,12 @@ namespace MongoDB.Bson.IO
             if (size < 0)
             {
                 var message = string.Format("Size {0} is not valid because it is negative.", size);
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
             if (size > _settings.MaxDocumentSize)
             {
                 var message = string.Format("Size {0} is not valid because it is larger than MaxDocumentSize {1}.", size, _settings.MaxDocumentSize);
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
             return size;
         }

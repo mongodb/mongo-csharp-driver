@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -103,7 +104,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 if (middleList.Count != length2)
                 {
                     var message = string.Format("Middle list {0} is of length {1} but should be of length {2}.", i, middleList.Count, length2);
-                    throw new FileFormatException(message);
+                    throw new FormatException(message);
                 }
                 for (int j = 0; j < length2; j++)
                 {
@@ -111,7 +112,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     if (innerList.Count != length3)
                     {
                         var message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", j, innerList.Count, length3);
-                        throw new FileFormatException(message);
+                        throw new FormatException(message);
                     }
                     for (int k = 0; k < length3; k++)
                     {

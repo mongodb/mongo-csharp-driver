@@ -235,7 +235,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 if (value.TimeOfDay != TimeSpan.Zero)
                 {
-                    throw new FileFormatException("TimeOfDay component for DateOnly DateTime value is not zero.");
+                    throw new FormatException("TimeOfDay component for DateOnly DateTime value is not zero.");
                 }
                 value = DateTime.SpecifyKind(value, _kind); // not ToLocalTime or ToUniversalTime!
             }

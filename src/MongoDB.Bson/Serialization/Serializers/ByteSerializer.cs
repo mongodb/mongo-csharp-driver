@@ -92,7 +92,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var bytes = bsonReader.ReadBytes();
                     if (bytes.Length != 1)
                     {
-                        throw new FileFormatException("Binary data for Byte must be exactly one byte long.");
+                        throw new FormatException("Binary data for Byte must be exactly one byte long.");
                     }
                     value = bytes[0];
                     break;
@@ -125,7 +125,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (lostData)
             {
                 var message = string.Format("Data loss occurred when trying to convert from {0} to Byte.", bsonType);
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
 
             return value;

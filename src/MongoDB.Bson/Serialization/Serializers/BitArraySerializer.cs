@@ -131,7 +131,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                                 bitArray[i] = true;
                                 break;
                             default:
-                                throw new FileFormatException("String value is not a valid BitArray.");
+                                throw new FormatException("String value is not a valid BitArray.");
                         }
                     }
                     return bitArray;
