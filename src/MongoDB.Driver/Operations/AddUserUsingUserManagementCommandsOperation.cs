@@ -82,18 +82,30 @@ namespace MongoDB.Driver.Operations
 
         private async Task<bool> UserExistsAsync(IConnectionSourceHandle connectionSource, CancellationToken cancellationToken)
         {
-            var command = new BsonDocument("usersInfo", _username);
-            var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var result = await operation.ExecuteAsync(connectionSource, cancellationToken);
+            try
+            {
+                var command = new BsonDocument("usersInfo", _username);
+                var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+                var result = await operation.ExecuteAsync(connectionSource, ReadPreference.Primary, cancellationToken);
 
-            BsonValue users;
-            if (result.TryGetValue("users", out users) && users.IsBsonArray && users.AsBsonArray.Count > 0)
-            {
-                return true;
+                BsonValue users;
+                if (result.TryGetValue("users", out users) && users.IsBsonArray && users.AsBsonArray.Count > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else
+            catch (MongoCommandException ex)
             {
-                return false;
+                if (ex.Code == 13)
+                {
+                    return false;
+                }
+
+                throw;
             }
         }
     }
