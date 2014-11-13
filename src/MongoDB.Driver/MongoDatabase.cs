@@ -572,7 +572,7 @@ namespace MongoDB.Driver
         public GetProfilingLevelResult GetProfilingLevel()
         {
             var command = new CommandDocument("profile", -1);
-            return RunCommandAs<GetProfilingLevelResult>(command);
+            return RunCommandAs<GetProfilingLevelResult>(command, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -591,7 +591,8 @@ namespace MongoDB.Driver
         /// <returns>An instance of DatabaseStatsResult.</returns>
         public virtual DatabaseStatsResult GetStats()
         {
-            return RunCommandAs<DatabaseStatsResult>("dbstats");
+            var command = new CommandDocument("dbstats", 1);
+            return RunCommandAs<DatabaseStatsResult>(command, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -760,8 +761,7 @@ namespace MongoDB.Driver
         public virtual TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command)
             where TCommandResult : CommandResult
         {
-            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
-            return RunCommandAs<TCommandResult>(command, resultSerializer);
+            return RunCommandAs<TCommandResult>(command, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -825,7 +825,7 @@ namespace MongoDB.Driver
                 { "profile", (int) level },
                 { "slowms", slow.TotalMilliseconds, slow != TimeSpan.Zero } // optional
             };
-            return RunCommandAs<CommandResult>(command);
+            return RunCommandAs<CommandResult>(command, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -867,19 +867,12 @@ namespace MongoDB.Driver
 
         internal TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command,
-            IBsonSerializer<TCommandResult> resultSerializer)
-            where TCommandResult : CommandResult
-        {
-            return RunCommandAs<TCommandResult>(command, resultSerializer, _settings.ReadPreference);
-        }
-
-        internal TCommandResult RunCommandAs<TCommandResult>(
-            IMongoCommand command,
             IBsonSerializer<TCommandResult> resultSerializer,
             ReadPreference readPreference)
             where TCommandResult : CommandResult
         {
-            var isReadCommand = CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument());
+            var commandDocument = command.ToBsonDocument();
+            var isReadCommand = CanCommandBeSentToSecondary.Delegate(commandDocument);
 
             if (readPreference != ReadPreference.Primary)
             {
@@ -904,18 +897,18 @@ namespace MongoDB.Driver
                 }
             }
 
-            TCommandResult commandResult;
-            var wrappedCommand = new BsonDocumentWrapper(command);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+
             if (isReadCommand)
             {
-                commandResult = RunReadCommandAs<TCommandResult>(wrappedCommand, resultSerializer, readPreference);
+                var operation = new ReadCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
+                return ExecuteReadOperation(operation, readPreference);
             }
             else
             {
-                commandResult = RunWriteCommandAs<TCommandResult>(wrappedCommand, resultSerializer);
+                var operation = new WriteCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
+                return ExecuteWriteOperation(operation);
             }
-
-            return commandResult;
         }
 
         internal TCommandResult RunCommandAs<TCommandResult>(
@@ -925,27 +918,6 @@ namespace MongoDB.Driver
         {
             var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
             return RunCommandAs<TCommandResult>(command, resultSerializer, readPreference);
-        }
-
-        private TCommandResult RunReadCommandAs<TCommandResult>(
-            BsonDocument command,
-            IBsonSerializer<TCommandResult> resultSerializer,
-            ReadPreference readPreference)
-            where TCommandResult : CommandResult
-        {
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ReadCommandOperation<TCommandResult>(_namespace, command, resultSerializer, messageEncoderSettings);
-            return ExecuteReadOperation(operation, readPreference);
-        }
-
-        private TCommandResult RunWriteCommandAs<TCommandResult>(
-            BsonDocument command,
-            IBsonSerializer<TCommandResult> resultSerializer)
-            where TCommandResult : CommandResult
-        {
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new WriteCommandOperation<TCommandResult>(_namespace, command, resultSerializer, messageEncoderSettings);
-            return ExecuteWriteOperation(operation);
         }
 
 #pragma warning disable 618
