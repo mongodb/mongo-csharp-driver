@@ -29,7 +29,6 @@ namespace MongoDB.Bson
         // constructors
         // private so only the singleton instance can be created
         private BsonUndefined()
-            : base(BsonType.Undefined)
         {
         }
 
@@ -62,6 +61,15 @@ namespace MongoDB.Bson
         /// Gets the singleton instance of BsonUndefined.
         /// </summary>
         public static BsonUndefined Value { get { return __value; } }
+
+        // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Undefined; }
+        }
 
         // public methods
         /// <summary>

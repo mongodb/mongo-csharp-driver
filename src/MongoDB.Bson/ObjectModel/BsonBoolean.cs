@@ -37,7 +37,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value.</param>
         public BsonBoolean(bool value)
-            : base(BsonType.Boolean)
         {
             _value = value;
         }
@@ -60,6 +59,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Boolean; }
+        }
+
         /// <summary>
         /// Gets the BsonBoolean as a bool.
         /// </summary>

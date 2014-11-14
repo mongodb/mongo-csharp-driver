@@ -137,7 +137,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="capacity">The initial capacity of the array.</param>
         public BsonArray(int capacity)
-            : base(BsonType.Array)
         {
             _values = new List<BsonValue>(capacity);
         }
@@ -166,6 +165,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Array; }
+        }
+
         /// <summary>
         /// Gets or sets the total number of elements the internal data structure can hold without resizing.
         /// </summary>

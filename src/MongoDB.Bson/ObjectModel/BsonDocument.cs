@@ -43,7 +43,6 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonDocument class.
         /// </summary>
         public BsonDocument()
-            : base(BsonType.Document)
         {
         }
 
@@ -53,7 +52,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="allowDuplicateNames">Whether duplicate element names are allowed.</param>
         public BsonDocument(bool allowDuplicateNames)
-            : base(BsonType.Document)
         {
             _allowDuplicateNames = allowDuplicateNames;
         }
@@ -63,7 +61,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="element">An element to add to the document.</param>
         public BsonDocument(BsonElement element)
-            : base(BsonType.Document)
         {
             Add(element);
         }
@@ -73,7 +70,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         public BsonDocument(Dictionary<string, object> dictionary)
-            : base(BsonType.Document)
         {
             AddRange(dictionary);
         }
@@ -85,7 +81,6 @@ namespace MongoDB.Bson
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
         [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
         public BsonDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
-            : base(BsonType.Document)
         {
             Add(dictionary, keys);
         }
@@ -95,7 +90,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         public BsonDocument(IEnumerable<KeyValuePair<string, object>> dictionary)
-            : base(BsonType.Document)
         {
             AddRange(dictionary);
         }
@@ -107,7 +101,6 @@ namespace MongoDB.Bson
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
         [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
         public BsonDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
-            : base(BsonType.Document)
         {
             Add(dictionary, keys);
         }
@@ -117,7 +110,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         public BsonDocument(IDictionary dictionary)
-            : base(BsonType.Document)
         {
             AddRange(dictionary);
         }
@@ -129,7 +121,6 @@ namespace MongoDB.Bson
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
         [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
         public BsonDocument(IDictionary dictionary, IEnumerable keys)
-            : base(BsonType.Document)
         {
             Add(dictionary, keys);
         }
@@ -139,7 +130,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="elements">A list of elements to add to the document.</param>
         public BsonDocument(IEnumerable<BsonElement> elements)
-            : base(BsonType.Document)
         {
             AddRange(elements);
         }
@@ -150,7 +140,6 @@ namespace MongoDB.Bson
         /// <param name="elements">One or more elements to add to the document.</param>
         [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
         public BsonDocument(params BsonElement[] elements)
-            : base(BsonType.Document)
         {
             Add(elements);
         }
@@ -161,7 +150,6 @@ namespace MongoDB.Bson
         /// <param name="name">The name of the element to add to the document.</param>
         /// <param name="value">The value of the element to add to the document.</param>
         public BsonDocument(string name, BsonValue value)
-            : base(BsonType.Document)
         {
             Add(name, value);
         }
@@ -197,6 +185,14 @@ namespace MongoDB.Bson
         {
             get { return _allowDuplicateNames; }
             set { _allowDuplicateNames = value; }
+        }
+
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Document; }
         }
 
         // ElementCount could be greater than the number of Names if allowDuplicateNames is true

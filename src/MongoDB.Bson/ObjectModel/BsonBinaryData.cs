@@ -56,7 +56,6 @@ namespace MongoDB.Bson
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         public BsonBinaryData(byte[] bytes, BsonBinarySubType subType, GuidRepresentation guidRepresentation)
-            : base(BsonType.Binary)
         {
             if (bytes == null)
             {
@@ -115,6 +114,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Binary; }
+        }
+
         /// <summary>
         /// Gets the binary data.
         /// </summary>

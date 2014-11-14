@@ -33,7 +33,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value.</param>
         public BsonInt32(int value)
-            : base(BsonType.Int32)
         {
             _value = value;
         }
@@ -85,6 +84,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Int32; }
+        }
+
         /// <summary>
         /// Gets the BsonInt32 as an int.
         /// </summary>

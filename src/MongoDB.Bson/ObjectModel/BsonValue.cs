@@ -51,19 +51,6 @@ namespace MongoDB.Bson
             { BsonType.MaxKey, 15 }
         };
 
-        // private fields
-        private BsonType _bsonType;
-
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the BsonValue class.
-        /// </summary>
-        /// <param name="bsonType">The BsonType of this BsonValue.</param>
-        protected BsonValue(BsonType bsonType)
-        {
-            _bsonType = bsonType;
-        }
-
         // public properties
         /// <summary>
         /// Casts the BsonValue to a Boolean (throws an InvalidCastException if the cast is not valid).
@@ -248,7 +235,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool? AsNullableBoolean
         {
-            get { return (_bsonType == BsonType.Null) ? null : (bool?)AsBoolean; }
+            get { return (BsonType == BsonType.Null) ? null : (bool?)AsBoolean; }
         }
 
         /// <summary>
@@ -257,7 +244,7 @@ namespace MongoDB.Bson
         [Obsolete("Use ToNullableUniversalTime instead.")]
         public DateTime? AsNullableDateTime
         {
-            get { return (_bsonType == BsonType.Null) ? null : (DateTime?)AsDateTime; }
+            get { return (BsonType == BsonType.Null) ? null : (DateTime?)AsDateTime; }
         }
 
         /// <summary>
@@ -265,7 +252,7 @@ namespace MongoDB.Bson
         /// </summary>
         public double? AsNullableDouble
         {
-            get { return (_bsonType == BsonType.Null) ? null : (double?)AsDouble; }
+            get { return (BsonType == BsonType.Null) ? null : (double?)AsDouble; }
         }
 
         /// <summary>
@@ -273,7 +260,7 @@ namespace MongoDB.Bson
         /// </summary>
         public Guid? AsNullableGuid
         {
-            get { return (_bsonType == BsonType.Null) ? null : (Guid?)AsGuid; }
+            get { return (BsonType == BsonType.Null) ? null : (Guid?)AsGuid; }
         }
 
         /// <summary>
@@ -281,7 +268,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int? AsNullableInt32
         {
-            get { return (_bsonType == BsonType.Null) ? null : (int?)AsInt32; }
+            get { return (BsonType == BsonType.Null) ? null : (int?)AsInt32; }
         }
 
         /// <summary>
@@ -289,7 +276,7 @@ namespace MongoDB.Bson
         /// </summary>
         public long? AsNullableInt64
         {
-            get { return (_bsonType == BsonType.Null) ? null : (long?)AsInt64; }
+            get { return (BsonType == BsonType.Null) ? null : (long?)AsInt64; }
         }
 
         /// <summary>
@@ -297,7 +284,7 @@ namespace MongoDB.Bson
         /// </summary>
         public ObjectId? AsNullableObjectId
         {
-            get { return (_bsonType == BsonType.Null) ? null : (ObjectId?)AsObjectId; }
+            get { return (BsonType == BsonType.Null) ? null : (ObjectId?)AsObjectId; }
         }
 
         /// <summary>
@@ -336,17 +323,14 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the BsonType of this BsonValue.
         /// </summary>
-        public BsonType BsonType
-        {
-            get { return _bsonType; }
-        }
+        public abstract BsonType BsonType { get; }
 
         /// <summary>
         /// Tests whether this BsonValue is a Boolean.
         /// </summary>
         public bool IsBoolean
         {
-            get { return _bsonType == BsonType.Boolean; }
+            get { return BsonType == BsonType.Boolean; }
         }
 
         /// <summary>
@@ -354,7 +338,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonArray
         {
-            get { return _bsonType == BsonType.Array; }
+            get { return BsonType == BsonType.Array; }
         }
 
         /// <summary>
@@ -362,7 +346,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonBinaryData
         {
-            get { return _bsonType == BsonType.Binary; }
+            get { return BsonType == BsonType.Binary; }
         }
 
         /// <summary>
@@ -370,7 +354,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonDateTime
         {
-            get { return _bsonType == BsonType.DateTime; }
+            get { return BsonType == BsonType.DateTime; }
         }
 
         /// <summary>
@@ -378,7 +362,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonDocument
         {
-            get { return _bsonType == BsonType.Document; }
+            get { return BsonType == BsonType.Document; }
         }
 
         /// <summary>
@@ -386,7 +370,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonJavaScript
         {
-            get { return _bsonType == BsonType.JavaScript || _bsonType == BsonType.JavaScriptWithScope; }
+            get { return BsonType == BsonType.JavaScript || BsonType == BsonType.JavaScriptWithScope; }
         }
 
         /// <summary>
@@ -394,7 +378,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonJavaScriptWithScope
         {
-            get { return _bsonType == BsonType.JavaScriptWithScope; }
+            get { return BsonType == BsonType.JavaScriptWithScope; }
         }
 
         /// <summary>
@@ -402,7 +386,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonMaxKey
         {
-            get { return _bsonType == BsonType.MaxKey; }
+            get { return BsonType == BsonType.MaxKey; }
         }
 
         /// <summary>
@@ -410,7 +394,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonMinKey
         {
-            get { return _bsonType == BsonType.MinKey; }
+            get { return BsonType == BsonType.MinKey; }
         }
 
         /// <summary>
@@ -418,7 +402,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonNull
         {
-            get { return _bsonType == BsonType.Null; }
+            get { return BsonType == BsonType.Null; }
         }
 
         /// <summary>
@@ -426,7 +410,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonRegularExpression
         {
-            get { return _bsonType == BsonType.RegularExpression; }
+            get { return BsonType == BsonType.RegularExpression; }
         }
 
         /// <summary>
@@ -434,7 +418,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonSymbol
         {
-            get { return _bsonType == BsonType.Symbol; }
+            get { return BsonType == BsonType.Symbol; }
         }
 
         /// <summary>
@@ -442,7 +426,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonTimestamp
         {
-            get { return _bsonType == BsonType.Timestamp; }
+            get { return BsonType == BsonType.Timestamp; }
         }
 
         /// <summary>
@@ -450,7 +434,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsBsonUndefined
         {
-            get { return _bsonType == BsonType.Undefined; }
+            get { return BsonType == BsonType.Undefined; }
         }
 
         /// <summary>
@@ -467,7 +451,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsDouble
         {
-            get { return _bsonType == BsonType.Double; }
+            get { return BsonType == BsonType.Double; }
         }
 
         /// <summary>
@@ -477,7 +461,7 @@ namespace MongoDB.Bson
         {
             get
             {
-                if (_bsonType == BsonType.Binary)
+                if (BsonType == BsonType.Binary)
                 {
                     var subType = ((BsonBinaryData)this).SubType;
                     return subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy;
@@ -494,7 +478,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsInt32
         {
-            get { return _bsonType == BsonType.Int32; }
+            get { return BsonType == BsonType.Int32; }
         }
 
         /// <summary>
@@ -502,7 +486,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsInt64
         {
-            get { return _bsonType == BsonType.Int64; }
+            get { return BsonType == BsonType.Int64; }
         }
 
         /// <summary>
@@ -513,9 +497,9 @@ namespace MongoDB.Bson
             get
             {
                 return
-                    _bsonType == BsonType.Double ||
-                    _bsonType == BsonType.Int32 ||
-                    _bsonType == BsonType.Int64;
+                    BsonType == BsonType.Double ||
+                    BsonType == BsonType.Int32 ||
+                    BsonType == BsonType.Int64;
             }
         }
 
@@ -524,7 +508,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsObjectId
         {
-            get { return _bsonType == BsonType.ObjectId; }
+            get { return BsonType == BsonType.ObjectId; }
         }
 
         /// <summary>
@@ -532,7 +516,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool IsString
         {
-            get { return _bsonType == BsonType.String; }
+            get { return BsonType == BsonType.String; }
         }
 
         /// <summary>
@@ -1136,7 +1120,7 @@ namespace MongoDB.Bson
         public int CompareTypeTo(BsonValue other)
         {
             if (object.ReferenceEquals(other, null)) { return 1; }
-            return __bsonTypeSortOrder[_bsonType].CompareTo(__bsonTypeSortOrder[other._bsonType]);
+            return __bsonTypeSortOrder[BsonType].CompareTo(__bsonTypeSortOrder[other.BsonType]);
         }
 
         /// <summary>
@@ -1281,7 +1265,7 @@ namespace MongoDB.Bson
         // explicit IConvertible implementation
         TypeCode IConvertible.GetTypeCode()
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return TypeCode.Boolean;
                 case BsonType.DateTime: return TypeCode.DateTime;
@@ -1295,7 +1279,7 @@ namespace MongoDB.Bson
 
         bool IConvertible.ToBoolean(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return this.AsBoolean;
                 case BsonType.Double: return Convert.ToBoolean(this.AsDouble, provider);
@@ -1308,7 +1292,7 @@ namespace MongoDB.Bson
 
         byte IConvertible.ToByte(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToByte(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToByte(this.AsDouble, provider);
@@ -1321,7 +1305,7 @@ namespace MongoDB.Bson
 
         char IConvertible.ToChar(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Int32: return Convert.ToChar(this.AsInt32, provider);
                 case BsonType.Int64: return Convert.ToChar(this.AsInt64, provider);
@@ -1332,7 +1316,7 @@ namespace MongoDB.Bson
 
         DateTime IConvertible.ToDateTime(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.DateTime: return this.ToUniversalTime();
                 case BsonType.String: return Convert.ToDateTime(this.AsString, provider);
@@ -1342,7 +1326,7 @@ namespace MongoDB.Bson
 
         decimal IConvertible.ToDecimal(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToDecimal(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToDecimal(this.AsDouble, provider);
@@ -1355,7 +1339,7 @@ namespace MongoDB.Bson
 
         double IConvertible.ToDouble(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToDouble(this.AsBoolean, provider);
                 case BsonType.Double: return this.AsDouble;
@@ -1368,7 +1352,7 @@ namespace MongoDB.Bson
 
         short IConvertible.ToInt16(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToInt16(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToInt16(this.AsDouble, provider);
@@ -1381,7 +1365,7 @@ namespace MongoDB.Bson
 
         int IConvertible.ToInt32(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToInt32(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToInt32(this.AsDouble, provider);
@@ -1394,7 +1378,7 @@ namespace MongoDB.Bson
 
         long IConvertible.ToInt64(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToInt64(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToInt64(this.AsDouble, provider);
@@ -1407,7 +1391,7 @@ namespace MongoDB.Bson
 
         sbyte IConvertible.ToSByte(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToSByte(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToSByte(this.AsDouble, provider);
@@ -1420,7 +1404,7 @@ namespace MongoDB.Bson
 
         float IConvertible.ToSingle(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToSingle(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToSingle(this.AsDouble, provider);
@@ -1433,7 +1417,7 @@ namespace MongoDB.Bson
 
         string IConvertible.ToString(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToString(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToString(this.AsDouble, provider);
@@ -1452,7 +1436,7 @@ namespace MongoDB.Bson
                 return this;
             }
 
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ChangeType(this.AsBoolean, conversionType, provider);
                 case BsonType.DateTime: return Convert.ChangeType(this.ToUniversalTime(), conversionType, provider);
@@ -1467,7 +1451,7 @@ namespace MongoDB.Bson
 
         ushort IConvertible.ToUInt16(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToUInt16(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToUInt16(this.AsDouble, provider);
@@ -1480,7 +1464,7 @@ namespace MongoDB.Bson
 
         uint IConvertible.ToUInt32(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToUInt32(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToUInt32(this.AsDouble, provider);
@@ -1493,7 +1477,7 @@ namespace MongoDB.Bson
 
         ulong IConvertible.ToUInt64(IFormatProvider provider)
         {
-            switch (_bsonType)
+            switch (BsonType)
             {
                 case BsonType.Boolean: return Convert.ToUInt64(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToUInt64(this.AsDouble, provider);
