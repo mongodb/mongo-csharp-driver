@@ -29,25 +29,25 @@ namespace MongoDB.Driver
     public sealed class DeleteManyModel<T> : WriteModel<T>
     {
         // fields
-        private readonly object _criteria;
+        private readonly object _filter;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="DeleteManyModel{T}"/> class.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
-        public DeleteManyModel(object criteria)
+        /// <param name="filter">The filter.</param>
+        public DeleteManyModel(object filter)
         {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _filter = Ensure.IsNotNull(filter, "filter");
         }
 
         // properties
         /// <summary>
         /// Gets the document.
         /// </summary>
-        public object Criteria
+        public object Filter
         {
-            get { return _criteria; }
+            get { return _filter; }
         }
 
         /// <summary>

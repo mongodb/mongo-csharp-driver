@@ -61,10 +61,10 @@ namespace MongoDB.Driver.Tests
         [TestCase(true)]
         public void Should_convert_from_UpdateRequest_to_ReplaceOne_with_BsonDocument(bool isUpsert)
         {
-            var criteria = Query.EQ("a", 1);
+            var filter = Query.EQ("a", 1);
             var replacement = BsonDocument.Parse("{a:2}");
             var request = new UpdateRequest(UpdateType.Update,
-                new BsonDocumentWrapper(criteria),
+                new BsonDocumentWrapper(filter),
                 new BsonDocumentWrapper(replacement))
             {
                 IsMulti = false,
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<ReplaceOneModel<BsonDocument>>();
             var model = (ReplaceOneModel<BsonDocument>)result;
-            model.Criteria.Should().BeSameAs(criteria);
+            model.Filter.Should().BeSameAs(filter);
             model.Replacement.Should().BeSameAs(replacement);
             model.IsUpsert.Should().Be(isUpsert);
         }
@@ -85,10 +85,10 @@ namespace MongoDB.Driver.Tests
         [TestCase(true)]
         public void Should_convert_from_UpdateRequest_to_ReplaceOne_with_Class(bool isUpsert)
         {
-            var criteria = Query.EQ("a", 1);
+            var filter = Query.EQ("a", 1);
             var replacement = new TestClass { a = 2 };
             var request = new UpdateRequest(UpdateType.Replacement,
-                new BsonDocumentWrapper(criteria),
+                new BsonDocumentWrapper(filter),
                 new BsonDocumentWrapper(replacement))
             {
                 IsMulti = false,
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<ReplaceOneModel<TestClass>>();
             var model = (ReplaceOneModel<TestClass>)result;
-            model.Criteria.Should().BeSameAs(criteria);
+            model.Filter.Should().BeSameAs(filter);
             model.Replacement.Should().BeSameAs(replacement);
             model.IsUpsert.Should().Be(isUpsert);
         }
@@ -109,10 +109,10 @@ namespace MongoDB.Driver.Tests
         [TestCase(true)]
         public void Should_convert_from_UpdateRequest_to_UpdateOne_with_wrappers(bool isUpsert)
         {
-            var criteria = Query.EQ("a", 1);
+            var filter = Query.EQ("a", 1);
             var update = Update.Set("a", 2);
             var request = new UpdateRequest(UpdateType.Update,
-                new BsonDocumentWrapper(criteria),
+                new BsonDocumentWrapper(filter),
                 new BsonDocumentWrapper(update))
             {
                 IsMulti = false,
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<UpdateOneModel<BsonDocument>>();
             var model = (UpdateOneModel<BsonDocument>)result;
-            model.Criteria.Should().BeSameAs(criteria);
+            model.Filter.Should().BeSameAs(filter);
             model.Update.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }
@@ -133,10 +133,10 @@ namespace MongoDB.Driver.Tests
         [TestCase(true)]
         public void Should_convert_from_UpdateRequest_to_UpdateMany(bool isUpsert)
         {
-            var criteria = BsonDocument.Parse("{a:1}");
+            var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set: {a:2}}");
             var request = new UpdateRequest(UpdateType.Update,
-                new BsonDocumentWrapper(criteria),
+                new BsonDocumentWrapper(filter),
                 new BsonDocumentWrapper(update))
             {
                 IsMulti = true,
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<UpdateManyModel<BsonDocument>>();
             var model = (UpdateManyModel<BsonDocument>)result;
-            model.Criteria.Should().BeSameAs(criteria);
+            model.Filter.Should().BeSameAs(filter);
             model.Update.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }
@@ -157,10 +157,10 @@ namespace MongoDB.Driver.Tests
         [TestCase(true)]
         public void Should_convert_from_UpdateRequest_to_UpdateMany_with_wrappers(bool isUpsert)
         {
-            var criteria = Query.EQ("a", 1);
+            var filter = Query.EQ("a", 1);
             var update = Update.Set("a", 2);
             var request = new UpdateRequest(UpdateType.Update,
-                new BsonDocumentWrapper(criteria),
+                new BsonDocumentWrapper(filter),
                 new BsonDocumentWrapper(update))
             {
                 IsMulti = true,
@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<UpdateManyModel<BsonDocument>>();
             var model = (UpdateManyModel<BsonDocument>)result;
-            model.Criteria.Should().BeSameAs(criteria);
+            model.Filter.Should().BeSameAs(filter);
             model.Update.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }

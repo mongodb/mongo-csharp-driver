@@ -25,27 +25,27 @@ namespace MongoDB.Driver.Core.Operations
     [TestFixture]
     public class FindOneAndReplaceOperationTests : OperationTestBase
     {
-        private BsonDocument _criteria;
+        private BsonDocument _filter;
         private BsonDocument _replacement;
 
         public override void TestFixtureSetUp()
         {
             base.TestFixtureSetUp();
 
-            _criteria = new BsonDocument("x", 1);
+            _filter = new BsonDocument("x", 1);
             _replacement = BsonDocument.Parse("{_id: 10, a: 2}");
         }
 
         [Test]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
-            Action act = () => new FindOneAndReplaceOperation<BsonDocument>(null, _criteria, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            Action act = () => new FindOneAndReplaceOperation<BsonDocument>(null, _filter, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void Constructor_should_throw_when_criteria_is_null()
+        public void Constructor_should_throw_when_filter_is_null()
         {
             Action act = () => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, null, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Constructor_should_throw_when_replacement_is_null()
         {
-            Action act = () => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _criteria, null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            Action act = () => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Constructor_should_throw_when_result_serializer_is_null()
         {
-            Action act = () => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _criteria, _replacement, null, _messageEncoderSettings);
+            Action act = () => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, _replacement, null, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
-            Action act = () => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _criteria, _replacement, BsonDocumentSerializer.Instance, null);
+            Action act = () => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, _replacement, BsonDocumentSerializer.Instance, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -79,10 +79,10 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Constructor_should_initialize_object()
         {
-            var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _criteria, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             subject.CollectionNamespace.Should().Be(_collectionNamespace);
-            subject.Criteria.Should().Be(_criteria);
+            subject.Filter.Should().Be(_filter);
             subject.Replacement.Should().Be(_replacement);
             subject.ResultSerializer.Should().NotBeNull();
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var projectionDoc = projection == null ? (BsonDocument)null : BsonDocument.Parse(projection);
             var sortDoc = sort == null ? (BsonDocument)null : BsonDocument.Parse(sort);
-            var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _criteria, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 IsUpsert = isUpsert,
                 MaxTime = maxTimeMS.HasValue ? TimeSpan.FromMilliseconds(maxTimeMS.Value) : (TimeSpan?)null,
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "findAndModify", _collectionNamespace.CollectionName },
-                { "query", _criteria },
+                { "query", _filter },
                 { "sort", sortDoc, sortDoc != null },
                 { "update", _replacement, _replacement != null },
                 { "new", !returnOriginal },
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(
                 _collectionNamespace,
-                _criteria,
+                _filter,
                 _replacement,
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOneAndReplaceOperation<BsonDocument>(
                 _collectionNamespace,
-                _criteria,
+                _filter,
                 _replacement,
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)

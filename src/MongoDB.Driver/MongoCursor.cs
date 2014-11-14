@@ -755,7 +755,7 @@ namespace MongoDB.Driver
             {
                 AwaitData = awaitData,
                 BatchSize = BatchSize,
-                Criteria = queryDocument,
+                Filter = queryDocument,
                 Limit = Limit,
                 Modifiers = Options,
                 NoCursorTimeout = noCursorTimeout,

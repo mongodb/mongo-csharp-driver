@@ -29,7 +29,7 @@ namespace MongoDB.Driver
     public sealed class UpdateOneModel<T> : WriteModel<T>
     {
         // fields
-        private readonly object _criteria;
+        private readonly object _filter;
         private bool _isUpsert;
         private readonly object _update;
 
@@ -37,11 +37,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateOneModel{T}"/> class.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
-        public UpdateOneModel(object criteria, object update)
+        public UpdateOneModel(object filter, object update)
         {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _filter = Ensure.IsNotNull(filter, "filter");
             _update = Ensure.IsNotNull(update, "update");
         }
 
@@ -49,9 +49,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the document.
         /// </summary>
-        public object Criteria
+        public object Filter
         {
-            get { return _criteria; }
+            get { return _filter; }
         }
 
         /// <summary>

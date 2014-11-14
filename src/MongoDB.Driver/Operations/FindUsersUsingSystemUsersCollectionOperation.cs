@@ -46,10 +46,10 @@ namespace MongoDB.Driver.Operations
         public async Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, "system.users");
-            var criteria = _username == null ? new BsonDocument() : new BsonDocument("user", _username);
+            var filter = _username == null ? new BsonDocument() : new BsonDocument("user", _username);
             var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
-                Criteria = criteria
+                Filter = filter
             };
             var cursor = await operation.ExecuteAsync(binding, cancellationToken);
             return await cursor.ToListAsync(cancellationToken);

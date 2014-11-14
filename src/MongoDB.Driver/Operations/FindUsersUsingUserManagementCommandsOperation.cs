@@ -46,8 +46,8 @@ namespace MongoDB.Driver.Operations
         // methods
         public async Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var criteria = _username == null ? (BsonValue)1 : _username;
-            var command = new BsonDocument("usersInfo", criteria);
+            var filter = _username == null ? (BsonValue)1 : _username;
+            var command = new BsonDocument("usersInfo", filter);
             var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, cancellationToken);
 

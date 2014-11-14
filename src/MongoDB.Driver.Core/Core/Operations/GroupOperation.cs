@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly BsonDocument _criteria;
+        private readonly BsonDocument _filter;
         private BsonJavaScript _finalizeFunction;
         private readonly BsonDocument _initial;
         private readonly BsonDocument _key;
@@ -42,23 +42,23 @@ namespace MongoDB.Driver.Core.Operations
         private IBsonSerializer<TResult> _resultSerializer;
 
         // constructors
-        public GroupOperation(CollectionNamespace collectionNamespace, BsonDocument key, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument criteria, MessageEncoderSettings messageEncoderSettings)
+        public GroupOperation(CollectionNamespace collectionNamespace, BsonDocument key, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument filter, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _key = Ensure.IsNotNull(key, "key");
             _initial = Ensure.IsNotNull(initial, "initial");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _criteria = criteria;
+            _filter = filter;
             _messageEncoderSettings = messageEncoderSettings;
         }
 
-        public GroupOperation(CollectionNamespace collectionNamespace, BsonJavaScript keyFunction, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument criteria, MessageEncoderSettings messageEncoderSettings)
+        public GroupOperation(CollectionNamespace collectionNamespace, BsonJavaScript keyFunction, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument filter, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _keyFunction = Ensure.IsNotNull(keyFunction, "keyFunction");
             _initial = Ensure.IsNotNull(initial, "initial");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _criteria = criteria;
+            _filter = filter;
             _messageEncoderSettings = messageEncoderSettings;
         }
 
@@ -68,9 +68,9 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
-        public BsonDocument Criteria
+        public BsonDocument Filter
         {
-            get { return _criteria; }
+            get { return _filter; }
         }
 
         public BsonJavaScript FinalizeFunction
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
                         { "$keyf", _keyFunction, _keyFunction != null },
                         { "$reduce", _reduceFunction },
                         { "initial", _initial },
-                        { "cond", _criteria, _criteria != null },
+                        { "cond", _filter, _filter != null },
                         { "finalize", _finalizeFunction, _finalizeFunction != null }
                     }
                 },

@@ -74,103 +74,103 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents in the collection.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The number of documents in the collection
         /// </returns>
-        Task<long> CountAsync(object criteria, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<long> CountAsync(object filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes multiple documents.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the delete operation.
         /// </returns>
-        Task<DeleteResult> DeleteManyAsync(object criteria, CancellationToken cancellationToken = default(CancellationToken));
+        Task<DeleteResult> DeleteManyAsync(object filter, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes a single document.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the delete operation.
         /// </returns>
-        Task<DeleteResult> DeleteOneAsync(object criteria, CancellationToken cancellationToken = default(CancellationToken));
+        Task<DeleteResult> DeleteOneAsync(object filter, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Gets the distinct values for a specified field.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="fieldName">Name of the field.</param>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, object criteria, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Begins a fluent find interface.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <returns>A fluent interface.</returns>
-        FindFluent<TDocument, TDocument> Find(object criteria);
+        FindFluent<TDocument, TDocument> Find(object filter);
 
         /// <summary>
         /// Finds the documents matching the model.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The results of the query.
         /// </returns>
-        Task<IAsyncCursor<TResult>> FindAsync<TResult>(object criteria, FindOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The deleted document if one was deleted.
         /// </returns>
-        Task<TResult> FindOneAndDeleteAsync<TResult>(object criteria, FindOneAndDeleteOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TResult> FindOneAndDeleteAsync<TResult>(object filter, FindOneAndDeleteOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and replaces it atomically.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the operation.
         /// </returns>
-        Task<TResult> FindOneAndReplaceAsync<TResult>(object criteria, TDocument replacement, FindOneAndReplaceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TResult> FindOneAndReplaceAsync<TResult>(object filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and updates it atomically.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
         /// <param name="options">The model.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the operation.
         /// </returns>
-        Task<TResult> FindOneAndUpdateAsync<TResult>(object criteria, object update, FindOneAndUpdateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TResult> FindOneAndUpdateAsync<TResult>(object filter, object update, FindOneAndUpdateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts a single document.
@@ -185,37 +185,37 @@ namespace MongoDB.Driver
         /// <summary>
         /// Replaces a single document.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        Task<ReplaceOneResult> ReplaceOneAsync(object criteria, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ReplaceOneResult> ReplaceOneAsync(object filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates many documents.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateManyAsync(object criteria, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<UpdateResult> UpdateManyAsync(object filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates a single document.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateOneAsync(object criteria, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<UpdateResult> UpdateOneAsync(object filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

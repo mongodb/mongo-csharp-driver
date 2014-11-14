@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     public class FindOneAndUpdateOperation<TResult> : FindAndModifyOperationBase<TResult>
     {
         // fields
-        private readonly BsonDocument _criteria;
+        private readonly BsonDocument _filter;
         private bool _isUpsert;
         private TimeSpan? _maxTime;
         private BsonDocument _projection;
@@ -40,18 +40,18 @@ namespace MongoDB.Driver.Core.Operations
         private readonly BsonDocument _update;
 
         // constructors
-        public FindOneAndUpdateOperation(CollectionNamespace collectionNamespace, BsonDocument criteria, BsonDocument update, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+        public FindOneAndUpdateOperation(CollectionNamespace collectionNamespace, BsonDocument filter, BsonDocument update, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(collectionNamespace, resultSerializer, messageEncoderSettings)
         {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _filter = Ensure.IsNotNull(filter, "filter");
             _update = Ensure.IsNotNull(update, "update");
             _returnOriginal = true;
         }
 
         // properties
-        public BsonDocument Criteria
+        public BsonDocument Filter
         {
-            get { return _criteria; }
+            get { return _filter; }
         }
 
         public bool IsUpsert
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "findAndModify", CollectionNamespace.CollectionName },
-                { "query", _criteria },
+                { "query", _filter },
                 { "sort", _sort, _sort != null },
                 { "update", _update },
                 { "new", !_returnOriginal },

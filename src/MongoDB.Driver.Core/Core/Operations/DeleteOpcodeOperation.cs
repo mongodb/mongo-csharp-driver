@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new DeleteWireProtocol(
                 _collectionNamespace,
-                _request.Criteria,
+                _request.Filter,
                 _request.Limit != 1,
                 _messageEncoderSettings,
                 _writeConcern);

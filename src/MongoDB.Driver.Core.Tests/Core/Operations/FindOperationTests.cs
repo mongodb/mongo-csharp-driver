@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Comment = "funny",
-                Criteria = BsonDocument.Parse("{x: 1}"),
+                Filter = BsonDocument.Parse("{x: 1}"),
                 MaxTime = TimeSpan.FromSeconds(20),
                 Modifiers = BsonDocument.Parse("{$comment: \"notfunny\", $snapshot: true}"),
                 Projection = BsonDocument.Parse("{y: 1}"),
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Comment = "funny",
-                Criteria = BsonDocument.Parse("{x: 1}"),
+                Filter = BsonDocument.Parse("{x: 1}"),
                 MaxTime = TimeSpan.FromSeconds(20),
                 Modifiers = BsonDocument.Parse("{$comment: \"notfunny\", $snapshot: true}"),
                 Projection = BsonDocument.Parse("{y: 1}"),
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Comment = "funny",
-                Criteria = BsonDocument.Parse("{y: 1}"),
+                Filter = BsonDocument.Parse("{y: 1}"),
                 Limit = 4,
                 MaxTime = TimeSpan.FromSeconds(20),
                 Projection = BsonDocument.Parse("{y: 1}"),

@@ -103,10 +103,10 @@ namespace MongoDB.Driver.Core.Operations
             var indexes = new List<BsonDocument>();
 
             var systemIndexesCollection = _collectionNamespace.DatabaseNamespace.SystemIndexesCollection;
-            var criteria = new BsonDocument("ns", _collectionNamespace.FullName);
+            var filter = new BsonDocument("ns", _collectionNamespace.FullName);
             var operation = new FindOperation<BsonDocument>(systemIndexesCollection, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
-                Criteria = criteria
+                Filter = filter
             };
 
             var cursor = await operation.ExecuteAsync(connectionSource, readPreference, cancellationToken).ConfigureAwait(false);

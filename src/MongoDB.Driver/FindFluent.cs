@@ -17,7 +17,7 @@ namespace MongoDB.Driver
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
-        private object _criteria;
+        private object _filter;
         private readonly FindOptions<TResult> _options;
 
         // constructors
@@ -25,23 +25,23 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the <see cref="FindFluent{TDocument, TResult}" /> class.
         /// </summary>
         /// <param name="collection">The collection.</param>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
-        public FindFluent(IMongoCollection<TDocument> collection, object criteria, FindOptions<TResult> options)
+        public FindFluent(IMongoCollection<TDocument> collection, object filter, FindOptions<TResult> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _filter = Ensure.IsNotNull(filter, "filter");
             _options = Ensure.IsNotNull(options, "options");
         }
 
         // properties
         /// <summary>
-        /// Gets the criteria.
+        /// Gets the filter.
         /// </summary>
-        public object Criteria
+        public object Filter
         {
-            get { return _criteria; }
-            set { _criteria = Ensure.IsNotNull(value, "value"); }
+            get { return _filter; }
+            set { _filter = Ensure.IsNotNull(value, "value"); }
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace MongoDB.Driver
                 Sort = _options.Sort,
                 Tailable = _options.Tailable
             };
-            return new FindFluent<TDocument, TNewResult>(_collection, _criteria, newOptions);
+            return new FindFluent<TDocument, TNewResult>(_collection, _filter, newOptions);
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace MongoDB.Driver
         /// <returns>An asynchronous enumerable.</returns>
         public Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _collection.FindAsync(_criteria, _options, cancellationToken);
+            return _collection.FindAsync(_filter, _options, cancellationToken);
         }
     }
 

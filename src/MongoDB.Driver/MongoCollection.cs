@@ -198,10 +198,10 @@ namespace MongoDB.Driver
         {
             if (args == null) { throw new ArgumentNullException("args"); }
 
-            var criteria = args.Query == null ? null : new BsonDocumentWrapper(args.Query);
+            var filter = args.Query == null ? null : new BsonDocumentWrapper(args.Query);
             var operation = new CountOperation(_collectionNamespace, GetMessageEncoderSettings())
             {
-                Criteria = criteria,
+                Filter = filter,
                 Hint = args.Hint,
                 Limit = args.Limit,
                 MaxTime = args.MaxTime,
@@ -279,7 +279,7 @@ namespace MongoDB.Driver
             var valueSerializer = (IBsonSerializer<TValue>)args.ValueSerializer ?? BsonSerializer.LookupSerializer<TValue>();
             var operation = new DistinctOperation<TValue>(_collectionNamespace, valueSerializer, args.Key, GetMessageEncoderSettings())
             {
-                Criteria = new BsonDocumentWrapper(args.Query),
+                Filter = new BsonDocumentWrapper(args.Query),
                 MaxTime = args.MaxTime,
             };
 
@@ -548,7 +548,7 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Update == null) { throw new ArgumentException("Update is null.", "args"); }
 
-            var criteria = args.Query == null ? new BsonDocument() : new BsonDocumentWrapper(args.Query);
+            var filter = args.Query == null ? new BsonDocument() : new BsonDocumentWrapper(args.Query);
             var updateDocument = args.Update.ToBsonDocument();
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = GetMessageEncoderSettings();
@@ -559,7 +559,7 @@ namespace MongoDB.Driver
             FindAndModifyOperationBase<BsonDocument> operation;
             if (updateDocument.ElementCount > 0 && updateDocument.GetElement(0).Name.StartsWith("$"))
             {
-                operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, criteria, updateDocument, resultSerializer, messageEncoderSettings)
+                operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, filter, updateDocument, resultSerializer, messageEncoderSettings)
                 {
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
@@ -571,7 +571,7 @@ namespace MongoDB.Driver
             else
             {
                 var replacement = updateDocument;
-                operation = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, criteria, replacement, resultSerializer, messageEncoderSettings)
+                operation = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, filter, replacement, resultSerializer, messageEncoderSettings)
                 {
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
@@ -624,13 +624,13 @@ namespace MongoDB.Driver
         {
             if (args == null) { throw new ArgumentNullException("args"); }
 
-            var criteria = args.Query == null ? new BsonDocument() : new BsonDocumentWrapper(args.Query);
+            var filter = args.Query == null ? new BsonDocument() : new BsonDocumentWrapper(args.Query);
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = GetMessageEncoderSettings();
             var projection = args.Fields == null ? null : new BsonDocumentWrapper(args.Fields);
             var sort = args.SortBy == null ? null : new BsonDocumentWrapper(args.SortBy);
 
-            var operation = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, criteria, resultSerializer, messageEncoderSettings)
+            var operation = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, filter, resultSerializer, messageEncoderSettings)
             {
                 MaxTime = args.MaxTime,
                 Projection = projection,
@@ -714,7 +714,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOperation<TDocument>(_collectionNamespace, serializer, messageEncoderSettings)
             {
-                Criteria = queryDocument,
+                Filter = queryDocument,
                 Limit = -1,
                 MaxTime = args.MaxTime,
                 Projection = fields,
@@ -1130,18 +1130,18 @@ namespace MongoDB.Driver
                 throw new ArgumentException("ReduceFunction is null.", "args");
             }
 
-            var criteria = args.Query == null ? null : BsonDocumentWrapper.Create(args.Query);
+            var filter = args.Query == null ? null : BsonDocumentWrapper.Create(args.Query);
             var messageEncoderSettings = GetMessageEncoderSettings();
 
             GroupOperation<BsonDocument> operation;
             if (args.KeyFields != null)
             {
                 var key = new BsonDocumentWrapper(args.KeyFields);
-                operation = new GroupOperation<BsonDocument>(_collectionNamespace, key, args.Initial, args.ReduceFunction, criteria, messageEncoderSettings);
+                operation = new GroupOperation<BsonDocument>(_collectionNamespace, key, args.Initial, args.ReduceFunction, filter, messageEncoderSettings);
             }
             else
             {
-                operation = new GroupOperation<BsonDocument>(_collectionNamespace, args.KeyFunction, args.Initial, args.ReduceFunction, criteria, messageEncoderSettings);
+                operation = new GroupOperation<BsonDocument>(_collectionNamespace, args.KeyFunction, args.Initial, args.ReduceFunction, filter, messageEncoderSettings);
             }
             operation.FinalizeFunction = args.FinalizeFunction;
             operation.MaxTime = args.MaxTime;

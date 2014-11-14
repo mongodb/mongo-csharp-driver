@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Operations
                 bsonWriter.PushMaxDocumentSize(MaxDocumentSize);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("q");
-                BsonSerializer.Serialize(bsonWriter, deleteRequest.Criteria);
+                BsonSerializer.Serialize(bsonWriter, deleteRequest.Filter);
                 bsonWriter.WriteInt32("limit", deleteRequest.Limit);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.PopMaxDocumentSize();

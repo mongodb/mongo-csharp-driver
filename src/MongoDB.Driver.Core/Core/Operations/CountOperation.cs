@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
-        private BsonDocument _criteria;
+        private BsonDocument _filter;
         private BsonValue _hint;
         private long? _limit;
         private TimeSpan? _maxTime;
@@ -48,10 +48,10 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
-        public BsonDocument Criteria
+        public BsonDocument Filter
         {
-            get { return _criteria; }
-            set { _criteria = value; }
+            get { return _filter; }
+            set { _filter = value; }
         }
 
         public BsonValue Hint
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "count", _collectionNamespace.CollectionName },
-                { "query", _criteria, _criteria != null },
+                { "query", _filter, _filter != null },
                 { "limit", () => _limit.Value, _limit.HasValue },
                 { "skip", () => _skip.Value, _skip.HasValue },
                 { "hint", _hint, _hint != null },

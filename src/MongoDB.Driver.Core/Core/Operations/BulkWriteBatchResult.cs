@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
                     // and then from the Query document.
                     upsertId =
                         updateRequest.Update.ToBsonDocument().GetValue("_id", null) ??
-                        updateRequest.Criteria.ToBsonDocument().GetValue("_id", null);
+                        updateRequest.Filter.ToBsonDocument().GetValue("_id", null);
                 }
             }
 

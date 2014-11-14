@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Operations
         public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, "system.users");
-            var criteria = new BsonDocument("user", _username);
-            var deletes = new[] { new DeleteRequest(criteria) };
+            var filter = new BsonDocument("user", _username);
+            var deletes = new[] { new DeleteRequest(filter) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, deletes, _messageEncoderSettings);
             await operation.ExecuteAsync(binding, cancellationToken);
             return true;

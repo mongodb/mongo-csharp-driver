@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Operations
         {
             var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
-                Criteria = new BsonDocument("user", _username),
+                Filter = new BsonDocument("user", _username),
                 Limit = -1
             };
             var cursor = await operation.ExecuteAsync(connectionSource, ReadPreference.Primary, cancellationToken);
@@ -98,8 +98,8 @@ namespace MongoDB.Driver.Operations
 
         private async Task UpdateUserAsync(IConnectionSourceHandle connectionSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
         {
-            var criteria = new BsonDocument("_id", user["_id"]);
-            var updates = new[] { new UpdateRequest(UpdateType.Replacement, criteria, user) };
+            var filter = new BsonDocument("_id", user["_id"]);
+            var updates = new[] { new UpdateRequest(UpdateType.Replacement, filter, user) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, updates, _messageEncoderSettings) { WriteConcern = WriteConcern.Acknowledged };
             await operation.ExecuteAsync(connectionSource, cancellationToken);
         }

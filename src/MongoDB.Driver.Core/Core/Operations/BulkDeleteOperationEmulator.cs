@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return new DeleteWireProtocol(
                CollectionNamespace,
-               deleteRequest.Criteria,
+               deleteRequest.Filter,
                isMulti,
                MessageEncoderSettings,
                WriteConcern);

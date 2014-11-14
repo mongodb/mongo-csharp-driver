@@ -24,28 +24,28 @@ namespace MongoDB.Driver.Core.Operations
     public sealed class DeleteRequest : WriteRequest
     {
         // fields
-        private readonly BsonDocument _criteria;
+        private readonly BsonDocument _filter;
         private int _limit;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="DeleteRequest" /> class.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
-        public DeleteRequest(BsonDocument criteria)
+        /// <param name="filter">The filter.</param>
+        public DeleteRequest(BsonDocument filter)
             : base(WriteRequestType.Delete)
         {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _filter = Ensure.IsNotNull(filter, "filter");
             _limit = 1;
         }
 
         // properties
         /// <summary>
-        /// Gets or sets the criteria.
+        /// Gets or sets the filter.
         /// </summary>
-        public BsonDocument Criteria
+        public BsonDocument Filter
         {
-            get { return _criteria; }
+            get { return _filter; }
         }
 
         /// <summary>

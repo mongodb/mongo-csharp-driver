@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.DatabaseNamespace.Should().BeSameAs(_databaseNamespace);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-            subject.Criteria.Should().BeNull();
+            subject.Filter.Should().BeNull();
         }
 
         [Test]
@@ -60,15 +60,15 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void Criteria_get_and_set_should_work()
+        public void Filter_get_and_set_should_work()
         {
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
-            var criteria = new BsonDocument("name", "abc");
+            var filter = new BsonDocument("name", "abc");
 
-            subject.Criteria = criteria;
-            var result = subject.Criteria;
+            subject.Filter = filter;
+            var result = subject.Filter;
 
-            result.Should().BeSameAs(criteria);
+            result.Should().BeSameAs(filter);
         }
 
         [Test]
@@ -87,12 +87,12 @@ namespace MongoDB.Driver.Core.Operations
         [TestCase("{ name : \"regular\" }", "regular")]
         [TestCase("{ \"options.capped\" : true }", "capped")]
         [RequiresServer("EnsureCollectionsExist")]
-        public async Task ExecuteAsync_should_return_the_expected_result_when_criteria_is_used(string criteriaString, string expectedName)
+        public async Task ExecuteAsync_should_return_the_expected_result_when_filter_is_used(string filterString, string expectedName)
         {
-            var criteria = BsonDocument.Parse(criteriaString);
+            var filter = BsonDocument.Parse(filterString);
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
             {
-                Criteria = criteria
+                Filter = filter
             };
 
             var result = await ExecuteOperationAsync(subject);
@@ -115,12 +115,12 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer(VersionLessThan = "2.7.0")]
-        public void ExecuteAsync_should_throw_when_criteria_name_is_not_a_string_and_connected_to_older_server()
+        public void ExecuteAsync_should_throw_when_filter_name_is_not_a_string_and_connected_to_older_server()
         {
-            var criteria = new BsonDocument("name", new BsonRegularExpression("^abc"));
+            var filter = new BsonDocument("name", new BsonRegularExpression("^abc"));
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
             {
-                Criteria = criteria
+                Filter = filter
             };
 
             Func<Task> action = () => ExecuteOperationAsync(subject);

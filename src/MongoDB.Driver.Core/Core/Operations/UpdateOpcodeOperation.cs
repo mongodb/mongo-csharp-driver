@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace,
                 _messageEncoderSettings,
                 _writeConcern,
-                _request.Criteria,
+                _request.Filter,
                 _request.Update,
                 ElementNameValidatorFactory.ForUpdateType(_request.UpdateType),
                 _request.IsMulti,

@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
         private string _comment;
-        private BsonDocument _criteria;
+        private BsonDocument _filter;
         private int? _limit;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -90,10 +90,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _comment = value; }
         }
 
-        public BsonDocument Criteria
+        public BsonDocument Filter
         {
-            get { return _criteria; }
-            set { _criteria = value; }
+            get { return _filter; }
+            set { _filter = value; }
         }
 
         public int? Limit
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var wrappedQuery = new BsonDocument
             {
-                { "$query", _criteria ?? new BsonDocument() },
+                { "$query", _filter ?? new BsonDocument() },
                 { "$readPreference", readPreferenceDocument, readPreferenceDocument != null },
                 { "$orderby", _sort, _sort != null },
                 { "$comment", _comment, _comment != null },
@@ -243,7 +243,7 @@ namespace MongoDB.Driver.Core.Operations
                 _awaitData = _awaitData,
                 _batchSize = _batchSize,
                 _comment = _comment,
-                _criteria = _criteria,
+                _filter = _filter,
                 _limit = _limit,
                 _maxTime = _maxTime,
                 _modifiers = modifiers,
