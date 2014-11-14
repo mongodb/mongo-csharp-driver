@@ -75,6 +75,7 @@
     </Compile>
     <Compile Include="BsonExtensionMethods.cs" />
     <Compile Include="Exceptions\DuplicateBsonMemberMapAttributeException.cs" />
+    <Compile Include="IO\ArrayElementNameAccelerator.cs" />
     <Compile Include="IO\BsonChunk.cs" />
     <Compile Include="IO\BsonChunkPool.cs" />
     <Compile Include="IO\BsonDocumentReaderSettings.cs" />
