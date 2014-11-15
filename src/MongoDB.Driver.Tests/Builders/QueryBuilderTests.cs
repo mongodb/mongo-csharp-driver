@@ -857,26 +857,23 @@ namespace MongoDB.Driver.Tests.Builders
         {
             if (_primary.Supports(FeatureId.TextSearchQuery))
             {
-                using (_server.RequestStart(null, _primary))
+                var collection = _database.GetCollection<BsonDocument>("test_text");
+                collection.Drop();
+                collection.CreateIndex(IndexKeys.Text("textfield"));
+                collection.Insert(new BsonDocument
                 {
-                    var collection = _database.GetCollection<BsonDocument>("test_text");
-                    collection.Drop();
-                    collection.CreateIndex(IndexKeys.Text("textfield"));
-                    collection.Insert(new BsonDocument
-                    {
-                        { "_id", 1 },
-                        { "textfield", "The quick brown fox" }
-                    });
-                    collection.Insert(new BsonDocument
-                    {
-                        { "_id", 2 },
-                        { "textfield", "over the lazy brown dog" }
-                    });
-                    var query = Query.Text("fox");
-                    var results = collection.Find(query).ToArray();
-                    Assert.AreEqual(1, results.Length);
-                    Assert.AreEqual(1, results[0]["_id"].AsInt32);
-                }
+                    { "_id", 1 },
+                    { "textfield", "The quick brown fox" }
+                });
+                collection.Insert(new BsonDocument
+                {
+                    { "_id", 2 },
+                    { "textfield", "over the lazy brown dog" }
+                });
+                var query = Query.Text("fox");
+                var results = collection.Find(query).ToArray();
+                Assert.AreEqual(1, results.Length);
+                Assert.AreEqual(1, results[0]["_id"].AsInt32);
             }
         }
 
@@ -885,33 +882,30 @@ namespace MongoDB.Driver.Tests.Builders
         {
             if (_primary.Supports(FeatureId.TextSearchQuery))
             {
-                using (_server.RequestStart(null, _primary))
+                var collection = _database.GetCollection<BsonDocument>("test_text_spanish");
+                collection.Drop();
+                collection.CreateIndex(IndexKeys.Text("textfield"), IndexOptions.SetTextDefaultLanguage("spanish"));
+                collection.Insert(new BsonDocument
                 {
-                    var collection = _database.GetCollection<BsonDocument>("test_text_spanish");
-                    collection.Drop();
-                    collection.CreateIndex(IndexKeys.Text("textfield"), IndexOptions.SetTextDefaultLanguage("spanish"));
-                    collection.Insert(new BsonDocument
-                    {
-                        { "_id", 1 },
-                        { "textfield", "este es mi tercer blog stemmed" }
-                    });
-                    collection.Insert(new BsonDocument
-                    {
-                        { "_id", 2 },
-                        { "textfield", "This stemmed blog is in english" },
-                        { "language", "english" }
-                    });
+                    { "_id", 1 },
+                    { "textfield", "este es mi tercer blog stemmed" }
+                });
+                collection.Insert(new BsonDocument
+                {
+                    { "_id", 2 },
+                    { "textfield", "This stemmed blog is in english" },
+                    { "language", "english" }
+                });
 
-                    var query = Query.Text("stemmed");
-                    var results = collection.Find(query).ToArray();
-                    Assert.AreEqual(1, results.Length);
-                    Assert.AreEqual(1, results[0]["_id"].AsInt32);
+                var query = Query.Text("stemmed");
+                var results = collection.Find(query).ToArray();
+                Assert.AreEqual(1, results.Length);
+                Assert.AreEqual(1, results[0]["_id"].AsInt32);
 
-                    query = Query.Text("stemmed", "english");
-                    results = collection.Find(query).ToArray();
-                    Assert.AreEqual(1, results.Length);
-                    Assert.AreEqual(2, results[0]["_id"].AsInt32);
-                }
+                query = Query.Text("stemmed", "english");
+                results = collection.Find(query).ToArray();
+                Assert.AreEqual(1, results.Length);
+                Assert.AreEqual(2, results[0]["_id"].AsInt32);
             }
         }
 

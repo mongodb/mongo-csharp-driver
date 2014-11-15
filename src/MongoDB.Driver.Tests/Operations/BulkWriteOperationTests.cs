@@ -203,7 +203,8 @@ namespace MongoDB.Driver.Tests.Operations
         [TestCase(true, 1)]
         public void TestExecuteWithExplicitWriteConcern(bool ordered, int w)
         {
-            using (_server.RequestStart(null))
+            // use RequestStart because some of the test cases use { w : 0 }
+            using (_server.RequestStart())
             {
                 _collection.Drop();
 
@@ -1121,7 +1122,7 @@ namespace MongoDB.Driver.Tests.Operations
         public void TestW0DoesNotReportErrors(bool ordered)
         {
             // use a request so we can read our own writes even with older servers
-            using (_server.RequestStart(null))
+            using (_server.RequestStart())
             {
                 _collection.Drop();
 

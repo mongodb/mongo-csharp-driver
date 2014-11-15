@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests
             _server = server;
             _serverInstance = serverInstance;
             _adminDatabase = server.GetDatabase("admin");
-            _request = server.RequestStart(_adminDatabase, serverInstance);
+            _request = server.RequestStart(serverInstance);
         }
 
         // public methods
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests
                         if (_wasSet)
                         {
                             // use a new request to set the mode off because the original connection could be closed if an error occurred
-                            using (_server.RequestStart(_adminDatabase, _serverInstance))
+                            using (_server.RequestStart(_serverInstance))
                             {
                                 SetMode("off");
                             }

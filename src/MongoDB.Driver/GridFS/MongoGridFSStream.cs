@@ -437,7 +437,7 @@ namespace MongoDB.Driver.GridFS
         // private methods
         private void AddMissingChunks()
         {
-            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
+            using (_fileInfo.Server.RequestStart(_fileInfo.ServerInstance))
             {
                 var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
                 var database = gridFS.GetDatabase(ReadPreference.Primary);
@@ -500,7 +500,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_chunkIsDirty) { SaveChunk(); }
 
-            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
+            using (_fileInfo.Server.RequestStart(_fileInfo.ServerInstance))
             {
                 var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
                 var database = gridFS.GetDatabase();
@@ -546,7 +546,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_chunkIsDirty) { SaveChunk(); }
 
-            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
+            using (_fileInfo.Server.RequestStart(_fileInfo.ServerInstance))
             {
                 var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
                 var database = gridFS.GetDatabase();
@@ -579,7 +579,7 @@ namespace MongoDB.Driver.GridFS
         private void OpenAppend()
         {
             EnsureServerInstanceIsPrimary();
-            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
+            using (_fileInfo.Server.RequestStart(_fileInfo.ServerInstance))
             {
                 var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
                 gridFS.EnsureIndexes();
@@ -592,7 +592,7 @@ namespace MongoDB.Driver.GridFS
         private void OpenCreate()
         {
             EnsureServerInstanceIsPrimary();
-            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
+            using (_fileInfo.Server.RequestStart(_fileInfo.ServerInstance))
             {
                 var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
                 var database = gridFS.GetDatabase(ReadPreference.Primary);
@@ -635,7 +635,7 @@ namespace MongoDB.Driver.GridFS
         private void OpenTruncate()
         {
             EnsureServerInstanceIsPrimary();
-            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
+            using (_fileInfo.Server.RequestStart(_fileInfo.ServerInstance))
             {
                 var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
                 gridFS.EnsureIndexes();
@@ -649,7 +649,7 @@ namespace MongoDB.Driver.GridFS
 
         private void SaveChunk()
         {
-            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
+            using (_fileInfo.Server.RequestStart(_fileInfo.ServerInstance))
             {
                 var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
                 var database = gridFS.GetDatabase(ReadPreference.Primary);
@@ -695,7 +695,7 @@ namespace MongoDB.Driver.GridFS
 
         private void UpdateMetadata()
         {
-            using (_fileInfo.Server.RequestStart(null, ReadPreference.Primary))
+            using (_fileInfo.Server.RequestStart(ReadPreference.Primary))
             {
                 var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
                 var database = gridFS.GetDatabase(ReadPreference.Primary);

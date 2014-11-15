@@ -230,17 +230,14 @@ namespace MongoDB.Driver.Tests.Builders
             {
                 if (_primary.Supports(FeatureId.TextSearchCommand))
                 {
-                    using (_server.RequestStart(null, _primary))
-                    {
-                        var collection = _database.GetCollection<Test>("test_text");
-                        collection.Drop();
-                        collection.CreateIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
-                        var indexes = collection.GetIndexes();
-                        var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
-                        Assert.AreEqual("idioma", index["language_override"].AsString);
-                        Assert.AreEqual("spanish", index["default_language"].AsString);
-                        Assert.AreEqual(1, index["key"]["c"].AsInt32);
-                    }
+                    var collection = _database.GetCollection<Test>("test_text");
+                    collection.Drop();
+                    collection.CreateIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
+                    var indexes = collection.GetIndexes();
+                    var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
+                    Assert.AreEqual("idioma", index["language_override"].AsString);
+                    Assert.AreEqual("spanish", index["default_language"].AsString);
+                    Assert.AreEqual(1, index["key"]["c"].AsInt32);
                 }
             }
         }

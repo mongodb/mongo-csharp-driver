@@ -1786,17 +1786,14 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestGetMore()
         {
-            using (_server.RequestStart(_database))
+            _collection.RemoveAll();
+            var count = _primary.MaxMessageLength / 1000000;
+            for (int i = 0; i < count; i++)
             {
-                _collection.RemoveAll();
-                var count = _primary.MaxMessageLength / 1000000;
-                for (int i = 0; i < count; i++)
-                {
-                    var document = new BsonDocument("data", new BsonBinaryData(new byte[1000000]));
-                    _collection.Insert(document);
-                }
-                _collection.FindAll().ToList();
+                var document = new BsonDocument("data", new BsonBinaryData(new byte[1000000]));
+                _collection.Insert(document);
             }
+            _collection.FindAll().ToList();
         }
 
         [Test]
@@ -2718,7 +2715,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestRemoveUnacknowledeged()
         {
-            using (_server.RequestStart(null))
+            using (_server.RequestStart())
             {
                 _collection.Drop();
                 _collection.Insert(new BsonDocument("x", 1));
@@ -2881,27 +2878,24 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestTextSearch()
         {
-            if (_primary.Supports(FeatureId.TextSearchCommand))
+            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
+                if (_primary.Supports(FeatureId.TextSearchCommand))
                 {
-                    using (_server.RequestStart(null, _primary))
-                    {
-                        _collection.Drop();
-                        _collection.Insert(new BsonDocument("x", "The quick brown fox"));
-                        _collection.Insert(new BsonDocument("x", "jumped over the fence"));
-                        _collection.CreateIndex(IndexKeys.Text("x"));
+                    _collection.Drop();
+                    _collection.Insert(new BsonDocument("x", "The quick brown fox"));
+                    _collection.Insert(new BsonDocument("x", "jumped over the fence"));
+                    _collection.CreateIndex(IndexKeys.Text("x"));
 
-                        var textSearchCommand = new CommandDocument
+                    var textSearchCommand = new CommandDocument
                     {
                         { "text", _collection.Name },
                         { "search", "fox" }
                     };
-                        var commandResult = _database.RunCommand(textSearchCommand);
-                        var response = commandResult.Response;
-                        Assert.AreEqual(1, response["stats"]["n"].ToInt32());
-                        Assert.AreEqual("The quick brown fox", response["results"][0]["obj"]["x"].AsString);
-                    }
+                    var commandResult = _database.RunCommand(textSearchCommand);
+                    var response = commandResult.Response;
+                    Assert.AreEqual(1, response["stats"]["n"].ToInt32());
+                    Assert.AreEqual("The quick brown fox", response["results"][0]["obj"]["x"].AsString);
                 }
             }
         }
@@ -2997,7 +2991,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestUpdateUnacknowledged()
         {
-            using (_server.RequestStart(null))
+            using (_server.RequestStart())
             {
                 _collection.Drop();
                 _collection.Insert(new BsonDocument("x", 1));
