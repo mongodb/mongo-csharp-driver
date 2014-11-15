@@ -35,9 +35,6 @@ namespace MongoDB.Bson.Serialization
         // private static fields
         private static ReaderWriterLockSlim __configLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private static Dictionary<Type, IIdGenerator> __idGenerators = new Dictionary<Type, IIdGenerator>();
-        private static Dictionary<Type, IBsonSerializer> __serializers = new Dictionary<Type, IBsonSerializer>();
-        private static Dictionary<Type, Type> __genericSerializerDefinitions = new Dictionary<Type, Type>();
-        private static List<IBsonSerializationProvider> __serializationProviders = new List<IBsonSerializationProvider>();
         private static Dictionary<Type, IDiscriminatorConvention> __discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
         private static Dictionary<BsonValue, HashSet<Type>> __discriminators = new Dictionary<BsonValue, HashSet<Type>>();
         private static HashSet<Type> __discriminatedTypes = new HashSet<Type>();
@@ -49,7 +46,6 @@ namespace MongoDB.Bson.Serialization
         // static constructor
         static BsonSerializer()
         {
-            RegisterDefaultSerializationProviders();
             RegisterIdGenerators();
         }
 
@@ -412,26 +408,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Looks up a generic serializer definition.
-        /// </summary>
-        /// <param name="genericTypeDefinition">The generic type.</param>
-        /// <returns>A generic serializer definition.</returns>
-        public static Type LookupGenericSerializerDefinition(Type genericTypeDefinition)
-        {
-            __configLock.EnterReadLock();
-            try
-            {
-                Type genericSerializerDefinition;
-                __genericSerializerDefinitions.TryGetValue(genericTypeDefinition, out genericSerializerDefinition);
-                return genericSerializerDefinition;
-            }
-            finally
-            {
-                __configLock.ExitReadLock();
-            }
-        }
-
-        /// <summary>
         /// Looks up an IdGenerator.
         /// </summary>
         /// <param name="type">The Id type.</param>
@@ -506,80 +482,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A serializer for the Type.</returns>
         public static IBsonSerializer LookupSerializer(Type type)
         {
-            // since we don't allow registering serializers for BsonDocument no lookup is needed
-            if (type == typeof(BsonDocument))
-            {
-                return BsonDocumentSerializer.Instance;
-            }
-
-            __configLock.EnterReadLock();
-            try
-            {
-                IBsonSerializer serializer;
-                if (__serializers.TryGetValue(type, out serializer))
-                {
-                    return serializer;
-                }
-            }
-            finally
-            {
-                __configLock.ExitReadLock();
-            }
-
-            __configLock.EnterWriteLock();
-            try
-            {
-                IBsonSerializer serializer;
-                if (!__serializers.TryGetValue(type, out serializer))
-                {
-                    if (serializer == null)
-                    {
-                        var serializerAttributes = type.GetCustomAttributes(typeof(BsonSerializerAttribute), false); // don't inherit
-                        if (serializerAttributes.Length == 1)
-                        {
-                            var serializerAttribute = (BsonSerializerAttribute)serializerAttributes[0];
-                            serializer = serializerAttribute.CreateSerializer(type);
-                        }
-                    }
-
-                    if (serializer == null && type.IsGenericType)
-                    {
-                        var genericTypeDefinition = type.GetGenericTypeDefinition();
-                        var genericSerializerDefinition = LookupGenericSerializerDefinition(genericTypeDefinition);
-                        if (genericSerializerDefinition != null)
-                        {
-                            var genericSerializerType = genericSerializerDefinition.MakeGenericType(type.GetGenericArguments());
-                            serializer = (IBsonSerializer)Activator.CreateInstance(genericSerializerType);
-                        }
-                    }
-
-                    if (serializer == null)
-                    {
-                        foreach (var serializationProvider in __serializationProviders)
-                        {
-                            serializer = serializationProvider.GetSerializer(type);
-                            if (serializer != null)
-                            {
-                                break;
-                            }
-                        }
-                    }
-
-                    if (serializer == null)
-                    {
-                        var message = string.Format("No serializer found for type {0}.", type.FullName);
-                        throw new BsonSerializationException(message);
-                    }
-
-                    __serializers[type] = serializer;
-                }
-
-                return serializer;
-            }
-            finally
-            {
-                __configLock.ExitWriteLock();
-            }
+            return DefaultBsonSerializerRegistry.Instance.GetSerializer(type);
         }
 
         /// <summary>
@@ -657,15 +560,7 @@ namespace MongoDB.Bson.Serialization
             Type genericTypeDefinition,
             Type genericSerializerDefinition)
         {
-            __configLock.EnterWriteLock();
-            try
-            {
-                __genericSerializerDefinitions[genericTypeDefinition] = genericSerializerDefinition;
-            }
-            finally
-            {
-                __configLock.ExitWriteLock();
-            }
+            DefaultBsonSerializerRegistry.Instance.RegisterSerializerDefinition(genericTypeDefinition, genericSerializerDefinition);
         }
 
         /// <summary>
@@ -692,16 +587,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="provider">The serialization provider.</param>
         public static void RegisterSerializationProvider(IBsonSerializationProvider provider)
         {
-            __configLock.EnterWriteLock();
-            try
-            {
-                // add new provider to the front of the list
-                __serializationProviders.Insert(0, provider);
-            }
-            finally
-            {
-                __configLock.ExitWriteLock();
-            }
+            DefaultBsonSerializerRegistry.Instance.RegisterSerializationProvider(provider);
         }
 
         /// <summary>
@@ -721,27 +607,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         public static void RegisterSerializer(Type type, IBsonSerializer serializer)
         {
-            // don't allow a serializer to be registered for subclasses of BsonValue
-            if (typeof(BsonValue).IsAssignableFrom(type))
-            {
-                var message = string.Format("A serializer cannot be registered for type {0} because it is a subclass of BsonValue.", BsonUtils.GetFriendlyTypeName(type));
-                throw new BsonSerializationException(message);
-            }
-
-            __configLock.EnterWriteLock();
-            try
-            {
-                if (__serializers.ContainsKey(type))
-                {
-                    var message = string.Format("There is already a serializer registered for type {0}.", type.FullName);
-                    throw new BsonSerializationException(message);
-                }
-                __serializers.Add(type, serializer);
-            }
-            finally
-            {
-                __configLock.ExitWriteLock();
-            }
+            DefaultBsonSerializerRegistry.Instance.RegisterSerializer(type, serializer);
         }
 
         /// <summary>
@@ -818,16 +684,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private static methods
-        private static void RegisterDefaultSerializationProviders()
-        {
-            // last one registered gets first chance at providing the serializer
-            RegisterSerializationProvider(new BsonClassMapSerializationProvider());
-            RegisterSerializationProvider(new DiscriminatedInterfaceSerializationProvider());
-            RegisterSerializationProvider(new CollectionsSerializationProvider());
-            RegisterSerializationProvider(new PrimitiveSerializationProvider());
-            RegisterSerializationProvider(new BsonObjectModelSerializationProvider());
-        }
-
         private static void RegisterIdGenerators()
         {
             RegisterIdGenerator(typeof(BsonObjectId), BsonObjectIdGenerator.Instance);

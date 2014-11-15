@@ -114,6 +114,7 @@
     <Compile Include="ObjectModel\MaterializedOnDemandBsonDocument.cs" />
     <Compile Include="ObjectModel\RawBsonArray.cs" />
     <Compile Include="ObjectModel\RawBsonDocument.cs" />
+    <Compile Include="Serialization\AttributedSerializationProvider.cs" />
     <Compile Include="Serialization\Attributes\BsonConstructorAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonDictionaryOptionsAttribute.cs" />
@@ -174,7 +175,7 @@
     <Compile Include="Serialization\Conventions\StringObjectIdIdGeneratorConvention.cs" />
     <Compile Include="Serialization\CreatorMapDelegateCompiler.cs" />
     <Compile Include="Serialization\ExpressionVisitor.cs" />
-    <Compile Include="Serialization\GlobalBsonSerializerRegistry.cs" />
+    <Compile Include="Serialization\DefaultBsonSerializerRegistry.cs" />
     <Compile Include="Serialization\IBsonDictionarySerializer.cs" />
     <Compile Include="Serialization\IBsonPolymorphicSerializer.cs" />
     <Compile Include="Serialization\IBsonSerializerRegistry.cs" />
