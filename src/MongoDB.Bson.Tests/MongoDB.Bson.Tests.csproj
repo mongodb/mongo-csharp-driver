@@ -77,6 +77,7 @@
     </Compile>
     <Compile Include="BsonExtensionMethodsTests.cs" />
     <Compile Include="BsonUtilsTests.cs" />
+    <Compile Include="IO\ArrayElementNameAcceleratorTests.cs" />
     <Compile Include="IO\BsonWriterTests.cs" />
     <Compile Include="IO\ByteArrayBufferTests.cs" />
     <Compile Include="IO\MultiChunkBufferTests.cs" />
