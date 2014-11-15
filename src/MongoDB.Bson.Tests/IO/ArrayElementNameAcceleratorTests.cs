@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.IO;
 using NUnit.Framework;
 
@@ -36,7 +37,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         public void GetElementNameBytes_should_return_expected_result_for_boundary_conditions(
-            [Values(0, 9, 10, 99, 100, 999, 1000, 9999, 10000, 99999, 100000, 999999, 1000000, 9999999, 100000000)]
+            [Values(0, 9, 10, 99, 100, 999, 1000, 9999, 10000, 99999, 100000, 999999, 1000000, 9999999, 100000000, int.MaxValue)]
             int index,
             [Values(0)]
             int numberOfCachedElementNames)
@@ -73,6 +74,14 @@ namespace MongoDB.Bson.Tests.IO
 
                 Assert.That(result2, Is.SameAs(result1));
             }
+        }
+
+        [Test]
+        public void GetElementNameBytes_should_throw_when_index_is_negative()
+        {
+            var subject = new ArrayElementNameAccelerator(0);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => subject.GetElementNameBytes(-1));
         }
     }
 }
