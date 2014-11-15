@@ -822,7 +822,10 @@ namespace MongoDB.Bson.Serialization
         {
             // last one registered gets first chance at providing the serializer
             RegisterSerializationProvider(new BsonClassMapSerializationProvider());
-            RegisterSerializationProvider(new BsonDefaultSerializationProvider());
+            RegisterSerializationProvider(new DiscriminatedInterfaceSerializationProvider());
+            RegisterSerializationProvider(new CollectionsSerializationProvider());
+            RegisterSerializationProvider(new PrimitiveSerializationProvider());
+            RegisterSerializationProvider(new BsonObjectModelSerializationProvider());
         }
 
         private static void RegisterIdGenerators()

@@ -18,112 +18,43 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Dynamic;
-using System.Globalization;
-using System.Net;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
-    /// Represents the default serialization provider.
+    /// Provides serializers for collections.
     /// </summary>
-    internal class BsonDefaultSerializationProvider : IBsonSerializationProvider
+    public class CollectionsSerializationProvider : BsonSerializationProviderBase
     {
-        // private static fields
-        private static Dictionary<Type, Type> __serializers;
-        private static Dictionary<Type, Type> __genericSerializerDefinitions;
+        private static readonly Dictionary<Type, Type> __serializers;
 
-        // static constructor
-        static BsonDefaultSerializationProvider()
+        static CollectionsSerializationProvider()
         {
             __serializers = new Dictionary<Type, Type>
             {
                 { typeof(BitArray), typeof(BitArraySerializer) },
-                { typeof(Boolean), typeof(BooleanSerializer) },
-                { typeof(BsonArray), typeof(BsonArraySerializer) },
-                { typeof(BsonBinaryData), typeof(BsonBinaryDataSerializer) },
-                { typeof(BsonBoolean), typeof(BsonBooleanSerializer) },
-                { typeof(BsonDateTime), typeof(BsonDateTimeSerializer) },
-                { typeof(BsonDocument), typeof(BsonDocumentSerializer) },
-                { typeof(BsonDocumentWrapper), typeof(BsonDocumentWrapperSerializer) },
-                { typeof(BsonDouble), typeof(BsonDoubleSerializer) },
-                { typeof(BsonInt32), typeof(BsonInt32Serializer) },
-                { typeof(BsonInt64), typeof(BsonInt64Serializer) },
-                { typeof(BsonJavaScript), typeof(BsonJavaScriptSerializer) },
-                { typeof(BsonJavaScriptWithScope), typeof(BsonJavaScriptWithScopeSerializer) },
-                { typeof(BsonMaxKey), typeof(BsonMaxKeySerializer) },
-                { typeof(BsonMinKey), typeof(BsonMinKeySerializer) },
-                { typeof(BsonNull), typeof(BsonNullSerializer) },
-                { typeof(BsonObjectId), typeof(BsonObjectIdSerializer) },
-                { typeof(BsonRegularExpression), typeof(BsonRegularExpressionSerializer) },
-                { typeof(BsonString), typeof(BsonStringSerializer) },
-                { typeof(BsonSymbol), typeof(BsonSymbolSerializer) },
-                { typeof(BsonTimestamp), typeof(BsonTimestampSerializer) },
-                { typeof(BsonUndefined), typeof(BsonUndefinedSerializer) },
-                { typeof(BsonValue), typeof(BsonValueSerializer) },
-                { typeof(Byte), typeof(ByteSerializer) },
-                { typeof(Byte[]), typeof(ByteArraySerializer) },
-                { typeof(Char), typeof(CharSerializer) },
-                { typeof(CultureInfo), typeof(CultureInfoSerializer) },
-                { typeof(DateTime), typeof(DateTimeSerializer) },
-                { typeof(DateTimeOffset), typeof(DateTimeOffsetSerializer) },
-                { typeof(Decimal), typeof(DecimalSerializer) },
-                { typeof(Double), typeof(DoubleSerializer) },
                 { typeof(ExpandoObject), typeof(ExpandoObjectSerializer) },
-                { typeof(Guid), typeof(GuidSerializer) },
-                { typeof(Int16), typeof(Int16Serializer) },
-                { typeof(Int32), typeof(Int32Serializer) },
-                { typeof(Int64), typeof(Int64Serializer) },
-                { typeof(IPAddress), typeof(IPAddressSerializer) },
-                { typeof(IPEndPoint), typeof(IPEndPointSerializer) },
-                { typeof(Object), typeof(ObjectSerializer) },
-                { typeof(ObjectId), typeof(ObjectIdSerializer) },
                 { typeof(Queue), typeof(QueueSerializer) },
-                { typeof(SByte), typeof(SByteSerializer) },
-                { typeof(Single), typeof(SingleSerializer) },
                 { typeof(Stack), typeof(StackSerializer) },
-                { typeof(String), typeof(StringSerializer) },
-                { typeof(TimeSpan), typeof(TimeSpanSerializer) },
-                { typeof(UInt16), typeof(UInt16Serializer) },
-                { typeof(UInt32), typeof(UInt32Serializer) },
-                { typeof(UInt64), typeof(UInt64Serializer) },
-                { typeof(Uri), typeof(UriSerializer) },
-                { typeof(Version), typeof(VersionSerializer) }
-            };
-
-            __genericSerializerDefinitions = new Dictionary<Type, Type>
-            {
-                { typeof(KeyValuePair<,>), typeof(KeyValuePairSerializer<,>) },
-                { typeof(Nullable<>), typeof(NullableSerializer<>) },
                 { typeof(Queue<>), typeof(QueueSerializer<>) },
                 { typeof(ReadOnlyCollection<>), typeof(ReadOnlyCollectionSerializer<>) },
                 { typeof(Stack<>), typeof(StackSerializer<>) },
-                { typeof(Tuple<>), typeof(TupleSerializer<>) },
-                { typeof(Tuple<,>), typeof(TupleSerializer<,>) },
-                { typeof(Tuple<,,>), typeof(TupleSerializer<,,>) },
-                { typeof(Tuple<,,,>), typeof(TupleSerializer<,,,>) },
-                { typeof(Tuple<,,,,>), typeof(TupleSerializer<,,,,>) },
-                { typeof(Tuple<,,,,,>), typeof(TupleSerializer<,,,,,>) },
-                { typeof(Tuple<,,,,,,>), typeof(TupleSerializer<,,,,,,>) },
-                { typeof(Tuple<,,,,,,,>), typeof(TupleSerializer<,,,,,,,>) }
             };
         }
 
-        // constructors
         /// <summary>
-        /// Initializes a new instance of the BsonDefaultSerializer class.
-        /// </summary>
-        public BsonDefaultSerializationProvider()
-        {
-        }
-
-        // public methods
-        /// <summary>
-        /// Gets the serializer for a type.
+        /// Gets a serializer for a type.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <returns>The serializer.</returns>
-        public IBsonSerializer GetSerializer(Type type)
+        /// <returns>
+        /// A serializer.
+        /// </returns>
+        /// <exception cref="BsonSerializationException"></exception>
+        public override IBsonSerializer GetSerializer(Type type)
         {
             Type serializerType;
             if (__serializers.TryGetValue(type, out serializerType))
@@ -134,10 +65,9 @@ namespace MongoDB.Bson.Serialization
             if (type.IsGenericType)
             {
                 var genericTypeDefinition = type.GetGenericTypeDefinition();
-                Type genericSerializerDefinition;
-                if (__genericSerializerDefinitions.TryGetValue(genericTypeDefinition, out genericSerializerDefinition))
+                if (__serializers.TryGetValue(genericTypeDefinition, out serializerType))
                 {
-                    return CreateGenericSerializer(genericSerializerDefinition, type.GetGenericArguments());
+                    return CreateGenericSerializer(serializerType, type.GetGenericArguments());
                 }
             }
 
@@ -161,40 +91,7 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-            if (type.IsEnum)
-            {
-                var enumSerializerDefinition = typeof(EnumSerializer<>);
-                return CreateGenericSerializer(enumSerializerDefinition, type);
-            }
-
-            // classes that implement IDictionary or IEnumerable are serialized using either DictionarySerializer or EnumerableSerializer
-            // this does mean that any additional public properties the class might have won't be serialized (just like the XmlSerializer)
-            var collectionSerializer = GetCollectionSerializer(type);
-            if (collectionSerializer != null)
-            {
-                return collectionSerializer;
-            }
-
-            // interface values will be written with a discriminator so they can be deserialized
-            if (type.IsInterface)
-            {
-                var discriminatedInterfaceSerializerDefinition = typeof(DiscriminatedInterfaceSerializer<>);
-                return CreateGenericSerializer(discriminatedInterfaceSerializerDefinition, type);
-            }
-
-            return null;
-        }
-
-        // private methods
-        private IBsonSerializer CreateGenericSerializer(Type serializerDefinition, params Type[] typeArguments)
-        {
-            var serializerType = serializerDefinition.MakeGenericType(typeArguments);
-            return CreateSerializer(serializerType);
-        }
-
-        private IBsonSerializer CreateSerializer(Type serializerType)
-        {
-            return (IBsonSerializer)Activator.CreateInstance(serializerType);
+            return GetCollectionSerializer(type);
         }
 
         private IBsonSerializer GetCollectionSerializer(Type type)
@@ -277,7 +174,7 @@ namespace MongoDB.Bson.Serialization
             else if (implementedGenericSetInterface != null)
             {
                 var itemType = implementedGenericSetInterface.GetGenericArguments()[0];
-                
+
                 if (type.IsInterface)
                 {
                     var hashSetDefinition = typeof(HashSet<>);

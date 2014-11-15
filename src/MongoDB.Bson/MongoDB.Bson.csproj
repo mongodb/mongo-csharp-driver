@@ -134,7 +134,9 @@
     <Compile Include="Serialization\BsonCreatorMap.cs" />
     <Compile Include="Serialization\BsonDeserializationContext.cs" />
     <Compile Include="Serialization\BsonDocumentBackedClass.cs" />
+    <Compile Include="Serialization\BsonObjectModelSerializationProvider.cs" />
     <Compile Include="Serialization\BsonSerializationContext.cs" />
+    <Compile Include="Serialization\CollectionsSerializationProvider.cs" />
     <Compile Include="Serialization\Conventions\AttributeConventionPack.cs" />
     <Compile Include="Serialization\Conventions\CamelCaseElementNameConvention.cs" />
     <Compile Include="Serialization\Conventions\NamedParameterCreatorMapConvention.cs" />
@@ -193,6 +195,9 @@
     <Compile Include="Serialization\MostArgumentsCreatorSelector.cs" />
     <Compile Include="Serialization\Options\DictionaryRepresentation.cs" />
     <Compile Include="Serialization\Options\RepresentationConverter.cs" />
+    <Compile Include="Serialization\DiscriminatedInterfaceSerializationProvider.cs" />
+    <Compile Include="Serialization\PrimitiveSerializationProvider.cs" />
+    <Compile Include="Serialization\BsonSerializationProviderBase.cs" />
     <Compile Include="Serialization\Serializers\AbstractClassSerializer.cs" />
     <Compile Include="Serialization\Serializers\BitArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\BooleanSerializer.cs" />
@@ -332,7 +337,6 @@
     <Compile Include="ObjectModel\BsonSymbol.cs" />
     <Compile Include="ObjectModel\BsonMaxKey.cs" />
     <Compile Include="ObjectModel\BsonMinKey.cs" />
-    <Compile Include="Serialization\BsonDefaultSerializationProvider.cs" />
     <Compile Include="Serialization\Serializers\ClassSerializerBase.cs" />
     <Compile Include="Serialization\Serializers\EnumSerializer.cs" />
     <Compile Include="Serialization\Serializers\ArraySerializer.cs" />
