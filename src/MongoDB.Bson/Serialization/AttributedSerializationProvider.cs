@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Serialization
     public class AttributedSerializationProvider : BsonSerializationProviderBase
     {
         /// <summary>
-        /// Gets a serializer for a type.
+        /// Gets a serializer for a type that has been annotated with a <see cref="BsonSerializerAttribute"/> specifying which serializer to use.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>

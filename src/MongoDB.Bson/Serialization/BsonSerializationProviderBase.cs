@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
-    /// Base provider for serializers.
+    /// Base provider for serialization providers.
     /// </summary>
     public abstract class BsonSerializationProviderBase : IBsonSerializationProvider
     {
@@ -21,25 +21,25 @@ namespace MongoDB.Bson.Serialization
         public abstract IBsonSerializer GetSerializer(Type type);
 
         /// <summary>
-        /// Creates the generic serializer.
+        /// Creates the serializer from a serializer type definition and type arguments.
         /// </summary>
-        /// <param name="typeDefinition">The type definition.</param>
+        /// <param name="serializerTypeDefinition">The serializer type definition.</param>
         /// <param name="genericArguments">The generic arguments.</param>
         /// <returns></returns>
-        protected virtual IBsonSerializer CreateGenericSerializer(Type typeDefinition, params Type[] genericArguments)
+        protected virtual IBsonSerializer CreateGenericSerializer(Type serializerTypeDefinition, params Type[] genericArguments)
         {
-            var type = typeDefinition.MakeGenericType(genericArguments);
+            var type = serializerTypeDefinition.MakeGenericType(genericArguments);
             return CreateSerializer(type);
         }
 
         /// <summary>
         /// Creates the serializer.
         /// </summary>
-        /// <param name="type">The type.</param>
+        /// <param name="serializerType">The serializer type.</param>
         /// <returns></returns>
-        protected virtual IBsonSerializer CreateSerializer(Type type)
+        protected virtual IBsonSerializer CreateSerializer(Type serializerType)
         {
-            return (IBsonSerializer)Activator.CreateInstance(type);
+            return (IBsonSerializer)Activator.CreateInstance(serializerType);
         }
     }
 }

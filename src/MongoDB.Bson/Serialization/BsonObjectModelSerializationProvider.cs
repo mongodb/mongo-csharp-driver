@@ -20,7 +20,7 @@ using MongoDB.Bson.Serialization.Serializers;
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
-    /// Provides serializers for BsonValue and it's derivations.
+    /// Provides serializers for BsonValue and its derivations.
     /// </summary>
     public class BsonObjectModelSerializationProvider : IBsonSerializationProvider
     {
@@ -65,7 +65,9 @@ namespace MongoDB.Bson.Serialization
         {
             IBsonSerializer value;
             if (__serializers.TryGetValue(type, out value))
+            {
                 return value;
+            }
 
             return null;
         }

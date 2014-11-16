@@ -104,14 +104,18 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Registers the serializer definition.
         /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="serializerType">Type of the serializer.</param>
-        public void RegisterSerializerDefinition(Type type, Type serializerType)
+        /// <param name="typeDefinition">The type.</param>
+        /// <param name="serializerTypeDefinition">Type of the serializer.</param>
+        public void RegisterSerializerDefinition(Type typeDefinition, Type serializerTypeDefinition)
         {
             // We are going to let last one win here. If the definition has
             // already produced a serializer, that's ok because that serializer
             // won't ever get regenerated again.
-            _serializerDefinitions.AddOrUpdate(type, serializerType, (o, n) => n);
+            if (!_serializerDefinitions.TryAdd(typeDefinition, serializerTypeDefinition))
+            {
+                var message = string.Format("There is already a serializer definition registered for type {0}.", typeDefinition.FullName);
+                throw new BsonSerializationException(message);
+            }
         }
 
         /// <summary>
@@ -132,7 +136,7 @@ namespace MongoDB.Bson.Serialization
             {
                 return CreateSerializer(serializerType);
             }
-            else if (type.IsGenericType)
+            else if (type.IsGenericType && !type.IsGenericTypeDefinition)
             {
                 var genericTypeDefinition = type.GetGenericTypeDefinition();
                 if (_serializerDefinitions.TryGetValue(genericTypeDefinition, out serializerType))

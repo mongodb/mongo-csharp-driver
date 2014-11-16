@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Serialization
                 return CreateSerializer(serializerType);
             }
 
-            if (type.IsGenericType)
+            if (type.IsGenericType && !type.IsGenericTypeDefinition)
             {
                 var genericTypeDefinition = type.GetGenericTypeDefinition();
                 if (__serializers.TryGetValue(genericTypeDefinition, out serializerType))

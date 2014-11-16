@@ -17,8 +17,6 @@ using System.Net;
 * limitations under the License.
 */
 
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -84,12 +82,14 @@ namespace MongoDB.Bson.Serialization
         {
             Type serializerType;
             if (__serializers.TryGetValue(type, out serializerType))
+            {
                 return CreateSerializer(serializerType);
+            }
 
-            if (type.IsGenericType)
+            if (type.IsGenericType && !type.IsGenericTypeDefinition)
             {
                 var genericTypeDefinition = type.GetGenericTypeDefinition();
-                if ( __serializers.TryGetValue(genericTypeDefinition, out serializerType))
+                if (__serializers.TryGetValue(genericTypeDefinition, out serializerType))
                 {
                     return CreateGenericSerializer(serializerType, type.GetGenericArguments());
                 }
