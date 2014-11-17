@@ -560,7 +560,7 @@ namespace MongoDB.Bson.Serialization
             Type genericTypeDefinition,
             Type genericSerializerDefinition)
         {
-            DefaultBsonSerializerRegistry.Instance.RegisterSerializerDefinition(genericTypeDefinition, genericSerializerDefinition);
+            TypeMappingSerializationProvider.Instance.RegisterMapping(genericTypeDefinition, genericSerializerDefinition);
         }
 
         /// <summary>

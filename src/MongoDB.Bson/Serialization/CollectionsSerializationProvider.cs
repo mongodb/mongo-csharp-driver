@@ -18,9 +18,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -30,11 +27,11 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public class CollectionsSerializationProvider : BsonSerializationProviderBase
     {
-        private static readonly Dictionary<Type, Type> __serializers;
+        private static readonly Dictionary<Type, Type> __serializerTypes;
 
         static CollectionsSerializationProvider()
         {
-            __serializers = new Dictionary<Type, Type>
+            __serializerTypes = new Dictionary<Type, Type>
             {
                 { typeof(BitArray), typeof(BitArraySerializer) },
                 { typeof(ExpandoObject), typeof(ExpandoObjectSerializer) },
@@ -56,18 +53,28 @@ namespace MongoDB.Bson.Serialization
         /// <exception cref="BsonSerializationException"></exception>
         public override IBsonSerializer GetSerializer(Type type)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+            if (type.IsGenericType && type.ContainsGenericParameters)
+            {
+                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
+                throw new ArgumentException(message, "type");
+            }
+
             Type serializerType;
-            if (__serializers.TryGetValue(type, out serializerType))
+            if (__serializerTypes.TryGetValue(type, out serializerType))
             {
                 return CreateSerializer(serializerType);
             }
 
-            if (type.IsGenericType && !type.IsGenericTypeDefinition)
+            if (type.IsGenericType && !type.ContainsGenericParameters)
             {
-                var genericTypeDefinition = type.GetGenericTypeDefinition();
-                if (__serializers.TryGetValue(genericTypeDefinition, out serializerType))
+                Type serializerTypeDefinition;
+                if (__serializerTypes.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
                 {
-                    return CreateGenericSerializer(serializerType, type.GetGenericArguments());
+                    return CreateGenericSerializer(serializerTypeDefinition, type.GetGenericArguments());
                 }
             }
 

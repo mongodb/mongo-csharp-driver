@@ -63,10 +63,20 @@ namespace MongoDB.Bson.Serialization
         /// </returns>
         public IBsonSerializer GetSerializer(Type type)
         {
-            IBsonSerializer value;
-            if (__serializers.TryGetValue(type, out value))
+            if (type == null)
             {
-                return value;
+                throw new ArgumentNullException("type");
+            }
+            if (type.IsGenericType && type.ContainsGenericParameters)
+            {
+                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
+                throw new ArgumentException(message, "type");
+            }
+
+            IBsonSerializer serializer;
+            if (__serializers.TryGetValue(type, out serializer))
+            {
+                return serializer;
             }
 
             return null;

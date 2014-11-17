@@ -368,6 +368,7 @@
     <Compile Include="Serialization\Serializers\UndiscriminatedActualTypeSerializer.cs" />
     <Compile Include="Serialization\Serializers\UriSerializer.cs" />
     <Compile Include="Serialization\Serializers\VersionSerializer.cs" />
+    <Compile Include="Serialization\TypeMappingSerializationProvider.cs" />
     <Compile Include="Serialization\TypeNameDiscriminator.cs" />
   </ItemGroup>
   <ItemGroup>

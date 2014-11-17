@@ -30,10 +30,20 @@ namespace MongoDB.Bson.Serialization
         /// <returns></returns>
         public override IBsonSerializer GetSerializer(Type type)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+            if (type.IsGenericType && type.ContainsGenericParameters)
+            {
+                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
+                throw new ArgumentException(message, "type");
+            }
+
             if (type.IsInterface)
             {
-                var discriminatedInterfaceSerializerDefinition = typeof(DiscriminatedInterfaceSerializer<>);
-                return CreateGenericSerializer(discriminatedInterfaceSerializerDefinition, type);
+                var serializerTypeDefinition = typeof(DiscriminatedInterfaceSerializer<>);
+                return CreateGenericSerializer(serializerTypeDefinition, type);
             }
 
             return null;

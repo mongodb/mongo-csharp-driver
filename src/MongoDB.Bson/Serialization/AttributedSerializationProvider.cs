@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization
@@ -36,6 +32,16 @@ namespace MongoDB.Bson.Serialization
         /// </returns>
         public override IBsonSerializer GetSerializer(Type type)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+            if (type.IsGenericType && type.ContainsGenericParameters)
+            {
+                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
+                throw new ArgumentException(message, "type");
+            }
+
             var serializerAttributes = type.GetCustomAttributes(typeof(BsonSerializerAttribute), false); // don't inherit
             if (serializerAttributes.Length == 1)
             {

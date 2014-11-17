@@ -21,14 +21,13 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Default, global implementation of an <see cref="IBsonSerializerRegistry"/>.
     /// </summary>
-    public sealed class DefaultBsonSerializerRegistry : BsonSerializationProviderBase, IBsonSerializerRegistry
+    public sealed class DefaultBsonSerializerRegistry : IBsonSerializerRegistry
     {
         // private static fields
         private static readonly DefaultBsonSerializerRegistry __instance = new DefaultBsonSerializerRegistry();
 
         // private fields
         private readonly ConcurrentDictionary<Type, IBsonSerializer> _cache;
-        private readonly ConcurrentDictionary<Type, Type> _serializerDefinitions;
         private readonly ConcurrentStack<IBsonSerializationProvider> _serializationProviders;
 
         // public static properties
@@ -44,7 +43,6 @@ namespace MongoDB.Bson.Serialization
         private DefaultBsonSerializerRegistry()
         {
             _cache = new ConcurrentDictionary<Type,IBsonSerializer>();
-            _serializerDefinitions = new ConcurrentDictionary<Type, Type>();
             _serializationProviders = new ConcurrentStack<IBsonSerializationProvider>();
 
             // order matters. It's in reverse order of how they'll get consumed
@@ -53,6 +51,7 @@ namespace MongoDB.Bson.Serialization
             _serializationProviders.Push(new CollectionsSerializationProvider());
             _serializationProviders.Push(new PrimitiveSerializationProvider());
             _serializationProviders.Push(new AttributedSerializationProvider());
+            _serializationProviders.Push(new TypeMappingSerializationProvider());
             _serializationProviders.Push(new BsonObjectModelSerializationProvider());
         }
 
@@ -64,9 +63,19 @@ namespace MongoDB.Bson.Serialization
         /// <returns>
         /// The serializer.
         /// </returns>
-        public override IBsonSerializer GetSerializer(Type type)
+        public IBsonSerializer GetSerializer(Type type)
         {
-            return _cache.GetOrAdd(type, LookupSerializer);
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+            if (type.IsGenericType && type.ContainsGenericParameters)
+            {
+                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
+                throw new ArgumentException(message, "type");
+            }
+
+            return _cache.GetOrAdd(type, CreateSerializer);
         }
 
         /// <summary>
@@ -88,32 +97,28 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         public void RegisterSerializer(Type type, IBsonSerializer serializer)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+            if (serializer == null)
+            {
+                throw new ArgumentNullException("serializer");
+            }
             if (typeof(BsonValue).IsAssignableFrom(type))
             {
                 var message = string.Format("A serializer cannot be registered for type {0} because it is a subclass of BsonValue.", BsonUtils.GetFriendlyTypeName(type));
                 throw new BsonSerializationException(message);
             }
+            if (type.IsGenericType && type.ContainsGenericParameters)
+            {
+                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
+                throw new ArgumentException(message, "type");
+            }
 
             if (!_cache.TryAdd(type, serializer))
             {
-                var message = string.Format("There is already a serializer registered for type {0}.", type.FullName);
-                throw new BsonSerializationException(message);
-            }
-        }
-
-        /// <summary>
-        /// Registers the serializer definition.
-        /// </summary>
-        /// <param name="typeDefinition">The type.</param>
-        /// <param name="serializerTypeDefinition">Type of the serializer.</param>
-        public void RegisterSerializerDefinition(Type typeDefinition, Type serializerTypeDefinition)
-        {
-            // We are going to let last one win here. If the definition has
-            // already produced a serializer, that's ok because that serializer
-            // won't ever get regenerated again.
-            if (!_serializerDefinitions.TryAdd(typeDefinition, serializerTypeDefinition))
-            {
-                var message = string.Format("There is already a serializer definition registered for type {0}.", typeDefinition.FullName);
+                var message = string.Format("There is already a serializer registered for type {0}.", BsonUtils.GetFriendlyTypeName(type));
                 throw new BsonSerializationException(message);
             }
         }
@@ -125,26 +130,17 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializationProvider">The serialization provider.</param>
         public void RegisterSerializationProvider(IBsonSerializationProvider serializationProvider)
         {
+            if (serializationProvider == null)
+            {
+                throw new ArgumentNullException("serializationProvider");
+            }
+            
             _serializationProviders.Push(serializationProvider);
         }
 
         // private methods
-        private IBsonSerializer LookupSerializer(Type type)
+        private IBsonSerializer CreateSerializer(Type type)
         {
-            Type serializerType;
-            if (_serializerDefinitions.TryGetValue(type, out serializerType))
-            {
-                return CreateSerializer(serializerType);
-            }
-            else if (type.IsGenericType && !type.IsGenericTypeDefinition)
-            {
-                var genericTypeDefinition = type.GetGenericTypeDefinition();
-                if (_serializerDefinitions.TryGetValue(genericTypeDefinition, out serializerType))
-                {
-                    return CreateGenericSerializer(genericTypeDefinition, type.GetGenericArguments());
-                }
-            }
-
             foreach (var serializationProvider in _serializationProviders)
             {
                 var serializer = serializationProvider.GetSerializer(type);
