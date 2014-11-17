@@ -38,6 +38,8 @@ namespace MongoDB.Bson.Serialization
         private static Dictionary<Type, IDiscriminatorConvention> __discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
         private static Dictionary<BsonValue, HashSet<Type>> __discriminators = new Dictionary<BsonValue, HashSet<Type>>();
         private static HashSet<Type> __discriminatedTypes = new HashSet<Type>();
+        private static BsonSerializerRegistry __serializerRegistry;
+        private static TypeMappingSerializationProvider __typeMappingSerializationProvider;
         private static HashSet<Type> __typesWithRegisteredKnownTypes = new HashSet<Type>();
 
         private static bool __useNullIdChecker = false;
@@ -46,10 +48,19 @@ namespace MongoDB.Bson.Serialization
         // static constructor
         static BsonSerializer()
         {
+            CreateSerializerRegistry();
             RegisterIdGenerators();
         }
 
         // public static properties
+        /// <summary>
+        /// Gets the serializer registry.
+        /// </summary>
+        public static IBsonSerializerRegistry SerializerRegistry
+        {
+            get { return __serializerRegistry; }
+        }
+
         /// <summary>
         /// Gets or sets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered.
         /// </summary>
@@ -482,7 +493,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A serializer for the Type.</returns>
         public static IBsonSerializer LookupSerializer(Type type)
         {
-            return DefaultBsonSerializerRegistry.Instance.GetSerializer(type);
+            return __serializerRegistry.GetSerializer(type);
         }
 
         /// <summary>
@@ -560,7 +571,7 @@ namespace MongoDB.Bson.Serialization
             Type genericTypeDefinition,
             Type genericSerializerDefinition)
         {
-            DefaultBsonSerializerRegistry.Instance.RegisterSerializerDefinition(genericTypeDefinition, genericSerializerDefinition);
+            __typeMappingSerializationProvider.RegisterMapping(genericTypeDefinition, genericSerializerDefinition);
         }
 
         /// <summary>
@@ -587,7 +598,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="provider">The serialization provider.</param>
         public static void RegisterSerializationProvider(IBsonSerializationProvider provider)
         {
-            DefaultBsonSerializerRegistry.Instance.RegisterSerializationProvider(provider);
+            __serializerRegistry.RegisterSerializationProvider(provider);
         }
 
         /// <summary>
@@ -607,7 +618,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         public static void RegisterSerializer(Type type, IBsonSerializer serializer)
         {
-            DefaultBsonSerializerRegistry.Instance.RegisterSerializer(type, serializer);
+            __serializerRegistry.RegisterSerializer(type, serializer);
         }
 
         /// <summary>
@@ -684,6 +695,21 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private static methods
+        private static void CreateSerializerRegistry()
+        {
+            __serializerRegistry = new BsonSerializerRegistry();
+            __typeMappingSerializationProvider = new TypeMappingSerializationProvider();
+
+            // order matters. It's in reverse order of how they'll get consumed
+            __serializerRegistry.RegisterSerializationProvider(new BsonClassMapSerializationProvider());
+            __serializerRegistry.RegisterSerializationProvider(new DiscriminatedInterfaceSerializationProvider());
+            __serializerRegistry.RegisterSerializationProvider(new CollectionsSerializationProvider());
+            __serializerRegistry.RegisterSerializationProvider(new PrimitiveSerializationProvider());
+            __serializerRegistry.RegisterSerializationProvider(new AttributedSerializationProvider());
+            __serializerRegistry.RegisterSerializationProvider(__typeMappingSerializationProvider);
+            __serializerRegistry.RegisterSerializationProvider(new BsonObjectModelSerializationProvider());
+        }
+
         private static void RegisterIdGenerators()
         {
             RegisterIdGenerator(typeof(BsonObjectId), BsonObjectIdGenerator.Instance);

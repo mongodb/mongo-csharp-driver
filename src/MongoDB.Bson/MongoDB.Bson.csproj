@@ -175,7 +175,7 @@
     <Compile Include="Serialization\Conventions\StringObjectIdIdGeneratorConvention.cs" />
     <Compile Include="Serialization\CreatorMapDelegateCompiler.cs" />
     <Compile Include="Serialization\ExpressionVisitor.cs" />
-    <Compile Include="Serialization\DefaultBsonSerializerRegistry.cs" />
+    <Compile Include="Serialization\BsonSerializerRegistry.cs" />
     <Compile Include="Serialization\IBsonDictionarySerializer.cs" />
     <Compile Include="Serialization\IBsonPolymorphicSerializer.cs" />
     <Compile Include="Serialization\IBsonSerializerRegistry.cs" />
