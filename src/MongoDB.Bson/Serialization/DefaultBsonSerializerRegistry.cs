@@ -29,6 +29,7 @@ namespace MongoDB.Bson.Serialization
         // private fields
         private readonly ConcurrentDictionary<Type, IBsonSerializer> _cache;
         private readonly ConcurrentStack<IBsonSerializationProvider> _serializationProviders;
+        private readonly TypeMappingSerializationProvider _typeMappingSerializationProvider;
 
         // public static properties
         /// <summary>
@@ -44,6 +45,7 @@ namespace MongoDB.Bson.Serialization
         {
             _cache = new ConcurrentDictionary<Type,IBsonSerializer>();
             _serializationProviders = new ConcurrentStack<IBsonSerializationProvider>();
+            _typeMappingSerializationProvider = new TypeMappingSerializationProvider();
 
             // order matters. It's in reverse order of how they'll get consumed
             _serializationProviders.Push(new BsonClassMapSerializationProvider());
@@ -51,7 +53,7 @@ namespace MongoDB.Bson.Serialization
             _serializationProviders.Push(new CollectionsSerializationProvider());
             _serializationProviders.Push(new PrimitiveSerializationProvider());
             _serializationProviders.Push(new AttributedSerializationProvider());
-            _serializationProviders.Push(new TypeMappingSerializationProvider());
+            _serializationProviders.Push(_typeMappingSerializationProvider);
             _serializationProviders.Push(new BsonObjectModelSerializationProvider());
         }
 
@@ -121,6 +123,20 @@ namespace MongoDB.Bson.Serialization
                 var message = string.Format("There is already a serializer registered for type {0}.", BsonUtils.GetFriendlyTypeName(type));
                 throw new BsonSerializationException(message);
             }
+        }
+
+        public void RegisterSerializerDefinition(Type type, Type serializerType)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+            if (serializerType == null)
+            {
+                throw new ArgumentNullException("serializerType");
+            }
+
+            _typeMappingSerializationProvider.RegisterMapping(type, serializerType);
         }
 
         /// <summary>

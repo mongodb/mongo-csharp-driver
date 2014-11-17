@@ -23,20 +23,8 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public sealed class TypeMappingSerializationProvider : BsonSerializationProviderBase
     {
-        // private static fields
-        private static readonly TypeMappingSerializationProvider __instance = new TypeMappingSerializationProvider();
-
         // private fields
         private readonly ConcurrentDictionary<Type, Type> _serializerTypes;
-
-        // public static properties
-        /// <summary>
-        /// Gets the instance of the global registry.
-        /// </summary>
-        public static TypeMappingSerializationProvider Instance
-        {
-            get { return __instance; }
-        }
 
         // constructors
         /// <summary>
