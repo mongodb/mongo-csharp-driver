@@ -288,6 +288,11 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, cancellationToken);
         }
 
+        public Task<TDocument> FindOneAndDeleteAsync(object filter, FindOneAndDeleteOptions<TDocument> options, CancellationToken cancellationToken)
+        {
+            return FindOneAndDeleteAsync<TDocument>(filter, options, cancellationToken);
+        }
+
         public Task<TResult> FindOneAndDeleteAsync<TResult>(object filter, FindOneAndDeleteOptions<TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
@@ -307,6 +312,11 @@ namespace MongoDB.Driver
             };
 
             return ExecuteWriteOperation(operation, cancellationToken);
+        }
+
+        public Task<TDocument> FindOneAndReplaceAsync(object filter, TDocument replacement, FindOneAndReplaceOptions<TDocument> options, CancellationToken cancellationToken)
+        {
+            return FindOneAndReplaceAsync<TDocument>(filter, replacement, options, cancellationToken);
         }
 
         public Task<TResult> FindOneAndReplaceAsync<TResult>(object filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options, CancellationToken cancellationToken)
@@ -333,6 +343,11 @@ namespace MongoDB.Driver
             };
 
             return ExecuteWriteOperation(operation, cancellationToken);
+        }
+
+        public Task<TDocument> FindOneAndUpdateAsync(object filter, object update, FindOneAndUpdateOptions<TDocument> options, CancellationToken cancellationToken)
+        {
+            return FindOneAndUpdateAsync<TDocument>(filter, update, options, cancellationToken);
         }
 
         public Task<TResult> FindOneAndUpdateAsync<TResult>(object filter, object update, FindOneAndUpdateOptions<TResult> options, CancellationToken cancellationToken)

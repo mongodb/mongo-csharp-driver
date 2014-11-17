@@ -106,6 +106,7 @@
     <Compile Include="Builders\QueryBuilderTypedTests.cs" />
     <Compile Include="Builders\SortByBuilderTypedTests.cs" />
     <Compile Include="Builders\UpdateBuilderTests.cs" />
+    <Compile Include="MongoCollectionExtensionsTests.cs" />
     <Compile Include="WriteModelTests.cs" />
     <Compile Include="BulkWriteResultTests.cs" />
     <Compile Include="CommandResults\CollectionStatsResultTests.cs" />

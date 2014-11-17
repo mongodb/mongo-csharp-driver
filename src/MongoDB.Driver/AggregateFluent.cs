@@ -16,11 +16,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
 {
@@ -134,11 +137,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// Matches the specified match.
         /// </summary>
-        /// <param name="match">The match.</param>
+        /// <param name="filter">The filter.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Match(object match)
+        public AggregateFluent<TDocument, TResult> Match(object filter)
         {
-            return AppendStage(new BsonDocument("$match", _toBsonDocument(match)));
+            return AppendStage(new BsonDocument("$match", _toBsonDocument(filter)));
         }
 
         /// <summary>
@@ -259,6 +262,25 @@ namespace MongoDB.Driver
     /// </summary>
     public static class AggregateFluentExtensionMethods
     {
+        /// <summary>
+        /// Matches the specified match.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns></returns>
+        public static AggregateFluent<TDocument, TResult> Match<TDocument, TResult>(this AggregateFluent<TDocument, TResult> source, Expression<Func<TResult, bool>> filter)
+        {
+            Ensure.IsNotNull(source, "source");
+
+            var helper = new BsonSerializationInfoHelper();
+            helper.RegisterExpressionSerializer(filter.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TDocument>());
+            var filterdocument = new QueryBuilder<TResult>(helper).Where(filter).ToBsonDocument();
+
+            return source.Match(filterdocument);
+        }
+
         /// <summary>
         /// Firsts the asynchronous.
         /// </summary>
