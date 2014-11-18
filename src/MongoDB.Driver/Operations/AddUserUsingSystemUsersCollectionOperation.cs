@@ -51,11 +51,11 @@ namespace MongoDB.Driver.Operations
         // methods
         public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken))
             {
                 var collectionNamespace = new CollectionNamespace(_databaseNamespace, "system.users");
 
-                var user = await FindUserAsync(connectionSource, collectionNamespace, cancellationToken);
+                var user = await FindUserAsync(channelSource, collectionNamespace, cancellationToken);
                 if (user == null)
                 {
                     user = new BsonDocument
@@ -64,44 +64,44 @@ namespace MongoDB.Driver.Operations
                         { "pwd", _passwordHash },
                         { "readOnly", _readOnly },
                     };
-                    await InsertUserAsync(connectionSource, collectionNamespace, user, cancellationToken);
+                    await InsertUserAsync(channelSource, collectionNamespace, user, cancellationToken);
                 }
                 else
                 {
                     user["pwd"] = _passwordHash;
                     user["readOnly"] = _readOnly;
-                    await UpdateUserAsync(connectionSource, collectionNamespace, user, cancellationToken);
+                    await UpdateUserAsync(channelSource, collectionNamespace, user, cancellationToken);
                 }
             }
 
             return true;
         }
 
-        private async Task<BsonDocument> FindUserAsync(IConnectionSourceHandle connectionSource, CollectionNamespace collectionNamespace, CancellationToken cancellationToken)
+        private async Task<BsonDocument> FindUserAsync(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, CancellationToken cancellationToken)
         {
             var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Filter = new BsonDocument("user", _username),
                 Limit = -1
             };
-            var cursor = await operation.ExecuteAsync(connectionSource, ReadPreference.Primary, cancellationToken);
+            var cursor = await operation.ExecuteAsync(channelSource, ReadPreference.Primary, cancellationToken);
             var userDocuments = await cursor.ToListAsync();
             return userDocuments.FirstOrDefault();
         }
 
-        private async Task InsertUserAsync(IConnectionSourceHandle connectionSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
+        private async Task InsertUserAsync(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
         {
             var inserts = new[] { new InsertRequest(user) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, inserts, _messageEncoderSettings) { WriteConcern = WriteConcern.Acknowledged };
-            await operation.ExecuteAsync(connectionSource, cancellationToken);
+            await operation.ExecuteAsync(channelSource, cancellationToken);
         }
 
-        private async Task UpdateUserAsync(IConnectionSourceHandle connectionSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
+        private async Task UpdateUserAsync(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
         {
             var filter = new BsonDocument("_id", user["_id"]);
             var updates = new[] { new UpdateRequest(UpdateType.Replacement, filter, user) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, updates, _messageEncoderSettings) { WriteConcern = WriteConcern.Acknowledged };
-            await operation.ExecuteAsync(connectionSource, cancellationToken);
+            await operation.ExecuteAsync(channelSource, cancellationToken);
         }
     }
 }

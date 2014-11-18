@@ -30,7 +30,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Bindings
 {
     [TestFixture]
-    public class ServerConnectionSourceTests
+    public class ServerChannelSourceTests
     {
         private IServer _server;
 
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Test]
         public void Constructor_should_throw_when_server_is_null()
         {
-            Action act = () => new ServerConnectionSource(null);
+            Action act = () => new ServerChannelSource(null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Test]
         public void ServerDescription_should_return_description_of_server()
         {
-            var subject = new ServerConnectionSource(_server);
+            var subject = new ServerChannelSource(_server);
 
             var desc = ServerDescriptionHelper.Disconnected(new ClusterId());
 
@@ -63,24 +63,24 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void GetConnectionAsync_should_throw_if_disposed()
+        public void GetChannelAsync_should_throw_if_disposed()
         {
-            var subject = new ServerConnectionSource(_server);
+            var subject = new ServerChannelSource(_server);
             subject.Dispose();
 
-            Action act = () => subject.GetConnectionAsync(CancellationToken.None);
+            Action act = () => subject.GetChannelAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetConnectionAsync_should_get_connection_from_server()
+        public void GetChannelAsync_should_get_connection_from_server()
         {
-            var subject = new ServerConnectionSource(_server);
+            var subject = new ServerChannelSource(_server);
 
-            subject.GetConnectionAsync(CancellationToken.None);
+            subject.GetChannelAsync(CancellationToken.None);
 
-            _server.Received().GetConnectionAsync(CancellationToken.None);
+            _server.Received().GetChannelAsync(CancellationToken.None);
         }
     }
 }

@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
@@ -40,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
+        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IChannelHandle channel, WriteRequest request)
         {
             var updateRequest = (UpdateRequest)request;
 

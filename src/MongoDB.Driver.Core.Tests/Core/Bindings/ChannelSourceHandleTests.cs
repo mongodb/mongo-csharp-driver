@@ -23,49 +23,49 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Bindings
 {
     [TestFixture]
-    public class ConnectionSourceHandleTests
+    public class ChannelSourceHandleTests
     {
-        private IConnectionSource _connectionSource;
+        private IChannelSource _channelSource;
 
         [SetUp]
         public void Setup()
         {
-            _connectionSource = Substitute.For<IConnectionSource>();
+            _channelSource = Substitute.For<IChannelSource>();
         }
 
         [Test]
-        public void Constructor_should_throw_if_connectionSource_is_null()
+        public void Constructor_should_throw_if_channelSource_is_null()
         {
-            Action act = () => new ConnectionSourceHandle(null);
+            Action act = () => new ChannelSourceHandle(null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void GetConnectionAsync_should_throw_if_disposed()
+        public void GetChannelAsync_should_throw_if_disposed()
         {
-            var subject = new ConnectionSourceHandle(_connectionSource);
+            var subject = new ChannelSourceHandle(_channelSource);
             subject.Dispose();
 
-            Action act = () => subject.GetConnectionAsync(CancellationToken.None);
+            Action act = () => subject.GetChannelAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetConnectionAsync_should_delegate_to_reference()
+        public void GetChannelAsync_should_delegate_to_reference()
         {
-            var subject = new ConnectionSourceHandle(_connectionSource);
+            var subject = new ChannelSourceHandle(_channelSource);
 
-            subject.GetConnectionAsync(CancellationToken.None);
+            subject.GetChannelAsync(CancellationToken.None);
 
-            _connectionSource.Received().GetConnectionAsync(CancellationToken.None);            
+            _channelSource.Received().GetChannelAsync(CancellationToken.None);            
         }
 
         [Test]
         public void Fork_should_throw_if_disposed()
         {
-            var subject = new ConnectionSourceHandle(_connectionSource);
+            var subject = new ChannelSourceHandle(_channelSource);
             subject.Dispose();
 
             Action act = () => subject.Fork();
@@ -74,48 +74,48 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void Disposing_of_handle_after_fork_should_not_dispose_of_connectionSource()
+        public void Disposing_of_handle_after_fork_should_not_dispose_of_channelSource()
         {
-            var subject = new ConnectionSourceHandle(_connectionSource);
+            var subject = new ChannelSourceHandle(_channelSource);
 
             var forked = subject.Fork();
 
             subject.Dispose();
 
-            _connectionSource.DidNotReceive().Dispose();
+            _channelSource.DidNotReceive().Dispose();
 
             forked.Dispose();
 
-            _connectionSource.Received().Dispose();
+            _channelSource.Received().Dispose();
         }
 
         [Test]
-        public void Disposing_of_fork_before_disposing_of_subject_hould_not_dispose_of_connectionSource()
+        public void Disposing_of_fork_before_disposing_of_subject_hould_not_dispose_of_channelSource()
         {
-            var subject = new ConnectionSourceHandle(_connectionSource);
+            var subject = new ChannelSourceHandle(_channelSource);
 
             var forked = subject.Fork();
 
             forked.Dispose();
 
-            _connectionSource.DidNotReceive().Dispose();
+            _channelSource.DidNotReceive().Dispose();
 
             subject.Dispose();
 
-            _connectionSource.Received().Dispose();
+            _channelSource.Received().Dispose();
         }
 
         [Test]
         public void Disposing_of_last_handle_should_dispose_of_connectioSource()
         {
-            var subject = new ConnectionSourceHandle(_connectionSource);
+            var subject = new ChannelSourceHandle(_channelSource);
 
             var forked = subject.Fork();
 
             subject.Dispose();
             forked.Dispose();
 
-            _connectionSource.Received().Dispose();
+            _channelSource.Received().Dispose();
         }
     }
 }

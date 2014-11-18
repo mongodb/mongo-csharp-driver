@@ -85,29 +85,29 @@ namespace MongoDB.Driver.Core.Operations
 
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken))
             {
-                if (connectionSource.ServerDescription.Version >= __serverVersionSupportingCreateIndexesCommand)
+                if (channelSource.ServerDescription.Version >= __serverVersionSupportingCreateIndexesCommand)
                 {
-                    return await ExecuteUsingCommandAsync(connectionSource, cancellationToken);
+                    return await ExecuteUsingCommandAsync(channelSource, cancellationToken);
                 }
                 else
                 {
-                    return await ExecuteUsingInsertAsync(connectionSource, cancellationToken);
+                    return await ExecuteUsingInsertAsync(channelSource, cancellationToken);
                 }
             }
         }
 
-        private Task<BsonDocument> ExecuteUsingCommandAsync(IConnectionSourceHandle connectionSource, CancellationToken cancellationToken)
+        private Task<BsonDocument> ExecuteUsingCommandAsync(IChannelSourceHandle channelSource, CancellationToken cancellationToken)
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
             var command = CreateCommand();
             var resultSerializer = BsonDocumentSerializer.Instance;
             var operation = new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings);
-            return operation.ExecuteAsync(connectionSource, cancellationToken);
+            return operation.ExecuteAsync(channelSource, cancellationToken);
         }
 
-        private async Task<BsonDocument> ExecuteUsingInsertAsync(IConnectionSourceHandle connectionSource, CancellationToken cancellationToken)
+        private async Task<BsonDocument> ExecuteUsingInsertAsync(IChannelSourceHandle channelSource, CancellationToken cancellationToken)
         {
             var systemIndexesCollection = _collectionNamespace.DatabaseNamespace.SystemIndexesCollection;
 
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
                 document.InsertAt(0, new BsonElement("ns", _collectionNamespace.FullName));
                 var documentSource = new BatchableSource<BsonDocument>(new[] { document });
                 var operation = new InsertOpcodeOperation(systemIndexesCollection, documentSource, _messageEncoderSettings);
-                await operation.ExecuteAsync(connectionSource, cancellationToken);
+                await operation.ExecuteAsync(channelSource, cancellationToken);
             }
 
             return new BsonDocument("ok", 1);

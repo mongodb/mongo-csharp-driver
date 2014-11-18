@@ -50,9 +50,9 @@ namespace MongoDB.Driver.Operations
         // methods
         public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken))
             {
-                var userExists = await UserExistsAsync(connectionSource, cancellationToken);
+                var userExists = await UserExistsAsync(channelSource, cancellationToken);
 
                 var roles = new BsonArray();
                 if (_databaseNamespace.DatabaseName == "admin")
@@ -74,19 +74,19 @@ namespace MongoDB.Driver.Operations
                 };
 
                 var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                await operation.ExecuteAsync(connectionSource, cancellationToken);
+                await operation.ExecuteAsync(channelSource, cancellationToken);
             }
 
             return true;
         }
 
-        private async Task<bool> UserExistsAsync(IConnectionSourceHandle connectionSource, CancellationToken cancellationToken)
+        private async Task<bool> UserExistsAsync(IChannelSourceHandle channelSource, CancellationToken cancellationToken)
         {
             try
             {
                 var command = new BsonDocument("usersInfo", _username);
                 var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                var result = await operation.ExecuteAsync(connectionSource, ReadPreference.Primary, cancellationToken);
+                var result = await operation.ExecuteAsync(channelSource, ReadPreference.Primary, cancellationToken);
 
                 BsonValue users;
                 if (result.TryGetValue("users", out users) && users.IsBsonArray && users.AsBsonArray.Count > 0)

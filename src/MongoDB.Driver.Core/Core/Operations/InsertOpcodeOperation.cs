@@ -129,11 +129,11 @@ namespace MongoDB.Driver.Core.Operations
                 shouldSendGetLastError);
         }
 
-        public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
+        public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(connection, "connection");
+            Ensure.IsNotNull(channel, "channel");
 
-            if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
+            if (channel.ConnectionDescription.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
                 var emulator = new InsertOpcodeOperationEmulator<TDocument>(_collectionNamespace, _serializer, _documentSource, _messageEncoderSettings)
                 {
@@ -143,18 +143,18 @@ namespace MongoDB.Driver.Core.Operations
                     MaxMessageSize = _maxMessageSize,
                     WriteConcern = _writeConcern
                 };
-                var result = await emulator.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                var result = await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
                 return new[] { result };
             }
             else
             {
                 if (_documentSource.Batch == null)
                 {
-                    return await InsertMultipleBatchesAsync(connection, cancellationToken).ConfigureAwait(false);
+                    return await InsertMultipleBatchesAsync(channel, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    var result = await InsertSingleBatchAsync(connection, cancellationToken).ConfigureAwait(false);
+                    var result = await InsertSingleBatchAsync(channel, cancellationToken).ConfigureAwait(false);
                     return new[] { result };
                 }
             }
@@ -163,14 +163,14 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task<IEnumerable<WriteConcernResult>> InsertMultipleBatchesAsync(IConnectionHandle connection, CancellationToken cancellationToken)
+        private async Task<IEnumerable<WriteConcernResult>> InsertMultipleBatchesAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
             var results = _writeConcern.Enabled ? new List<WriteConcernResult>() : null;
             Exception finalException = null;
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcernResult result;
                 try
                 {
-                    result = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                    result = await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
                 }
                 catch (WriteConcernException ex)
                 {
@@ -228,10 +228,10 @@ namespace MongoDB.Driver.Core.Operations
             return results;
         }
 
-        private async Task<WriteConcernResult> InsertSingleBatchAsync(IConnectionHandle connection, CancellationToken cancellationToken)
+        private async Task<WriteConcernResult> InsertSingleBatchAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
             var protocol = CreateProtocol(_writeConcern, null);
-            return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+            return await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
         }
     }
 }

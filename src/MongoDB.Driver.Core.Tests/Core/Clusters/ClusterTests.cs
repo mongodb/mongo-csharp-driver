@@ -274,9 +274,9 @@ namespace MongoDB.Driver.Core.Clusters
                 UpdateClusterDescription(description);
             }
 
-            protected override void Invalidate()
+            protected override void RequestHeartbeat()
             {
-                
+               
             }
 
             protected override bool TryGetServer(EndPoint endPoint, out IClusterableServer server)

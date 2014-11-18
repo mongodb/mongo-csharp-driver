@@ -15,20 +15,24 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.SyncExtensionMethods
+namespace MongoDB.Driver.Core.WireProtocol
 {
-    public static class IServerExtensionMethods
+    internal static class ChannelSourceExtensions
     {
-        // static methods
-        public static IChannelHandle GetChannel(this IServer server, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<TResult> ExecuteProtocolAsync<TResult>(
+            this IChannelSource channelSource,
+            IWireProtocol<TResult> protocol,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(server, "server");
-            return server.GetChannelAsync(cancellationToken).GetAwaiter().GetResult();
+            Ensure.IsNotNull(protocol, "protocol");
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            {
+                return await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Async;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -126,12 +127,9 @@ namespace MongoDB.Driver.Core.Servers
 
         public void Invalidate()
         {
-            ThrowIfNotOpen();
-            var delay = Interlocked.CompareExchange(ref _heartbeatDelay, null, null);
-            if (delay != null)
-            {
-                delay.Interrupt();
-            }
+            _connectionPool.Clear();
+            OnDescriptionChanged(_baseDescription);
+            RequestHeartbeat();
         }
 
         public void Dispose()
@@ -167,7 +165,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public async Task<IConnectionHandle> GetConnectionAsync(CancellationToken cancellationToken)
+        public async Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {
             ThrowIfNotOpen();
 
@@ -180,7 +178,7 @@ namespace MongoDB.Driver.Core.Servers
                 // collective to complete opening the connection than the throw
                 // it away.
                 await connection.OpenAsync(CancellationToken.None).ConfigureAwait(false);
-                return new ServerConnection(this, connection);
+                return new ServerChannel(this, connection);
             }
             catch
             {
@@ -334,7 +332,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private void HandleConnectionException(IConnection connection, Exception ex)
+        private void HandleChannelException(IConnection connection, Exception ex)
         {
             if (_state.Value != State.Open)
             {
@@ -357,7 +355,22 @@ namespace MongoDB.Driver.Core.Servers
                 return;
             }
 
-            Invalidate();
+            if (ex.GetType() == typeof(NotMasterException) || ex.GetType() == typeof(NodeIsRecoveringException))
+            {
+                Invalidate();
+            }
+
+            RequestHeartbeat();
+        }
+
+        public void RequestHeartbeat()
+        {
+            ThrowIfNotOpen();
+            var delay = Interlocked.CompareExchange(ref _heartbeatDelay, null, null);
+            if (delay != null)
+            {
+                delay.Interrupt();
+            }
         }
 
         private void ThrowIfDisposed()
@@ -392,60 +405,70 @@ namespace MongoDB.Driver.Core.Servers
             public BuildInfoResult BuildInfoResult;
         }
 
-        private sealed class ServerConnection : ConnectionWrapper, IConnectionHandle
+        private sealed class ServerChannel : IChannelHandle
         {
+            private readonly IConnectionHandle _connection;
+            private bool _disposed;
             private readonly ClusterableServer _server;
-            private readonly IConnectionHandle _wrappedHandle;
 
-            public ServerConnection(ClusterableServer server, IConnectionHandle wrapped)
-                : base(wrapped)
+            public ServerChannel(ClusterableServer server, IConnectionHandle connection)
             {
-                _wrappedHandle = wrapped;
                 _server = server;
+                _connection = connection;
             }
 
-            public override async Task OpenAsync(CancellationToken cancellationToken)
+            public ConnectionDescription ConnectionDescription
+            {
+                get { return _connection.Description; }
+            }
+
+            public void Dispose()
+            {
+                if (!_disposed)
+                {
+                    _connection.Dispose();
+                    _disposed = true;
+                }
+            }
+
+            public async Task ExecuteProtocolAsync(IWireProtocol protocol, CancellationToken cancellationToken)
             {
                 try
                 {
-                    await base.OpenAsync(cancellationToken).ConfigureAwait(false);
+                    await protocol.ExecuteAsync(_connection, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    _server.HandleConnectionException(this, ex);
+                    _server.HandleChannelException(_connection, ex);
                     throw;
                 }
             }
 
-            public override async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public async Task<TResult> ExecuteProtocolAsync<TResult>(IWireProtocol<TResult> protocol, CancellationToken cancellationToken)
             {
                 try
                 {
-                    return await base.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    return await protocol.ExecuteAsync(_connection, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    _server.HandleConnectionException(this, ex);
+                    _server.HandleChannelException(_connection, ex);
                     throw;
                 }
             }
 
-            public override async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public IChannelHandle Fork()
             {
-                try
-                {
-                    await base.SendMessagesAsync(messages, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    _server.HandleConnectionException(this, ex);
-                    throw;
-                }
+                ThrowIfDisposed();
+                return new ServerChannel(_server, _connection.Fork());
             }
 
-            public IConnectionHandle Fork()
+            private void ThrowIfDisposed()
             {
-                return new ServerConnection(_server, _wrappedHandle.Fork());
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(GetType().Name);
+                }
             }
         }
     }

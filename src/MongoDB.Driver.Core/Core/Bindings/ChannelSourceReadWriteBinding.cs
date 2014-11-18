@@ -17,25 +17,21 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    public sealed class ConnectionReadBinding : IReadBinding
+    public sealed class ChannelSourceReadWriteBinding : IReadWriteBinding
     {
         // fields
-        private readonly IConnectionHandle _connection;
+        private readonly IChannelSourceHandle _channelSource;
         private bool _disposed;
         private readonly ReadPreference _readPreference;
-        private readonly IServer _server;
 
         // constructors
-        public ConnectionReadBinding(IServer server, IConnectionHandle connection, ReadPreference readPreference)
+        public ChannelSourceReadWriteBinding(IChannelSourceHandle channelSource, ReadPreference readPreference)
         {
-            _server = Ensure.IsNotNull(server, "server");
-            _connection = Ensure.IsNotNull(connection, "connection");
+            _channelSource = Ensure.IsNotNull(channelSource, "channelSource");
             _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
         }
 
@@ -46,25 +42,31 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return Task.FromResult(_channelSource.Fork());
+        }
+
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return Task.FromResult(_channelSource.Fork());
+        }
+
         public void Dispose()
         {
             if (!_disposed)
             {
-                _connection.Dispose();
+                _channelSource.Dispose();
                 _disposed = true;
                 GC.SuppressFinalize(this);
             }
         }
 
-        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(CancellationToken cancellationToken)
+        public void ThrowIfDisposed()
         {
-            ThrowIfDisposed();
-            return Task.FromResult<IConnectionSourceHandle>(new ConnectionSourceHandle(new ConnectionConnectionSource(_server, _connection.Fork())));
-        }
-
-        private void ThrowIfDisposed()
-        {
-            if (_disposed)
+            if(_disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }

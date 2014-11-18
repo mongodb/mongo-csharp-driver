@@ -16,30 +16,33 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    internal sealed class ConnectionConnectionSource : IConnectionSource
+    public sealed class ChannelReadBinding : IReadBinding
     {
         // fields
-        private readonly IConnectionHandle _connection;
+        private readonly IChannelHandle _channel;
         private bool _disposed;
+        private readonly ReadPreference _readPreference;
         private readonly IServer _server;
 
         // constructors
-        public ConnectionConnectionSource(IServer server, IConnectionHandle connection)
+        public ChannelReadBinding(IServer server, IChannelHandle channel, ReadPreference readPreference)
         {
             _server = Ensure.IsNotNull(server, "server");
-            _connection = Ensure.IsNotNull(connection, "connection");
+            _channel = Ensure.IsNotNull(channel, "channel");
+            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
         }
 
         // properties
-        public ServerDescription ServerDescription
+        public ReadPreference ReadPreference
         {
-            get { return _server.Description; }
+            get { return _readPreference; }
         }
 
         // methods
@@ -47,16 +50,16 @@ namespace MongoDB.Driver.Core.Bindings
         {
             if (!_disposed)
             {
-                _connection.Dispose();
+                _channel.Dispose();
                 _disposed = true;
                 GC.SuppressFinalize(this);
             }
         }
 
-        public Task<IConnectionHandle> GetConnectionAsync(CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return Task.FromResult(_connection.Fork());
+            return Task.FromResult<IChannelSourceHandle>(new ChannelSourceHandle(new ChannelChannelSource(_server, _channel.Fork())));
         }
 
         private void ThrowIfDisposed()

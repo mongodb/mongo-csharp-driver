@@ -41,9 +41,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
 
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteCommandAsync(connectionSource, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
+                return await ExecuteCommandAsync(channelSource, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
             }
         }
     }

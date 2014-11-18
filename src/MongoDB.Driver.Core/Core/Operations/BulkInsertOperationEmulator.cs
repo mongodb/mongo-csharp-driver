@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -38,7 +39,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         //  methods
-        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
+        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IChannelHandle channel, WriteRequest request)
         {
             var insertRequest = (InsertRequest)request;
             var documentSource = new BatchableSource<BsonDocument>(new[] { insertRequest.Document });

@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -32,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
+        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IChannelHandle channel, WriteRequest request)
         {
             var deleteRequest = (DeleteRequest)request;
             var isMulti = deleteRequest.Limit == 0;

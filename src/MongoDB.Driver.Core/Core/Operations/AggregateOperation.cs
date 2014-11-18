@@ -102,16 +102,16 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
             EnsureIsReadOnlyPipeline();
 
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                var command = CreateCommand(connectionSource.ServerDescription.Version);
+                var command = CreateCommand(channelSource.ServerDescription.Version);
 
                 var serializer = new AggregateResultDeserializer(_resultSerializer);
                 var operation = new ReadCommandOperation<AggregateResult>(CollectionNamespace.DatabaseNamespace, command, serializer, MessageEncoderSettings);
 
-                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
 
-                return CreateCursor(connectionSource, command, result);
+                return CreateCursor(channelSource, command, result);
             }
         }
 
@@ -145,20 +145,20 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private AsyncCursor<TResult> CreateCursor(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result)
+        private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, BsonDocument command, AggregateResult result)
         {
             if (_useCursor.GetValueOrDefault(true))
             {
-                return CreateCursorFromCursorResult(connectionSource, command, result);
+                return CreateCursorFromCursorResult(channelSource, command, result);
             }
 
             return CreateCursorFromInlineResult(command, result);
         }
 
-        private AsyncCursor<TResult> CreateCursorFromCursorResult(IConnectionSourceHandle connectionSource, BsonDocument command, AggregateResult result)
+        private AsyncCursor<TResult> CreateCursorFromCursorResult(IChannelSourceHandle channelSource, BsonDocument command, AggregateResult result)
         {
             return new AsyncCursor<TResult>(
-                connectionSource.Fork(),
+                channelSource.Fork(),
                 CollectionNamespace,
                 command,
                 result.Results,
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.Operations
         private AsyncCursor<TResult> CreateCursorFromInlineResult(BsonDocument command, AggregateResult result)
         {
             return new AsyncCursor<TResult>(
-                null, // connectionSource
+                null, // channelSource
                 CollectionNamespace,
                 command,
                 result.Results,

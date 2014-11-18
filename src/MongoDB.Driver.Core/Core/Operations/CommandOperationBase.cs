@@ -135,14 +135,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         protected async Task<TCommandResult> ExecuteCommandAsync(
-            IConnectionSource connectionSource,
+            IChannelSource channelSource,
             ReadPreference readPreference,
             CancellationToken cancellationToken)
         {
-            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                var protocol = CreateProtocol(connectionSource.ServerDescription, readPreference);
-                return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                var protocol = CreateProtocol(channelSource.ServerDescription, readPreference);
+                return await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
             }
         }
     }

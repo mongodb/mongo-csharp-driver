@@ -24,22 +24,20 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Bindings
 {
     [TestFixture]
-    public class SplitReadWriteBindingTests
+    public class ChannelSourceReadWriteBindingTests
     {
-        private IReadBinding _readBinding;
-        private IWriteBinding _writeBinding;
+        private IChannelSourceHandle _channelSource;
 
         [SetUp]
         public void Setup()
         {
-            _readBinding = Substitute.For<IReadBinding>();
-            _writeBinding = Substitute.For<IWriteBinding>();
+            _channelSource = Substitute.For<IChannelSourceHandle>();
         }
 
         [Test]
-        public void Constructor_should_throw_if_readBinding_is_null()
+        public void Constructor_should_throw_if_channelSource_is_null()
         {
-            Action act = () => new SplitReadWriteBinding(null, _writeBinding);
+            Action act = () => new ChannelSourceReadWriteBinding(null, ReadPreference.Primary);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -47,15 +45,23 @@ namespace MongoDB.Driver.Core.Bindings
         [Test]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
-            Action act = () => new SplitReadWriteBinding(_readBinding, null);
+            Action act = () => new ChannelSourceReadWriteBinding(_channelSource, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
+        public void Constructor_should_not_fork_channelSource()
+        {
+            new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
+
+            _channelSource.DidNotReceive().Fork();
+        }
+
+        [Test]
         public void GetReadChannelSourceAsync_should_throw_if_disposed()
         {
-            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
             subject.Dispose();
 
             Action act = () => subject.GetReadChannelSourceAsync(CancellationToken.None);
@@ -64,19 +70,19 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void GetReadChannelSourceAsync_should_get_the_connection_source_from_the_read_binding()
+        public void GetReadChannelSourceAsync_should_fork_the_channelSource()
         {
-            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
 
             subject.GetReadChannelSourceAsync(CancellationToken.None);
 
-            _readBinding.Received().GetReadChannelSourceAsync(CancellationToken.None);
+            _channelSource.Received().Fork();
         }
 
         [Test]
         public void GetWriteChannelSourceAsync_should_throw_if_disposed()
         {
-            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
             subject.Dispose();
 
             Action act = () => subject.GetWriteChannelSourceAsync(CancellationToken.None);
@@ -85,24 +91,23 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void GetWriteChannelSourceAsync_should_get_the_connection_source_from_the_write_binding()
+        public void GetWriteChannelSourceAsync_should_fork_the_channelSource()
         {
-            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
 
             subject.GetWriteChannelSourceAsync(CancellationToken.None);
 
-            _writeBinding.Received().GetWriteChannelSourceAsync(CancellationToken.None);
+            _channelSource.Received().Fork();
         }
 
         [Test]
-        public void Dispose_should_call_dispose_on_read_binding_and_write_binding()
+        public void Dispose_should_call_dispose_on_connection_source()
         {
-            var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
+            var subject = new ChannelSourceReadWriteBinding(_channelSource, ReadPreference.Primary);
 
             subject.Dispose();
 
-            _readBinding.Received().Dispose();
-            _writeBinding.Received().Dispose();
+            _channelSource.Received().Dispose();
         }
     }
 }

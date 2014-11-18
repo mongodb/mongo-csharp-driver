@@ -24,9 +24,9 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
     public static class IOperationExtensionMethods
     {
         // static methods
-        public static TResult Execute<TResult>(this IReadOperation<TResult> operation, IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken = default(CancellationToken))
+        public static TResult Execute<TResult>(this IReadOperation<TResult> operation, IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return operation.ExecuteAsync(connectionSource, readPreference, cancellationToken).GetAwaiter().GetResult();
+            return operation.ExecuteAsync(channelSource, readPreference, cancellationToken).GetAwaiter().GetResult();
         }
 
         public static TResult Execute<TResult>(this IReadOperation<TResult> operation, IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
@@ -34,9 +34,9 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
             return operation.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
         }
 
-        public static TResult Execute<TResult>(this IWriteOperation<TResult> operation, IConnectionSourceHandle connectionSource, CancellationToken cancellationToken = default(CancellationToken))
+        public static TResult Execute<TResult>(this IWriteOperation<TResult> operation, IChannelSourceHandle channelSource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return operation.ExecuteAsync(connectionSource, cancellationToken).GetAwaiter().GetResult();
+            return operation.ExecuteAsync(channelSource, cancellationToken).GetAwaiter().GetResult();
         }
 
         public static TResult Execute<TResult>(this IWriteOperation<TResult> operation, IWriteBinding binding, CancellationToken cancellationToken = default(CancellationToken))

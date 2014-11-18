@@ -103,14 +103,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<BulkWriteOperationResult> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
             var batchResults = new List<BulkWriteBatchResult>();
             var remainingRequests = Enumerable.Empty<WriteRequest>();
             var hasWriteErrors = false;
 
             var runCount = 0;
-            var maxRunLength = Math.Min(_maxBatchCount ?? int.MaxValue, connection.Description.MaxBatchCount);
+            var maxRunLength = Math.Min(_maxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
             foreach (var run in FindRuns(maxRunLength))
             {
                 runCount++;
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
                     continue;
                 }
 
-                var batchResult = await ExecuteBatchAsync(connection, run, cancellationToken).ConfigureAwait(false);
+                var batchResult = await ExecuteBatchAsync(channel, run, cancellationToken).ConfigureAwait(false);
                 batchResults.Add(batchResult);
 
                 hasWriteErrors |= batchResult.HasWriteErrors;
@@ -138,14 +138,14 @@ namespace MongoDB.Driver.Core.Operations
 
         public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IConnectionHandle connection, Run run, CancellationToken cancellationToken)
+        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IChannelHandle channel, Run run, CancellationToken cancellationToken)
         {
             BulkWriteOperationResult result;
             BulkWriteOperationException exception = null;
@@ -154,13 +154,13 @@ namespace MongoDB.Driver.Core.Operations
                 switch (run.RequestType)
                 {
                     case WriteRequestType.Delete:
-                        result = await ExecuteDeletesAsync(connection, run.Requests.Cast<DeleteRequest>(), cancellationToken).ConfigureAwait(false);
+                        result = await ExecuteDeletesAsync(channel, run.Requests.Cast<DeleteRequest>(), cancellationToken).ConfigureAwait(false);
                         break;
                     case WriteRequestType.Insert:
-                        result = await ExecuteInsertsAsync(connection, run.Requests.Cast<InsertRequest>(), cancellationToken).ConfigureAwait(false);
+                        result = await ExecuteInsertsAsync(channel, run.Requests.Cast<InsertRequest>(), cancellationToken).ConfigureAwait(false);
                         break;
                     case WriteRequestType.Update:
-                        result = await ExecuteUpdatesAsync(connection, run.Requests.Cast<UpdateRequest>(), cancellationToken).ConfigureAwait(false);
+                        result = await ExecuteUpdatesAsync(channel, run.Requests.Cast<UpdateRequest>(), cancellationToken).ConfigureAwait(false);
                         break;
                     default:
                         throw new MongoInternalException("Unrecognized RequestType.");
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
             return BulkWriteBatchResult.Create(result, exception, run.IndexMap);
         }
 
-        private Task<BulkWriteOperationResult> ExecuteDeletesAsync(IConnectionHandle connection, IEnumerable<DeleteRequest> requests, CancellationToken cancellationToken)
+        private Task<BulkWriteOperationResult> ExecuteDeletesAsync(IChannelHandle channel, IEnumerable<DeleteRequest> requests, CancellationToken cancellationToken)
         {
             var operation = new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
@@ -183,10 +183,10 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchLength = _maxBatchLength,
                 WriteConcern = _writeConcern
             };
-            return operation.ExecuteAsync(connection, cancellationToken);
+            return operation.ExecuteAsync(channel, cancellationToken);
         }
 
-        private Task<BulkWriteOperationResult> ExecuteInsertsAsync(IConnectionHandle connection, IEnumerable<InsertRequest> requests, CancellationToken cancellationToken)
+        private Task<BulkWriteOperationResult> ExecuteInsertsAsync(IChannelHandle channel, IEnumerable<InsertRequest> requests, CancellationToken cancellationToken)
         {
             var operation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
@@ -196,10 +196,10 @@ namespace MongoDB.Driver.Core.Operations
                 MessageEncoderSettings = _messageEncoderSettings,
                 WriteConcern = _writeConcern
             };
-            return operation.ExecuteAsync(connection, cancellationToken);
+            return operation.ExecuteAsync(channel, cancellationToken);
         }
 
-        private Task<BulkWriteOperationResult> ExecuteUpdatesAsync(IConnectionHandle connection, IEnumerable<UpdateRequest> requests, CancellationToken cancellationToken)
+        private Task<BulkWriteOperationResult> ExecuteUpdatesAsync(IChannelHandle channel, IEnumerable<UpdateRequest> requests, CancellationToken cancellationToken)
         {
             var operation = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Core.Operations
                 IsOrdered = _isOrdered,
                 WriteConcern = _writeConcern
             };
-            return operation.ExecuteAsync(connection, cancellationToken);
+            return operation.ExecuteAsync(channel, cancellationToken);
         }
 
         private IEnumerable<Run> FindOrderedRuns(int maxRunLength)

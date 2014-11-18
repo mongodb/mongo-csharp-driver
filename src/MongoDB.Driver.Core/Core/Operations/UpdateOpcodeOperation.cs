@@ -87,33 +87,33 @@ namespace MongoDB.Driver.Core.Operations
                 _request.IsUpsert);
         }
 
-        public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
+        public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(connection, "connection");
+            Ensure.IsNotNull(channel, "channel");
 
-            if (connection.Description.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
+            if (channel.ConnectionDescription.BuildInfoResult.ServerVersion >= new SemanticVersion(2, 6, 0) && _writeConcern.IsAcknowledged)
             {
                 var emulator = new UpdateOpcodeOperationEmulator(_collectionNamespace, _request, _messageEncoderSettings)
                 {
                     MaxDocumentSize = _maxDocumentSize,
                     WriteConcern = _writeConcern
                 };
-                return await emulator.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                return await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 var protocol = CreateProtocol();
-                return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                return await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
             }
         }
 
         public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
             }
         }
     }

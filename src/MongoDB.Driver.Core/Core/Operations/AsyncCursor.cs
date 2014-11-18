@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly int _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly IConnectionSource _connectionSource;
+        private readonly IChannelSource _channelSource;
         private int _count;
         private IReadOnlyList<TDocument> _currentBatch;
         private long _cursorId;
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public AsyncCursor(
-            IConnectionSource connectionSource,
+            IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
             BsonDocument query,
             IReadOnlyList<TDocument> firstBatch,
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            _connectionSource = connectionSource;
+            _channelSource = channelSource;
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _query = Ensure.IsNotNull(query, "query");
             _firstBatch = Ensure.IsNotNull(firstBatch, "firstBatch");
@@ -75,11 +75,11 @@ namespace MongoDB.Driver.Core.Operations
             }
             _count = _firstBatch.Count;
 
-            // if we aren't going to need the connection source we can go ahead and Dispose it now
-            if (_cursorId == 0 && _connectionSource != null)
+            // if we aren't going to need the channel source we can go ahead and Dispose it now
+            if (_cursorId == 0 && _channelSource != null)
             {
-                _connectionSource.Dispose();
-                _connectionSource = null;
+                _channelSource.Dispose();
+                _channelSource = null;
             }
         }
 
@@ -133,9 +133,9 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         // ignore exceptions
                     }
-                    if (_connectionSource != null)
+                    if (_channelSource != null)
                     {
-                        _connectionSource.Dispose();
+                        _channelSource.Dispose();
                     }
                 }
             }
@@ -144,10 +144,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<CursorBatch<TDocument>> GetNextBatchAsync(CancellationToken cancellationToken)
         {
-            using (var connection = await _connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
                 var protocol = CreateGetMoreProtocol();
-                return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                return await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -156,10 +156,10 @@ namespace MongoDB.Driver.Core.Operations
             try
             {
                 using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
-                using (var connection = await _connectionSource.GetConnectionAsync(cancellationTokenSource.Token).ConfigureAwait(false))
+                using (var channel = await _channelSource.GetChannelAsync(cancellationTokenSource.Token).ConfigureAwait(false))
                 {
                     var protocol = CreateKillCursorsProtocol();
-                    await protocol.ExecuteAsync(connection, cancellationTokenSource.Token).ConfigureAwait(false);
+                    await channel.ExecuteProtocolAsync(protocol, cancellationTokenSource.Token).ConfigureAwait(false);
                 }
             }
             catch

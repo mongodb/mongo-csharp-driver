@@ -22,16 +22,18 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    public sealed class ServerConnectionSource : IConnectionSource
+    internal sealed class ChannelChannelSource : IChannelSource
     {
         // fields
+        private readonly IChannelHandle _channel;
         private bool _disposed;
         private readonly IServer _server;
 
         // constructors
-        public ServerConnectionSource(IServer server)
+        public ChannelChannelSource(IServer server, IChannelHandle channel)
         {
             _server = Ensure.IsNotNull(server, "server");
+            _channel = Ensure.IsNotNull(channel, "channel");
         }
 
         // properties
@@ -41,19 +43,20 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
-        public Task<IConnectionHandle> GetConnectionAsync(CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-            return _server.GetConnectionAsync(cancellationToken);
-        }
-
         public void Dispose()
         {
             if (!_disposed)
             {
+                _channel.Dispose();
                 _disposed = true;
                 GC.SuppressFinalize(this);
             }
+        }
+
+        public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return Task.FromResult(_channel.Fork());
         }
 
         private void ThrowIfDisposed()

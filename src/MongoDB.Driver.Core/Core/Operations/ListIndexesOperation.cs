@@ -62,20 +62,20 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
 
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (connectionSource.ServerDescription.Version >= __serverVersionSupportingListIndexesCommand)
+                if (channelSource.ServerDescription.Version >= __serverVersionSupportingListIndexesCommand)
                 {
-                    return await ExecuteUsingCommandAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteUsingCommandAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    return await ExecuteUsingQueryAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteUsingQueryAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
             var command = new BsonDocument("listIndexes", _collectionNamespace.CollectionName);
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
             BsonDocument result;
             try
             {
-                result = await operation.ExecuteAsync(connectionSource, readPreference, cancellationToken).ConfigureAwait(false);
+                result = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoCommandException ex)
             {
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
             return result["indexes"].AsBsonArray.Cast<BsonDocument>().ToList();
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var indexes = new List<BsonDocument>();
 
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
                 Filter = filter
             };
 
-            var cursor = await operation.ExecuteAsync(connectionSource, readPreference, cancellationToken).ConfigureAwait(false);
+            var cursor = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
             while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
             {
                 var batch = cursor.Current;

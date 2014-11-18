@@ -147,17 +147,35 @@ namespace MongoDB.Driver.Core.WireProtocol
                     {
                         commandName = _command["$query"].AsBsonDocument.GetElement(0).Name;
                     }
-                    BsonValue serverMessage;
+
                     string message;
-                    if (!rawDocument.TryGetValue("errmsg", out serverMessage) || serverMessage.IsBsonNull)
+                    BsonValue errmsgBsonValue;
+                    if (materializedDocument.TryGetValue("errmsg", out errmsgBsonValue) && errmsgBsonValue.IsString)
                     {
-                        message = string.Format("Command {0} failed.", commandName);
+                        var errmsg = errmsgBsonValue.ToString();
+                        if (errmsg.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
+                        {
+                            throw new NotMasterException(materializedDocument);
+                        }
+                        if (errmsg.StartsWith("node is recovering", StringComparison.OrdinalIgnoreCase))
+                        {
+                            throw new NodeIsRecoveringException(materializedDocument);
+                        }
+
+                        message = string.Format("Command {0} failed: {1}.", commandName, errmsg);
                     }
                     else
                     {
-                        message = string.Format("Command {0} failed: {1}.", commandName, serverMessage.ToString());
+                        message = string.Format("Command {0} failed.", commandName);
                     }
-                    throw ExceptionMapper.Map(materializedDocument) ?? new MongoCommandException(message, _command, materializedDocument);
+
+                    var mappedException = ExceptionMapper.Map(materializedDocument);
+                    if (mappedException != null)
+                    {
+                        throw mappedException;
+                    }
+
+                    throw new MongoCommandException(message, _command, materializedDocument);
                 }
 
                 using (var stream = new ByteBufferStream(rawDocument.Slice, ownsByteBuffer: false))

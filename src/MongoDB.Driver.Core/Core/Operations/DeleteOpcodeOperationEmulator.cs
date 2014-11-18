@@ -16,6 +16,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -64,9 +65,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
+        public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(connection, "connection");
+            Ensure.IsNotNull(channel, "channel");
 
             var requests = new[] { _request };
 
@@ -79,7 +80,7 @@ namespace MongoDB.Driver.Core.Operations
             BulkWriteOperationException bulkWriteException = null;
             try
             {
-                bulkWriteResult = await operation.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                bulkWriteResult = await operation.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
             }
             catch (BulkWriteOperationException ex)
             {

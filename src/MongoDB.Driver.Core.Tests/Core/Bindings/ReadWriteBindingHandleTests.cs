@@ -42,45 +42,45 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void GetReadConnectionSourceAsync_should_throw_if_disposed()
+        public void GetReadChannelSourceAsync_should_throw_if_disposed()
         {
             var subject = new ReadWriteBindingHandle(_readWriteBinding);
             subject.Dispose();
 
-            Action act = () => subject.GetReadConnectionSourceAsync(CancellationToken.None);
+            Action act = () => subject.GetReadChannelSourceAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetReadConnectionSourceAsync_should_delegate_to_reference()
+        public void GetReadChannelSourceAsync_should_delegate_to_reference()
         {
             var subject = new ReadWriteBindingHandle(_readWriteBinding);
 
-            subject.GetReadConnectionSourceAsync(CancellationToken.None);
+            subject.GetReadChannelSourceAsync(CancellationToken.None);
 
-            _readWriteBinding.Received().GetReadConnectionSourceAsync(CancellationToken.None);
+            _readWriteBinding.Received().GetReadChannelSourceAsync(CancellationToken.None);
         }
 
         [Test]
-        public void GetWriteConnectionSourceAsync_should_throw_if_disposed()
+        public void GetWriteChannelSourceAsync_should_throw_if_disposed()
         {
             var subject = new ReadWriteBindingHandle(_readWriteBinding);
             subject.Dispose();
 
-            Action act = () => subject.GetWriteConnectionSourceAsync(CancellationToken.None);
+            Action act = () => subject.GetWriteChannelSourceAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetWriteConnectionSourceAsync_should_delegate_to_reference()
+        public void GetWriteChannelSourceAsync_should_delegate_to_reference()
         {
             var subject = new ReadWriteBindingHandle(_readWriteBinding);
 
-            subject.GetWriteConnectionSourceAsync(CancellationToken.None);
+            subject.GetWriteChannelSourceAsync(CancellationToken.None);
 
-            _readWriteBinding.Received().GetWriteConnectionSourceAsync(CancellationToken.None);
+            _readWriteBinding.Received().GetWriteChannelSourceAsync(CancellationToken.None);
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void Disposing_of_handle_after_fork_should_not_dispose_of_connectionSource()
+        public void Disposing_of_handle_after_fork_should_not_dispose_of_channelSource()
         {
             var subject = new ReadWriteBindingHandle(_readWriteBinding);
 
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void Disposing_of_fork_before_disposing_of_subject_hould_not_dispose_of_connectionSource()
+        public void Disposing_of_fork_before_disposing_of_subject_hould_not_dispose_of_channelSource()
         {
             var subject = new ReadWriteBindingHandle(_readWriteBinding);
 

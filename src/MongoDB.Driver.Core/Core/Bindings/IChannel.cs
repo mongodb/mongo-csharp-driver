@@ -17,18 +17,20 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    public interface IConnectionSource : IDisposable
+    public interface IChannel : IDisposable
     {
-        ServerDescription ServerDescription { get; }
-        Task<IConnectionHandle> GetConnectionAsync(CancellationToken cancellationToken);
+        ConnectionDescription ConnectionDescription { get;  }
+
+        Task ExecuteProtocolAsync(IWireProtocol protocol, CancellationToken cancellationToken);
+        Task<TResult> ExecuteProtocolAsync<TResult>(IWireProtocol<TResult> protocol, CancellationToken cancellationToken);
     }
 
-    public interface IConnectionSourceHandle : IConnectionSource
+    public interface IChannelHandle : IChannel
     {
-        IConnectionSourceHandle Fork();
+        IChannelHandle Fork();
     }
 }

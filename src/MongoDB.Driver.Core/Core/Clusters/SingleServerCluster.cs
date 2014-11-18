@@ -121,9 +121,9 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        protected override void Invalidate()
+        protected override void RequestHeartbeat()
         {
-            _server.Invalidate();
+            _server.RequestHeartbeat();
         }
 
         private void ServerDescriptionChanged(object sender, ServerDescriptionChangedEventArgs args)

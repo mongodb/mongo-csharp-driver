@@ -69,20 +69,20 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
 
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (connectionSource.ServerDescription.Version >= __versionSupportingListCollectionsCommand)
+                if (channelSource.ServerDescription.Version >= __versionSupportingListCollectionsCommand)
                 {
-                    return await ExecuteUsingCommandAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteUsingCommandAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    return await ExecuteUsingQueryAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteUsingQueryAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var command = new BsonDocument
             {
@@ -90,11 +90,11 @@ namespace MongoDB.Driver.Core.Operations
                 { "filter", _filter, _filter != null }
             };
             var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var response = await operation.ExecuteAsync(connectionSource, readPreference, cancellationToken).ConfigureAwait(false);
+            var response = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
             return response["collections"].AsBsonArray.Select(value => (BsonDocument)value).ToList();
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             // if the filter includes a comparison to the "name" we must convert the value to a full namespace
             var filter = _filter;
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Filter = filter
             };
-            var cursor = await operation.ExecuteAsync(connectionSource, readPreference, cancellationToken).ConfigureAwait(false);
+            var cursor = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
 
             var collections = new List<BsonDocument>();
             var prefix = _databaseNamespace + ".";

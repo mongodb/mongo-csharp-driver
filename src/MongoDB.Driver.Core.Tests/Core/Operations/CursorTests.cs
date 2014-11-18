@@ -27,11 +27,11 @@ namespace MongoDB.Driver.Core.Operations
     {
         [TestCase(0, true)]
         [TestCase(1, false)]
-        public void Constructor_should_call_Dispose_on_connectionSource_if_cursorId_is_zero(int cursorId, bool shouldCallDispose)
+        public void Constructor_should_call_Dispose_on_channelSource_if_cursorId_is_zero(int cursorId, bool shouldCallDispose)
         {
-            var connectionSource = Substitute.For<IConnectionSource>();
+            var channelSource = Substitute.For<IChannelSource>();
             new AsyncCursor<BsonDocument>(
-                connectionSource,
+                channelSource,
                 new CollectionNamespace("databaseName", "collectionName"),
                 new BsonDocument(), // query
                 new BsonDocument[0], // firstBatch
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 null); // messageEncoderSettings
 
-            connectionSource.Received(shouldCallDispose ? 1 : 0).Dispose();
+            channelSource.Received(shouldCallDispose ? 1 : 0).Dispose();
         }
     }
 }

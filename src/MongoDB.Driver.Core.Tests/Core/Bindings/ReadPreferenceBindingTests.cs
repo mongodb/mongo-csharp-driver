@@ -52,22 +52,22 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void GetReadConnectionSourceAsync_should_throw_if_disposed()
+        public void GetReadChannelSourceAsync_should_throw_if_disposed()
         {
             var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
             subject.Dispose();
 
-            Action act = () => subject.GetReadConnectionSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
+            Action act = () => subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetReadConnectionSourceAsync_should_use_a_read_preference_server_selector_to_select_the_server_from_the_cluster()
+        public void GetReadChannelSourceAsync_should_use_a_read_preference_server_selector_to_select_the_server_from_the_cluster()
         {
             var subject = new ReadPreferenceBinding(_cluster, ReadPreference.Primary);
 
-            subject.GetReadConnectionSourceAsync(CancellationToken.None).Wait();
+            subject.GetReadChannelSourceAsync(CancellationToken.None).Wait();
 
             _cluster.Received().SelectServerAsync(Arg.Any<ReadPreferenceServerSelector>(), CancellationToken.None);
         }

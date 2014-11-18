@@ -137,13 +137,13 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        protected override void Invalidate()
+        protected override void RequestHeartbeat()
         {
             lock (_serversLock)
             {
                 foreach (var server in _servers)
                 {
-                    server.Invalidate();
+                    server.RequestHeartbeat();
                 }
             }
         }

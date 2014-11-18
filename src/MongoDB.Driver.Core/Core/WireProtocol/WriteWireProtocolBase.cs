@@ -135,6 +135,17 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
 
             var response = reply.Documents.Single();
+
+            BsonValue errBsonValue;
+            if (response.TryGetValue("err", out errBsonValue) && errBsonValue.IsString)
+            {
+                var err = errBsonValue.ToString();
+                if (err.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new NotMasterException(response);
+                }
+            }
+
             var writeConcernResult = new WriteConcernResult(response);
 
             var mappedException = ExceptionMapper.Map(writeConcernResult);

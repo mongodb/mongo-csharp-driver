@@ -835,15 +835,15 @@ namespace MongoDB.Driver
 
             IReadBindingHandle connectionBinding;
             var server = _cluster.SelectServer(serverSelector);
-            using (var connection = server.GetConnection())
+            using (var connection = server.GetChannel())
             {
                 if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
                 {
-                    connectionBinding = new ReadWriteBindingHandle(new ConnectionReadWriteBinding(server, connection.Fork()));
+                    connectionBinding = new ReadWriteBindingHandle(new ChannelReadWriteBinding(server, connection.Fork()));
                 }
                 else
                 {
-                    connectionBinding = new ReadBindingHandle(new ConnectionReadBinding(server, connection.Fork(), readPreference));
+                    connectionBinding = new ReadBindingHandle(new ChannelReadBinding(server, connection.Fork(), readPreference));
                 }
             }
 

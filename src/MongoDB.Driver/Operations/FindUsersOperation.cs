@@ -50,11 +50,11 @@ namespace MongoDB.Driver.Operations
         // methods
         public async Task<IEnumerable<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken))
             {
                 IReadOperation<IEnumerable<BsonDocument>> operation;
 
-                if (connectionSource.ServerDescription.Version >= __serverVersionSupportingUserManagementCommands)
+                if (channelSource.ServerDescription.Version >= __serverVersionSupportingUserManagementCommands)
                 {
                     operation = new FindUsersUsingUserManagementCommandsOperation(_databaseNamespace, _username, _messageEncoderSettings);
                 }
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Operations
                     operation = new FindUsersUsingSystemUsersCollectionOperation(_databaseNamespace, _username, _messageEncoderSettings);
                 }
 
-                return await operation.ExecuteAsync(connectionSource, binding.ReadPreference, cancellationToken);
+                return await operation.ExecuteAsync(channelSource, binding.ReadPreference, cancellationToken);
             }
         }
     }

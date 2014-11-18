@@ -207,14 +207,14 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
 
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                var query = CreateWrappedQuery(connectionSource.ServerDescription.Type, binding.ReadPreference);
+                var query = CreateWrappedQuery(channelSource.ServerDescription.Type, binding.ReadPreference);
                 var protocol = CreateProtocol(query, binding.ReadPreference);
-                var batch = await protocol.ExecuteAsync(connectionSource, cancellationToken).ConfigureAwait(false);
+                var batch = await channelSource.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
 
                 return new AsyncCursor<TDocument>(
-                    connectionSource.Fork(),
+                    channelSource.Fork(),
                     _collectionNamespace,
                     query,
                     batch.Documents,

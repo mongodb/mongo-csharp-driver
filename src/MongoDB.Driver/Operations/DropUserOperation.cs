@@ -48,10 +48,10 @@ namespace MongoDB.Driver.Operations
         // methods
         public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var connectionSource = await binding.GetWriteConnectionSourceAsync(cancellationToken))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken))
             {
                 IWriteOperation<bool> operation;
-                if (connectionSource.ServerDescription.Version >= __serverVersionSupportingUserManagementCommands)
+                if (channelSource.ServerDescription.Version >= __serverVersionSupportingUserManagementCommands)
                 {
                     operation = new DropUserUsingUserManagementCommandsOperation(_databaseNamespace, _username, _messageEncoderSettings);
                 }
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Operations
                     operation = new DropUserUsingSystemUsersCollectionOperation(_databaseNamespace, _username, _messageEncoderSettings);
                 }
 
-                return await operation.ExecuteAsync(connectionSource, cancellationToken);
+                return await operation.ExecuteAsync(channelSource, cancellationToken);
             }
         }
     }

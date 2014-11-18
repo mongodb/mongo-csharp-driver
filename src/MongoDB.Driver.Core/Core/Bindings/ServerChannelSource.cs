@@ -16,58 +16,44 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    public sealed class ConnectionReadWriteBinding : IReadWriteBinding
+    public sealed class ServerChannelSource : IChannelSource
     {
         // fields
-        private readonly IConnectionHandle _connection;
         private bool _disposed;
         private readonly IServer _server;
 
         // constructors
-        public ConnectionReadWriteBinding(IServer server, IConnectionHandle connection)
+        public ServerChannelSource(IServer server)
         {
             _server = Ensure.IsNotNull(server, "server");
-            _connection = Ensure.IsNotNull(connection, "connection");
         }
 
         // properties
-        public ReadPreference ReadPreference
+        public ServerDescription ServerDescription
         {
-            get { return ReadPreference.Primary; }
+            get { return _server.Description; }
         }
 
         // methods
+        public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return _server.GetChannelAsync(cancellationToken);
+        }
+
         public void Dispose()
         {
             if (!_disposed)
             {
-                _connection.Dispose();
                 _disposed = true;
                 GC.SuppressFinalize(this);
             }
-        }
-
-        private Task<IConnectionSourceHandle> GetConnectionSourceAsync(CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-            return Task.FromResult<IConnectionSourceHandle>(new ConnectionSourceHandle(new ConnectionConnectionSource(_server, _connection.Fork())));
-        }
-
-        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(CancellationToken cancellationToken)
-        {
-            return GetConnectionSourceAsync(cancellationToken);
-        }
-
-        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(CancellationToken cancellationToken)
-        {
-            return GetConnectionSourceAsync(cancellationToken);
         }
 
         private void ThrowIfDisposed()

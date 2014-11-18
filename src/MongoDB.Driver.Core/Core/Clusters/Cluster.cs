@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Core.Clusters
             _state.TryChange(State.Initial, State.Open);
         }
 
-        protected abstract void Invalidate();
+        protected abstract void RequestHeartbeat();
 
         protected void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
         {
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.Clusters
                     selectedServers.Remove(server);
                 }
 
-                Invalidate();
+                RequestHeartbeat();
 
                 var remainingTimeSpan = expirationDateTime - DateTime.UtcNow;
                 if (remainingTimeSpan <= TimeSpan.Zero)

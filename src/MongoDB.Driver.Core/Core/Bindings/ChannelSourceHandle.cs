@@ -16,55 +16,60 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
-    public sealed class ConnectionSourceReadWriteBinding : IReadWriteBinding
+    public sealed class ChannelSourceHandle : IChannelSourceHandle
     {
         // fields
-        private readonly IConnectionSourceHandle _connectionSource;
         private bool _disposed;
-        private readonly ReadPreference _readPreference;
+        private readonly ReferenceCounted<IChannelSource> _reference;
 
         // constructors
-        public ConnectionSourceReadWriteBinding(IConnectionSourceHandle connectionSource, ReadPreference readPreference)
+        public ChannelSourceHandle(IChannelSource channelSource)
+            : this(new ReferenceCounted<IChannelSource>(channelSource))
         {
-            _connectionSource = Ensure.IsNotNull(connectionSource, "connectionSource");
-            _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
+        }
+
+        private ChannelSourceHandle(ReferenceCounted<IChannelSource> reference)
+        {
+            _reference = reference;
         }
 
         // properties
-        public ReadPreference ReadPreference
+        public ServerDescription ServerDescription
         {
-            get { return _readPreference; }
+            get { return _reference.Instance.ServerDescription; }
         }
 
         // methods
-        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(CancellationToken cancellationToken)
+        public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return Task.FromResult(_connectionSource.Fork());
-        }
-
-        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-            return Task.FromResult(_connectionSource.Fork());
+            return _reference.Instance.GetChannelAsync(cancellationToken);
         }
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                _connectionSource.Dispose();
+                _reference.DecrementReferenceCount();
                 _disposed = true;
                 GC.SuppressFinalize(this);
             }
         }
 
-        public void ThrowIfDisposed()
+        public IChannelSourceHandle Fork()
+        {
+            ThrowIfDisposed();
+            _reference.IncrementReferenceCount();
+            return new ChannelSourceHandle(_reference);
+        }
+
+        private void ThrowIfDisposed()
         {
             if(_disposed)
             {

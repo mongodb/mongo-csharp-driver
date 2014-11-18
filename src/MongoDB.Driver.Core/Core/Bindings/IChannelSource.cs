@@ -15,20 +15,20 @@
 
 using System;
 using System.Threading;
-using MongoDB.Driver.Core.Bindings;
+using System.Threading.Tasks;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.SyncExtensionMethods
+namespace MongoDB.Driver.Core.Bindings
 {
-    public static class IServerExtensionMethods
+    public interface IChannelSource : IDisposable
     {
-        // static methods
-        public static IChannelHandle GetChannel(this IServer server, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(server, "server");
-            return server.GetChannelAsync(cancellationToken).GetAwaiter().GetResult();
-        }
+        ServerDescription ServerDescription { get; }
+        Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken);
+    }
+
+    public interface IChannelSourceHandle : IChannelSource
+    {
+        IChannelSourceHandle Fork();
     }
 }
