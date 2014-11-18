@@ -35,21 +35,18 @@ namespace MongoDB.Driver
         private readonly AggregateOptions _options;
         private readonly List<object> _pipeline;
         private readonly IBsonSerializer<TResult> _resultSerializer;
-        private readonly Func<object, BsonDocument> _toBsonDocument;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="AggregateFluent{TDocument, TResult}" /> class.
         /// </summary>
         /// <param name="collection">The collection.</param>
-        /// <param name="toBsonDocument">To bson document.</param>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="options">The options.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline, AggregateOptions options, IBsonSerializer<TResult> resultSerializer)
+        public AggregateFluent(IMongoCollection<TDocument> collection, List<object> pipeline, AggregateOptions options, IBsonSerializer<TResult> resultSerializer)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
-            _toBsonDocument = Ensure.IsNotNull(toBsonDocument, "toBsonDocument");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline");
             _options = Ensure.IsNotNull(options, "options");
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
@@ -107,7 +104,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> GeoNear(object geoNear)
         {
-            return AppendStage(new BsonDocument("$geoNear", _toBsonDocument(geoNear)));
+            return AppendStage(new BsonDocument("$geoNear", ConvertToBsonDocument(geoNear)));
         }
 
         /// <summary>
@@ -117,7 +114,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Group(object group)
         {
-            return AppendStage(new BsonDocument("$group", _toBsonDocument(group)));
+            return AppendStage(new BsonDocument("$group", ConvertToBsonDocument(group)));
         }
 
         /// <summary>
@@ -137,7 +134,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Match(object filter)
         {
-            return AppendStage(new BsonDocument("$match", _toBsonDocument(filter)));
+            return AppendStage(new BsonDocument("$match", ConvertToBsonDocument(filter)));
         }
 
         /// <summary>
@@ -170,7 +167,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project, IBsonSerializer<TNewResult> resultSerializer)
         {
-            AppendStage(new BsonDocument("$project", _toBsonDocument(project)));
+            AppendStage(new BsonDocument("$project", ConvertToBsonDocument(project)));
 
             return CloneWithNewResultType<TNewResult>(resultSerializer);
         }
@@ -182,7 +179,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Redact(object redact)
         {
-            return AppendStage(new BsonDocument("$redact", _toBsonDocument(redact)));
+            return AppendStage(new BsonDocument("$redact", ConvertToBsonDocument(redact)));
         }
 
         /// <summary>
@@ -202,7 +199,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public AggregateFluent<TDocument, TResult> Sort(object sort)
         {
-            return AppendStage(new BsonDocument("$sort", _toBsonDocument(sort)));
+            return AppendStage(new BsonDocument("$sort", ConvertToBsonDocument(sort)));
         }
 
         /// <summary>
@@ -249,7 +246,12 @@ namespace MongoDB.Driver
 
         private AggregateFluent<TDocument, TNewResult> CloneWithNewResultType<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
         {
-            return new AggregateFluent<TDocument, TNewResult>(_collection, _toBsonDocument, _pipeline, _options, resultSerializer);
+            return new AggregateFluent<TDocument, TNewResult>(_collection, _pipeline, _options, resultSerializer);
+        }
+
+        private BsonDocument ConvertToBsonDocument(object document)
+        {
+            return BsonDocumentHelper.ConvertToBsonDocument(_collection.Settings.SerializerRegistry, document);
         }
     }
 }

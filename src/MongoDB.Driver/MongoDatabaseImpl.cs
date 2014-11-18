@@ -124,19 +124,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(command, "command");
 
-            var commandDocument = command as BsonDocument;
-            if (commandDocument == null)
-            {
-                if (command is string)
-                {
-                    commandDocument = BsonDocument.Parse((string)command);
-                }
-                else
-                {
-                    var commandSerializer = _settings.SerializerRegistry.GetSerializer(command.GetType());
-                    commandDocument = new BsonDocumentWrapper(command, commandSerializer);
-                }
-            }
+            var commandDocument = BsonDocumentHelper.ConvertToBsonDocument(_settings.SerializerRegistry, command);
 
             var isReadCommand = CanCommandBeSentToSecondary.Delegate(commandDocument);
             var serializer = _settings.SerializerRegistry.GetSerializer<T>();

@@ -78,6 +78,7 @@
     <Compile Include="AggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="AggregateEnumerable.cs" />
+    <Compile Include="BsonDocumentHelper.cs" />
     <Compile Include="Builders\UpdateCurrentDateType.cs" />
     <Compile Include="BulkWriteOptions.cs" />
     <Compile Include="Communication\ClusterKey.cs" />

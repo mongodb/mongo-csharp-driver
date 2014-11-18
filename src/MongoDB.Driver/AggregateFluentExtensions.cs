@@ -41,6 +41,7 @@ namespace MongoDB.Driver
         public static AggregateFluent<TDocument, TResult> Match<TDocument, TResult>(this AggregateFluent<TDocument, TResult> source, Expression<Func<TResult, bool>> filter)
         {
             Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(filter, "filter");
 
             var helper = new BsonSerializationInfoHelper();
             helper.RegisterExpressionSerializer(filter.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TDocument>());

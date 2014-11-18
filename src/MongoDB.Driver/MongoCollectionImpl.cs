@@ -76,7 +76,7 @@ namespace MongoDB.Driver
         public AggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options)
         {
             options = options ?? new AggregateOptions();
-            return new AggregateFluent<TDocument, TDocument>(this, ConvertToBsonDocument, new List<object>(), options, _serializer);
+            return new AggregateFluent<TDocument, TDocument>(this, new List<object>(), options, _serializer);
         }
 
         public async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options, CancellationToken cancellationToken)
@@ -546,24 +546,7 @@ namespace MongoDB.Driver
 
         private BsonDocument ConvertToBsonDocument(object document)
         {
-            if (document == null)
-            {
-                return null;
-            }
-
-            var bsonDocument = document as BsonDocument;
-            if (bsonDocument != null)
-            {
-                return bsonDocument;
-            }
-
-            if (document is string)
-            {
-                return BsonDocument.Parse((string)document);
-            }
-
-            var serializer = _settings.SerializerRegistry.GetSerializer(document.GetType());
-            return new BsonDocumentWrapper(document, serializer);
+            return BsonDocumentHelper.ConvertToBsonDocument(_settings.SerializerRegistry, document);
         }
 
         private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
