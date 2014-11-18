@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -13,7 +12,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindFluent<TDocument, TResult> : IAsyncCursorSource<TResult>
+    public class FindFluent<TDocument, TResult> : IOrderedFindFluent<TDocument, TResult>
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
@@ -36,6 +35,14 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
+        /// Gets the collection.
+        /// </summary>
+        public IMongoCollection<TDocument> Collection
+        {
+            get { return _collection; }
+        }
+
+        /// <summary>
         /// Gets the filter.
         /// </summary>
         public object Filter
@@ -52,14 +59,6 @@ namespace MongoDB.Driver
             get { return _options; }
         }
 
-        /// <summary>
-        /// Gets the settings.
-        /// </summary>
-        public MongoCollectionSettings Settings
-        {
-            get { return _collection.Settings; }
-        }
-
         // methods
         /// <summary>
         /// Sets the await data flag.
@@ -68,7 +67,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent interface.
         /// </returns>
-        public FindFluent<TDocument, TResult> AwaitData(bool awaitData)
+        public IFindFluent<TDocument, TResult> AwaitData(bool awaitData)
         {
             _options.AwaitData = awaitData;
             return this;
@@ -79,7 +78,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="size">The size.</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TResult> BatchSize(int? size)
+        public IFindFluent<TDocument, TResult> BatchSize(int? size)
         {
             _options.BatchSize = size;
             return this;
@@ -90,7 +89,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="comment">The comment.</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TResult> Comment(string comment)
+        public IFindFluent<TDocument, TResult> Comment(string comment)
         {
             _options.Comment = comment;
             return this;
@@ -101,7 +100,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="limit">The limit.</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TResult> Limit(int? limit)
+        public IFindFluent<TDocument, TResult> Limit(int? limit)
         {
             _options.Limit = limit;
             return this;
@@ -112,7 +111,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="maxTime">The maximum time.</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TResult> MaxTime(TimeSpan? maxTime)
+        public IFindFluent<TDocument, TResult> MaxTime(TimeSpan? maxTime)
         {
             _options.MaxTime = maxTime;
             return this;
@@ -123,7 +122,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="modifiers">The modifiers.</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TResult> Modifiers(BsonDocument modifiers)
+        public IFindFluent<TDocument, TResult> Modifiers(BsonDocument modifiers)
         {
             _options.Modifiers = modifiers;
             return this;
@@ -134,7 +133,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="noCursorTimeout">if set to <c>true</c> [no cursor timeout].</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TResult> NoCursorTimeout(bool noCursorTimeout)
+        public IFindFluent<TDocument, TResult> NoCursorTimeout(bool noCursorTimeout)
         {
             _options.NoCursorTimeout = noCursorTimeout;
             return this;
@@ -145,7 +144,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="partial">if set to <c>true</c> [partial].</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TResult> Partial(bool partial)
+        public IFindFluent<TDocument, TResult> Partial(bool partial)
         {
             _options.Partial = partial;
             return this;
@@ -157,7 +156,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="projection">The projection.</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection)
+        public IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection)
         {
             return Projection<TNewResult>(projection, null);
         }
@@ -169,7 +168,7 @@ namespace MongoDB.Driver
         /// <param name="projection">The projection.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer)
+        public IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer)
         {
             var newOptions = new FindOptions<TNewResult>
             {
@@ -195,7 +194,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="skip">The skip.</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TResult> Skip(int? skip)
+        public IFindFluent<TDocument, TResult> Skip(int? skip)
         {
             _options.Skip = skip;
             return this;
@@ -206,7 +205,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sort">The sort.</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TResult> Sort(object sort)
+        public IFindFluent<TDocument, TResult> Sort(object sort)
         {
             _options.Sort = sort;
             return this;
@@ -217,7 +216,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="tailable">if set to <c>true</c> [tailable].</param>
         /// <returns>The fluent interface.</returns>
-        public FindFluent<TDocument, TResult> Tailable(bool tailable)
+        public IFindFluent<TDocument, TResult> Tailable(bool tailable)
         {
             _options.Tailable = tailable;
             return this;
@@ -231,114 +230,6 @@ namespace MongoDB.Driver
         public Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _collection.FindAsync(_filter, _options, cancellationToken);
-        }
-    }
-
-    /// <summary>
-    /// Extension methods for <see cref="FindFluent{TDocument, TResult}"/>
-    /// </summary>
-    public static class FindFluentExtensionMethods
-    {
-        /// <summary>
-        /// Firsts the asynchronous.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
-        public async static Task<TResult> FirstAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(source, "source");
-
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken))
-                {
-                    return cursor.Current.First();
-                }
-                else
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Firsts the or default asynchronous.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(source, "source");
-
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken))
-                {
-                    return cursor.Current.FirstOrDefault();
-                }
-                else
-                {
-                    return default(TResult);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Singles the asynchronous.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
-        public async static Task<TResult> SingleAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(source, "source");
-
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken))
-                {
-                    return cursor.Current.Single();
-                }
-                else
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Singles the or default asynchronous.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(source, "source");
-
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken))
-                {
-                    return cursor.Current.SingleOrDefault();
-                }
-                else
-                {
-                    return default(TResult);
-                }
-            }
         }
     }
 }

@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -23,181 +23,99 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    /// <summary>
-    /// Fluent interface for aggregate.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class AggregateFluent<TDocument, TResult> : IAsyncCursorSource<TResult>
+    internal class AggregateFluent<TDocument, TResult> : IOrderedAggregateFluent<TDocument, TResult>
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
         private readonly AggregateOptions _options;
-        private readonly List<object> _pipeline;
+        private readonly IList<object> _pipeline;
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateFluent{TDocument, TResult}" /> class.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        public AggregateFluent(IMongoCollection<TDocument> collection, List<object> pipeline, AggregateOptions options, IBsonSerializer<TResult> resultSerializer)
+        public AggregateFluent(IMongoCollection<TDocument> collection, IEnumerable<object> pipeline, AggregateOptions options, IBsonSerializer<TResult> resultSerializer)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
-            _pipeline = Ensure.IsNotNull(pipeline, "pipeline");
+            _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
             _options = Ensure.IsNotNull(options, "options");
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
         }
 
         // properties
-        /// <summary>
-        /// Gets the collection.
-        /// </summary>
         public IMongoCollection<TDocument> Collection
         {
             get { return _collection; }
         }
 
-        /// <summary>
-        /// Gets the options.
-        /// </summary>
         public AggregateOptions Options
         {
             get { return _options; }
         }
 
-        /// <summary>
-        /// Gets the pipeline.
-        /// </summary>
         public IList<object> Pipeline
         {
             get { return _pipeline; }
         }
 
-        /// <summary>
-        /// Gets the result serializer.
-        /// </summary>
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer; }
         }
 
         // methods
-        /// <summary>
-        /// Appends the specified stage.
-        /// </summary>
-        /// <param name="stage">The stage.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> AppendStage(object stage)
+        public IAggregateFluent<TDocument, TResult> AppendStage(object stage)
         {
             _pipeline.Add(stage);
             return this;
         }
 
-        /// <summary>
-        /// Geoes the near.
-        /// </summary>
-        /// <param name="geoNear">The geo near.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> GeoNear(object geoNear)
+        public IAggregateFluent<TDocument, TResult> GeoNear(object geoNear)
         {
             return AppendStage(new BsonDocument("$geoNear", ConvertToBsonDocument(geoNear)));
         }
 
-        /// <summary>
-        /// Groups the specified group.
-        /// </summary>
-        /// <param name="group">The group.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Group(object group)
+        public IAggregateFluent<TDocument, TResult> Group(object group)
         {
             return AppendStage(new BsonDocument("$group", ConvertToBsonDocument(group)));
         }
 
-        /// <summary>
-        /// Limits the specified limit.
-        /// </summary>
-        /// <param name="limit">The limit.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Limit(int limit)
+        public IAggregateFluent<TDocument, TResult> Limit(int limit)
         {
             return AppendStage(new BsonDocument("$limit", limit));
         }
 
-        /// <summary>
-        /// Matches the specified match.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Match(object filter)
+        public IAggregateFluent<TDocument, TResult> Match(object filter)
         {
             return AppendStage(new BsonDocument("$match", ConvertToBsonDocument(filter)));
         }
 
-        /// <summary>
-        /// Outs the specified collection name.
-        /// </summary>
-        /// <param name="collectionName">Name of the collection.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Out(string collectionName)
+        public IAggregateFluent<TDocument, TResult> Out(string collectionName)
         {
             return AppendStage(new BsonDocument("$out", collectionName));
         }
 
-        /// <summary>
-        /// Projects the specified project.
-        /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="project">The project.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project)
+        public IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project)
         {
             return Project<TNewResult>(project, null);
         }
 
-        /// <summary>
-        /// Projects the specified project.
-        /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="project">The project.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project, IBsonSerializer<TNewResult> resultSerializer)
+        public IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project, IBsonSerializer<TNewResult> resultSerializer)
         {
             AppendStage(new BsonDocument("$project", ConvertToBsonDocument(project)));
 
             return CloneWithNewResultType<TNewResult>(resultSerializer);
         }
 
-        /// <summary>
-        /// Redacts the specified redact.
-        /// </summary>
-        /// <param name="redact">The redact.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Redact(object redact)
+        public IAggregateFluent<TDocument, TResult> Redact(object redact)
         {
             return AppendStage(new BsonDocument("$redact", ConvertToBsonDocument(redact)));
         }
 
-        /// <summary>
-        /// Skips the specified skip.
-        /// </summary>
-        /// <param name="skip">The skip.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Skip(int skip)
+        public IAggregateFluent<TDocument, TResult> Skip(int skip)
         {
             return AppendStage(new BsonDocument("$skip", skip));
         }
 
-        /// <summary>
-        /// Sorts the specified sort.
-        /// </summary>
-        /// <param name="sort">The sort.</param>
-        /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Sort(object sort)
+        public IAggregateFluent<TDocument, TResult> Sort(object sort)
         {
             return AppendStage(new BsonDocument("$sort", ConvertToBsonDocument(sort)));
         }
@@ -244,7 +162,7 @@ namespace MongoDB.Driver
             return _collection.AggregateAsync(_pipeline, options, cancellationToken);
         }
 
-        private AggregateFluent<TDocument, TNewResult> CloneWithNewResultType<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
+        private IAggregateFluent<TDocument, TNewResult> CloneWithNewResultType<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
         {
             return new AggregateFluent<TDocument, TNewResult>(_collection, _pipeline, _options, resultSerializer);
         }

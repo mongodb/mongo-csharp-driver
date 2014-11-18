@@ -44,7 +44,7 @@ namespace MongoDB.Driver
         /// Begins an aggregation pipeline.
         /// </summary>
         /// <returns></returns>
-        AggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options = null);
+        IAggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options = null);
 
         /// <summary>
         /// Runs an aggregation pipeline asynchronously.

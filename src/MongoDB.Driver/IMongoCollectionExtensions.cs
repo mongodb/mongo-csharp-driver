@@ -93,7 +93,7 @@ namespace MongoDB.Driver
         /// Gets the distinct values for a specified field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TField">The type of the result.</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
@@ -102,7 +102,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IReadOnlyList<TResult>> DistinctAsync<TDocument, TResult>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, TResult>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IReadOnlyList<TField>> DistinctAsync<TDocument, TField>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions<TField> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
@@ -112,10 +112,10 @@ namespace MongoDB.Driver
 
             var serializationInfo = helper.GetSerializationInfo(field.Body);
             var filterDocument = CreateFilterDocument(collection, filter);
-            options = options ?? new DistinctOptions<TResult>();
+            options = options ?? new DistinctOptions<TField>();
             if (options.ResultSerializer == null)
             {
-                options.ResultSerializer = (IBsonSerializer<TResult>)serializationInfo.Serializer;
+                options.ResultSerializer = (IBsonSerializer<TField>)serializationInfo.Serializer;
             }
             return collection.DistinctAsync(serializationInfo.ElementName, filterDocument, options, cancellationToken);
         }

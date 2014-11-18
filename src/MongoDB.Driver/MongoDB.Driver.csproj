@@ -75,7 +75,7 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
-    <Compile Include="AggregateFluentExtensions.cs" />
+    <Compile Include="IAggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="AggregateEnumerable.cs" />
     <Compile Include="BsonDocumentHelper.cs" />
@@ -86,6 +86,9 @@
     <Compile Include="Communication\ConnectionModeExtensionMethods.cs" />
     <Compile Include="CountOptions.cs" />
     <Compile Include="CreateIndexOptions.cs" />
+    <Compile Include="IAggregateFluent.cs" />
+    <Compile Include="IFindFluent.cs" />
+    <Compile Include="IFindFluentExtensions.cs" />
     <Compile Include="IMongoCollectionExtensions.cs" />
     <Compile Include="IMongoIndexManager.cs" />
     <Compile Include="Operations\AddUserOperation.cs" />

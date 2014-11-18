@@ -73,7 +73,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public AggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options)
+        public IAggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options)
         {
             options = options ?? new AggregateOptions();
             return new AggregateFluent<TDocument, TDocument>(this, new List<object>(), options, _serializer);
