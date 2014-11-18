@@ -130,7 +130,16 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns></returns>
-        IAggregateFluent<TDocument, TResult> Unwind(string fieldName);
+        IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName);
+
+        /// <summary>
+        /// Unwinds the specified field name.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <returns></returns>
+        IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer);
     }
 
     /// <summary>

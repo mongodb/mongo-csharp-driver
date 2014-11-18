@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -29,67 +30,72 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void SortBy_should_generate_the_correct_sort()
         {
-            var subject = CreateSubject();
-            subject.SortBy(x => x.FirstName);
+            var subject = CreateSubject()
+                .SortBy(x => x.FirstName);
 
-            var expectedSort = BsonDocument.Parse("{FirstName: 1}");
+            var expectedSort = BsonDocument.Parse("{$sort: {FirstName: 1}}");
 
-            Assert.AreEqual(expectedSort, ((BsonDocument)subject.Pipeline.Last())["$sort"]);
+            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
         }
 
         [Test]
         public void SortBy_ThenBy_should_generate_the_correct_sort()
         {
-            var subject = CreateSubject();
-            subject.SortBy(x => x.FirstName).ThenBy(x => x.LastName);
+            var subject = CreateSubject()
+                .SortBy(x => x.FirstName)
+                .ThenBy(x => x.LastName);
 
-            var expectedSort = BsonDocument.Parse("{FirstName: 1, LastName: 1}");
+            var expectedSort = BsonDocument.Parse("{$sort: {FirstName: 1, LastName: 1}}");
 
-            Assert.AreEqual(expectedSort, ((BsonDocument)subject.Pipeline.Last())["$sort"]);
+            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
         }
 
         [Test]
         public void SortBy_ThenByDescending_should_generate_the_correct_sort()
         {
-            var subject = CreateSubject();
-            subject.SortBy(x => x.FirstName).ThenByDescending(x => x.LastName);
+            var subject = CreateSubject()
+                .SortBy(x => x.FirstName)
+                .ThenByDescending(x => x.LastName);
 
-            var expectedSort = BsonDocument.Parse("{FirstName: 1, LastName: -1}");
+            var expectedSort = BsonDocument.Parse("{$sort: {FirstName: 1, LastName: -1}}");
 
-            Assert.AreEqual(expectedSort, ((BsonDocument)subject.Pipeline.Last())["$sort"]);
+            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
         }
 
         [Test]
         public void SortBy_ThenBy_ThenBy_should_generate_the_correct_sort()
         {
-            var subject = CreateSubject();
-            subject.SortBy(x => x.FirstName).ThenBy(x => x.LastName).ThenBy(x => x.Age);
+            var subject = CreateSubject()
+                .SortBy(x => x.FirstName)
+                .ThenBy(x => x.LastName)
+                .ThenBy(x => x.Age);
 
-            var expectedSort = BsonDocument.Parse("{FirstName: 1, LastName: 1, Age: 1}");
+            var expectedSort = BsonDocument.Parse("{$sort: {FirstName: 1, LastName: 1, Age: 1}}");
 
-            Assert.AreEqual(expectedSort, ((BsonDocument)subject.Pipeline.Last())["$sort"]);
+            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
         }
 
         [Test]
         public void SortByDescending_should_generate_the_correct_sort()
         {
-            var subject = CreateSubject();
-            subject.SortByDescending(x => x.FirstName);
+            var subject = CreateSubject()
+                .SortByDescending(x => x.FirstName);
 
-            var expectedSort = BsonDocument.Parse("{FirstName: -1}");
+            var expectedSort = BsonDocument.Parse("{$sort: {FirstName: -1}}");
 
-            Assert.AreEqual(expectedSort, ((BsonDocument)subject.Pipeline.Last())["$sort"]);
+            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
         }
 
         [Test]
         public void SortByDescending_ThenBy_should_generate_the_correct_sort()
         {
-            var subject = CreateSubject();
-            subject.SortByDescending(x => x.FirstName).ThenBy(x => x.LastName);
+            var subject = CreateSubject()
+                .SortByDescending(x => x.FirstName)
+                .ThenBy(x => x.LastName);
 
-            var expectedSort = BsonDocument.Parse("{FirstName: -1, LastName: 1}");
+            var expectedSort = BsonDocument.Parse("{$sort: {FirstName: -1, LastName: 1}}");
 
-            Assert.AreEqual(expectedSort, ((BsonDocument)subject.Pipeline.Last())["$sort"]);
+            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
         }
 
         [Test]
@@ -98,9 +104,43 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             subject.SortByDescending(x => x.FirstName).ThenByDescending(x => x.LastName);
 
-            var expectedSort = BsonDocument.Parse("{FirstName: -1, LastName: -1}");
+            var expectedSort = BsonDocument.Parse("{$sort: {FirstName: -1, LastName: -1}}");
 
-            Assert.AreEqual(expectedSort, ((BsonDocument)subject.Pipeline.Last())["$sort"]);
+            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
+        }
+
+        [Test]
+        public void Unwind_with_expression_to_BsonDocument_should_generate_the_correct_unwind()
+        {
+            var subject = CreateSubject()
+                .Unwind(x => x.Age);
+
+            var expectedUnwind = BsonDocument.Parse("{$unwind: 'Age'}");
+
+            Assert.AreEqual(expectedUnwind, subject.Pipeline.Last());
+        }
+
+        [Test]
+        public void Unwind_should_generate_the_correct_unwind()
+        {
+            var subject = CreateSubject()
+                .Unwind("Age");
+
+            var expectedUnwind = BsonDocument.Parse("{$unwind: 'Age'}");
+
+            Assert.AreEqual(expectedUnwind, subject.Pipeline.Last());
+        }
+
+        [Test]
+        public void Unwind_with_expression_to_new_result_should_generate_the_correct_unwind()
+        {
+            var subject = CreateSubject()
+                .Unwind("Age", BsonDocumentSerializer.Instance);
+
+            var expectedUnwind = BsonDocument.Parse("{$unwind: 'Age'}");
+
+            Assert.AreEqual(expectedUnwind, subject.Pipeline.Last());
+            Assert.AreSame(BsonDocumentSerializer.Instance, subject.ResultSerializer);
         }
 
         private IAggregateFluent<Person, Person> CreateSubject()

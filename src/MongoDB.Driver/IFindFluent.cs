@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
@@ -80,7 +81,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="modifiers">The modifiers.</param>
         /// <returns></returns>
-        IFindFluent<TDocument, TResult> Modifiers(MongoDB.Bson.BsonDocument modifiers);
+        IFindFluent<TDocument, TResult> Modifiers(BsonDocument modifiers);
 
         /// <summary>
         /// Noes the cursor timeout.

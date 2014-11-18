@@ -37,7 +37,7 @@ namespace MongoDB.Driver
             _collection = Ensure.IsNotNull(collection, "collection");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
             _options = Ensure.IsNotNull(options, "options");
-            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            _resultSerializer = resultSerializer;
         }
 
         // properties
@@ -126,7 +126,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName)
+        public IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName)
         {
             return Unwind<TNewResult>(fieldName, null);
         }
@@ -138,7 +138,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer)
+        public IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer)
         {
             AppendStage(new BsonDocument("$unwind", fieldName));
             return CloneWithNewResultType<TNewResult>(resultSerializer);
