@@ -75,6 +75,7 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="AggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="AggregateEnumerable.cs" />
     <Compile Include="Builders\UpdateCurrentDateType.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Communication\ConnectionModeExtensionMethods.cs" />
     <Compile Include="CountOptions.cs" />
     <Compile Include="CreateIndexOptions.cs" />
+    <Compile Include="IMongoCollectionExtensions.cs" />
     <Compile Include="IMongoIndexManager.cs" />
     <Compile Include="Operations\AddUserOperation.cs" />
     <Compile Include="Operations\AddUserUsingUserManagementCommandsOperation.cs" />

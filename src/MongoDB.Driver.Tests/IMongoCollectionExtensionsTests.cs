@@ -21,57 +21,51 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Tests
 {
     [TestFixture]
-    public class MongoCollectionExtensionsTests
+    public class IMongoCollectionExtensionsTests
     {
-        private IMongoCollection<Person> _collection;
-
-        [SetUp]
-        public void SetUp()
-        {
-            var settings = new MongoCollectionSettings();
-            _collection = Substitute.For<IMongoCollection<Person>>();
-            _collection.Settings.Returns(settings);
-        }
-
         [Test]
         public void CountAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
-            var result = _collection.CountAsync(x => x.FirstName == "Jack");
+            var subject = CreateSubject();
+            subject.CountAsync(x => x.FirstName == "Jack");
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().CountAsync(expectedFilter, null, default(CancellationToken));
+            subject.Received().CountAsync(expectedFilter, null, default(CancellationToken));
         }
 
         [Test]
         public void DeleteManyAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
-            var result = _collection.DeleteManyAsync(x => x.FirstName == "Jack");
+            var subject = CreateSubject();
+            subject.DeleteManyAsync(x => x.FirstName == "Jack");
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().DeleteManyAsync(expectedFilter, default(CancellationToken));
+            subject.Received().DeleteManyAsync(expectedFilter, default(CancellationToken));
         }
 
         [Test]
         public void DeleteOneAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
-            var result = _collection.DeleteOneAsync(x => x.FirstName == "Jack");
+            var subject = CreateSubject();
+            subject.DeleteOneAsync(x => x.FirstName == "Jack");
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().DeleteOneAsync(expectedFilter, default(CancellationToken));
+            subject.Received().DeleteOneAsync(expectedFilter, default(CancellationToken));
         }
 
         [Test]
         public void DistinctAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
-            var result = _collection.DistinctAsync(x => x.LastName, x => x.FirstName == "Jack");
+            var subject = CreateSubject();
+            subject.DistinctAsync(x => x.LastName, x => x.FirstName == "Jack");
 
             var expectedFieldName = "LastName";
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().DistinctAsync(
+            subject.Received().DistinctAsync(
                 expectedFieldName,
                 expectedFilter,
                 Arg.Is<DistinctOptions<string>>(opt => opt.ResultSerializer != null),
@@ -81,7 +75,8 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void Find_with_an_expression_should_create_the_correct_find_fluent()
         {
-            var fluent = _collection.Find(x => x.FirstName == "Jack");
+            var subject = CreateSubject();
+            var fluent = subject.Find(x => x.FirstName == "Jack");
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
@@ -91,107 +86,116 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void FindOneAndDeleteAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
-            var result = _collection.FindOneAndDeleteAsync(x => x.FirstName == "Jack");
+            var subject = CreateSubject();
+            subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack");
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().FindOneAndDeleteAsync(expectedFilter, null, default(CancellationToken));
+            subject.Received().FindOneAndDeleteAsync(expectedFilter, null, default(CancellationToken));
         }
 
         [Test]
         public void FindOneAndDeleteAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter()
         {
+            var subject = CreateSubject();
             var options = new FindOneAndDeleteOptions<BsonDocument>();
-            var result = _collection.FindOneAndDeleteAsync(x => x.FirstName == "Jack", options);
+            subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack", options);
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().FindOneAndDeleteAsync<BsonDocument>(expectedFilter, options, default(CancellationToken));
+            subject.Received().FindOneAndDeleteAsync<BsonDocument>(expectedFilter, options, default(CancellationToken));
         }
 
         [Test]
         public void FindOneAndReplaceAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
+            var subject = CreateSubject();
             var replacement = new Person();
-            var result = _collection.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement);
+            subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement);
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().FindOneAndReplaceAsync(expectedFilter, replacement, null, default(CancellationToken));
+            subject.Received().FindOneAndReplaceAsync(expectedFilter, replacement, null, default(CancellationToken));
         }
 
         [Test]
         public void FindOneAndReplaceAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter()
         {
+            var subject = CreateSubject();
             var replacement = new Person();
             var options = new FindOneAndReplaceOptions<BsonDocument>();
-            var result = _collection.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement, options);
+            subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement, options);
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().FindOneAndReplaceAsync<BsonDocument>(expectedFilter, replacement, options, default(CancellationToken));
+            subject.Received().FindOneAndReplaceAsync<BsonDocument>(expectedFilter, replacement, options, default(CancellationToken));
         }
 
         [Test]
         public void FindOneAndUpdateAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
+            var subject = CreateSubject();
             var update = new BsonDocument();
-            var result = _collection.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update);
+            subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update);
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().FindOneAndUpdateAsync(expectedFilter, update, null, default(CancellationToken));
+            subject.Received().FindOneAndUpdateAsync(expectedFilter, update, null, default(CancellationToken));
         }
 
         [Test]
         public void FindOneAndUpdateAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter()
         {
+            var subject = CreateSubject();
             var update = new BsonDocument();
             var options = new FindOneAndUpdateOptions<BsonDocument>();
-            var result = _collection.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
+            subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().FindOneAndUpdateAsync<BsonDocument>(expectedFilter, update, options, default(CancellationToken));
+            subject.Received().FindOneAndUpdateAsync<BsonDocument>(expectedFilter, update, options, default(CancellationToken));
         }
 
         [Test]
         public void ReplaceOneAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
+            var subject = CreateSubject();
             var replacement = new Person();
-            var result = _collection.ReplaceOneAsync(x => x.FirstName == "Jack", replacement);
+            subject.ReplaceOneAsync(x => x.FirstName == "Jack", replacement);
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().ReplaceOneAsync(expectedFilter, replacement, null, default(CancellationToken));
+            subject.Received().ReplaceOneAsync(expectedFilter, replacement, null, default(CancellationToken));
         }
 
         [Test]
         public void UpdateManyAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
+            var subject = CreateSubject();
             var update = new BsonDocument();
-            var result = _collection.UpdateManyAsync(x => x.FirstName == "Jack", update);
+            subject.UpdateManyAsync(x => x.FirstName == "Jack", update);
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().UpdateManyAsync(expectedFilter, update, null, default(CancellationToken));
+            subject.Received().UpdateManyAsync(expectedFilter, update, null, default(CancellationToken));
         }
 
         [Test]
         public void UpdateOneAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
+            var subject = CreateSubject();
             var update = new BsonDocument();
-            var result = _collection.UpdateOneAsync(x => x.FirstName == "Jack", update);
+            subject.UpdateOneAsync(x => x.FirstName == "Jack", update);
 
             var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            _collection.Received().UpdateOneAsync(expectedFilter, update, null, default(CancellationToken));
+            subject.Received().UpdateOneAsync(expectedFilter, update, null, default(CancellationToken));
         }
 
-        private IMongoCollection<TDocument> CreateCollection<TDocument>()
+        private IMongoCollection<Person> CreateSubject()
         {
             var settings = new MongoCollectionSettings();
-            var subject = Substitute.For<IMongoCollection<TDocument>>();
+            var subject = Substitute.For<IMongoCollection<Person>>();
             subject.Settings.Returns(settings);
 
             return subject;
