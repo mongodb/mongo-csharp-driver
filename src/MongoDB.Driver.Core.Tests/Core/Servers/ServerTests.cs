@@ -211,6 +211,24 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Test]
+        public void Invalidate_should_do_everything_invalidate_is_supposed_to_do()
+        {
+            SetupHeartbeatConnection();
+            _subject.Initialize();
+
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
+
+            _subject.Invalidate();
+
+            _connectionPool.Received().Clear();
+            _subject.Description.Type.Should().Be(ServerType.Unknown);
+
+            // the next requests down heartbeat connection will fail, so the state should
+            // go back to disconnected
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4));
+        }
+
+        [Test]
         public void A_failed_heartbeat_should_clear_the_connection_pool()
         {
             SetupHeartbeatConnection();

@@ -39,14 +39,13 @@ namespace MongoDB.Driver.Core.Operations
             var deleteRequest = (DeleteRequest)request;
             var isMulti = deleteRequest.Limit == 0;
 
-            var args = new DeleteWireProtocolArgs(
+            return channel.DeleteAsync(
                CollectionNamespace,
                deleteRequest.Filter,
                isMulti,
                MessageEncoderSettings,
-               WriteConcern);
-
-            return channel.DeleteAsync(args, cancellationToken);
+               WriteConcern,
+               cancellationToken);
         }
     }
 }

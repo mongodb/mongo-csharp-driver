@@ -161,12 +161,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private QueryWireProtocolArgs<TDocument> CreateProtocolArgs(BsonDocument wrappedQuery, ReadPreference readPreference)
+        private Task<CursorBatch<TDocument>> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument wrappedQuery, bool slaveOk, CancellationToken cancellationToken)
         {
-            var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
             var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _batchSize);
 
-            return new QueryWireProtocolArgs<TDocument>(
+            return channel.QueryAsync<TDocument>(
                 _collectionNamespace,
                 wrappedQuery,
                 _projection,
@@ -179,7 +178,8 @@ namespace MongoDB.Driver.Core.Operations
                 _tailable,
                 _awaitData,
                 _resultSerializer,
-                _messageEncoderSettings);
+                _messageEncoderSettings,
+                cancellationToken);
         }
 
         internal BsonDocument CreateWrappedQuery(ServerType serverType, ReadPreference readPreference)
@@ -210,14 +210,16 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                var query = CreateWrappedQuery(channelSource.ServerDescription.Type, binding.ReadPreference);
-                var protocolArgs = CreateProtocolArgs(query, binding.ReadPreference);
-                var batch = await channel.QueryAsync(protocolArgs, cancellationToken).ConfigureAwait(false);
+                var readPreference = binding.ReadPreference;
+                var serverDescription = channelSource.ServerDescription;
+                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference);
+                var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+                var batch = await ExecuteProtocolAsync(channel, wrappedQuery, slaveOk, cancellationToken).ConfigureAwait(false);
 
                 return new AsyncCursor<TDocument>(
                     channelSource.Fork(),
                     _collectionNamespace,
-                    query,
+                    wrappedQuery,
                     batch.Documents,
                     batch.CursorId,
                     _batchSize ?? 0,

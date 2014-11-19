@@ -20,6 +20,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
@@ -127,6 +128,7 @@ namespace MongoDB.Driver.Core.Servers
 
         public void Invalidate()
         {
+            ThrowIfNotOpen();
             _connectionPool.Clear();
             OnDescriptionChanged(_baseDescription);
             RequestHeartbeat();
@@ -359,8 +361,10 @@ namespace MongoDB.Driver.Core.Servers
             {
                 Invalidate();
             }
-
-            RequestHeartbeat();
+            else
+            {
+                RequestHeartbeat();
+            }
         }
 
         public void RequestHeartbeat()
@@ -431,99 +435,156 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public Task<WriteConcernResult> DeleteAsync(DeleteWireProtocolArgs args, CancellationToken cancellationToken)
+            public Task<WriteConcernResult> DeleteAsync(
+                CollectionNamespace collectionNamespace,
+                BsonDocument query,
+                bool isMulti,
+                MessageEncoderSettings messageEncoderSettings,
+                WriteConcern writeConcern, 
+                CancellationToken cancellationToken)
             {
                 var protocol = new DeleteWireProtocol(
-                    args.CollectionNamespace,
-                    args.Query,
-                    args.IsMulti,
-                    args.MessageEncoderSettings,
-                    args.WriteConcern);
+                    collectionNamespace,
+                    query,
+                    isMulti,
+                    messageEncoderSettings,
+                    writeConcern);
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
-            public Task<CursorBatch<TDocument>> GetMoreAsync<TDocument>(GetMoreWireProtocolArgs<TDocument> args, CancellationToken cancellationToken)
+            public Task<CursorBatch<TDocument>> GetMoreAsync<TDocument>(
+                CollectionNamespace collectionNamespace,
+                BsonDocument query,
+                long cursorId,
+                int batchSize,
+                IBsonSerializer<TDocument> serializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
             {
                 var protocol = new GetMoreWireProtocol<TDocument>(
-                    args.CollectionNamespace,
-                    args.Query,
-                    args.CursorId,
-                    args.BatchSize,
-                    args.Serializer,
-                    args.MessageEncoderSettings);
+                    collectionNamespace,
+                    query,
+                    cursorId,
+                    batchSize,
+                    serializer,
+                    messageEncoderSettings);
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
-            public Task<WriteConcernResult> InsertAsync<TDocument>(InsertWireProtocolArgs<TDocument> args, CancellationToken cancellationToken)
+            public Task<WriteConcernResult> InsertAsync<TDocument>(
+                CollectionNamespace collectionNamespace,
+                WriteConcern writeConcern,
+                IBsonSerializer<TDocument> serializer,
+                MessageEncoderSettings messageEncoderSettings,
+                BatchableSource<TDocument> documentSource,
+                int? maxBatchCount,
+                int? maxMessageSize,
+                bool continueOnError,
+                Func<bool> shouldSendGetLastError,
+                CancellationToken cancellationToken)
             {
                 var protocol = new InsertWireProtocol<TDocument>(
-                    args.CollectionNamespace,
-                    args.WriteConcern,
-                    args.Serializer,
-                    args.MessageEncoderSettings,
-                    args.DocumentSource,
-                    args.MaxBatchCount,
-                    args.MaxMessageSize,
-                    args.ContinueOnError,
-                    args.ShouldSendGetLastError);
+                    collectionNamespace,
+                    writeConcern,
+                    serializer,
+                    messageEncoderSettings,
+                    documentSource,
+                    maxBatchCount,
+                    maxMessageSize,
+                    continueOnError,
+                    shouldSendGetLastError);
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
-            public Task KillCursorAsync(KillCursorsWireProtocolArgs args, CancellationToken cancellationToken)
+            public Task KillCursorsAsync(
+                IEnumerable<long> cursorIds,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
             {
                 var protocol = new KillCursorsWireProtocol(
-                    args.CursorIds,
-                    args.MessageEncoderSettings);
+                    cursorIds,
+                    messageEncoderSettings);
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
-            public Task<CursorBatch<TDocument>> QueryAsync<TDocument>(QueryWireProtocolArgs<TDocument> args, CancellationToken cancellationToken)
+            public Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
+                CollectionNamespace collectionNamespace,
+                BsonDocument query,
+                BsonDocument fields,
+                IElementNameValidator queryValidator,
+                int skip,
+                int batchSize,
+                bool slaveOk,
+                bool partialOk,
+                bool noCursorTimeout,
+                bool tailableCursor,
+                bool awaitData,
+                IBsonSerializer<TDocument> serializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
             {
                 var protocol = new QueryWireProtocol<TDocument>(
-                    args.CollectionNamespace,
-                    args.Query,
-                    args.Fields,
-                    args.QueryValidator,
-                    args.Skip,
-                    args.BatchSize,
-                    args.SlaveOk,
-                    args.PartialOk,
-                    args.NoCursorTimeout,
-                    args.TailableCursor,
-                    args.AwaitData,
-                    args.Serializer,
-                    args.MessageEncoderSettings);
+                    collectionNamespace,
+                    query,
+                    fields,
+                    queryValidator,
+                    skip,
+                    batchSize,
+                    slaveOk,
+                    partialOk,
+                    noCursorTimeout,
+                    tailableCursor,
+                    awaitData,
+                    serializer,
+                    messageEncoderSettings);
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
-            public Task<TResult> RunCommandAsync<TResult>(CommandWireProtocolArgs<TResult> args, CancellationToken cancellationToken)
+            public Task<TResult> RunCommandAsync<TResult>(
+                DatabaseNamespace databaseNamespace,
+                BsonDocument command,
+                IElementNameValidator commandValidator,
+                bool slaveOk,
+                IBsonSerializer<TResult> resultSerializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
             {
                 var protocol = new CommandWireProtocol<TResult>(
-                    args.DatabaseNamespace,
-                    args.Command,
-                    args.SlaveOk,
-                    args.ResultSerializer,
-                    args.MessageEncoderSettings);
+                    databaseNamespace,
+                    command,
+                    commandValidator,
+                    slaveOk,
+                    resultSerializer,
+                    messageEncoderSettings);
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
-            public Task<WriteConcernResult> UpdateAsync(UpdateWireProtocolArgs args, CancellationToken cancellationToken)
+            public Task<WriteConcernResult> UpdateAsync(
+                CollectionNamespace collectionNamespace,
+                MessageEncoderSettings messageEncoderSettings,
+                WriteConcern writeConcern,
+                BsonDocument query,
+                BsonDocument update,
+                IElementNameValidator updateValidator,
+                bool isMulti,
+                bool isUpsert,
+                CancellationToken cancellationToken)
             {
                 var protocol = new UpdateWireProtocol(
-                    args.CollectionNamespace,
-                    args.MessageEncoderSettings,
-                    args.WriteConcern,
-                    args.Query,
-                    args.Update,
-                    args.UpdateValidator,
-                    args.IsMulti,
-                    args.IsUpsert);
+                    collectionNamespace,
+                    messageEncoderSettings,
+                    writeConcern,
+                    query,
+                    update,
+                    updateValidator,
+                    isMulti,
+                    isUpsert);
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }

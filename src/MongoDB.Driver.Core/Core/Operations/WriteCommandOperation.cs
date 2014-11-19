@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteCommandAsync(channelSource, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(channelSource, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
             }
         }
     }

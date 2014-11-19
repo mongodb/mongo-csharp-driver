@@ -66,17 +66,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private DeleteWireProtocolArgs CreateProtocolArgs()
+        private Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            return new DeleteWireProtocolArgs(
+            return channel.DeleteAsync(
                 _collectionNamespace,
                 _request.Filter,
                 _request.Limit != 1,
                 _messageEncoderSettings,
-                _writeConcern);
+                _writeConcern,
+                cancellationToken);
         }
 
-        public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        private async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(channel, "channel");
 
@@ -90,14 +91,14 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                var args = CreateProtocolArgs();
-                return await channel.DeleteAsync(args, cancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
             }
         }
 
         public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
+
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {

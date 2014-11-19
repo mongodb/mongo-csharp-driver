@@ -94,20 +94,24 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private GetMoreWireProtocolArgs<TDocument> CreateGetMoreProtocolArgs()
+        private Task<CursorBatch<TDocument>> ExecuteGetMoreProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            return new GetMoreWireProtocolArgs<TDocument>(
+            return channel.GetMoreAsync<TDocument>(
                 _collectionNamespace,
                 _query,
                 _cursorId,
                 _batchSize,
                 _serializer,
-                _messageEncoderSettings);
+                _messageEncoderSettings,
+                cancellationToken);
         }
 
-        private KillCursorsWireProtocolArgs CreateKillCursorsProtocolArgs()
+        private Task ExecuteKillCursorsProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            return new KillCursorsWireProtocolArgs(new[] { _cursorId }, _messageEncoderSettings);
+            return channel.KillCursorsAsync(
+                new[] { _cursorId },
+                _messageEncoderSettings,
+                cancellationToken);
         }
 
         public void Dispose()
@@ -126,7 +130,10 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         if (_cursorId != 0)
                         {
-                            KillCursorAsync(_cursorId).GetAwaiter().GetResult();
+                            using (var source = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                            {
+                                KillCursorAsync(_cursorId, source.Token).GetAwaiter().GetResult();
+                            }
                         }
                     }
                     catch
@@ -146,20 +153,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                var args = CreateGetMoreProtocolArgs();
-                return await channel.GetMoreAsync(args, cancellationToken).ConfigureAwait(false);
+                return await ExecuteGetMoreProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private async Task KillCursorAsync(long cursorId)
+        private async Task KillCursorAsync(long cursorId, CancellationToken cancellationToken)
         {
             try
             {
                 using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 using (var channel = await _channelSource.GetChannelAsync(cancellationTokenSource.Token).ConfigureAwait(false))
                 {
-                    var args = CreateKillCursorsProtocolArgs();
-                    await channel.KillCursorAsync(args, cancellationTokenSource.Token).ConfigureAwait(false);
+                    await ExecuteKillCursorsProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch

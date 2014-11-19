@@ -98,11 +98,19 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private CommandWireProtocolArgs<TCommandResult> CreateProtocolArgs(ServerDescription serverDescription, ReadPreference readPreference)
+        private Task<TCommandResult> ExecuteProtocolAsync(IChannelHandle channel, ServerDescription serverDescription, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
             var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
-            return new CommandWireProtocolArgs<TCommandResult>(_databaseNamespace, wrappedCommand, _commandValidator, slaveOk, _resultSerializer, _messageEncoderSettings);
+
+            return channel.RunCommandAsync<TCommandResult>(
+                _databaseNamespace,
+                wrappedCommand,
+                _commandValidator,
+                slaveOk,
+                _resultSerializer,
+                _messageEncoderSettings,
+                cancellationToken);
         }
 
         private BsonDocument CreateWrappedCommand(ServerDescription serverDescription, ReadPreference readPreference)
@@ -134,15 +142,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected async Task<TCommandResult> ExecuteCommandAsync(
+        protected async Task<TCommandResult> ExecuteProtocolAsync(
             IChannelSource channelSource,
             ReadPreference readPreference,
             CancellationToken cancellationToken)
         {
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                var args = CreateProtocolArgs(channelSource.ServerDescription, readPreference);
-                return await channel.RunCommandAsync(args, cancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(channel, channelSource.ServerDescription, readPreference, cancellationToken).ConfigureAwait(false);
             }
         }
     }

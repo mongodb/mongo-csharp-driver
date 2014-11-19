@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Operations
             var insertRequest = (InsertRequest)request;
             var documentSource = new BatchableSource<BsonDocument>(new[] { insertRequest.Document });
 
-            var args = new InsertWireProtocolArgs<BsonDocument>(
+            return channel.InsertAsync(
                 CollectionNamespace,
                 WriteConcern,
                 BsonDocumentSerializer.Instance,
@@ -50,9 +50,9 @@ namespace MongoDB.Driver.Core.Operations
                 documentSource,
                 MaxBatchCount,
                 MaxBatchLength,
-                continueOnError: false);
-
-            return channel.InsertAsync(args, cancellationToken);
+                false, // continueOnError
+                null, // shouldSendGetLastError
+                cancellationToken);
         }
     }
 }

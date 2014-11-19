@@ -74,9 +74,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private UpdateWireProtocolArgs CreateProtocolArgs()
+        private Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            return new UpdateWireProtocolArgs(
+            return channel.UpdateAsync(
                 _collectionNamespace,
                 _messageEncoderSettings,
                 _writeConcern,
@@ -84,10 +84,11 @@ namespace MongoDB.Driver.Core.Operations
                 _request.Update,
                 ElementNameValidatorFactory.ForUpdateType(_request.UpdateType),
                 _request.IsMulti,
-                _request.IsUpsert);
+                _request.IsUpsert,
+                cancellationToken);
         }
 
-        public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        private async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(channel, "channel");
 
@@ -102,14 +103,14 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                var args = CreateProtocolArgs();
-                return await channel.UpdateAsync(args, cancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
             }
         }
 
         public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
+
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {

@@ -121,10 +121,17 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private CommandWireProtocolArgs<BsonDocument> CreateWriteCommandProtocolArgs(BsonDocument command)
+        private Task<BsonDocument> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument command, CancellationToken cancellationToken)
         {
             var commandValidator = NoOpElementNameValidator.Instance;
-            return new CommandWireProtocolArgs<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, commandValidator, false, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return channel.RunCommandAsync<BsonDocument>(
+                _collectionNamespace.DatabaseNamespace,
+                command,
+                commandValidator,
+                false, // slaveOk
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings,
+                cancellationToken);
         }
 
         protected virtual IEnumerable<WriteRequest> DecorateRequests(IEnumerable<WriteRequest> requests)
@@ -163,8 +170,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var batchSerializer = CreateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
             var writeCommand = CreateWriteCommand(batchSerializer, requestSource);
-            var args = CreateWriteCommandProtocolArgs(writeCommand);
-            var writeCommandResult = await channel.RunCommandAsync(args, cancellationToken).ConfigureAwait(false);
+            var writeCommandResult = await ExecuteProtocolAsync(channel, writeCommand, cancellationToken).ConfigureAwait(false);
 
             var indexMap = new IndexMap.RangeBased(0, originalIndex, requestSource.Batch.Count);
             return BulkWriteBatchResult.Create(

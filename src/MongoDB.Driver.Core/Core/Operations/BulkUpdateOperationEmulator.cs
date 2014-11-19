@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var updateRequest = (UpdateRequest)request;
 
-            var args = new UpdateWireProtocolArgs(
+            return channel.UpdateAsync(
                 CollectionNamespace,
                 MessageEncoderSettings,
                 WriteConcern,
@@ -53,9 +53,8 @@ namespace MongoDB.Driver.Core.Operations
                 updateRequest.Update,
                 ElementNameValidatorFactory.ForUpdateType(updateRequest.UpdateType),
                 updateRequest.IsMulti,
-                updateRequest.IsUpsert);
-
-            return channel.UpdateAsync(args, cancellationToken);
+                updateRequest.IsUpsert,
+                cancellationToken);
         }
     }
 }
