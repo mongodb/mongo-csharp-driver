@@ -124,7 +124,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(command, "command");
 
-            var commandDocument = BsonDocumentHelper.ConvertToBsonDocument(_settings.SerializerRegistry, command);
+            var commandDocument = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, command);
 
             var isReadCommand = CanCommandBeSentToSecondary.Delegate(commandDocument);
             var serializer = _settings.SerializerRegistry.GetSerializer<T>();

@@ -546,7 +546,7 @@ namespace MongoDB.Driver
 
         private BsonDocument ConvertToBsonDocument(object document)
         {
-            return BsonDocumentHelper.ConvertToBsonDocument(_settings.SerializerRegistry, document);
+            return BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, document);
         }
 
         private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)

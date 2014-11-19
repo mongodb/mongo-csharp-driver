@@ -169,7 +169,7 @@ namespace MongoDB.Driver
 
         private BsonDocument ConvertToBsonDocument(object document)
         {
-            return BsonDocumentHelper.ConvertToBsonDocument(_collection.Settings.SerializerRegistry, document);
+            return BsonDocumentHelper.ToBsonDocument(_collection.Settings.SerializerRegistry, document);
         }
     }
 }
