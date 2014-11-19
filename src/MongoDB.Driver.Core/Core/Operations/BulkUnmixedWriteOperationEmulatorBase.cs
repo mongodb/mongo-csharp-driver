@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -88,17 +89,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected abstract IWireProtocol<WriteConcernResult> CreateProtocol(IChannelHandle channel, WriteRequest request);
-
         protected virtual async Task<BulkWriteBatchResult> EmulateSingleRequestAsync(IChannelHandle channel, WriteRequest request, int originalIndex, CancellationToken cancellationToken)
         {
-            var protocol = CreateProtocol(channel, request);
-
             WriteConcernResult writeConcernResult = null;
             WriteConcernException writeConcernException = null;
             try
             {
-                writeConcernResult = await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
+                writeConcernResult = await ExecuteProtocolAsync(channel, request, cancellationToken);
             }
             catch (WriteConcernException ex)
             {
@@ -139,5 +136,7 @@ namespace MongoDB.Driver.Core.Operations
             var combiner = new BulkWriteBatchResultCombiner(batchResults, _writeConcern.IsAcknowledged);
             return combiner.CreateResultOrThrowIfHasErrors(remainingRequests);
         }
+
+        protected abstract Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken);
     }
 }

@@ -14,8 +14,9 @@
 */
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -33,17 +34,19 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IChannelHandle channel, WriteRequest request)
+        protected override Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
         {
             var deleteRequest = (DeleteRequest)request;
             var isMulti = deleteRequest.Limit == 0;
 
-            return new DeleteWireProtocol(
+            var args = new DeleteWireProtocolArgs(
                CollectionNamespace,
                deleteRequest.Filter,
                isMulti,
                MessageEncoderSettings,
                WriteConcern);
+
+            return channel.DeleteAsync(args, cancellationToken);
         }
     }
 }

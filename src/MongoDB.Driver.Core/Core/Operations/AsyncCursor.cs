@@ -94,9 +94,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private GetMoreWireProtocol<TDocument> CreateGetMoreProtocol()
+        private GetMoreWireProtocolArgs<TDocument> CreateGetMoreProtocolArgs()
         {
-            return new GetMoreWireProtocol<TDocument>(
+            return new GetMoreWireProtocolArgs<TDocument>(
                 _collectionNamespace,
                 _query,
                 _cursorId,
@@ -105,9 +105,9 @@ namespace MongoDB.Driver.Core.Operations
                 _messageEncoderSettings);
         }
 
-        private KillCursorsWireProtocol CreateKillCursorsProtocol()
+        private KillCursorsWireProtocolArgs CreateKillCursorsProtocolArgs()
         {
-            return new KillCursorsWireProtocol(new[] { _cursorId }, _messageEncoderSettings);
+            return new KillCursorsWireProtocolArgs(new[] { _cursorId }, _messageEncoderSettings);
         }
 
         public void Dispose()
@@ -146,8 +146,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                var protocol = CreateGetMoreProtocol();
-                return await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
+                var args = CreateGetMoreProtocolArgs();
+                return await channel.GetMoreAsync(args, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -158,8 +158,8 @@ namespace MongoDB.Driver.Core.Operations
                 using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 using (var channel = await _channelSource.GetChannelAsync(cancellationTokenSource.Token).ConfigureAwait(false))
                 {
-                    var protocol = CreateKillCursorsProtocol();
-                    await channel.ExecuteProtocolAsync(protocol, cancellationTokenSource.Token).ConfigureAwait(false);
+                    var args = CreateKillCursorsProtocolArgs();
+                    await channel.KillCursorAsync(args, cancellationTokenSource.Token).ConfigureAwait(false);
                 }
             }
             catch

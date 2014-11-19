@@ -161,12 +161,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private QueryWireProtocol<TDocument> CreateProtocol(BsonDocument wrappedQuery, ReadPreference readPreference)
+        private QueryWireProtocolArgs<TDocument> CreateProtocolArgs(BsonDocument wrappedQuery, ReadPreference readPreference)
         {
             var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
             var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _batchSize);
 
-            return new QueryWireProtocol<TDocument>(
+            return new QueryWireProtocolArgs<TDocument>(
                 _collectionNamespace,
                 wrappedQuery,
                 _projection,
@@ -208,10 +208,11 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, "binding");
 
             using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
                 var query = CreateWrappedQuery(channelSource.ServerDescription.Type, binding.ReadPreference);
-                var protocol = CreateProtocol(query, binding.ReadPreference);
-                var batch = await channelSource.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
+                var protocolArgs = CreateProtocolArgs(query, binding.ReadPreference);
+                var batch = await channel.QueryAsync(protocolArgs, cancellationToken).ConfigureAwait(false);
 
                 return new AsyncCursor<TDocument>(
                     channelSource.Fork(),

@@ -98,11 +98,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private CommandWireProtocol<TCommandResult> CreateProtocol(ServerDescription serverDescription, ReadPreference readPreference)
+        private CommandWireProtocolArgs<TCommandResult> CreateProtocolArgs(ServerDescription serverDescription, ReadPreference readPreference)
         {
             var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
             var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
-            return new CommandWireProtocol<TCommandResult>(_databaseNamespace, wrappedCommand, _commandValidator, slaveOk, _resultSerializer, _messageEncoderSettings);
+            return new CommandWireProtocolArgs<TCommandResult>(_databaseNamespace, wrappedCommand, _commandValidator, slaveOk, _resultSerializer, _messageEncoderSettings);
         }
 
         private BsonDocument CreateWrappedCommand(ServerDescription serverDescription, ReadPreference readPreference)
@@ -141,8 +141,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                var protocol = CreateProtocol(channelSource.ServerDescription, readPreference);
-                return await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
+                var args = CreateProtocolArgs(channelSource.ServerDescription, readPreference);
+                return await channel.RunCommandAsync(args, cancellationToken).ConfigureAwait(false);
             }
         }
     }

@@ -66,9 +66,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private DeleteWireProtocol CreateProtocol()
+        private DeleteWireProtocolArgs CreateProtocolArgs()
         {
-            return new DeleteWireProtocol(
+            return new DeleteWireProtocolArgs(
                 _collectionNamespace,
                 _request.Filter,
                 _request.Limit != 1,
@@ -90,8 +90,8 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                var protocol = CreateProtocol();
-                return await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
+                var args = CreateProtocolArgs();
+                return await channel.DeleteAsync(args, cancellationToken).ConfigureAwait(false);
             }
         }
 

@@ -96,6 +96,14 @@
     <Compile Include="Core\Operations\FindOneAndReplaceOperation.cs" />
     <Compile Include="Core\Operations\FindOneAndDeleteOperation.cs" />
     <Compile Include="Core\Bindings\IChannel.cs" />
+    <Compile Include="Core\WireProtocol\CommandWireProtocolArgs.cs" />
+    <Compile Include="Core\WireProtocol\DeleteWireProtocolArgs.cs" />
+    <Compile Include="Core\WireProtocol\GetMoreWireProtocolArgs.cs" />
+    <Compile Include="Core\WireProtocol\InsertWireProtocolArgs.cs" />
+    <Compile Include="Core\WireProtocol\KillCursorsWireProtocolArgs.cs" />
+    <Compile Include="Core\WireProtocol\QueryWireProtocolArgs.cs" />
+    <Compile Include="Core\WireProtocol\UpdateWireProtocolArgs.cs" />
+    <Compile Include="Core\WireProtocol\WriteWireProtocolBaseArgs.cs" />
     <Compile Include="DeferredAsyncCursor.cs" />
     <Compile Include="IAsyncCursor.cs" />
     <Compile Include="Core\Operations\IndexNameHelper.cs" />
@@ -336,7 +344,6 @@
     <Compile Include="Core\WireProtocol\Messages\UpdateMessage.cs" />
     <Compile Include="Core\WireProtocol\QueryWireProtocol.cs" />
     <Compile Include="Core\WireProtocol\UpdateWireProtocol.cs" />
-    <Compile Include="Core\Bindings\ChannelSourceExtensions.cs" />
     <Compile Include="Core\WireProtocol\WriteWireProtocolBase.cs" />
     <Compile Include="Core\Connections\BuildInfoResult.cs" />
     <Compile Include="Core\Connections\IsMasterResult.cs" />

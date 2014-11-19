@@ -41,11 +41,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IChannelHandle channel, WriteRequest request)
+        protected override Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
         {
             var updateRequest = (UpdateRequest)request;
 
-            return new UpdateWireProtocol(
+            var args = new UpdateWireProtocolArgs(
                 CollectionNamespace,
                 MessageEncoderSettings,
                 WriteConcern,
@@ -54,6 +54,8 @@ namespace MongoDB.Driver.Core.Operations
                 ElementNameValidatorFactory.ForUpdateType(updateRequest.UpdateType),
                 updateRequest.IsMulti,
                 updateRequest.IsUpsert);
+
+            return channel.UpdateAsync(args, cancellationToken);
         }
     }
 }

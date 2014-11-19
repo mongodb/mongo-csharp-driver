@@ -115,9 +115,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private InsertWireProtocol<TDocument> CreateProtocol(WriteConcern batchWriteConcern, Func<bool> shouldSendGetLastError)
+        private InsertWireProtocolArgs<TDocument> CreateProtocolArgs(WriteConcern batchWriteConcern, Func<bool> shouldSendGetLastError)
         {
-            return new InsertWireProtocol<TDocument>(
+            return new InsertWireProtocolArgs<TDocument>(
                 _collectionNamespace,
                 batchWriteConcern,
                 _serializer,
@@ -185,12 +185,12 @@ namespace MongoDB.Driver.Core.Operations
 
             while (_documentSource.HasMore)
             {
-                var protocol = CreateProtocol(batchWriteConcern, shouldSendGetLastError);
+                var args = CreateProtocolArgs(batchWriteConcern, shouldSendGetLastError);
 
                 WriteConcernResult result;
                 try
                 {
-                    result = await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
+                    result = await channel.InsertAsync(args, cancellationToken).ConfigureAwait(false);
                 }
                 catch (WriteConcernException ex)
                 {
@@ -230,8 +230,8 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<WriteConcernResult> InsertSingleBatchAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            var protocol = CreateProtocol(_writeConcern, null);
-            return await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
+            var args = CreateProtocolArgs(_writeConcern, null);
+            return await channel.InsertAsync(args, cancellationToken).ConfigureAwait(false);
         }
     }
 }

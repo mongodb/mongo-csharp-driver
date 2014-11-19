@@ -16,6 +16,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.WireProtocol;
 
@@ -25,8 +26,13 @@ namespace MongoDB.Driver.Core.Bindings
     {
         ConnectionDescription ConnectionDescription { get;  }
 
-        Task ExecuteProtocolAsync(IWireProtocol protocol, CancellationToken cancellationToken);
-        Task<TResult> ExecuteProtocolAsync<TResult>(IWireProtocol<TResult> protocol, CancellationToken cancellationToken);
+        Task<WriteConcernResult> DeleteAsync(DeleteWireProtocolArgs args, CancellationToken cancellationToken);
+        Task<CursorBatch<TDocument>> GetMoreAsync<TDocument>(GetMoreWireProtocolArgs<TDocument> args, CancellationToken cancellationToken);
+        Task<WriteConcernResult> InsertAsync<TDocument>(InsertWireProtocolArgs<TDocument> args, CancellationToken cancellationToken);
+        Task KillCursorAsync(KillCursorsWireProtocolArgs args, CancellationToken cancellationToken);
+        Task<CursorBatch<TDocument>> QueryAsync<TDocument>(QueryWireProtocolArgs<TDocument> args, CancellationToken cancellationToken);
+        Task<TResult> RunCommandAsync<TResult>(CommandWireProtocolArgs<TResult> args, CancellationToken cancellationToken);
+        Task<WriteConcernResult> UpdateAsync(UpdateWireProtocolArgs args, CancellationToken cancellationToken);
     }
 
     public interface IChannelHandle : IChannel

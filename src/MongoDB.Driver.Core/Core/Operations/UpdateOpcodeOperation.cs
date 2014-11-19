@@ -74,9 +74,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private UpdateWireProtocol CreateProtocol()
+        private UpdateWireProtocolArgs CreateProtocolArgs()
         {
-            return new UpdateWireProtocol(
+            return new UpdateWireProtocolArgs(
                 _collectionNamespace,
                 _messageEncoderSettings,
                 _writeConcern,
@@ -102,8 +102,8 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                var protocol = CreateProtocol();
-                return await channel.ExecuteProtocolAsync(protocol, cancellationToken).ConfigureAwait(false);
+                var args = CreateProtocolArgs();
+                return await channel.UpdateAsync(args, cancellationToken).ConfigureAwait(false);
             }
         }
 

@@ -431,7 +431,104 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public async Task ExecuteProtocolAsync(IWireProtocol protocol, CancellationToken cancellationToken)
+            public Task<WriteConcernResult> DeleteAsync(DeleteWireProtocolArgs args, CancellationToken cancellationToken)
+            {
+                var protocol = new DeleteWireProtocol(
+                    args.CollectionNamespace,
+                    args.Query,
+                    args.IsMulti,
+                    args.MessageEncoderSettings,
+                    args.WriteConcern);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task<CursorBatch<TDocument>> GetMoreAsync<TDocument>(GetMoreWireProtocolArgs<TDocument> args, CancellationToken cancellationToken)
+            {
+                var protocol = new GetMoreWireProtocol<TDocument>(
+                    args.CollectionNamespace,
+                    args.Query,
+                    args.CursorId,
+                    args.BatchSize,
+                    args.Serializer,
+                    args.MessageEncoderSettings);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task<WriteConcernResult> InsertAsync<TDocument>(InsertWireProtocolArgs<TDocument> args, CancellationToken cancellationToken)
+            {
+                var protocol = new InsertWireProtocol<TDocument>(
+                    args.CollectionNamespace,
+                    args.WriteConcern,
+                    args.Serializer,
+                    args.MessageEncoderSettings,
+                    args.DocumentSource,
+                    args.MaxBatchCount,
+                    args.MaxMessageSize,
+                    args.ContinueOnError,
+                    args.ShouldSendGetLastError);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task KillCursorAsync(KillCursorsWireProtocolArgs args, CancellationToken cancellationToken)
+            {
+                var protocol = new KillCursorsWireProtocol(
+                    args.CursorIds,
+                    args.MessageEncoderSettings);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task<CursorBatch<TDocument>> QueryAsync<TDocument>(QueryWireProtocolArgs<TDocument> args, CancellationToken cancellationToken)
+            {
+                var protocol = new QueryWireProtocol<TDocument>(
+                    args.CollectionNamespace,
+                    args.Query,
+                    args.Fields,
+                    args.QueryValidator,
+                    args.Skip,
+                    args.BatchSize,
+                    args.SlaveOk,
+                    args.PartialOk,
+                    args.NoCursorTimeout,
+                    args.TailableCursor,
+                    args.AwaitData,
+                    args.Serializer,
+                    args.MessageEncoderSettings);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task<TResult> RunCommandAsync<TResult>(CommandWireProtocolArgs<TResult> args, CancellationToken cancellationToken)
+            {
+                var protocol = new CommandWireProtocol<TResult>(
+                    args.DatabaseNamespace,
+                    args.Command,
+                    args.SlaveOk,
+                    args.ResultSerializer,
+                    args.MessageEncoderSettings);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task<WriteConcernResult> UpdateAsync(UpdateWireProtocolArgs args, CancellationToken cancellationToken)
+            {
+                var protocol = new UpdateWireProtocol(
+                    args.CollectionNamespace,
+                    args.MessageEncoderSettings,
+                    args.WriteConcern,
+                    args.Query,
+                    args.Update,
+                    args.UpdateValidator,
+                    args.IsMulti,
+                    args.IsUpsert);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            private async Task ExecuteProtocolAsync(IWireProtocol protocol, CancellationToken cancellationToken)
             {
                 try
                 {
@@ -444,7 +541,7 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public async Task<TResult> ExecuteProtocolAsync<TResult>(IWireProtocol<TResult> protocol, CancellationToken cancellationToken)
+            private async Task<TResult> ExecuteProtocolAsync<TResult>(IWireProtocol<TResult> protocol, CancellationToken cancellationToken)
             {
                 try
                 {
