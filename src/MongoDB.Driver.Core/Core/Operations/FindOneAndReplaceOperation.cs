@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             _filter = Ensure.IsNotNull(filter, "filter");
             _replacement = Ensure.IsNotNull(replacement, "replacement");
+            _returnDocument = ReturnDocument.Before;
         }
 
         // properties

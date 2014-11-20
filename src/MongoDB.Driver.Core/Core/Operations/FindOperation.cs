@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Core.Operations
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "serializer");
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
+            _cursorType = CursorType.NonTailable;
         }
 
         // properties
@@ -166,8 +167,8 @@ namespace MongoDB.Driver.Core.Operations
                 slaveOk,
                 _allowPartialResults,
                 _noCursorTimeout,
-                (_cursorType & CursorType.NonTailable) != CursorType.NonTailable, // tailable
-                (_cursorType & CursorType.TailableAwait) == CursorType.TailableAwait, //await data
+                _cursorType != CursorType.NonTailable, // tailable
+                _cursorType == CursorType.TailableAwait, //await data
                 _resultSerializer,
                 _messageEncoderSettings,
                 cancellationToken);

@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MongoDB.Driver
 {
@@ -29,7 +25,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// A non-tailable cursor. This is sufficient for a vast majority of uses.
         /// </summary>
-        NonTailable,
+        NonTailable = 0,
         /// <summary>
         /// A tailable cursor.
         /// </summary>
@@ -38,5 +34,23 @@ namespace MongoDB.Driver
         /// A tailable cursor with a built-in server sleep.
         /// </summary>
         TailableAwait
+    }
+
+    internal static class CursorTypeExtensions
+    {
+        public static Core.Operations.CursorType ToCore(this CursorType cursorType)
+        {
+            switch (cursorType)
+            {
+                case CursorType.NonTailable:
+                    return Core.Operations.CursorType.NonTailable;
+                case CursorType.Tailable:
+                    return Core.Operations.CursorType.Tailable;
+                case CursorType.TailableAwait:
+                    return Core.Operations.CursorType.TailableAwait;
+                default:
+                    throw new ArgumentException("Unrecognized CursorType.", "cursorType");
+            }
+        }
     }
 }

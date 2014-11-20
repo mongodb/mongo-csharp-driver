@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// A non-tailable cursor. This is sufficient for a vast majority of uses.
         /// </summary>
-        NonTailable,
+        NonTailable = 0,
         /// <summary>
         /// A tailable cursor.
         /// </summary>

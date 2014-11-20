@@ -28,6 +28,15 @@ namespace MongoDB.Driver
         private int? _skip;
         private object _sort;
 
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FindOptions{TResult}"/> class.
+        /// </summary>
+        public FindOptions()
+        {
+            _cursorType = CursorType.NonTailable;
+        }
+
         // properties
         /// <summary>
         /// Gets or sets a value indicating whether to allow partial results 

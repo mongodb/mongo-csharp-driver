@@ -36,6 +36,15 @@ namespace MongoDB.Driver
         private ReturnDocument _returnDocument;
         private object _sort;
 
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FindOneAndReplaceOptions{TResult}"/> class.
+        /// </summary>
+        public FindOneAndReplaceOptions()
+        {
+            _returnDocument = ReturnDocument.Before;
+        }
+
         // properties
         /// <summary>
         /// Gets or sets a value indicating whether [is upsert].

@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MongoDB.Driver
 {
@@ -34,5 +30,21 @@ namespace MongoDB.Driver
         /// Returns the document after the modification.
         /// </summary>
         After
+    }
+
+    internal static class ReturnDocumentExtensions
+    {
+        public static Core.Operations.ReturnDocument ToCore(this ReturnDocument returnDocument)
+        {
+            switch (returnDocument)
+            {
+                case ReturnDocument.Before:
+                    return Core.Operations.ReturnDocument.Before;
+                case ReturnDocument.After:
+                    return Core.Operations.ReturnDocument.After;
+                default:
+                    throw new ArgumentException("Unrecognized ReturnDocument.", "returnDocument");
+            }
+        }
     }
 }

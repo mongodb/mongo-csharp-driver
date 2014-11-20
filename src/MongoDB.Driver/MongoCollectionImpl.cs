@@ -338,7 +338,7 @@ namespace MongoDB.Driver
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
                 Projection = ConvertToBsonDocument(options.Projection),
-                ReturnDocument = (Core.Operations.ReturnDocument)options.ReturnDocument,
+                ReturnDocument = options.ReturnDocument.ToCore(),
                 Sort = ConvertToBsonDocument(options.Sort)
             };
 
@@ -368,7 +368,7 @@ namespace MongoDB.Driver
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
                 Projection = ConvertToBsonDocument(options.Projection),
-                ReturnDocument = (Core.Operations.ReturnDocument)options.ReturnDocument,
+                ReturnDocument = options.ReturnDocument.ToCore(),
                 Sort = ConvertToBsonDocument(options.Sort)
             };
 
@@ -594,7 +594,7 @@ namespace MongoDB.Driver
                 AllowPartialResults = options.AllowPartialResults,
                 BatchSize = options.BatchSize,
                 Comment = options.Comment,
-                CursorType = (Core.Operations.CursorType)options.CursorType,
+                CursorType = options.CursorType.ToCore(),
                 Filter = ConvertToBsonDocument(filter),
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
