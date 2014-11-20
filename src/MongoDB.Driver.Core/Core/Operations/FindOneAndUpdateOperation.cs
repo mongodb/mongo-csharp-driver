@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool _isUpsert;
         private TimeSpan? _maxTime;
         private BsonDocument _projection;
-        private bool _returnOriginal;
+        private ReturnDocument _returnDocument;
         private BsonDocument _sort;
         private readonly BsonDocument _update;
 
@@ -45,7 +45,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             _filter = Ensure.IsNotNull(filter, "filter");
             _update = Ensure.IsNotNull(update, "update");
-            _returnOriginal = true;
         }
 
         // properties
@@ -72,10 +71,10 @@ namespace MongoDB.Driver.Core.Operations
             set { _projection = value; }
         }
 
-        public bool ReturnOriginal
+        public ReturnDocument ReturnDocument
         {
-            get { return _returnOriginal; }
-            set { _returnOriginal = value; }
+            get { return _returnDocument; }
+            set { _returnDocument = value; }
         }
 
         public BsonDocument Sort
@@ -98,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "query", _filter },
                 { "sort", _sort, _sort != null },
                 { "update", _update },
-                { "new", !_returnOriginal },
+                { "new", _returnDocument == ReturnDocument.After },
                 { "fields", _projection, _projection != null },
                 { "upsert", _isUpsert },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }

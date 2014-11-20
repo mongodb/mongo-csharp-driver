@@ -553,7 +553,9 @@ namespace MongoDB.Driver
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = GetMessageEncoderSettings();
             var projection = args.Fields == null ? null : new BsonDocumentWrapper(args.Fields);
-            var returnOriginal = args.VersionReturned == FindAndModifyDocumentVersion.Original;
+            var returnDocument = args.VersionReturned == FindAndModifyDocumentVersion.Original
+                ? Core.Operations.ReturnDocument.Before
+                : Core.Operations.ReturnDocument.After;
             var sort = args.SortBy == null ? null : new BsonDocumentWrapper(args.SortBy);
 
             FindAndModifyOperationBase<BsonDocument> operation;
@@ -564,7 +566,7 @@ namespace MongoDB.Driver
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
-                    ReturnOriginal = returnOriginal,
+                    ReturnDocument = returnDocument,
                     Sort = sort
                 };
             }
@@ -576,7 +578,7 @@ namespace MongoDB.Driver
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
-                    ReturnOriginal = returnOriginal,
+                    ReturnDocument = returnDocument,
                     Sort = sort
                 };
             }

@@ -160,19 +160,18 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
             var operation = (FindOperation<BsonDocument>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.funny");
-            operation.AwaitData.Should().BeTrue();
+            operation.AllowPartialResults.Should().BeFalse();
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Comment.Should().BeNull();
+            operation.CursorType.Should().Be(Core.Operations.CursorType.NonTailable);
             operation.Filter.Should().BeNull();
             operation.Limit.Should().Be(null);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().BeNull();
             operation.NoCursorTimeout.Should().BeFalse();
-            operation.Partial.Should().BeFalse();
             operation.Projection.Should().BeNull();
             operation.Skip.Should().Be(null);
             operation.Sort.Should().BeNull();
-            operation.Tailable.Should().BeFalse();
         }
 
         [Test]
@@ -524,18 +523,17 @@ namespace MongoDB.Driver
             var sort = BsonDocument.Parse("{a:1}");
             var options = new FindOptions<BsonDocument>
             {
-                AwaitData = false,
+                AllowPartialResults = true,
                 BatchSize = 20,
                 Comment = "funny",
+                CursorType = CursorType.TailableAwait,
                 Limit = 30,
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
                 NoCursorTimeout = true,
-                Partial = true,
                 Projection = projection,
                 Skip = 40,
-                Sort = sort,
-                Tailable = true
+                Sort = sort
             };
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
@@ -548,19 +546,18 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
             var operation = (FindOperation<BsonDocument>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.AwaitData.Should().Be(options.AwaitData);
+            operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Comment.Should().Be("funny");
+            operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(filter);
             operation.Limit.Should().Be(options.Limit);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
-            operation.Partial.Should().Be(options.Partial);
             operation.Projection.Should().Be(projection);
             operation.Skip.Should().Be(options.Skip);
             operation.Sort.Should().Be(sort);
-            operation.Tailable.Should().Be(options.Tailable);
         }
 
         [Test]
@@ -572,16 +569,15 @@ namespace MongoDB.Driver
             var fluent = _subject.Find(filter)
                 .Projection<BsonDocument>(projection)
                 .Sort(sort)
-                .AwaitData(false)
+                .AllowPartialResults(true)
                 .BatchSize(20)
                 .Comment("funny")
+                .CursorType(CursorType.TailableAwait)
                 .Limit(30)
                 .MaxTime(TimeSpan.FromSeconds(3))
                 .Modifiers(BsonDocument.Parse("{$snapshot: true}"))
                 .NoCursorTimeout(true)
-                .Partial(true)
-                .Skip(40)
-                .Tailable(true);
+                .Skip(40);
             var options = fluent.Options;
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
@@ -594,19 +590,18 @@ namespace MongoDB.Driver
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
             var operation = (FindOperation<BsonDocument>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.AwaitData.Should().Be(options.AwaitData);
+            operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Comment.Should().Be("funny");
+            operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(filter);
             operation.Limit.Should().Be(options.Limit);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
-            operation.Partial.Should().Be(options.Partial);
             operation.Projection.Should().Be(projection);
             operation.Skip.Should().Be(options.Skip);
             operation.Sort.Should().Be(sort);
-            operation.Tailable.Should().Be(options.Tailable);
         }
 
         [Test]
@@ -636,11 +631,11 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        [TestCase(false, false)]
-        [TestCase(false, true)]
-        [TestCase(true, false)]
-        [TestCase(true, true)]
-        public async Task FindOneAndReplace_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, bool returnOriginal)
+        [TestCase(false, ReturnDocument.Before)]
+        [TestCase(false, ReturnDocument.After)]
+        [TestCase(true, ReturnDocument.Before)]
+        [TestCase(true, ReturnDocument.After)]
+        public async Task FindOneAndReplace_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, ReturnDocument returnDocument)
         {
             var filter = BsonDocument.Parse("{x: 1}");
             var replacement = BsonDocument.Parse("{a: 2}");
@@ -650,7 +645,7 @@ namespace MongoDB.Driver
             {
                 IsUpsert = isUpsert,
                 Projection = projection,
-                ReturnOriginal = returnOriginal,
+                ReturnDocument = returnDocument,
                 Sort = sort,
                 MaxTime = TimeSpan.FromSeconds(2)
             };
@@ -665,18 +660,18 @@ namespace MongoDB.Driver
             operation.Filter.Should().Be(filter);
             operation.Replacement.Should().Be(replacement);
             operation.IsUpsert.Should().Be(isUpsert);
-            operation.ReturnOriginal.Should().Be(returnOriginal);
+            operation.ReturnDocument.Should().Be((Core.Operations.ReturnDocument)returnDocument);
             operation.Projection.Should().Be(projection);
             operation.Sort.Should().Be(sort);
             operation.MaxTime.Should().Be(options.MaxTime);
         }
 
         [Test]
-        [TestCase(false, false)]
-        [TestCase(false, true)]
-        [TestCase(true, false)]
-        [TestCase(true, true)]
-        public async Task FindOneAndUpdate_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, bool returnOriginal)
+        [TestCase(false, ReturnDocument.Before)]
+        [TestCase(false, ReturnDocument.After)]
+        [TestCase(true, ReturnDocument.Before)]
+        [TestCase(true, ReturnDocument.After)]
+        public async Task FindOneAndUpdate_should_execute_the_FindOneAndReplaceOperation(bool isUpsert, ReturnDocument returnDocument)
         {
             var filter = BsonDocument.Parse("{x: 1}");
             var update = BsonDocument.Parse("{$set: {a: 2}}");
@@ -686,7 +681,7 @@ namespace MongoDB.Driver
             {
                 IsUpsert = isUpsert,
                 Projection = projection,
-                ReturnOriginal = returnOriginal,
+                ReturnDocument = returnDocument,
                 Sort = sort,
                 MaxTime = TimeSpan.FromSeconds(2)
             };
@@ -701,7 +696,7 @@ namespace MongoDB.Driver
             operation.Filter.Should().Be(filter);
             operation.Update.Should().Be(update);
             operation.IsUpsert.Should().Be(isUpsert);
-            operation.ReturnOriginal.Should().Be(returnOriginal);
+            operation.ReturnDocument.Should().Be((Core.Operations.ReturnDocument)returnDocument);
             operation.Projection.Should().Be(projection);
             operation.Sort.Should().Be(sort);
             operation.MaxTime.Should().Be(options.MaxTime);

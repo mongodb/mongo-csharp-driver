@@ -72,6 +72,7 @@
     <Compile Include="Core\Bindings\ReadBindingHandle.cs" />
     <Compile Include="Core\Bindings\SplitReadWriteBinding.cs" />
     <Compile Include="Core\Bindings\IChannelSource.cs" />
+    <Compile Include="Core\Bindings\IChannel.cs" />
     <Compile Include="Core\Bindings\ReadPreferenceBinding.cs" />
     <Compile Include="Core\Configuration\SslStreamSettings.cs" />
     <Compile Include="Core\Connections\SslStreamFactory.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Core\Operations\AggregateExplainOperation.cs" />
     <Compile Include="Core\Operations\BulkWriteOperationException.cs" />
     <Compile Include="Core\Operations\CreateIndexRequest.cs" />
+    <Compile Include="Core\Operations\CursorType.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\CollectionElementNameValidator.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\ElementNameValidatorFactory.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\UpdateElementNameValidator.cs" />
@@ -95,7 +97,7 @@
     <Compile Include="Core\Operations\FindOneAndUpdateOperation.cs" />
     <Compile Include="Core\Operations\FindOneAndReplaceOperation.cs" />
     <Compile Include="Core\Operations\FindOneAndDeleteOperation.cs" />
-    <Compile Include="Core\Bindings\IChannel.cs" />
+    <Compile Include="Core\Operations\ReturnDocument.cs" />
     <Compile Include="DeferredAsyncCursor.cs" />
     <Compile Include="IAsyncCursor.cs" />
     <Compile Include="Core\Operations\IndexNameHelper.cs" />

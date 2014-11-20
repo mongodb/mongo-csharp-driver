@@ -15,39 +15,31 @@ namespace MongoDB.Driver
     public class FindOptions<TResult>
     {
         // fields
-        private bool _awaitData;
+        private bool _allowPartialResults;
         private int? _batchSize;
         private string _comment;
+        private CursorType _cursorType;
         private int? _limit;
         private TimeSpan? _maxTime;
         private BsonDocument _modifiers;
         private bool _noCursorTimeout;
-        private bool _partial;
         private object _projection;
         private IBsonSerializer<TResult> _resultSerializer;
         private int? _skip;
         private object _sort;
-        private bool _tailable;
 
-        // constructors
+        // properties
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindOptions{TResult}"/> class.
-        /// </summary>
-        public FindOptions()
-        {
-            _awaitData = true;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [await data].
+        /// Gets or sets a value indicating whether to allow partial results 
+        /// in a sharded system in the case where 1 or more shards is down.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [await data]; otherwise, <c>false</c>.
+        ///   <c>true</c> if to allow partial results; otherwise, <c>false</c>.
         /// </value>
-        public bool AwaitData
+        public bool AllowPartialResults
         {
-            get { return _awaitData; }
-            set { _awaitData = value; }
+            get { return _allowPartialResults; }
+            set { _allowPartialResults = value; }
         }
 
         /// <summary>
@@ -69,6 +61,18 @@ namespace MongoDB.Driver
         {
             get { return _comment; }
             set { _comment = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the type of the cursor.
+        /// </summary>
+        /// <value>
+        /// The type of the cursor.
+        /// </value>
+        public CursorType CursorType
+        {
+            get { return _cursorType; }
+            set { _cursorType = value; }
         }
 
         /// <summary>
@@ -111,18 +115,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether [partial].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [partial]; otherwise, <c>false</c>.
-        /// </value>
-        public bool Partial
-        {
-            get { return _partial; }
-            set { _partial = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the projection.
         /// </summary>
         public object Projection
@@ -156,18 +148,6 @@ namespace MongoDB.Driver
         {
             get { return _sort; }
             set { _sort = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [tailable].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [tailable]; otherwise, <c>false</c>.
-        /// </value>
-        public bool Tailable
-        {
-            get { return _tailable; }
-            set { _tailable = value; }
         }
     }
 }

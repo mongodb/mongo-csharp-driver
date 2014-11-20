@@ -36,22 +36,21 @@ namespace MongoDB.Driver.Core.Operations
     public class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>
     {
         // fields
-        private bool _awaitData;
+        private bool _allowPartialResults;
         private int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
         private string _comment;
+        private CursorType _cursorType;
         private BsonDocument _filter;
         private int? _limit;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _modifiers;
         private bool _noCursorTimeout;
-        private bool _partial;
         private BsonDocument _projection;
         private readonly IBsonSerializer<TDocument> _resultSerializer;
         private int? _skip;
         private BsonDocument _sort;
-        private bool _tailable;
 
         // constructors
         public FindOperation(
@@ -62,15 +61,13 @@ namespace MongoDB.Driver.Core.Operations
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "serializer");
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
-
-            _awaitData = true;
         }
 
         // properties
-        public bool AwaitData
+        public bool AllowPartialResults
         {
-            get { return _awaitData; }
-            set { _awaitData = value; }
+            get { return _allowPartialResults; }
+            set { _allowPartialResults = value; }
         }
 
         public int? BatchSize
@@ -88,6 +85,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _comment; }
             set { _comment = value; }
+        }
+
+        public CursorType CursorType
+        {
+            get { return _cursorType; }
+            set { _cursorType = value; }
         }
 
         public BsonDocument Filter
@@ -125,12 +128,6 @@ namespace MongoDB.Driver.Core.Operations
             set { _noCursorTimeout = value; }
         }
 
-        public bool Partial
-        {
-            get { return _partial; }
-            set { _partial = value; }
-        }
-
         public BsonDocument Projection
         {
             get { return _projection; }
@@ -154,12 +151,6 @@ namespace MongoDB.Driver.Core.Operations
             set { _sort = value; }
         }
 
-        public bool Tailable
-        {
-            get { return _tailable; }
-            set { _tailable = value; }
-        }
-
         // methods
         private Task<CursorBatch<TDocument>> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument wrappedQuery, bool slaveOk, CancellationToken cancellationToken)
         {
@@ -173,10 +164,10 @@ namespace MongoDB.Driver.Core.Operations
                 _skip ?? 0,
                 firstBatchSize,
                 slaveOk,
-                _partial,
+                _allowPartialResults,
                 _noCursorTimeout,
-                _tailable,
-                _awaitData,
+                (_cursorType & CursorType.NonTailable) != CursorType.NonTailable, // tailable
+                (_cursorType & CursorType.TailableAwait) == CursorType.TailableAwait, //await data
                 _resultSerializer,
                 _messageEncoderSettings,
                 cancellationToken);
@@ -243,19 +234,18 @@ namespace MongoDB.Driver.Core.Operations
             modifiers["$explain"] = true;
             var operation = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
-                _awaitData = _awaitData,
+                _allowPartialResults = _allowPartialResults,
                 _batchSize = _batchSize,
                 _comment = _comment,
+                _cursorType = _cursorType,
                 _filter = _filter,
                 _limit = _limit,
                 _maxTime = _maxTime,
                 _modifiers = modifiers,
                 _noCursorTimeout = _noCursorTimeout,
-                _partial = _partial,
                 _projection = _projection,
                 _skip = _skip,
                 _sort = _sort,
-                _tailable = _tailable,
             };
 
             return new FindExplainOperation(operation);

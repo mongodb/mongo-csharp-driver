@@ -116,6 +116,8 @@
     <Compile Include="DeleteResult.cs" />
     <Compile Include="InsertOneModel.cs" />
     <Compile Include="ReplaceOneModel.cs" />
+    <Compile Include="CursorType.cs" />
+    <Compile Include="ReturnDocument.cs" />
     <Compile Include="UpdateOptions.cs" />
     <Compile Include="UpdateOneModel.cs" />
     <Compile Include="UpdateManyModel.cs" />

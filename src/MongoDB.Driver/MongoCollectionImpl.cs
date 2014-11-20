@@ -338,7 +338,7 @@ namespace MongoDB.Driver
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
                 Projection = ConvertToBsonDocument(options.Projection),
-                ReturnOriginal = options.ReturnOriginal,
+                ReturnDocument = (Core.Operations.ReturnDocument)options.ReturnDocument,
                 Sort = ConvertToBsonDocument(options.Sort)
             };
 
@@ -368,7 +368,7 @@ namespace MongoDB.Driver
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
                 Projection = ConvertToBsonDocument(options.Projection),
-                ReturnOriginal = options.ReturnOriginal,
+                ReturnDocument = (Core.Operations.ReturnDocument)options.ReturnDocument,
                 Sort = ConvertToBsonDocument(options.Sort)
             };
 
@@ -591,19 +591,18 @@ namespace MongoDB.Driver
                 resultSerializer,
                 _messageEncoderSettings)
             {
-                AwaitData = options.AwaitData,
+                AllowPartialResults = options.AllowPartialResults,
                 BatchSize = options.BatchSize,
                 Comment = options.Comment,
+                CursorType = (Core.Operations.CursorType)options.CursorType,
                 Filter = ConvertToBsonDocument(filter),
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
                 Modifiers = options.Modifiers,
                 NoCursorTimeout = options.NoCursorTimeout,
-                Partial = options.Partial,
                 Projection = ConvertToBsonDocument(options.Projection),
                 Skip = options.Skip,
                 Sort = ConvertToBsonDocument(options.Sort),
-                Tailable = options.Tailable
             };
         }
 

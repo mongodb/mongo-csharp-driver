@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool isUpsert,
             [Values(null, 10)] int? maxTimeMS,
             [Values(null, "{a: 1}")] string projection,
-            [Values(false, true)] bool returnOriginal,
+            [Values(ReturnDocument.Before, ReturnDocument.After)] ReturnDocument returnDocument,
             [Values(null, "{b: 1}")] string sort)
         {
             var projectionDoc = projection == null ? (BsonDocument)null : BsonDocument.Parse(projection);
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
                 IsUpsert = isUpsert,
                 MaxTime = maxTimeMS.HasValue ? TimeSpan.FromMilliseconds(maxTimeMS.Value) : (TimeSpan?)null,
                 Projection = projectionDoc,
-                ReturnOriginal = returnOriginal,
+                ReturnDocument = returnDocument,
                 Sort = sortDoc
             };
 
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "query", _filter },
                 { "sort", sortDoc, sortDoc != null },
                 { "update", _replacement, _replacement != null },
-                { "new", !returnOriginal },
+                { "new", returnDocument == ReturnDocument.After },
                 { "fields", projectionDoc, projectionDoc != null },
                 { "upsert", isUpsert },
                 { "maxTimeMS", () => maxTimeMS.Value, maxTimeMS.HasValue }
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
             {
-                ReturnOriginal = true
+                ReturnDocument = ReturnDocument.Before
             };
 
             var result = await ExecuteOperationAsync(subject);
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
             {
-                ReturnOriginal = false
+                ReturnDocument = ReturnDocument.After
             };
 
             var result = await ExecuteOperationAsync(subject);
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
             {
-                ReturnOriginal = true
+                ReturnDocument = ReturnDocument.Before
             };
 
             var result = await ExecuteOperationAsync(subject);
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Core.Operations
                 new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance),
                 _messageEncoderSettings)
             {
-                ReturnOriginal = false
+                ReturnDocument = ReturnDocument.After
             };
 
             var result = await ExecuteOperationAsync(subject);
@@ -228,7 +228,7 @@ namespace MongoDB.Driver.Core.Operations
                 _messageEncoderSettings)
             {
                 IsUpsert = true,
-                ReturnOriginal = true
+                ReturnDocument = ReturnDocument.Before
             };
 
             var result = await ExecuteOperationAsync(subject);
@@ -252,7 +252,7 @@ namespace MongoDB.Driver.Core.Operations
                 _messageEncoderSettings)
             {
                 IsUpsert = true,
-                ReturnOriginal = false
+                ReturnDocument = ReturnDocument.After
             };
 
             var result = await ExecuteOperationAsync(subject);

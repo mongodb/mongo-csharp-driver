@@ -42,11 +42,11 @@ namespace MongoDB.Driver
         FindOptions<TResult> Options { get; }
 
         /// <summary>
-        /// Awaits the data.
+        /// Allows partial results from shards.
         /// </summary>
-        /// <param name="awaitData">if set to <c>true</c> [await data].</param>
+        /// <param name="allowPartialResults">if set to <c>true</c> [allow partial results].</param>
         /// <returns></returns>
-        IFindFluent<TDocument, TResult> AwaitData(bool awaitData);
+        IFindFluent<TDocument, TResult> AllowPartialResults(bool allowPartialResults);
 
         /// <summary>
         /// Batches the size.
@@ -61,6 +61,13 @@ namespace MongoDB.Driver
         /// <param name="comment">The comment.</param>
         /// <returns></returns>
         IFindFluent<TDocument, TResult> Comment(string comment);
+
+        /// <summary>
+        /// Sets the cursor type.
+        /// </summary>
+        /// <param name="cursorType">Type of the cursor.</param>
+        /// <returns></returns>
+        IFindFluent<TDocument, TResult> CursorType(CursorType cursorType);
 
         /// <summary>
         /// Limits the specified limit.
@@ -89,13 +96,6 @@ namespace MongoDB.Driver
         /// <param name="noCursorTimeout">if set to <c>true</c> [no cursor timeout].</param>
         /// <returns></returns>
         IFindFluent<TDocument, TResult> NoCursorTimeout(bool noCursorTimeout);
-
-        /// <summary>
-        /// Partials the specified partial.
-        /// </summary>
-        /// <param name="partial">if set to <c>true</c> [partial].</param>
-        /// <returns></returns>
-        IFindFluent<TDocument, TResult> Partial(bool partial);
 
         /// <summary>
         /// Projections the specified projection.
@@ -127,13 +127,6 @@ namespace MongoDB.Driver
         /// <param name="sort">The sort.</param>
         /// <returns></returns>
         IFindFluent<TDocument, TResult> Sort(object sort);
-
-        /// <summary>
-        /// Tailables the specified tailable.
-        /// </summary>
-        /// <param name="tailable">if set to <c>true</c> [tailable].</param>
-        /// <returns></returns>
-        IFindFluent<TDocument, TResult> Tailable(bool tailable);
     }
 
     /// <summary>

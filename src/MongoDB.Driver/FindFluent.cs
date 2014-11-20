@@ -61,15 +61,15 @@ namespace MongoDB.Driver
 
         // methods
         /// <summary>
-        /// Sets the await data flag.
+        /// Allows partial results from shards.
         /// </summary>
-        /// <param name="awaitData">if set to <c>true</c> [await data].</param>
+        /// <param name="allowPartialResults">if set to <c>true</c> [allow partial results].</param>
         /// <returns>
         /// The fluent interface.
         /// </returns>
-        public IFindFluent<TDocument, TResult> AwaitData(bool awaitData)
+        public IFindFluent<TDocument, TResult> AllowPartialResults(bool allowPartialResults)
         {
-            _options.AwaitData = awaitData;
+            _options.AllowPartialResults = allowPartialResults;
             return this;
         }
 
@@ -92,6 +92,17 @@ namespace MongoDB.Driver
         public IFindFluent<TDocument, TResult> Comment(string comment)
         {
             _options.Comment = comment;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the cursor type.
+        /// </summary>
+        /// <param name="cursorType">Type of the cursor.</param>
+        /// <returns>The fluent interface.</returns>
+        public IFindFluent<TDocument, TResult> CursorType(CursorType cursorType)
+        {
+            _options.CursorType = cursorType;
             return this;
         }
 
@@ -140,17 +151,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Sets the partial flag.
-        /// </summary>
-        /// <param name="partial">if set to <c>true</c> [partial].</param>
-        /// <returns>The fluent interface.</returns>
-        public IFindFluent<TDocument, TResult> Partial(bool partial)
-        {
-            _options.Partial = partial;
-            return this;
-        }
-
-        /// <summary>
         /// Sets the projection.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
@@ -172,19 +172,18 @@ namespace MongoDB.Driver
         {
             var newOptions = new FindOptions<TNewResult>
             {
-                AwaitData = _options.AwaitData,
+                AllowPartialResults = _options.AllowPartialResults,
                 BatchSize = _options.BatchSize,
                 Comment = _options.Comment,
+                CursorType = _options.CursorType,
                 Limit = _options.Limit,
                 MaxTime = _options.MaxTime,
                 Modifiers = _options.Modifiers,
                 NoCursorTimeout = _options.NoCursorTimeout,
-                Partial = _options.Partial,
                 Projection = projection,
                 ResultSerializer = resultSerializer ?? _collection.Settings.SerializerRegistry.GetSerializer<TNewResult>(),
                 Skip = _options.Skip,
                 Sort = _options.Sort,
-                Tailable = _options.Tailable
             };
             return new FindFluent<TDocument, TNewResult>(_collection, _filter, newOptions);
         }
@@ -208,17 +207,6 @@ namespace MongoDB.Driver
         public IFindFluent<TDocument, TResult> Sort(object sort)
         {
             _options.Sort = sort;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the tailable flag.
-        /// </summary>
-        /// <param name="tailable">if set to <c>true</c> [tailable].</param>
-        /// <returns>The fluent interface.</returns>
-        public IFindFluent<TDocument, TResult> Tailable(bool tailable)
-        {
-            _options.Tailable = tailable;
             return this;
         }
 
