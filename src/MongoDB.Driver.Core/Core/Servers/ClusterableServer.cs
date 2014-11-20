@@ -411,19 +411,43 @@ namespace MongoDB.Driver.Core.Servers
 
         private sealed class ServerChannel : IChannelHandle
         {
+            // fields
             private readonly IConnectionHandle _connection;
             private bool _disposed;
             private readonly ClusterableServer _server;
 
+            // constructors
             public ServerChannel(ClusterableServer server, IConnectionHandle connection)
             {
                 _server = server;
                 _connection = connection;
             }
 
+            // properties
             public ConnectionDescription ConnectionDescription
             {
                 get { return _connection.Description; }
+            }
+
+            // methods
+            public Task<TResult> CommandAsync<TResult>(
+                DatabaseNamespace databaseNamespace,
+                BsonDocument command,
+                IElementNameValidator commandValidator,
+                bool slaveOk,
+                IBsonSerializer<TResult> resultSerializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
+                var protocol = new CommandWireProtocol<TResult>(
+                    databaseNamespace,
+                    command,
+                    commandValidator,
+                    slaveOk,
+                    resultSerializer,
+                    messageEncoderSettings);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
             public void Dispose()
@@ -540,26 +564,6 @@ namespace MongoDB.Driver.Core.Servers
                     tailableCursor,
                     awaitData,
                     serializer,
-                    messageEncoderSettings);
-
-                return ExecuteProtocolAsync(protocol, cancellationToken);
-            }
-
-            public Task<TResult> RunCommandAsync<TResult>(
-                DatabaseNamespace databaseNamespace,
-                BsonDocument command,
-                IElementNameValidator commandValidator,
-                bool slaveOk,
-                IBsonSerializer<TResult> resultSerializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new CommandWireProtocol<TResult>(
-                    databaseNamespace,
-                    command,
-                    commandValidator,
-                    slaveOk,
-                    resultSerializer,
                     messageEncoderSettings);
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);

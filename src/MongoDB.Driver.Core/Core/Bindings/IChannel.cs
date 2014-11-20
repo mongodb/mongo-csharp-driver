@@ -31,6 +31,15 @@ namespace MongoDB.Driver.Core.Bindings
     {
         ConnectionDescription ConnectionDescription { get;  }
 
+        Task<TResult> CommandAsync<TResult>(
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IElementNameValidator commandValidator,
+            bool slaveOk,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            CancellationToken cancellationToken);
+
         Task<WriteConcernResult> DeleteAsync(
             CollectionNamespace collectionNamespace,
             BsonDocument query,
@@ -78,15 +87,6 @@ namespace MongoDB.Driver.Core.Bindings
             bool tailableCursor,
             bool awaitData,
             IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        Task<TResult> RunCommandAsync<TResult>(
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
-            IElementNameValidator commandValidator,
-            bool slaveOk,
-            IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
 

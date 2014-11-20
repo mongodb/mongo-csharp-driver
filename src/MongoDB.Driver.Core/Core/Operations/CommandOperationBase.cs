@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
             var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
             var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
 
-            return channel.RunCommandAsync<TCommandResult>(
+            return channel.CommandAsync<TCommandResult>(
                 _databaseNamespace,
                 wrappedCommand,
                 _commandValidator,

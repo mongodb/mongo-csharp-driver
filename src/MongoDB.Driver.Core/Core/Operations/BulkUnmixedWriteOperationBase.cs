@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Core.Operations
         private Task<BsonDocument> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument command, CancellationToken cancellationToken)
         {
             var commandValidator = NoOpElementNameValidator.Instance;
-            return channel.RunCommandAsync<BsonDocument>(
+            return channel.CommandAsync<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 commandValidator,
