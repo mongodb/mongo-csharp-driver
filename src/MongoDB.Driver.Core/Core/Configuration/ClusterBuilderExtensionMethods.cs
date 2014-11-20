@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Configuration
             // TCP
             if (connectionString.ConnectTimeout != null)
             {
-                // TODO: nowhere to set this
+                configuration.ConfigureTcp(s => s.WithConnectTimeout(connectionString.ConnectTimeout.Value));
             }
             if (connectionString.Ipv6.HasValue && connectionString.Ipv6.Value)
             {

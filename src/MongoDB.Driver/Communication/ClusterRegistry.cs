@@ -131,6 +131,7 @@ namespace MongoDB.Driver.Communication
         private TcpStreamSettings CreateTcpStreamSettings(ClusterKey clusterKey)
         {
             return new TcpStreamSettings()
+                .WithConnectTimeout(clusterKey.ConnectTimeout)
                 .WithReadTimeout(clusterKey.SocketTimeout)
                 .WithReceiveBufferSize(clusterKey.ReceiveBufferSize)
                 .WithSendBufferSize(clusterKey.SendBufferSize)

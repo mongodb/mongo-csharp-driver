@@ -81,16 +81,44 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // non-public methods
-        private Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
+        private async Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
+            Task connectTask;
             var dnsEndPoint = endPoint as DnsEndPoint;
             if (dnsEndPoint != null)
             {
-                // mono doesn't support DnsEndPoint in it's BeginConnect method.
-                return Task.Factory.FromAsync(socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null), socket.EndConnect);
+                // mono doesn't support DnsEndPoint in its BeginConnect method.
+                connectTask = Task.Factory.FromAsync(socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null), socket.EndConnect);
+            }
+            else
+            {
+                connectTask = Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect);
             }
 
-            return Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect);
+            if (_settings.ConnectTimeout == Timeout.InfiniteTimeSpan)
+            {
+                await connectTask;
+                return;
+            }
+
+            using (var delayCancellationTokenSource = new CancellationTokenSource())
+            {
+                var delayTask = Task.Delay(_settings.ConnectTimeout, delayCancellationTokenSource.Token);
+
+                var completedTask = await Task.WhenAny(connectTask, delayTask).ConfigureAwait(false);
+                
+                // kill the delay timer as soon as possible
+                delayCancellationTokenSource.Cancel();
+
+                if (completedTask == delayTask && !socket.Connected)
+                {
+                    socket.Dispose();
+                    var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
+                    throw new TimeoutException(message);
+                }
+
+                await connectTask;
+            }
         }
     }
 }

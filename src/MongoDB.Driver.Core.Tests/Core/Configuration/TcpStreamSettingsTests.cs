@@ -56,6 +56,26 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Test]
+        public void WithConnectTimeout_returns_new_instance_if_value_is_not_equal()
+        {
+            var oldSetting = TimeSpan.FromMinutes(20);
+            var newSetting = TimeSpan.FromMinutes(1);
+            var subject1 = new TcpStreamSettings().WithConnectTimeout(oldSetting);
+            var subject2 = subject1.WithConnectTimeout(newSetting);
+            subject2.Should().NotBeSameAs(subject1);
+            subject1.ConnectTimeout.Should().Be(oldSetting);
+            subject2.ConnectTimeout.Should().Be(newSetting);
+        }
+
+        [Test]
+        public void WithConnectTimeout_returns_same_instance_if_value_is_equal()
+        {
+            var subject1 = new TcpStreamSettings();
+            var subject2 = subject1.WithConnectTimeout(subject1.ConnectTimeout);
+            subject2.Should().BeSameAs(subject1);
+        }
+
+        [Test]
         public void WithReadTimeout_returns_new_instance_if_value_is_not_equal()
         {
             var oldSetting = (TimeSpan?)null;
