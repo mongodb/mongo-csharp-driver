@@ -247,6 +247,31 @@ namespace MongoDB.Driver
         /// Finds a single document and updates it atomically.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The model.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the operation.
+        /// </returns>
+        public static Task<TDocument> FindOneAndUpdateAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, Func<UpdateBuilder<TDocument>, UpdateBuilder<TDocument>> update, FindOneAndUpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(filter, "filter");
+            Ensure.IsNotNull(update, "update");
+
+            var filterDocument = CreateFilterDocument(collection, filter);
+            var updateBuilder = new UpdateBuilder<TDocument>();
+            var updateObj = update(updateBuilder);
+
+            return collection.FindOneAndUpdateAsync(filterDocument, updateObj, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Finds a single document and updates it atomically.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="filter">The filter.</param>
@@ -263,6 +288,32 @@ namespace MongoDB.Driver
 
             var filterDocument = CreateFilterDocument(collection, filter);
             return collection.FindOneAndUpdateAsync(filterDocument, update, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Finds a single document and updates it atomically.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The model.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the operation.
+        /// </returns>
+        public static Task<TResult> FindOneAndUpdateAsync<TDocument, TResult>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, Func<UpdateBuilder<TDocument>, UpdateBuilder<TDocument>> update, FindOneAndUpdateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(filter, "filter");
+            Ensure.IsNotNull(update, "update");
+
+            var filterDocument = CreateFilterDocument(collection, filter);
+            var updateBuilder = new UpdateBuilder<TDocument>();
+            var updateObj = update(updateBuilder);
+
+            return collection.FindOneAndUpdateAsync(filterDocument, updateObj, options, cancellationToken);
         }
 
         /// <summary>
@@ -319,6 +370,31 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
+        public static Task<UpdateResult> UpdateManyAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, Func<UpdateBuilder<TDocument>, UpdateBuilder<TDocument>> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(filter, "filter");
+            Ensure.IsNotNull(update, "update");
+
+            var filterDocument = CreateFilterDocument(collection, filter);
+            var updateBuilder = new UpdateBuilder<TDocument>();
+            var updateObj = update(updateBuilder);
+
+            return collection.UpdateManyAsync(filterDocument, updateObj, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Updates a single document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the update operation.
+        /// </returns>
         public static Task<UpdateResult> UpdateOneAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
@@ -326,6 +402,31 @@ namespace MongoDB.Driver
 
             var filterDocument = CreateFilterDocument(collection, filter);
             return collection.UpdateOneAsync(filterDocument, update, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Updates a single document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the update operation.
+        /// </returns>
+        public static Task<UpdateResult> UpdateOneAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, Func<UpdateBuilder<TDocument>, UpdateBuilder<TDocument>> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(filter, "filter");
+            Ensure.IsNotNull(update, "update");
+
+            var filterDocument = CreateFilterDocument(collection, filter);
+            var updateBuilder = new UpdateBuilder<TDocument>();
+            var updateObj = update(updateBuilder);
+
+            return collection.UpdateOneAsync(filterDocument, updateObj, options, cancellationToken);
         }
 
         private static BsonDocument CreateFilterDocument<TDocument>(IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter)
