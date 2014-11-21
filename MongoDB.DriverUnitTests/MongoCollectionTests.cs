@@ -422,8 +422,8 @@ namespace MongoDB.DriverUnitTests
             _collection.Drop();
             _collection.BulkWrite(new BulkWriteArgs
             {
-                WriteConcern = WriteConcern.Acknowledged, 
-                IsOrdered = false, 
+                WriteConcern = WriteConcern.Acknowledged,
+                IsOrdered = false,
                 Requests = new WriteRequest[]
                 {
                     new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
@@ -493,7 +493,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(MinimumVersion="2.6.0")]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public void TestCountWithHint()
         {
             _collection.RemoveAll();
@@ -603,6 +603,21 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "wiredtiger")]
+        public void TestCreateCollectionSetStorageOptions()
+        {
+            var collection = _database.GetCollection("cappedcollection");
+            collection.Drop();
+            Assert.IsFalse(collection.Exists());
+            var options = CollectionOptions.SetStorageOptions(
+                new BsonDocument("wiredtiger", new BsonDocument("configString", "block_compressor=zlib")));
+            _database.CreateCollection(collection.Name, options);
+            Assert.IsTrue(collection.Exists());
+            var stats = collection.GetStats();
+            collection.Drop();
+        }
+
+        [Test]
         public void TestCreateIndex()
         {
             var expectedIndexVersion = (_server.BuildInfo.Version >= new Version(2, 0, 0)) ? 1 : 0;
@@ -675,6 +690,23 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(_collection.FullName, indexes[1].Namespace);
                 Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
             }
+        }
+
+        [Test]
+        [RequiresServer(StorageEngines = "wiredtiger")]
+        public void TestCreateIndexWithStorageOptions()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.DropAllIndexes(); // doesn't drop the index on _id
+
+            _collection.CreateIndex(
+                IndexKeys.Ascending("x"),
+                IndexOptions.SetStorageOptions(
+                    new BsonDocument("wiredtiger", new BsonDocument("configString", "block_compressor=zlib"))));
+
+            var result = _collection.GetIndexes();
+            Assert.AreEqual(2, result.Count);
         }
 
         [Test]
@@ -1758,9 +1790,9 @@ namespace MongoDB.DriverUnitTests
             if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
-                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen" , Type = "Office" });
-                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 41.73)), Name = "Three" , Type = "Coffee" });
-                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-75.0, 40.74)), Name = "Two"   , Type = "Coffee" });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen", Type = "Office" });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 41.73)), Name = "Three", Type = "Coffee" });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-75.0, 40.74)), Name = "Two", Type = "Coffee" });
                 _collection.CreateIndex(IndexKeys.GeoSpatialSpherical("Location"));
 
                 // TODO: add Query builder support for 2dsphere queries

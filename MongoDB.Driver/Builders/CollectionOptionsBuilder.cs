@@ -75,6 +75,16 @@ namespace MongoDB.Driver.Builders
         {
             return new CollectionOptionsBuilder().SetMaxSize(value);
         }
+
+        /// <summary>
+        /// Sets the storage options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static CollectionOptionsBuilder SetStorageOptions(BsonDocument value)
+        {
+            return new CollectionOptionsBuilder().SetStorageOptions(value);
+        }
     }
 
     /// <summary>
@@ -137,6 +147,17 @@ namespace MongoDB.Driver.Builders
         public CollectionOptionsBuilder SetMaxSize(long value)
         {
             _document["size"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the storage options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public CollectionOptionsBuilder SetStorageOptions(BsonDocument value)
+        {
+            _document["storageOptions"] = value;
             return this;
         }
 
