@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     [Serializable]
-    public class NodeIsRecoveringException : MongoException
+    public class NodeIsRecoveringException : MongoServerException
     {
         // fields
         private readonly BsonDocument _result;

@@ -19,7 +19,7 @@ using System.Runtime.Serialization;
 namespace MongoDB.Driver
 {
     [Serializable]
-    public class MessageNotSentException : MongoException
+    public class MessageNotSentException : MongoConnectionException
     {
         // constructors
         public MessageNotSentException()

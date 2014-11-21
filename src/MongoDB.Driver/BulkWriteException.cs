@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     /// Represents a bulk write exception.
     /// </summary>
     [Serializable]
-    public class BulkWriteException : MongoException
+    public class BulkWriteException : MongoServerException
     {
         // private fields
         private WriteConcernError _writeConcernError;

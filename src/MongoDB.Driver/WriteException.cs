@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     /// Represents a write exception.
     /// </summary>
     [Serializable]
-    public class WriteException : MongoException
+    public class WriteException : MongoServerException
     {
         // static
         internal static WriteException FromBulkWriteException(BulkWriteException bulkException)

@@ -175,6 +175,8 @@
     <Compile Include="Core\Clusters\IClusterFactory.cs" />
     <Compile Include="Core\Clusters\MultiServerCluster.cs" />
     <Compile Include="IAsyncCursorSource.cs" />
+    <Compile Include="MongoClientException.cs" />
+    <Compile Include="MongoServerException.cs" />
     <Compile Include="NodeIsRecoveringException.cs" />
     <Compile Include="NotMasterException.cs" />
     <Compile Include="ReadPreference.cs" />

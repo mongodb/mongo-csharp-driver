@@ -25,7 +25,7 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver
 {
     [Serializable]
-    public class WriteProtocolException : MongoException
+    public class WriteProtocolException : MongoServerException
     {
         // fields
         private readonly BsonDocument _result;

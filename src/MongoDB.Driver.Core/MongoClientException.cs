@@ -19,37 +19,37 @@ using System.Runtime.Serialization;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents a MongoDB execution timeout exception.
+    /// Represents a MongoDB client exception.
     /// </summary>
     [Serializable]
-    public class ExecutionTimeoutException : MongoServerException
+    public class MongoClientException : MongoException
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the ExecutionTimeoutException class.
+        /// Initializes a new instance of the MongoClientException class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        public ExecutionTimeoutException(string message)
+        public MongoClientException(string message)
             : base(message)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the ExecutionTimeoutException class.
+        /// Initializes a new instance of the MongoClientException class.
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public ExecutionTimeoutException(string message, Exception innerException)
+        public MongoClientException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the ExecutionTimeoutException class (this overload supports deserialization).
+        /// Initializes a new instance of the MongoClientException class (this overload supports deserialization).
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public ExecutionTimeoutException(SerializationInfo info, StreamingContext context)
+        public MongoClientException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

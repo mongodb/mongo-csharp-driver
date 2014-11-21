@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     [Serializable]
-    public class MongoCommandException : MongoException
+    public class MongoCommandException : MongoServerException
     {
         // fields
         private readonly BsonDocument _command;

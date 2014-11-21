@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 namespace MongoDB.Driver
 {
     [Serializable]
-    public class ConfigurationException : MongoException
+    public class ConfigurationException : MongoClientException
     {
         // constructors
         public ConfigurationException(string message)
