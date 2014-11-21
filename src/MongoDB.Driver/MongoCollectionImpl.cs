@@ -191,6 +191,7 @@ namespace MongoDB.Driver
                 Min = options.Min,
                 Sparse = options.Sparse,
                 SphereIndexVersion = options.SphereIndexVersion,
+                StorageOptions = ConvertToBsonDocument(options.StorageOptions),
                 TextIndexVersion = options.TextIndexVersion,
                 Unique = options.Unique,
                 Version = options.Version,

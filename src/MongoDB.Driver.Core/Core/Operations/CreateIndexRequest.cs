@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.Operations
         private string _name;
         private bool? _sparse;
         private int? _sphereIndexVersion;
+        private BsonDocument _storageOptions;
         private int? _textIndexVersion;
         private bool? _unique;
         private int? _version;
@@ -126,6 +127,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _sphereIndexVersion = value; }
         }
 
+        public BsonDocument StorageOptions
+        {
+            get { return _storageOptions; }
+            set { _storageOptions = value; }
+        }
+
         public int? TextIndexVersion
         {
             get { return _textIndexVersion; }
@@ -169,6 +176,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "min", () => _min.Value, _min.HasValue },
                 { "sparse", () => _sparse.Value, _sparse.HasValue },
                 { "2dsphereIndexVersion", () => _sphereIndexVersion.Value, _sphereIndexVersion.HasValue },
+                { "storageOptions", () => _storageOptions, _storageOptions != null },
                 { "textIndexVersion", () => _textIndexVersion.Value, _textIndexVersion.HasValue },
                 { "unique", () => _unique.Value, _unique.HasValue },
                 { "v", () => _version.Value, _version.HasValue },

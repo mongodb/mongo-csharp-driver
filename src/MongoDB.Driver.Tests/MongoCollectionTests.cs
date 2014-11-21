@@ -574,6 +574,21 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [RequiresServer(StorageEngines = "wiredtiger")]
+        public void TestCreateCollectionSetStorageOptions()
+        {
+            var collection = _database.GetCollection("cappedcollection");
+            collection.Drop();
+            Assert.IsFalse(collection.Exists());
+            var options = CollectionOptions.SetStorageOptions(
+                new BsonDocument("wiredtiger", new BsonDocument("configString", "block_compressor=zlib")));
+            _database.CreateCollection(collection.Name, options);
+            Assert.IsTrue(collection.Exists());
+            var stats = collection.GetStats();
+            collection.Drop();
+        }
+
+        [Test]
         [RequiresServer(StorageEngines = "mmapv1")]
         public void TestCreateCollectionSetUsePowerOf2Sizes(
             [Values(false, true)]

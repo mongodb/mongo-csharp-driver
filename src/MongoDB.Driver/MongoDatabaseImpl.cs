@@ -68,6 +68,7 @@ namespace MongoDB.Driver
                 Capped = options.Capped,
                 MaxDocuments = options.MaxDocuments,
                 MaxSize = options.MaxSize,
+                StorageOptions = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.StorageOptions),
                 UsePowerOf2Sizes = options.UsePowerOf2Sizes
             };
 

@@ -191,6 +191,27 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        public void CreateCommand_should_return_expected_result_when_StorageOptions_is_set(
+            [Values(null, "{ awesome: true }")]
+            string storageOptions)
+        {
+            var storageOptionsDoc = storageOptions == null ? null : BsonDocument.Parse(storageOptions);
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                StorageOptions = storageOptionsDoc
+            };
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+                { "storageOptions", storageOptionsDoc, storageOptions != null }
+            };
+
+            var result = subject.CreateCommand();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
         public void CreateCommand_should_return_expected_result_when_UsePowerOf2Sizes_is_set(
             [Values(false, true)]
             bool usePowerOf2Sizes)

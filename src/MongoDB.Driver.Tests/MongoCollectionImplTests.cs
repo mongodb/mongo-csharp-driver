@@ -333,6 +333,7 @@ namespace MongoDB.Driver
          {
             var keys = new BsonDocument("x", 1);
             var weights = new BsonDocument("y", 1);
+            var storageOptions = new BsonDocument("awesome", true);
             var options = new CreateIndexOptions
             {
                 Background = true,
@@ -346,6 +347,7 @@ namespace MongoDB.Driver
                 Name = "awesome",
                 Sparse = false,
                 SphereIndexVersion = 50,
+                StorageOptions = storageOptions,
                 TextIndexVersion = 60,
                 Unique = true,
                 Version = 70,
@@ -373,6 +375,7 @@ namespace MongoDB.Driver
             request.Name.Should().Be(options.Name);
             request.Sparse.Should().Be(options.Sparse);
             request.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
+            request.StorageOptions.Should().Be(storageOptions);
             request.TextIndexVersion.Should().Be(options.TextIndexVersion);
             request.Unique.Should().Be(options.Unique);
             request.Version.Should().Be(options.Version);

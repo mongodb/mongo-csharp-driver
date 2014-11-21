@@ -110,6 +110,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the storage options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetStorageOptions(BsonDocument value)
+        {
+            return new IndexOptionsBuilder().SetStorageOptions(value);
+        }
+
+        /// <summary>
         /// Sets the default language for the text index.
         /// </summary>
         /// <param name="language">The default language.</param>
@@ -259,6 +269,17 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder SetSparse(bool value)
         {
             _document["sparse"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the storage options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetStorageOptions(BsonDocument value)
+        {
+            _document["storageOptions"] = value;
             return this;
         }
 
@@ -434,6 +455,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the storage options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetStorageOptions(BsonDocument value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetStorageOptions(value);
+        }
+
+        /// <summary>
         /// Sets the default language for the text index.
         /// </summary>
         /// <param name="language">The default language.</param>
@@ -588,6 +619,17 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder<TDocument> SetSparse(bool value)
         {
             _indexOptionsBuilder.SetSparse(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the storage options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetStorageOptions(BsonDocument value)
+        {
+            _indexOptionsBuilder.SetStorageOptions(value);
             return this;
         }
 
