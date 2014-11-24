@@ -17,11 +17,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -29,10 +33,13 @@ namespace MongoDB.Driver.Tests
     [TestFixture]
     public class BulkWriteExceptionTests
     {
+        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(0), new DnsEndPoint("localhost", 27017)), 0);
+
         [Test]
         public void Should_convert_from_core_exception_with_a_write_concern_error_when_original_models_exists()
         {
             var exception = new BulkWriteOperationException(
+                _connectionId,
                 result:new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
                     matchedCount: 1,
@@ -65,6 +72,7 @@ namespace MongoDB.Driver.Tests
         public void Should_convert_from_core_exception_with_a_write_concern_error_when_original_models_do_not_exist()
         {
             var exception = new BulkWriteOperationException(
+                _connectionId,
                 result: new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
                     matchedCount: 1,

@@ -97,10 +97,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             var message = CreateMessage();
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            return ProcessReply(reply);
+            return ProcessReply(connection.ConnectionId, reply);
         }
 
-        private CursorBatch<TDocument> ProcessReply(ReplyMessage<TDocument> reply)
+        private CursorBatch<TDocument> ProcessReply(ConnectionId connectionId, ReplyMessage<TDocument> reply)
         {
             if (reply.QueryFailure)
             {
@@ -113,18 +113,18 @@ namespace MongoDB.Driver.Core.WireProtocol
                     err = errBsonValue.ToString();
                     if (err.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
                     {
-                        throw new NotMasterException(response);
+                        throw new NotMasterException(connectionId, response);
                     }
                 }
 
-                var mappedException = ExceptionMapper.Map(response);
+                var mappedException = ExceptionMapper.Map(connectionId, response);
                 if (mappedException != null)
                 {
                     throw mappedException;
                 }
 
                 var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, response.ToJson());
-                throw new MongoQueryException(message, _query, response);
+                throw new MongoQueryException(connectionId, message, _query, response);
             }
 
             return new CursorBatch<TDocument>(reply.CursorId, reply.Documents);

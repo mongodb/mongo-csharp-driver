@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Core.Authentication
                 var r = map['r'];
                 if (!r.StartsWith(_rPrefix))
                 {
-                    throw new MongoAuthenticationException("Server sent an invalid nonce.");
+                    throw new MongoAuthenticationException(conversation.ConnectionId, message: "Server sent an invalid nonce.");
                 }
                 var s = map['s'];
                 var i = map['i'];
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Authentication
 
                 if (_serverSignature64 != serverSignature)
                 {
-                    throw new MongoAuthenticationException("Server signature was invalid.");
+                    throw new MongoAuthenticationException(conversation.ConnectionId, message: "Server signature was invalid.");
                 }
 
                 return new CompletedStep();

@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
@@ -33,14 +34,16 @@ namespace MongoDB.Driver
         private IReadOnlyList<BulkWriteError> _writeErrors;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteException"/> class.
+        /// Initializes a new instance of the <see cref="BulkWriteException" /> class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="writeErrors">The write errors.</param>
         /// <param name="writeConcernError">The write concern error.</param>
         public BulkWriteException(
+            ConnectionId connectionId,
             IEnumerable<BulkWriteError> writeErrors,
             WriteConcernError writeConcernError)
-            : base("A bulk write operation resulted in one or more errors.")
+            : base(connectionId, message: "A bulk write operation resulted in one or more errors.")
         {
             _writeErrors = writeErrors.ToList();
             _writeConcernError = writeConcernError;
@@ -94,16 +97,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteException" /> class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="result">The result.</param>
         /// <param name="writeErrors">The write errors.</param>
-        /// <param name="unprocessedRequests">The unprocessed requests.</param>
         /// <param name="writeConcernError">The write concern error.</param>
+        /// <param name="unprocessedRequests">The unprocessed requests.</param>
         public BulkWriteException(
+            ConnectionId connectionId,
             BulkWriteResult<T> result, 
             IEnumerable<BulkWriteError> writeErrors,
             WriteConcernError writeConcernError,
             IEnumerable<WriteModel<T>> unprocessedRequests)
-            : base(writeErrors, writeConcernError)
+            : base(connectionId, writeErrors, writeConcernError)
         {
             _result = result;
 
@@ -145,6 +150,7 @@ namespace MongoDB.Driver
         internal static BulkWriteException<T> FromCore(BulkWriteOperationException ex)
         {
             return new BulkWriteException<T>(
+                ex.ConnectionId,
                 BulkWriteResult<T>.FromCore(ex.Result),
                 ex.WriteErrors.Select(e => BulkWriteError.FromCore(e)),
                 WriteConcernError.FromCore(ex.WriteConcernError),
@@ -164,6 +170,7 @@ namespace MongoDB.Driver
                 .Select(x => x.Request);
 
             return new BulkWriteException<T>(
+                ex.ConnectionId,
                 BulkWriteResult<T>.FromCore(ex.Result, processedRequests),
                 ex.WriteErrors.Select(e => BulkWriteError.FromCore(e)),
                 WriteConcernError.FromCore(ex.WriteConcernError),

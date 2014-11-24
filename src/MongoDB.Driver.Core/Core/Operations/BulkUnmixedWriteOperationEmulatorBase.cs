@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             var combiner = new BulkWriteBatchResultCombiner(batchResults, _writeConcern.IsAcknowledged);
-            return combiner.CreateResultOrThrowIfHasErrors(remainingRequests);
+            return combiner.CreateResultOrThrowIfHasErrors(channel.ConnectionDescription.ConnectionId, remainingRequests);
         }
 
         protected abstract Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken);

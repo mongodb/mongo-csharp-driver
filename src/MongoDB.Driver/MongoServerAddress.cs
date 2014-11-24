@@ -182,27 +182,5 @@ namespace MongoDB.Driver
         {
             return string.Format("{0}:{1}", _host, _port);
         }
-
-        /// <summary>
-        /// Returns the server address as an IPEndPoint (does a DNS lookup).
-        /// </summary>
-        /// <param name="addressFamily">The address family of the returned IPEndPoint.</param>
-        /// <returns>The IPEndPoint of the server.</returns>
-        public IPEndPoint ToIPEndPoint(AddressFamily addressFamily)
-        {
-            var ipAddresses = Dns.GetHostAddresses(_host);
-            if (ipAddresses != null && ipAddresses.Length != 0)
-            {
-                foreach (var ipAddress in ipAddresses)
-                {
-                    if (ipAddress.AddressFamily == addressFamily)
-                    {
-                        return new IPEndPoint(ipAddress, _port);
-                    }
-                }
-            }
-            var message = string.Format("Unable to resolve host name '{0}'.", _host);
-            throw new MongoConnectionException(message);
-        }
     }
 }

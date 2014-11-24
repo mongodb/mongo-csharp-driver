@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -33,18 +34,18 @@ namespace MongoDB.Driver
         private readonly BsonDocument _result;
 
         // constructors
-        public MongoCommandException(string message, BsonDocument command)
-            : this(message, command, null, null)
+        public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command)
+            : this(connectionId, message, command, null, null)
         {
         }
 
-        public MongoCommandException(string message, BsonDocument command, BsonDocument result)
-            : this(message, command, result, null)
+        public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result)
+            : this(connectionId, message, command, result, null)
         {
         }
 
-        public MongoCommandException(string message, BsonDocument command, BsonDocument result, Exception innerException)
-            : base(message, innerException)
+        public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result, Exception innerException)
+            : base(connectionId, message, innerException)
         {
             _command = command;
             _result = result; // can be null

@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 foreach (var entry in _outboundQueue.DequeueAll())
                 {
-                    entry.TaskCompletionSource.TrySetException(new MessageNotSentException());
+                    entry.TaskCompletionSource.TrySetException(new MessageNotSentException(_connectionId));
                 }
 
                 foreach (var awaiter in _inboundDropbox.RemoveAllAwaiters())
@@ -412,7 +412,7 @@ namespace MongoDB.Driver.Core.Connections
             ThrowIfDisposed();
             if (_state.Value == State.Failed)
             {
-                throw new MongoConnectionException("Connection failed.");
+                throw new MongoConnectionException(_connectionId, "Connection failed.");
             }
             if (_state.Value != State.Open && _state.Value != State.Initializing)
             {

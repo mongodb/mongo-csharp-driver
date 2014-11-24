@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Authentication
             catch(MongoCommandException ex)
             {
                 var message = string.Format("Unable to authenticate username '{0}' on database '{1}'.", _credential.Username, _credential.Source);
-                throw new MongoAuthenticationException(message, ex);
+                throw new MongoAuthenticationException(connection.ConnectionId, message, ex);
             }
         }
 

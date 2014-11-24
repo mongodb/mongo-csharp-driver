@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             if (getLastErrorMessage != null && getLastErrorMessage.WasSent)
             {
                 var reply = await connection.ReceiveMessageAsync<BsonDocument>(getLastErrorMessage.RequestId, BsonDocumentSerializer.Instance, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                return ProcessReply(reply);
+                return ProcessReply(connection.ConnectionId, reply);
             }
             else
             {
@@ -119,19 +119,19 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private WriteConcernResult ProcessReply(ReplyMessage<BsonDocument> reply)
+        private WriteConcernResult ProcessReply(ConnectionId connectionId, ReplyMessage<BsonDocument> reply)
         {
             if (reply.NumberReturned == 0)
             {
-                throw new WriteProtocolException("GetLastError reply had no documents.");
+                throw new WriteProtocolException(connectionId, "GetLastError reply had no documents.");
             }
             if (reply.NumberReturned > 1)
             {
-                throw new WriteProtocolException("GetLastError reply had more than one document.");
+                throw new WriteProtocolException(connectionId, "GetLastError reply had more than one document.");
             }
             if (reply.QueryFailure)
             {
-                throw new WriteProtocolException("GetLastError reply had QueryFailure flag set.", reply.QueryFailureDocument);
+                throw new WriteProtocolException(connectionId, "GetLastError reply had QueryFailure flag set.", reply.QueryFailureDocument);
             }
 
             var response = reply.Documents.Single();
@@ -142,13 +142,13 @@ namespace MongoDB.Driver.Core.WireProtocol
                 var err = errBsonValue.ToString();
                 if (err.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new NotMasterException(response);
+                    throw new NotMasterException(connectionId, response);
                 }
             }
 
             var writeConcernResult = new WriteConcernResult(response);
 
-            var mappedException = ExceptionMapper.Map(writeConcernResult);
+            var mappedException = ExceptionMapper.Map(connectionId, writeConcernResult);
             if (mappedException != null)
             {
                 throw mappedException;

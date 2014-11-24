@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -42,11 +43,12 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="unprocessedRequests">The unprocessed requests.</param>
         /// <param name="writeConcernError">The write concern error.</param>
         public BulkWriteOperationException(
+            ConnectionId connectionId,
             BulkWriteOperationResult result,
             IReadOnlyList<BulkWriteOperationError> writeErrors,
             BulkWriteConcernError writeConcernError,
             IReadOnlyList<WriteRequest> unprocessedRequests)
-            : base("A bulk write operation resulted in one or more errors.")
+            : base(connectionId, "A bulk write operation resulted in one or more errors.")
         {
             _result = result;
             _writeErrors = writeErrors;

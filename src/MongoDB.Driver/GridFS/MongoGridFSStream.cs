@@ -651,6 +651,7 @@ namespace MongoDB.Driver.GridFS
         {
             using (_fileInfo.Server.RequestStart(_fileInfo.ServerInstance))
             {
+                var connectionId = _fileInfo.Server.RequestConnectionId;
                 var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
                 var database = gridFS.GetDatabase(ReadPreference.Primary);
                 var chunksCollection = gridFS.GetChunksCollection(database);
@@ -659,7 +660,7 @@ namespace MongoDB.Driver.GridFS
                 if (_chunkIndex == -1 || _chunkIndex > lastChunkIndex)
                 {
                     var message = string.Format("Invalid chunk index {0}.", _chunkIndex);
-                    throw new MongoGridFSException(message);
+                    throw new MongoGridFSException(connectionId, message);
                 }
 
                 var lastChunkSize = (int)(_length % _fileInfo.ChunkSize);

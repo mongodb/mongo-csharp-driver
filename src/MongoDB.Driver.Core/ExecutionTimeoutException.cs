@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
 {
@@ -28,19 +29,21 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the ExecutionTimeoutException class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
-        public ExecutionTimeoutException(string message)
-            : base(message)
+        public ExecutionTimeoutException(ConnectionId connectionId, string message)
+            : base(connectionId, message)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the ExecutionTimeoutException class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public ExecutionTimeoutException(string message, Exception innerException)
-            : base(message, innerException)
+        public ExecutionTimeoutException(ConnectionId connectionId, string message, Exception innerException)
+            : base(connectionId, message, innerException)
         {
         }
 

@@ -323,7 +323,7 @@ namespace MongoDB.Driver.Linq
             var lastExpressionAsMethodCall = _lastExpression as MethodCallExpression;
             if (lastExpressionAsMethodCall == null || (lastExpressionAsMethodCall.Method.Name != "Skip" && lastExpressionAsMethodCall.Method.Name != "Take"))
             {
-                throw new MongoQueryException("Skip and Take may only be used in conjunction with each other and cannot be separated by other operations.");
+                throw new NotSupportedException("Skip and Take may only be used in conjunction with each other and cannot be separated by other operations.");
             }
         }
 

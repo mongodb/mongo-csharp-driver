@@ -17,6 +17,7 @@ using System;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -28,8 +29,8 @@ namespace MongoDB.Driver
         private readonly BsonDocument _result;
 
         // constructors
-        public NodeIsRecoveringException(BsonDocument result)
-            : base("Server returned node is recovering error.")
+        public NodeIsRecoveringException(ConnectionId connectionId, BsonDocument result)
+            : base(connectionId, "Server returned node is recovering error.")
         {
             _result = Ensure.IsNotNull(result, "result");
         }

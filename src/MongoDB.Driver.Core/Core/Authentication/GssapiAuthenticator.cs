@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             if (credential.Source != "$external")
             {
-                throw new MongoAuthenticationException("GSSAPI authentication may only use the $external source.");
+                throw new ArgumentException("GSSAPI authentication may only use the $external source.", "credential");
             }
 
             return CreateMechanism(credential.Username, credential.Password, properties);
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Authentication
                             break;
                         default:
                             var message = string.Format("Unknown GSSAPI property '{0}'.", pair.Key);
-                            throw new MongoAuthenticationException(message);
+                            throw new ArgumentException(message, "properties");
                     }
                 }
             }
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.Authentication
                 }
                 else
                 {
-                    throw new MongoAuthenticationException("Only DnsEndPoint and IPEndPoint are supported for GSSAPI authentication.");
+                    throw new MongoAuthenticationException(connection.ConnectionId, "Only DnsEndPoint and IPEndPoint are supported for GSSAPI authentication.");
                 }
 
                 if (_canonicalizeHostName)
@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Core.Authentication
                 }
                 catch (Win32Exception ex)
                 {
-                    throw new MongoAuthenticationException("Unable to acquire security credential.", ex);
+                    throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to acquire security credential.", ex);
                 }
 
                 byte[] bytesToSendToServer;
@@ -221,11 +221,11 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     if (_password != null)
                     {
-                        throw new MongoAuthenticationException("Unable to initialize security context. Ensure the username and password are correct.", ex);
+                        throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to initialize security context. Ensure the username and password are correct.", ex);
                     }
                     else
                     {
-                        throw new MongoAuthenticationException("Unable to initialize security context.", ex);
+                        throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to initialize security context.", ex);
                     }
                 }
 
@@ -272,7 +272,7 @@ namespace MongoDB.Driver.Core.Authentication
                 }
                 catch (Win32Exception ex)
                 {
-                    throw new MongoAuthenticationException("Unable to initialize security context", ex);
+                    throw  new MongoAuthenticationException(conversation.ConnectionId, "Unable to initialize security context", ex);
                 }
 
                 if (!_context.IsInitialized)
@@ -317,7 +317,7 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     if (bytesReceivedFromServer == null || bytesReceivedFromServer.Length != 32) //RFC specifies this must be 4 octets
                     {
-                        throw new MongoAuthenticationException("Invalid server response.");
+                        throw new MongoAuthenticationException(conversation.ConnectionId, message: "Invalid server response.");
                     }
                 }
 
@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Core.Authentication
                 }
                 catch (Win32Exception ex)
                 {
-                    throw new MongoAuthenticationException("Unabled to decrypt message.", ex);
+                    throw new MongoAuthenticationException(conversation.ConnectionId, "Unabled to decrypt message.", ex);
                 }
 
                 int length = 4;
@@ -356,7 +356,7 @@ namespace MongoDB.Driver.Core.Authentication
                 }
                 catch (Win32Exception ex)
                 {
-                    throw new MongoAuthenticationException("Unabled to encrypt message.", ex);
+                    throw new MongoAuthenticationException(conversation.ConnectionId, "Unabled to encrypt message.", ex);
                 }
 
                 return new CompletedStep(bytesToSendToServer);

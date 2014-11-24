@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
 {
@@ -29,8 +30,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="commandResult">The command result.</param>
-        public MongoDuplicateKeyException(string message, WriteConcernResult commandResult)
-            : base(message, commandResult)
+        public MongoDuplicateKeyException(ConnectionId connectionId, string message, WriteConcernResult commandResult)
+            : base(connectionId, message, commandResult)
         {
         }
         

@@ -20,12 +20,17 @@ using NUnit.Framework;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Servers;
+using System.Net;
 
 namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
     public class BulkWriteOperationExceptionTests
     {
+        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(0), new DnsEndPoint("localhost", 27017)), 0);
+
         [Test]
         public void Constructor_should_work()
         {
@@ -35,8 +40,9 @@ namespace MongoDB.Driver.Core.Operations
             var writeErrors = new BulkWriteOperationError[0];
             var writeConcernError = new BulkWriteConcernError(1, "message", new BsonDocument("x", 1));
             var unprocessedRequests = new WriteRequest[0];
-            var subject = new BulkWriteOperationException(result, writeErrors, writeConcernError, unprocessedRequests);
+            var subject = new BulkWriteOperationException(_connectionId, result, writeErrors, writeConcernError, unprocessedRequests);
 
+            subject.ConnectionId.Should().BeSameAs(_connectionId);
             subject.Result.Should().BeSameAs(result);
             subject.UnprocessedRequests.Should().BeSameAs(unprocessedRequests);
             subject.WriteConcernError.Should().BeSameAs(writeConcernError);
@@ -52,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
             var writeErrors = new BulkWriteOperationError[0];
             var writeConcernError = new BulkWriteConcernError(1, "message", new BsonDocument("x", 1));
             var unprocessedRequests = new WriteRequest[0];
-            var subject = new BulkWriteOperationException(result, writeErrors, writeConcernError, unprocessedRequests);
+            var subject = new BulkWriteOperationException(_connectionId, result, writeErrors, writeConcernError, unprocessedRequests);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
@@ -61,6 +67,7 @@ namespace MongoDB.Driver.Core.Operations
                 stream.Position = 0;
                 var rehydrated = (BulkWriteOperationException)formatter.Deserialize(stream);
 
+                rehydrated.ConnectionId.Should().BeNull();
                 rehydrated.Result.Should().BeNull();
                 rehydrated.UnprocessedRequests.Should().BeNull();
                 rehydrated.WriteConcernError.Should().BeNull();

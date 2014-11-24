@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
@@ -280,6 +281,25 @@ namespace MongoDB.Driver
                 }
 
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets the ConnectionId of the connection reserved by the current RequestStart scope (null if not in the scope of a RequestStart).
+        /// </summary>
+        internal virtual ConnectionId RequestConnectionId
+        {
+            get
+            {
+                var request = __threadStaticRequest;
+                if (request != null)
+                {
+                    return request.ConnectionId;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
@@ -833,23 +853,25 @@ namespace MongoDB.Driver
                 return new RequestStartResult(this);
             }
 
-            IReadBindingHandle connectionBinding;
+            IReadBindingHandle channelBinding;
+            ConnectionId connectionId;
             var server = _cluster.SelectServer(serverSelector);
-            using (var connection = server.GetChannel())
+            using (var channel = server.GetChannel())
             {
                 if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
                 {
-                    connectionBinding = new ReadWriteBindingHandle(new ChannelReadWriteBinding(server, connection.Fork()));
+                    channelBinding = new ReadWriteBindingHandle(new ChannelReadWriteBinding(server, channel.Fork()));
                 }
                 else
                 {
-                    connectionBinding = new ReadBindingHandle(new ChannelReadBinding(server, connection.Fork(), readPreference));
+                    channelBinding = new ReadBindingHandle(new ChannelReadBinding(server, channel.Fork(), readPreference));
                 }
+                connectionId = channel.ConnectionDescription.ConnectionId;
             }
 
             var serverDescription = server.Description;
             var serverInstance = _serverInstances.Single(i => EndPointHelper.Equals(i.EndPoint, serverDescription.EndPoint));
-            __threadStaticRequest = new Request(serverDescription, serverInstance, connectionBinding);
+            __threadStaticRequest = new Request(serverDescription, serverInstance, channelBinding, connectionId);
 
             return new RequestStartResult(this);
         }
@@ -915,16 +937,18 @@ namespace MongoDB.Driver
         {
             // private fields
             private readonly IReadBindingHandle _binding;
+            private readonly ConnectionId _connectionId;
             private int _nestingLevel;
             private readonly ServerDescription _serverDescription;
             private readonly MongoServerInstance _serverInstance;
 
             // constructors
-            public Request(ServerDescription serverDescription, MongoServerInstance serverInstance, IReadBindingHandle binding)
+            public Request(ServerDescription serverDescription, MongoServerInstance serverInstance, IReadBindingHandle binding, ConnectionId connectionId)
             {
                 _serverDescription = serverDescription;
                 _serverInstance = serverInstance;
                 _binding = binding;
+                _connectionId = connectionId;
                 _nestingLevel = 1;
             }
 
@@ -932,6 +956,11 @@ namespace MongoDB.Driver
             public IReadBindingHandle Binding
             {
                 get { return _binding; }
+            }
+
+            public ConnectionId ConnectionId
+            {
+                get { return _connectionId; }
             }
 
             public MongoServerInstance ServerInstance

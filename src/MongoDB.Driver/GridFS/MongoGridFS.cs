@@ -414,13 +414,15 @@ namespace MongoDB.Driver.GridFS
         /// <param name="fileInfo">The GridFS file.</param>
         public void Download(Stream stream, MongoGridFSFileInfo fileInfo)
         {
-            if (_settings.VerifyMD5 && fileInfo.MD5 == null)
-            {
-                throw new MongoGridFSException("VerifyMD5 is true and file being downloaded has no MD5 hash.");
-            }
-
             using (_server.RequestStart(_settings.ReadPreference))
             {
+                var connectionId = _server.RequestConnectionId;
+
+                if (_settings.VerifyMD5 && fileInfo.MD5 == null)
+                {
+                    throw new MongoGridFSException(connectionId, "VerifyMD5 is true and file being downloaded has no MD5 hash.");
+                }
+
                 var database = GetDatabase();
                 var chunksCollection = GetChunksCollection(database);
 
@@ -435,7 +437,7 @@ namespace MongoDB.Driver.GridFS
                         if (chunk == null)
                         {
                             string errorMessage = string.Format("Chunk {0} missing for GridFS file '{1}'.", n, fileInfo.Name);
-                            throw new MongoGridFSException(errorMessage);
+                            throw new MongoGridFSException(connectionId, errorMessage);
                         }
                         var data = chunk["data"].AsBsonBinaryData;
                         if (data.Bytes.Length != fileInfo.ChunkSize)
@@ -444,7 +446,7 @@ namespace MongoDB.Driver.GridFS
                             if (n < numberOfChunks - 1 || data.Bytes.Length != fileInfo.Length % fileInfo.ChunkSize)
                             {
                                 string errorMessage = string.Format("Chunk {0} for GridFS file '{1}' is the wrong size.", n, fileInfo.Name);
-                                throw new MongoGridFSException(errorMessage);
+                                throw new MongoGridFSException(connectionId, errorMessage);
                             }
                         }
                         stream.Write(data.Bytes, 0, data.Bytes.Length);
@@ -463,7 +465,7 @@ namespace MongoDB.Driver.GridFS
 
                 if (_settings.VerifyMD5 && !md5Client.Equals(fileInfo.MD5, StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new MongoGridFSException("Download client and server MD5 hashes are not equal.");
+                    throw new MongoGridFSException(connectionId, "Download client and server MD5 hashes are not equal.");
                 }
             }
         }
@@ -979,6 +981,7 @@ namespace MongoDB.Driver.GridFS
             }
             using (_server.RequestStart(ReadPreference.Primary))
             {
+                var connectionId = _server.RequestConnectionId;
                 EnsureIndexes();
 
                 var database = GetDatabase(ReadPreference.Primary);
@@ -1062,7 +1065,7 @@ namespace MongoDB.Driver.GridFS
 
                 if ( _settings.VerifyMD5 && !md5Client.Equals(md5Server, StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new MongoGridFSException("Upload client and server MD5 hashes are not equal.");
+                    throw new MongoGridFSException(connectionId, "Upload client and server MD5 hashes are not equal.");
                 }
 
                 var uploadDate = (createOptions.UploadDate == DateTime.MinValue) ? DateTime.UtcNow : createOptions.UploadDate;

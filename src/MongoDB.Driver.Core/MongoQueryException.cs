@@ -14,14 +14,10 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
 {
@@ -33,23 +29,23 @@ namespace MongoDB.Driver
         private readonly BsonDocument _queryResult;
 
         // constructors
-        public MongoQueryException(string message)
-            : this(message, null, null, null)
+        public MongoQueryException(ConnectionId connectionId, string message)
+            : this(connectionId, message, null, null, null)
         {
         }
 
-        public MongoQueryException(string message, BsonDocument query)
-            : this(message, query, null, null)
+        public MongoQueryException(ConnectionId connectionId, string message, BsonDocument query)
+            : this(connectionId, message, query, null, null)
         {
         }
 
-        public MongoQueryException(string message, BsonDocument query, BsonDocument queryResult)
-            : this(message, query, queryResult, null)
+        public MongoQueryException(ConnectionId connectionId, string message, BsonDocument query, BsonDocument queryResult)
+            : this(connectionId, message, query, queryResult, null)
         {
         }
 
-        public MongoQueryException(string message, BsonDocument query, BsonDocument queryResult, Exception innerException)
-            : base(message, innerException)
+        public MongoQueryException(ConnectionId connectionId, string message, BsonDocument query, BsonDocument queryResult, Exception innerException)
+            : base(connectionId, message, innerException)
         {
             _query = query;
             _queryResult = queryResult;

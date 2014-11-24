@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.GridFS
 {
@@ -28,19 +29,21 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Initializes a new instance of the MongoGridFSException class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
-        public MongoGridFSException(string message)
-            : base(message)
+        public MongoGridFSException(ConnectionId connectionId, string message)
+            : base(connectionId, message: message)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the MongoGridFSException class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public MongoGridFSException(string message, Exception innerException)
-            : base(message, innerException)
+        public MongoGridFSException(ConnectionId connectionId, string message, Exception innerException)
+            : base(connectionId, message, innerException)
         {
         }
 

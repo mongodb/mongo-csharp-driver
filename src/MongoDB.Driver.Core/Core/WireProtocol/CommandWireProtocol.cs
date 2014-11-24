@@ -117,24 +117,24 @@ namespace MongoDB.Driver.Core.WireProtocol
             var message = CreateMessage();
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             var reply = await connection.ReceiveMessageAsync<RawBsonDocument>(message.RequestId, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            return ProcessReply(reply);
+            return ProcessReply(connection.ConnectionId, reply);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        private TCommandResult ProcessReply(ReplyMessage<RawBsonDocument> reply)
+        private TCommandResult ProcessReply(ConnectionId connectionId, ReplyMessage<RawBsonDocument> reply)
         {
             if (reply.NumberReturned == 0)
             {
-                throw new MongoCommandException("Command returned no documents.", _command);
+                throw new MongoCommandException(connectionId, "Command returned no documents.", _command);
             }
             if (reply.NumberReturned > 1)
             {
-                throw new MongoCommandException("Command returned multiple documents.", _command);
+                throw new MongoCommandException(connectionId, "Command returned multiple documents.", _command);
             }
             if (reply.QueryFailure)
             {
                 var failureDocument = reply.QueryFailureDocument;
-                throw ExceptionMapper.Map(failureDocument) ?? new MongoCommandException("Command failed.", _command, failureDocument);
+                throw ExceptionMapper.Map(connectionId, failureDocument) ?? new MongoCommandException(connectionId, "Command failed.", _command, failureDocument);
             }
 
             using (var rawDocument = reply.Documents[0])
@@ -155,11 +155,11 @@ namespace MongoDB.Driver.Core.WireProtocol
                         var errmsg = errmsgBsonValue.ToString();
                         if (errmsg.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
                         {
-                            throw new NotMasterException(materializedDocument);
+                            throw new NotMasterException(connectionId, materializedDocument);
                         }
                         if (errmsg.StartsWith("node is recovering", StringComparison.OrdinalIgnoreCase))
                         {
-                            throw new NodeIsRecoveringException(materializedDocument);
+                            throw new NodeIsRecoveringException(connectionId, materializedDocument);
                         }
 
                         message = string.Format("Command {0} failed: {1}.", commandName, errmsg);
@@ -169,13 +169,13 @@ namespace MongoDB.Driver.Core.WireProtocol
                         message = string.Format("Command {0} failed.", commandName);
                     }
 
-                    var mappedException = ExceptionMapper.Map(materializedDocument);
+                    var mappedException = ExceptionMapper.Map(connectionId, materializedDocument);
                     if (mappedException != null)
                     {
                         throw mappedException;
                     }
 
-                    throw new MongoCommandException(message, _command, materializedDocument);
+                    throw new MongoCommandException(connectionId, message, _command, materializedDocument);
                 }
 
                 using (var stream = new ByteBufferStream(rawDocument.Slice, ownsByteBuffer: false))

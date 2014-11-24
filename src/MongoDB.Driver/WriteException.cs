@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
@@ -36,7 +37,7 @@ namespace MongoDB.Driver
                 ? bulkException.WriteErrors[0]
                 : null;
 
-            return new WriteException(writeError, writeConcernError, bulkException);
+            return new WriteException(bulkException.ConnectionId, writeError, writeConcernError, bulkException);
         }
 
         // private fields
@@ -46,12 +47,14 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteException" /> class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="writeError">The write error.</param>
         /// <param name="writeConcernError">The write concern error.</param>
         public WriteException(
+            ConnectionId connectionId,
             WriteError writeError,
             WriteConcernError writeConcernError)
-            : base("A write operation resulted in an error.")
+            : base(connectionId, message: "A write operation resulted in an error.")
         {
             _writeError = writeError;
             _writeConcernError = writeConcernError;
@@ -60,14 +63,16 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteException" /> class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="writeError">The write error.</param>
         /// <param name="writeConcernError">The write concern error.</param>
         /// <param name="innerException">The inner exception.</param>
         public WriteException(
+            ConnectionId connectionId,
             WriteError writeError,
             WriteConcernError writeConcernError,
             Exception innerException)
-            : base("A write operation resulted in an error.", innerException)
+            : base(connectionId, "A write operation resulted in an error.", innerException)
         {
             _writeError = writeError;
             _writeConcernError = writeConcernError;

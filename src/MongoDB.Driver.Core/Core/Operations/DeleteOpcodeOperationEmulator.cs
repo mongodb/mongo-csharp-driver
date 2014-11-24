@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Operations
             var converter = new BulkWriteOperationResultConverter();
             if (bulkWriteException != null)
             {
-                throw converter.ToWriteConcernException(bulkWriteException);
+                throw converter.ToWriteConcernException(channel.ConnectionDescription.ConnectionId, bulkWriteException);
             }
             else
             {

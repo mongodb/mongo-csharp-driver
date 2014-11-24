@@ -15,6 +15,8 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -24,24 +26,30 @@ namespace MongoDB.Driver
     [Serializable]
     public class MongoServerException : MongoException
     {
+        // fields
+        private readonly ConnectionId _connectionId;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the MongoServerException class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
-        public MongoServerException(string message)
-            : base(message)
+        public MongoServerException(ConnectionId connectionId, string message)
+            : this(connectionId, message, null)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the MongoServerException class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public MongoServerException(string message, Exception innerException)
+        public MongoServerException(ConnectionId connectionId, string message, Exception innerException)
             : base(message, innerException)
         {
+            _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
         }
 
         /// <summary>
@@ -52,6 +60,21 @@ namespace MongoDB.Driver
         public MongoServerException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+        }
+
+        // properties
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        public ConnectionId ConnectionId
+        {
+            get { return _connectionId; }
+        }
+
+        // methods
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
         }
     }
 }

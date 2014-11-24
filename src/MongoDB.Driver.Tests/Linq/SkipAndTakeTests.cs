@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests.Linq
         {
             var query = _collection.AsQueryable<C>().Skip(20).Where(c => c.X == 10).Take(30);
 
-            Assert.Throws(typeof(MongoQueryException), () => MongoQueryTranslator.Translate(query));
+            Assert.Throws(typeof(NotSupportedException), () => MongoQueryTranslator.Translate(query));
         }
 
         [Test]
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Tests.Linq
         {
             var query = _collection.AsQueryable<C>().Take(20).Where(c => c.X == 10).Skip(30);
 
-            Assert.Throws(typeof(MongoQueryException), () => MongoQueryTranslator.Translate(query));
+            Assert.Throws(typeof(NotSupportedException), () => MongoQueryTranslator.Translate(query));
         }
 
         [Test]

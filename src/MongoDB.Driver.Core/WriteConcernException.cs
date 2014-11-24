@@ -17,6 +17,7 @@ using System;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 
@@ -37,8 +38,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="writeConcernResult">The command result.</param>
-        public WriteConcernException(string message, WriteConcernResult writeConcernResult)
-            : base(message, null, writeConcernResult.Response)
+        public WriteConcernException(ConnectionId connectionId, string message, WriteConcernResult writeConcernResult)
+            : base(connectionId, message, null, writeConcernResult.Response)
         {
             _writeConcernResult = Ensure.IsNotNull(writeConcernResult, "writeConcernResult");
         }

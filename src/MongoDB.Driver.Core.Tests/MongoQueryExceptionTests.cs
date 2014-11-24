@@ -20,17 +20,23 @@ using NUnit.Framework;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Servers;
+using System.Net;
 
 namespace MongoDB.Driver
 {
     [TestFixture]
     public class QueryExceptionTests
     {
+        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(0), new DnsEndPoint("localhost", 27017)), 0);
+
         [Test]
         public void Constructor_with_2_arguments_should_work()
         {
             var query = new BsonDocument("query", 1);
-            var exception = new MongoQueryException("message", query);
+            var exception = new MongoQueryException(_connectionId, "message", query);
+            exception.ConnectionId.Should().BeSameAs(_connectionId);
             exception.Message.Should().Be("message");
             exception.InnerException.Should().BeNull();
             exception.Query.Equals(query).Should().BeTrue();
@@ -42,7 +48,8 @@ namespace MongoDB.Driver
         {
             var query = new BsonDocument("query", 1);
             var result = new BsonDocument("result", 2);
-            var exception = new MongoQueryException("message", query, result);
+            var exception = new MongoQueryException(_connectionId, "message", query,result);
+            exception.ConnectionId.Should().BeSameAs(_connectionId);
             exception.Message.Should().Be("message");
             exception.InnerException.Should().BeNull();
             exception.Query.Equals(query).Should().BeTrue();
@@ -55,7 +62,8 @@ namespace MongoDB.Driver
             var query = new BsonDocument("query", 1);
             var result = new BsonDocument("result", 2);
             var innerException = new Exception("inner");
-            var exception = new MongoQueryException("message", query, result, innerException);
+            var exception = new MongoQueryException(_connectionId, "message", query, result, innerException);
+            exception.ConnectionId.Should().BeSameAs(_connectionId);
             exception.Message.Should().Be("message");
             exception.InnerException.Message.Should().Be("inner");
             exception.Query.Equals(query).Should().BeTrue();
@@ -68,7 +76,7 @@ namespace MongoDB.Driver
             var query = new BsonDocument("query", 1);
             var result = new BsonDocument("result", 2);
             var innerException = new Exception("inner");
-            var exception = new MongoQueryException("message", query, result, innerException);
+            var exception = new MongoQueryException(_connectionId, "message", query, result, innerException);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
@@ -76,6 +84,7 @@ namespace MongoDB.Driver
                 formatter.Serialize(stream, exception);
                 stream.Position = 0;
                 var rehydrated = (MongoQueryException)formatter.Deserialize(stream);
+                rehydrated.ConnectionId.Should().BeNull(); // ConnectionId is not serializable
                 rehydrated.Message.Should().Be("message");
                 rehydrated.InnerException.Message.Should().Be("inner");
                 rehydrated.Query.Equals(query).Should().BeTrue();

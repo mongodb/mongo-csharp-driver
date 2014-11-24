@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
 {
@@ -22,8 +23,8 @@ namespace MongoDB.Driver
     public class MessageNotSentException : MongoConnectionException
     {
         // constructors
-        public MessageNotSentException()
-            : base("Message not sent.")
+        public MessageNotSentException(ConnectionId connectionId)
+            : base(connectionId, "Message not sent.")
         {
         }
 

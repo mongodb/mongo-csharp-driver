@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -23,7 +24,9 @@ using FluentAssertions.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Tests;
 using NSubstitute;
 using NUnit.Framework;
@@ -32,6 +35,7 @@ namespace MongoDB.Driver
 {
     public class MongoCollectionImplTests
     {
+        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(0), new DnsEndPoint("localhost", 27017)), 0);
         private MockOperationExecutor _operationExecutor;
         private MongoCollectionImpl<BsonDocument> _subject;
 
@@ -405,6 +409,7 @@ namespace MongoDB.Driver
             var expectedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 0 };
 
             var exception = new BulkWriteOperationException(
+                _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
                     matchedCount: 1,
@@ -449,6 +454,7 @@ namespace MongoDB.Driver
             var expectedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 1 };
 
             var exception = new BulkWriteOperationException(
+                _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
                     matchedCount: 1,
@@ -740,6 +746,7 @@ namespace MongoDB.Driver
             var expectedRequest = new InsertRequest(document) { CorrelationId = 0 };
 
             var exception = new BulkWriteOperationException(
+                _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
                     matchedCount: 0,
@@ -791,6 +798,7 @@ namespace MongoDB.Driver
             var replacement = BsonDocument.Parse("{a:2}");
             var expectedRequest = new UpdateRequest(UpdateType.Replacement, filter, replacement) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
             var exception = new BulkWriteOperationException(
+                _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
                     matchedCount: 1,
@@ -844,6 +852,7 @@ namespace MongoDB.Driver
             var update = BsonDocument.Parse("{$set:{a:1}}");
             var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = true };
             var exception = new BulkWriteOperationException(
+                _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
                     matchedCount: 1,
@@ -897,6 +906,7 @@ namespace MongoDB.Driver
             var update = BsonDocument.Parse("{$set:{a:1}}");
             var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
             var exception = new BulkWriteOperationException(
+                _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
                     matchedCount: 1,

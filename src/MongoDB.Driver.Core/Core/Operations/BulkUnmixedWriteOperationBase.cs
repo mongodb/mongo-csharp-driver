@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             var combiner = new BulkWriteBatchResultCombiner(batchResults, _writeConcern.IsAcknowledged);
-            return combiner.CreateResultOrThrowIfHasErrors(remainingRequests.ToList());
+            return combiner.CreateResultOrThrowIfHasErrors(channel.ConnectionDescription.ConnectionId, remainingRequests.ToList());
         }
 
         // nested types
