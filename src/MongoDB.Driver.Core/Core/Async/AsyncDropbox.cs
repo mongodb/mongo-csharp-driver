@@ -79,26 +79,38 @@ namespace MongoDB.Driver.Core.Async
 
             if (awaiter != null)
             {
-                awaiter.TrySetResult(message);
+                if (!awaiter.TrySetResult(message))
+                {
+                    var disposable = message as IDisposable;
+                    if (disposable != null)
+                    {
+                        disposable.Dispose();
+                    }
+                }
             }
         }
 
-        public Task<TMessage> ReceiveAsync(TId id, CancellationToken cancellationToken)
+        public async Task<TMessage> ReceiveAsync(TId id, CancellationToken cancellationToken)
         {
+            TaskCompletionSource<TMessage> awaiter;
             lock (_lock)
             {
                 TMessage message;
                 if (_messages.TryGetValue(id, out message))
                 {
                     _messages.Remove(id);
-                    return Task.FromResult(message);
+                    return message;
                 }
                 else
                 {
-                    var awaiter = new TaskCompletionSource<TMessage>().WithCancellationToken(cancellationToken);
+                    awaiter = new TaskCompletionSource<TMessage>();
                     _awaiters.Add(id, awaiter);
-                    return awaiter.Task;
                 }
+            }
+
+            using (cancellationToken.Register(() => awaiter.TrySetCanceled()))
+            {
+                return await awaiter.Task;
             }
         }
     }
