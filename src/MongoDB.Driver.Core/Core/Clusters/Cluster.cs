@@ -217,14 +217,17 @@ namespace MongoDB.Driver.Core.Clusters
                         selectedServers.Remove(server);
                     }
 
+                    if (!serverSelectionWaitQueueEntered)
+                    {
+                        EnteServerSelectionWaitQueue();
+                        serverSelectionWaitQueueEntered = true;
+                    }
+
                     var timeoutRemaining = timeoutAt - DateTime.UtcNow;
                     if (timeoutRemaining <= TimeSpan.Zero)
                     {
                         ThrowTimeoutException(description);
                     }
-
-                    EnteServerSelectionWaitQueue();
-                    serverSelectionWaitQueueEntered = true;
 
                     await WaitForDescriptionChangedAsync(description, descriptionChangedTask, timeoutRemaining, cancellationToken).ConfigureAwait(false);
                 }

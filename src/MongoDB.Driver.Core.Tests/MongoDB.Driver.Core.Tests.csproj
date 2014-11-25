@@ -80,6 +80,7 @@
     <Compile Include="Core\Operations\RenameCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\OperationTestBase.cs" />
     <Compile Include="Core\Operations\QueryHelperTests.cs" />
+    <Compile Include="Core\Servers\HeartbeatDelayTests.cs" />
     <Compile Include="SuiteConfiguration.cs" />
     <Compile Include="Core\Async\AsyncDropboxTests.cs" />
     <Compile Include="Core\Authentication\AuthenticationHelperTests.cs" />
