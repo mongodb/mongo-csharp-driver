@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 enteredWaitQueue = _waitQueue.Wait(0); // don't wait...
                 if (!enteredWaitQueue)
                 {
-                    throw new MongoException("Too many waiters in the connection pool.");
+                    throw MongoWaitQueueFullException.ForConnectionPool(_endPoint);
                 }
                 stopwatch.Stop();
 

@@ -67,13 +67,23 @@ namespace MongoDB.Driver.Core.WireProtocol
             var message = CreateMessage();
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+            return ProcessReply(connection.ConnectionId, reply);
+        }
+
+        private CursorBatch<TDocument> ProcessReply(ConnectionId connectionId, ReplyMessage<TDocument> reply)
+        {
+            if (reply.CursorNotFound)
+            {
+                throw new MongoCursorNotFoundException(connectionId, _cursorId, _query);
+            }
+
             if (reply.QueryFailure)
             {
                 var failureDocument = reply.QueryFailureDocument;
                 var errorMessage = string.Format("GetMore QueryFailure: {0}.", failureDocument);
-                var connectionId = connection.ConnectionId;
                 throw ExceptionMapper.Map(connectionId, failureDocument) ?? new MongoQueryException(connectionId, errorMessage, _query, failureDocument);
             }
+
             return new CursorBatch<TDocument>(reply.CursorId, reply.Documents);
         }
     }

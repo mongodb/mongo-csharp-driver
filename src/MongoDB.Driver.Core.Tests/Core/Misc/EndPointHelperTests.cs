@@ -68,6 +68,26 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         [Test]
+        public void ToString_should_return_expected_result_when_value_is_a_DnsEndPoint()
+        {
+            var endPoint = new DnsEndPoint("localhost", 27017);
+
+            var result = EndPointHelper.ToString(endPoint);
+
+            result.Should().Be("localhost:27017");
+        }
+
+        [Test]
+        public void ToString_should_return_expected_result_when_value_is_an_IPEndPoint()
+        {
+            var endPoint = new IPEndPoint(new IPAddress(new byte[] { 127, 0, 0, 1 }), 27017);
+
+            var result = EndPointHelper.ToString(endPoint);
+
+            result.Should().Be("127.0.0.1:27017");
+        }
+
+        [Test]
         [TestCase("gob:2::212")]
         [TestCase("localhost:-1")]
         [TestCase("localhost:66000")]

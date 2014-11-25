@@ -125,13 +125,13 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private void EnteServerSelectionWaitQueue()
+        private void EnterServerSelectionWaitQueue()
         {
             lock (_serverSelectionWaitQueueLock)
             {
                 if (_serverSelectionWaitQueueSize >= _settings.MaxServerSelectionWaitQueueSize)
                 {
-                    throw new InvalidOperationException("Server selection queue is full.");
+                    throw MongoWaitQueueFullException.ForServerSelection();
                 }
 
                 if (++_serverSelectionWaitQueueSize == 1)
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                     if (!serverSelectionWaitQueueEntered)
                     {
-                        EnteServerSelectionWaitQueue();
+                        EnterServerSelectionWaitQueue();
                         serverSelectionWaitQueueEntered = true;
                     }
 
@@ -285,10 +285,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             if (isIncompatible)
             {
-                var message = string.Format(
-                    "This version of the driver is incompatible with one or more of the " +
-                    "servers to which it is connected: {0}.", description);
-                throw new MongoException(message);
+                throw new MongoIncompatibleDriverException(description);
             }
         }
 

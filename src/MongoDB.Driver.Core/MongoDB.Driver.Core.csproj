@@ -176,7 +176,10 @@
     <Compile Include="Core\Clusters\MultiServerCluster.cs" />
     <Compile Include="IAsyncCursorSource.cs" />
     <Compile Include="MongoClientException.cs" />
+    <Compile Include="MongoCursorNotFoundException.cs" />
+    <Compile Include="MongoIncompatibleDriverException.cs" />
     <Compile Include="MongoServerException.cs" />
+    <Compile Include="MongoWaitQueueFullException.cs" />
     <Compile Include="NodeIsRecoveringException.cs" />
     <Compile Include="NotMasterException.cs" />
     <Compile Include="ReadPreference.cs" />

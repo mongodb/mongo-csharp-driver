@@ -66,6 +66,17 @@ namespace MongoDB.Driver.Core.Misc
             return endPoint;
         }
 
+        public static string ToString(EndPoint endPoint)
+        {
+            var dnsEndPoint = endPoint as DnsEndPoint;
+            if (dnsEndPoint != null)
+            {
+                return string.Format("{0}:{1}", dnsEndPoint.Host, dnsEndPoint.Port);
+            }
+
+            return endPoint.ToString();
+        }
+
         public static bool TryParse(string value, out EndPoint endPoint)
         {
             endPoint = null;
