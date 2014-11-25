@@ -31,17 +31,25 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// Translates an expression tree into an IMongoQuery.
     /// </summary>
-    internal class PredicateTranslator
+    public class PredicateTranslator
     {
         // private fields
         private readonly BsonSerializationInfoHelper _serializationInfoHelper;
 
         // constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PredicateTranslator"/> class.
+        /// </summary>
+        public PredicateTranslator()
+            : this(new BsonSerializationInfoHelper())
+        { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PredicateTranslator"/> class.
         /// </summary>
         /// <param name="serializationHelper">The serialization helper.</param>
-        public PredicateTranslator(BsonSerializationInfoHelper serializationHelper)
+        internal PredicateTranslator(BsonSerializationInfoHelper serializationHelper)
         {
             _serializationInfoHelper = serializationHelper;
         }
@@ -152,7 +160,7 @@ namespace MongoDB.Driver.Linq
 
                     IMongoQuery elemMatchQuery = null;
                     var query = BuildQuery(lambda.Body);
-                    
+
                     var leftSideMethod = arguments[0] as MethodCallExpression;
                     if (leftSideMethod != null && "OfType".Equals(leftSideMethod.Method.Name))
                     {
@@ -815,7 +823,7 @@ namespace MongoDB.Driver.Linq
 
             var discriminator = BsonSerializer.LookupDiscriminatorConvention(itemType);
             var discriminatorValue = discriminator.GetDiscriminator(actualType, ofTypeTargetType);
-            
+
             return Query.EQ(discriminator.ElementName, discriminatorValue);
         }
 
