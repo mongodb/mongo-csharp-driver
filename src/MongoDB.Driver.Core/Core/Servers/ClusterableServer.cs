@@ -41,6 +41,11 @@ namespace MongoDB.Driver.Core.Servers
     /// </summary>
     internal sealed class ClusterableServer : IClusterableServer
     {
+        #region static
+        // static fields
+        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(10);
+        #endregion
+
         // fields
         private readonly ExponentiallyWeightedMovingAverage _averageRoundTripTimeCalculator = new ExponentiallyWeightedMovingAverage(0.2);
         private readonly ServerDescription _baseDescription;
@@ -50,7 +55,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly CancellationTokenSource _heartbeatCancellationTokenSource = new CancellationTokenSource();
         private readonly IConnectionFactory _heartbeatConnectionFactory;
         private IConnection _heartbeatConnection;
-        private InterruptibleDelay _heartbeatDelay;
+        private HeartbeatDelay _heartbeatDelay;
         private readonly IServerListener _listener;
         private readonly ServerId _serverId;
         private readonly ServerSettings _settings;
@@ -60,13 +65,13 @@ namespace MongoDB.Driver.Core.Servers
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // constructors
-        public ClusterableServer(ServerSettings settings, ClusterId clusterId, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory hearbeatConnectionFactory, IServerListener listener)
+        public ClusterableServer(ServerSettings settings, ClusterId clusterId, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
         {
             _settings = Ensure.IsNotNull(settings, "settings"); ;
             Ensure.IsNotNull(clusterId, "clusterId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
-            _heartbeatConnectionFactory = Ensure.IsNotNull(hearbeatConnectionFactory, "hearbeatConnectionFactory");
+            _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
             _listener = listener;
 
             _serverId = new ServerId(clusterId, endPoint);
@@ -111,9 +116,13 @@ namespace MongoDB.Driver.Core.Servers
                     HeartbeatAsync,
                     ct =>
                     {
-                        var newDelay = new InterruptibleDelay(metronome.GetNextTickDelay(), ct);
-                        Interlocked.Exchange(ref _heartbeatDelay, newDelay);
-                        return newDelay.Task;
+                        var newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), __minHeartbeatInterval);
+                        var oldHeartbeatDelay = Interlocked.Exchange(ref _heartbeatDelay, newHeartbeatDelay);
+                        if (oldHeartbeatDelay != null)
+                        {
+                            oldHeartbeatDelay.Dispose();
+                        }
+                        return newHeartbeatDelay.Task;
                     },
                     _heartbeatCancellationTokenSource.Token)
                     .HandleUnobservedException(ex => { }); // TODO: do we need to do anything here?
@@ -370,10 +379,10 @@ namespace MongoDB.Driver.Core.Servers
         public void RequestHeartbeat()
         {
             ThrowIfNotOpen();
-            var delay = Interlocked.CompareExchange(ref _heartbeatDelay, null, null);
-            if (delay != null)
+            var heartbeatDelay = Interlocked.CompareExchange(ref _heartbeatDelay, null, null);
+            if (heartbeatDelay != null)
             {
-                delay.Interrupt();
+                heartbeatDelay.RequestHeartbeat();
             }
         }
 

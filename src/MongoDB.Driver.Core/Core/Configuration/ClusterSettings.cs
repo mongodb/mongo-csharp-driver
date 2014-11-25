@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Configuration
         // fields
         private readonly ClusterConnectionMode _connectionMode;
         private readonly IReadOnlyList<EndPoint> _endPoints;
+        private readonly int _maxServerSelectionWaitQueueSize;
         private readonly string _replicaSetName;
         private readonly TimeSpan _serverSelectionTimeout;
 
@@ -43,16 +44,19 @@ namespace MongoDB.Driver.Core.Configuration
         {
             _endPoints = __defaultEndPoints;
             _serverSelectionTimeout = TimeSpan.FromSeconds(30);
+            _maxServerSelectionWaitQueueSize = 500;
         }
 
         internal ClusterSettings(
             ClusterConnectionMode connectionMode,
             IReadOnlyList<EndPoint> endPoints,
+            int maxServerSelectionWaitQueueSize,
             string replicaSetName,
             TimeSpan serverSelectionTimeout)
         {
             _connectionMode = connectionMode;
             _endPoints = endPoints;
+            _maxServerSelectionWaitQueueSize = maxServerSelectionWaitQueueSize;
             _replicaSetName = replicaSetName;
             _serverSelectionTimeout = serverSelectionTimeout;
         }
@@ -66,6 +70,11 @@ namespace MongoDB.Driver.Core.Configuration
         public IReadOnlyList<EndPoint> EndPoints
         {
             get { return _endPoints; }
+        }
+
+        public int MaxServerSelectionWaitQueueSize
+        {
+            get { return _maxServerSelectionWaitQueueSize; }
         }
 
         public string ReplicaSetName
@@ -90,6 +99,11 @@ namespace MongoDB.Driver.Core.Configuration
             return EndPointHelper.SequenceEquals(_endPoints, list) ? this : new Builder(this) { _endPoints = list }.Build();
         }
 
+        public ClusterSettings WithMaxServerSelectionWaitQueueSize(int value)
+        {
+            return (_maxServerSelectionWaitQueueSize == value) ? this : new Builder(this) { _maxServerSelectionWaitQueueSize = value }.Build();
+        }
+
         public ClusterSettings WithReplicaSetName(string value)
         {
             return object.Equals(_replicaSetName, value) ? this : new Builder(this) { _replicaSetName = value }.Build();
@@ -106,6 +120,7 @@ namespace MongoDB.Driver.Core.Configuration
             // fields
             public ClusterConnectionMode _connectionMode;
             public IReadOnlyList<EndPoint> _endPoints;
+            public int _maxServerSelectionWaitQueueSize;
             public string _replicaSetName;
             public TimeSpan _serverSelectionTimeout;
 
@@ -114,6 +129,7 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 _connectionMode = other._connectionMode;
                 _endPoints = other._endPoints;
+                _maxServerSelectionWaitQueueSize = other._maxServerSelectionWaitQueueSize;
                 _replicaSetName = other._replicaSetName;
                 _serverSelectionTimeout = other._serverSelectionTimeout;
             }
@@ -124,6 +140,7 @@ namespace MongoDB.Driver.Core.Configuration
                 return new ClusterSettings(
                     _connectionMode,
                     _endPoints,
+                    _maxServerSelectionWaitQueueSize,
                     _replicaSetName,
                     _serverSelectionTimeout);
             }

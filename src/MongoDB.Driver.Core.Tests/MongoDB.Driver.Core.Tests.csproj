@@ -107,7 +107,6 @@
     <Compile Include="Core\Misc\MetronomeTests.cs" />
     <Compile Include="Core\Async\AsyncQueueTests.cs" />
     <Compile Include="Core\Async\AsyncBackgroundTaskTests.cs" />
-    <Compile Include="Core\Async\InterruptibleDelayTests.cs" />
     <Compile Include="Core\Authentication\ScramSha1AuthenticatorTests.cs" />
     <Compile Include="Core\Authentication\PlainAuthenticatorTests.cs" />
     <Compile Include="Core\Authentication\MongoDBCRAuthenticatorTests.cs" />

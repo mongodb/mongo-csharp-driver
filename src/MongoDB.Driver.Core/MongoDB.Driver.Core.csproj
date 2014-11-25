@@ -98,6 +98,7 @@
     <Compile Include="Core\Operations\FindOneAndReplaceOperation.cs" />
     <Compile Include="Core\Operations\FindOneAndDeleteOperation.cs" />
     <Compile Include="Core\Operations\ReturnDocument.cs" />
+    <Compile Include="Core\Servers\HeartbeatDelay.cs" />
     <Compile Include="DeferredAsyncCursor.cs" />
     <Compile Include="IAsyncCursor.cs" />
     <Compile Include="Core\Operations\IndexNameHelper.cs" />
@@ -121,7 +122,6 @@
     <Compile Include="Core\Misc\IndexMap.cs" />
     <Compile Include="Core\Misc\Metronome.cs" />
     <Compile Include="Core\Async\AsyncQueue.cs" />
-    <Compile Include="Core\Async\InterruptibleDelay.cs" />
     <Compile Include="Core\Async\TaskExtensionMethods.cs" />
     <Compile Include="Core\Authentication\AuthenticationHelper.cs" />
     <Compile Include="Core\Authentication\MongoDBX509Authenticator.cs" />

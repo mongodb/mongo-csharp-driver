@@ -33,9 +33,12 @@ namespace MongoDB.Driver.Core.Clusters
     /// </summary>
     internal abstract class Cluster : ICluster
     {
+        #region static
         // static fields
+        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(10);
         private static readonly Range<int> __supportedWireVersionRange = new Range<int>(0, 3);
         private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
+        #endregion
 
         // fields
         private readonly ClusterId _clusterId;
@@ -43,6 +46,9 @@ namespace MongoDB.Driver.Core.Clusters
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
         private readonly IClusterListener _listener;
+        private Timer _rapidHeartbeatTimer;
+        private readonly object _serverSelectionWaitQueueLock = new object();
+        private int _serverSelectionWaitQueueSize;
         private readonly IClusterableServerFactory _serverFactory;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
@@ -58,6 +64,8 @@ namespace MongoDB.Driver.Core.Clusters
             _clusterId = new ClusterId();
             _description = ClusterDescription.CreateInitial(_clusterId, _settings.ConnectionMode.ToClusterType());
             _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
+
+            _rapidHeartbeatTimer = new Timer(o => RequestHeartbeat(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         }
 
         // events
@@ -112,6 +120,35 @@ namespace MongoDB.Driver.Core.Clusters
                     Enumerable.Empty<ServerDescription>());
 
                 UpdateClusterDescription(newClusterDescription);
+
+                _rapidHeartbeatTimer.Dispose();
+            }
+        }
+
+        private void EnteServerSelectionWaitQueue()
+        {
+            lock (_serverSelectionWaitQueueLock)
+            {
+                if (_serverSelectionWaitQueueSize >= _settings.MaxServerSelectionWaitQueueSize)
+                {
+                    throw new InvalidOperationException("Server selection queue is full.");
+                }
+
+                if (++_serverSelectionWaitQueueSize == 1)
+                {
+                    _rapidHeartbeatTimer.Change(TimeSpan.Zero, __minHeartbeatInterval);
+                }
+            }
+        }
+
+        private void ExitServerSelectionWaitQueue()
+        {
+            lock (_serverSelectionWaitQueueLock)
+            {
+                if (--_serverSelectionWaitQueueSize == 0)
+                {
+                    _rapidHeartbeatTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                }
             }
         }
 
@@ -143,48 +180,61 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, "selector");
 
-            var expirationDateTime = DateTime.UtcNow + _settings.ServerSelectionTimeout;
+            var timeoutAt = DateTime.UtcNow + _settings.ServerSelectionTimeout;
 
-            while (true)
+            var serverSelectionWaitQueueEntered = false;
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                Task descriptionChangedTask;
-                ClusterDescription description;
-                lock (_descriptionLock)
+                while (true)
                 {
-                    descriptionChangedTask = _descriptionChangedTaskCompletionSource.Task;
-                    description = _description;
-                }
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                ThrowIfIncompatible(description);
-
-                var connectedServers = description.Servers.Where(s => s.State == ServerState.Connected);
-                var selectedServers = selector.SelectServers(description, connectedServers).ToList();
-
-                while (selectedServers.Count > 0)
-                {
-                    var server = selectedServers.Count == 1 ?
-                        selectedServers[0] :
-                        __randomServerSelector.SelectServers(description, selectedServers).Single();
-
-                    IClusterableServer selectedServer;
-                    if (TryGetServer(server.EndPoint, out selectedServer))
+                    Task descriptionChangedTask;
+                    ClusterDescription description;
+                    lock (_descriptionLock)
                     {
-                        return selectedServer;
+                        descriptionChangedTask = _descriptionChangedTaskCompletionSource.Task;
+                        description = _description;
                     }
 
-                    selectedServers.Remove(server);
+                    ThrowIfIncompatible(description);
+
+                    var connectedServers = description.Servers.Where(s => s.State == ServerState.Connected);
+                    var selectedServers = selector.SelectServers(description, connectedServers).ToList();
+
+                    while (selectedServers.Count > 0)
+                    {
+                        var server = selectedServers.Count == 1 ?
+                            selectedServers[0] :
+                            __randomServerSelector.SelectServers(description, selectedServers).Single();
+
+                        IClusterableServer selectedServer;
+                        if (TryGetServer(server.EndPoint, out selectedServer))
+                        {
+                            return selectedServer;
+                        }
+
+                        selectedServers.Remove(server);
+                    }
+
+                    var timeoutRemaining = timeoutAt - DateTime.UtcNow;
+                    if (timeoutRemaining <= TimeSpan.Zero)
+                    {
+                        ThrowTimeoutException(description);
+                    }
+
+                    EnteServerSelectionWaitQueue();
+                    serverSelectionWaitQueueEntered = true;
+
+                    await WaitForDescriptionChangedAsync(description, descriptionChangedTask, timeoutRemaining, cancellationToken).ConfigureAwait(false);
                 }
-
-                RequestHeartbeat();
-
-                var remainingTimeSpan = expirationDateTime - DateTime.UtcNow;
-                if (remainingTimeSpan <= TimeSpan.Zero)
+            }
+            finally
+            {
+                if (serverSelectionWaitQueueEntered)
                 {
-                    ThrowTimeoutException(description);
+                    ExitServerSelectionWaitQueue();
                 }
-                await WaitForDescriptionChanged(description, descriptionChangedTask, remainingTimeSpan, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -248,27 +298,27 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private async Task WaitForDescriptionChanged(ClusterDescription description, Task descriptionChangedTask, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task WaitForDescriptionChangedAsync(ClusterDescription description, Task descriptionChangedTask, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var cancellationTaskSource = new TaskCompletionSource<bool>();
-            using (cancellationToken.Register(() => cancellationTaskSource.TrySetCanceled()))
+            var cancellationTaskCompletionSource = new TaskCompletionSource<bool>();
+            using (cancellationToken.Register(() => cancellationTaskCompletionSource.TrySetCanceled()))
             using (var timeoutCancellationTokenSource = new CancellationTokenSource())
             {
                 var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
-                var completedTask = await Task.WhenAny(descriptionChangedTask, timeoutTask, cancellationTaskSource.Task).ConfigureAwait(false);
-                if (completedTask == descriptionChangedTask)
-                {
-                    timeoutCancellationTokenSource.Cancel();
-                    return;
-                }
+                var completedTask = await Task.WhenAny(descriptionChangedTask, timeoutTask, cancellationTaskCompletionSource.Task).ConfigureAwait(false);
+
                 if (completedTask == timeoutTask)
                 {
                     ThrowTimeoutException(description);
-                    return;
+                }
+                timeoutCancellationTokenSource.Cancel();
+
+                if (completedTask == cancellationTaskCompletionSource.Task)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
 
-                // it must be this guy cause it's not the other ones.
-                cancellationToken.ThrowIfCancellationRequested();
+                await descriptionChangedTask; // propagate exceptions
             }
         }
 

@@ -139,12 +139,15 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected override void RequestHeartbeat()
         {
+            List<IClusterableServer> servers;
             lock (_serversLock)
             {
-                foreach (var server in _servers)
-                {
-                    server.RequestHeartbeat();
-                }
+                servers = _servers.ToList();
+            }
+           
+            foreach (var server in servers)
+            {
+                server.RequestHeartbeat();
             }
         }
 
