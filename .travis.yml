@@ -20,8 +20,8 @@ before_install:
 
 script:
 - mono --runtime=v4.0.30319 ./Tools/NuGet/nuget.exe restore ./src/CSharpDriver-Mono.sln
-- xbuild ./src/CSharpDriver-Mono.sln
+- ./build.sh
 - brew install mongodb
 - mkdir -p ./build/db/data
 - mongod --dbpath ./build/db/data --logpath ./build/db/log.log --fork --setParameter enableTestCommands=1
-- mono --runtime=v4.0.30319 ./Tools/NUnit/nunit-console.exe ./src/MongoDB.Bson.Tests/bin/Debug/MongoDB.Bson.Tests.dll ./src/MongoDB.Driver.Core.Tests/bin/Debug/MongoDB.Driver.Core.Tests.dll ./src/MongoDB.Driver.Tests/bin/Debug/MongoDB.Driver.Tests.dll
+- /build.sh Test
