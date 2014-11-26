@@ -203,6 +203,26 @@ Target "NuGetPack" (fun _ ->
             createNuGetPackage nuspecFile.File deps nuspecFile.Symbols
 )
 
+let pushNugetPackage project =
+    NuGetPublish (fun x -> 
+      { x with 
+          PublishUrl = getBuildParamOrDefault "nugetSource" "https://www.myget.org/F/mongodb/api/v2/package"
+          AccessKey = getBuildParam "nugetApiKey"
+          OutputPath = artifactsDir
+          WorkingDir = baseDir
+          Project = project
+          Version = semVersion })
+
+Target "NuGetPush" (fun _ ->
+    if not <| hasBuildParam "nugetApiKey" then new Exception("nugetApiKey must be specified to push nuget files.") |> raise
+
+    match preRelease with
+    | "build" -> pushNugetPackage (fileNameWithoutExt nuspecBuildFile)
+    | _ ->
+        for nuspecFile in nuspecFiles do
+            pushNugetPackage (fileNameWithoutExt nuspecFile.File)
+)
+
 FinalTarget "Teardown" (fun _ ->
     let cmd = sprintf "checkout %s" asmFile
     Git.CommandHelper.fireAndForgetGitCommand baseDir cmd
@@ -211,6 +231,7 @@ FinalTarget "Teardown" (fun _ ->
 
 Target "NoOp" DoNothing
 Target "Package" DoNothing
+Target "Publish" DoNothing
 
 "Clean"
     ==> "AssemblyInfo"
@@ -220,5 +241,8 @@ Target "Package" DoNothing
     ==> "Zip"
     ==> "NuGetPack"
     ==> "Package"
+
+"NuGetPush"
+    ==> "Publish"
 
 RunTargetOrDefault "Build"
