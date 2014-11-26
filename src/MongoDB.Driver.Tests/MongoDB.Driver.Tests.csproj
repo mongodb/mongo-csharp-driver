@@ -107,6 +107,12 @@
     <Compile Include="Builders\SortByBuilderTypedTests.cs" />
     <Compile Include="Builders\UpdateBuilderTests.cs" />
     <Compile Include="GridFS\MongoGridFSExceptionTests.cs" />
+    <Compile Include="Helpers\BulkWriteErrorEqualityComparer.cs" />
+    <Compile Include="Helpers\BulkWriteResultEqualityComparer.cs" />
+    <Compile Include="Helpers\BulkWriteUpsertEqualityComparer.cs" />
+    <Compile Include="Helpers\WriteConcernErrorEqualityComparer.cs" />
+    <Compile Include="Helpers\WriteErrorEqualityComparer.cs" />
+    <Compile Include="Helpers\WriteModelEqualityComparer.cs" />
     <Compile Include="IAggregateFluentExtensionsTests.cs" />
     <Compile Include="IFindFluentExtensionsTests.cs" />
     <Compile Include="IMongoCollectionExtensionsTests.cs" />

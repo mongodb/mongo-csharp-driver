@@ -28,7 +28,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents an immutable BSON document that is represented using only the raw bytes.
     /// </summary>
-    [Serializable]
     [BsonSerializer(typeof(RawBsonDocumentSerializer))]
     public class RawBsonDocument : BsonDocument, IDisposable
     {

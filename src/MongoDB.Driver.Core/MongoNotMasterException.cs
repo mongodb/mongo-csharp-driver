@@ -38,7 +38,7 @@ namespace MongoDB.Driver
         protected MongoNotMasterException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _result = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_result", typeof(byte[])));
+            _result = (BsonDocument)info.GetValue("_result", typeof(BsonDocument));
         }
 
         // properties
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("_result", _result.ToBson());
+            info.AddValue("_result", _result);
         }
     }
 }

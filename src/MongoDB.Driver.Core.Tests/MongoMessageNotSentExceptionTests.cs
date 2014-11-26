@@ -52,7 +52,7 @@ namespace MongoDB.Driver
                 stream.Position = 0;
                 var rehydrated = (MongoMessageNotSentException)formatter.Deserialize(stream);
 
-                rehydrated.ConnectionId.Should().BeNull(); // ConnectionId is not serializable
+                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.InnerException.Should().BeNull();
                 rehydrated.Message.Should().Be(subject.Message);
             }

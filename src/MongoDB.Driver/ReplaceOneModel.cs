@@ -26,6 +26,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for replacing a single document.
     /// </summary>
+    [Serializable]
     public sealed class ReplaceOneModel<T> : WriteModel<T>
     {
         // fields

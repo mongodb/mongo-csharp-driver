@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the details of a write concern error.
     /// </summary>
+    [Serializable]
     public sealed class BulkWriteConcernError
     {
         // fields

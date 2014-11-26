@@ -26,6 +26,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for deleting a single document.
     /// </summary>
+    [Serializable]
     public sealed class DeleteOneModel<T> : WriteModel<T>
     {
         // fields

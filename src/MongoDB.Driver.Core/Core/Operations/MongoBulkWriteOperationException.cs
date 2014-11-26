@@ -64,7 +64,10 @@ namespace MongoDB.Driver.Core.Operations
         public MongoBulkWriteOperationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            // TODO: deserialize fields
+            _result = (BulkWriteOperationResult)info.GetValue("_result", typeof(BulkWriteOperationResult));
+            _unprocessedRequests = (IReadOnlyList<WriteRequest>)info.GetValue("_unprocessedRequests", typeof(IReadOnlyList<WriteRequest>));
+            _writeConcernError = (BulkWriteConcernError)info.GetValue("_writeConcernError", typeof(BulkWriteConcernError));
+            _writeErrors = (IReadOnlyList<BulkWriteOperationError>)info.GetValue("_writeErrors", typeof(IReadOnlyList<BulkWriteOperationError>));
         }
 
         // properties
@@ -114,7 +117,10 @@ namespace MongoDB.Driver.Core.Operations
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            // TODO: serialize fields
+            info.AddValue("_result", _result);
+            info.AddValue("_unprocessedRequests", _unprocessedRequests);
+            info.AddValue("_writeConcernError", _writeConcernError);
+            info.AddValue("_writeErrors", _writeErrors);
         }
     }
 }

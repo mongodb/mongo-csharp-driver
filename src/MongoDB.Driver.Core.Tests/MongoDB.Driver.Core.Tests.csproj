@@ -52,6 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertionExtensions.cs" />
+    <Compile Include="Core\Helpers\BulkWriteConcernErrorEqualityComparer.cs" />
+    <Compile Include="Core\Helpers\BulkWriteOperationResultEqualityComparer.cs" />
+    <Compile Include="Core\Helpers\WriteConcernResultEqualityComparer.cs" />
     <Compile Include="Core\Operations\AggregateToCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />

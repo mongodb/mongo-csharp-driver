@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Tests.Helpers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -88,11 +89,11 @@ namespace MongoDB.Driver.Tests
                 stream.Position = 0;
                 var rehydrated = (MongoWriteException)formatter.Deserialize(stream);
 
-                rehydrated.ConnectionId.Should().BeNull(); // ConnectionId is not serializable
+                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
                 rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.WriteConcernError.Should().BeNull(); // WriteConcernError is not serializable
-                rehydrated.WriteError.Should().BeNull(); // WriteError is not serializable
+                rehydrated.WriteConcernError.Should().Match<WriteConcernError>(x => new WriteConcernErrorEqualityComparer().Equals(x, subject.WriteConcernError));
+                rehydrated.WriteError.Should().Match<WriteError>(x => new WriteErrorEqualityComparer().Equals(x, subject.WriteError));
             }
         }
     }

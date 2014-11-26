@@ -14,14 +14,17 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    public sealed class ServerId : IEquatable<ServerId>
+    [Serializable]
+    public sealed class ServerId : IEquatable<ServerId>, ISerializable
     {
         // fields
         private readonly ClusterId _clusterId;
@@ -32,6 +35,12 @@ namespace MongoDB.Driver.Core.Servers
         {
             _clusterId = Ensure.IsNotNull(clusterId, "clusterId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
+        }
+
+        private ServerId(SerializationInfo info, StreamingContext context)
+        {
+            _clusterId = (ClusterId)info.GetValue("_clusterId", typeof(ClusterId));
+            _endPoint = EndPointHelper.FromObjectData((List<object>)info.GetValue("_endPoint", typeof(List<object>)));
         }
 
         // properties
@@ -74,5 +83,13 @@ namespace MongoDB.Driver.Core.Servers
         {
             return string.Format("{{ ClusterId : {0}, EndPoint : \"{1}\" }}", _clusterId, _endPoint);
         }
+
+        // explicit interface implementations
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("_clusterId", _clusterId);
+            info.AddValue("_endPoint", EndPointHelper.GetObjectData(_endPoint));
+        }
+
     }
 }

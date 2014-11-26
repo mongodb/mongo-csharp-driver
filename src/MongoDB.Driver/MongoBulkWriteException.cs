@@ -19,6 +19,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -56,7 +57,8 @@ namespace MongoDB.Driver
         public MongoBulkWriteException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            // TODO: deserialize fields
+            _writeConcernError = (WriteConcernError)info.GetValue("_writeConcernError", typeof(WriteConcernError));
+            _writeErrors = (IReadOnlyList<BulkWriteError>)info.GetValue("_writeErrors", typeof(IReadOnlyList<BulkWriteError>));
         }
 
         // properties
@@ -91,7 +93,8 @@ namespace MongoDB.Driver
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            // TODO: serialize fields
+            info.AddValue("_writeConcernError", _writeConcernError);
+            info.AddValue("_writeErrors", _writeErrors);
         }
     }
 
@@ -135,7 +138,11 @@ namespace MongoDB.Driver
         public MongoBulkWriteException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            // TODO: deserialize fields
+            if (typeof(T).IsSerializable)
+            {
+                _result = (BulkWriteResult<T>)info.GetValue("_result", typeof(BulkWriteResult<T>));
+                _unprocessedRequests = (IReadOnlyList<WriteModel<T>>)info.GetValue("_unprocessedRequests", typeof(IReadOnlyList<WriteModel<T>>));
+            }
         }
 
         // public properties
@@ -168,7 +175,11 @@ namespace MongoDB.Driver
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            // TODO: serialize fields
+            if (typeof(T).IsSerializable)
+            {
+                info.AddValue("_result", _result);
+                info.AddValue("_unprocessedRequests", _unprocessedRequests);
+            }
         }
 
         // internal static methods

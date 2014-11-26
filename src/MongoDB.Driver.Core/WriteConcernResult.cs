@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the results of an operation performed with WriteConcern enabled.
     /// </summary>
+    [Serializable]
     public class WriteConcernResult
     {
         // fields

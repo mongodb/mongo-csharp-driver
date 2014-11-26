@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Tests.Helpers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -142,12 +143,12 @@ namespace MongoDB.Driver.Tests
                 stream.Position = 0;
                 var rehydrated = (MongoBulkWriteException<BsonDocument>)formatter.Deserialize(stream);
 
-                rehydrated.ConnectionId.Should().BeNull(); // ConnectionId is not serializable
+                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.Result.Should().BeNull(); // BulkWriteResult is not serializable
-                rehydrated.UnprocessedRequests.Should().BeNull(); // WriteModel is not serializable
-                rehydrated.WriteConcernError.Should().BeNull(); // WriteConcernError is not serializable
-                rehydrated.WriteErrors.Should().BeNull(); // BulkWriteError is not serializable
+                rehydrated.Result.Should().Match<BulkWriteResult<BsonDocument>>(x => new BulkWriteResultEqualityComparer<BsonDocument>().Equals(x, subject.Result));
+                rehydrated.UnprocessedRequests.Should().Equal(subject.UnprocessedRequests, (x, y) => new WriteModelEqualityComparer<BsonDocument>().Equals(x, y));
+                rehydrated.WriteConcernError.Should().Match<WriteConcernError>(x => new WriteConcernErrorEqualityComparer().Equals(x, subject.WriteConcernError));
+                rehydrated.WriteErrors.Should().Equal(subject.WriteErrors, (x, y) => new BulkWriteErrorEqualityComparer().Equals(x, y));
             }
         }
     }

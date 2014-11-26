@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using System.Net;
 using System.Collections.Generic;
+using MongoDB.Driver.Core.Helpers;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -74,12 +75,12 @@ namespace MongoDB.Driver.Core.Operations
                 stream.Position = 0;
                 var rehydrated = (MongoBulkWriteOperationException)formatter.Deserialize(stream);
 
-                rehydrated.ConnectionId.Should().BeNull(); // ConnectionId is not serializable
+                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.Result.Should().BeNull(); // BulkWriteOperationResult is not serializable
-                rehydrated.UnprocessedRequests.Should().BeNull(); // WriteRequest is not serializable
-                rehydrated.WriteConcernError.Should().BeNull(); // BulkWriteConcernError is not serializable
-                rehydrated.WriteErrors.Should().BeNull(); // BulkWriteOperationError is not serializable
+                rehydrated.Result.Should().Match<BulkWriteOperationResult>(x => new BulkWriteOperationResultEqualityComparer().Equals(x, subject.Result));
+                rehydrated.UnprocessedRequests.Should().Equal(subject.UnprocessedRequests);
+                rehydrated.WriteConcernError.Should().Match<BulkWriteConcernError>(x => new BulkWriteConcernErrorEqualityComparer().Equals(x, subject.WriteConcernError));
+                rehydrated.WriteErrors.Should().Equal(subject.WriteErrors);
             }
         }
     }

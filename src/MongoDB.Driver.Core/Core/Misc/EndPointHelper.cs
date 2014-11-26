@@ -19,9 +19,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
@@ -45,6 +43,50 @@ namespace MongoDB.Driver.Core.Misc
         public static bool Equals(EndPoint a, EndPoint b)
         {
             return __endPointEqualityComparer.Equals(a, b);
+        }
+
+        public static EndPoint FromObjectData(List<object> info)
+        {
+            if (info == null)
+            {
+                return null;
+            }
+
+            var type = (string)info[0];
+            switch (type)
+            {
+                case "DnsEndPoint": return new DnsEndPoint((string)info[1], (int)info[2], (AddressFamily)(int)info[3]);
+                case "IPEndPoint": return new IPEndPoint((IPAddress)info[1], (int)info[2]);
+                default: throw new MongoInternalException("Unexpected EndPoint type.");
+            }
+        }
+
+        public static List<object> GetObjectData(EndPoint value)
+        {
+            var dnsEndPoint = value as DnsEndPoint;
+            if (dnsEndPoint != null)
+            {
+                return new List<object>
+                {
+                    "DnsEndPoint",
+                    dnsEndPoint.Host,
+                    dnsEndPoint.Port,
+                    (int)dnsEndPoint.AddressFamily
+                };
+            }
+
+            var ipEndPoint = value as IPEndPoint;
+            if (ipEndPoint != null)
+            {
+                return new List<object>
+                {
+                    "IPEndPoint",
+                    ipEndPoint.Address,
+                    ipEndPoint.Port
+                };
+            }
+
+            return null;
         }
 
         public static bool SequenceEquals(IEnumerable<EndPoint> a, IEnumerable<EndPoint> b)

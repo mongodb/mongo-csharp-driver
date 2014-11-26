@@ -22,6 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
@@ -60,11 +61,11 @@ namespace MongoDB.Driver
                 var rehydrated = (MongoWriteConcernException)formatter.Deserialize(stream);
 
                 rehydrated.Command.Should().BeNull();
-                rehydrated.ConnectionId.Should().BeNull(); // ConnectionId is not serializable
+                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.InnerException.Should().BeNull();
                 rehydrated.Message.Should().Be(subject.Message);
                 rehydrated.Result.Should().Be(subject.Result);
-                rehydrated.WriteConcernResult.Should().BeNull(); // WriteConcernResult is not serializable
+                rehydrated.WriteConcernResult.Should().Match<WriteConcernResult>(x => new WriteConcernResultEqualityComparer().Equals(x, subject.WriteConcernResult));
             }
         }
     }

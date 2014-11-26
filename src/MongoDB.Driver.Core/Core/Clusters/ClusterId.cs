@@ -18,6 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters
 {
+    [Serializable]
     public sealed class ClusterId : IEquatable<ClusterId>
     {
         // fields

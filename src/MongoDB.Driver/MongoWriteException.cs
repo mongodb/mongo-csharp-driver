@@ -66,7 +66,8 @@ namespace MongoDB.Driver
         public MongoWriteException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            // TODO: deserialize fields
+            _writeConcernError = (WriteConcernError)info.GetValue("_writeConcernError", typeof(WriteConcernError));
+            _writeError = (WriteError)info.GetValue("_writeError", typeof(WriteError));
         }
 
         // properties
@@ -95,7 +96,8 @@ namespace MongoDB.Driver
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            // TODO: serialize fields
+            info.AddValue("_writeConcernError", _writeConcernError);
+            info.AddValue("_writeError", _writeError);
         }
     }
 }
