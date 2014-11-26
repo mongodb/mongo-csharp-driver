@@ -2248,8 +2248,7 @@ namespace MongoDB.Driver.Tests
         public void TestInsertBatchSmallFinalSubbatch()
         {
             var collectionName = Configuration.TestCollection.Name;
-            var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Unacknowledged };
-            var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
+            var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName);
             if (collection.Exists()) { collection.Drop(); }
 
             var maxMessageLength = _primary.MaxMessageLength;
