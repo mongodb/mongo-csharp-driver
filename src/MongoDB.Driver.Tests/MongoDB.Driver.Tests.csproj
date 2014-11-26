@@ -109,6 +109,7 @@
     <Compile Include="IAggregateFluentExtensionsTests.cs" />
     <Compile Include="IFindFluentExtensionsTests.cs" />
     <Compile Include="IMongoCollectionExtensionsTests.cs" />
+    <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
     <Compile Include="WriteModelTests.cs" />
     <Compile Include="BulkWriteResultTests.cs" />
     <Compile Include="CommandResults\CollectionStatsResultTests.cs" />

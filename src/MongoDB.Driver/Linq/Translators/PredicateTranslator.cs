@@ -146,10 +146,26 @@ namespace MongoDB.Driver.Linq
                         throw new NotSupportedException(message);
                     }
                     var itemSerializer = itemSerializationInfo.Serializer;
+
                     var lambda = (LambdaExpression)arguments[1];
                     _serializationInfoHelper.RegisterExpressionSerializer(lambda.Parameters[0], itemSerializer);
+
+                    IMongoQuery elemMatchQuery = null;
                     var query = BuildQuery(lambda.Body);
-                    return Query.ElemMatch(serializationInfo.ElementName, query);
+                    
+                    var leftSideMethod = arguments[0] as MethodCallExpression;
+                    if (leftSideMethod != null && "OfType".Equals(leftSideMethod.Method.Name))
+                    {
+                        var ofTypeQuery = BuildQuery(leftSideMethod);
+                        elemMatchQuery = Query.And(ofTypeQuery, query);
+                    }
+                    else
+                    {
+                        elemMatchQuery = query;
+                    }
+
+
+                    return Query.ElemMatch(serializationInfo.ElementName, elemMatchQuery);
                 }
             }
             return null;
@@ -273,7 +289,18 @@ namespace MongoDB.Driver.Linq
 
             if (constantExpression == null)
             {
-                return null;
+                variableExpression = binaryExpression.Right;
+                constantExpression = binaryExpression.Left as ConstantExpression;
+                if (constantExpression == null)
+                {
+                    variableExpression = binaryExpression.Left;
+                    var right = (binaryExpression.Right as MemberExpression);
+                    constantExpression = Expression.Constant(Expression.Lambda(right).Compile().DynamicInvoke());
+                    if (constantExpression == null)
+                    {
+                        return null;
+                    }
+                }
             }
 
             var query = BuildArrayLengthQuery(variableExpression, operatorType, constantExpression);
@@ -775,8 +802,21 @@ namespace MongoDB.Driver.Linq
                 case "IsMatch": return BuildIsMatchQuery(methodCallExpression);
                 case "IsNullOrEmpty": return BuildIsNullOrEmptyQuery(methodCallExpression);
                 case "StartsWith": return BuildStringQuery(methodCallExpression);
+                case "OfType": return BuildOfTypeQuery(methodCallExpression);
             }
             return null;
+        }
+
+        private IMongoQuery BuildOfTypeQuery(MethodCallExpression methodCallExpression)
+        {
+            var itemType = methodCallExpression.Arguments[0].Type;
+            var ofTypeTargetType = methodCallExpression.Method.GetGenericArguments()[0];
+            Type actualType = itemType.GetGenericArguments()[0];
+
+            var discriminator = BsonSerializer.LookupDiscriminatorConvention(itemType);
+            var discriminatorValue = discriminator.GetDiscriminator(actualType, ofTypeTargetType);
+            
+            return Query.EQ(discriminator.ElementName, discriminatorValue);
         }
 
         private IMongoQuery BuildModQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
