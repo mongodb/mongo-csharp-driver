@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
@@ -2126,11 +2127,13 @@ namespace MongoDB.Driver.Tests
             var results = collection.InsertBatch(documents, options);
             Assert.AreEqual(null, results);
 
-            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
-            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
-            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
-            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 4)));
-            Assert.AreEqual(1, collection.Count(Query.EQ("_id", 5)));
+            for (int i = 1; i <= 5; i++)
+            {
+                if (!SpinWait.SpinUntil(() => collection.Count(Query.EQ("_id", i)) == 1, TimeSpan.FromSeconds(4)))
+                {
+                    Assert.Fail("_id {0} does not exist.", i);
+                }
+            }
         }
 
         [Test]
@@ -2265,8 +2268,7 @@ namespace MongoDB.Driver.Tests
                 documents[i] = document;
             }
 
-            var results = collection.InsertBatch(documents);
-            Assert.IsNull(results);
+            collection.InsertBatch(documents);
 
             Assert.AreEqual(documentCount, collection.Count());
         }
