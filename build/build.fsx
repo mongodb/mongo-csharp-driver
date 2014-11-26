@@ -46,7 +46,7 @@ let nuspecFiles =
       { File = buildDir @@ "MongoDB.Driver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"]; Symbols = true; }
       { File = buildDir @@ "mongocsharpdriver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB.Driver"]; Symbols = false; }]
 
-let nuspecBuildFile = buildDir @@ "MongoDB-Build.nuspec"
+let nuspecBuildFile = buildDir @@ "MongoDB.Driver-Build.nuspec"
 let licenseFile = baseDir @@ "License.txt"
 let releaseNotesFile = baseDir @@ "Release Notes" @@ "Release Notes v" + baseVersion + ".md"
 
