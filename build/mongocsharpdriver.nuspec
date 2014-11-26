@@ -2,15 +2,16 @@
 <package>
   <metadata>
     <id>mongocsharpdriver</id>
+    <title>(Deprecated) Official C# driver for MongoDB</title>
     <version>@build.number@</version>
     <authors>MongoDB, Inc.</authors>
-    <owners>Robert Stam, Craig Wilson</owners>
+    <owners>rstam, craiggwilson</owners>
     <iconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Driver for MongoDB. (Use MongoDB package instead)</description>
+    <description>This package has been deprecated. The new package name is MongoDB.Driver.</description>
     <projectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-    <tags>mongodb mongo nosql</tags>
+    <tags></tags>
     <language>en-US</language>
     @dependencies@
   </metadata>

@@ -43,8 +43,8 @@ type NuspecFile = { File : string; Dependencies : string list; Symbols : bool; }
 let nuspecFiles =
     [ { File = buildDir @@ "MongoDB.Bson.nuspec"; Dependencies = []; Symbols = true; }
       { File = buildDir @@ "MongoDB.Driver.Core.nuspec"; Dependencies = ["MongoDB.Bson"]; Symbols = true; }
-      { File = buildDir @@ "MongoDB.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"]; Symbols = true; }
-      { File = buildDir @@ "mongocsharpdriver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB"]; Symbols = false; }]
+      { File = buildDir @@ "MongoDB.Driver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"]; Symbols = true; }
+      { File = buildDir @@ "mongocsharpdriver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB.Driver"]; Symbols = false; }]
 
 let nuspecBuildFile = buildDir @@ "MongoDB-Build.nuspec"
 let licenseFile = baseDir @@ "License.txt"
@@ -213,7 +213,6 @@ Target "NoOp" DoNothing
 Target "Package" DoNothing
 
 "Clean"
-    ==> "OutputVersion"
     ==> "AssemblyInfo"
     ==> "Build"
 
