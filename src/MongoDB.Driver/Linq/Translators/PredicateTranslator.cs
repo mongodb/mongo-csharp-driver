@@ -25,6 +25,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq.Utils;
+using MongoDB.Driver.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq
 {
@@ -302,8 +303,19 @@ namespace MongoDB.Driver.Linq
                 if (constantExpression == null)
                 {
                     variableExpression = binaryExpression.Left;
-                    var right = (binaryExpression.Right as MemberExpression);
-                    constantExpression = Expression.Constant(Expression.Lambda(right).Compile().DynamicInvoke());
+
+                    //Expression right = (binaryExpression.Right as MemberExpression);
+                    //if(right == null)
+                    //{
+                    //    right = (binaryExpression.Right as UnaryExpression);
+                        
+                    //}
+                    //constantExpression = Expression.Constant(Expression.Lambda(right).Compile().DynamicInvoke());
+                    // We don't have find a constantExpression in any of the binary members, we are now looking deeper
+                    ExpressionValueGetter visitor = new ExpressionValueGetter();
+                    visitor.VisitNode(binaryExpression.Right);
+                    constantExpression = visitor.Result;
+
                     if (constantExpression == null)
                     {
                         return null;

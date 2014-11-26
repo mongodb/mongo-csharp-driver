@@ -30,6 +30,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             public ObjectId Id;
             public int b;
+
+            public MyEnum MyEnum
+            { get; set; }
         }
 
         private class C : B
@@ -40,6 +43,13 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         private class D : C
         {
             public int d;
+        }
+
+        public enum MyEnum
+        {
+            Enum1 = 1,
+            Enum2 = 2,
+            Enum3 = 4
         }
 
         [Test]
@@ -54,7 +64,24 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var actual = target.BuildQuery(where.Body);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"MongoDB.Driver.Tests.Linq.Translators.PredicateTranslatorTests+D, MongoDB.Driver.Tests\", \"d\" : 1 } } }", actual.ToString());
+            Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"MongoDB.Driver.Tests.Linq.Translators.PredicateTranslatorTests+D, MongoDB.Driver.Tests\", \"d\" : 1 } } }", actual.ToJson());
+        }
+
+        [Test]
+        public void QueryEnum()
+        {
+            var _collection = Configuration.GetTestCollection<B>();
+
+            var enumValue = MyEnum.Enum1;
+            Expression<Func<B, bool>> where = t => t.MyEnum == enumValue;
+
+            BsonSerializationInfoHelper _serializationInfoHelper = new BsonSerializationInfoHelper();
+            PredicateTranslator target = new PredicateTranslator(_serializationInfoHelper);
+
+            var actual = target.BuildQuery(where.Body);
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual("{ \"MyEnum\" : 1 }", actual.ToJson());
         }
     }
 }
