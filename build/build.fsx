@@ -7,7 +7,7 @@ let config = getBuildParamOrDefault "config" "Release"
 let baseVersion = getBuildParamOrDefault "baseVersion" "2.0.0"
 let preRelease = getBuildParamOrDefault "preRelease" "local"
 let getComputedBuildNumber() = 
-    let result = Git.CommandHelper.runSimpleGitCommand currentDirectory "describe HEAD^1 --tags --long --match \"v[0-9].[0-9].[0-9].[0-9]*\""
+    let result = Git.CommandHelper.runSimpleGitCommand currentDirectory "describe HEAD^1 --tags --long --match \"v[0-9].[0-9].[0-9]*\""
     let m = System.Text.RegularExpressions.Regex.Match(result, @"-(\d+)-")
     m.Groups.[1].Value
 
@@ -56,6 +56,8 @@ let docsArtifactZipFile = artifactsDir @@ "CSharpDriverDocs-" + semVersion + "-h
 let zipArtifactFile = artifactsDir @@ "CSharpDriver-" + semVersion + ".zip"
 
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some(Minimal) }
+
+monoArguments <- "--runtime=v4.0.30319"
 
 // Targets
 Target "Clean" (fun _ ->
@@ -110,8 +112,11 @@ Target "Test" (fun _ ->
     if not <| directoryExists binDir45 then new Exception(sprintf "Directory %s does not exist." binDir45) |> raise
     ensureDirectory testResultsDir
 
+    let framework = ref "net-4.5"
     let mutable testsDir = !! (binDir45 @@ "*Tests*.dll")
-    if isMono then testsDir <- testsDir -- (binDir45 @@ "*VB.Tests*.dll")
+    if isMono then
+        testsDir <- testsDir -- (binDir45 @@ "*VB.Tests*.dll")
+        framework := "mono-4.0"
 
     testsDir
         |> NUnit (fun p -> 
@@ -119,7 +124,7 @@ Target "Test" (fun _ ->
                 OutputFile = testResultsDir @@ getBuildParamOrDefault "testResults" "test-results.xml"
                 DisableShadowCopy = true
                 ShowLabels = false
-                Framework = "net-4.5" 
+                Framework = !framework
                 IncludeCategory = getBuildParamOrDefault "testInclude" ""
                 ExcludeCategory = getBuildParamOrDefault "testExclude" ""
             })
