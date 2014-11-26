@@ -834,7 +834,7 @@ namespace MongoDB.Driver.Linq
             Type actualType = itemType.GetGenericArguments()[0];
 
             var discriminator = BsonSerializer.LookupDiscriminatorConvention(itemType);
-            var discriminatorValue = discriminator.GetDiscriminator(actualType, ofTypeTargetType);
+            var discriminatorValue = BsonClassMap.LookupClassMap(actualType).Discriminator;
 
             return Query.EQ(discriminator.ElementName, discriminatorValue);
         }
