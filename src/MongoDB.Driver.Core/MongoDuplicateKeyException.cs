@@ -23,7 +23,7 @@ namespace MongoDB.Driver
     /// Thrown when a duplicate key is inserted into a collection.
     /// </summary>
     [Serializable]
-    public class MongoDuplicateKeyException : WriteConcernException
+    public class MongoDuplicateKeyException : MongoWriteConcernException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoDuplicateKeyException"/> class.
@@ -43,12 +43,6 @@ namespace MongoDB.Driver
         public MongoDuplicateKeyException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-        }
-
-        // methods
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
         }
     }
 }

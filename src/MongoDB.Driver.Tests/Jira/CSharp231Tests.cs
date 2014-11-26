@@ -175,10 +175,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", new BsonArray() }, { "X", 1 } };
-            Assert.Throws<WriteConcernException>(() => { _collection.Insert(doc); });
+            Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
 
             doc = new BsonDocument { { "_id", new BsonArray { 1, 2, 3 } }, { "X", 1 } };
-            Assert.Throws<WriteConcernException>(() => { _collection.Insert(doc); });
+            Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
         }
 
         [Test]
@@ -355,10 +355,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
 
             doc = new ClassWithArrayId { Id = new int[] { }, X = 1 };
-            Assert.Throws<WriteConcernException>(() => { _collection.Insert(doc); });
+            Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
 
             doc = new ClassWithArrayId { Id = new int[] { 1, 2, 3 }, X = 1 };
-            Assert.Throws<WriteConcernException>(() => { _collection.Insert(doc); });
+            Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
         }
 
         [Test]
@@ -382,10 +382,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
             _collection.Insert(doc);
 
             doc = new ClassWithBsonArrayId { Id = new BsonArray(), X = 1 };
-            Assert.Throws<WriteConcernException>(() => { _collection.Insert(doc); });
+            Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
 
             doc = new ClassWithBsonArrayId { Id = new BsonArray { 1, 2, 3 }, X = 1 };
-            Assert.Throws<WriteConcernException>(() => { _collection.Insert(doc); });
+            Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
         }
 
         [Test]
@@ -596,10 +596,10 @@ namespace MongoDB.Driver.Tests.Jira.CSharp231
                 _collection.Insert(doc);
 
                 doc = new ClassWithBsonValueId { Id = new BsonArray(), X = 1 };
-                Assert.Throws<WriteConcernException>(() => { _collection.Insert(doc); });
+                Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
 
                 doc = new ClassWithBsonValueId { Id = new BsonArray { 1, 2, 3 }, X = 1 };
-                Assert.Throws<WriteConcernException>(() => { _collection.Insert(doc); });
+                Assert.Throws<MongoWriteConcernException>(() => { _collection.Insert(doc); });
             }
 
             {

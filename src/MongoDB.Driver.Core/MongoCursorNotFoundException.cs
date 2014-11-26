@@ -41,7 +41,7 @@ namespace MongoDB.Driver
 
         // constructors
         public MongoCursorNotFoundException(ConnectionId connectionId, long cursorId, BsonDocument query)
-            : base(connectionId, FormatMessage(connectionId, cursorId), query, null, null)
+            : base(connectionId, FormatMessage(connectionId, cursorId), query, null)
         {
             _cursorId = cursorId;
         }

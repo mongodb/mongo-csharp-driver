@@ -790,7 +790,7 @@ namespace MongoDB.Driver.Core.Operations
                 IsOrdered = false
             };
 
-            var ex = await CatchAsync<BulkWriteOperationException>(() => ExecuteOperationAsync(subject));
+            var ex = await CatchAsync<MongoBulkWriteOperationException>(() => ExecuteOperationAsync(subject));
             var result = ex.Result;
             result.DeletedCount.Should().Be(0);
             result.InsertedCount.Should().Be(3);
@@ -830,7 +830,7 @@ namespace MongoDB.Driver.Core.Operations
                 IsOrdered = true
             };
 
-            var ex = await CatchAsync<BulkWriteOperationException>(() => ExecuteOperationAsync(subject));
+            var ex = await CatchAsync<MongoBulkWriteOperationException>(() => ExecuteOperationAsync(subject));
 
             var result = ex.Result;
             result.DeletedCount.Should().Be(0);
@@ -867,7 +867,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchCount = 2
             };
 
-            var ex = await CatchAsync<BulkWriteOperationException>(() => ExecuteOperationAsync(subject));
+            var ex = await CatchAsync<MongoBulkWriteOperationException>(() => ExecuteOperationAsync(subject));
 
             var result = ex.Result;
             result.DeletedCount.Should().Be(0);
@@ -904,7 +904,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchCount = 2
             };
 
-            var ex = await CatchAsync<BulkWriteOperationException>(() => ExecuteOperationAsync(subject));
+            var ex = await CatchAsync<MongoBulkWriteOperationException>(() => ExecuteOperationAsync(subject));
 
             var result = ex.Result;
             result.DeletedCount.Should().Be(0);

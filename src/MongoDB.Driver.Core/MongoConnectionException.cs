@@ -60,6 +60,7 @@ namespace MongoDB.Driver
         public MongoConnectionException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            // TODO: deserialize fields
         }
 
         // properties
@@ -75,6 +76,7 @@ namespace MongoDB.Driver
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            // TODO: serialize fields
         }
     }
 }

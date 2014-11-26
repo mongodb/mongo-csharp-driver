@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     err = errBsonValue.ToString();
                     if (err.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
                     {
-                        throw new NotMasterException(connectionId, response);
+                        throw new MongoNotMasterException(connectionId, response);
                     }
                 }
 

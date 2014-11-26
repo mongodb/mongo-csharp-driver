@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Tests
                             },
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         });
-                        Assert.Throws<ExecutionTimeoutException>(() => query.ToList());
+                        Assert.Throws<MongoExecutionTimeoutException>(() => query.ToList());
                     }
                 }
             }
@@ -426,7 +426,7 @@ namespace MongoDB.Driver.Tests
                     {
                         failpoint.SetAlwaysOn();
                         var args = new CountArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Count(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.Count(args));
                     }
                 }
             }
@@ -443,7 +443,7 @@ namespace MongoDB.Driver.Tests
                     if (failpoint.IsSupported())
                     {
                         failpoint.SetAlwaysOn();
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Find(Query.EQ("x", 1)).SetMaxTime(TimeSpan.FromMilliseconds(1)).Count());
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.Find(Query.EQ("x", 1)).SetMaxTime(TimeSpan.FromMilliseconds(1)).Count());
                     }
                 }
             }
@@ -752,7 +752,7 @@ namespace MongoDB.Driver.Tests
                             Key = "x",
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Distinct<BsonValue>(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.Distinct<BsonValue>(args));
                     }
                 }
             }
@@ -919,7 +919,7 @@ namespace MongoDB.Driver.Tests
                             Update = Update.Set("x", 1),
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndModify(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.FindAndModify(args));
                     }
                 }
             }
@@ -1055,7 +1055,7 @@ namespace MongoDB.Driver.Tests
                     {
                         failpoint.SetAlwaysOn();
                         var args = new FindAndRemoveArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndRemove(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.FindAndRemove(args));
                     }
                 }
             }
@@ -1200,7 +1200,7 @@ namespace MongoDB.Driver.Tests
 
                         failpoint.SetAlwaysOn();
                         var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs<TestClass>(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.FindOneAs<TestClass>(args));
                     }
                 }
             }
@@ -1232,7 +1232,7 @@ namespace MongoDB.Driver.Tests
 
                         failpoint.SetAlwaysOn();
                         var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs(typeof(TestClass), args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.FindOneAs(typeof(TestClass), args));
                     }
                 }
             }
@@ -1372,7 +1372,7 @@ namespace MongoDB.Driver.Tests
 
                         failpoint.SetAlwaysOn();
                         var maxTime = TimeSpan.FromMilliseconds(1);
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAll().SetMaxTime(maxTime).ToList());
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.FindAll().SetMaxTime(maxTime).ToList());
                     }
                 }
             }
@@ -1449,7 +1449,7 @@ namespace MongoDB.Driver.Tests
                                 MaxDistance = 6,
                                 MaxTime = TimeSpan.FromMilliseconds(1)
                             };
-                            Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoHaystackSearchAs<Place>(args));
+                            Assert.Throws<MongoExecutionTimeoutException>(() => _collection.GeoHaystackSearchAs<Place>(args));
                         }
                     }
                 }
@@ -1753,7 +1753,7 @@ namespace MongoDB.Driver.Tests
                             Near = new XYPoint(0, 0),
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoNearAs<BsonDocument>(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.GeoNearAs<BsonDocument>(args));
                     }
                 }
             }
@@ -1930,7 +1930,7 @@ namespace MongoDB.Driver.Tests
                             ReduceFunction = "function(doc, prev) { prev.count += 1 }",
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Group(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.Group(args));
                     }
                 }
             }
@@ -2561,7 +2561,7 @@ namespace MongoDB.Driver.Tests
                             ReduceFunction = "function(key, value) { return 0; }",
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.MapReduce(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.MapReduce(args));
                     }
                 }
             }
@@ -2862,7 +2862,7 @@ namespace MongoDB.Driver.Tests
                         {
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.GetStats(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.GetStats(args));
                     }
                 }
             }
@@ -3166,7 +3166,7 @@ namespace MongoDB.Driver.Tests
                         {
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         };
-                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Validate(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.Validate(args));
                     }
                 }
             }

@@ -408,7 +408,7 @@ namespace MongoDB.Driver
             var filter = new BsonDocument("a", 1);
             var expectedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 0 };
 
-            var exception = new BulkWriteOperationException(
+            var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
@@ -428,7 +428,7 @@ namespace MongoDB.Driver
                     filter,
                     CancellationToken.None).GetAwaiter().GetResult();
 
-            act.ShouldThrow<WriteException>();
+            act.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
@@ -453,7 +453,7 @@ namespace MongoDB.Driver
             var filter = new BsonDocument("a", 1);
             var expectedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 1 };
 
-            var exception = new BulkWriteOperationException(
+            var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
@@ -473,7 +473,7 @@ namespace MongoDB.Driver
                     filter,
                     CancellationToken.None).GetAwaiter().GetResult();
 
-            act.ShouldThrow<WriteException>();
+            act.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
@@ -745,7 +745,7 @@ namespace MongoDB.Driver
             var document = BsonDocument.Parse("{_id:1,a:1}");
             var expectedRequest = new InsertRequest(document) { CorrelationId = 0 };
 
-            var exception = new BulkWriteOperationException(
+            var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
@@ -765,7 +765,7 @@ namespace MongoDB.Driver
                     document,
                     CancellationToken.None).GetAwaiter().GetResult();
 
-            act.ShouldThrow<WriteException>();
+            act.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
@@ -797,7 +797,7 @@ namespace MongoDB.Driver
             var filter = BsonDocument.Parse("{a:1}");
             var replacement = BsonDocument.Parse("{a:2}");
             var expectedRequest = new UpdateRequest(UpdateType.Replacement, filter, replacement) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
-            var exception = new BulkWriteOperationException(
+            var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
@@ -819,7 +819,7 @@ namespace MongoDB.Driver
                 new UpdateOptions { IsUpsert = upsert },
                 CancellationToken.None).GetAwaiter().GetResult();
 
-            act.ShouldThrow<WriteException>();
+            act.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
@@ -851,7 +851,7 @@ namespace MongoDB.Driver
             var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set:{a:1}}");
             var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = true };
-            var exception = new BulkWriteOperationException(
+            var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
@@ -873,7 +873,7 @@ namespace MongoDB.Driver
                 new UpdateOptions { IsUpsert = upsert },
                 CancellationToken.None).GetAwaiter().GetResult();
 
-            act.ShouldThrow<WriteException>();
+            act.ShouldThrow<MongoWriteException>();
         }
 
         [Test]
@@ -905,7 +905,7 @@ namespace MongoDB.Driver
             var filter = BsonDocument.Parse("{a:1}");
             var update = BsonDocument.Parse("{$set:{a:1}}");
             var expectedRequest = new UpdateRequest(UpdateType.Update, filter, update) { CorrelationId = 0, IsUpsert = upsert, IsMulti = false };
-            var exception = new BulkWriteOperationException(
+            var exception = new MongoBulkWriteOperationException(
                 _connectionId,
                 new BulkWriteOperationResult.Acknowledged(
                     requestCount: 1,
@@ -927,7 +927,7 @@ namespace MongoDB.Driver
                 new UpdateOptions { IsUpsert = upsert },
                 CancellationToken.None).GetAwaiter().GetResult();
 
-            act.ShouldThrow<WriteException>();
+            act.ShouldThrow<MongoWriteException>();
         }
 
         private static void VerifySingleWrite<TRequest>(TRequest expectedRequest, MockOperationExecutor.WriteCall<BulkWriteOperationResult> call)

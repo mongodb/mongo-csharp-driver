@@ -13,82 +13,55 @@
 * limitations under the License.
 */
 
-using System;
-using MongoDB.Driver.Core.Clusters;
-using FluentAssertions;
-using NUnit.Framework;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
+using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using System.Net;
+using NUnit.Framework;
 
 namespace MongoDB.Driver
 {
     [TestFixture]
-    public class QueryExceptionTests
+    public class MongoQueryExceptionTests
     {
-        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(0), new DnsEndPoint("localhost", 27017)), 0);
+        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
+        private readonly string _message = "message";
+        private readonly BsonDocument _query = new BsonDocument("query", 1);
+        private readonly BsonDocument _queryResult = new BsonDocument("result", 1);
 
         [Test]
-        public void Constructor_with_2_arguments_should_work()
+        public void constructor_should_initialize_subject()
         {
-            var query = new BsonDocument("query", 1);
-            var exception = new MongoQueryException(_connectionId, "message", query);
-            exception.ConnectionId.Should().BeSameAs(_connectionId);
-            exception.Message.Should().Be("message");
-            exception.InnerException.Should().BeNull();
-            exception.Query.Equals(query).Should().BeTrue();
-            exception.QueryResult.Should().BeNull();
-        }
+            var subject = new MongoQueryException(_connectionId, _message, _query, _queryResult);
 
-        [Test]
-        public void Constructor_with_3_arguments_should_work()
-        {
-            var query = new BsonDocument("query", 1);
-            var result = new BsonDocument("result", 2);
-            var exception = new MongoQueryException(_connectionId, "message", query,result);
-            exception.ConnectionId.Should().BeSameAs(_connectionId);
-            exception.Message.Should().Be("message");
-            exception.InnerException.Should().BeNull();
-            exception.Query.Equals(query).Should().BeTrue();
-            exception.QueryResult.Equals(result).Should().BeTrue();
-        }
-
-        [Test]
-        public void Constructor_with_4_arguments_should_work()
-        {
-            var query = new BsonDocument("query", 1);
-            var result = new BsonDocument("result", 2);
-            var innerException = new Exception("inner");
-            var exception = new MongoQueryException(_connectionId, "message", query, result, innerException);
-            exception.ConnectionId.Should().BeSameAs(_connectionId);
-            exception.Message.Should().Be("message");
-            exception.InnerException.Message.Should().Be("inner");
-            exception.Query.Equals(query).Should().BeTrue();
-            exception.QueryResult.Equals(result).Should().BeTrue();
+            subject.ConnectionId.Should().BeSameAs(_connectionId);
+            subject.InnerException.Should().BeNull();
+            subject.Message.Should().Be(_message);
+            subject.Query.Should().Be(_query);
+            subject.QueryResult.Should().Be(_queryResult);
         }
 
         [Test]
         public void Serialization_should_work()
         {
-            var query = new BsonDocument("query", 1);
-            var result = new BsonDocument("result", 2);
-            var innerException = new Exception("inner");
-            var exception = new MongoQueryException(_connectionId, "message", query, result, innerException);
+            var subject = new MongoQueryException(_connectionId, _message, _query, _queryResult);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
-                formatter.Serialize(stream, exception);
+                formatter.Serialize(stream, subject);
                 stream.Position = 0;
                 var rehydrated = (MongoQueryException)formatter.Deserialize(stream);
+
                 rehydrated.ConnectionId.Should().BeNull(); // ConnectionId is not serializable
-                rehydrated.Message.Should().Be("message");
-                rehydrated.InnerException.Message.Should().Be("inner");
-                rehydrated.Query.Equals(query).Should().BeTrue();
-                rehydrated.QueryResult.Equals(result).Should().BeTrue();
+                rehydrated.InnerException.Should().BeNull();
+                rehydrated.Message.Should().Be(subject.Message);
+                rehydrated.Query.Should().Be(subject.Query);
+                rehydrated.QueryResult.Should().Be(subject.QueryResult);
             }
         }
     }

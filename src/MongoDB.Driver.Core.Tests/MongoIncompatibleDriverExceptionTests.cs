@@ -47,6 +47,7 @@ namespace MongoDB.Driver
 
             subject.Message.StartsWith("This version of the driver is not compatible");
             subject.Message.EndsWith(":" + _clusterDescription.ToString() + ".");
+            subject.InnerException.Should().BeNull();
         }
 
         [Test]
@@ -62,6 +63,7 @@ namespace MongoDB.Driver
                 var rehydrated = (MongoIncompatibleDriverException)formatter.Deserialize(stream);
 
                 rehydrated.Message.Should().Be(subject.Message);
+                rehydrated.InnerException.Should().BeNull();
             }
         }
     }

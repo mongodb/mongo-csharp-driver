@@ -30,6 +30,7 @@ namespace MongoDB.Driver
             var subject = new MongoWaitQueueFullException("message");
 
             subject.Message.Should().Be("message");
+            subject.InnerException.Should().BeNull();
         }
 
         [Test]
@@ -62,6 +63,7 @@ namespace MongoDB.Driver
                 var rehydrated = (MongoWaitQueueFullException)formatter.Deserialize(stream);
 
                 rehydrated.Message.Should().Be(subject.Message);
+                rehydrated.InnerException.Should().BeNull();
             }
         }
     }

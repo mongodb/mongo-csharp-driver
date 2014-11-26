@@ -29,23 +29,8 @@ namespace MongoDB.Driver
         private readonly BsonDocument _queryResult;
 
         // constructors
-        public MongoQueryException(ConnectionId connectionId, string message)
-            : this(connectionId, message, null, null, null)
-        {
-        }
-
-        public MongoQueryException(ConnectionId connectionId, string message, BsonDocument query)
-            : this(connectionId, message, query, null, null)
-        {
-        }
-
         public MongoQueryException(ConnectionId connectionId, string message, BsonDocument query, BsonDocument queryResult)
-            : this(connectionId, message, query, queryResult, null)
-        {
-        }
-
-        public MongoQueryException(ConnectionId connectionId, string message, BsonDocument query, BsonDocument queryResult, Exception innerException)
-            : base(connectionId, message, innerException)
+            : base(connectionId, message, null)
         {
             _query = query;
             _queryResult = queryResult;

@@ -24,10 +24,10 @@ using MongoDB.Driver.Core.Operations;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents a get last error exception.
+    /// Represents a write concern exception.
     /// </summary>
     [Serializable]
-    public class WriteConcernException : MongoCommandException
+    public class MongoWriteConcernException : MongoCommandException
     {
         // fields
         private readonly WriteConcernResult _writeConcernResult;
@@ -38,7 +38,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="writeConcernResult">The command result.</param>
-        public WriteConcernException(ConnectionId connectionId, string message, WriteConcernResult writeConcernResult)
+        public MongoWriteConcernException(ConnectionId connectionId, string message, WriteConcernResult writeConcernResult)
             : base(connectionId, message, null, writeConcernResult.Response)
         {
             _writeConcernResult = Ensure.IsNotNull(writeConcernResult, "writeConcernResult");
@@ -49,10 +49,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public WriteConcernException(SerializationInfo info, StreamingContext context)
+        public MongoWriteConcernException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _writeConcernResult = new WriteConcernResult(BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_query", typeof(byte[]))));
+            // TODO: deserialize fields
         }
 
         // properties
@@ -71,7 +71,7 @@ namespace MongoDB.Driver
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("_writeConcernResult", _writeConcernResult.Response.ToBson());
+            // TODO: serialize fields
         }
     }
 }

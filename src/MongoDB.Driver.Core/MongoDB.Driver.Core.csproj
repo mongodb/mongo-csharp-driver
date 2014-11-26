@@ -83,7 +83,7 @@
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="Core\Misc\StringBuilderExtensionMethods.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperation.cs" />
-    <Compile Include="Core\Operations\BulkWriteOperationException.cs" />
+    <Compile Include="Core\Operations\MongoBulkWriteOperationException.cs" />
     <Compile Include="Core\Operations\CreateIndexRequest.cs" />
     <Compile Include="Core\Operations\CursorType.cs" />
     <Compile Include="Core\Operations\ElementNameValidators\CollectionElementNameValidator.cs" />
@@ -113,7 +113,7 @@
     <Compile Include="Core\WireProtocol\Messages\Encoders\MessageEncoderSettings.cs" />
     <Compile Include="CollectionNamespace.cs" />
     <Compile Include="DatabaseNamespace.cs" />
-    <Compile Include="ExecutionTimeoutException.cs" />
+    <Compile Include="MongoExecutionTimeoutException.cs" />
     <Compile Include="Core\Operations\BulkWriteOperationResultConverter.cs" />
     <Compile Include="Core\Operations\DeleteOpcodeOperationEmulator.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperationEmulator.cs" />
@@ -180,8 +180,8 @@
     <Compile Include="MongoIncompatibleDriverException.cs" />
     <Compile Include="MongoServerException.cs" />
     <Compile Include="MongoWaitQueueFullException.cs" />
-    <Compile Include="NodeIsRecoveringException.cs" />
-    <Compile Include="NotMasterException.cs" />
+    <Compile Include="MongoNodeIsRecoveringException.cs" />
+    <Compile Include="MongoNotMasterException.cs" />
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReadPreferenceMode.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfig.cs" />
@@ -212,8 +212,8 @@
     <Compile Include="Core\Connections\TcpStreamFactory.cs" />
     <Compile Include="Core\Configuration\TcpStreamSettings.cs" />
     <Compile Include="Core\Configuration\ConnectionString.cs" />
-    <Compile Include="ConfigurationException.cs" />
-    <Compile Include="MessageNotSentException.cs" />
+    <Compile Include="MongoConfigurationException.cs" />
+    <Compile Include="MongoMessageNotSentException.cs" />
     <Compile Include="Core\Misc\Range.cs" />
     <Compile Include="Core\Misc\ToStringComparer.cs" />
     <Compile Include="Core\Misc\IdGenerator.cs" />
@@ -243,8 +243,7 @@
     <Compile Include="MongoInternalException.cs" />
     <Compile Include="Core\Servers\ServerId.cs" />
     <Compile Include="MongoQueryException.cs" />
-    <Compile Include="WriteConcernException.cs" />
-    <Compile Include="WriteProtocolException.cs" />
+    <Compile Include="MongoWriteConcernException.cs" />
     <Compile Include="Core\Misc\EndPointHelper.cs" />
     <Compile Include="Core\Misc\Ensure.cs" />
     <Compile Include="Core\Misc\ExponentiallyWeightedMovingAverage.cs" />

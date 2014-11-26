@@ -14,21 +14,29 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
-using MongoDB.Driver.Core.Connections;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MongoDB.Driver
 {
     [Serializable]
-    public class MessageNotSentException : MongoConnectionException
+    public class MongoConfigurationException : MongoClientException
     {
         // constructors
-        public MessageNotSentException(ConnectionId connectionId)
-            : base(connectionId, "Message not sent.")
+        public MongoConfigurationException(string message)
+            : base(message)
         {
         }
 
-        protected MessageNotSentException(SerializationInfo info, StreamingContext context)
+        public MongoConfigurationException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        protected MongoConfigurationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

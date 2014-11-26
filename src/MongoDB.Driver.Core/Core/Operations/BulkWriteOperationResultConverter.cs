@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public methods
-        public Exception ToWriteConcernException(ConnectionId connectionId, BulkWriteOperationException bulkWriteException)
+        public Exception ToWriteConcernException(ConnectionId connectionId, MongoBulkWriteOperationException bulkWriteException)
         {
             var writeConcernResult = ToWriteConcernResult(bulkWriteException.Result, bulkWriteException);
 
@@ -41,10 +41,10 @@ namespace MongoDB.Driver.Core.Operations
             }
             if (exception == null)
             {
-                exception = new WriteConcernException(connectionId, bulkWriteException.Message, writeConcernResult);
+                exception = new MongoWriteConcernException(connectionId, bulkWriteException.Message, writeConcernResult);
             }
 
-            var writeConcernException = exception as WriteConcernException;
+            var writeConcernException = exception as MongoWriteConcernException;
             if (writeConcernException != null)
             { 
                 writeConcernException.Data["results"] = new List<WriteConcernResult>(new[] { writeConcernResult });
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private WriteConcernResult ToWriteConcernResult(BulkWriteOperationResult bulkWriteResult, BulkWriteOperationException bulkWriteException)
+        private WriteConcernResult ToWriteConcernResult(BulkWriteOperationResult bulkWriteResult, MongoBulkWriteOperationException bulkWriteException)
         {
             if (!bulkWriteResult.IsAcknowledged)
             {

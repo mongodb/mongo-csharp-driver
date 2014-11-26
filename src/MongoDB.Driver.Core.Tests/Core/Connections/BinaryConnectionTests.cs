@@ -404,7 +404,7 @@ namespace MongoDB.Driver.Core.Connections
                 act1.ShouldThrow<SocketException>();
 
                 Action act2 = () => task2.GetAwaiter().GetResult();
-                act2.ShouldThrow<MessageNotSentException>();
+                act2.ShouldThrow<MongoMessageNotSentException>();
 
                 _listener.ReceivedWithAnyArgs().ConnectionBeforeSendingMessages(null, null);
                 _listener.ReceivedWithAnyArgs().ConnectionErrorSendingMessages(null, null, null);

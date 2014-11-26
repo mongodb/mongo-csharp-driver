@@ -35,17 +35,12 @@ namespace MongoDB.Driver
 
         // constructors
         public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command)
-            : this(connectionId, message, command, null, null)
+            : this(connectionId, message, command, null)
         {
         }
 
         public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result)
-            : this(connectionId, message, command, result, null)
-        {
-        }
-
-        public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result, Exception innerException)
-            : base(connectionId, message, innerException)
+            : base(connectionId, message)
         {
             _command = command;
             _result = result; // can be null

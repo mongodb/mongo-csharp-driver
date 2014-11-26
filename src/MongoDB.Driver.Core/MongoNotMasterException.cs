@@ -23,19 +23,19 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     [Serializable]
-    public class NodeIsRecoveringException : MongoServerException
+    public class MongoNotMasterException : MongoServerException
     {
         // fields
         private readonly BsonDocument _result;
 
         // constructors
-        public NodeIsRecoveringException(ConnectionId connectionId, BsonDocument result)
-            : base(connectionId, "Server returned node is recovering error.")
+        public MongoNotMasterException(ConnectionId connectionId, BsonDocument result)
+            : base(connectionId, "Server returned not master error.")
         {
             _result = Ensure.IsNotNull(result, "result");
         }
 
-        protected NodeIsRecoveringException(SerializationInfo info, StreamingContext context)
+        protected MongoNotMasterException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _result = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_result", typeof(byte[])));

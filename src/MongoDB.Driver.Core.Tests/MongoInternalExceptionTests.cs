@@ -22,7 +22,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver
 {
     [TestFixture]
-    public class MongoExceptionTests
+    public class MongoInternalExceptionTests
     {
         private Exception _innerException = new Exception("inner");
         private string _message = "message";
@@ -30,35 +30,35 @@ namespace MongoDB.Driver
         [Test]
         public void constructor_should_initialize_subject()
         {
-            var subject = new MongoException(_message);
+            var subject = new MongoInternalException(_message);
 
-            subject.Message.Should().BeSameAs(_message);
             subject.InnerException.Should().BeNull();
+            subject.Message.Should().BeSameAs(_message);
         }
 
         [Test]
         public void constructor_with_innerException_should_initialize_subject()
         {
-            var subject = new MongoException(_message, _innerException);
+            var subject = new MongoInternalException(_message, _innerException);
 
-            subject.Message.Should().BeSameAs(_message);
             subject.InnerException.Should().BeSameAs(_innerException);
+            subject.Message.Should().BeSameAs(_message);
         }
 
         [Test]
         public void Serialization_should_work()
         {
-            var subject = new MongoException(_message, _innerException);
+            var subject = new MongoInternalException(_message, _innerException);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
-                var rehydrated = (MongoException)formatter.Deserialize(stream);
+                var rehydrated = (MongoInternalException)formatter.Deserialize(stream);
 
-                rehydrated.Message.Should().Be(subject.Message);
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
+                rehydrated.Message.Should().Be(subject.Message);
             }
         }
     }

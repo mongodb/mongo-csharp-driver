@@ -23,7 +23,7 @@ namespace MongoDB.Driver
     /// Represents a MongoDB execution timeout exception.
     /// </summary>
     [Serializable]
-    public class ExecutionTimeoutException : MongoServerException
+    public class MongoExecutionTimeoutException : MongoServerException
     {
         // constructors
         /// <summary>
@@ -31,7 +31,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
-        public ExecutionTimeoutException(ConnectionId connectionId, string message)
+        public MongoExecutionTimeoutException(ConnectionId connectionId, string message)
             : base(connectionId, message)
         {
         }
@@ -42,7 +42,7 @@ namespace MongoDB.Driver
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public ExecutionTimeoutException(ConnectionId connectionId, string message, Exception innerException)
+        public MongoExecutionTimeoutException(ConnectionId connectionId, string message, Exception innerException)
             : base(connectionId, message, innerException)
         {
         }
@@ -52,7 +52,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public ExecutionTimeoutException(SerializationInfo info, StreamingContext context)
+        public MongoExecutionTimeoutException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2010-2014 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -26,45 +28,43 @@ using NUnit.Framework;
 namespace MongoDB.Driver
 {
     [TestFixture]
-    public class MongoCursorNotFoundExceptionTests
+    public class MongoDuplicateKeyExceptionTests
     {
-        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 1).WithServerValue(2);
-        private readonly long _cursorId = 1;
-        private readonly BsonDocument _query = new BsonDocument("query", 1);
+        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
+        private readonly string _message = "message";
+        private readonly WriteConcernResult _writeConcernResult = new WriteConcernResult(new BsonDocument("result", 1));
 
         [Test]
-        public void constructor_should_initalize_subject()
+        public void constructor_should_initialize_subject()
         {
-            var subject = new MongoCursorNotFoundException(_connectionId, _cursorId, _query);
+            var subject = new MongoDuplicateKeyException(_connectionId, _message, _writeConcernResult);
 
+            subject.Command.Should().BeNull();
             subject.ConnectionId.Should().BeSameAs(_connectionId);
-            subject.CursorId.Should().Be(_cursorId);
             subject.InnerException.Should().BeNull();
-            subject.Message.Should().StartWith("Cursor 1 not found");
-            subject.Message.Should().Contain("server localhost:27017");
-            subject.Message.Should().Contain("connection 2");
-            subject.Query.Should().BeSameAs(_query);
-            subject.QueryResult.Should().BeNull();
+            subject.Message.Should().BeSameAs(_message);
+            subject.Result.Should().Be(_writeConcernResult.Response);
+            subject.WriteConcernResult.Should().Be(_writeConcernResult);
         }
 
         [Test]
         public void Serialization_should_work()
         {
-            var subject = new MongoCursorNotFoundException(_connectionId, _cursorId, _query);
+            var subject = new MongoDuplicateKeyException(_connectionId, _message, _writeConcernResult);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
-                var rehydrated = (MongoCursorNotFoundException)formatter.Deserialize(stream);
+                var rehydrated = (MongoDuplicateKeyException)formatter.Deserialize(stream);
 
+                rehydrated.Command.Should().BeNull();
                 rehydrated.ConnectionId.Should().BeNull(); // ConnectionId is not serializable
-                rehydrated.CursorId.Should().Be(subject.CursorId);
                 rehydrated.InnerException.Should().BeNull();
                 rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.Query.Should().Be(subject.Query);
-                rehydrated.QueryResult.Should().Be(subject.QueryResult);
+                rehydrated.Result.Should().Be(subject.Result);
+                rehydrated.WriteConcernResult.Should().BeNull(); // WriteConcernResult is not serializable
             }
         }
     }

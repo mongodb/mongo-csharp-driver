@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 foreach (var entry in _outboundQueue.DequeueAll())
                 {
-                    entry.TaskCompletionSource.TrySetException(new MessageNotSentException(_connectionId));
+                    entry.TaskCompletionSource.TrySetException(new MongoMessageNotSentException(_connectionId));
                 }
 
                 foreach (var awaiter in _inboundDropbox.RemoveAllAwaiters())

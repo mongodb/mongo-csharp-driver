@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Connections;
@@ -27,19 +26,19 @@ namespace MongoDB.Driver
     /// Represents a bulk write exception.
     /// </summary>
     [Serializable]
-    public class BulkWriteException : MongoServerException
+    public abstract class MongoBulkWriteException : MongoServerException
     {
         // private fields
-        private WriteConcernError _writeConcernError;
-        private IReadOnlyList<BulkWriteError> _writeErrors;
+        private readonly WriteConcernError _writeConcernError;
+        private readonly IReadOnlyList<BulkWriteError> _writeErrors;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteException" /> class.
+        /// Initializes a new instance of the <see cref="MongoBulkWriteException" /> class.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="writeErrors">The write errors.</param>
         /// <param name="writeConcernError">The write concern error.</param>
-        public BulkWriteException(
+        public MongoBulkWriteException(
             ConnectionId connectionId,
             IEnumerable<BulkWriteError> writeErrors,
             WriteConcernError writeConcernError)
@@ -54,9 +53,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public BulkWriteException(SerializationInfo info, StreamingContext context)
+        public MongoBulkWriteException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            // TODO: deserialize fields
         }
 
         // properties
@@ -81,28 +81,40 @@ namespace MongoDB.Driver
         {
             get { return _writeErrors; }
         }
+
+        // methods
+        /// <summary>
+        /// Gets the object data.
+        /// </summary>
+        /// <param name="info">The information.</param>
+        /// <param name="context">The context.</param>
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            // TODO: serialize fields
+        }
     }
 
     /// <summary>
     /// Represents a bulk write exception.
     /// </summary>
     [Serializable]
-    public class BulkWriteException<T> : BulkWriteException
+    public sealed class MongoBulkWriteException<T> : MongoBulkWriteException
     {
         // private fields
-        private BulkWriteResult<T> _result;
-        private IReadOnlyList<WriteModel<T>> _unprocessedRequests;
+        private readonly BulkWriteResult<T> _result;
+        private readonly IReadOnlyList<WriteModel<T>> _unprocessedRequests;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteException" /> class.
+        /// Initializes a new instance of the <see cref="MongoBulkWriteException" /> class.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="result">The result.</param>
         /// <param name="writeErrors">The write errors.</param>
         /// <param name="writeConcernError">The write concern error.</param>
         /// <param name="unprocessedRequests">The unprocessed requests.</param>
-        public BulkWriteException(
+        public MongoBulkWriteException(
             ConnectionId connectionId,
             BulkWriteResult<T> result, 
             IEnumerable<BulkWriteError> writeErrors,
@@ -120,9 +132,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public BulkWriteException(SerializationInfo info, StreamingContext context)
+        public MongoBulkWriteException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            // TODO: deserialize fields
         }
 
         // public properties
@@ -146,10 +159,22 @@ namespace MongoDB.Driver
             get { return _unprocessedRequests; }
         }
 
-        // internal static methods
-        internal static BulkWriteException<T> FromCore(BulkWriteOperationException ex)
+        // methods
+        /// <summary>
+        /// Gets the object data.
+        /// </summary>
+        /// <param name="info">The information.</param>
+        /// <param name="context">The context.</param>
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            return new BulkWriteException<T>(
+            base.GetObjectData(info, context);
+            // TODO: serialize fields
+        }
+
+        // internal static methods
+        internal static MongoBulkWriteException<T> FromCore(MongoBulkWriteOperationException ex)
+        {
+            return new MongoBulkWriteException<T>(
                 ex.ConnectionId,
                 BulkWriteResult<T>.FromCore(ex.Result),
                 ex.WriteErrors.Select(e => BulkWriteError.FromCore(e)),
@@ -157,7 +182,7 @@ namespace MongoDB.Driver
                 ex.UnprocessedRequests.Select(r => WriteModel<T>.FromCore(r)));
         }
 
-        internal static BulkWriteException<T> FromCore(BulkWriteOperationException ex, IReadOnlyList<WriteModel<T>> requests)
+        internal static MongoBulkWriteException<T> FromCore(MongoBulkWriteOperationException ex, IReadOnlyList<WriteModel<T>> requests)
         {
             var processedRequests = ex.Result.ProcessedRequests
                 .Select(r => new { CorrelationId = r.CorrelationId.Value, Request = requests[r.CorrelationId.Value] })
@@ -169,7 +194,7 @@ namespace MongoDB.Driver
                 .OrderBy(x => x.CorrelationId)
                 .Select(x => x.Request);
 
-            return new BulkWriteException<T>(
+            return new MongoBulkWriteException<T>(
                 ex.ConnectionId,
                 BulkWriteResult<T>.FromCore(ex.Result, processedRequests),
                 ex.WriteErrors.Select(e => BulkWriteError.FromCore(e)),

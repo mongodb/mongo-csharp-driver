@@ -161,9 +161,9 @@ namespace MongoDB.Driver
                     var result = operation.Execute(binding, CancellationToken.None);
                     return BulkWriteResult<TDocument>.FromCore(result);
                 }
-                catch (BulkWriteOperationException ex)
+                catch (MongoBulkWriteOperationException ex)
                 {
-                    throw BulkWriteException<TDocument>.FromCore(ex);
+                    throw MongoBulkWriteException<TDocument>.FromCore(ex);
                 }
             }
         }

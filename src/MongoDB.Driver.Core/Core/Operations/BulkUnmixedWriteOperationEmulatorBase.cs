@@ -92,12 +92,12 @@ namespace MongoDB.Driver.Core.Operations
         protected virtual async Task<BulkWriteBatchResult> EmulateSingleRequestAsync(IChannelHandle channel, WriteRequest request, int originalIndex, CancellationToken cancellationToken)
         {
             WriteConcernResult writeConcernResult = null;
-            WriteConcernException writeConcernException = null;
+            MongoWriteConcernException writeConcernException = null;
             try
             {
                 writeConcernResult = await ExecuteProtocolAsync(channel, request, cancellationToken);
             }
-            catch (WriteConcernException ex)
+            catch (MongoWriteConcernException ex)
             {
                 writeConcernResult = ex.WriteConcernResult;
                 writeConcernException = ex;

@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Misc
             var ex = ExceptionMapper.Map(_connectionId, writeConcernResult);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<WriteConcernException>(ex);
+            Assert.IsInstanceOf<MongoWriteConcernException>(ex);
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Core.Misc
             var ex = ExceptionMapper.Map(_connectionId, writeConcernResult);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<WriteConcernException>(ex);
+            Assert.IsInstanceOf<MongoWriteConcernException>(ex);
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Misc
             var ex = ExceptionMapper.Map(_connectionId, response);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<ExecutionTimeoutException>(ex);
+            Assert.IsInstanceOf<MongoExecutionTimeoutException>(ex);
         }
 
         [Test]
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Core.Misc
             var ex = ExceptionMapper.Map(_connectionId, response);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<ExecutionTimeoutException>(ex);
+            Assert.IsInstanceOf<MongoExecutionTimeoutException>(ex);
         }
     }
 }

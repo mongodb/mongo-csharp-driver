@@ -594,7 +594,7 @@ namespace MongoDB.Driver.Tests
         {
             var connectionString = "mongodb://localhost/?readPreferenceTags=dc:ny,rack:1";
 
-            Assert.Throws<ConfigurationException>(() => new MongoUrlBuilder(connectionString));
+            Assert.Throws<MongoConfigurationException>(() => new MongoUrlBuilder(connectionString));
         }
 
         [Test]
@@ -778,7 +778,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestSlaveOk_AfterReadPreference()
         {
-            Assert.Throws<ConfigurationException>(() => new MongoUrlBuilder("mongodb://localhost/?readPreference=primary&slaveOk=true"));
+            Assert.Throws<MongoConfigurationException>(() => new MongoUrlBuilder("mongodb://localhost/?readPreference=primary&slaveOk=true"));
         }
 
         [Test]

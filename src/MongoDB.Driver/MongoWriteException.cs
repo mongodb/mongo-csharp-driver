@@ -14,12 +14,8 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -27,47 +23,31 @@ namespace MongoDB.Driver
     /// Represents a write exception.
     /// </summary>
     [Serializable]
-    public class WriteException : MongoServerException
+    public class MongoWriteException : MongoServerException
     {
         // static
-        internal static WriteException FromBulkWriteException(BulkWriteException bulkException)
+        internal static MongoWriteException FromBulkWriteException(MongoBulkWriteException bulkException)
         {
             var writeConcernError = bulkException.WriteConcernError;
             var writeError = bulkException.WriteErrors.Count > 0
                 ? bulkException.WriteErrors[0]
                 : null;
 
-            return new WriteException(bulkException.ConnectionId, writeError, writeConcernError, bulkException);
+            return new MongoWriteException(bulkException.ConnectionId, writeError, writeConcernError, bulkException);
         }
 
         // private fields
-        private WriteConcernError _writeConcernError;
-        private WriteError _writeError;
+        private readonly WriteConcernError _writeConcernError;
+        private readonly WriteError _writeError;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WriteException" /> class.
-        /// </summary>
-        /// <param name="connectionId">The connection identifier.</param>
-        /// <param name="writeError">The write error.</param>
-        /// <param name="writeConcernError">The write concern error.</param>
-        public WriteException(
-            ConnectionId connectionId,
-            WriteError writeError,
-            WriteConcernError writeConcernError)
-            : base(connectionId, message: "A write operation resulted in an error.")
-        {
-            _writeError = writeError;
-            _writeConcernError = writeConcernError;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WriteException" /> class.
+        /// Initializes a new instance of the <see cref="MongoWriteException" /> class.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="writeError">The write error.</param>
         /// <param name="writeConcernError">The write concern error.</param>
         /// <param name="innerException">The inner exception.</param>
-        public WriteException(
+        public MongoWriteException(
             ConnectionId connectionId,
             WriteError writeError,
             WriteConcernError writeConcernError,
@@ -83,9 +63,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public WriteException(SerializationInfo info, StreamingContext context)
+        public MongoWriteException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            // TODO: deserialize fields
         }
 
         // properties
@@ -103,6 +84,18 @@ namespace MongoDB.Driver
         public WriteError WriteError
         {
             get { return _writeError; }
+        }
+
+        // methods
+        /// <summary>
+        /// Gets the object data.
+        /// </summary>
+        /// <param name="info">The information.</param>
+        /// <param name="context">The context.</param>
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            // TODO: serialize fields
         }
     }
 }

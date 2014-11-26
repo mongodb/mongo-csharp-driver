@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a bulk write exception.
     /// </summary>
     [Serializable]
-    public class BulkWriteOperationException : MongoServerException
+    public class MongoBulkWriteOperationException : MongoServerException
     {
         // fields
         private BulkWriteOperationResult _result;
@@ -36,13 +36,13 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteOperationException" /> class.
+        /// Initializes a new instance of the <see cref="MongoBulkWriteOperationException" /> class.
         /// </summary>
         /// <param name="result">The result.</param>
         /// <param name="writeErrors">The write errors.</param>
         /// <param name="unprocessedRequests">The unprocessed requests.</param>
         /// <param name="writeConcernError">The write concern error.</param>
-        public BulkWriteOperationException(
+        public MongoBulkWriteOperationException(
             ConnectionId connectionId,
             BulkWriteOperationResult result,
             IReadOnlyList<BulkWriteOperationError> writeErrors,
@@ -61,10 +61,10 @@ namespace MongoDB.Driver.Core.Operations
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public BulkWriteOperationException(SerializationInfo info, StreamingContext context)
+        public MongoBulkWriteOperationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            // TODO: decide what to do about serialization
+            // TODO: deserialize fields
         }
 
         // properties
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Operations
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            // TODO: decide what to do about serialization
+            // TODO: serialize fields
         }
     }
 }

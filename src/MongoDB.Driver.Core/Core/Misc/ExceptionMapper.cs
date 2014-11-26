@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Misc
                     case 13475:
                     case 16986:
                     case 16712:
-                        return new ExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.");
+                        return new MongoExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.");
                 }
             }
 
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Misc
                 if (errmsg.AsString.Contains("exceeded time limit") ||
                     errmsg.AsString.Contains("execution terminated"))
                 {
-                    return new ExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.");
+                    return new MongoExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.");
                 }
             }
 
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Misc
                 var errorMessage = string.Format(
                     "WriteConcern detected an error '{0}'. (Response was {1}).",
                     writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
-                return new WriteConcernException(connectionId, errorMessage, writeConcernResult);
+                return new MongoWriteConcernException(connectionId, errorMessage, writeConcernResult);
             }
 
             if (writeConcernResult.HasLastErrorMessage)
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Misc
                     "WriteConcern detected an error '{0}'. (Response was {1}).",
                     writeConcernResult.LastErrorMessage,
                     writeConcernResult.Response.ToJson());
-                return new WriteConcernException(connectionId, errorMessage, writeConcernResult);
+                return new MongoWriteConcernException(connectionId, errorMessage, writeConcernResult);
             }
 
             return null;

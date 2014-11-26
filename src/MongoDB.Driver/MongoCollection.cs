@@ -242,7 +242,7 @@ namespace MongoDB.Driver
             catch (MongoCommandException ex)
             {
                 var writeConcernResult = new WriteConcernResult(ex.Result);
-                throw new WriteConcernException(ex.ConnectionId, ex.Message, writeConcernResult);
+                throw new MongoWriteConcernException(ex.ConnectionId, ex.Message, writeConcernResult);
             }
         }
 

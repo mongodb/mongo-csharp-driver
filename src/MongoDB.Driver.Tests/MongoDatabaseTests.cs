@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Tests
                                 Code = "return 0;",
                                 MaxTime = TimeSpan.FromMilliseconds(1)
                             };
-                            Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
+                            Assert.Throws<MongoExecutionTimeoutException>(() => _database.Eval(args));
                         }
                     }
                 }

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -26,45 +27,38 @@ using NUnit.Framework;
 namespace MongoDB.Driver
 {
     [TestFixture]
-    public class MongoCursorNotFoundExceptionTests
+    public class MongoNotMasterExceptionTests
     {
-        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 1).WithServerValue(2);
-        private readonly long _cursorId = 1;
-        private readonly BsonDocument _query = new BsonDocument("query", 1);
+        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
+        private readonly BsonDocument _serverResult = new BsonDocument("result", 1);
 
         [Test]
-        public void constructor_should_initalize_subject()
+        public void constructor_should_initialize_subject()
         {
-            var subject = new MongoCursorNotFoundException(_connectionId, _cursorId, _query);
+            var subject = new MongoNotMasterException(_connectionId, _serverResult);
 
             subject.ConnectionId.Should().BeSameAs(_connectionId);
-            subject.CursorId.Should().Be(_cursorId);
             subject.InnerException.Should().BeNull();
-            subject.Message.Should().StartWith("Cursor 1 not found");
-            subject.Message.Should().Contain("server localhost:27017");
-            subject.Message.Should().Contain("connection 2");
-            subject.Query.Should().BeSameAs(_query);
-            subject.QueryResult.Should().BeNull();
+            subject.Message.Should().Be("Server returned not master error.");
+            subject.Result.Should().Be(_serverResult);
         }
 
         [Test]
         public void Serialization_should_work()
         {
-            var subject = new MongoCursorNotFoundException(_connectionId, _cursorId, _query);
+            var subject = new MongoNotMasterException(_connectionId, _serverResult);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
-                var rehydrated = (MongoCursorNotFoundException)formatter.Deserialize(stream);
+                var rehydrated = (MongoNotMasterException)formatter.Deserialize(stream);
 
                 rehydrated.ConnectionId.Should().BeNull(); // ConnectionId is not serializable
-                rehydrated.CursorId.Should().Be(subject.CursorId);
                 rehydrated.InnerException.Should().BeNull();
                 rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.Query.Should().Be(subject.Query);
-                rehydrated.QueryResult.Should().Be(subject.QueryResult);
+                rehydrated.Result.Should().Be(subject.Result);
             }
         }
     }
