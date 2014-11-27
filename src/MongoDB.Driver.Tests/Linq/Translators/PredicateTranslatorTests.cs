@@ -64,14 +64,12 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var actual = target.BuildQuery(where.Body);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"MongoDB.Driver.Tests.Linq.Translators.PredicateTranslatorTests+D, MongoDB.Driver.Tests\", \"d\" : 1 } } }", actual.ToJson());
+            Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"d\" : 1 } } }", actual.ToJson());
         }
 
         [Test]
         public void QueryEnum()
         {
-            var _collection = Configuration.GetTestCollection<B>();
-
             var enumValue = MyEnum.Enum1;
             Expression<Func<B, bool>> where = t => t.MyEnum == enumValue;
 
