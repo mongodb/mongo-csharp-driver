@@ -366,7 +366,7 @@ namespace MongoDB.Driver.Core.Servers
                 return;
             }
 
-            if (ex.GetType() == typeof(NotMasterException) || ex.GetType() == typeof(NodeIsRecoveringException))
+            if (ex.GetType() == typeof(MongoNotMasterException) || ex.GetType() == typeof(MongoNodeIsRecoveringException))
             {
                 Invalidate();
             }

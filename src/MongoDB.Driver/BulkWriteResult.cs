@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -24,6 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a bulk write operation.
     /// </summary>
+    [Serializable]
     public abstract class BulkWriteResult
     {
         // fields
@@ -115,6 +117,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a bulk write operation.
     /// </summary>
+    [Serializable]
     public abstract class BulkWriteResult<T> : BulkWriteResult
     {
         // private fields
@@ -189,6 +192,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Result from an acknowledged write concern.
         /// </summary>
+        [Serializable]
         public class Acknowledged : BulkWriteResult<T>
         {
             // private fields
@@ -319,6 +323,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Result from an unacknowledged write concern.
         /// </summary>
+        [Serializable]
         public class Unacknowledged : BulkWriteResult<T>
         {
             // constructors

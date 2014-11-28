@@ -106,9 +106,17 @@
     <Compile Include="Builders\QueryBuilderTypedTests.cs" />
     <Compile Include="Builders\SortByBuilderTypedTests.cs" />
     <Compile Include="Builders\UpdateBuilderTests.cs" />
+    <Compile Include="GridFS\MongoGridFSExceptionTests.cs" />
+    <Compile Include="Helpers\BulkWriteErrorEqualityComparer.cs" />
+    <Compile Include="Helpers\BulkWriteResultEqualityComparer.cs" />
+    <Compile Include="Helpers\BulkWriteUpsertEqualityComparer.cs" />
+    <Compile Include="Helpers\WriteConcernErrorEqualityComparer.cs" />
+    <Compile Include="Helpers\WriteErrorEqualityComparer.cs" />
+    <Compile Include="Helpers\WriteModelEqualityComparer.cs" />
     <Compile Include="IAggregateFluentExtensionsTests.cs" />
     <Compile Include="IFindFluentExtensionsTests.cs" />
     <Compile Include="IMongoCollectionExtensionsTests.cs" />
+    <Compile Include="MongoWriteExceptionTests.cs" />
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
     <Compile Include="WriteModelTests.cs" />
     <Compile Include="BulkWriteResultTests.cs" />
@@ -245,7 +253,7 @@
     <Compile Include="Linq\WithIndexTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\MagicDiscriminatorTests.cs" />
-    <Compile Include="BulkWriteExceptionTests.cs" />
+    <Compile Include="MongoBulkWriteExceptionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">

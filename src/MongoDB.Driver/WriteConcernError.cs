@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -20,6 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the details of a write concern error.
     /// </summary>
+    [Serializable]
     public class WriteConcernError
     {
         // private fields

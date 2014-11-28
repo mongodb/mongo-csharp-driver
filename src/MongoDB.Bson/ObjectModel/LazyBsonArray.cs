@@ -27,7 +27,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON array that is deserialized lazily.
     /// </summary>
-    [Serializable]
     [BsonSerializer(typeof(LazyBsonArraySerializer))]
     public class LazyBsonArray : MaterializedOnDemandBsonArray
     {

@@ -21,6 +21,7 @@
     <DocumentationSources>
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Bson.dll" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Bson.xml" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.Core.dll" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.dll" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.xml" />
     </DocumentationSources>
@@ -46,7 +47,7 @@
     <CopyrightText>Copyright &amp;#169%3b 2010-2014 MongoDB Inc.</CopyrightText>
     <FeedbackEMailAddress>dotnet-driver@mongodb.com</FeedbackEMailAddress>
     <FeedbackEMailLinkText>MongoDB</FeedbackEMailLinkText>
-    <FrameworkVersion>.NET Framework 3.5</FrameworkVersion>
+    <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
     <HelpFileVersion>0.0.0.0</HelpFileVersion>
     <PlugInConfigurations>
     </PlugInConfigurations>

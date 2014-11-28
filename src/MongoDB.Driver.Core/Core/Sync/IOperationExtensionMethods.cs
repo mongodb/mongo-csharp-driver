@@ -31,7 +31,8 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
 
         public static TResult Execute<TResult>(this IReadOperation<TResult> operation, IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return operation.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
+            var awaiter = operation.ExecuteAsync(binding, cancellationToken).GetAwaiter();
+            return awaiter.GetResult();
         }
 
         public static TResult Execute<TResult>(this IWriteOperation<TResult> operation, IChannelSourceHandle channelSource, CancellationToken cancellationToken = default(CancellationToken))

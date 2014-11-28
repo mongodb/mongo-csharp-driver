@@ -29,23 +29,8 @@ namespace MongoDB.Driver
         private readonly BsonDocument _queryResult;
 
         // constructors
-        public MongoQueryException(ConnectionId connectionId, string message)
-            : this(connectionId, message, null, null, null)
-        {
-        }
-
-        public MongoQueryException(ConnectionId connectionId, string message, BsonDocument query)
-            : this(connectionId, message, query, null, null)
-        {
-        }
-
         public MongoQueryException(ConnectionId connectionId, string message, BsonDocument query, BsonDocument queryResult)
-            : this(connectionId, message, query, queryResult, null)
-        {
-        }
-
-        public MongoQueryException(ConnectionId connectionId, string message, BsonDocument query, BsonDocument queryResult, Exception innerException)
-            : base(connectionId, message, innerException)
+            : base(connectionId, message, null)
         {
             _query = query;
             _queryResult = queryResult;
@@ -54,18 +39,8 @@ namespace MongoDB.Driver
         protected MongoQueryException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            foreach(SerializationEntry entry in info)
-            {
-                switch(entry.Name)
-                {
-                    case "_query":
-                        _query = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_query", typeof(byte[])));
-                        break;
-                    case "_queryResult":
-                        _queryResult = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_queryResult", typeof(byte[])));
-                        break;
-                }
-            }
+            _query = (BsonDocument)info.GetValue("_query", typeof(BsonDocument));
+            _queryResult = (BsonDocument)info.GetValue("_queryResult", typeof(BsonDocument));
         }
 
         // properties
@@ -83,14 +58,8 @@ namespace MongoDB.Driver
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            if (_query != null)
-            {
-                info.AddValue("_query", _query.ToBson());
-            }
-            if (_queryResult != null)
-            {
-                info.AddValue("_queryResult", _queryResult.ToBson());
-            }
+            info.AddValue("_query", _query);
+            info.AddValue("_queryResult", _queryResult);
         }
     }
 }

@@ -27,6 +27,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the information about one Upsert.
     /// </summary>
+    [Serializable]
     public class BulkWriteUpsert
     {
         // private fields

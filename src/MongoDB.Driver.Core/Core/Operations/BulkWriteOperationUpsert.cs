@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the information about one Upsert.
     /// </summary>
+    [Serializable]
     public class BulkWriteOperationUpsert
     {
         // fields

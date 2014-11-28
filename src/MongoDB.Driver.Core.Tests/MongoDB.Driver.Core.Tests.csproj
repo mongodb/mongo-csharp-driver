@@ -52,6 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertionExtensions.cs" />
+    <Compile Include="Core\Helpers\BulkWriteConcernErrorEqualityComparer.cs" />
+    <Compile Include="Core\Helpers\BulkWriteOperationResultEqualityComparer.cs" />
+    <Compile Include="Core\Helpers\WriteConcernResultEqualityComparer.cs" />
     <Compile Include="Core\Operations\AggregateToCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
@@ -81,6 +84,21 @@
     <Compile Include="Core\Operations\OperationTestBase.cs" />
     <Compile Include="Core\Operations\QueryHelperTests.cs" />
     <Compile Include="Core\Servers\HeartbeatDelayTests.cs" />
+    <Compile Include="MongoAuthenticationExceptionTests.cs" />
+    <Compile Include="MongoClientExceptionTests.cs" />
+    <Compile Include="MongoConfigurationExceptionTests.cs" />
+    <Compile Include="MongoConnectionExceptionTests.cs" />
+    <Compile Include="MongoCursorNotFoundExceptionTests.cs" />
+    <Compile Include="MongoDuplicateKeyExceptionTests.cs" />
+    <Compile Include="MongoExecutionTimeoutExceptionTests.cs" />
+    <Compile Include="MongoIncompatibleDriverExceptionTests.cs" />
+    <Compile Include="MongoInternalExceptionTests.cs" />
+    <Compile Include="MongoMessageNotSentExceptionTests.cs" />
+    <Compile Include="MongoNodeIsRecoveringExceptionTests.cs" />
+    <Compile Include="MongoNotMasterException.cs" />
+    <Compile Include="MongoServerExceptionTests.cs" />
+    <Compile Include="MongoWaitQueueFullExceptionTests.cs" />
+    <Compile Include="MongoWriteConcernExceptionTests.cs" />
     <Compile Include="SuiteConfiguration.cs" />
     <Compile Include="Core\Async\AsyncDropboxTests.cs" />
     <Compile Include="Core\Authentication\AuthenticationHelperTests.cs" />
@@ -103,7 +121,7 @@
     <Compile Include="Core\Helpers\MockConnection.cs" />
     <Compile Include="Core\Helpers\RawBsonDocumentHelper.cs" />
     <Compile Include="Core\Helpers\ServerDescriptionHelper.cs" />
-    <Compile Include="Core\Operations\BulkWriteOperationExceptionTests.cs" />
+    <Compile Include="Core\Operations\MongoBulkWriteOperationExceptionTests.cs" />
     <Compile Include="Core\Misc\BatchableSourceTests.cs" />
     <Compile Include="Core\Misc\MetronomeTests.cs" />
     <Compile Include="Core\Async\AsyncQueueTests.cs" />
@@ -146,7 +164,6 @@
     <Compile Include="DatabaseNamespaceTests.cs" />
     <Compile Include="MongoExceptionTests.cs" />
     <Compile Include="MongoQueryExceptionTests.cs" />
-    <Compile Include="WriteProtocolExceptionTests.cs" />
     <Compile Include="Core\Misc\ConstantRandomStringGenerator.cs" />
     <Compile Include="Core\Misc\EndPointHelperTests.cs" />
     <Compile Include="Core\Misc\ExponentiallyWeightedMovingAverageTests.cs" />

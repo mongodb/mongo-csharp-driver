@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the details of a write error for a particular request.
     /// </summary>
+    [Serializable]
     public sealed class BulkWriteOperationError
     {
         // fields

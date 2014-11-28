@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the result of a bulk write operation.
     /// </summary>
+    [Serializable]
     public abstract class BulkWriteOperationResult
     {
         // fields
@@ -130,6 +131,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Represents the result of an acknowledged bulk write operation.
         /// </summary>
+        [Serializable]
         public class Acknowledged : BulkWriteOperationResult
         {
             // fields
@@ -259,6 +261,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Represents the result of an unacknowledged BulkWrite operation.
         /// </summary>
+        [Serializable]
         public class Unacknowledged : BulkWriteOperationResult
         {
             // constructors

@@ -147,9 +147,9 @@ namespace MongoDB.Driver
                 var result = await ExecuteWriteOperation(operation, cancellationToken).ConfigureAwait(false);
                 return BulkWriteResult<TDocument>.FromCore(result, requests);
             }
-            catch (BulkWriteOperationException ex)
+            catch (MongoBulkWriteOperationException ex)
             {
-                throw BulkWriteException<TDocument>.FromCore(ex, requests.ToList());
+                throw MongoBulkWriteException<TDocument>.FromCore(ex, requests.ToList());
             }
         }
 
@@ -212,9 +212,9 @@ namespace MongoDB.Driver
                 var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
             }
-            catch (BulkWriteException<TDocument> ex)
+            catch (MongoBulkWriteException<TDocument> ex)
             {
-                throw WriteException.FromBulkWriteException(ex);
+                throw MongoWriteException.FromBulkWriteException(ex);
             }
         }
 
@@ -228,9 +228,9 @@ namespace MongoDB.Driver
                 var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
                 return DeleteResult.FromCore(result);
             }
-            catch (BulkWriteException<TDocument> ex)
+            catch (MongoBulkWriteException<TDocument> ex)
             {
-                throw WriteException.FromBulkWriteException(ex);
+                throw MongoWriteException.FromBulkWriteException(ex);
             }
         }
 
@@ -391,9 +391,9 @@ namespace MongoDB.Driver
             {
                 await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
             }
-            catch (BulkWriteException<TDocument> ex)
+            catch (MongoBulkWriteException<TDocument> ex)
             {
-                throw WriteException.FromBulkWriteException(ex);
+                throw MongoWriteException.FromBulkWriteException(ex);
             }
         }
 
@@ -413,9 +413,9 @@ namespace MongoDB.Driver
                 var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
                 return ReplaceOneResult.FromCore(result);
             }
-            catch (BulkWriteException<TDocument> ex)
+            catch (MongoBulkWriteException<TDocument> ex)
             {
-                throw WriteException.FromBulkWriteException(ex);
+                throw MongoWriteException.FromBulkWriteException(ex);
             }
         }
 
@@ -435,9 +435,9 @@ namespace MongoDB.Driver
                 var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
             }
-            catch (BulkWriteException<TDocument> ex)
+            catch (MongoBulkWriteException<TDocument> ex)
             {
-                throw WriteException.FromBulkWriteException(ex);
+                throw MongoWriteException.FromBulkWriteException(ex);
             }
         }
 
@@ -457,9 +457,9 @@ namespace MongoDB.Driver
                 var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
                 return UpdateResult.FromCore(result);
             }
-            catch (BulkWriteException<TDocument> ex)
+            catch (MongoBulkWriteException<TDocument> ex)
             {
-                throw WriteException.FromBulkWriteException(ex);
+                throw MongoWriteException.FromBulkWriteException(ex);
             }
         }
 

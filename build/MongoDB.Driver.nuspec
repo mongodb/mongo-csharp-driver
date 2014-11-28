@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>MongoDB.Driver</id>
+    <version>@build.number@</version>
+    <authors>MongoDB, Inc.</authors>
+    <owners>rstam, craiggwilson</owners>
+    <iconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Official .NET driver for MongoDB.</description>
+    <projectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</projectUrl>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <tags>mongodb mongo nosql</tags>
+    <language>en-US</language>
+    @dependencies@
+  </metadata>
+  <files>
+    <file src="artifacts\bin\net45\MongoDB.Driver.dll" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.pdb" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.XML" target="lib\net45" />
+    <file src="License.rtf" target ="" />
+    <file src="src\MongoDB.Driver\**\*.cs" target="src\MongoDB.Driver" />
+    <file src="src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />
+  </files>
+</package>

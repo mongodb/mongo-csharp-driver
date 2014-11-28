@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     result = await ExecuteProtocolAsync(channel, batchWriteConcern, shouldSendGetLastError, cancellationToken).ConfigureAwait(false);
                 }
-                catch (WriteConcernException ex)
+                catch (MongoWriteConcernException ex)
                 {
                     result = ex.WriteConcernResult;
                     if (_continueOnError)

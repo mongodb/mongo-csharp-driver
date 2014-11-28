@@ -26,6 +26,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for updating a single document.
     /// </summary>
+    [Serializable]
     public sealed class UpdateOneModel<T> : WriteModel<T>
     {
         // fields

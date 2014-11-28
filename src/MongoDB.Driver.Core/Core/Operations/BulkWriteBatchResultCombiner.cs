@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private BulkWriteOperationException CreateBulkWriteException(ConnectionId connectionId, IEnumerable<WriteRequest> remainingRequests)
+        private MongoBulkWriteOperationException CreateBulkWriteException(ConnectionId connectionId, IEnumerable<WriteRequest> remainingRequests)
         {
             var remainingRequestsList = remainingRequests.ToList();
             var result = CreateBulkWriteResult(remainingRequestsList.Count);
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
             var writeConcernError = CombineWriteConcernErrors();
             var unprocessedRequests = CombineUnprocessedRequests(remainingRequestsList);
 
-            return new BulkWriteOperationException(connectionId, result, writeErrors, writeConcernError, unprocessedRequests);
+            return new MongoBulkWriteOperationException(connectionId, result, writeErrors, writeConcernError, unprocessedRequests);
         }
 
         private BulkWriteOperationResult CreateBulkWriteResult(int remainingRequestsCount)

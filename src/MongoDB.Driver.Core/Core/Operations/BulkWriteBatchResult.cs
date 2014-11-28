@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public static BulkWriteBatchResult Create(
            BulkWriteOperationResult result,
-           BulkWriteOperationException exception,
+           MongoBulkWriteOperationException exception,
            IndexMap indexMap)
         {
             var matchedCount = 0L;
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Operations
         public static BulkWriteBatchResult Create(
             WriteRequest request,
             WriteConcernResult writeConcernResult,
-            WriteConcernException writeConcernException,
+            MongoWriteConcernException writeConcernException,
             IndexMap indexMap)
         {
             var processedRequests = new[] { request };

@@ -35,17 +35,12 @@ namespace MongoDB.Driver
 
         // constructors
         public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command)
-            : this(connectionId, message, command, null, null)
+            : this(connectionId, message, command, null)
         {
         }
 
         public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result)
-            : this(connectionId, message, command, result, null)
-        {
-        }
-
-        public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result, Exception innerException)
-            : base(connectionId, message, innerException)
+            : base(connectionId, message)
         {
             _command = command;
             _result = result; // can be null
@@ -54,18 +49,8 @@ namespace MongoDB.Driver
         protected MongoCommandException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            foreach (SerializationEntry entry in info)
-            {
-                switch (entry.Name)
-                {
-                    case "_command":
-                        _command = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_command", typeof(byte[])));
-                        break;
-                    case "_result":
-                        _result = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_result", typeof(byte[])));
-                        break;
-                }
-            }
+            _command = (BsonDocument)info.GetValue("_command", typeof(BsonDocument));
+            _result = (BsonDocument)info.GetValue("_result", typeof(BsonDocument));
         }
 
         // properties
@@ -93,14 +78,8 @@ namespace MongoDB.Driver
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            if (_command != null)
-            {
-                info.AddValue("_command", _command.ToBson());
-            }
-            if (_result != null)
-            {
-                info.AddValue("_result", _result.ToBson());
-            }
+            info.AddValue("_command", _command);
+            info.AddValue("_result", _result);
         }
     }
 }

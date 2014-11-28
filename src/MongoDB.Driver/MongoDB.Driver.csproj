@@ -135,7 +135,7 @@
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="BulkWriteResult.cs" />
     <Compile Include="BulkWriteUpsert.cs" />
-    <Compile Include="BulkWriteException.cs" />
+    <Compile Include="MongoBulkWriteException.cs" />
     <Compile Include="Support\IndexMap.cs" />
     <Compile Include="Operations\BulkWriteOperation.cs" />
     <Compile Include="Operations\BulkWriteRequestBuilder.cs" />
@@ -353,7 +353,7 @@
     <Compile Include="UpdateFlags.cs" />
     <Compile Include="ExternalEvidence.cs" />
     <Compile Include="WriteError.cs" />
-    <Compile Include="WriteException.cs" />
+    <Compile Include="MongoWriteException.cs" />
     <Compile Include="WriteModel.cs" />
     <Compile Include="WriteModelType.cs" />
     <Compile Include="XYPoint.cs" />

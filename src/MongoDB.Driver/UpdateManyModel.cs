@@ -26,6 +26,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for updating many documents.
     /// </summary>
+    [Serializable]
     public sealed class UpdateManyModel<T> : WriteModel<T>
     {
         // fields

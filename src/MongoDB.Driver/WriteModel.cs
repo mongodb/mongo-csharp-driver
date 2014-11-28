@@ -22,6 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Base class for a write model.
     /// </summary>
+    [Serializable]
     public abstract class WriteModel<T>
     {
         // static methods

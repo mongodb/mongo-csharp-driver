@@ -559,7 +559,7 @@ namespace MongoDB.Driver
             {
                 if (_readPreference == null)
                 {
-                    throw new ConfigurationException("ReadPreferenceMode is required when using tag sets.");
+                    throw new MongoConfigurationException("ReadPreferenceMode is required when using tag sets.");
                 }
                 _readPreference = _readPreference.WithTagSets(connectionString.ReadPreferenceTags);
             }

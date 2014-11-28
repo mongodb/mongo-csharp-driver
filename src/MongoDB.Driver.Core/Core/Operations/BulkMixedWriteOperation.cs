@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Operations
         private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IChannelHandle channel, Run run, CancellationToken cancellationToken)
         {
             BulkWriteOperationResult result;
-            BulkWriteOperationException exception = null;
+            MongoBulkWriteOperationException exception = null;
             try
             {
                 switch (run.RequestType)
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Operations
                         throw new MongoInternalException("Unrecognized RequestType.");
                 }
             }
-            catch (BulkWriteOperationException ex)
+            catch (MongoBulkWriteOperationException ex)
             {
                 result = ex.Result;
                 exception = ex;
