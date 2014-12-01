@@ -179,7 +179,6 @@ namespace MongoDB.DriverUnitTests.CommandResults
                     else
                     {
                         Assert.IsInstanceOf<MongoCommandException>(ex);
-                        Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: no such cmd", StringComparison.Ordinal));
                     }
                 }
             }
