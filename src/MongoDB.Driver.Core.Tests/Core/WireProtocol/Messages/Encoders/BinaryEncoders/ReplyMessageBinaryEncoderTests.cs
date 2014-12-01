@@ -18,11 +18,8 @@ using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -147,7 +144,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 message.Documents.Should().Equal(__documents);
                 message.NumberReturned.Should().Be(__numberReturned);
                 message.QueryFailure.Should().Be(false);
-                message.QueryFailureDocument.Should().Be(null);
+                message.QueryFailureDocument.Should().BeNull();
                 message.Serializer.Should().BeSameAs(__serializer);
                 message.StartingFrom.Should().Be(__startingFrom);
                 message.RequestId.Should().Be(__requestId);

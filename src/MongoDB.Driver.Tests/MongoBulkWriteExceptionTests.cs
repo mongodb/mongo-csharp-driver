@@ -14,21 +14,17 @@
 */
 
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.EqualityComparers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Tests.Helpers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -145,10 +141,10 @@ namespace MongoDB.Driver.Tests
 
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.Result.Should().Match<BulkWriteResult<BsonDocument>>(x => new BulkWriteResultEqualityComparer<BsonDocument>().Equals(x, subject.Result));
-                rehydrated.UnprocessedRequests.Should().Equal(subject.UnprocessedRequests, (x, y) => new WriteModelEqualityComparer<BsonDocument>().Equals(x, y));
-                rehydrated.WriteConcernError.Should().Match<WriteConcernError>(x => new WriteConcernErrorEqualityComparer().Equals(x, subject.WriteConcernError));
-                rehydrated.WriteErrors.Should().Equal(subject.WriteErrors, (x, y) => new BulkWriteErrorEqualityComparer().Equals(x, y));
+                rehydrated.Result.Should().BeUsing(subject.Result, EqualityComparerRegistry.Default);
+                rehydrated.UnprocessedRequests.Should().EqualUsing(subject.UnprocessedRequests, EqualityComparerRegistry.Default);
+                rehydrated.WriteConcernError.Should().BeUsing(subject.WriteConcernError, EqualityComparerRegistry.Default);
+                rehydrated.WriteErrors.Should().EqualUsing(subject.WriteErrors, EqualityComparerRegistry.Default);
             }
         }
     }

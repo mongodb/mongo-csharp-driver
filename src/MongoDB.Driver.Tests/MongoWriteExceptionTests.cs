@@ -20,10 +20,10 @@ using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.EqualityComparers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Tests.Helpers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -92,8 +92,8 @@ namespace MongoDB.Driver.Tests
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
                 rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.WriteConcernError.Should().Match<WriteConcernError>(x => new WriteConcernErrorEqualityComparer().Equals(x, subject.WriteConcernError));
-                rehydrated.WriteError.Should().Match<WriteError>(x => new WriteErrorEqualityComparer().Equals(x, subject.WriteError));
+                rehydrated.WriteConcernError.Should().BeUsing(subject.WriteConcernError, EqualityComparerRegistry.Default);
+                rehydrated.WriteError.Should().BeUsing(subject.WriteError, EqualityComparerRegistry.Default);
             }
         }
     }
