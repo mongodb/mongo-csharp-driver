@@ -42,7 +42,13 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
         private class D : C
         {
-            public int d;
+            public int D1
+            {
+                get;
+                set;
+            }
+            public MyEnum MyEnum2
+            { get; set; }
         }
 
         public enum MyEnum
@@ -56,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         public void OfTypeMethod_should_add_discriminator()
         {
             var dValue = 1;
-            Expression<Func<A, bool>> where = t => t.Bs.OfType<D>().Any(d => d.d == dValue);
+            Expression<Func<A, bool>> where = t => t.Bs.OfType<D>().Any(d => d.D1 == dValue);
 
             BsonSerializationInfoHelper _serializationInfoHelper = new BsonSerializationInfoHelper();
             PredicateTranslator target = new PredicateTranslator(_serializationInfoHelper);
@@ -64,7 +70,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var actual = target.BuildQuery(where.Body);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"d\" : 1 } } }", actual.ToJson());
+            Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"D1\" : 1 } } }", actual.ToJson());
         }
 
         [Test]
@@ -80,6 +86,21 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             Assert.IsNotNull(actual);
             Assert.AreEqual("{ \"MyEnum\" : 1 }", actual.ToJson());
+        }
+
+        [Test]
+        public void OfTypeMethod_with_enum()
+        {
+            var myEnumValue = MyEnum.Enum2;
+            Expression<Func<A, bool>> where = t => t.Bs.OfType<D>().Any(d => d.MyEnum2 == myEnumValue);
+
+            BsonSerializationInfoHelper _serializationInfoHelper = new BsonSerializationInfoHelper();
+            PredicateTranslator target = new PredicateTranslator(_serializationInfoHelper);
+
+            var actual = target.BuildQuery(where.Body);
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"MyEnum2\" : 2 } } }", actual.ToJson());
         }
     }
 }

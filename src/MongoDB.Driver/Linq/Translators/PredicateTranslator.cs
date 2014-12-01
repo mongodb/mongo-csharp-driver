@@ -304,13 +304,6 @@ namespace MongoDB.Driver.Linq
                 {
                     variableExpression = binaryExpression.Left;
 
-                    //Expression right = (binaryExpression.Right as MemberExpression);
-                    //if(right == null)
-                    //{
-                    //    right = (binaryExpression.Right as UnaryExpression);
-                        
-                    //}
-                    //constantExpression = Expression.Constant(Expression.Lambda(right).Compile().DynamicInvoke());
                     // We don't have find a constantExpression in any of the binary members, we are now looking deeper
                     ExpressionValueGetter visitor = new ExpressionValueGetter();
                     visitor.VisitNode(binaryExpression.Right);
