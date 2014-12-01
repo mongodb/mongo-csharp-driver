@@ -1,26 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>mongocsharpdriverbuild</id>
-    <version>0.0.0</version>
-    <title>Official MongoDB C# driver</title>
+    <id>MongoDB.Driver-Build</id>
+    <version>@build.number@</version>
     <authors>MongoDB, Inc.</authors>
-    <owners>Robert Stam, Craig Wilson</owners>
+    <owners>rstam, craiggwilson</owners>
     <iconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Continuous integration build of the official C# driver for MongoDB.</description>
+    <description>Continuous integration build of the Official MongoDB .NET driver.</description>
     <projectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <tags>mongodb mongo nosql build</tags>
     <language>en-US</language>
+    @dependencies@
   </metadata>
   <files>
-    <file src="artifacts\bin\MongoDB.Bson.dll" target="lib\net35" />
-    <file src="artifacts\bin\MongoDB.Bson.pdb" target="lib\net35" />
-    <file src="artifacts\bin\MongoDB.Bson.xml" target="lib\net35" />
-    <file src="artifacts\bin\MongoDB.Driver.dll" target="lib\net35" />
-    <file src="artifacts\bin\MongoDB.Driver.pdb" target="lib\net35" />
-    <file src="artifacts\bin\MongoDB.Driver.XML" target="lib\net35" />
+    <file src="artifacts\bin\net35\MongoDB.Bson.dll" target="lib\net35" />
+    <file src="artifacts\bin\net35\MongoDB.Bson.pdb" target="lib\net35" />
+    <file src="artifacts\bin\net35\MongoDB.Bson.xml" target="lib\net35" />
+    <file src="artifacts\bin\net35\MongoDB.Driver.dll" target="lib\net35" />
+    <file src="artifacts\bin\net35\MongoDB.Driver.pdb" target="lib\net35" />
+    <file src="artifacts\bin\net35\MongoDB.Driver.XML" target="lib\net35" />
     <file src="License.rtf" target ="" />
     <file src="MongoDB.Bson\**\*.cs" target="src\MongoDB.Bson" />
     <file src="MongoDB.Driver\**\*.cs" target="src\MongoDB.Driver" />
