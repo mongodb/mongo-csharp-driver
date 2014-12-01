@@ -179,64 +179,65 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         }
 
         // Connections
-        public override void ConnectionFailed(ConnectionId connectionId, Exception ex)
+        public override void Failed(ConnectionFailedEvent @event)
         {
-            Log(LogLevel.Error, "{0}: failed. Exception: {1}", Label(connectionId), ex);
+            Log(LogLevel.Error, "{0}: failed. Exception: {1}", Label(@event.ConnectionId), @event.Exception);
         }
 
-        public override void ConnectionBeforeClosing(ConnectionId connectionId)
+        public override void BeforeClosing(ConnectionBeforeClosingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: closing.", Label(connectionId));
+            Log(LogLevel.Debug, "{0}: closing.", Label(@event.ConnectionId));
         }
 
-        public override void ConnectionAfterClosing(ConnectionId connectionId)
+        public override void AfterClosing(ConnectionAfterClosingEvent @event)
         {
-            Log(LogLevel.Info, "{0}: closed.", Label(connectionId));
+            Log(LogLevel.Info, "{0}: closed.", Label(@event.ConnectionId));
         }
 
-        public override void ConnectionBeforeOpening(ConnectionId connectionId, ConnectionSettings settings)
+        public override void BeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: opening.", Label(connectionId));
+            Log(LogLevel.Debug, "{0}: opening.", Label(@event.ConnectionId));
         }
 
-        public override void ConnectionAfterOpening(ConnectionId connectionId, ConnectionSettings settings, TimeSpan elapsed)
+        public override void AfterOpening(ConnectionAfterOpeningEvent @event)
         {
-            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(connectionId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(@event.ConnectionId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ConnectionErrorOpening(ConnectionId connectionId, Exception ex)
+        public override void ErrorOpening(ConnectionErrorOpeningEvent @event)
         {
-            Log(LogLevel.Error, "{0}: unable to open. Exception: {1}", Label(connectionId), ex);
+            Log(LogLevel.Error, "{0}: unable to open. Exception: {1}", Label(@event.ConnectionId), @event.Exception);
         }
 
-        public override void ConnectionBeforeReceivingMessage(ConnectionId connectionId, int responseTo)
+        public override void BeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: receiving message in response to {1}.", Label(connectionId), responseTo.ToString());
+            Log(LogLevel.Debug, "{0}: receiving message in response to {1}.", Label(@event.ConnectionId), @event.ResponseTo.ToString());
         }
 
-        public override void ConnectionAfterReceivingMessage<T>(ConnectionId connectionId, ReplyMessage<T> message, int length, TimeSpan elapsed)
+        public override void AfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
-            Log(LogLevel.Info, "{0}: received message in response to {1} of length {2} bytes in {3}ms.", Label(connectionId), message.ResponseTo.ToString(), length.ToString(), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: received message in response to {1} of length {2} bytes in {3}ms.", Label(@event.ConnectionId), @event.ReplyMessage.ResponseTo.ToString(), @event.Length.ToString(), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ConnectionErrorReceivingMessage(ConnectionId connectionId, int responseTo, Exception ex)
+        public override void ErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
         {
-            Log(LogLevel.Info, "{0}: error receiving message in response to {1}. Exception: .", Label(connectionId), responseTo.ToString(), ex);
+            Log(LogLevel.Info, "{0}: error receiving message in response to {1}. Exception: .", Label(@event.ConnectionId), @event.ResponseTo.ToString(), @event.Exception);
         }
 
-        public override void ConnectionBeforeSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages)
+        public override void BeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: sending messages [{1}].", Label(connectionId), string.Join(",", messages.Select(x => x.RequestId)));
+            Log(LogLevel.Debug, "{0}: sending messages [{1}].", Label(@event.ConnectionId), string.Join(",", @event.Messages.Select(x => x.RequestId)));
         }
 
-        public override void ConnectionAfterSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, int length, TimeSpan elapsed)
+        public override void AfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
-            Log(LogLevel.Info, "{0}: sent messages [{1}] of length {2} bytes in {3}ms.", Label(connectionId), string.Join(",", messages.Select(x => x.RequestId)), length.ToString(), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: sent messages [{1}] of length {2} bytes in {3}ms.", Label(@event.ConnectionId), string.Join(",", @event.Messages.Select(x => x.RequestId)), @event.Length.ToString(), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ConnectionErrorSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, Exception ex)
+        public override void ErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
-            Log(LogLevel.Error, "{0}: error sending messages [{1}]. Exception: {2}", Label(connectionId), string.Join(",", messages.Select(x => x.RequestId)), ex);
+            Log(LogLevel.Error, "{0}: error sending messages [{1}]. Exception: {2}", Label(@event.ConnectionId), string.Join(",", @event.Messages.Select(x => x.RequestId)), @event.Exception);
+            base.ErrorSendingMessages(@event);
         }
 
         private string Label(ConnectionId id)

@@ -179,53 +179,54 @@ namespace MongoDB.Driver.Core.Events
         #endregion
 
         #region Connections
-        public virtual void ConnectionFailed(ConnectionId connectionId, Exception exception)
+        public virtual void Failed(ConnectionFailedEvent @event)
         {
         }
 
-        public virtual void ConnectionBeforeClosing(ConnectionId connectionId)
+        public virtual void BeforeClosing(ConnectionBeforeClosingEvent @event)
         {
         }
 
-        public virtual void ConnectionAfterClosing(ConnectionId connectionId)
+        public virtual void AfterClosing(ConnectionAfterClosingEvent @event)
         {
         }
 
-        public virtual void ConnectionBeforeOpening(ConnectionId connectionId, ConnectionSettings settings)
+        public virtual void BeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void ConnectionAfterOpening(ConnectionId connectionId, ConnectionSettings settings, TimeSpan elapsed)
+        public virtual void AfterOpening(ConnectionAfterOpeningEvent @event)
         {
         }
 
-        public virtual void ConnectionErrorOpening(ConnectionId connectionId, Exception exception)
+        public virtual void ErrorOpening(ConnectionErrorOpeningEvent @event)
         {
         }
 
-        public virtual void ConnectionBeforeReceivingMessage(ConnectionId connectionId, int responseTo)
+        public virtual void BeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
         }
 
-        public virtual void ConnectionAfterReceivingMessage<T>(ConnectionId connectionId, ReplyMessage<T> message, int length, TimeSpan elapsed)
+        public virtual void AfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
         }
 
-        public virtual void ConnectionErrorReceivingMessage(ConnectionId connectionId, int responseTo, Exception exception)
+        public virtual void ErrorReceivingMessage(ConnectionErrorReceivingMessageEvent@event)
         {
         }
 
-        public virtual void ConnectionBeforeSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages)
+        public virtual void BeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
         }
 
-        public virtual void ConnectionAfterSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, int length, TimeSpan elapsed)
+        public virtual void AfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
         }
 
-        public virtual void ConnectionErrorSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, Exception exception)
+        public virtual void ErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
         }
+
         #endregion
     }
 }

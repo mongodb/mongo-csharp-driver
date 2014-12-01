@@ -25,21 +25,21 @@ namespace MongoDB.Driver.Core.Events
 {
     public interface IConnectionListener : IListener
     {
-        void ConnectionFailed(ConnectionId connectionId, Exception exception);
+        void Failed(ConnectionFailedEvent @event);
 
-        void ConnectionBeforeClosing(ConnectionId connectionId);
-        void ConnectionAfterClosing(ConnectionId connectionId);
+        void BeforeClosing(ConnectionBeforeClosingEvent @event);
+        void AfterClosing(ConnectionAfterClosingEvent @event);
         
-        void ConnectionBeforeOpening(ConnectionId connectionId, ConnectionSettings settings);
-        void ConnectionAfterOpening(ConnectionId connectionId, ConnectionSettings settings, TimeSpan elapsed);
-        void ConnectionErrorOpening(ConnectionId connectionId, Exception exception);
+        void BeforeOpening(ConnectionBeforeOpeningEvent @event);
+        void AfterOpening(ConnectionAfterOpeningEvent @event);
+        void ErrorOpening(ConnectionErrorOpeningEvent @event);
 
-        void ConnectionBeforeReceivingMessage(ConnectionId connectionId, int responseTo);
-        void ConnectionAfterReceivingMessage<T>(ConnectionId connectionId, ReplyMessage<T> message, int length, TimeSpan elapsed);
-        void ConnectionErrorReceivingMessage(ConnectionId connectionId, int responseTo, Exception exception);
+        void BeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event);
+        void AfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event);
+        void ErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event);
         
-        void ConnectionBeforeSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages);
-        void ConnectionAfterSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, int length, TimeSpan elapsed);
-        void ConnectionErrorSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, Exception exception);
+        void BeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event);
+        void AfterSendingMessages(ConnectionAfterSendingMessagesEvent @event);
+        void ErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event);
     }
 }

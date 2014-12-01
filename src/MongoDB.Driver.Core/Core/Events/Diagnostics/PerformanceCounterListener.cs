@@ -154,72 +154,72 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         }
 
         // Connection
-        public void ConnectionAfterClosing(ConnectionId connectionId)
+        public void AfterClosing(ConnectionAfterClosingEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
-            if (_connectionRecorders.TryRemove(connectionId, out recorder))
+            if (_connectionRecorders.TryRemove(@event.ConnectionId, out recorder))
             {
                 recorder.Closed();
             }
         }
 
-        public void ConnectionAfterOpening(ConnectionId connectionId, ConnectionSettings settings, TimeSpan elapsed)
+        public void AfterOpening(ConnectionAfterOpeningEvent @event)
         {
-            var serverPackage = GetServerPackage(connectionId.ServerId.EndPoint);
+            var serverPackage = GetServerPackage(@event.ConnectionId.ServerId.EndPoint);
             var recorder = new ConnectionPerformanceRecorder(_appPackage, serverPackage);
-            if (_connectionRecorders.TryAdd(connectionId, recorder))
+            if (_connectionRecorders.TryAdd(@event.ConnectionId, recorder))
             {
                 recorder.Opened();
             }
         }
 
-        public void ConnectionAfterReceivingMessage<T>(ConnectionId connectionId, ReplyMessage<T> message, int length, TimeSpan elapsed)
+        public void AfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
             ConnectionPerformanceRecorder recorder;
-            if (_connectionRecorders.TryGetValue(connectionId, out recorder))
+            if (_connectionRecorders.TryGetValue(@event.ConnectionId, out recorder))
             {
-                recorder.MessageReceived(message.ResponseTo, length);
+                recorder.MessageReceived(@event.ReplyMessage.ResponseTo, @event.Length);
             }
         }
 
-        public void ConnectionAfterSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, int length, TimeSpan elapsed)
+        public void AfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
-            if (_connectionRecorders.TryGetValue(connectionId, out recorder))
+            if (_connectionRecorders.TryGetValue(@event.ConnectionId, out recorder))
             {
-                recorder.PacketSent(messages.Count, length);
+                recorder.PacketSent(@event.Messages.Count, @event.Length);
             }
         }
 
-        public void ConnectionFailed(ConnectionId connectionId, Exception exception)
+        public void Failed(ConnectionFailedEvent @event)
         {
         }
 
-        public void ConnectionBeforeClosing(ConnectionId connectionId)
+        public void BeforeClosing(ConnectionBeforeClosingEvent @event)
         {
         }
 
-        public void ConnectionBeforeOpening(ConnectionId connectionId, ConnectionSettings settings)
+        public void BeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
         }
 
-        public void ConnectionErrorOpening(ConnectionId connectionId, Exception exception)
+        public void BeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
         }
 
-        public void ConnectionBeforeReceivingMessage(ConnectionId connectionId, int responseTo)
+        public void BeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
         }
 
-        public void ConnectionErrorReceivingMessage(ConnectionId connectionId, int responseTo, Exception exception)
+        public void ErrorOpening(ConnectionErrorOpeningEvent @event)
+        {
+        }
+        
+        public void ErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
         {
         }
 
-        public void ConnectionBeforeSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages)
-        {
-        }
-
-        public void ConnectionErrorSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, Exception exception)
+        public void ErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
         }
 
