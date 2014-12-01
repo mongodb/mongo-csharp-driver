@@ -60,6 +60,7 @@
     <Compile Include="EqualityComparers\IEqualityComparerSource.cs" />
     <Compile Include="EqualityComparers\NonGenericEqualityComparerAdapter.cs" />
     <Compile Include="EqualityComparers\ObjectAssertionsExtensions.cs" />
+    <Compile Include="EqualityComparers\ReferenceEqualsEqualityComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

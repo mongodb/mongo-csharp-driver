@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
@@ -22,32 +23,39 @@ namespace MongoDB.Bson.TestHelpers.EqualityComparers
     public static class ObjectAssertionsExtensions
     {
         // static methods
-        public static AndConstraint<ObjectAssertions> BeUsing(this ObjectAssertions assertions, object expected, IEqualityComparerSource source, string because = "", params object[] reasonArgs)
+        public static AndConstraint<ObjectAssertions> BeUsing(this ObjectAssertions assertions, object expected, IEqualityComparer comparer, string because = "", params object[] reasonArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, reasonArgs)
-                .ForCondition(Equals(assertions.Subject, expected, source))
+                .ForCondition(comparer.Equals(assertions.Subject, expected))
                 .FailWith("Expected {context:object} to be {0}{reason}, but found {1}.", expected,
                     assertions.Subject);
 
             return new AndConstraint<ObjectAssertions>(assertions);
         }
 
-        public static AndConstraint<ObjectAssertions> NotBeUsing(this ObjectAssertions assertions, object unexpected, IEqualityComparerSource source, string because = "", params object[] reasonArgs)
+        public static AndConstraint<ObjectAssertions> BeUsing(this ObjectAssertions assertions, object expected, IEqualityComparerSource source, string because = "", params object[] reasonArgs)
+        {
+            var actual = assertions.Subject;
+            var comparer = actual == null ? ReferenceEqualsEqualityComparer.Instance : source.GetComparer(actual.GetType());
+            return assertions.BeUsing(expected, comparer, because, reasonArgs);
+        }
+
+        public static AndConstraint<ObjectAssertions> NotBeUsing(this ObjectAssertions assertions, object unexpected, IEqualityComparer comparer, string because = "", params object[] reasonArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, reasonArgs)
-                .ForCondition(!Equals(assertions.Subject, unexpected, source))
+                .ForCondition(!comparer.Equals(assertions.Subject, unexpected))
                 .FailWith("Did not expect {context:object} to be equal to {0}{reason}.", unexpected);
 
             return new AndConstraint<ObjectAssertions>(assertions);
         }
 
-        private static bool Equals(object x, object y, IEqualityComparerSource source)
+        public static AndConstraint<ObjectAssertions> NotBeUsing(this ObjectAssertions assertions, object unexpected, IEqualityComparerSource source, string because = "", params object[] reasonArgs)
         {
-            if (x == null) { return y == null; }
-            var comparer = source.GetComparer(x.GetType());
-            return comparer.Equals(x, y);
+            var actual = assertions.Subject;
+            var comparer = actual == null ? ReferenceEqualsEqualityComparer.Instance : source.GetComparer(actual.GetType());
+            return assertions.NotBeUsing(unexpected, comparer, because, reasonArgs);
         }
     }
 }

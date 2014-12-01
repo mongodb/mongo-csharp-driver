@@ -24,15 +24,20 @@ namespace MongoDB.Bson.TestHelpers.EqualityComparers
     {
         // static methods
         public static AndConstraint<GenericCollectionAssertions<T>> EqualUsing<T>(
-            this GenericCollectionAssertions<T> assertions, IEnumerable<T> expectation, IEqualityComparerSource source, string because = "", params object[] reasonArgs)
+            this GenericCollectionAssertions<T> assertions, IEnumerable<T> expectation, IEqualityComparer<T> comparer, string because = "", params object[] reasonArgs)
         {
             Func<T, T, bool> predicate = (x, y) =>
             {
-                if ((object)x == null) { return (object)y == null; }
-                var comparer = source.GetComparer<T>();
                 return comparer.Equals(x, y);
             };
+          
             return assertions.Equal(expectation, predicate, because, reasonArgs);
+        }
+
+        public static AndConstraint<GenericCollectionAssertions<T>> EqualUsing<T>(
+            this GenericCollectionAssertions<T> assertions, IEnumerable<T> expectation, IEqualityComparerSource source, string because = "", params object[] reasonArgs)
+        {
+            return assertions.EqualUsing(expectation, source.GetComparer<T>(), because, reasonArgs);
         }
     }
 }
