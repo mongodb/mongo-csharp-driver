@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Operations
         private BulkWriteBatchResult ExecuteBatch(MongoConnection connection, Run run)
         {
             BulkWriteResult result;
-            BulkWriteException exception = null;
+            MongoBulkWriteException exception = null;
             try
             {
                 switch (run.RequestType)
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Operations
                         throw new MongoInternalException("Unrecognized RequestType.");
                 }
             }
-            catch (BulkWriteException ex)
+            catch (MongoBulkWriteException ex)
             {
                 result = ex.Result;
                 exception = ex;

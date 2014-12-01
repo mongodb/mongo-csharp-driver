@@ -25,33 +25,17 @@ namespace MongoDB.Driver
     /// Represents a bulk write exception.
     /// </summary>
     [Serializable]
-    public class BulkWriteException : MongoException
+    [Obsolete("Use MongoBulkWriteException instead.")]
+    public abstract class BulkWriteException : MongoException
     {
-        // private fields
-        private BulkWriteResult _result;
-        private ReadOnlyCollection<WriteRequest> _unprocessedRequests;
-        private WriteConcernError _writeConcernError;
-        private ReadOnlyCollection<BulkWriteError> _writeErrors;
-
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteException" /> class.
         /// </summary>
-        /// <param name="result">The result.</param>
-        /// <param name="writeErrors">The write errors.</param>
-        /// <param name="unprocessedRequests">The unprocessed requests.</param>
-        /// <param name="writeConcernError">The write concern error.</param>
-        public BulkWriteException(
-            BulkWriteResult result, 
-            IEnumerable<BulkWriteError> writeErrors,
-            WriteConcernError writeConcernError,
-            IEnumerable<WriteRequest> unprocessedRequests)
-            : base("A bulk write operation resulted in one or more errors.")
+        /// <param name="message">The error message.</param>
+        public BulkWriteException(string message)
+            : base(message)
         {
-            _result = result;
-            _writeErrors = new ReadOnlyCollection<BulkWriteError>(writeErrors.ToList());
-            _writeConcernError = writeConcernError;
-            _unprocessedRequests = new ReadOnlyCollection<WriteRequest>(unprocessedRequests.ToList());
         }
 
         /// <summary>
@@ -68,10 +52,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the result of the bulk write operation.
         /// </summary>
-        public BulkWriteResult Result
-        {
-            get { return _result; }
-        }
+        public abstract BulkWriteResult Result { get; }
 
         /// <summary>
         /// Gets the unprocessed requests.
@@ -80,10 +61,7 @@ namespace MongoDB.Driver
         /// The unprocessed requests.
         /// </value>
         /// <exception cref="System.NotImplementedException"></exception>
-        public ReadOnlyCollection<WriteRequest> UnprocessedRequests
-        {
-            get { return _unprocessedRequests; }
-        }
+        public abstract ReadOnlyCollection<WriteRequest> UnprocessedRequests { get; }
 
         /// <summary>
         /// Gets the write concern error.
@@ -91,10 +69,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The write concern error.
         /// </value>
-        public WriteConcernError WriteConcernError
-        {
-            get { return _writeConcernError; }
-        }
+        public abstract WriteConcernError WriteConcernError { get; }
 
         /// <summary>
         /// Gets the write errors.
@@ -102,9 +77,6 @@ namespace MongoDB.Driver
         /// <value>
         /// The write errors.
         /// </value>
-        public ReadOnlyCollection<BulkWriteError> WriteErrors
-        {
-            get { return _writeErrors; }
-        }
+        public abstract ReadOnlyCollection<BulkWriteError> WriteErrors { get; }
     }
 }

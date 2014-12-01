@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Operations
                         {
                             writeConcernResult = ReadWriteConcernResult(connection, sendBatchResult);
                         }
-                        catch (WriteConcernException ex)
+                        catch (MongoWriteConcernException ex)
                         {
                             writeConcernResult = ex.WriteConcernResult;
                             if (_continueOnError)

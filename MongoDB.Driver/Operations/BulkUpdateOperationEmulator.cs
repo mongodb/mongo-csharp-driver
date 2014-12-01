@@ -51,12 +51,12 @@ namespace MongoDB.Driver.Operations
             var operation = new UpdateOpcodeOperation(operationArgs);
 
             WriteConcernResult writeConcernResult;
-            WriteConcernException writeConcernException = null;
+            MongoWriteConcernException writeConcernException = null;
             try
             {
                 writeConcernResult = operation.Execute(connection);
             }
-            catch (WriteConcernException ex)
+            catch (MongoWriteConcernException ex)
             {
                 writeConcernResult = ex.WriteConcernResult;
                 writeConcernException = ex;

@@ -22,28 +22,27 @@ namespace MongoDB.Driver
     /// Represents a write concern exception.
     /// </summary>
     [Serializable]
-    [Obsolete("Use MongoWriteConcernException instead.")]
 #pragma warning disable 618
-    public abstract class WriteConcernException : MongoSafeModeException
+    public class MongoWriteConcernException : WriteConcernException
 #pragma warning restore
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the WriteConcernException class.
+        /// Initializes a new instance of the MongoWriteConcernException class.
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="writeConcernResult">The command result.</param>
-        public WriteConcernException(string message, WriteConcernResult writeConcernResult)
+        public MongoWriteConcernException(string message, WriteConcernResult writeConcernResult)
             : base(message, writeConcernResult)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the WriteConcernException class (this overload supports deserialization).
+        /// Initializes a new instance of the MongoWriteConcernException class (this overload supports deserialization).
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public WriteConcernException(SerializationInfo info, StreamingContext context)
+        public MongoWriteConcernException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
@@ -55,6 +54,11 @@ namespace MongoDB.Driver
         /// <value>
         /// The write concern result.
         /// </value>
-        public abstract WriteConcernResult WriteConcernResult { get; }
+        public override WriteConcernResult WriteConcernResult
+        {
+#pragma warning disable 618
+            get { return (WriteConcernResult)CommandResult; }
+#pragma warning restore
+        }
     }
 }

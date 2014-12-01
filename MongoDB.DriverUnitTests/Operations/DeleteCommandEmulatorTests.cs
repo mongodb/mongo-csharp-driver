@@ -63,7 +63,7 @@ namespace MongoDB.DriverUnitTests.Operations
                     new DeleteRequest(Query.EQ("_id", 2))
                 };
                 var operation = CreateOperation(connection, _collection, deletes);
-                var exception = Assert.Throws<BulkWriteException>(() => operation.Execute(connection));
+                var exception = Assert.Throws<MongoBulkWriteException>(() => operation.Execute(connection));
 
                 var result = exception.Result;
                 Assert.AreEqual(0, result.DeletedCount);
@@ -137,7 +137,7 @@ namespace MongoDB.DriverUnitTests.Operations
                     new DeleteRequest(Query.And(Query.EQ("_id", 2), Query.Where("x")))
                 };
                 var operation = CreateOperation(connection, _collection, deletes);
-                var exception = Assert.Throws<BulkWriteException>(() => operation.Execute(connection));
+                var exception = Assert.Throws<MongoBulkWriteException>(() => operation.Execute(connection));
 
                 var result = exception.Result;
                 Assert.AreEqual(1, result.DeletedCount);

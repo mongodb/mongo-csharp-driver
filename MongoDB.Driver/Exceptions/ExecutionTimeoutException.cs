@@ -22,7 +22,8 @@ namespace MongoDB.Driver
     /// Represents a MongoDB execution timeout exception.
     /// </summary>
     [Serializable]
-    public class ExecutionTimeoutException : MongoException
+    [Obsolete("Use MongoExecutionTimeoutException instead.")]
+    public abstract class ExecutionTimeoutException : MongoException
     {
         // constructors
         /// <summary>

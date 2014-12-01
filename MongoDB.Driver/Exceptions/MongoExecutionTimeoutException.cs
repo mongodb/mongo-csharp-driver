@@ -19,29 +19,39 @@ using System.Runtime.Serialization;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents a MongoDB safe mode exception.
+    /// Represents a MongoDB execution timeout exception.
     /// </summary>
     [Serializable]
-    [Obsolete("Use MongoWriteConcernException instead.")]
-    public class MongoSafeModeException : MongoCommandException
+#pragma warning disable 618
+    public class MongoExecutionTimeoutException : ExecutionTimeoutException
+#pragma warning restore
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the MongoSafeModeException class.
+        /// Initializes a new instance of the MongoExecutionTimeoutException class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        /// <param name="commandResult">The command result.</param>
-        public MongoSafeModeException(string message, CommandResult commandResult)
-            : base(message, commandResult)
+        public MongoExecutionTimeoutException(string message)
+            : base(message)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the MongoSafeModeException class (this overload supports deserialization).
+        /// Initializes a new instance of the MongoExecutionTimeoutException class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
+        public MongoExecutionTimeoutException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MongoExecutionTimeoutException class (this overload supports deserialization).
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public MongoSafeModeException(SerializationInfo info, StreamingContext context)
+        public MongoExecutionTimeoutException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

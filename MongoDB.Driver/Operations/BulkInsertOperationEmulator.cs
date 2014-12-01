@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Operations
             var operation = new InsertOpcodeOperation(operationArgs);
 
             WriteConcernResult writeConcernResult = null;
-            WriteConcernException writeConcernException = null;
+            MongoWriteConcernException writeConcernException = null;
             try
             {
                 var operationResult = operation.Execute(connection);
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Operations
                     writeConcernResult = operationResult.First();
                 }
             }
-            catch (WriteConcernException ex)
+            catch (MongoWriteConcernException ex)
             {
                 writeConcernResult = ex.WriteConcernResult;
                 writeConcernException = ex;

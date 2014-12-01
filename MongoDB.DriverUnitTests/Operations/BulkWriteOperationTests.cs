@@ -56,7 +56,7 @@ namespace MongoDB.DriverUnitTests.Operations
             {
                 bulk.Insert(documents[i]);
             }
-            var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(); });
+            var exception = Assert.Throws<MongoBulkWriteException>(() => { bulk.Execute(); });
             var result = exception.Result;
 
             Assert.IsNull(exception.WriteConcernError);
@@ -95,7 +95,7 @@ namespace MongoDB.DriverUnitTests.Operations
             {
                 bulk.Insert(documents[i]);
             }
-            var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(); });
+            var exception = Assert.Throws<MongoBulkWriteException>(() => { bulk.Execute(); });
             var result = exception.Result;
 
             Assert.IsNull(exception.WriteConcernError);
@@ -464,7 +464,7 @@ namespace MongoDB.DriverUnitTests.Operations
             var writeConcern = new WriteConcern { W = 2 };
             if (_primary.BuildInfo.Version < new Version(2, 6, 0))
             {
-                Assert.Throws<BulkWriteException>(() => { bulk.Execute(writeConcern); });
+                Assert.Throws<MongoBulkWriteException>(() => { bulk.Execute(writeConcern); });
                 Assert.AreEqual(1, _collection.Count());
             }
             else
@@ -487,7 +487,7 @@ namespace MongoDB.DriverUnitTests.Operations
             bulk.Find(Query.EQ("b", 2)).Upsert().UpdateOne(Update.Set("a", 1));
             bulk.Insert(new BsonDocument { { "b", 4 }, { "a", 3 } });
             bulk.Insert(new BsonDocument { { "b", 5 }, { "a", 1 } });
-            var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(); });
+            var exception = Assert.Throws<MongoBulkWriteException>(() => { bulk.Execute(); });
             var result = exception.Result;
 
             var expectedResult = new ExpectedResult
@@ -665,7 +665,7 @@ namespace MongoDB.DriverUnitTests.Operations
             bulk.Find(Query.EQ("b", 2)).Upsert().UpdateOne(Update.Set("a", 1));
             bulk.Insert(new BsonDocument { { "b", 4 }, { "a", 3 } });
             bulk.Insert(new BsonDocument { { "b", 5 }, { "a", 1 } });
-            var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(); });
+            var exception = Assert.Throws<MongoBulkWriteException>(() => { bulk.Execute(); });
             var result = exception.Result;
 
             var expectedResult = new ExpectedResult
@@ -1176,7 +1176,7 @@ namespace MongoDB.DriverUnitTests.Operations
                 }
                 else
                 {
-                    var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(WriteConcern.W2); });
+                    var exception = Assert.Throws<MongoBulkWriteException>(() => { bulk.Execute(WriteConcern.W2); });
                     var result = exception.Result;
 
                     var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
@@ -1206,7 +1206,7 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Insert(new BsonDocument("_id", 1));
                 bulk.Insert(new BsonDocument("_id", 1));
                 var all = Configuration.TestServer.Secondaries.Length + 1;
-                var exception = Assert.Throws<BulkWriteException>(() => bulk.Execute(new WriteConcern { W = all, WTimeout = TimeSpan.FromMilliseconds(1) }));
+                var exception = Assert.Throws<MongoBulkWriteException>(() => bulk.Execute(new WriteConcern { W = all, WTimeout = TimeSpan.FromMilliseconds(1) }));
                 var result = exception.Result;
 
                 var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 2 };

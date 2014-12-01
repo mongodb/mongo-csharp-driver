@@ -120,7 +120,7 @@ namespace MongoDB.DriverUnitTests.Exceptions
             var ex = ExceptionMapper.Map(writeConcernResult);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<WriteConcernException>(ex);
+            Assert.IsInstanceOf<MongoWriteConcernException>(ex);
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace MongoDB.DriverUnitTests.Exceptions
             var ex = ExceptionMapper.Map(writeConcernResult);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<WriteConcernException>(ex);
+            Assert.IsInstanceOf<MongoWriteConcernException>(ex);
         }
 
         [Test]
@@ -158,7 +158,7 @@ namespace MongoDB.DriverUnitTests.Exceptions
             var ex = ExceptionMapper.Map(response);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<ExecutionTimeoutException>(ex);
+            Assert.IsInstanceOf<MongoExecutionTimeoutException>(ex);
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace MongoDB.DriverUnitTests.Exceptions
             var ex = ExceptionMapper.Map(response);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<ExecutionTimeoutException>(ex);
+            Assert.IsInstanceOf<MongoExecutionTimeoutException>(ex);
         }
     }
 }

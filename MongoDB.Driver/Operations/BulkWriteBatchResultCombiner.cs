@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Operations
             return _batchResults.SelectMany(r => r.WriteErrors.Select(e => e.WithMappedIndex(r.IndexMap))).OrderBy(e => e.Index);
         }
 
-        private BulkWriteException CreateBulkWriteException(IEnumerable<WriteRequest> remainingRequests)
+        private MongoBulkWriteException CreateBulkWriteException(IEnumerable<WriteRequest> remainingRequests)
         {
             var remainingRequestsList = remainingRequests.ToList();
             var result = CreateBulkWriteResult(remainingRequestsList.Count);
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Operations
             var writeConcernError = CombineWriteConcernErrors();
             var unprocessedRequests = CombineUnprocessedRequests().Concat(remainingRequestsList);
 
-            return new BulkWriteException(result, writeErrors, writeConcernError, unprocessedRequests);
+            return new MongoBulkWriteException(result, writeErrors, writeConcernError, unprocessedRequests);
         }
 
         private BulkWriteResult CreateBulkWriteResult(int remainingRequestsCount)

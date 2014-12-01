@@ -47,12 +47,12 @@ namespace MongoDB.Driver.Operations
             var operation = new BulkInsertOperation(_args);
 
             BulkWriteResult bulkWriteResult;
-            BulkWriteException bulkWriteException = null;
+            MongoBulkWriteException bulkWriteException = null;
             try
             {
                 bulkWriteResult = operation.Execute(connection);
             }
-            catch (BulkWriteException ex)
+            catch (MongoBulkWriteException ex)
             {
                 bulkWriteResult = ex.Result;
                 bulkWriteException = ex;

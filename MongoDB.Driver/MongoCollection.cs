@@ -303,7 +303,7 @@ namespace MongoDB.Driver
 #pragma warning disable 618
                         translatedResult.Command = ex.CommandResult.Command;
 #pragma warning restore
-                        throw new WriteConcernException(ex.Message, translatedResult);
+                        throw new MongoWriteConcernException(ex.Message, translatedResult);
                     }
                 }
                 else
