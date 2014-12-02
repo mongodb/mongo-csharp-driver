@@ -147,7 +147,6 @@ namespace MongoDB.Driver.Tests
         public void FindOneAndUpdateAsync_with_an_expression_and_update_builder_should_call_collection_with_the_correct_filter()
         {
             var subject = CreateSubject();
-            var update = new BsonDocument();
             subject.FindOneAndUpdateAsync(
                 x => x.FirstName == "Jack",
                 ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10));
@@ -179,7 +178,6 @@ namespace MongoDB.Driver.Tests
         public void FindOneAndUpdateAsync_with_an_expression_and_update_builder_and_result_options_should_call_collection_with_the_correct_filter()
         {
             var subject = CreateSubject();
-            var update = new BsonDocument();
             var options = new FindOneAndUpdateOptions<BsonDocument>();
             subject.FindOneAndUpdateAsync(
                 x => x.FirstName == "Jack",

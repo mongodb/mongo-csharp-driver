@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿﻿/* Copyright 2010-2014 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -585,7 +585,7 @@ namespace MongoDB.Driver.Tests
                 new BsonDocument("wiredtiger", new BsonDocument("configString", "block_compressor=zlib")));
             _database.CreateCollection(collection.Name, options);
             Assert.IsTrue(collection.Exists());
-            var stats = collection.GetStats();
+            collection.GetStats();
             collection.Drop();
         }
 
