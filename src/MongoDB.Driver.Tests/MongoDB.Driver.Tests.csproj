@@ -62,14 +62,18 @@
     <AssemblyOriginatorKeyFile>..\Keys\TemporaryKeyPair.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentAssertions">
-      <HintPath>..\packages\FluentAssertions.3.1.229\lib\net45\FluentAssertions.dll</HintPath>
+    <Reference Include="FluentAssertions, Version=3.2.1.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="FluentAssertions.Core">
-      <HintPath>..\packages\FluentAssertions.3.1.229\lib\net45\FluentAssertions.Core.dll</HintPath>
+    <Reference Include="FluentAssertions.Core, Version=3.2.1.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.Core.dll</HintPath>
     </Reference>
-    <Reference Include="NSubstitute">
-      <HintPath>..\packages\NSubstitute.1.7.2.0\lib\NET45\NSubstitute.dll</HintPath>
+    <Reference Include="NSubstitute, Version=1.8.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NSubstitute.1.8.0.0\lib\net45\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.5.9.10348, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -107,12 +111,6 @@
     <Compile Include="Builders\SortByBuilderTypedTests.cs" />
     <Compile Include="Builders\UpdateBuilderTests.cs" />
     <Compile Include="GridFS\MongoGridFSExceptionTests.cs" />
-    <Compile Include="Helpers\BulkWriteErrorEqualityComparer.cs" />
-    <Compile Include="Helpers\BulkWriteResultEqualityComparer.cs" />
-    <Compile Include="Helpers\BulkWriteUpsertEqualityComparer.cs" />
-    <Compile Include="Helpers\WriteConcernErrorEqualityComparer.cs" />
-    <Compile Include="Helpers\WriteErrorEqualityComparer.cs" />
-    <Compile Include="Helpers\WriteModelEqualityComparer.cs" />
     <Compile Include="IAggregateFluentExtensionsTests.cs" />
     <Compile Include="IFindFluentExtensionsTests.cs" />
     <Compile Include="IMongoCollectionExtensionsTests.cs" />
@@ -256,6 +254,10 @@
     <Compile Include="MongoBulkWriteExceptionTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
+      <Project>{6ac4638e-ec69-46aa-b6aa-c5cf227d14ae}</Project>
+      <Name>MongoDB.Bson.TestHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
       <Name>MongoDB.Bson</Name>

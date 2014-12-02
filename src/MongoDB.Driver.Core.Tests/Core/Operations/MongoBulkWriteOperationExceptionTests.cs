@@ -13,18 +13,17 @@
 * limitations under the License.
 */
 
-using System;
-using MongoDB.Driver.Core.Clusters;
-using FluentAssertions;
-using NUnit.Framework;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
+using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.EqualityComparers;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using System.Net;
-using System.Collections.Generic;
-using MongoDB.Driver.Core.Helpers;
+using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -77,10 +76,10 @@ namespace MongoDB.Driver.Core.Operations
 
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.Result.Should().Match<BulkWriteOperationResult>(x => new BulkWriteOperationResultEqualityComparer().Equals(x, subject.Result));
-                rehydrated.UnprocessedRequests.Should().Equal(subject.UnprocessedRequests);
-                rehydrated.WriteConcernError.Should().Match<BulkWriteConcernError>(x => new BulkWriteConcernErrorEqualityComparer().Equals(x, subject.WriteConcernError));
-                rehydrated.WriteErrors.Should().Equal(subject.WriteErrors);
+                rehydrated.Result.Should().BeUsing(subject.Result, EqualityComparerRegistry.Default);
+                rehydrated.UnprocessedRequests.Should().EqualUsing(subject.UnprocessedRequests, EqualityComparerRegistry.Default);
+                rehydrated.WriteConcernError.Should().BeUsing(subject.WriteConcernError, EqualityComparerRegistry.Default);
+                rehydrated.WriteErrors.Should().EqualUsing(subject.WriteErrors, EqualityComparerRegistry.Default);
             }
         }
     }

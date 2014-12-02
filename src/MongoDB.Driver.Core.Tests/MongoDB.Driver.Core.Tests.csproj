@@ -30,16 +30,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentAssertions, Version=3.1.229.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\FluentAssertions.3.1.229\lib\net45\FluentAssertions.dll</HintPath>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
-    <Reference Include="FluentAssertions.Core, Version=3.1.229.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+    <Reference Include="FluentAssertions.Core, Version=3.2.1.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\FluentAssertions.3.1.229\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <HintPath>..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.Core.dll</HintPath>
     </Reference>
-    <Reference Include="NSubstitute">
-      <HintPath>..\packages\NSubstitute.1.7.2.0\lib\NET45\NSubstitute.dll</HintPath>
+    <Reference Include="NSubstitute, Version=1.8.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NSubstitute.1.8.0.0\lib\net45\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -51,10 +51,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssertionExtensions.cs" />
-    <Compile Include="Core\Helpers\BulkWriteConcernErrorEqualityComparer.cs" />
-    <Compile Include="Core\Helpers\BulkWriteOperationResultEqualityComparer.cs" />
-    <Compile Include="Core\Helpers\WriteConcernResultEqualityComparer.cs" />
     <Compile Include="Core\Operations\AggregateToCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
@@ -204,6 +200,10 @@
     <Compile Include="Core\WireProtocol\Messages\UpdateMessageTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
+      <Project>{6ac4638e-ec69-46aa-b6aa-c5cf227d14ae}</Project>
+      <Name>MongoDB.Bson.TestHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0e9a3a2a-49cd-4f6c-847c-dc79b4b65ce6}</Project>
       <Name>MongoDB.Bson</Name>

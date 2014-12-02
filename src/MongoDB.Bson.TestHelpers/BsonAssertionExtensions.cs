@@ -13,30 +13,17 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
+using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 
-namespace MongoDB.Driver.Core.Helpers
+namespace FluentAssertions // use FluentAssertions namespace so that these extension methods are automatically available
 {
-    public class WriteConcernResultEqualityComparer : IEqualityComparer<WriteConcernResult>
+    public static class BsonAssertionExtensions
     {
-        public bool Equals(WriteConcernResult x, WriteConcernResult y)
+        // static methods
+        public static BsonDocumentAssertions Should(this BsonDocument actualValue)
         {
-            if ((object)x == (object)y)
-            {
-                return true;
-            }
-
-            if ((object)x == null || (object)y == null)
-            {
-                return false;
-            }
-
-            return object.Equals(x.Response, y.Response);
-        }
-
-        public int GetHashCode(WriteConcernResult x)
-        {
-            return 1;
+            return new BsonDocumentAssertions(actualValue);
         }
     }
 }

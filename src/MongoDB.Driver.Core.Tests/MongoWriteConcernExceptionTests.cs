@@ -13,16 +13,14 @@
 * limitations under the License.
 */
 
-using System;
 using System.IO;
 using System.Net;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.EqualityComparers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
@@ -65,7 +63,7 @@ namespace MongoDB.Driver
                 rehydrated.InnerException.Should().BeNull();
                 rehydrated.Message.Should().Be(subject.Message);
                 rehydrated.Result.Should().Be(subject.Result);
-                rehydrated.WriteConcernResult.Should().Match<WriteConcernResult>(x => new WriteConcernResultEqualityComparer().Equals(x, subject.WriteConcernResult));
+                rehydrated.WriteConcernResult.Should().BeUsing(subject.WriteConcernResult, EqualityComparerRegistry.Default);
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2010-2014 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,25 +13,15 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
 
-namespace MongoDB.Driver.Tests.Helpers
+namespace MongoDB.Bson.TestHelpers.EqualityComparers
 {
-    public class BulkWriteErrorEqualityComparer : WriteErrorEqualityComparer, IEqualityComparer<BulkWriteError>
+    public interface IEqualityComparerFactory
     {
-        public bool Equals(BulkWriteError x, BulkWriteError y)
-        {
-            if (!Equals((WriteError)x, (WriteError)y))
-            {
-                return false;
-            }
-
-            return x.Index == y.Index;
-        }
-
-        public int GetHashCode(BulkWriteError x)
-        {
-            return 1;
-        }
+        IEqualityComparer CreateComparer(Type valueType, IEqualityComparerSource source);
+        IEqualityComparer<T> CreateComparer<T>(IEqualityComparerSource source);
     }
 }

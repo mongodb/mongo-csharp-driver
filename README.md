@@ -3,7 +3,7 @@ MongoDB C# Driver
 
 You can get the latest stable release from the [official Nuget.org feed](http://www.nuget.org/packages/mongocsharpdriver) or from our [github releases page](https://github.com/mongodb/mongo-csharp-driver/releases).
 
-If you'd like to work with the bleeding edge, you can use our [build feed](https://www.myget.org/gallery/mongocsharpdriverbuild). Packages on this feed are pre-release and, while they've passed all our tests, are not yet ready for production.
+If you'd like to work with the bleeding edge, you can use our [custom feed](https://www.myget.org/gallery/mongodb). Some packages on this feed are pre-release and, while they've passed all our tests, are not yet ready for production.
 
 Build Status
 ------------
@@ -24,13 +24,15 @@ using MongoDB.Driver;
 
 ```C#
 var client = new MongoClient("mongodb://localhost:27017");
-var server = client.GetServer();
-var database = server.GetDatabase("foo");
-var collection = database.GetCollection("bar");
+var database = client.GetDatabase("foo");
+var collection = client.GetCollection<BsonDocument>("bar");
 
-collection.Insert(new BsonDocument("Name", "Jack"));
+await collection.InsertOneAsync(new BsonDocument("Name", "Jack"));
 
-foreach(var document in collection.FindAll())
+var list = await collection.Find(new BsonDocument("Name", "Jack"))
+	.ToListAsync();
+
+foreach(var document in list)
 {
 	Console.WriteLine(document["Name"]);
 }
@@ -53,13 +55,15 @@ public class Person
 
 ```C#
 var client = new MongoClient("mongodb://localhost:27017");
-var server = client.GetServer();
-var database = server.GetDatabase("foo");
+var database = client.GetDatabase("foo");
 var collection = database.GetCollection<Person>("bar");
 
-collection.Insert(new Person { Name = "Jack" });
+await collection.InsertOneAsync(new Person { Name = "Jack" });
 
-foreach(var person in collection.FindAll())
+var list = await collection.Find(x => x.Name == "Jack")
+	.ToListAsync();
+
+foreach(var person in list)
 {
 	Console.WriteLine(person.Name);
 }
