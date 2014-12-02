@@ -194,8 +194,6 @@
     <Compile Include="Core\Clusters\SingleServerCluster.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="TagSet.cs" />
-    <Compile Include="Core\ConnectionPools\SharedConnectionPool.cs" />
-    <Compile Include="Core\ConnectionPools\SharedConnectionPoolFactory.cs" />
     <Compile Include="Core\Configuration\ConnectionPoolSettings.cs" />
     <Compile Include="Core\ConnectionPools\IConnectionPool.cs" />
     <Compile Include="Core\ConnectionPools\IConnectionPoolFactory.cs" />
