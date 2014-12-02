@@ -73,9 +73,6 @@
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\MongoDB.Shared\SkipOnMonoAttribute.cs">
-      <Link>SkipOnMonoAttribute.cs</Link>
-    </Compile>
     <Compile Include="BsonExtensionMethodsTests.cs" />
     <Compile Include="BsonUtilsTests.cs" />
     <Compile Include="IO\ArrayElementNameAcceleratorTests.cs" />

@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Driver", "Driver", "{112828
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Bson.TestHelpers", "MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj", "{6AC4638E-EC69-46AA-B6AA-C5CF227D14AE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Core.TestHelpers", "MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.csproj", "{26C8E1F2-D859-4ED0-A1A7-DE0B32F81084}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{6AC4638E-EC69-46AA-B6AA-C5CF227D14AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AC4638E-EC69-46AA-B6AA-C5CF227D14AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6AC4638E-EC69-46AA-B6AA-C5CF227D14AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26C8E1F2-D859-4ED0-A1A7-DE0B32F81084}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26C8E1F2-D859-4ED0-A1A7-DE0B32F81084}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26C8E1F2-D859-4ED0-A1A7-DE0B32F81084}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26C8E1F2-D859-4ED0-A1A7-DE0B32F81084}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,5 +89,6 @@ Global
 		{B7AE6291-4D43-44D8-9FD1-A0D651330927} = {475393A0-310D-4EEE-8E3F-F196A96B2A99}
 		{0FCD608D-154F-40CF-A475-EB92C8249E57} = {475393A0-310D-4EEE-8E3F-F196A96B2A99}
 		{6AC4638E-EC69-46AA-B6AA-C5CF227D14AE} = {02386664-8BF7-4E57-A24E-B059B8F997F0}
+		{26C8E1F2-D859-4ED0-A1A7-DE0B32F81084} = {475393A0-310D-4EEE-8E3F-F196A96B2A99}
 	EndGlobalSection
 EndGlobal

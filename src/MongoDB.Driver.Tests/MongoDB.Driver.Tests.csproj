@@ -91,9 +91,6 @@
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\MongoDB.Shared\TestEnvironment.cs">
-      <Link>TestEnvironment.cs</Link>
-    </Compile>
     <Compile Include="Builders\CollectionOptionsBuilderTests.cs" />
     <Compile Include="Builders\FieldsBuilderTypedTests.cs" />
     <Compile Include="Builders\FieldsBuilderTests.cs" />
@@ -261,9 +258,9 @@
       <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
       <Name>MongoDB.Bson</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MongoDB.Driver.Core.Tests\MongoDB.Driver.Core.Tests.csproj">
-      <Project>{b7ae6291-4d43-44d8-9fd1-a0d651330927}</Project>
-      <Name>MongoDB.Driver.Core.Tests</Name>
+    <ProjectReference Include="..\MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.csproj">
+      <Project>{26c8e1f2-d859-4ed0-a1a7-de0b32f81084}</Project>
+      <Name>MongoDB.Driver.Core.TestHelpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
       <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
