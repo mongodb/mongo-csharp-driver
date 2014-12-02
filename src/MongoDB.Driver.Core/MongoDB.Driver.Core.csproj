@@ -77,6 +77,14 @@
     <Compile Include="Core\Configuration\SslStreamSettings.cs" />
     <Compile Include="Core\Connections\SslStreamFactory.cs" />
     <Compile Include="Core\Events\ConnectionAfterClosingEvent.cs" />
+    <Compile Include="Core\Events\ServerAfterClosingEvent.cs" />
+    <Compile Include="Core\Events\ServerAfterDescriptionChangedEvent.cs" />
+    <Compile Include="Core\Events\ServerErrorHeartbeatingEvent.cs" />
+    <Compile Include="Core\Events\ServerAfterOpeningEvent.cs" />
+    <Compile Include="Core\Events\ServerAfterHeartbeatingEvent.cs" />
+    <Compile Include="Core\Events\ServerBeforeHeartbeatingEvent.cs" />
+    <Compile Include="Core\Events\ServerBeforeOpeningEvent.cs" />
+    <Compile Include="Core\Events\ServerBeforeClosingEvent.cs" />
     <Compile Include="Core\Events\ConnectionPoolAfterCheckingInAConnectionEvent.cs" />
     <Compile Include="Core\Events\ConnectionPoolAfterCheckingOutAConnectionEvent.cs" />
     <Compile Include="Core\Events\ConnectionPoolBeforeCheckingInAConnectionEvent.cs" />

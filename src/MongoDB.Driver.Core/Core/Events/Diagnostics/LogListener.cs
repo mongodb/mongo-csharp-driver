@@ -72,44 +72,44 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         }
 
         // Servers
-        public override void ServerBeforeClosing(ServerId serverId)
+        public override void BeforeClosing(ServerBeforeClosingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: closing.", Label(serverId));
+            Log(LogLevel.Debug, "{0}: closing.", Label(@event.ServerId));
         }
 
-        public override void ServerAfterClosing(ServerId serverId)
+        public override void AfterClosing(ServerAfterClosingEvent @event)
         {
-            Log(LogLevel.Info, "{0}: closed.", Label(serverId));
+            Log(LogLevel.Info, "{0}: closed in {1}ms.", Label(@event.ServerId), @event.Elapsed.TotalMilliseconds);
         }
 
-        public override void ServerBeforeOpening(ServerId serverId, ServerSettings settings)
+        public override void BeforeOpening(ServerBeforeOpeningEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: opening.", Label(serverId));
+            Log(LogLevel.Debug, "{0}: opening.", Label(@event.ServerId));
         }
 
-        public override void ServerAfterOpening(ServerId serverId, ServerSettings settings, TimeSpan elapsed)
+        public override void AfterOpening(ServerAfterOpeningEvent @event)
         {
-            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(serverId), elapsed.TotalMilliseconds);
+            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(@event.ServerId), @event.Elapsed.TotalMilliseconds);
         }
 
-        public override void ServerBeforeHeartbeating(ConnectionId connectionId)
+        public override void BeforeHeartbeating(ServerBeforeHeartbeatingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: sending heartbeat.", Label(connectionId));
+            Log(LogLevel.Debug, "{0}: sending heartbeat.", Label(@event.ConnectionId));
         }
 
-        public override void ServerAfterHeartbeating(ConnectionId connectionId, TimeSpan elapsed)
+        public override void AfterHeartbeating(ServerAfterHeartbeatingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: sent heartbeat.", Label(connectionId));
+            Log(LogLevel.Debug, "{0}: sent heartbeat in {1}ms.", Label(@event.ConnectionId), @event.Elapsed.TotalMilliseconds);
         }
 
-        public override void ServerErrorHeartbeating(ConnectionId connectionId, Exception exception)
+        public override void ErrorHeartbeating(ServerErrorHeartbeatingEvent @event)
         {
-            Log(LogLevel.Error, "{0}: error sending heartbeat. Exception: {1}", Label(connectionId), exception);
+            Log(LogLevel.Error, "{0}: error sending heartbeat. Exception: {1}", Label(@event.ConnectionId), @event.Exception);
         }
 
-        public override void ServerAfterDescriptionChanged(ServerDescription oldDescription, ServerDescription newDescription)
+        public override void AfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event)
         {
-            Log(LogLevel.Info, "{0}: {1}", Label(oldDescription.ServerId), newDescription);
+            Log(LogLevel.Info, "{0}: {1}", Label(@event.OldDescription.ServerId), @event.NewDescription);
         }
 
         // Connection Pools

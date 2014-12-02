@@ -78,35 +78,35 @@ namespace MongoDB.Driver.Core.Events
         #endregion
 
         #region Server
-        public virtual void ServerBeforeClosing(ServerId serverId)
+        public virtual void BeforeClosing(ServerBeforeClosingEvent @event)
         {
         }
 
-        public virtual void ServerAfterClosing(ServerId serverId)
+        public virtual void AfterClosing(ServerAfterClosingEvent @event)
         {
         }
 
-        public virtual void ServerBeforeOpening(ServerId serverId, ServerSettings settings)
+        public virtual void BeforeOpening(ServerBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void ServerAfterOpening(ServerId serverId, ServerSettings settings, TimeSpan elapsed)
+        public virtual void AfterOpening(ServerAfterOpeningEvent @event)
         {
         }
 
-        public virtual void ServerBeforeHeartbeating(ConnectionId connectionId)
+        public virtual void BeforeHeartbeating(ServerBeforeHeartbeatingEvent @event)
         {
         }
 
-        public virtual void ServerAfterHeartbeating(ConnectionId connectionId, TimeSpan elapsed)
+        public virtual void AfterHeartbeating(ServerAfterHeartbeatingEvent @event)
         {
         }
 
-        public virtual void ServerErrorHeartbeating(ConnectionId connectionId, Exception exception)
+        public virtual void ErrorHeartbeating(ServerErrorHeartbeatingEvent @event)
         {
         }
 
-        public virtual void ServerAfterDescriptionChanged(Servers.ServerDescription oldDescription, Servers.ServerDescription newDescription)
+        public virtual void AfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event)
         {
         }
         #endregion

@@ -15,23 +15,36 @@
 
 using System;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
+
 namespace MongoDB.Driver.Core.Events
 {
-    public interface IServerListener : IListener
+    public struct ServerAfterOpeningEvent
     {
-        // methods
-        void BeforeClosing(ServerBeforeClosingEvent @event);
-        void AfterClosing(ServerAfterClosingEvent @event);
+        private readonly ServerId _serverId;
+        private readonly ServerSettings _serverSettings;
+        private readonly TimeSpan _elapsed;
 
-        void BeforeOpening(ServerBeforeOpeningEvent @event);
-        void AfterOpening(ServerAfterOpeningEvent @event);
+        public ServerAfterOpeningEvent(ServerId serverId, ServerSettings serverSettings, TimeSpan elapsed)
+        {
+            _serverId = serverId;
+            _serverSettings = serverSettings;
+            _elapsed = elapsed;
+        }
 
-        void BeforeHeartbeating(ServerBeforeHeartbeatingEvent @event);
-        void AfterHeartbeating(ServerAfterHeartbeatingEvent @event);
-        void ErrorHeartbeating(ServerErrorHeartbeatingEvent @event);
+        public TimeSpan Elapsed
+        {
+            get { return _elapsed; }
+        }
 
-        void AfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event);
+        public ServerId ServerId
+        {
+            get { return _serverId; }
+        }
+
+        public ServerSettings ServerSettings
+        {
+            get { return _serverSettings; }
+        }
     }
 }

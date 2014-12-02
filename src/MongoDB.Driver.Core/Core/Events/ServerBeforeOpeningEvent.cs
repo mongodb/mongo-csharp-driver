@@ -13,25 +13,31 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
+
 namespace MongoDB.Driver.Core.Events
 {
-    public interface IServerListener : IListener
+    public struct ServerBeforeOpeningEvent
     {
-        // methods
-        void BeforeClosing(ServerBeforeClosingEvent @event);
-        void AfterClosing(ServerAfterClosingEvent @event);
+        private readonly ServerId _serverId;
+        private readonly ServerSettings _serverSettings;
 
-        void BeforeOpening(ServerBeforeOpeningEvent @event);
-        void AfterOpening(ServerAfterOpeningEvent @event);
+        public ServerBeforeOpeningEvent(ServerId serverId, ServerSettings serverSettings)
+        {
+            _serverId = serverId;
+            _serverSettings = serverSettings;
+        }
 
-        void BeforeHeartbeating(ServerBeforeHeartbeatingEvent @event);
-        void AfterHeartbeating(ServerAfterHeartbeatingEvent @event);
-        void ErrorHeartbeating(ServerErrorHeartbeatingEvent @event);
+        public ServerId ServerId
+        {
+            get { return _serverId; }
+        }
 
-        void AfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event);
+        public ServerSettings ServerSettings
+        {
+            get { return _serverSettings; }
+        }
     }
 }
