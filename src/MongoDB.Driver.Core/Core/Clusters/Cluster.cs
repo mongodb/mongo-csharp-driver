@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (_listener != null)
             {
-                _listener.AfterDescriptionChanged(new ClusterAfterDescriptionChangedEvent(oldDescription, newDescription));
+                _listener.ClusterAfterDescriptionChanged(new ClusterAfterDescriptionChangedEvent(oldDescription, newDescription));
             }
 
             var handler = DescriptionChanged;

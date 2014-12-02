@@ -40,190 +40,190 @@ namespace MongoDB.Driver.Core.Events
         #endregion static
 
         #region Clusters
-        public virtual void BeforeClosing(ClusterBeforeClosingEvent @event)
+        public virtual void ClusterBeforeClosing(ClusterBeforeClosingEvent @event)
         {
         }
 
-        public virtual void AfterClosing(ClusterAfterClosingEvent @event)
+        public virtual void ClusterAfterClosing(ClusterAfterClosingEvent @event)
         {
         }
 
-        public virtual void BeforeOpening(ClusterBeforeOpeningEvent @event)
+        public virtual void ClusterBeforeOpening(ClusterBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void AfterOpening(ClusterAfterOpeningEvent @event)
+        public virtual void ClusterAfterOpening(ClusterAfterOpeningEvent @event)
         {
         }
 
-        public virtual void BeforeAddingServer(ClusterBeforeAddingServerEvent @event)
+        public virtual void ClusterBeforeAddingServer(ClusterBeforeAddingServerEvent @event)
         {
         }
 
-        public virtual void AfterAddingServer(ClusterAfterAddingServerEvent @event)
+        public virtual void ClusterAfterAddingServer(ClusterAfterAddingServerEvent @event)
         {
         }
 
-        public virtual void BeforeRemovingServer(ClusterBeforeRemovingServerEvent @event)
+        public virtual void ClusterBeforeRemovingServer(ClusterBeforeRemovingServerEvent @event)
         {
         }
 
-        public virtual void AfterRemovingServer(ClusterAfterRemovingServerEvent @event)
+        public virtual void ClusterAfterRemovingServer(ClusterAfterRemovingServerEvent @event)
         {
         }
 
-        public virtual void AfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event)
+        public virtual void ClusterAfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event)
         {
         }
         #endregion
 
         #region Server
-        public virtual void BeforeClosing(ServerBeforeClosingEvent @event)
+        public virtual void ServerBeforeClosing(ServerBeforeClosingEvent @event)
         {
         }
 
-        public virtual void AfterClosing(ServerAfterClosingEvent @event)
+        public virtual void ServerAfterClosing(ServerAfterClosingEvent @event)
         {
         }
 
-        public virtual void BeforeOpening(ServerBeforeOpeningEvent @event)
+        public virtual void ServerBeforeOpening(ServerBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void AfterOpening(ServerAfterOpeningEvent @event)
+        public virtual void ServerAfterOpening(ServerAfterOpeningEvent @event)
         {
         }
 
-        public virtual void BeforeHeartbeating(ServerBeforeHeartbeatingEvent @event)
+        public virtual void ServerBeforeHeartbeating(ServerBeforeHeartbeatingEvent @event)
         {
         }
 
-        public virtual void AfterHeartbeating(ServerAfterHeartbeatingEvent @event)
+        public virtual void ServerAfterHeartbeating(ServerAfterHeartbeatingEvent @event)
         {
         }
 
-        public virtual void ErrorHeartbeating(ServerErrorHeartbeatingEvent @event)
+        public virtual void ServerErrorHeartbeating(ServerErrorHeartbeatingEvent @event)
         {
         }
 
-        public virtual void AfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event)
+        public virtual void ServerAfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event)
         {
         }
         #endregion
 
         #region Connection Pools
-        public virtual void BeforeClosing(ConnectionPoolBeforeClosingEvent @event)
+        public virtual void ConnectionPoolBeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
         }
 
-        public virtual void AfterClosing(ConnectionPoolAfterClosingEvent @event)
+        public virtual void ConnectionPoolAfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
         }
 
-        public virtual void BeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
+        public virtual void ConnectionPoolBeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void AfterOpening(ConnectionPoolAfterOpeningEvent @event)
+        public virtual void ConnectionPoolAfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
         }
 
-        public virtual void BeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
+        public virtual void ConnectionPoolBeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
         }
 
-        public virtual void AfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
+        public virtual void ConnectionPoolAfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
         }
 
-        public virtual void BeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
+        public virtual void ConnectionPoolBeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
         }
 
-        public virtual void AfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
+        public virtual void ConnectionPoolAfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
         }
 
-        public virtual void BeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
+        public virtual void ConnectionPoolBeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
         {
         }
 
-        public virtual void AfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
+        public virtual void ConnectionPoolAfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
         {
         }
 
-        public virtual void ErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
+        public virtual void ConnectionPoolErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
         {
         }
 
-        public virtual void BeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
+        public virtual void ConnectionPoolBeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
         }
 
-        public virtual void AfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
+        public virtual void ConnectionPoolAfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
         }
 
-        public virtual void ErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
+        public virtual void ConnectionPoolErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
         }
 
-        public virtual void BeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
+        public virtual void ConnectionPoolBeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
         }
 
-        public virtual void AfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
+        public virtual void ConnectionPoolAfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
         }
 
         #endregion
 
         #region Connections
-        public virtual void Failed(ConnectionFailedEvent @event)
+        public virtual void ConnectionFailed(ConnectionFailedEvent @event)
         {
         }
 
-        public virtual void BeforeClosing(ConnectionBeforeClosingEvent @event)
+        public virtual void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event)
         {
         }
 
-        public virtual void AfterClosing(ConnectionAfterClosingEvent @event)
+        public virtual void ConnectionAfterClosing(ConnectionAfterClosingEvent @event)
         {
         }
 
-        public virtual void BeforeOpening(ConnectionBeforeOpeningEvent @event)
+        public virtual void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void AfterOpening(ConnectionAfterOpeningEvent @event)
+        public virtual void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event)
         {
         }
 
-        public virtual void ErrorOpening(ConnectionErrorOpeningEvent @event)
+        public virtual void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event)
         {
         }
 
-        public virtual void BeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
+        public virtual void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
         }
 
-        public virtual void AfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
+        public virtual void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
         }
 
-        public virtual void ErrorReceivingMessage(ConnectionErrorReceivingMessageEvent@event)
+        public virtual void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent@event)
         {
         }
 
-        public virtual void BeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
+        public virtual void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
         }
 
-        public virtual void AfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
+        public virtual void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
         }
 
-        public virtual void ErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
+        public virtual void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
         }
 

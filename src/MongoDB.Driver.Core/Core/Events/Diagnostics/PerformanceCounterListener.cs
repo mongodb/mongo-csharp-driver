@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         // methods
         // Connection Pool
-        public void AfterClosing(ConnectionPoolAfterClosingEvent @event)
+        public void ConnectionPoolAfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryRemove(@event.ServerId, out recorder))
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void AfterOpening(ConnectionPoolAfterOpeningEvent @event)
+        public void ConnectionPoolAfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
             var serverPackage = GetServerPackage(@event.ServerId.EndPoint);
             ConnectionPoolPerformanceRecorder recorder = new ConnectionPoolPerformanceRecorder(@event.ConnectionPoolSettings.MaxConnections, _appPackage, serverPackage);
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void AfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
+        public void ConnectionPoolAfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryGetValue(@event.ConnectionId.ServerId, out recorder))
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void AfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
+        public void ConnectionPoolAfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryGetValue(@event.ConnectionId.ServerId, out recorder))
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void AfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
+        public void ConnectionPoolAfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryGetValue(@event.ServerId, out recorder))
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void AfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
+        public void ConnectionPoolAfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryGetValue(@event.ConnectionId.ServerId, out recorder))
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void AfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
+        public void ConnectionPoolAfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
             if (_connectionPoolRecorders.TryGetValue(@event.ConnectionId.ServerId, out recorder))
@@ -117,44 +117,44 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void BeforeClosing(ConnectionPoolBeforeClosingEvent @event)
+        public void ConnectionPoolBeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
         }
 
-        public void BeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
+        public void ConnectionPoolBeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
         }
 
-        public void BeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
+        public void ConnectionPoolBeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
         }
 
-        public void BeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
+        public void ConnectionPoolBeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
         }
 
-        public void BeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
+        public void ConnectionPoolBeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
         {
         }
 
-        public void ErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
+        public void ConnectionPoolErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
         {
         }
 
-        public void BeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
+        public void ConnectionPoolBeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
         }
 
-        public void ErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
+        public void ConnectionPoolErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
         }
 
-        public void BeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
+        public void ConnectionPoolBeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
         }
 
         // Connection
-        public void AfterClosing(ConnectionAfterClosingEvent @event)
+        public void ConnectionAfterClosing(ConnectionAfterClosingEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
             if (_connectionRecorders.TryRemove(@event.ConnectionId, out recorder))
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void AfterOpening(ConnectionAfterOpeningEvent @event)
+        public void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event)
         {
             var serverPackage = GetServerPackage(@event.ConnectionId.ServerId.EndPoint);
             var recorder = new ConnectionPerformanceRecorder(_appPackage, serverPackage);
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void AfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
+        public void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
             ConnectionPerformanceRecorder recorder;
             if (_connectionRecorders.TryGetValue(@event.ConnectionId, out recorder))
@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void AfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
+        public void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
             if (_connectionRecorders.TryGetValue(@event.ConnectionId, out recorder))
@@ -191,35 +191,35 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
-        public void Failed(ConnectionFailedEvent @event)
+        public void ConnectionFailed(ConnectionFailedEvent @event)
         {
         }
 
-        public void BeforeClosing(ConnectionBeforeClosingEvent @event)
+        public void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event)
         {
         }
 
-        public void BeforeOpening(ConnectionBeforeOpeningEvent @event)
+        public void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
         }
 
-        public void BeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
+        public void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
         }
 
-        public void BeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
+        public void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
         }
 
-        public void ErrorOpening(ConnectionErrorOpeningEvent @event)
+        public void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event)
         {
         }
         
-        public void ErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
+        public void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
         {
         }
 
-        public void ErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
+        public void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
         }
 

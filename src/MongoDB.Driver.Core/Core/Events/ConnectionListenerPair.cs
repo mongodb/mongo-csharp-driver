@@ -52,76 +52,76 @@ namespace MongoDB.Driver.Core.Events
         }
 
         // methods
-        public void Failed(ConnectionFailedEvent @event)
+        public void ConnectionFailed(ConnectionFailedEvent @event)
         {
-            _first.Failed(@event);
-            _second.Failed(@event);
+            _first.ConnectionFailed(@event);
+            _second.ConnectionFailed(@event);
         }
 
-        public void BeforeClosing(ConnectionBeforeClosingEvent @event)
+        public void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event)
         {
-            _first.BeforeClosing(@event);
-            _second.BeforeClosing(@event);
+            _first.ConnectionBeforeClosing(@event);
+            _second.ConnectionBeforeClosing(@event);
         }
 
-        public void AfterClosing(ConnectionAfterClosingEvent @event)
+        public void ConnectionAfterClosing(ConnectionAfterClosingEvent @event)
         {
-            _first.AfterClosing(@event);
-            _second.AfterClosing(@event);
+            _first.ConnectionAfterClosing(@event);
+            _second.ConnectionAfterClosing(@event);
         }
 
-        public void BeforeOpening(ConnectionBeforeOpeningEvent @event)
+        public void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
-            _first.BeforeOpening(@event);
-            _second.BeforeOpening(@event);
+            _first.ConnectionBeforeOpening(@event);
+            _second.ConnectionBeforeOpening(@event);
         }
 
-        public void AfterOpening(ConnectionAfterOpeningEvent @event)
+        public void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event)
         {
-            _first.AfterOpening(@event);
-            _second.AfterOpening(@event);
+            _first.ConnectionAfterOpening(@event);
+            _second.ConnectionAfterOpening(@event);
         }
 
-        public void ErrorOpening(ConnectionErrorOpeningEvent @event)
+        public void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event)
         {
-            _first.ErrorOpening(@event);
-            _second.ErrorOpening(@event);
+            _first.ConnectionErrorOpening(@event);
+            _second.ConnectionErrorOpening(@event);
         }
 
-        public void BeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
+        public void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
-            _first.BeforeReceivingMessage(@event);
-            _second.BeforeReceivingMessage(@event);
+            _first.ConnectionBeforeReceivingMessage(@event);
+            _second.ConnectionBeforeReceivingMessage(@event);
         }
 
-        public void AfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
+        public void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
-            _first.AfterReceivingMessage<T>(@event);
-            _second.AfterReceivingMessage<T>(@event);
+            _first.ConnectionAfterReceivingMessage<T>(@event);
+            _second.ConnectionAfterReceivingMessage<T>(@event);
         }
 
-        public void ErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
+        public void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
         {
-            _first.ErrorReceivingMessage(@event);
-            _second.ErrorReceivingMessage(@event);
+            _first.ConnectionErrorReceivingMessage(@event);
+            _second.ConnectionErrorReceivingMessage(@event);
         }
 
-        public void BeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
+        public void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
-            _first.BeforeSendingMessages(@event);
-            _second.BeforeSendingMessages(@event);
+            _first.ConnectionBeforeSendingMessages(@event);
+            _second.ConnectionBeforeSendingMessages(@event);
         }
 
-        public void AfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
+        public void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
-            _first.AfterSendingMessages(@event);
-            _second.AfterSendingMessages(@event);
+            _first.ConnectionAfterSendingMessages(@event);
+            _second.ConnectionAfterSendingMessages(@event);
         }
 
-        public void ErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
+        public void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
-            _first.ErrorSendingMessages(@event);
-            _second.ErrorSendingMessages(@event);
+            _first.ConnectionErrorSendingMessages(@event);
+            _second.ConnectionErrorSendingMessages(@event);
         }
     }
 }

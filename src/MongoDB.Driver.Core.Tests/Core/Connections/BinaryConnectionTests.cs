@@ -76,8 +76,8 @@ namespace MongoDB.Driver.Core.Connections
         {
             _subject.Dispose();
 
-            _listener.ReceivedWithAnyArgs().BeforeClosing(default(ConnectionBeforeClosingEvent));
-            _listener.ReceivedWithAnyArgs().AfterClosing(default(ConnectionAfterClosingEvent));
+            _listener.ReceivedWithAnyArgs().ConnectionBeforeClosing(default(ConnectionBeforeClosingEvent));
+            _listener.ReceivedWithAnyArgs().ConnectionAfterClosing(default(ConnectionAfterClosingEvent));
         }
 
         [Test]
@@ -102,9 +102,9 @@ namespace MongoDB.Driver.Core.Connections
 
             act.ShouldThrow<SocketException>();
 
-            _listener.ReceivedWithAnyArgs().BeforeOpening(default(ConnectionBeforeOpeningEvent));
-            _listener.ReceivedWithAnyArgs().ErrorOpening(default(ConnectionErrorOpeningEvent));
-            _listener.ReceivedWithAnyArgs().Failed(default(ConnectionFailedEvent));
+            _listener.ReceivedWithAnyArgs().ConnectionBeforeOpening(default(ConnectionBeforeOpeningEvent));
+            _listener.ReceivedWithAnyArgs().ConnectionErrorOpening(default(ConnectionErrorOpeningEvent));
+            _listener.ReceivedWithAnyArgs().ConnectionFailed(default(ConnectionFailedEvent));
         }
 
         [Test]
@@ -120,8 +120,8 @@ namespace MongoDB.Driver.Core.Connections
         {
             _subject.OpenAsync(CancellationToken.None).Wait();
 
-            _listener.ReceivedWithAnyArgs().BeforeOpening(default(ConnectionBeforeOpeningEvent));
-            _listener.ReceivedWithAnyArgs().AfterOpening(default(ConnectionAfterOpeningEvent));
+            _listener.ReceivedWithAnyArgs().ConnectionBeforeOpening(default(ConnectionBeforeOpeningEvent));
+            _listener.ReceivedWithAnyArgs().ConnectionAfterOpening(default(ConnectionAfterOpeningEvent));
         }
 
         [Test]
@@ -195,8 +195,8 @@ namespace MongoDB.Driver.Core.Connections
 
                 actual.Should().BeEquivalentTo(expected);
 
-                _listener.ReceivedWithAnyArgs().BeforeReceivingMessage(default(ConnectionBeforeReceivingMessageEvent));
-                _listener.ReceivedWithAnyArgs().AfterReceivingMessage<BsonDocument>(default(ConnectionAfterReceivingMessageEvent<BsonDocument>));
+                _listener.ReceivedWithAnyArgs().ConnectionBeforeReceivingMessage(default(ConnectionBeforeReceivingMessageEvent));
+                _listener.ReceivedWithAnyArgs().ConnectionAfterReceivingMessage<BsonDocument>(default(ConnectionAfterReceivingMessageEvent<BsonDocument>));
             }
         }
 
@@ -282,8 +282,8 @@ namespace MongoDB.Driver.Core.Connections
                 Action act2 = () => task2.GetAwaiter().GetResult();
                 act2.ShouldThrow<SocketException>();
 
-                _listener.ReceivedWithAnyArgs(2).BeforeReceivingMessage(default(ConnectionBeforeReceivingMessageEvent));
-                _listener.ReceivedWithAnyArgs(2).ErrorReceivingMessage(default(ConnectionErrorReceivingMessageEvent));
+                _listener.ReceivedWithAnyArgs(2).ConnectionBeforeReceivingMessage(default(ConnectionBeforeReceivingMessageEvent));
+                _listener.ReceivedWithAnyArgs(2).ConnectionErrorReceivingMessage(default(ConnectionErrorReceivingMessageEvent));
             }
         }
 
@@ -317,8 +317,8 @@ namespace MongoDB.Driver.Core.Connections
                 Action act2 = () => task2.GetAwaiter().GetResult();
                 act2.ShouldThrow<MongoConnectionException>();
 
-                _listener.ReceivedWithAnyArgs().BeforeReceivingMessage(default(ConnectionBeforeReceivingMessageEvent));
-                _listener.ReceivedWithAnyArgs().ErrorReceivingMessage(default(ConnectionErrorReceivingMessageEvent));
+                _listener.ReceivedWithAnyArgs().ConnectionBeforeReceivingMessage(default(ConnectionBeforeReceivingMessageEvent));
+                _listener.ReceivedWithAnyArgs().ConnectionErrorReceivingMessage(default(ConnectionErrorReceivingMessageEvent));
             }
         }
 
@@ -369,8 +369,8 @@ namespace MongoDB.Driver.Core.Connections
                 var sentRequests = MessageHelper.TranslateMessagesToBsonDocuments(stream.ToArray());
 
                 sentRequests.Should().BeEquivalentTo(expectedRequests);
-                _listener.ReceivedWithAnyArgs().BeforeSendingMessages(default(ConnectionBeforeSendingMessagesEvent));
-                _listener.ReceivedWithAnyArgs().AfterSendingMessages(default(ConnectionAfterSendingMessagesEvent));
+                _listener.ReceivedWithAnyArgs().ConnectionBeforeSendingMessages(default(ConnectionBeforeSendingMessagesEvent));
+                _listener.ReceivedWithAnyArgs().ConnectionAfterSendingMessages(default(ConnectionAfterSendingMessagesEvent));
             }
         }
 
@@ -406,9 +406,9 @@ namespace MongoDB.Driver.Core.Connections
                 Action act2 = () => task2.GetAwaiter().GetResult();
                 act2.ShouldThrow<MongoMessageNotSentException>();
 
-                _listener.ReceivedWithAnyArgs().BeforeSendingMessages(default(ConnectionBeforeSendingMessagesEvent));
-                _listener.ReceivedWithAnyArgs().ErrorSendingMessages(default(ConnectionErrorSendingMessagesEvent));
-                _listener.ReceivedWithAnyArgs().Failed(default(ConnectionFailedEvent));
+                _listener.ReceivedWithAnyArgs().ConnectionBeforeSendingMessages(default(ConnectionBeforeSendingMessagesEvent));
+                _listener.ReceivedWithAnyArgs().ConnectionErrorSendingMessages(default(ConnectionErrorSendingMessagesEvent));
+                _listener.ReceivedWithAnyArgs().ConnectionFailed(default(ConnectionFailedEvent));
             }
         }
     }

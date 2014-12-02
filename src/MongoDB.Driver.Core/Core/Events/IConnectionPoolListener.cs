@@ -26,27 +26,27 @@ namespace MongoDB.Driver.Core.Events
 {
     public interface IConnectionPoolListener : IListener
     {
-        void BeforeClosing(ConnectionPoolBeforeClosingEvent @event);
-        void AfterClosing(ConnectionPoolAfterClosingEvent @event);
+        void ConnectionPoolBeforeClosing(ConnectionPoolBeforeClosingEvent @event);
+        void ConnectionPoolAfterClosing(ConnectionPoolAfterClosingEvent @event);
 
-        void BeforeOpening(ConnectionPoolBeforeOpeningEvent @event);
-        void AfterOpening(ConnectionPoolAfterOpeningEvent @event);
+        void ConnectionPoolBeforeOpening(ConnectionPoolBeforeOpeningEvent @event);
+        void ConnectionPoolAfterOpening(ConnectionPoolAfterOpeningEvent @event);
 
-        void BeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event);
-        void AfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event);
+        void ConnectionPoolBeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event);
+        void ConnectionPoolAfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event);
 
-        void BeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event);
-        void AfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event);
+        void ConnectionPoolBeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event);
+        void ConnectionPoolAfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event);
 
-        void BeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event);
-        void AfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event);
-        void ErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event);
+        void ConnectionPoolBeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event);
+        void ConnectionPoolAfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event);
+        void ConnectionPoolErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event);
 
-        void BeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event);
-        void AfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event);
-        void ErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event);
+        void ConnectionPoolBeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event);
+        void ConnectionPoolAfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event);
+        void ConnectionPoolErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event);
 
-        void BeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event);
-        void AfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event);
+        void ConnectionPoolBeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event);
+        void ConnectionPoolAfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event);
     }
 }

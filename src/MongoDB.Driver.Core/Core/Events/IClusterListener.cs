@@ -23,18 +23,18 @@ namespace MongoDB.Driver.Core.Events
     public interface IClusterListener : IListener
     {
         // methods
-        void BeforeClosing(ClusterBeforeClosingEvent @event);
-        void AfterClosing(ClusterAfterClosingEvent @event);
+        void ClusterBeforeClosing(ClusterBeforeClosingEvent @event);
+        void ClusterAfterClosing(ClusterAfterClosingEvent @event);
 
-        void BeforeOpening(ClusterBeforeOpeningEvent @event);
-        void AfterOpening(ClusterAfterOpeningEvent @event);
+        void ClusterBeforeOpening(ClusterBeforeOpeningEvent @event);
+        void ClusterAfterOpening(ClusterAfterOpeningEvent @event);
 
-        void BeforeAddingServer(ClusterBeforeAddingServerEvent @event);
-        void AfterAddingServer(ClusterAfterAddingServerEvent @event);
+        void ClusterBeforeAddingServer(ClusterBeforeAddingServerEvent @event);
+        void ClusterAfterAddingServer(ClusterAfterAddingServerEvent @event);
 
-        void BeforeRemovingServer(ClusterBeforeRemovingServerEvent @event);
-        void AfterRemovingServer(ClusterAfterRemovingServerEvent @event);
+        void ClusterBeforeRemovingServer(ClusterBeforeRemovingServerEvent @event);
+        void ClusterAfterRemovingServer(ClusterAfterRemovingServerEvent @event);
 
-        void AfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event);
+        void ClusterAfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event);
     }
 }

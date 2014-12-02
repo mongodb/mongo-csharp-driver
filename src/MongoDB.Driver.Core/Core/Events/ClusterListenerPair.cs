@@ -36,58 +36,58 @@ namespace MongoDB.Driver.Core.Events
             _second = Ensure.IsNotNull(second, "second");
         }
 
-        public void BeforeClosing(ClusterBeforeClosingEvent @event)
+        public void ClusterBeforeClosing(ClusterBeforeClosingEvent @event)
         {
-            _first.BeforeClosing(@event);
-            _second.BeforeClosing(@event);
+            _first.ClusterBeforeClosing(@event);
+            _second.ClusterBeforeClosing(@event);
         }
 
-        public void AfterClosing(ClusterAfterClosingEvent @event)
+        public void ClusterAfterClosing(ClusterAfterClosingEvent @event)
         {
-            _first.AfterClosing(@event);
-            _second.AfterClosing(@event);
+            _first.ClusterAfterClosing(@event);
+            _second.ClusterAfterClosing(@event);
         }
 
-        public void BeforeOpening(ClusterBeforeOpeningEvent @event)
+        public void ClusterBeforeOpening(ClusterBeforeOpeningEvent @event)
         {
-            _first.BeforeOpening(@event);
-            _second.BeforeOpening(@event);
+            _first.ClusterBeforeOpening(@event);
+            _second.ClusterBeforeOpening(@event);
         }
 
-        public void AfterOpening(ClusterAfterOpeningEvent @event)
+        public void ClusterAfterOpening(ClusterAfterOpeningEvent @event)
         {
-            _first.AfterOpening(@event);
-            _second.AfterOpening(@event);
+            _first.ClusterAfterOpening(@event);
+            _second.ClusterAfterOpening(@event);
         }
 
-        public void BeforeAddingServer(ClusterBeforeAddingServerEvent @event)
+        public void ClusterBeforeAddingServer(ClusterBeforeAddingServerEvent @event)
         {
-            _first.BeforeAddingServer(@event);
-            _second.BeforeAddingServer(@event);
+            _first.ClusterBeforeAddingServer(@event);
+            _second.ClusterBeforeAddingServer(@event);
         }
 
-        public void AfterAddingServer(ClusterAfterAddingServerEvent @event)
+        public void ClusterAfterAddingServer(ClusterAfterAddingServerEvent @event)
         {
-            _first.AfterAddingServer(@event);
-            _second.AfterAddingServer(@event);
+            _first.ClusterAfterAddingServer(@event);
+            _second.ClusterAfterAddingServer(@event);
         }
 
-        public void BeforeRemovingServer(ClusterBeforeRemovingServerEvent @event)
+        public void ClusterBeforeRemovingServer(ClusterBeforeRemovingServerEvent @event)
         {
-            _first.BeforeRemovingServer(@event);
-            _second.BeforeRemovingServer(@event);
+            _first.ClusterBeforeRemovingServer(@event);
+            _second.ClusterBeforeRemovingServer(@event);
         }
 
-        public void AfterRemovingServer(ClusterAfterRemovingServerEvent @event)
+        public void ClusterAfterRemovingServer(ClusterAfterRemovingServerEvent @event)
         {
-            _first.AfterRemovingServer(@event);
-            _second.AfterRemovingServer(@event);
+            _first.ClusterAfterRemovingServer(@event);
+            _second.ClusterAfterRemovingServer(@event);
         }
 
-        public void AfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event)
+        public void ClusterAfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event)
         {
-            _first.AfterDescriptionChanged(@event);
-            _second.AfterDescriptionChanged(@event);
+            _first.ClusterAfterDescriptionChanged(@event);
+            _second.ClusterAfterDescriptionChanged(@event);
         }
     }
 }

@@ -22,16 +22,16 @@ namespace MongoDB.Driver.Core.Events
     public interface IServerListener : IListener
     {
         // methods
-        void BeforeClosing(ServerBeforeClosingEvent @event);
-        void AfterClosing(ServerAfterClosingEvent @event);
+        void ServerBeforeClosing(ServerBeforeClosingEvent @event);
+        void ServerAfterClosing(ServerAfterClosingEvent @event);
 
-        void BeforeOpening(ServerBeforeOpeningEvent @event);
-        void AfterOpening(ServerAfterOpeningEvent @event);
+        void ServerBeforeOpening(ServerBeforeOpeningEvent @event);
+        void ServerAfterOpening(ServerAfterOpeningEvent @event);
 
-        void BeforeHeartbeating(ServerBeforeHeartbeatingEvent @event);
-        void AfterHeartbeating(ServerAfterHeartbeatingEvent @event);
-        void ErrorHeartbeating(ServerErrorHeartbeatingEvent @event);
+        void ServerBeforeHeartbeating(ServerBeforeHeartbeatingEvent @event);
+        void ServerAfterHeartbeating(ServerAfterHeartbeatingEvent @event);
+        void ServerErrorHeartbeating(ServerErrorHeartbeatingEvent @event);
 
-        void AfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event);
+        void ServerAfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event);
     }
 }

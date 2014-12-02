@@ -25,21 +25,21 @@ namespace MongoDB.Driver.Core.Events
 {
     public interface IConnectionListener : IListener
     {
-        void Failed(ConnectionFailedEvent @event);
+        void ConnectionFailed(ConnectionFailedEvent @event);
 
-        void BeforeClosing(ConnectionBeforeClosingEvent @event);
-        void AfterClosing(ConnectionAfterClosingEvent @event);
+        void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event);
+        void ConnectionAfterClosing(ConnectionAfterClosingEvent @event);
         
-        void BeforeOpening(ConnectionBeforeOpeningEvent @event);
-        void AfterOpening(ConnectionAfterOpeningEvent @event);
-        void ErrorOpening(ConnectionErrorOpeningEvent @event);
+        void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event);
+        void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event);
+        void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event);
 
-        void BeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event);
-        void AfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event);
-        void ErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event);
+        void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event);
+        void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event);
+        void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event);
         
-        void BeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event);
-        void AfterSendingMessages(ConnectionAfterSendingMessagesEvent @event);
-        void ErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event);
+        void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event);
+        void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event);
+        void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event);
     }
 }
