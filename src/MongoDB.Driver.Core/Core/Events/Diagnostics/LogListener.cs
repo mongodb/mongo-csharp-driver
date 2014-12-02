@@ -113,69 +113,69 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         }
 
         // Connection Pools
-        public override void ConnectionPoolBeforeClosing(ServerId serverId)
+        public override void BeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: closing.", Label(serverId));
+            Log(LogLevel.Debug, "{0}-pool: closing.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolAfterClosing(ServerId serverId)
+        public override void AfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: closed.", Label(serverId));
+            Log(LogLevel.Info, "{0}-pool: closed.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolBeforeOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public override void BeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: opening.", Label(serverId));
+            Log(LogLevel.Debug, "{0}-pool: opening.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolAfterOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public override void AfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: opened.", Label(serverId));
+            Log(LogLevel.Info, "{0}-pool: opened.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolBeforeAddingAConnection(ServerId serverId)
+        public override void BeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: adding connection.", Label(serverId));
+            Log(LogLevel.Debug, "{0}-pool: adding connection.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolAfterAddingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public override void AfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: added connection {1} in {2}ms.", Label(connectionId.ServerId), Format(connectionId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}-pool: added connection {1} in {2}ms.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ConnectionPoolBeforeRemovingAConnection(ConnectionId connectionId)
+        public override void BeforeRemovingAConnection(@ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: removing connection {1}.", Label(connectionId.ServerId), Format(connectionId));
+            Log(LogLevel.Debug, "{0}-pool: removing connection {1}.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId));
         }
 
-        public override void ConnectionPoolAfterRemovingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public override void AfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: removed connection {1} in {2}ms.", Label(connectionId.ServerId), Format(connectionId), elapsed.TotalMilliseconds);
+            Log(LogLevel.Info, "{0}-pool: removed connection {1} in {2}ms.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId), @event.Elapsed.TotalMilliseconds);
         }
 
-        public override void ConnectionPoolBeforeCheckingOutAConnection(ServerId serverId)
+        public override void BeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: checking out a connection.", Label(serverId));
+            Log(LogLevel.Debug, "{0}-pool: checking out a connection.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolAfterCheckingOutAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public override void AfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: checked out connection {1} in {2}ms.", Label(connectionId.ServerId), Format(connectionId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}-pool: checked out connection {1} in {2}ms.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ConnectionPoolErrorCheckingOutAConnection(ServerId serverId, TimeSpan elapsed, Exception ex)
+        public override void ErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
-            Log(LogLevel.Error, "{0}-pool: error checking out a connection. Exception: {1}", Label(serverId), ex);
+            Log(LogLevel.Error, "{0}-pool: error checking out a connection. Exception: {1}", Label(@event.ServerId), @event.Exception);
         }
 
-        public override void ConnectionPoolBeforeCheckingInAConnection(ConnectionId connectionId)
+        public override void BeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: checking in connection {1}.", Label(connectionId.ServerId), Format(connectionId));
+            Log(LogLevel.Debug, "{0}-pool: checking in connection {1}.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId));
         }
 
-        public override void ConnectionPoolAfterCheckingInAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public override void AfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: checked in connection {1} in {2}ms.", Label(connectionId.ServerId), Format(connectionId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}-pool: checked in connection {1} in {2}ms.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
         // Connections

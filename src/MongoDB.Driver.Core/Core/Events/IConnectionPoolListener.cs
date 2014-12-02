@@ -26,27 +26,27 @@ namespace MongoDB.Driver.Core.Events
 {
     public interface IConnectionPoolListener : IListener
     {
-        void ConnectionPoolBeforeClosing(ServerId serverId);
-        void ConnectionPoolAfterClosing(ServerId serverId);
+        void BeforeClosing(ConnectionPoolBeforeClosingEvent @event);
+        void AfterClosing(ConnectionPoolAfterClosingEvent @event);
 
-        void ConnectionPoolBeforeOpening(ServerId serverId, ConnectionPoolSettings settings);
-        void ConnectionPoolAfterOpening(ServerId serverId, ConnectionPoolSettings settings);
+        void BeforeOpening(ConnectionPoolBeforeOpeningEvent @event);
+        void AfterOpening(ConnectionPoolAfterOpeningEvent @event);
 
-        void ConnectionPoolBeforeAddingAConnection(ServerId serverId);
-        void ConnectionPoolAfterAddingAConnection(ConnectionId connectionId, TimeSpan elapsed);
+        void BeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event);
+        void AfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event);
 
-        void ConnectionPoolBeforeRemovingAConnection(ConnectionId connectionId);
-        void ConnectionPoolAfterRemovingAConnection(ConnectionId connectionId, TimeSpan elapsed);
+        void BeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event);
+        void AfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event);
 
-        void ConnectionPoolBeforeEnteringWaitQueue(ServerId serverId);
-        void ConnectionPoolAfterEnteringWaitQueue(ServerId serverId, TimeSpan elapsed);
-        void ConnectionPoolErrorEnteringWaitQueue(ServerId serverId, TimeSpan elapsed, Exception exception);
+        void BeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event);
+        void AfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event);
+        void ErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event);
 
-        void ConnectionPoolBeforeCheckingOutAConnection(ServerId serverId);
-        void ConnectionPoolAfterCheckingOutAConnection(ConnectionId connectionId, TimeSpan elapsed);
-        void ConnectionPoolErrorCheckingOutAConnection(ServerId serverId, TimeSpan elapsed, Exception ex);
+        void BeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event);
+        void AfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event);
+        void ErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event);
 
-        void ConnectionPoolBeforeCheckingInAConnection(ConnectionId connectionId);
-        void ConnectionPoolAfterCheckingInAConnection(ConnectionId connectionId, TimeSpan elapsed);
+        void BeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event);
+        void AfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event);
     }
 }

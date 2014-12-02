@@ -51,100 +51,100 @@ namespace MongoDB.Driver.Core.Events
         }
 
         // methods
-        public void ConnectionPoolBeforeClosing(ServerId serverId)
+        public void BeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
-            _first.ConnectionPoolBeforeClosing(serverId);
-            _second.ConnectionPoolBeforeClosing(serverId);
+            _first.BeforeClosing(@event);
+            _second.BeforeClosing(@event);
         }
 
-        public void ConnectionPoolAfterClosing(ServerId serverId)
+        public void AfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
-            _first.ConnectionPoolAfterClosing(serverId);
-            _second.ConnectionPoolAfterClosing(serverId);
+            _first.AfterClosing(@event);
+            _second.AfterClosing(@event);
         }
 
-        public void ConnectionPoolBeforeOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public void BeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
-            _first.ConnectionPoolBeforeOpening(serverId, settings);
-            _second.ConnectionPoolBeforeOpening(serverId, settings);
+            _first.BeforeOpening(@event);
+            _second.BeforeOpening(@event);
         }
 
-        public void ConnectionPoolAfterOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public void AfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
-            _first.ConnectionPoolAfterOpening(serverId, settings);
-            _second.ConnectionPoolAfterOpening(serverId, settings);
+            _first.AfterOpening(@event);
+            _second.AfterOpening(@event);
         }
 
-        public void ConnectionPoolBeforeAddingAConnection(ServerId serverId)
+        public void BeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
-            _first.ConnectionPoolBeforeAddingAConnection(serverId);
-            _second.ConnectionPoolBeforeAddingAConnection(serverId);
+            _first.BeforeAddingAConnection(@event);
+            _second.BeforeAddingAConnection(@event);
         }
 
-        public void ConnectionPoolAfterAddingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public void AfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
-            _first.ConnectionPoolAfterAddingAConnection(connectionId, elapsed);
-            _second.ConnectionPoolAfterAddingAConnection(connectionId, elapsed);
+            _first.AfterAddingAConnection(@event);
+            _second.AfterAddingAConnection(@event);
         }
 
-        public void ConnectionPoolBeforeRemovingAConnection(ConnectionId connectionId)
+        public void BeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
-            _first.ConnectionPoolBeforeRemovingAConnection(connectionId);
-            _second.ConnectionPoolBeforeRemovingAConnection(connectionId);
+            _first.BeforeRemovingAConnection(@event);
+            _second.BeforeRemovingAConnection(@event);
         }
 
-        public void ConnectionPoolAfterRemovingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public void AfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
-            _first.ConnectionPoolAfterRemovingAConnection(connectionId, elapsed);
-            _second.ConnectionPoolAfterRemovingAConnection(connectionId, elapsed);
+            _first.AfterRemovingAConnection(@event);
+            _second.AfterRemovingAConnection(@event);
         }
 
-        public void ConnectionPoolBeforeEnteringWaitQueue(ServerId serverId)
+        public void BeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
         {
-            _first.ConnectionPoolBeforeEnteringWaitQueue(serverId);
-            _second.ConnectionPoolBeforeEnteringWaitQueue(serverId);
+            _first.BeforeEnteringWaitQueue(@event);
+            _second.BeforeEnteringWaitQueue(@event);
         }
 
-        public void ConnectionPoolAfterEnteringWaitQueue(ServerId serverId, TimeSpan elapsed)
+        public void AfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
         {
-            _first.ConnectionPoolAfterEnteringWaitQueue(serverId, elapsed);
-            _second.ConnectionPoolAfterEnteringWaitQueue(serverId, elapsed);
+            _first.AfterEnteringWaitQueue(@event);
+            _second.AfterEnteringWaitQueue(@event);
         }
 
-        public void ConnectionPoolErrorEnteringWaitQueue(ServerId serverId, TimeSpan elapsed, Exception exception)
+        public void ErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
         {
-            _first.ConnectionPoolErrorEnteringWaitQueue(serverId, elapsed, exception);
-            _second.ConnectionPoolErrorEnteringWaitQueue(serverId, elapsed, exception);
+            _first.ErrorEnteringWaitQueue(@event);
+            _second.ErrorEnteringWaitQueue(@event);
         }
 
-        public void ConnectionPoolBeforeCheckingOutAConnection(ServerId serverId)
+        public void BeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
-            _first.ConnectionPoolBeforeCheckingOutAConnection(serverId);
-            _second.ConnectionPoolBeforeCheckingOutAConnection(serverId);
+            _first.BeforeCheckingOutAConnection(@event);
+            _second.BeforeCheckingOutAConnection(@event);
         }
 
-        public void ConnectionPoolAfterCheckingOutAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public void AfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
-            _first.ConnectionPoolAfterCheckingOutAConnection(connectionId, elapsed);
-            _second.ConnectionPoolAfterCheckingOutAConnection(connectionId, elapsed);
+            _first.AfterCheckingOutAConnection(@event);
+            _second.AfterCheckingOutAConnection(@event);
         }
 
-        public void ConnectionPoolErrorCheckingOutAConnection(ServerId serverId, TimeSpan elapsed, Exception ex)
+        public void ErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
-            _first.ConnectionPoolErrorCheckingOutAConnection(serverId, elapsed, ex);
-            _second.ConnectionPoolErrorCheckingOutAConnection(serverId, elapsed, ex);
+            _first.ErrorCheckingOutAConnection(@event);
+            _second.ErrorCheckingOutAConnection(@event);
         }
 
-        public void ConnectionPoolBeforeCheckingInAConnection(ConnectionId connectionId)
+        public void BeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
-            _first.ConnectionPoolBeforeCheckingInAConnection(connectionId);
-            _second.ConnectionPoolBeforeCheckingInAConnection(connectionId);
+            _first.BeforeCheckingInAConnection(@event);
+            _second.BeforeCheckingInAConnection(@event);
         }
 
-        public void ConnectionPoolAfterCheckingInAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public void AfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
-            _first.ConnectionPoolAfterCheckingInAConnection(connectionId, elapsed);
-            _second.ConnectionPoolAfterCheckingInAConnection(connectionId, elapsed);
+            _first.AfterCheckingInAConnection(@event);
+            _second.AfterCheckingInAConnection(@event);
         }
     }
 }

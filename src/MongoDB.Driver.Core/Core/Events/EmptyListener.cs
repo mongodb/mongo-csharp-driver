@@ -112,67 +112,67 @@ namespace MongoDB.Driver.Core.Events
         #endregion
 
         #region Connection Pools
-        public virtual void ConnectionPoolBeforeClosing(ServerId serverId)
+        public virtual void BeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterClosing(ServerId serverId)
+        public virtual void AfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public virtual void BeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public virtual void AfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeAddingAConnection(ServerId serverId)
+        public virtual void BeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterAddingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public virtual void AfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeRemovingAConnection(ConnectionId connectionId)
+        public virtual void BeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterRemovingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public virtual void AfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeEnteringWaitQueue(ServerId serverId)
+        public virtual void BeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterEnteringWaitQueue(ServerId serverId, TimeSpan elapsed)
+        public virtual void AfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolErrorEnteringWaitQueue(ServerId serverId, TimeSpan elapsed, Exception ex)
+        public virtual void ErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeCheckingOutAConnection(ServerId serverId)
+        public virtual void BeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterCheckingOutAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public virtual void AfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolErrorCheckingOutAConnection(ServerId serverId, TimeSpan elapsed, Exception ex)
+        public virtual void ErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeCheckingInAConnection(ConnectionId connectionId)
+        public virtual void BeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterCheckingInAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public virtual void AfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
         }
 
