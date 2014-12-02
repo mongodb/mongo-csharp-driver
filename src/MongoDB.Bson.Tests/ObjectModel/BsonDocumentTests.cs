@@ -512,6 +512,24 @@ namespace MongoDB.Bson.Tests
 #pragma warning restore
         }
 
+        [TestCase("_id", 0)]
+        [TestCase("x", 1)]
+        [TestCase("y", 2)]
+        [TestCase("z", -1)]
+        public void TestIndexOfName(string name, int expectedResult)
+        {
+            var subject = new BsonDocument
+            {
+                { "_id", 1 },
+                { "x", 2 },
+                { "y", 3 }
+            };
+
+            var result = subject.IndexOfName(name);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
         [Test]
         public void TestInsertAt()
         {

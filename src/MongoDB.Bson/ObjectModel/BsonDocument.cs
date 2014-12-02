@@ -305,7 +305,7 @@ namespace MongoDB.Bson
                 {
                     throw new ArgumentNullException("name");
                 }
-                var index = IndexOf(name);
+                var index = IndexOfName(name);
                 if (index != -1)
                 {
                     return _elements[index].Value;
@@ -326,7 +326,7 @@ namespace MongoDB.Bson
                 {
                     throw new ArgumentNullException("value");
                 }
-                var index = IndexOf(name);
+                var index = IndexOfName(name);
                 if (index != -1)
                 {
                     _elements[index].Value = value;
@@ -381,7 +381,7 @@ namespace MongoDB.Bson
                 throw new ArgumentNullException("element");
             }
 
-            var isDuplicate = IndexOf(element.Name) != -1;
+            var isDuplicate = IndexOfName(element.Name) != -1;
             if (isDuplicate && !_allowDuplicateNames)
             {
                 var message = string.Format("Duplicate element name '{0}'.", element.Name);
@@ -765,7 +765,7 @@ namespace MongoDB.Bson
         /// <returns>True if the document contains an element with the specified name.</returns>
         public virtual bool Contains(string name)
         {
-            return IndexOf(name) != -1;
+            return IndexOfName(name) != -1;
         }
 
         /// <summary>
@@ -841,7 +841,7 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("name");
             }
-            var index = IndexOf(name);
+            var index = IndexOfName(name);
             if (index != -1)
             {
                 return _elements[index];
@@ -911,7 +911,7 @@ namespace MongoDB.Bson
                 throw new ArgumentNullException("name");
             }
 
-            var index = IndexOf(name);
+            var index = IndexOfName(name);
             if (index != -1)
             {
                 return _elements[index].Value;
@@ -919,6 +919,40 @@ namespace MongoDB.Bson
             else
             {
                 return defaultValue;
+            }
+        }
+
+        /// <summary>
+        /// Gets the index of an element.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <returns>The index of the element, or -1 if the element is not found.</returns>
+        public virtual int IndexOfName(string name)
+        {
+            if (_indexes == null)
+            {
+                var count = _elements.Count;
+                for (var index = 0; index < count; index++)
+                {
+                    if (_elements[index].Name == name)
+                    {
+                        return index;
+                    }
+                }
+
+                return -1;
+            }
+            else
+            {
+                int index;
+                if (_indexes.TryGetValue(name, out index))
+                {
+                    return index;
+                }
+                else
+                {
+                    return -1;
+                }
             }
         }
 
@@ -933,7 +967,7 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("element");
             }
-            var isDuplicate = IndexOf(element.Name) != -1;
+            var isDuplicate = IndexOfName(element.Name) != -1;
             if (isDuplicate && !_allowDuplicateNames)
             {
                 var message = string.Format("Duplicate element name '{0}' not allowed.", element.Name);
@@ -1013,7 +1047,7 @@ namespace MongoDB.Bson
             }
             else
             {
-                var index = IndexOf(name);
+                var index = IndexOfName(name);
                 if (index != -1)
                 {
                     _elements.RemoveAt(index);
@@ -1120,7 +1154,7 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("element");
             }
-            var index = IndexOf(element.Name);
+            var index = IndexOfName(element.Name);
             if (index != -1)
             {
                 _elements[index] = element;
@@ -1185,7 +1219,7 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("name");
             }
-            var index = IndexOf(name);
+            var index = IndexOfName(name);
             if (index != -1)
             {
                 value = _elements[index];
@@ -1210,7 +1244,7 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("name");
             }
-            var index = IndexOf(name);
+            var index = IndexOfName(name);
             if (index != -1)
             {
                 value = _elements[index].Value;
@@ -1224,35 +1258,6 @@ namespace MongoDB.Bson
         }
 
         // private methods
-        private int IndexOf(string name)
-        {
-            if (_indexes == null)
-            {
-                var count = _elements.Count;
-                for (var i = 0; i < count; i++)
-                {
-                    if (_elements[i].Name == name)
-                    {
-                        return i;
-                    }
-                }
-
-                return -1;
-            }
-            else
-            {
-                int index;
-                if ( _indexes.TryGetValue(name, out index))
-                {
-                    return index;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-        }
-
         private void RebuildIndexes()
         {
             if (_elements.Count < __indexesThreshold)
