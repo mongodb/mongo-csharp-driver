@@ -131,8 +131,7 @@ namespace MongoDB.Bson.IO
             switch (_context.ContextType)
             {
                 case ContextType.Array:
-                    _currentValue = _context.GetNextValue();
-                    if (_currentValue == null)
+                    if (!_context.TryGetNextValue(out _currentValue))
                     {
                         State = BsonReaderState.EndOfArray;
                         return BsonType.EndOfDocument;
@@ -140,8 +139,8 @@ namespace MongoDB.Bson.IO
                     State = BsonReaderState.Value;
                     break;
                 case ContextType.Document:
-                    var currentElement = _context.GetNextElement();
-                    if (currentElement == null)
+                    BsonElement currentElement;
+                    if (!_context.TryGetNextElement(out currentElement))
                     {
                         State = BsonReaderState.EndOfDocument;
                         return BsonType.EndOfDocument;

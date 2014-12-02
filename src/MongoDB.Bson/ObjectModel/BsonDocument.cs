@@ -276,7 +276,7 @@ namespace MongoDB.Bson
                 {
                     throw new ArgumentNullException("value");
                 }
-                _elements[index].Value = value;
+                _elements[index] = new BsonElement(_elements[index].Name, value);
             }
         }
 
@@ -329,7 +329,7 @@ namespace MongoDB.Bson
                 var index = IndexOfName(name);
                 if (index != -1)
                 {
-                    _elements[index].Value = value;
+                    _elements[index] = new BsonElement(name, value);
                 }
                 else
                 {
@@ -1227,7 +1227,7 @@ namespace MongoDB.Bson
             }
             else
             {
-                value = null;
+                value = default(BsonElement);
                 return false;
             }
         }

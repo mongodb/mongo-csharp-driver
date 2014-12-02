@@ -823,7 +823,7 @@ namespace MongoDB.Bson
                 }
                 bsonReader.ReadEndDocument();
 
-                element = null;
+                element = default(BsonElement);
                 return false;
             }
         }
