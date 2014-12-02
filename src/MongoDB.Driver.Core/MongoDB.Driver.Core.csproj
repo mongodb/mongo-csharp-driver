@@ -76,6 +76,15 @@
     <Compile Include="Core\Bindings\ReadPreferenceBinding.cs" />
     <Compile Include="Core\Configuration\SslStreamSettings.cs" />
     <Compile Include="Core\Connections\SslStreamFactory.cs" />
+    <Compile Include="Core\Events\ClusterAfterDescriptionChangedEvent.cs" />
+    <Compile Include="Core\Events\ClusterBeforeRemovingServerEvent.cs" />
+    <Compile Include="Core\Events\ClusterAfterRemovingServerEvent.cs" />
+    <Compile Include="Core\Events\ClusterAfterClosingEvent.cs" />
+    <Compile Include="Core\Events\ClusterAfterOpeningEvent.cs" />
+    <Compile Include="Core\Events\ClusterAfterAddingServerEvent.cs" />
+    <Compile Include="Core\Events\ClusterBeforeAddingServerEvent.cs" />
+    <Compile Include="Core\Events\ClusterBeforeOpeningEvent.cs" />
+    <Compile Include="Core\Events\ClusterBeforeClosingEvent.cs" />
     <Compile Include="Core\Events\ConnectionAfterClosingEvent.cs" />
     <Compile Include="Core\Events\ServerAfterClosingEvent.cs" />
     <Compile Include="Core\Events\ServerAfterDescriptionChangedEvent.cs" />

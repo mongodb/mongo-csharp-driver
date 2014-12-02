@@ -18,23 +18,28 @@ using System.Net;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
+
 namespace MongoDB.Driver.Core.Events
 {
-    public interface IClusterListener : IListener
+    public struct ClusterAfterAddingServerEvent
     {
-        // methods
-        void BeforeClosing(ClusterBeforeClosingEvent @event);
-        void AfterClosing(ClusterAfterClosingEvent @event);
+        private readonly ServerId _serverId;
+        private readonly TimeSpan _elapsed;
 
-        void BeforeOpening(ClusterBeforeOpeningEvent @event);
-        void AfterOpening(ClusterAfterOpeningEvent @event);
+        public ClusterAfterAddingServerEvent(ServerId serverId, TimeSpan elapsed)
+        {
+            _serverId = serverId;
+            _elapsed = elapsed;
+        }
 
-        void BeforeAddingServer(ClusterBeforeAddingServerEvent @event);
-        void AfterAddingServer(ClusterAfterAddingServerEvent @event);
+        public ServerId ServerId
+        {
+            get { return _serverId; }
+        }
 
-        void BeforeRemovingServer(ClusterBeforeRemovingServerEvent @event);
-        void AfterRemovingServer(ClusterAfterRemovingServerEvent @event);
-
-        void AfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event);
+        public TimeSpan Elapsed
+        {
+            get { return _elapsed; }
+        }
     }
 }

@@ -26,49 +26,49 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         }
 
         // Clusters
-        public override void ClusterBeforeClosing(ClusterId clusterId)
+        public override void BeforeClosing(ClusterBeforeClosingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: closing.", Label(clusterId));
+            Log(LogLevel.Debug, "{0}: closing.", Label(@event.ClusterId));
         }
 
-        public override void ClusterAfterClosing(ClusterId clusterId, TimeSpan elapsed)
+        public override void AfterClosing(ClusterAfterClosingEvent @event)
         {
-            Log(LogLevel.Info, "{0}: closed in {1}ms.", Label(clusterId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: closed in {1}ms.", Label(@event.ClusterId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ClusterBeforeOpening(ClusterId clusterId, ClusterSettings settings)
+        public override void BeforeOpening(ClusterBeforeOpeningEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: opening.", Label(clusterId));
+            Log(LogLevel.Debug, "{0}: opening.", Label(@event.ClusterId));
         }
 
-        public override void ClusterAfterOpening(ClusterId clusterId, ClusterSettings settings, TimeSpan elapsed)
+        public override void AfterOpening(ClusterAfterOpeningEvent @event)
         {
-            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(clusterId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(@event.ClusterId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ClusterBeforeAddingServer(ClusterId clusterId, EndPoint endPoint)
+        public override void BeforeAddingServer(ClusterBeforeAddingServerEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: adding server at endpoint {1}.", Label(clusterId), Format(endPoint));
+            Log(LogLevel.Debug, "{0}: adding server at endpoint {1}.", Label(@event.ClusterId), Format(@event.EndPoint));
         }
 
-        public override void ClusterAfterAddingServer(ServerId serverId, TimeSpan elapsed)
+        public override void AfterAddingServer(ClusterAfterAddingServerEvent @event)
         {
-            Log(LogLevel.Info, "{0}: added server {1} in {2}ms.", Label(serverId.ClusterId), Format(serverId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: added server {1} in {2}ms.", Label(@event.ServerId.ClusterId), Format(@event.ServerId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ClusterBeforeRemovingServer(ServerId serverId, string reason)
+        public override void BeforeRemovingServer(ClusterBeforeRemovingServerEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: removing server {1}. Reason: {2}", Label(serverId.ClusterId), Format(serverId), reason);
+            Log(LogLevel.Debug, "{0}: removing server {1}. Reason: {2}", Label(@event.ServerId.ClusterId), Format(@event.ServerId), @event.Reason);
         }
 
-        public override void ClusterAfterRemovingServer(ServerId serverId, string reason, TimeSpan elapsed)
+        public override void AfterRemovingServer(ClusterAfterRemovingServerEvent @event)
         {
-            Log(LogLevel.Info, "{0}: removed server {1} in {2}ms. Reason: {3}", Label(serverId.ClusterId), Format(serverId), elapsed.TotalMilliseconds.ToString(), reason);
+            Log(LogLevel.Info, "{0}: removed server {1} in {2}ms. Reason: {3}", Label(@event.ServerId.ClusterId), Format(@event.ServerId), @event.Elapsed.TotalMilliseconds.ToString(), @event.Reason);
         }
 
-        public override void ClusterDescriptionChanged(ClusterDescription oldClusterDescription, ClusterDescription newClusterDescription)
+        public override void AfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event)
         {
-            Log(LogLevel.Info, "{0}: {1}", Label(oldClusterDescription.ClusterId), newClusterDescription);
+            Log(LogLevel.Info, "{0}: {1}", Label(@event.OldDescription.ClusterId), @event.NewDescription);
         }
 
         // Servers

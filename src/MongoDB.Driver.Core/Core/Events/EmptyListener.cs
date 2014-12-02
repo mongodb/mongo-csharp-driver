@@ -40,39 +40,39 @@ namespace MongoDB.Driver.Core.Events
         #endregion static
 
         #region Clusters
-        public virtual void ClusterBeforeClosing(ClusterId clusterId)
+        public virtual void BeforeClosing(ClusterBeforeClosingEvent @event)
         {
         }
 
-        public virtual void ClusterAfterClosing(ClusterId clusterId, TimeSpan elapsed)
+        public virtual void AfterClosing(ClusterAfterClosingEvent @event)
         {
         }
 
-        public virtual void ClusterBeforeOpening(ClusterId clusterId, ClusterSettings settings)
+        public virtual void BeforeOpening(ClusterBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void ClusterAfterOpening(ClusterId clusterId, ClusterSettings settings, TimeSpan elapsed)
+        public virtual void AfterOpening(ClusterAfterOpeningEvent @event)
         {
         }
 
-        public virtual void ClusterBeforeAddingServer(ClusterId clusterId, System.Net.EndPoint endPoint)
+        public virtual void BeforeAddingServer(ClusterBeforeAddingServerEvent @event)
         {
         }
 
-        public virtual void ClusterAfterAddingServer(ServerId serverId, TimeSpan elapsed)
+        public virtual void AfterAddingServer(ClusterAfterAddingServerEvent @event)
         {
         }
 
-        public virtual void ClusterBeforeRemovingServer(ServerId serverId, string reason)
+        public virtual void BeforeRemovingServer(ClusterBeforeRemovingServerEvent @event)
         {
         }
 
-        public virtual void ClusterAfterRemovingServer(ServerId serverId, string reason, TimeSpan elapsed)
+        public virtual void AfterRemovingServer(ClusterAfterRemovingServerEvent @event)
         {
         }
 
-        public virtual void ClusterDescriptionChanged(Clusters.ClusterDescription oldClusterDescription, Clusters.ClusterDescription newClusterDescription)
+        public virtual void AfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event)
         {
         }
         #endregion

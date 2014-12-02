@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     if (Listener != null)
                     {
-                        Listener.ClusterBeforeClosing(ClusterId);
+                        Listener.BeforeClosing(new ClusterBeforeClosingEvent(ClusterId));
                     }
 
                     var stopwatch = Stopwatch.StartNew();
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                     if (Listener != null)
                     {
-                        Listener.ClusterAfterClosing(ClusterId, stopwatch.Elapsed);
+                        Listener.AfterClosing(new ClusterAfterClosingEvent(ClusterId, stopwatch.Elapsed));
                     }
                 }
             }
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (Listener != null)
                 {
-                    Listener.ClusterBeforeOpening(ClusterId, Settings);
+                    Listener.BeforeOpening(new ClusterBeforeOpeningEvent(ClusterId, Settings));
                 }
 
                 var stopwatch = Stopwatch.StartNew();
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 if (Listener != null)
                 {
-                    Listener.ClusterAfterOpening(ClusterId, Settings, stopwatch.Elapsed);
+                    Listener.AfterOpening(new ClusterAfterOpeningEvent(ClusterId, Settings, stopwatch.Elapsed));
                 }
             }
         }
@@ -304,7 +304,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 if (Listener != null)
                 {
-                    Listener.ClusterBeforeAddingServer(ClusterId, endPoint);
+                    Listener.BeforeAddingServer(new ClusterBeforeAddingServerEvent(ClusterId, endPoint));
                 }
 
                 stopwatch.Start();
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             if (Listener != null)
             {
-                Listener.ClusterAfterAddingServer(server.ServerId, stopwatch.Elapsed);
+                Listener.AfterAddingServer(new ClusterAfterAddingServerEvent(server.ServerId, stopwatch.Elapsed));
             }
 
             return clusterDescription;
@@ -362,7 +362,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 if (Listener != null)
                 {
-                    Listener.ClusterBeforeRemovingServer(server.ServerId, reason);
+                    Listener.BeforeRemovingServer(new ClusterBeforeRemovingServerEvent(server.ServerId, reason));
                 }
 
                 _servers.Remove(server);
@@ -375,7 +375,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             if (Listener != null)
             {
-                Listener.ClusterAfterRemovingServer(server.ServerId, reason, stopwatch.Elapsed);
+                Listener.AfterRemovingServer(new ClusterAfterRemovingServerEvent(server.ServerId, reason, stopwatch.Elapsed));
             }
 
             return clusterDescription.WithoutServerDescription(endPoint);
