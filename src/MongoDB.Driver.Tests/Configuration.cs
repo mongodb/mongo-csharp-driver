@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Tests
         static Configuration()
         {
             var connectionString = SuiteConfiguration.ConnectionString.ToString();
+
             var mongoUrl = new MongoUrl(connectionString);
             var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
             if (!clientSettings.WriteConcern.Enabled)
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.Tests
                 clientSettings.WriteConcern = WriteConcern.Acknowledged; // ensure WriteConcern is enabled regardless of what the URL says
             }
 
-            __testClient = new MongoClient(clientSettings, SuiteConfiguration.Cluster);
+            __testClient = new MongoClient(clientSettings);
 #pragma warning disable 618
             __testServer = __testClient.GetServer();
 #pragma warning restore

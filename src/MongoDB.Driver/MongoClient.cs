@@ -50,8 +50,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="settings">The settings.</param>
         public MongoClient(MongoClientSettings settings)
-            : this(settings, ClusterRegistry.Instance.GetOrCreateCluster(settings))
         {
+            _settings = settings.FrozenCopy();
+            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings);
+            _operationExecutor = new OperationExecutor();
         }
 
         /// <summary>
@@ -70,13 +72,6 @@ namespace MongoDB.Driver
         public MongoClient(string connectionString)
             : this(ParseConnectionString(connectionString))
         {
-        }
-
-        internal MongoClient(MongoClientSettings settings, ICluster cluster)
-        {
-            _settings = settings.FrozenCopy();
-            _cluster = cluster;
-            _operationExecutor = new OperationExecutor();
         }
 
         internal MongoClient(IOperationExecutor operationExecutor)
