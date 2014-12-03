@@ -112,6 +112,7 @@
     <Compile Include="IFindFluentExtensionsTests.cs" />
     <Compile Include="IMongoCollectionExtensionsTests.cs" />
     <Compile Include="MongoWriteExceptionTests.cs" />
+    <Compile Include="SetupFixture.cs" />
     <Compile Include="WriteModelTests.cs" />
     <Compile Include="BulkWriteResultTests.cs" />
     <Compile Include="CommandResults\CollectionStatsResultTests.cs" />

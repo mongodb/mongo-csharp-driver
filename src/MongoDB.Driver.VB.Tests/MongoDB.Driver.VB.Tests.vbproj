@@ -90,6 +90,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="SetUpFixture.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -114,6 +115,10 @@
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
       <Name>MongoDB.Bson</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.csproj">
+      <Project>{26c8e1f2-d859-4ed0-a1a7-de0b32f81084}</Project>
+      <Name>MongoDB.Driver.Core.TestHelpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
       <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>

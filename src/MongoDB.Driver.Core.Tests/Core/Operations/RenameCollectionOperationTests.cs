@@ -26,21 +26,17 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
-    public class RenameCollectionOperationTests
+    public class RenameCollectionOperationTests : OperationTestBase
     {
         // fields
-        private CollectionNamespace _collectionNamespace;
-        private MessageEncoderSettings _messageEncoderSettings;
         private CollectionNamespace _newCollectionNamespace;
 
         // setup methods
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        public override void TestFixtureSetUp()
         {
-            var databaseNamespace = SuiteConfiguration.GetDatabaseNamespaceForTestFixture();
-            _collectionNamespace = new CollectionNamespace(databaseNamespace, "old");
-            _newCollectionNamespace = new CollectionNamespace(databaseNamespace, "new");
-            _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
+            _databaseNamespace = SuiteConfiguration.GetDatabaseNamespaceForTestFixture();
+            _collectionNamespace = new CollectionNamespace(_databaseNamespace, "old");
+            _newCollectionNamespace = new CollectionNamespace(_databaseNamespace, "new");
         }
 
         // test methods

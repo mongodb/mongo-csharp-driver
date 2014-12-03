@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable 618
             __testServer = __testClient.GetServer();
 #pragma warning restore
-            __testDatabase = __testServer.GetDatabase(mongoUrl.DatabaseName ?? "csharpdriverunittests");
+            __testDatabase = __testServer.GetDatabase(mongoUrl.DatabaseName ?? SuiteConfiguration.DatabaseNamespace.DatabaseName);
             __testCollection = __testDatabase.GetCollection("testcollection");
 
             // connect early so BuildInfo will be populated

@@ -49,6 +49,8 @@ namespace MongoDB.Driver.Tests.Jira.CSharp475
             var results = query.ToList();
             Assert.That(results.Count, Is.EqualTo(1));
             Assert.That(results[0], Is.EqualTo("T1.B"));
+
+            db.Drop();
         }
     }
 }
