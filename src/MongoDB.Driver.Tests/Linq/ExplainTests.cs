@@ -48,10 +48,12 @@ namespace MongoDB.Driver.Tests.Linq
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain();
 
             // millis could be different, so we'll ignore that difference.
-            linqExplain.Remove("millis");
-            queryExplain.Remove("millis");
-            linqExplain.Remove("executionTimeMillis");
-            queryExplain.Remove("executionTimeMillis");
+            RemoveKey(linqExplain, "millis");
+            RemoveKey(queryExplain, "millis");
+            RemoveKey(linqExplain, "executionTimeMillis");
+            RemoveKey(queryExplain, "executionTimeMillis");
+            RemoveKey(linqExplain, "executionTimeMillisEstimate");
+            RemoveKey(queryExplain, "executionTimeMillisEstimate");
 
             Assert.AreEqual(linqExplain, queryExplain);
         }
@@ -63,10 +65,12 @@ namespace MongoDB.Driver.Tests.Linq
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain(true);
 
             // millis could be different, so we'll ignore that difference.
-            linqExplain.Remove("millis");
-            queryExplain.Remove("millis");
-            linqExplain.Remove("executionTimeMillis");
-            queryExplain.Remove("executionTimeMillis");
+            RemoveKey(linqExplain, "millis");
+            RemoveKey(queryExplain, "millis");
+            RemoveKey(linqExplain, "executionTimeMillis");
+            RemoveKey(queryExplain, "executionTimeMillis");
+            RemoveKey(linqExplain, "executionTimeMillisEstimate");
+            RemoveKey(queryExplain, "executionTimeMillisEstimate");
 
             Assert.AreEqual(linqExplain, queryExplain);
         }
@@ -81,6 +85,25 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestTakeZeroQueriesCannotBeExplained()
         {
             Assert.Throws<NotSupportedException>(() => _collection.AsQueryable<C>().Take(0).Explain());
+        }
+
+        private void RemoveKey(BsonValue value, string key)
+        {
+            if(value.IsBsonDocument)
+            {
+                value.AsBsonDocument.Remove(key);
+                foreach (var element in value.AsBsonDocument)
+                {
+                    RemoveKey(element.Value, key);
+                }
+            }
+            else if (value.IsBsonArray)
+            {
+                foreach(var item in value.AsBsonArray)
+                {
+                    RemoveKey(item, key);
+                }
+            }
         }
     }
 }
