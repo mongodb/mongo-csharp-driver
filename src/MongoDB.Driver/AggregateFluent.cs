@@ -73,9 +73,16 @@ namespace MongoDB.Driver
             return AppendStage(new BsonDocument("$geoNear", ConvertToBsonDocument(geoNear)));
         }
 
-        public IAggregateFluent<TDocument, TResult> Group(object group)
+        public IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group)
         {
-            return AppendStage(new BsonDocument("$group", ConvertToBsonDocument(group)));
+            return Group<TNewResult>(group, null);
+        }
+
+        public IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group, IBsonSerializer<TNewResult> resultSerializer)
+        {
+            AppendStage(new BsonDocument("$group", ConvertToBsonDocument(group)));
+
+            return CloneWithNewResultType<TNewResult>(resultSerializer);
         }
 
         public IAggregateFluent<TDocument, TResult> Limit(int limit)
