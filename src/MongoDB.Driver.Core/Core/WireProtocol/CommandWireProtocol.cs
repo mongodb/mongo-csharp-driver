@@ -148,20 +148,17 @@ namespace MongoDB.Driver.Core.WireProtocol
                         commandName = _command["$query"].AsBsonDocument.GetElement(0).Name;
                     }
 
+                    var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, materializedDocument, "errmsg");
+                    if (notPrimaryOrNodeIsRecoveringException != null)
+                    {
+                        throw notPrimaryOrNodeIsRecoveringException;
+                    }
+
                     string message;
                     BsonValue errmsgBsonValue;
                     if (materializedDocument.TryGetValue("errmsg", out errmsgBsonValue) && errmsgBsonValue.IsString)
                     {
                         var errmsg = errmsgBsonValue.ToString();
-                        if (errmsg.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
-                        {
-                            throw new MongoNotPrimaryException(connectionId, materializedDocument);
-                        }
-                        if (errmsg.StartsWith("node is recovering", StringComparison.OrdinalIgnoreCase))
-                        {
-                            throw new MongoNodeIsRecoveringException(connectionId, materializedDocument);
-                        }
-
                         message = string.Format("Command {0} failed: {1}.", commandName, errmsg);
                     }
                     else

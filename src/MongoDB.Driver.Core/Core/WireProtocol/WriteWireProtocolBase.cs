@@ -138,18 +138,10 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             var response = reply.Documents.Single();
 
-            BsonValue errBsonValue;
-            if (response.TryGetValue("err", out errBsonValue) && errBsonValue.IsString)
+            var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, response, "err");
+            if (notPrimaryOrNodeIsRecoveringException != null)
             {
-                var err = errBsonValue.ToString();
-                if (err.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new MongoNotPrimaryException(connectionId, response);
-                }
-                if (err.StartsWith("node is recovering", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new MongoNodeIsRecoveringException(connectionId, response);
-                }
+                throw notPrimaryOrNodeIsRecoveringException;
             }
 
             var writeConcernResult = new WriteConcernResult(response);

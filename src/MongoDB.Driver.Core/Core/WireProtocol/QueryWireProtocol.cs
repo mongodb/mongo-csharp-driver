@@ -106,19 +106,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 var response = reply.QueryFailureDocument;
 
-                BsonValue errBsonValue;
-                string err = "Unknown error.";
-                if (response.TryGetValue("$err", out errBsonValue) && errBsonValue.IsString)
+                var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, response, "$err");
+                if (notPrimaryOrNodeIsRecoveringException != null)
                 {
-                    err = errBsonValue.ToString();
-                    if (err.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new MongoNotPrimaryException(connectionId, response);
-                    }
-                    if (err.StartsWith("node is recovering", StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new MongoNodeIsRecoveringException(connectionId, response);
-                    }
+                    throw notPrimaryOrNodeIsRecoveringException;
                 }
 
                 var mappedException = ExceptionMapper.Map(connectionId, response);
@@ -127,7 +118,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     throw mappedException;
                 }
 
-                var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, response.ToJson());
+                var message = string.Format("QueryFailure flag was true (response was {0}).", response.ToJson());
                 throw new MongoQueryException(connectionId, message, _query, response);
             }
 
