@@ -40,7 +40,6 @@ namespace MongoDB.Driver.Core.Connections
     public class ConnectionInitializerTests
     {
         private static readonly ServerId __serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
-        private static readonly ConnectionId __connectionId = new ConnectionId(__serverId);
         private ConnectionInitializer _subject;
 
         [SetUp]
