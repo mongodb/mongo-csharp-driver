@@ -26,217 +26,218 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         }
 
         // Clusters
-        public override void ClusterBeforeClosing(ClusterId clusterId)
+        public override void ClusterBeforeClosing(ClusterBeforeClosingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: closing.", Label(clusterId));
+            Log(LogLevel.Debug, "{0}: closing.", Label(@event.ClusterId));
         }
 
-        public override void ClusterAfterClosing(ClusterId clusterId, TimeSpan elapsed)
+        public override void ClusterAfterClosing(ClusterAfterClosingEvent @event)
         {
-            Log(LogLevel.Info, "{0}: closed in {1}ms.", Label(clusterId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: closed in {1}ms.", Label(@event.ClusterId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ClusterBeforeOpening(ClusterId clusterId, ClusterSettings settings)
+        public override void ClusterBeforeOpening(ClusterBeforeOpeningEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: opening.", Label(clusterId));
+            Log(LogLevel.Debug, "{0}: opening.", Label(@event.ClusterId));
         }
 
-        public override void ClusterAfterOpening(ClusterId clusterId, ClusterSettings settings, TimeSpan elapsed)
+        public override void ClusterAfterOpening(ClusterAfterOpeningEvent @event)
         {
-            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(clusterId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(@event.ClusterId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ClusterBeforeAddingServer(ClusterId clusterId, EndPoint endPoint)
+        public override void ClusterBeforeAddingServer(ClusterBeforeAddingServerEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: adding server at endpoint {1}.", Label(clusterId), Format(endPoint));
+            Log(LogLevel.Debug, "{0}: adding server at endpoint {1}.", Label(@event.ClusterId), Format(@event.EndPoint));
         }
 
-        public override void ClusterAfterAddingServer(ServerId serverId, TimeSpan elapsed)
+        public override void ClusterAfterAddingServer(ClusterAfterAddingServerEvent @event)
         {
-            Log(LogLevel.Info, "{0}: added server {1} in {2}ms.", Label(serverId.ClusterId), Format(serverId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: added server {1} in {2}ms.", Label(@event.ServerId.ClusterId), Format(@event.ServerId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ClusterBeforeRemovingServer(ServerId serverId, string reason)
+        public override void ClusterBeforeRemovingServer(ClusterBeforeRemovingServerEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: removing server {1}. Reason: {2}", Label(serverId.ClusterId), Format(serverId), reason);
+            Log(LogLevel.Debug, "{0}: removing server {1}. Reason: {2}", Label(@event.ServerId.ClusterId), Format(@event.ServerId), @event.Reason);
         }
 
-        public override void ClusterAfterRemovingServer(ServerId serverId, string reason, TimeSpan elapsed)
+        public override void ClusterAfterRemovingServer(ClusterAfterRemovingServerEvent @event)
         {
-            Log(LogLevel.Info, "{0}: removed server {1} in {2}ms. Reason: {3}", Label(serverId.ClusterId), Format(serverId), elapsed.TotalMilliseconds.ToString(), reason);
+            Log(LogLevel.Info, "{0}: removed server {1} in {2}ms. Reason: {3}", Label(@event.ServerId.ClusterId), Format(@event.ServerId), @event.Elapsed.TotalMilliseconds.ToString(), @event.Reason);
         }
 
-        public override void ClusterDescriptionChanged(ClusterDescription oldClusterDescription, ClusterDescription newClusterDescription)
+        public override void ClusterAfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event)
         {
-            Log(LogLevel.Info, "{0}: {1}", Label(oldClusterDescription.ClusterId), newClusterDescription);
+            Log(LogLevel.Info, "{0}: {1}", Label(@event.OldDescription.ClusterId), @event.NewDescription);
         }
 
         // Servers
-        public override void ServerBeforeClosing(ServerId serverId)
+        public override void ServerBeforeClosing(ServerBeforeClosingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: closing.", Label(serverId));
+            Log(LogLevel.Debug, "{0}: closing.", Label(@event.ServerId));
         }
 
-        public override void ServerAfterClosing(ServerId serverId)
+        public override void ServerAfterClosing(ServerAfterClosingEvent @event)
         {
-            Log(LogLevel.Info, "{0}: closed.", Label(serverId));
+            Log(LogLevel.Info, "{0}: closed in {1}ms.", Label(@event.ServerId), @event.Elapsed.TotalMilliseconds);
         }
 
-        public override void ServerBeforeOpening(ServerId serverId, ServerSettings settings)
+        public override void ServerBeforeOpening(ServerBeforeOpeningEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: opening.", Label(serverId));
+            Log(LogLevel.Debug, "{0}: opening.", Label(@event.ServerId));
         }
 
-        public override void ServerAfterOpening(ServerId serverId, ServerSettings settings, TimeSpan elapsed)
+        public override void ServerAfterOpening(ServerAfterOpeningEvent @event)
         {
-            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(serverId), elapsed.TotalMilliseconds);
+            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(@event.ServerId), @event.Elapsed.TotalMilliseconds);
         }
 
-        public override void ServerBeforeHeartbeating(ConnectionId connectionId)
+        public override void ServerBeforeHeartbeating(ServerBeforeHeartbeatingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: sending heartbeat.", Label(connectionId));
+            Log(LogLevel.Debug, "{0}: sending heartbeat.", Label(@event.ConnectionId));
         }
 
-        public override void ServerAfterHeartbeating(ConnectionId connectionId, TimeSpan elapsed)
+        public override void ServerAfterHeartbeating(ServerAfterHeartbeatingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: sent heartbeat.", Label(connectionId));
+            Log(LogLevel.Debug, "{0}: sent heartbeat in {1}ms.", Label(@event.ConnectionId), @event.Elapsed.TotalMilliseconds);
         }
 
-        public override void ServerErrorHeartbeating(ConnectionId connectionId, Exception exception)
+        public override void ServerErrorHeartbeating(ServerErrorHeartbeatingEvent @event)
         {
-            Log(LogLevel.Error, "{0}: error sending heartbeat. Exception: {1}", Label(connectionId), exception);
+            Log(LogLevel.Error, "{0}: error sending heartbeat. Exception: {1}", Label(@event.ConnectionId), @event.Exception);
         }
 
-        public override void ServerAfterDescriptionChanged(ServerDescription oldDescription, ServerDescription newDescription)
+        public override void ServerAfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event)
         {
-            Log(LogLevel.Info, "{0}: {1}", Label(oldDescription.ServerId), newDescription);
+            Log(LogLevel.Info, "{0}: {1}", Label(@event.OldDescription.ServerId), @event.NewDescription);
         }
 
         // Connection Pools
-        public override void ConnectionPoolBeforeClosing(ServerId serverId)
+        public override void ConnectionPoolBeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: closing.", Label(serverId));
+            Log(LogLevel.Debug, "{0}-pool: closing.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolAfterClosing(ServerId serverId)
+        public override void ConnectionPoolAfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: closed.", Label(serverId));
+            Log(LogLevel.Info, "{0}-pool: closed.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolBeforeOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public override void ConnectionPoolBeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: opening.", Label(serverId));
+            Log(LogLevel.Debug, "{0}-pool: opening.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolAfterOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public override void ConnectionPoolAfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: opened.", Label(serverId));
+            Log(LogLevel.Info, "{0}-pool: opened.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolBeforeAddingAConnection(ServerId serverId)
+        public override void ConnectionPoolBeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: adding connection.", Label(serverId));
+            Log(LogLevel.Debug, "{0}-pool: adding connection.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolAfterAddingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public override void ConnectionPoolAfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: added connection {1} in {2}ms.", Label(connectionId.ServerId), Format(connectionId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}-pool: added connection {1} in {2}ms.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ConnectionPoolBeforeRemovingAConnection(ConnectionId connectionId)
+        public override void ConnectionPoolBeforeRemovingAConnection(@ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: removing connection {1}.", Label(connectionId.ServerId), Format(connectionId));
+            Log(LogLevel.Debug, "{0}-pool: removing connection {1}.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId));
         }
 
-        public override void ConnectionPoolAfterRemovingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public override void ConnectionPoolAfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: removed connection {1} in {2}ms.", Label(connectionId.ServerId), Format(connectionId), elapsed.TotalMilliseconds);
+            Log(LogLevel.Info, "{0}-pool: removed connection {1} in {2}ms.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId), @event.Elapsed.TotalMilliseconds);
         }
 
-        public override void ConnectionPoolBeforeCheckingOutAConnection(ServerId serverId)
+        public override void ConnectionPoolBeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: checking out a connection.", Label(serverId));
+            Log(LogLevel.Debug, "{0}-pool: checking out a connection.", Label(@event.ServerId));
         }
 
-        public override void ConnectionPoolAfterCheckingOutAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public override void ConnectionPoolAfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: checked out connection {1} in {2}ms.", Label(connectionId.ServerId), Format(connectionId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}-pool: checked out connection {1} in {2}ms.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ConnectionPoolErrorCheckingOutAConnection(ServerId serverId, TimeSpan elapsed, Exception ex)
+        public override void ConnectionPoolErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
-            Log(LogLevel.Error, "{0}-pool: error checking out a connection. Exception: {1}", Label(serverId), ex);
+            Log(LogLevel.Error, "{0}-pool: error checking out a connection. Exception: {1}", Label(@event.ServerId), @event.Exception);
         }
 
-        public override void ConnectionPoolBeforeCheckingInAConnection(ConnectionId connectionId)
+        public override void ConnectionPoolBeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
-            Log(LogLevel.Debug, "{0}-pool: checking in connection {1}.", Label(connectionId.ServerId), Format(connectionId));
+            Log(LogLevel.Debug, "{0}-pool: checking in connection {1}.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId));
         }
 
-        public override void ConnectionPoolAfterCheckingInAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public override void ConnectionPoolAfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
-            Log(LogLevel.Info, "{0}-pool: checked in connection {1} in {2}ms.", Label(connectionId.ServerId), Format(connectionId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}-pool: checked in connection {1} in {2}ms.", Label(@event.ConnectionId.ServerId), Format(@event.ConnectionId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
         // Connections
-        public override void ConnectionFailed(ConnectionId connectionId, Exception ex)
+        public override void ConnectionFailed(ConnectionFailedEvent @event)
         {
-            Log(LogLevel.Error, "{0}: failed. Exception: {1}", Label(connectionId), ex);
+            Log(LogLevel.Error, "{0}: failed. Exception: {1}", Label(@event.ConnectionId), @event.Exception);
         }
 
-        public override void ConnectionBeforeClosing(ConnectionId connectionId)
+        public override void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: closing.", Label(connectionId));
+            Log(LogLevel.Debug, "{0}: closing.", Label(@event.ConnectionId));
         }
 
-        public override void ConnectionAfterClosing(ConnectionId connectionId)
+        public override void ConnectionAfterClosing(ConnectionAfterClosingEvent @event)
         {
-            Log(LogLevel.Info, "{0}: closed.", Label(connectionId));
+            Log(LogLevel.Info, "{0}: closed.", Label(@event.ConnectionId));
         }
 
-        public override void ConnectionBeforeOpening(ConnectionId connectionId, ConnectionSettings settings)
+        public override void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: opening.", Label(connectionId));
+            Log(LogLevel.Debug, "{0}: opening.", Label(@event.ConnectionId));
         }
 
-        public override void ConnectionAfterOpening(ConnectionId connectionId, ConnectionSettings settings, TimeSpan elapsed)
+        public override void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event)
         {
-            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(connectionId), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: opened in {1}ms.", Label(@event.ConnectionId), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ConnectionErrorOpening(ConnectionId connectionId, Exception ex)
+        public override void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event)
         {
-            Log(LogLevel.Error, "{0}: unable to open. Exception: {1}", Label(connectionId), ex);
+            Log(LogLevel.Error, "{0}: unable to open. Exception: {1}", Label(@event.ConnectionId), @event.Exception);
         }
 
-        public override void ConnectionBeforeReceivingMessage(ConnectionId connectionId, int responseTo)
+        public override void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: receiving message in response to {1}.", Label(connectionId), responseTo.ToString());
+            Log(LogLevel.Debug, "{0}: receiving message in response to {1}.", Label(@event.ConnectionId), @event.ResponseTo.ToString());
         }
 
-        public override void ConnectionAfterReceivingMessage<T>(ConnectionId connectionId, ReplyMessage<T> message, int length, TimeSpan elapsed)
+        public override void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
-            Log(LogLevel.Info, "{0}: received message in response to {1} of length {2} bytes in {3}ms.", Label(connectionId), message.ResponseTo.ToString(), length.ToString(), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: received message in response to {1} of length {2} bytes in {3}ms.", Label(@event.ConnectionId), @event.ReplyMessage.ResponseTo.ToString(), @event.Length.ToString(), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ConnectionErrorReceivingMessage(ConnectionId connectionId, int responseTo, Exception ex)
+        public override void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
         {
-            Log(LogLevel.Info, "{0}: error receiving message in response to {1}. Exception: .", Label(connectionId), responseTo.ToString(), ex);
+            Log(LogLevel.Info, "{0}: error receiving message in response to {1}. Exception: .", Label(@event.ConnectionId), @event.ResponseTo.ToString(), @event.Exception);
         }
 
-        public override void ConnectionBeforeSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages)
+        public override void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: sending messages [{1}].", Label(connectionId), string.Join(",", messages.Select(x => x.RequestId)));
+            Log(LogLevel.Debug, "{0}: sending messages [{1}].", Label(@event.ConnectionId), string.Join(",", @event.Messages.Select(x => x.RequestId)));
         }
 
-        public override void ConnectionAfterSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, int length, TimeSpan elapsed)
+        public override void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
-            Log(LogLevel.Info, "{0}: sent messages [{1}] of length {2} bytes in {3}ms.", Label(connectionId), string.Join(",", messages.Select(x => x.RequestId)), length.ToString(), elapsed.TotalMilliseconds.ToString());
+            Log(LogLevel.Info, "{0}: sent messages [{1}] of length {2} bytes in {3}ms.", Label(@event.ConnectionId), string.Join(",", @event.Messages.Select(x => x.RequestId)), @event.Length.ToString(), @event.Elapsed.TotalMilliseconds.ToString());
         }
 
-        public override void ConnectionErrorSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, Exception ex)
+        public override void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
-            Log(LogLevel.Error, "{0}: error sending messages [{1}]. Exception: {2}", Label(connectionId), string.Join(",", messages.Select(x => x.RequestId)), ex);
+            Log(LogLevel.Error, "{0}: error sending messages [{1}]. Exception: {2}", Label(@event.ConnectionId), string.Join(",", @event.Messages.Select(x => x.RequestId)), @event.Exception);
+            base.ConnectionErrorSendingMessages(@event);
         }
 
         private string Label(ConnectionId id)

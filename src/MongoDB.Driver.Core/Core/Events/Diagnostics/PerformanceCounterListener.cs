@@ -52,174 +52,174 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         // methods
         // Connection Pool
-        public void ConnectionPoolAfterClosing(ServerId serverId)
+        public void ConnectionPoolAfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
-            if (_connectionPoolRecorders.TryRemove(serverId, out recorder))
+            if (_connectionPoolRecorders.TryRemove(@event.ServerId, out recorder))
             {
                 recorder.Closed();
             }
         }
 
-        public void ConnectionPoolAfterOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public void ConnectionPoolAfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
-            var serverPackage = GetServerPackage(serverId.EndPoint);
-            ConnectionPoolPerformanceRecorder recorder = new ConnectionPoolPerformanceRecorder(settings.MaxConnections, _appPackage, serverPackage);
-            if (_connectionPoolRecorders.TryAdd(serverId, recorder))
+            var serverPackage = GetServerPackage(@event.ServerId.EndPoint);
+            ConnectionPoolPerformanceRecorder recorder = new ConnectionPoolPerformanceRecorder(@event.ConnectionPoolSettings.MaxConnections, _appPackage, serverPackage);
+            if (_connectionPoolRecorders.TryAdd(@event.ServerId, recorder))
             {
                 recorder.Opened();
             }
         }
 
-        public void ConnectionPoolAfterAddingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public void ConnectionPoolAfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
-            if (_connectionPoolRecorders.TryGetValue(connectionId.ServerId, out recorder))
+            if (_connectionPoolRecorders.TryGetValue(@event.ConnectionId.ServerId, out recorder))
             {
                 recorder.ConnectionAdded();
             }
         }
 
-        public void ConnectionPoolAfterRemovingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public void ConnectionPoolAfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
-            if (_connectionPoolRecorders.TryGetValue(connectionId.ServerId, out recorder))
+            if (_connectionPoolRecorders.TryGetValue(@event.ConnectionId.ServerId, out recorder))
             {
                 recorder.ConnectionRemoved();
             }
         }
 
-        public void ConnectionPoolAfterEnteringWaitQueue(ServerId serverId, TimeSpan elapsed)
+        public void ConnectionPoolAfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
-            if (_connectionPoolRecorders.TryGetValue(serverId, out recorder))
+            if (_connectionPoolRecorders.TryGetValue(@event.ServerId, out recorder))
             {
                 recorder.WaitQueueEntered();
             }
         }
 
-        public void ConnectionPoolAfterCheckingOutAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public void ConnectionPoolAfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
-            if (_connectionPoolRecorders.TryGetValue(connectionId.ServerId, out recorder))
+            if (_connectionPoolRecorders.TryGetValue(@event.ConnectionId.ServerId, out recorder))
             {
                 recorder.ConnectionCheckedOut();
                 recorder.WaitQueueExited();
             }
         }
 
-        public void ConnectionPoolAfterCheckingInAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public void ConnectionPoolAfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
-            if (_connectionPoolRecorders.TryGetValue(connectionId.ServerId, out recorder))
+            if (_connectionPoolRecorders.TryGetValue(@event.ConnectionId.ServerId, out recorder))
             {
                 recorder.ConnectionCheckedIn();
             }
         }
 
-        public void ConnectionPoolBeforeClosing(ServerId serverId)
+        public void ConnectionPoolBeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
         }
 
-        public void ConnectionPoolBeforeOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public void ConnectionPoolBeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
         }
 
-        public void ConnectionPoolBeforeAddingAConnection(ServerId serverId)
+        public void ConnectionPoolBeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
         }
 
-        public void ConnectionPoolBeforeRemovingAConnection(ConnectionId connectionId)
+        public void ConnectionPoolBeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
         }
 
-        public void ConnectionPoolBeforeEnteringWaitQueue(ServerId serverId)
+        public void ConnectionPoolBeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
         {
         }
 
-        public void ConnectionPoolErrorEnteringWaitQueue(ServerId serverId, TimeSpan elapsed, Exception exception)
+        public void ConnectionPoolErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
         {
         }
 
-        public void ConnectionPoolBeforeCheckingOutAConnection(ServerId serverId)
+        public void ConnectionPoolBeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
         }
 
-        public void ConnectionPoolErrorCheckingOutAConnection(ServerId serverId, TimeSpan elapsed, Exception ex)
+        public void ConnectionPoolErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
         }
 
-        public void ConnectionPoolBeforeCheckingInAConnection(ConnectionId connectionId)
+        public void ConnectionPoolBeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
         }
 
         // Connection
-        public void ConnectionAfterClosing(ConnectionId connectionId)
+        public void ConnectionAfterClosing(ConnectionAfterClosingEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
-            if (_connectionRecorders.TryRemove(connectionId, out recorder))
+            if (_connectionRecorders.TryRemove(@event.ConnectionId, out recorder))
             {
                 recorder.Closed();
             }
         }
 
-        public void ConnectionAfterOpening(ConnectionId connectionId, ConnectionSettings settings, TimeSpan elapsed)
+        public void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event)
         {
-            var serverPackage = GetServerPackage(connectionId.ServerId.EndPoint);
+            var serverPackage = GetServerPackage(@event.ConnectionId.ServerId.EndPoint);
             var recorder = new ConnectionPerformanceRecorder(_appPackage, serverPackage);
-            if (_connectionRecorders.TryAdd(connectionId, recorder))
+            if (_connectionRecorders.TryAdd(@event.ConnectionId, recorder))
             {
                 recorder.Opened();
             }
         }
 
-        public void ConnectionAfterReceivingMessage<T>(ConnectionId connectionId, ReplyMessage<T> message, int length, TimeSpan elapsed)
+        public void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
             ConnectionPerformanceRecorder recorder;
-            if (_connectionRecorders.TryGetValue(connectionId, out recorder))
+            if (_connectionRecorders.TryGetValue(@event.ConnectionId, out recorder))
             {
-                recorder.MessageReceived(message.ResponseTo, length);
+                recorder.MessageReceived(@event.ReplyMessage.ResponseTo, @event.Length);
             }
         }
 
-        public void ConnectionAfterSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, int length, TimeSpan elapsed)
+        public void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
-            if (_connectionRecorders.TryGetValue(connectionId, out recorder))
+            if (_connectionRecorders.TryGetValue(@event.ConnectionId, out recorder))
             {
-                recorder.PacketSent(messages.Count, length);
+                recorder.PacketSent(@event.Messages.Count, @event.Length);
             }
         }
 
-        public void ConnectionFailed(ConnectionId connectionId, Exception exception)
+        public void ConnectionFailed(ConnectionFailedEvent @event)
         {
         }
 
-        public void ConnectionBeforeClosing(ConnectionId connectionId)
+        public void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event)
         {
         }
 
-        public void ConnectionBeforeOpening(ConnectionId connectionId, ConnectionSettings settings)
+        public void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
         }
 
-        public void ConnectionErrorOpening(ConnectionId connectionId, Exception exception)
+        public void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
         }
 
-        public void ConnectionBeforeReceivingMessage(ConnectionId connectionId, int responseTo)
+        public void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
         }
 
-        public void ConnectionErrorReceivingMessage(ConnectionId connectionId, int responseTo, Exception exception)
+        public void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event)
+        {
+        }
+        
+        public void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
         {
         }
 
-        public void ConnectionBeforeSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages)
-        {
-        }
-
-        public void ConnectionErrorSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, Exception exception)
+        public void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
         }
 

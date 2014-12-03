@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 if (_listener != null)
                 {
-                    _listener.ServerBeforeOpening(_serverId, _settings);
+                    _listener.ServerBeforeOpening(new ServerBeforeOpeningEvent(_serverId, _settings));
                 }
 
                 var stopwatch = Stopwatch.StartNew();
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 if (_listener != null)
                 {
-                    _listener.ServerAfterOpening(_serverId, _settings, stopwatch.Elapsed);
+                    _listener.ServerAfterOpening(new ServerAfterOpeningEvent(_serverId, _settings, stopwatch.Elapsed));
                 }
             }
         }
@@ -157,9 +157,10 @@ namespace MongoDB.Driver.Core.Servers
                 {
                     if (_listener != null)
                     {
-                        _listener.ServerBeforeClosing(_serverId);
+                        _listener.ServerBeforeClosing(new ServerBeforeClosingEvent(_serverId));
                     }
 
+                    var stopwatch = Stopwatch.StartNew();
                     _heartbeatCancellationTokenSource.Cancel();
                     _heartbeatCancellationTokenSource.Dispose();
                     _connectionPool.Dispose();
@@ -168,9 +169,10 @@ namespace MongoDB.Driver.Core.Servers
                         _heartbeatConnection.Dispose();
                     }
 
+                    stopwatch.Stop();
                     if (_listener != null)
                     {
-                        _listener.ServerAfterClosing(_serverId);
+                        _listener.ServerAfterClosing(new ServerAfterClosingEvent(_serverId, stopwatch.Elapsed));
                     }
                 }
             }
@@ -272,7 +274,7 @@ namespace MongoDB.Driver.Core.Servers
             cancellationToken.ThrowIfCancellationRequested();
             if (_listener != null)
             {
-                _listener.ServerBeforeHeartbeating(connection.ConnectionId);
+                _listener.ServerBeforeHeartbeating(new ServerBeforeHeartbeatingEvent(connection.ConnectionId));
             }
 
             try
@@ -299,7 +301,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 if (_listener != null)
                 {
-                    _listener.ServerAfterHeartbeating(connection.ConnectionId, stopwatch.Elapsed);
+                    _listener.ServerAfterHeartbeating(new ServerAfterHeartbeatingEvent(connection.ConnectionId, stopwatch.Elapsed));
                 }
 
                 return new HeartbeatInfo
@@ -313,7 +315,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 if (_listener != null)
                 {
-                    _listener.ServerErrorHeartbeating(connection.ConnectionId, ex);
+                    _listener.ServerErrorHeartbeating(new ServerErrorHeartbeatingEvent(connection.ConnectionId, ex));
                 }
                 throw;
             }
@@ -332,7 +334,7 @@ namespace MongoDB.Driver.Core.Servers
 
             if (_listener != null)
             {
-                _listener.ServerAfterDescriptionChanged(oldDescription, newDescription);
+                _listener.ServerAfterDescriptionChanged(new ServerAfterDescriptionChangedEvent(oldDescription, newDescription));
             }
 
             var handler = DescriptionChanged;

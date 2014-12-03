@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (_listener != null)
                 {
-                    _listener.ConnectionFailed(_connectionId, exception);
+                    _listener.ConnectionFailed(new ConnectionFailedEvent(_connectionId, exception));
                 }
             }
         }
@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     if (_listener != null)
                     {
-                        _listener.ConnectionBeforeClosing(_connectionId);
+                        _listener.ConnectionBeforeClosing(new ConnectionBeforeClosingEvent(_connectionId));
                     }
 
                     _backgroundTaskCancellationTokenSource.Cancel();
@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Core.Connections
 
                     if (_listener != null)
                     {
-                        _listener.ConnectionAfterClosing(_connectionId);
+                        _listener.ConnectionAfterClosing(new ConnectionAfterClosingEvent(_connectionId));
                     }
                 }
             }
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             if (_listener != null)
             {
-                _listener.ConnectionBeforeOpening(_connectionId, _settings);
+                _listener.ConnectionBeforeOpening(new ConnectionBeforeOpeningEvent(_connectionId, _settings));
             }
 
             try
@@ -212,7 +212,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (_listener != null)
                 {
-                    _listener.ConnectionAfterOpening(_connectionId, _settings, stopwatch.Elapsed);
+                    _listener.ConnectionAfterOpening(new ConnectionAfterOpeningEvent(_connectionId, _settings, stopwatch.Elapsed));
                 }
             }
             catch (Exception ex)
@@ -221,8 +221,8 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (_listener != null)
                 {
-                    _listener.ConnectionErrorOpening(_connectionId, ex);
-                    _listener.ConnectionFailed(_connectionId, ex);
+                    _listener.ConnectionErrorOpening(new ConnectionErrorOpeningEvent(_connectionId, _settings, ex));
+                    _listener.ConnectionFailed(new ConnectionFailedEvent(_connectionId, ex));
                 }
 
                 throw;
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_listener != null)
                 {
-                    _listener.ConnectionBeforeReceivingMessage(_connectionId, responseTo);
+                    _listener.ConnectionBeforeReceivingMessage(new ConnectionBeforeReceivingMessageEvent(_connectionId, responseTo));
                 }
 
                 var stopwatch = Stopwatch.StartNew();
@@ -283,7 +283,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (_listener != null)
                 {
-                    _listener.ConnectionAfterReceivingMessage<TDocument>(_connectionId, reply, length, stopwatch.Elapsed);
+                    _listener.ConnectionAfterReceivingMessage<TDocument>(new ConnectionAfterReceivingMessageEvent<TDocument>(_connectionId, reply, length, stopwatch.Elapsed));
                 }
 
                 return reply;
@@ -292,7 +292,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_listener != null)
                 {
-                    _listener.ConnectionErrorReceivingMessage(_connectionId, responseTo, ex);
+                    _listener.ConnectionErrorReceivingMessage(new ConnectionErrorReceivingMessageEvent(_connectionId, responseTo, ex));
                 }
 
                 throw;
@@ -342,7 +342,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_listener != null)
                 {
-                    _listener.ConnectionBeforeSendingMessages(_connectionId, messagesToSend);
+                    _listener.ConnectionBeforeSendingMessages(new ConnectionBeforeSendingMessagesEvent(_connectionId, messagesToSend));
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -376,7 +376,7 @@ namespace MongoDB.Driver.Core.Connections
 
                     if (_listener != null)
                     {
-                        _listener.ConnectionAfterSendingMessages(_connectionId, messagesToSend, buffer.Length, stopwatch.Elapsed);
+                        _listener.ConnectionAfterSendingMessages(new ConnectionAfterSendingMessagesEvent(_connectionId, messagesToSend, buffer.Length, stopwatch.Elapsed));
                     }
                 }
             }
@@ -384,7 +384,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_listener != null)
                 {
-                    _listener.ConnectionErrorSendingMessages(_connectionId, messagesToSend, ex);
+                    _listener.ConnectionErrorSendingMessages(new ConnectionErrorSendingMessagesEvent(_connectionId, messagesToSend, ex));
                 }
 
                 throw;

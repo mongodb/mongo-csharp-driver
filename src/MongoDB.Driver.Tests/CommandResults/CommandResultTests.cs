@@ -23,13 +23,11 @@ namespace MongoDB.Driver.Tests.CommandResults
     [TestFixture]
     public class CommandResultTests
     {
-        private MongoServer _server;
         private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = Configuration.TestServer;
             _database = Configuration.TestDatabase;
         }
 

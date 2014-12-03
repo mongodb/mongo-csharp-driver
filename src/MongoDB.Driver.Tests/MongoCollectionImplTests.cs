@@ -85,7 +85,7 @@ namespace MongoDB.Driver
             var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await fluent.ToCursorAsync(CancellationToken.None);
+            await fluent.ToCursorAsync(CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -115,7 +115,7 @@ namespace MongoDB.Driver
             var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await _subject.AggregateAsync(pipeline, options, CancellationToken.None);
+            await _subject.AggregateAsync(pipeline, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -548,7 +548,7 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await _subject.FindAsync(filter, options, CancellationToken.None);
+            await _subject.FindAsync(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -592,7 +592,7 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            var result = await fluent.ToCursorAsync(CancellationToken.None);
+            await fluent.ToCursorAsync(CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 

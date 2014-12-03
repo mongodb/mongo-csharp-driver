@@ -52,76 +52,76 @@ namespace MongoDB.Driver.Core.Events
         }
 
         // methods
-        public void ConnectionFailed(ConnectionId connectionId, Exception exception)
+        public void ConnectionFailed(ConnectionFailedEvent @event)
         {
-            _first.ConnectionFailed(connectionId, exception);
-            _second.ConnectionFailed(connectionId, exception);
+            _first.ConnectionFailed(@event);
+            _second.ConnectionFailed(@event);
         }
 
-        public void ConnectionBeforeClosing(ConnectionId connectionId)
+        public void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event)
         {
-            _first.ConnectionBeforeClosing(connectionId);
-            _second.ConnectionBeforeClosing(connectionId);
+            _first.ConnectionBeforeClosing(@event);
+            _second.ConnectionBeforeClosing(@event);
         }
 
-        public void ConnectionAfterClosing(ConnectionId connectionId)
+        public void ConnectionAfterClosing(ConnectionAfterClosingEvent @event)
         {
-            _first.ConnectionAfterClosing(connectionId);
-            _second.ConnectionAfterClosing(connectionId);
+            _first.ConnectionAfterClosing(@event);
+            _second.ConnectionAfterClosing(@event);
         }
 
-        public void ConnectionBeforeOpening(ConnectionId connectionId, ConnectionSettings settings)
+        public void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
-            _first.ConnectionBeforeOpening(connectionId, settings);
-            _second.ConnectionBeforeOpening(connectionId, settings);
+            _first.ConnectionBeforeOpening(@event);
+            _second.ConnectionBeforeOpening(@event);
         }
 
-        public void ConnectionAfterOpening(ConnectionId connectionId, ConnectionSettings settings, TimeSpan elapsed)
+        public void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event)
         {
-            _first.ConnectionAfterOpening(connectionId, settings, elapsed);
-            _second.ConnectionAfterOpening(connectionId, settings, elapsed);
+            _first.ConnectionAfterOpening(@event);
+            _second.ConnectionAfterOpening(@event);
         }
 
-        public void ConnectionErrorOpening(ConnectionId connectionId, Exception exception)
+        public void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event)
         {
-            _first.ConnectionErrorOpening(connectionId, exception);
-            _second.ConnectionErrorOpening(connectionId, exception);
+            _first.ConnectionErrorOpening(@event);
+            _second.ConnectionErrorOpening(@event);
         }
 
-        public void ConnectionBeforeReceivingMessage(ConnectionId connectionId, int responseTo)
+        public void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
-            _first.ConnectionBeforeReceivingMessage(connectionId, responseTo);
-            _second.ConnectionBeforeReceivingMessage(connectionId, responseTo);
+            _first.ConnectionBeforeReceivingMessage(@event);
+            _second.ConnectionBeforeReceivingMessage(@event);
         }
 
-        public void ConnectionAfterReceivingMessage<T>(ConnectionId connectionId, ReplyMessage<T> message, int length, TimeSpan elapsed)
+        public void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
-            _first.ConnectionAfterReceivingMessage<T>(connectionId, message, length, elapsed);
-            _second.ConnectionAfterReceivingMessage<T>(connectionId, message, length, elapsed);
+            _first.ConnectionAfterReceivingMessage<T>(@event);
+            _second.ConnectionAfterReceivingMessage<T>(@event);
         }
 
-        public void ConnectionErrorReceivingMessage(ConnectionId connectionId, int responseTo, Exception exception)
+        public void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
         {
-            _first.ConnectionErrorReceivingMessage(connectionId, responseTo, exception);
-            _second.ConnectionErrorReceivingMessage(connectionId, responseTo, exception);
+            _first.ConnectionErrorReceivingMessage(@event);
+            _second.ConnectionErrorReceivingMessage(@event);
         }
 
-        public void ConnectionBeforeSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages)
+        public void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
-            _first.ConnectionBeforeSendingMessages(connectionId, messages);
-            _second.ConnectionBeforeSendingMessages(connectionId, messages);
+            _first.ConnectionBeforeSendingMessages(@event);
+            _second.ConnectionBeforeSendingMessages(@event);
         }
 
-        public void ConnectionAfterSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, int length, TimeSpan elapsed)
+        public void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
-            _first.ConnectionAfterSendingMessages(connectionId, messages, length, elapsed);
-            _second.ConnectionAfterSendingMessages(connectionId, messages, length, elapsed);
+            _first.ConnectionAfterSendingMessages(@event);
+            _second.ConnectionAfterSendingMessages(@event);
         }
 
-        public void ConnectionErrorSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, Exception exception)
+        public void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
-            _first.ConnectionErrorSendingMessages(connectionId, messages, exception);
-            _second.ConnectionErrorSendingMessages(connectionId, messages, exception);
+            _first.ConnectionErrorSendingMessages(@event);
+            _second.ConnectionErrorSendingMessages(@event);
         }
     }
 }

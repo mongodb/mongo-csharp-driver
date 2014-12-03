@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Servers;
 namespace MongoDB.Driver.Core.ConnectionPools
 {
     /// <summary>
-    /// Represents a pool of shared connections.
+    /// Represents a pool of connections.
     /// </summary>
     public interface IConnectionPool : IDisposable
     {

@@ -83,10 +83,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonDocument = (BsonDocument)document;
 
-            BsonElement idElement;
-            if (bsonDocument.TryGetElement("_id", out idElement))
+            BsonValue idBsonValue;
+            if (bsonDocument.TryGetValue("_id", out idBsonValue))
             {
-                id = idElement.Value;
+                id = idBsonValue;
                 idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
 
                 if (idGenerator == null)
@@ -133,21 +133,29 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonWriter = context.Writer;
             bsonWriter.WriteStartDocument();
 
-            BsonElement idElement = null;
-            if (context.SerializeIdFirst && value.TryGetElement("_id", out idElement))
+            var alreadySerializedIndex = -1;
+            if (context.SerializeIdFirst)
             {
-                bsonWriter.WriteName(idElement.Name);
-                context.SerializeWithChildContext(BsonValueSerializer.Instance, idElement.Value);
+                var idIndex = value.IndexOfName("_id");
+                if (idIndex != -1)
+                {
+                    bsonWriter.WriteName("_id");
+                    context.SerializeWithChildContext(BsonValueSerializer.Instance, value[idIndex]);
+                    alreadySerializedIndex = idIndex;
+                }
             }
 
-            foreach (var element in value)
+            var elementCount = value.ElementCount;
+            for (var index = 0; index < elementCount; index++)
             {
-                // if serializeIdFirst is false then idElement will be null and no elements will be skipped
-                if (!object.ReferenceEquals(element, idElement))
+                if (index == alreadySerializedIndex)
                 {
-                    bsonWriter.WriteName(element.Name);
-                    context.SerializeWithChildContext(BsonValueSerializer.Instance, element.Value);
+                    continue;
                 }
+
+                var element = value.GetElement(index);
+                bsonWriter.WriteName(element.Name);
+                context.SerializeWithChildContext(BsonValueSerializer.Instance, element.Value);
             }
 
             bsonWriter.WriteEndDocument();
@@ -176,10 +184,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                 idBsonValue = BsonValue.Create(id); // be helpful and provide automatic conversion to BsonValue if necessary
             }
 
-            BsonElement idElement;
-            if (bsonDocument.TryGetElement("_id", out idElement))
+            var idIndex = bsonDocument.IndexOfName("_id");
+            if (idIndex != -1)
             {
-                idElement.Value = idBsonValue;
+                bsonDocument[idIndex] = idBsonValue;
             }
             else
             {
