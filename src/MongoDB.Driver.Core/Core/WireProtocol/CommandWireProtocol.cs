@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                         var errmsg = errmsgBsonValue.ToString();
                         if (errmsg.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
                         {
-                            throw new MongoNotMasterException(connectionId, materializedDocument);
+                            throw new MongoNotPrimaryException(connectionId, materializedDocument);
                         }
                         if (errmsg.StartsWith("node is recovering", StringComparison.OrdinalIgnoreCase))
                         {

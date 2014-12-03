@@ -91,7 +91,7 @@
     <Compile Include="MongoInternalExceptionTests.cs" />
     <Compile Include="MongoMessageNotSentExceptionTests.cs" />
     <Compile Include="MongoNodeIsRecoveringExceptionTests.cs" />
-    <Compile Include="MongoNotMasterException.cs" />
+    <Compile Include="MongoNotPrimaryExceptionTests.cs" />
     <Compile Include="MongoServerExceptionTests.cs" />
     <Compile Include="MongoWaitQueueFullExceptionTests.cs" />
     <Compile Include="MongoWriteConcernExceptionTests.cs" />
