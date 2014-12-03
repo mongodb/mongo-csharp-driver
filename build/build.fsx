@@ -127,6 +127,7 @@ Target "Test" (fun _ ->
                 Framework = !framework
                 IncludeCategory = getBuildParamOrDefault "testInclude" ""
                 ExcludeCategory = getBuildParamOrDefault "testExclude" ""
+                TimeOut = TimeSpan.FromMinutes 10.0
             })
 )
 
