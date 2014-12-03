@@ -25,7 +25,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents a BSON writer for some external format (see subclasses).
     /// </summary>
-    public abstract class BsonWriter : IDisposable
+    public abstract class BsonWriter : IBsonWriter
     {
         // private fields
         private Func<IElementNameValidator> _childElementNameValidatorFactory = () => NoOpElementNameValidator.Instance;
@@ -154,91 +154,10 @@ namespace MongoDB.Bson.IO
         public abstract void WriteBinaryData(BsonBinaryData binaryData);
 
         /// <summary>
-        /// Writes a BSON binary data element to the writer.
-        /// </summary>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        [Obsolete("Use WriteBinaryData(BsonBinaryData binaryData) instead.")]
-        public void WriteBinaryData(byte[] bytes, BsonBinarySubType subType)
-        {
-            var guidRepresentation = (subType == BsonBinarySubType.UuidStandard) ? GuidRepresentation.Standard : GuidRepresentation.Unspecified;
-            WriteBinaryData(bytes, subType, guidRepresentation);
-        }
-
-        /// <summary>
-        /// Writes BSON binary data to the writer.
-        /// </summary>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        /// <param name="guidRepresentation">The respresentation for Guids.</param>
-        [Obsolete("Use WriteBinaryData(BsonBinaryData binaryData) instead.")]
-        public void WriteBinaryData(
-            byte[] bytes,
-            BsonBinarySubType subType,
-            GuidRepresentation guidRepresentation)
-        {
-            var binaryData = new BsonBinaryData(bytes, subType, guidRepresentation);
-            WriteBinaryData(binaryData);
-        }
-
-        /// <summary>
-        /// Writes a BSON binary data element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="binaryData">The binary data.</param>
-        public void WriteBinaryData(string name, BsonBinaryData binaryData)
-        {
-            WriteName(name);
-            WriteBinaryData(binaryData);
-        }
-
-        /// <summary>
-        /// Writes a BSON binary data element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        [Obsolete("Use WriteBinaryData(string name, BsonBinaryData binaryData) instead.")]
-        public void WriteBinaryData(string name, byte[] bytes, BsonBinarySubType subType)
-        {
-            WriteName(name);
-            WriteBinaryData(bytes, subType);
-        }
-
-        /// <summary>
-        /// Writes a BSON binary data element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        [Obsolete("Use WriteBinaryData(string name, BsonBinaryData binaryData) instead.")]
-        public void WriteBinaryData(
-            string name,
-            byte[] bytes,
-            BsonBinarySubType subType,
-            GuidRepresentation guidRepresentation)
-        {
-            WriteName(name);
-            WriteBinaryData(bytes, subType, guidRepresentation);
-        }
-
-        /// <summary>
         /// Writes a BSON Boolean to the writer.
         /// </summary>
         /// <param name="value">The Boolean value.</param>
         public abstract void WriteBoolean(bool value);
-
-        /// <summary>
-        /// Writes a BSON Boolean element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The Boolean value.</param>
-        public void WriteBoolean(string name, bool value)
-        {
-            WriteName(name);
-            WriteBoolean(value);
-        }
 
         /// <summary>
         /// Writes BSON binary data to the writer.
@@ -247,49 +166,16 @@ namespace MongoDB.Bson.IO
         public abstract void WriteBytes(byte[] bytes);
 
         /// <summary>
-        /// Writes a BSON binary data element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="bytes">The bytes.</param>
-        public void WriteBytes(string name, byte[] bytes)
-        {
-            WriteName(name);
-            WriteBytes(bytes);
-        }
-
-        /// <summary>
         /// Writes a BSON DateTime to the writer.
         /// </summary>
         /// <param name="value">The number of milliseconds since the Unix epoch.</param>
         public abstract void WriteDateTime(long value);
 
         /// <summary>
-        /// Writes a BSON DateTime element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The number of milliseconds since the Unix epoch.</param>
-        public void WriteDateTime(string name, long value)
-        {
-            WriteName(name);
-            WriteDateTime(value);
-        }
-
-        /// <summary>
         /// Writes a BSON Double to the writer.
         /// </summary>
         /// <param name="value">The Double value.</param>
         public abstract void WriteDouble(double value);
-
-        /// <summary>
-        /// Writes a BSON Double element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The Double value.</param>
-        public void WriteDouble(string name, double value)
-        {
-            WriteName(name);
-            WriteDouble(value);
-        }
 
         /// <summary>
         /// Writes the end of a BSON array to the writer.
@@ -316,32 +202,10 @@ namespace MongoDB.Bson.IO
         public abstract void WriteInt32(int value);
 
         /// <summary>
-        /// Writes a BSON Int32 element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The Int32 value.</param>
-        public void WriteInt32(string name, int value)
-        {
-            WriteName(name);
-            WriteInt32(value);
-        }
-
-        /// <summary>
         /// Writes a BSON Int64 to the writer.
         /// </summary>
         /// <param name="value">The Int64 value.</param>
         public abstract void WriteInt64(long value);
-
-        /// <summary>
-        /// Writes a BSON Int64 element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The Int64 value.</param>
-        public void WriteInt64(string name, long value)
-        {
-            WriteName(name);
-            WriteInt64(value);
-        }
 
         /// <summary>
         /// Writes a BSON JavaScript to the writer.
@@ -350,32 +214,10 @@ namespace MongoDB.Bson.IO
         public abstract void WriteJavaScript(string code);
 
         /// <summary>
-        /// Writes a BSON JavaScript element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="code">The JavaScript code.</param>
-        public void WriteJavaScript(string name, string code)
-        {
-            WriteName(name);
-            WriteJavaScript(code);
-        }
-
-        /// <summary>
         /// Writes a BSON JavaScript to the writer (call WriteStartDocument to start writing the scope).
         /// </summary>
         /// <param name="code">The JavaScript code.</param>
         public abstract void WriteJavaScriptWithScope(string code);
-
-        /// <summary>
-        /// Writes a BSON JavaScript element to the writer (call WriteStartDocument to start writing the scope).
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="code">The JavaScript code.</param>
-        public void WriteJavaScriptWithScope(string name, string code)
-        {
-            WriteName(name);
-            WriteJavaScriptWithScope(code);
-        }
 
         /// <summary>
         /// Writes a BSON MaxKey to the writer.
@@ -383,29 +225,9 @@ namespace MongoDB.Bson.IO
         public abstract void WriteMaxKey();
 
         /// <summary>
-        /// Writes a BSON MaxKey element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        public void WriteMaxKey(string name)
-        {
-            WriteName(name);
-            WriteMaxKey();
-        }
-
-        /// <summary>
         /// Writes a BSON MinKey to the writer.
         /// </summary>
         public abstract void WriteMinKey();
-
-        /// <summary>
-        /// Writes a BSON MinKey element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        public void WriteMinKey(string name)
-        {
-            WriteName(name);
-            WriteMinKey();
-        }
 
         /// <summary>
         /// Writes the name of an element to the writer.
@@ -444,60 +266,10 @@ namespace MongoDB.Bson.IO
         public abstract void WriteNull();
 
         /// <summary>
-        /// Writes a BSON null element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        public void WriteNull(string name)
-        {
-            WriteName(name);
-            WriteNull();
-        }
-
-        /// <summary>
         /// Writes a BSON ObjectId to the writer.
         /// </summary>
         /// <param name="objectId">The ObjectId.</param>
         public abstract void WriteObjectId(ObjectId objectId);
-
-        /// <summary>
-        /// Writes a BSON ObjectId to the writer.
-        /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        [Obsolete("Use WriteObjectId(ObjectId objectId) instead.")]
-        public void WriteObjectId(int timestamp, int machine, short pid, int increment)
-        {
-            var objectId = new ObjectId(timestamp, machine, pid, increment);
-            WriteObjectId(objectId);
-        }
-
-        /// <summary>
-        /// Writes a BSON ObjectId element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="objectId">The ObjectId.</param>
-        public void WriteObjectId(string name, ObjectId objectId)
-        {
-            WriteName(name);
-            WriteObjectId(objectId);
-        }
-
-        /// <summary>
-        /// Writes a BSON ObjectId element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        [Obsolete("Use WriteObjectId(string name, ObjectId objectId) instead.")]
-        public void WriteObjectId(string name, int timestamp, int machine, short pid, int increment)
-        {
-            WriteName(name);
-            WriteObjectId(timestamp, machine, pid, increment);
-        }
 
         /// <summary>
         /// Writes a raw BSON array.
@@ -536,17 +308,6 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Writes a raw BSON array.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="slice">The byte buffer containing the raw BSON array.</param>
-        public void WriteRawBsonArray(string name, IByteBuffer slice)
-        {
-            WriteName(name);
-            WriteRawBsonArray(slice);
-        }
-
-        /// <summary>
         /// Writes a raw BSON document.
         /// </summary>
         /// <param name="slice">The byte buffer containing the raw BSON document.</param>
@@ -567,57 +328,10 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Writes a raw BSON document.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="slice">The byte buffer containing the raw BSON document.</param>
-        public void WriteRawBsonDocument(string name, IByteBuffer slice)
-        {
-            WriteName(name);
-            WriteRawBsonDocument(slice);
-        }
-
-        /// <summary>
         /// Writes a BSON regular expression to the writer.
         /// </summary>
         /// <param name="regex">A BsonRegularExpression.</param>
         public abstract void WriteRegularExpression(BsonRegularExpression regex);
-
-        /// <summary>
-        /// Writes a BSON regular expression to the writer.
-        /// </summary>
-        /// <param name="pattern">A regular expression pattern.</param>
-        /// <param name="options">A regular expression options.</param>
-        [Obsolete("Use WriteRegularExpression(BsonRegularExpression regex) instead.")]
-        public void WriteRegularExpression(string pattern, string options)
-        {
-            var regex = new BsonRegularExpression(pattern, options);
-            WriteRegularExpression(regex);
-        }
-
-        /// <summary>
-        /// Writes a BSON regular expression element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="regex">A BsonRegularExpression.</param>
-        public void WriteRegularExpression(string name, BsonRegularExpression regex)
-        {
-            WriteName(name);
-            WriteRegularExpression(regex);
-        }
-
-        /// <summary>
-        /// Writes a BSON regular expression element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="pattern">A regular expression pattern.</param>
-        /// <param name="options">A regular expression options.</param>
-        [Obsolete("Use WriteRegularExpression(string name, BsonRegularExpression regex) instead.")]
-        public void WriteRegularExpression(string name, string pattern, string options)
-        {
-            WriteName(name);
-            WriteRegularExpression(pattern, options);
-        }
 
         /// <summary>
         /// Writes the start of a BSON array to the writer.
@@ -629,16 +343,6 @@ namespace MongoDB.Bson.IO
             {
                 throw new BsonSerializationException("Maximum serialization depth exceeded (does the object being serialized have a circular reference?).");
             }
-        }
-
-        /// <summary>
-        /// Writes the start of a BSON array element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        public void WriteStartArray(string name)
-        {
-            WriteName(name);
-            WriteStartArray();
         }
 
         /// <summary>
@@ -656,31 +360,10 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Writes the start of a BSON document element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        public void WriteStartDocument(string name)
-        {
-            WriteName(name);
-            WriteStartDocument();
-        }
-
-        /// <summary>
         /// Writes a BSON String to the writer.
         /// </summary>
         /// <param name="value">The String value.</param>
         public abstract void WriteString(string value);
-
-        /// <summary>
-        /// Writes a BSON String element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The String value.</param>
-        public void WriteString(string name, string value)
-        {
-            WriteName(name);
-            WriteString(value);
-        }
 
         /// <summary>
         /// Writes a BSON Symbol to the writer.
@@ -689,47 +372,15 @@ namespace MongoDB.Bson.IO
         public abstract void WriteSymbol(string value);
 
         /// <summary>
-        /// Writes a BSON Symbol element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The symbol.</param>
-        public void WriteSymbol(string name, string value)
-        {
-            WriteName(name);
-            WriteSymbol(value);
-        }
-
-        /// <summary>
         /// Writes a BSON timestamp to the writer.
         /// </summary>
         /// <param name="value">The combined timestamp/increment value.</param>
         public abstract void WriteTimestamp(long value);
 
         /// <summary>
-        /// Writes a BSON timestamp element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The combined timestamp/increment value.</param>
-        public void WriteTimestamp(string name, long value)
-        {
-            WriteName(name);
-            WriteTimestamp(value);
-        }
-
-        /// <summary>
         /// Writes a BSON undefined to the writer.
         /// </summary>
         public abstract void WriteUndefined();
-
-        /// <summary>
-        /// Writes a BSON undefined element to the writer.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        public void WriteUndefined(string name)
-        {
-            WriteName(name);
-            WriteUndefined();
-        }
 
         // protected methods
         /// <summary>

@@ -32,12 +32,12 @@ namespace MongoDB.Bson.Serialization
         private readonly BsonSerializationContext _parent;
         private readonly bool _serializeAsNominalType;
         private readonly bool _serializeIdFirst;
-        private readonly BsonWriter _writer;
+        private readonly IBsonWriter _writer;
 
         // constructors
         private BsonSerializationContext(
             BsonSerializationContext parent,
-            BsonWriter writer,
+            IBsonWriter writer,
             Type nominalType,
             bool serializeAsNominalType,
             bool serializeIdFirst,
@@ -111,7 +111,7 @@ namespace MongoDB.Bson.Serialization
         /// <value>
         /// The writer.
         /// </value>
-        public BsonWriter Writer
+        public IBsonWriter Writer
         {
             get { return _writer; }
         }
@@ -127,7 +127,7 @@ namespace MongoDB.Bson.Serialization
         /// A root context.
         /// </returns>
         public static BsonSerializationContext CreateRoot<TNominalType>(
-            BsonWriter writer,
+            IBsonWriter writer,
             Action<Builder> configurator = null)
         {
             var builder = new Builder(null, writer, typeof(TNominalType));
@@ -148,7 +148,7 @@ namespace MongoDB.Bson.Serialization
         /// A root context.
         /// </returns>
         public static BsonSerializationContext CreateRoot(
-            BsonWriter writer,
+            IBsonWriter writer,
             Type nominalType,
             Action<Builder> configurator = null)
         {
@@ -243,10 +243,10 @@ namespace MongoDB.Bson.Serialization
             private BsonSerializationContext _parent;
             private bool _serializeAsNominalType;
             private bool _serializeIdFirst;
-            private BsonWriter _writer;
+            private IBsonWriter _writer;
 
             // constructors
-            internal Builder(BsonSerializationContext parent, BsonWriter writer, Type nominalType)
+            internal Builder(BsonSerializationContext parent, IBsonWriter writer, Type nominalType)
             {
                 if (writer == null)
                 {
@@ -333,7 +333,7 @@ namespace MongoDB.Bson.Serialization
             /// <value>
             /// The writer.
             /// </value>
-            public BsonWriter Writer
+            public IBsonWriter Writer
             {
                 get { return _writer; }
             }

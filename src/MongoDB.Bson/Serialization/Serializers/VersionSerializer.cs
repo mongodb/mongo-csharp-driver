@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {

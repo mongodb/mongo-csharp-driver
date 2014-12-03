@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Tests.IO
     [TestFixture]
     public class JsonReaderTests
     {
-        private BsonReader _bsonReader;
+        private IBsonReader _bsonReader;
 
         [Test]
         public void TestArrayEmpty()

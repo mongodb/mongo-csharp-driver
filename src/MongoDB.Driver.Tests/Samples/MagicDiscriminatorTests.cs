@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Samples
         {
             public string ElementName { get { return null; } }
 
-            public Type GetActualType(BsonReader bsonReader, Type nominalType)
+            public Type GetActualType(IBsonReader bsonReader, Type nominalType)
             {
                 var bookmark = bsonReader.GetBookmark();
                 bsonReader.ReadStartDocument();

@@ -108,7 +108,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="configurator">The configurator.</param>
         /// <returns>A TNominalType.</returns>
-        public static TNominalType Deserialize<TNominalType>(BsonReader bsonReader, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<TNominalType>(IBsonReader bsonReader, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             var serializer = LookupSerializer<TNominalType>();
             var context = BsonDeserializationContext.CreateRoot<TNominalType>(bsonReader, configurator);
@@ -197,7 +197,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
         /// <returns>An object.</returns>
-        public static object Deserialize(BsonReader bsonReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static object Deserialize(IBsonReader bsonReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             var serializer = LookupSerializer(nominalType);
             var context = BsonDeserializationContext.CreateRoot(bsonReader, nominalType, configurator);
@@ -629,7 +629,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="value">The object.</param>
         /// <param name="configurator">The serialization context configurator.</param>
         public static void Serialize<TNominalType>(
-            BsonWriter bsonWriter,
+            IBsonWriter bsonWriter,
             TNominalType value,
             Action<BsonSerializationContext.Builder> configurator = null)
         {
@@ -646,7 +646,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="value">The object.</param>
         /// <param name="configurator">The serialization context configurator.</param>
         public static void Serialize(
-            BsonWriter bsonWriter,
+            IBsonWriter bsonWriter,
             Type nominalType,
             object value,
             Action<BsonSerializationContext.Builder> configurator = null)

@@ -615,7 +615,7 @@ namespace MongoDB.Bson
             return _slice.GetSlice(0, _slice.Length);
         }
 
-        private RawBsonArray DeserializeRawBsonArray(BsonReader bsonReader)
+        private RawBsonArray DeserializeRawBsonArray(IBsonReader bsonReader)
         {
             var slice = bsonReader.ReadRawBsonArray();
             var nestedArray = new RawBsonArray(slice);
@@ -623,7 +623,7 @@ namespace MongoDB.Bson
             return nestedArray;
         }
 
-        private RawBsonDocument DeserializeRawBsonDocument(BsonReader bsonReader)
+        private RawBsonDocument DeserializeRawBsonDocument(IBsonReader bsonReader)
         {
             var slice = bsonReader.ReadRawBsonDocument();
             var nestedDocument = new RawBsonDocument(slice);

@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="reader">The reader.</param>
         /// <param name="bsonType">The expected type.</param>
-        protected void EnsureBsonTypeEquals(BsonReader reader, BsonType bsonType)
+        protected void EnsureBsonTypeEquals(IBsonReader reader, BsonType bsonType)
         {
             if (reader.GetCurrentBsonType() != bsonType)
             {
