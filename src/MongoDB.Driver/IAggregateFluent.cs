@@ -62,9 +62,19 @@ namespace MongoDB.Driver
         /// <summary>
         /// Groups the specified group.
         /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="group">The group.</param>
         /// <returns></returns>
-        IAggregateFluent<TDocument, TResult> Group(object group);
+        IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group);
+
+        /// <summary>
+        /// Groups the specified group.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="group">The group.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <returns></returns>
+        IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group, IBsonSerializer<TNewResult> resultSerializer);
 
         /// <summary>
         /// Limits the specified limit.

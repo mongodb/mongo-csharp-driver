@@ -1268,7 +1268,14 @@ namespace MongoDB.Driver.Linq
             var constantExpression = arguments[0] as ConstantExpression;
             if (constantExpression == null)
             {
-                return null;
+                // The first argument isn't a constant expression but could be a MemberAccess to a constant expression.
+                // We need to look deeper
+                ExpressionValueGetter visitor = new ExpressionValueGetter();
+                visitor.VisitNode(arguments[0]);
+
+                constantExpression = visitor.Result;
+                if (constantExpression == null)
+                    return null;
             }
 
             var pattern = Regex.Escape((string)constantExpression.Value);

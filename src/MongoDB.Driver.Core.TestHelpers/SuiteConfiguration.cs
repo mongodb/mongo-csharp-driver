@@ -33,8 +33,7 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver
 {
-    [SetUpFixture]
-    public class SuiteConfiguration
+    public static class SuiteConfiguration
     {
         #region static
         // static fields
@@ -267,7 +266,7 @@ namespace MongoDB.Driver
         #endregion
 
         // methods
-        private void DropDatabase()
+        private static void DropDatabase()
         {
             var operation = new DropDatabaseOperation(__databaseNamespace, __messageEncoderSettings);
 
@@ -277,8 +276,7 @@ namespace MongoDB.Driver
             }
         }
 
-        [TearDown]
-        public void SuiteConfigurationTearDown()
+        public static void TearDown()
         {
             if (__cluster.IsValueCreated)
             {

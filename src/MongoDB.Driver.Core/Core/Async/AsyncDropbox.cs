@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Async
 
             using (cancellationToken.Register(() => awaiter.TrySetCanceled()))
             {
-                return await awaiter.Task;
+                return await awaiter.Task.ConfigureAwait(false);
             }
         }
     }

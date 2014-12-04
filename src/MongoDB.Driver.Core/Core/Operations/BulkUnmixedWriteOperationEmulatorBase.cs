@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
             MongoWriteConcernException writeConcernException = null;
             try
             {
-                writeConcernResult = await ExecuteProtocolAsync(channel, request, cancellationToken);
+                writeConcernResult = await ExecuteProtocolAsync(channel, request, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoWriteConcernException ex)
             {

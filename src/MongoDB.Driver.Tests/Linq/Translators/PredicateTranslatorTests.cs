@@ -21,6 +21,10 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
         private class A
         {
+
+            public string MyString
+            { get; set; }
+
             public virtual ICollection<B> Bs
             { get; set; }
         }
@@ -101,6 +105,57 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             Assert.IsNotNull(actual);
             Assert.AreEqual("{ \"Bs\" : { \"$elemMatch\" : { \"_t\" : \"D\", \"MyEnum2\" : 2 } } }", actual.ToJson());
+        }
+
+        [Test]
+        public void Contains_should_work_with_property()
+        {
+            string val = "aze";
+
+            Expression<Func<A, bool>> where = t => t.MyString.Contains(val);
+
+            BsonSerializationInfoHelper _serializationInfoHelper = new BsonSerializationInfoHelper();
+            PredicateTranslator target = new PredicateTranslator(_serializationInfoHelper);
+
+
+            var actual = target.BuildQuery(where.Body);
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual("{ \"MyString\" : /aze/s }", actual.ToJson());
+        }
+
+        //[Test]
+        //public void ToLower_should_work_with_property()
+        //{
+        //    string val = "Aze";
+
+        //    Expression<Func<A, bool>> where = t => t.MyString == val.ToLower();
+
+        //    BsonSerializationInfoHelper _serializationInfoHelper = new BsonSerializationInfoHelper();
+        //    PredicateTranslator target = new PredicateTranslator(_serializationInfoHelper);
+
+
+        //    var actual = target.BuildQuery(where.Body);
+
+        //    Assert.IsNotNull(actual);
+        //    Assert.AreEqual("{ \"MyString\" : \"aze\" }", actual.ToJson());
+        //}
+
+        [Test]
+        public void ToLower_should_work_on_mongo_side()
+        {
+            string val = "aze";
+
+            Expression<Func<A, bool>> where = t => t.MyString.ToLower() == val;
+
+            BsonSerializationInfoHelper _serializationInfoHelper = new BsonSerializationInfoHelper();
+            PredicateTranslator target = new PredicateTranslator(_serializationInfoHelper);
+
+
+            var actual = target.BuildQuery(where.Body);
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual("{ \"MyString\" : /^aze$/i }", actual.ToJson());
         }
     }
 }

@@ -105,6 +105,32 @@ namespace MongoDB.Driver.Core.Misc
             return null;
         }
 
+        /// <summary>
+        /// Maps the server response to a MongoNotPrimaryException or MongoNodeIsRecoveringException (if appropriate).
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="response">The server response.</param>
+        /// <param name="errorMessageFieldName">Name of the error message field.</param>
+        /// <returns>The exception, or null if no exception necessary.</returns>
+        public static Exception MapNotPrimaryOrNodeIsRecovering(ConnectionId connectionId, BsonDocument response, string errorMessageFieldName)
+        {
+            BsonValue errorMessageBsonValue;
+            if (response.TryGetValue(errorMessageFieldName, out errorMessageBsonValue) && errorMessageBsonValue.IsString)
+            {
+                var errorMessage = errorMessageBsonValue.ToString();
+                if (errorMessage.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new MongoNotPrimaryException(connectionId, response);
+                }
+                if (errorMessage.StartsWith("node is recovering", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new MongoNodeIsRecoveringException(connectionId, response);
+                }
+            }
+
+            return null;
+        }
+
         private static int? GetCode(BsonDocument response)
         {
             BsonValue code;

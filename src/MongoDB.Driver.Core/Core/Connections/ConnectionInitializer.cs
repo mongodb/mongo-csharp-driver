@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
             var connectionId = connection.ConnectionId;
             var description = new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
 
-            await AuthenticationHelper.AuthenticateAsync(connection, description, cancellationToken);
+            await AuthenticationHelper.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
 
             try
             {

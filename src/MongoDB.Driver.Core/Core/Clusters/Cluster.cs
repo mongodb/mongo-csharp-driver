@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Core.Clusters
                     cancellationToken.ThrowIfCancellationRequested();
                 }
 
-                await descriptionChangedTask; // propagate exceptions
+                await descriptionChangedTask.ConfigureAwait(false); // propagate exceptions
             }
         }
 

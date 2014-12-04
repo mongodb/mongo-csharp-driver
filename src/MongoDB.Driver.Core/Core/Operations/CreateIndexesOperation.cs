@@ -85,15 +85,15 @@ namespace MongoDB.Driver.Core.Operations
 
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (channelSource.ServerDescription.Version >= __serverVersionSupportingCreateIndexesCommand)
                 {
-                    return await ExecuteUsingCommandAsync(channelSource, cancellationToken);
+                    return await ExecuteUsingCommandAsync(channelSource, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    return await ExecuteUsingInsertAsync(channelSource, cancellationToken);
+                    return await ExecuteUsingInsertAsync(channelSource, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
                 document.InsertAt(0, new BsonElement("ns", _collectionNamespace.FullName));
                 var documentSource = new BatchableSource<BsonDocument>(new[] { document });
                 var operation = new InsertOpcodeOperation(systemIndexesCollection, documentSource, _messageEncoderSettings);
-                await operation.ExecuteAsync(channelSource, cancellationToken);
+                await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
             }
 
             return new BsonDocument("ok", 1);

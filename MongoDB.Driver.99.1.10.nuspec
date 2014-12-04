@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>MongoDB.Driver</id>
-        <version>99.1.9</version>
+        <version>99.1.10</version>
         <title>Official MongoDB C# driver</title>
         <authors>MongoDB,Inc.</authors>
         <owners>Robert Stam,Craig Wilson</owners>

@@ -226,7 +226,7 @@
     <Compile Include="MongoServerException.cs" />
     <Compile Include="MongoWaitQueueFullException.cs" />
     <Compile Include="MongoNodeIsRecoveringException.cs" />
-    <Compile Include="MongoNotMasterException.cs" />
+    <Compile Include="MongoNotPrimaryException.cs" />
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReadPreferenceMode.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfig.cs" />

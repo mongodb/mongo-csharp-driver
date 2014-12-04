@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace MongoDB.Bson.Serialization.Serializers

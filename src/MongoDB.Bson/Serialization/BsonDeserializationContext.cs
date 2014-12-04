@@ -29,12 +29,12 @@ namespace MongoDB.Bson.Serialization
         private readonly IBsonSerializer _dynamicDocumentSerializer;
         private readonly Type _nominalType;
         private readonly BsonDeserializationContext _parent;
-        private readonly BsonReader _reader;
+        private readonly IBsonReader _reader;
 
         // constructors
         private BsonDeserializationContext(
             BsonDeserializationContext parent,
-            BsonReader reader,
+            IBsonReader reader,
             Type nominalType,
             bool allowDuplicateElementNames,
             IBsonSerializer dynamicArraySerializer,
@@ -110,7 +110,7 @@ namespace MongoDB.Bson.Serialization
         /// <value>
         /// The reader.
         /// </value>
-        public BsonReader Reader
+        public IBsonReader Reader
         {
             get { return _reader; }
         }
@@ -126,7 +126,7 @@ namespace MongoDB.Bson.Serialization
         /// A root context.
         /// </returns>
         public static BsonDeserializationContext CreateRoot<TNominalType>(
-            BsonReader reader,
+            IBsonReader reader,
             Action<Builder> configurator = null)
         {
             var builder = new Builder(null, reader, typeof(TNominalType));
@@ -147,7 +147,7 @@ namespace MongoDB.Bson.Serialization
         /// A root context.
         /// </returns>
         public static BsonDeserializationContext CreateRoot(
-            BsonReader reader, 
+            IBsonReader reader, 
             Type nominalType,
             Action<Builder> configurator = null)
         {
@@ -244,10 +244,10 @@ namespace MongoDB.Bson.Serialization
             private IBsonSerializer _dynamicDocumentSerializer;
             private Type _nominalType;
             private BsonDeserializationContext _parent;
-            private BsonReader _reader;
+            private IBsonReader _reader;
 
             // constructors
-            internal Builder(BsonDeserializationContext parent, BsonReader reader, Type nominalType)
+            internal Builder(BsonDeserializationContext parent, IBsonReader reader, Type nominalType)
             {
                 if (reader == null)
                 {
@@ -339,7 +339,7 @@ namespace MongoDB.Bson.Serialization
             /// <value>
             /// The reader.
             /// </value>
-            public BsonReader Reader
+            public IBsonReader Reader
             {
                 get { return _reader; }
             }

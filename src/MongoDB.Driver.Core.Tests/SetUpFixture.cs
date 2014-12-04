@@ -13,12 +13,17 @@
 * limitations under the License.
 */
 
-using System.Reflection;
-using System.Security;
+using NUnit.Framework;
 
-[assembly: AssemblyCompany("MongoDB Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2010-2014 MongoDB Inc.")]
-[assembly: AssemblyVersion("99.0.1.10")]
-[assembly: AssemblyInformationalVersion("unofficial")]
-[assembly: AssemblyFileVersion("99.0.1.10")]
-[assembly: AssemblyConfiguration("Debug")]
+namespace MongoDB.Driver
+{
+    [SetUpFixture]
+    public class SetUpFixture
+    {
+        [TearDown]
+        public void TearDown()
+        {
+            SuiteConfiguration.TearDown();
+        }
+    }
+}

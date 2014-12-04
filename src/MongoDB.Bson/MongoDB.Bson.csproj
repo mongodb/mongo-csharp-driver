@@ -86,6 +86,10 @@
     <Compile Include="IO\BsonStreamWriter.cs" />
     <Compile Include="IO\BsonTrie.cs" />
     <Compile Include="IO\BsonWriterSettings.cs" />
+    <Compile Include="IO\IBsonReader.cs" />
+    <Compile Include="IO\IBsonReaderExtensions.cs" />
+    <Compile Include="IO\IBsonWriter.cs" />
+    <Compile Include="IO\IBsonWriterExtensions.cs" />
     <Compile Include="IO\IElementNameValidator.cs" />
     <Compile Include="IO\INameDecoder.cs" />
     <Compile Include="IO\JsonBuffer.cs" />

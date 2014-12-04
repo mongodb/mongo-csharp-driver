@@ -1084,17 +1084,6 @@ namespace MongoDB.Bson
             }
         }
 
-        /// <summary>
-        /// Reads one BsonValue from a BsonReader.
-        /// </summary>
-        /// <param name="bsonReader">The reader.</param>
-        /// <returns>A BsonValue.</returns>
-        [Obsolete("Use BsonSerializer.Deserialize<BsonValue> instead.")]
-        public static BsonValue ReadFrom(BsonReader bsonReader)
-        {
-            return BsonSerializer.Deserialize<BsonValue>(bsonReader);
-        }
-
         // public methods
         /// <summary>
         /// Creates a shallow clone of the BsonValue (see also DeepClone).
@@ -1239,16 +1228,6 @@ namespace MongoDB.Bson
         {
             var message = string.Format("{0} does not support ToUniversalTime.", this.GetType().Name);
             throw new NotSupportedException(message);
-        }
-
-        /// <summary>
-        /// Writes the BsonValue to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        [Obsolete("Use BsonSerializer.Serialize<BsonValue> instead.")]
-        public void WriteTo(BsonWriter bsonWriter)
-        {
-            BsonSerializer.Serialize(bsonWriter, this);
         }
 
         // protected methods

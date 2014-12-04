@@ -46,8 +46,9 @@ namespace MongoDB.Driver.Linq.Expressions
         /// <returns></returns>
         protected override Expression VisitMember(MemberExpression node)
         {
-            this.Result = Expression.Constant(Expression.Lambda(node).Compile().DynamicInvoke());
-            return null;
+            var expression = Expression.Constant(Expression.Lambda(node).Compile().DynamicInvoke());
+            this.Result = expression;
+            return expression;
         }
 
         /// <summary>
@@ -57,8 +58,9 @@ namespace MongoDB.Driver.Linq.Expressions
         /// <returns></returns>
         protected override Expression VisitUnary(UnaryExpression node)
         {
-            this.Result = Expression.Constant(Expression.Lambda(node).Compile().DynamicInvoke());
-            return null;
+            var expression = Expression.Constant(Expression.Lambda(node).Compile().DynamicInvoke());
+            this.Result = expression;
+            return this.Result;
         }
     }
 }

@@ -365,7 +365,8 @@ namespace MongoDB.Bson.IO
             }
 
             WriteStartDocument();
-            WriteString("$code", code);
+            WriteName("$code");
+            WriteString(code);
             WriteName("$scope");
 
             State = BsonWriterState.ScopeDocument;

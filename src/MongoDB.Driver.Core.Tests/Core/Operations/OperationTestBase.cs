@@ -26,6 +26,20 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
         }
 
+        [TestFixtureTearDown]
+        public virtual void TestFixtureTearDown()
+        {
+            try
+            {
+                var dropDatabaseOperation = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
+                ExecuteOperation(dropDatabaseOperation);
+            }
+            catch
+            {
+                // ignore exceptions
+            }
+        }
+
         protected async Task<TException> CatchAsync<TException>(Func<Task> action)
             where TException : Exception
         {

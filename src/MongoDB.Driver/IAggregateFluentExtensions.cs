@@ -181,7 +181,7 @@ namespace MongoDB.Driver
             helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
             var serialiationInfo = helper.GetSerializationInfo(field.Body);
 
-            return source.Unwind<BsonDocument>(serialiationInfo.ElementName);
+            return source.Unwind<BsonDocument>("$" + serialiationInfo.ElementName);
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace MongoDB.Driver
             helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
             var serialiationInfo = helper.GetSerializationInfo(field.Body);
 
-            return source.Unwind<TNewResult>(serialiationInfo.ElementName);
+            return source.Unwind<TNewResult>("$" + serialiationInfo.ElementName);
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace MongoDB.Driver
             helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
             var serialiationInfo = helper.GetSerializationInfo(field.Body);
 
-            return source.Unwind<TNewResult>(serialiationInfo.ElementName, resultSerializer);
+            return source.Unwind<TNewResult>("$" + serialiationInfo.ElementName, resultSerializer);
         }
 
         /// <summary>

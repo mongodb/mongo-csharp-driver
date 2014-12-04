@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // private methods
-        private bool IsCSharpNullRepresentation(BsonReader bsonReader)
+        private bool IsCSharpNullRepresentation(IBsonReader bsonReader)
         {
             var bookmark = bsonReader.GetBookmark();
             bsonReader.ReadStartDocument();

@@ -17,6 +17,7 @@ using System;
 using System.Dynamic;
 using System.IO;
 using System.Linq.Expressions;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
