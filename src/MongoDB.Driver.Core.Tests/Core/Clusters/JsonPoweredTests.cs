@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var connectionString = new ConnectionString((string)definition["uri"]);
             var settings = new ClusterSettings(
-                endPoints: Optional.Arg<IEnumerable<EndPoint>>(connectionString.Hosts),
+                endPoints: Optional.Create<IEnumerable<EndPoint>>(connectionString.Hosts),
                 connectionMode: connectionString.Connect,
                 replicaSetName: connectionString.ReplicaSet);
 

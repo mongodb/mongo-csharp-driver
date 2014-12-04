@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
         {
             _addressFamily = addressFamily.WithDefault(AddressFamily.InterNetwork);
-            _connectTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(connectTimeout.WithDefault(Timeout.InfiniteTimeSpan), "connectionTimeout");
+            _connectTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(connectTimeout.WithDefault(Timeout.InfiniteTimeSpan), "connectTimeout");
             _readTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(readTimeout.WithDefault(null), "readTimeout");
             _receiveBufferSize = Ensure.IsGreaterThanZero(receiveBufferSize.WithDefault(64 * 1024), "receiveBufferSize");
             _sendBufferSize = Ensure.IsGreaterThanZero(sendBufferSize.WithDefault(64 * 1024), "sendBufferSize");
@@ -90,26 +90,13 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<int> sendBufferSize = default(Optional<int>),
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
         {
-            if (
-                addressFamily.Replaces(_addressFamily) ||
-                connectTimeout.Replaces(_connectTimeout) ||
-                readTimeout.Replaces(_readTimeout) ||
-                receiveBufferSize.Replaces(_receiveBufferSize) ||
-                sendBufferSize.Replaces(_sendBufferSize) ||
-                writeTimeout.Replaces(_writeTimeout))
-            {
-                return new TcpStreamSettings(
-                    addressFamily: addressFamily.WithDefault(_addressFamily),
-                    connectTimeout: connectTimeout.WithDefault(_connectTimeout),
-                    readTimeout: readTimeout.WithDefault(_readTimeout),
-                    receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
-                    sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
-                    writeTimeout: writeTimeout.WithDefault(_writeTimeout));
-            }
-            else
-            {
-                return this;
-            }
+            return new TcpStreamSettings(
+                addressFamily: addressFamily.WithDefault(_addressFamily),
+                connectTimeout: connectTimeout.WithDefault(_connectTimeout),
+                readTimeout: readTimeout.WithDefault(_readTimeout),
+                receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
+                sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
+                writeTimeout: writeTimeout.WithDefault(_writeTimeout));
         }
     }
 }

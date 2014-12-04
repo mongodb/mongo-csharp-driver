@@ -24,30 +24,26 @@ namespace MongoDB.Driver.Core.Configuration
 {
     public class SslStreamSettings
     {
-        #region static
-        private static readonly IEqualityComparer<IEnumerable<X509Certificate>> __certificatesComparer = new CertificatesComparer();
-        #endregion
-
         // fields
         private readonly bool _checkCertificateRevocation;
         private readonly IEnumerable<X509Certificate> _clientCertificates;
-        private readonly LocalCertificateSelectionCallback _clientCertificateSelector;
+        private readonly LocalCertificateSelectionCallback _clientCertificateSelectionCallback;
         private readonly SslProtocols _enabledSslProtocols;
-        private readonly RemoteCertificateValidationCallback _serverCertificateValidator;
+        private readonly RemoteCertificateValidationCallback _serverCertificateValidationCallback;
 
         // constructors
         public SslStreamSettings(
-            Optional<IEnumerable<X509Certificate>> clientCertificates = default(Optional<IEnumerable<X509Certificate>>),
             Optional<bool> checkCertificateRevocation = default(Optional<bool>),
-            Optional<LocalCertificateSelectionCallback> clientCertificateSelector = default(Optional<LocalCertificateSelectionCallback>),
+            Optional<IEnumerable<X509Certificate>> clientCertificates = default(Optional<IEnumerable<X509Certificate>>),
+            Optional<LocalCertificateSelectionCallback> clientCertificateSelectionCallback = default(Optional<LocalCertificateSelectionCallback>),
             Optional<SslProtocols> enabledProtocols = default(Optional<SslProtocols>),
-            Optional<RemoteCertificateValidationCallback> serverCertificateValidator = default(Optional<RemoteCertificateValidationCallback>))
+            Optional<RemoteCertificateValidationCallback> serverCertificateValidationCallback = default(Optional<RemoteCertificateValidationCallback>))
         {
-            _clientCertificates = clientCertificates.WithDefault(null) ?? Enumerable.Empty<X509Certificate>();
             _checkCertificateRevocation = checkCertificateRevocation.WithDefault(true);
-            _clientCertificateSelector = clientCertificateSelector.WithDefault(null);
+            _clientCertificates = Ensure.IsNotNull(clientCertificates.WithDefault(Enumerable.Empty<X509Certificate>()), "clientCertificates").ToList();
+            _clientCertificateSelectionCallback = clientCertificateSelectionCallback.WithDefault(null);
             _enabledSslProtocols = enabledProtocols.WithDefault(SslProtocols.Default);
-            _serverCertificateValidator = serverCertificateValidator.WithDefault(null);
+            _serverCertificateValidationCallback = serverCertificateValidationCallback.WithDefault(null);
         }
 
         // properties
@@ -63,7 +59,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         public LocalCertificateSelectionCallback ClientCertificateSelectionCallback
         {
-            get { return _clientCertificateSelector; }
+            get { return _clientCertificateSelectionCallback; }
         }
 
         public SslProtocols EnabledSslProtocols
@@ -73,49 +69,23 @@ namespace MongoDB.Driver.Core.Configuration
 
         public RemoteCertificateValidationCallback ServerCertificateValidationCallback
         {
-            get { return _serverCertificateValidator; }
+            get { return _serverCertificateValidationCallback; }
         }
 
         // methods
         public SslStreamSettings With(
-            Optional<IEnumerable<X509Certificate>> clientCertificates = default(Optional<IEnumerable<X509Certificate>>),
             Optional<bool> checkCertificateRevocation = default(Optional<bool>),
-            Optional<LocalCertificateSelectionCallback> clientCertificateSelector = default(Optional<LocalCertificateSelectionCallback>),
+            Optional<IEnumerable<X509Certificate>> clientCertificates = default(Optional<IEnumerable<X509Certificate>>),
+            Optional<LocalCertificateSelectionCallback> clientCertificateSelectionCallback = default(Optional<LocalCertificateSelectionCallback>),
             Optional<SslProtocols> enabledProtocols = default(Optional<SslProtocols>),
-            Optional<RemoteCertificateValidationCallback> serverCertificateValidator = default(Optional<RemoteCertificateValidationCallback>))
+            Optional<RemoteCertificateValidationCallback> serverCertificateValidationCallback = default(Optional<RemoteCertificateValidationCallback>))
         {
-            if (clientCertificates.Replaces(_clientCertificates, __certificatesComparer) ||
-                checkCertificateRevocation.Replaces(_checkCertificateRevocation) ||
-                clientCertificateSelector.Replaces(_clientCertificateSelector) ||
-                enabledProtocols.Replaces(_enabledSslProtocols) ||
-                serverCertificateValidator.Replaces(_serverCertificateValidator))
-            {
-                return new SslStreamSettings(
-                    Optional.Arg(clientCertificates.WithDefault(_clientCertificates)),
-                    checkCertificateRevocation.WithDefault(_checkCertificateRevocation),
-                    clientCertificateSelector.WithDefault(_clientCertificateSelector),
-                    enabledProtocols.WithDefault(_enabledSslProtocols),
-                    serverCertificateValidator.WithDefault(_serverCertificateValidator));
-            }
-            else
-            {
-                return this;
-            }
-        }
-
-        // nested types
-        private class CertificatesComparer : IEqualityComparer<IEnumerable<X509Certificate>>
-        {
-            public bool Equals(IEnumerable<X509Certificate> x, IEnumerable<X509Certificate> y)
-            {
-                if (x == null) { return y == null; }
-                return x.SequenceEqual(y);
-            }
-
-            public int GetHashCode(IEnumerable<X509Certificate> x)
-            {
-                return 1;
-            }
+            return new SslStreamSettings(
+                checkCertificateRevocation: checkCertificateRevocation.WithDefault(_checkCertificateRevocation),
+                clientCertificates: Optional.Create(clientCertificates.WithDefault(_clientCertificates)),
+                clientCertificateSelectionCallback: clientCertificateSelectionCallback.WithDefault(_clientCertificateSelectionCallback),
+                enabledProtocols: enabledProtocols.WithDefault(_enabledSslProtocols),
+                serverCertificateValidationCallback: serverCertificateValidationCallback.WithDefault(_serverCertificateValidationCallback));
         }
     }
 }

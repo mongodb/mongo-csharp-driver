@@ -30,7 +30,6 @@ namespace MongoDB.Driver.Core.Configuration
         #region static
         // static fields
         private static readonly IReadOnlyList<EndPoint> __defaultEndPoints = new EndPoint[] { new DnsEndPoint("localhost", 27017) };
-        private static readonly EndPointsComparer __endPointsComparer = new EndPointsComparer();
         #endregion
 
         // fields
@@ -49,7 +48,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>))
         {
             _connectionMode = connectionMode.WithDefault(ClusterConnectionMode.Automatic);
-            _endPoints = endPoints.HasValue && endPoints.Value != null ? endPoints.Value.ToList() : __defaultEndPoints;
+            _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), "endPoints").ToList();
             _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), "maxServerSelectionWaitQueueSize");
             _replicaSetName = replicaSetName.WithDefault(null);
             _serverSelectionTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), "serverSelectionTimeout");
@@ -89,38 +88,12 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<string> replicaSetName = default(Optional<string>),
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>))
         {
-            if (connectionMode.Replaces(_connectionMode) ||
-                endPoints.Replaces(_endPoints, __endPointsComparer) ||
-                maxServerSelectionWaitQueueSize.Replaces(_maxServerSelectionWaitQueueSize) ||
-                replicaSetName.Replaces(_replicaSetName) ||
-                serverSelectionTimeout.Replaces(_serverSelectionTimeout))
-            {
-                return new ClusterSettings(
-                    connectionMode.WithDefault(_connectionMode),
-                    Optional.Arg(endPoints.WithDefault(_endPoints)),
-                    maxServerSelectionWaitQueueSize.WithDefault(_maxServerSelectionWaitQueueSize),
-                    replicaSetName.WithDefault(_replicaSetName),
-                    serverSelectionTimeout.WithDefault(_serverSelectionTimeout));
-            }
-            else
-            {
-                return this;
-            }
-        }
-
-        // nested types
-        private class EndPointsComparer : IEqualityComparer<IEnumerable<EndPoint>>
-        {
-            public bool Equals(IEnumerable<EndPoint> x, IEnumerable<EndPoint> y)
-            {
-                if (x == null) { return y == null; }
-                return x.SequenceEqual(y, EndPointHelper.EndPointEqualityComparer);
-            }
-
-            public int GetHashCode(IEnumerable<EndPoint> x)
-            {
-                return 1;
-            }
+            return new ClusterSettings(
+                connectionMode: connectionMode.WithDefault(_connectionMode),
+                endPoints: Optional.Create(endPoints.WithDefault(_endPoints)),
+                maxServerSelectionWaitQueueSize: maxServerSelectionWaitQueueSize.WithDefault(_maxServerSelectionWaitQueueSize),
+                replicaSetName: replicaSetName.WithDefault(_replicaSetName),
+                serverSelectionTimeout: serverSelectionTimeout.WithDefault(_serverSelectionTimeout));
         }
     }
 }

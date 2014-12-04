@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Communication
             var endPoints = clusterKey.Servers.Select(s => (EndPoint)new DnsEndPoint(s.Host, s.Port));
             return new ClusterSettings(
                 connectionMode: clusterKey.ConnectionMode.ToCore(),
-                endPoints: Optional.Arg(endPoints),
+                endPoints: Optional.Create(endPoints),
                 replicaSetName: clusterKey.ReplicaSetName);
         }
 
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Communication
         {
             var authenticators = clusterKey.Credentials.Select(c => c.ToAuthenticator());
             return new ConnectionSettings(
-                authenticators: Optional.Arg(authenticators),
+                authenticators: Optional.Create(authenticators),
                 maxIdleTime: clusterKey.MaxConnectionIdleTime,
                 maxLifeTime: clusterKey.MaxConnectionLifeTime);
         }
@@ -118,11 +118,11 @@ namespace MongoDB.Driver.Communication
             if (clusterKey.SslSettings != null)
             {
                 var sslStreamSettings = new SslStreamSettings(
-                    clientCertificates: Optional.Arg(clusterKey.SslSettings.ClientCertificates),
+                    clientCertificates: Optional.Create(clusterKey.SslSettings.ClientCertificates ?? Enumerable.Empty<X509Certificate>()),
                     checkCertificateRevocation: clusterKey.SslSettings.CheckCertificateRevocation,
-                    clientCertificateSelector: clusterKey.SslSettings.ClientCertificateSelectionCallback,
+                    clientCertificateSelectionCallback: clusterKey.SslSettings.ClientCertificateSelectionCallback,
                     enabledProtocols: clusterKey.SslSettings.EnabledSslProtocols,
-                    serverCertificateValidator: clusterKey.SslSettings.ServerCertificateValidationCallback);
+                    serverCertificateValidationCallback: clusterKey.SslSettings.ServerCertificateValidationCallback);
 
                 streamFactory = new SslStreamFactory(sslStreamSettings, streamFactory);
             }

@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Configuration
                     if (connectionString.SslVerifyCertificate.GetValueOrDefault(true))
                     {
                         ssl = ssl.With(
-                            serverCertificateValidator: new RemoteCertificateValidationCallback((obj, cert, chain, errors) => true));
+                            serverCertificateValidationCallback: new RemoteCertificateValidationCallback((obj, cert, chain, errors) => true));
                     }
 
                     return ssl;
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Configuration
             // Cluster
             if (connectionString.Hosts.Count > 0)
             {
-                configuration.ConfigureCluster(s => s.With(endPoints: Optional.Arg<IEnumerable<EndPoint>>(connectionString.Hosts)));
+                configuration.ConfigureCluster(s => s.With(endPoints: Optional.Create<IEnumerable<EndPoint>>(connectionString.Hosts)));
             }
             if (connectionString.ReplicaSet != null)
             {

@@ -15,8 +15,8 @@
 
 using System;
 using System.Net.Sockets;
+using System.Threading;
 using FluentAssertions;
-using MongoDB.Driver.Core.Configuration;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -24,11 +24,15 @@ namespace MongoDB.Driver.Core.Configuration
     [TestFixture]
     public class TcpStreamSettingsTests
     {
+        private static readonly TcpStreamSettings __defaults = new TcpStreamSettings();
+
         [Test]
-        public void Constructor_initializes_instance()
+        public void constructor_should_initialize_instance()
         {
             var subject = new TcpStreamSettings();
+
             subject.AddressFamily.Should().Be(AddressFamily.InterNetwork);
+            subject.ConnectTimeout.Should().Be(Timeout.InfiniteTimeSpan);
             subject.ReadTimeout.Should().Be(null);
             subject.ReceiveBufferSize.Should().Be(64 * 1024);
             subject.SendBufferSize.Should().Be(64 * 1024);
@@ -36,123 +40,239 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Test]
-        public void WithAddressFamily_returns_new_instance_if_value_is_not_equal()
+        public void constructor_should_throw_when_connectTimeout_is_negative()
         {
-            var oldSetting = AddressFamily.InterNetwork;
-            var newSetting = AddressFamily.InterNetworkV6;
-            var subject1 = new TcpStreamSettings(addressFamily: oldSetting);
-            var subject2 = subject1.With(addressFamily: newSetting);
-            subject2.Should().NotBeSameAs(subject1);
-            subject1.AddressFamily.Should().Be(oldSetting);
-            subject2.AddressFamily.Should().Be(newSetting);
+            Action action = () => new TcpStreamSettings(connectTimeout: TimeSpan.FromSeconds(-1));
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("connectTimeout");
         }
 
         [Test]
-        public void WithAddressFamily_returns_same_instance_if_value_is_equal()
+        public void constructor_should_throw_when_readTimeout_is_negative()
         {
-            var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.With(addressFamily: AddressFamily.InterNetwork);
-            subject2.Should().BeSameAs(subject1);
+            Action action = () => new TcpStreamSettings(readTimeout: TimeSpan.FromSeconds(-1));
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("readTimeout");
         }
 
         [Test]
-        public void WithConnectTimeout_returns_new_instance_if_value_is_not_equal()
+        public void constructor_should_throw_when_receiveBufferSize_is_negative_or_zero(
+            [Values(-1, 0)]
+            int receiveBufferSize)
         {
-            var oldSetting = TimeSpan.FromMinutes(20);
-            var newSetting = TimeSpan.FromMinutes(1);
-            var subject1 = new TcpStreamSettings(connectTimeout: oldSetting);
-            var subject2 = subject1.With(connectTimeout: newSetting);
-            subject2.Should().NotBeSameAs(subject1);
-            subject1.ConnectTimeout.Should().Be(oldSetting);
-            subject2.ConnectTimeout.Should().Be(newSetting);
+            Action action = () => new TcpStreamSettings(receiveBufferSize: receiveBufferSize);
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("receiveBufferSize");
         }
 
         [Test]
-        public void WithConnectTimeout_returns_same_instance_if_value_is_equal()
+        public void constructor_should_throw_when_sendBufferSize_is_negative_or_zero(
+            [Values(-1, 0)]
+            int sendBufferSize)
         {
-            var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.With(connectTimeout: subject1.ConnectTimeout);
-            subject2.Should().BeSameAs(subject1);
+            Action action = () => new TcpStreamSettings(sendBufferSize: sendBufferSize);
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("sendBufferSize");
         }
 
         [Test]
-        public void WithReadTimeout_returns_new_instance_if_value_is_not_equal()
+        public void constructor_should_throw_when_writeTimeout_is_negative()
         {
-            var oldSetting = (TimeSpan?)null;
-            var newSetting = TimeSpan.FromMinutes(1);
-            var subject1 = new TcpStreamSettings(readTimeout: oldSetting);
-            var subject2 = subject1.With(readTimeout: newSetting);
-            subject2.Should().NotBeSameAs(subject1);
-            subject1.ReadTimeout.Should().Be(oldSetting);
-            subject2.ReadTimeout.Should().Be(newSetting);
+            Action action = () => new TcpStreamSettings(writeTimeout: TimeSpan.FromSeconds(-1));
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("writeTimeout");
         }
 
         [Test]
-        public void WithReadTimeout_returns_same_instance_if_value_is_equal()
+        public void constructor_with_addressFamily_should_initialize_instance()
         {
-            var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.With(readTimeout: null);
-            subject2.Should().BeSameAs(subject1);
+            var addressFamily = AddressFamily.InterNetworkV6;
+
+            var subject = new TcpStreamSettings(addressFamily: addressFamily);
+
+            subject.AddressFamily.Should().Be(addressFamily);
+            subject.ConnectTimeout.Should().Be(__defaults.ConnectTimeout);
+            subject.ReadTimeout.Should().Be(__defaults.ReadTimeout);
+            subject.ReceiveBufferSize.Should().Be(__defaults.ReceiveBufferSize);
+            subject.SendBufferSize.Should().Be(__defaults.SendBufferSize);
+            subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
         [Test]
-        public void WithReceiveBufferSize_returns_new_instance_if_value_is_not_equal()
+        public void constructor_with_connectTimeout_should_initialize_instance()
         {
-            var oldSetting = 10;
-            var newSetting = 13;
-            var subject1 = new TcpStreamSettings(receiveBufferSize: oldSetting);
-            var subject2 = subject1.With(receiveBufferSize: newSetting);
-            subject2.Should().NotBeSameAs(subject1);
-            subject1.ReceiveBufferSize.Should().Be(oldSetting);
-            subject2.ReceiveBufferSize.Should().Be(newSetting);
+            var connectTimeout = TimeSpan.FromSeconds(123);
+
+            var subject = new TcpStreamSettings(connectTimeout: connectTimeout);
+
+            subject.AddressFamily.Should().Be(__defaults.AddressFamily);
+            subject.ConnectTimeout.Should().Be(connectTimeout);
+            subject.ReadTimeout.Should().Be(__defaults.ReadTimeout);
+            subject.ReceiveBufferSize.Should().Be(__defaults.ReceiveBufferSize);
+            subject.SendBufferSize.Should().Be(__defaults.SendBufferSize);
+            subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
         [Test]
-        public void WithReceiveBufferSize_returns_same_instance_if_value_is_equal()
+        public void constructor_with_readTimeout_should_initialize_instance()
         {
-            var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.With(receiveBufferSize: 64 * 1024);
-            subject2.Should().BeSameAs(subject1);
+            var readTimeout = TimeSpan.FromSeconds(123);
+
+            var subject = new TcpStreamSettings(readTimeout: readTimeout);
+
+            subject.AddressFamily.Should().Be(__defaults.AddressFamily);
+            subject.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            subject.ReadTimeout.Should().Be(readTimeout);
+            subject.ReceiveBufferSize.Should().Be(__defaults.ReceiveBufferSize);
+            subject.SendBufferSize.Should().Be(__defaults.SendBufferSize);
+            subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
         [Test]
-        public void WithSendBufferSize_returns_new_instance_if_value_is_not_equal()
+        public void constructor_with_receiveBufferSize_should_initialize_instance()
         {
-            var oldSetting = 10;
-            var newSetting = 13;
-            var subject1 = new TcpStreamSettings(sendBufferSize: oldSetting);
-            var subject2 = subject1.With(sendBufferSize: newSetting);
-            subject2.Should().NotBeSameAs(subject1);
-            subject1.SendBufferSize.Should().Be(oldSetting);
-            subject2.SendBufferSize.Should().Be(newSetting);
+            var receiveBufferSize = 123;
+
+            var subject = new TcpStreamSettings(receiveBufferSize: receiveBufferSize);
+
+            subject.AddressFamily.Should().Be(__defaults.AddressFamily);
+            subject.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            subject.ReadTimeout.Should().Be(subject.ReadTimeout);
+            subject.ReceiveBufferSize.Should().Be(receiveBufferSize);
+            subject.SendBufferSize.Should().Be(__defaults.SendBufferSize);
+            subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
         [Test]
-        public void WithSendBufferSize_returns_same_instance_if_value_is_equal()
+        public void constructor_with_sendBufferSize_should_initialize_instance()
         {
-            var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.With(sendBufferSize: 64 * 1024);
-            subject2.Should().BeSameAs(subject1);
+            var sendBufferSize = 123;
+
+            var subject = new TcpStreamSettings(sendBufferSize: sendBufferSize);
+
+            subject.AddressFamily.Should().Be(__defaults.AddressFamily);
+            subject.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            subject.ReadTimeout.Should().Be(subject.ReadTimeout);
+            subject.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
+            subject.SendBufferSize.Should().Be(sendBufferSize);
+            subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
         [Test]
-        public void WithWriteTimeout_returns_new_instance_if_value_is_not_equal()
+        public void constructor_with_writeTimeout_should_initialize_instance()
         {
-            var oldSetting = (TimeSpan?)null;
-            var newSetting = TimeSpan.FromMinutes(1);
-            var subject1 = new TcpStreamSettings(writeTimeout: oldSetting);
-            var subject2 = subject1.With(writeTimeout: newSetting);
-            subject2.Should().NotBeSameAs(subject1);
-            subject1.WriteTimeout.Should().Be(oldSetting);
-            subject2.WriteTimeout.Should().Be(newSetting);
+            var writeTimeout = TimeSpan.FromSeconds(123);
+
+            var subject = new TcpStreamSettings(writeTimeout: writeTimeout);
+
+            subject.AddressFamily.Should().Be(__defaults.AddressFamily);
+            subject.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            subject.ReadTimeout.Should().Be(subject.ReadTimeout);
+            subject.ReceiveBufferSize.Should().Be(__defaults.ReceiveBufferSize);
+            subject.SendBufferSize.Should().Be(__defaults.SendBufferSize);
+            subject.WriteTimeout.Should().Be(writeTimeout);
         }
 
         [Test]
-        public void WithWriteTimeout_returns_same_instance_if_value_is_equal()
+        public void With_addressFamily_should_return_expected_result()
         {
-            var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.With(writeTimeout: null);
-            subject2.Should().BeSameAs(subject1);
+            var oldAddressFamily = AddressFamily.InterNetwork;
+            var newAddressFamily = AddressFamily.InterNetworkV6;
+            var subject = new TcpStreamSettings(addressFamily: oldAddressFamily);
+
+            var result = subject.With(addressFamily: newAddressFamily);
+
+            result.AddressFamily.Should().Be(newAddressFamily);
+            result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            result.ReadTimeout.Should().Be(subject.ReadTimeout);
+            result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
+            result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.WriteTimeout.Should().Be(subject.WriteTimeout);
+        }
+
+        [Test]
+        public void With_connectTimeout_should_return_expected_result()
+        {
+            var oldConnectTimeout = TimeSpan.FromSeconds(1);
+            var newConnectTimeout = TimeSpan.FromSeconds(2);
+            var subject = new TcpStreamSettings(connectTimeout: oldConnectTimeout);
+
+            var result = subject.With(connectTimeout: newConnectTimeout);
+
+            result.AddressFamily.Should().Be(subject.AddressFamily);
+            result.ConnectTimeout.Should().Be(newConnectTimeout);
+            result.ReadTimeout.Should().Be(subject.ReadTimeout);
+            result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
+            result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.WriteTimeout.Should().Be(subject.WriteTimeout);
+        }
+
+        [Test]
+        public void With_readTimeout_should_return_expected_result()
+        {
+            var oldReadTimeout = TimeSpan.FromSeconds(1);
+            var newOldTimeout = TimeSpan.FromSeconds(2);
+            var subject = new TcpStreamSettings(readTimeout: oldReadTimeout);
+
+            var result = subject.With(readTimeout: newOldTimeout);
+
+            result.AddressFamily.Should().Be(subject.AddressFamily);
+            result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            result.ReadTimeout.Should().Be(newOldTimeout);
+            result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
+            result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.WriteTimeout.Should().Be(subject.WriteTimeout);
+        }
+
+        [Test]
+        public void With_receiveBufferSize_should_return_expected_result()
+        {
+            var oldReceiveBufferSize = 1;
+            var newReceiveBufferSize = 2;
+            var subject = new TcpStreamSettings(receiveBufferSize: oldReceiveBufferSize);
+
+            var result = subject.With(receiveBufferSize: newReceiveBufferSize);
+
+            result.AddressFamily.Should().Be(subject.AddressFamily);
+            result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            result.ReadTimeout.Should().Be(subject.ReadTimeout);
+            result.ReceiveBufferSize.Should().Be(newReceiveBufferSize);
+            result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.WriteTimeout.Should().Be(subject.WriteTimeout);
+        }
+
+        [Test]
+        public void With_sendBufferSize_should_return_expected_result()
+        {
+            var oldSendBufferSize = 1;
+            var newSendBufferSize = 2;
+            var subject = new TcpStreamSettings(sendBufferSize: oldSendBufferSize);
+
+            var result = subject.With(sendBufferSize: newSendBufferSize);
+
+            result.AddressFamily.Should().Be(subject.AddressFamily);
+            result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            result.ReadTimeout.Should().Be(subject.ReadTimeout);
+            result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
+            result.SendBufferSize.Should().Be(newSendBufferSize);
+            result.WriteTimeout.Should().Be(subject.WriteTimeout);
+        }
+
+        [Test]
+        public void With_writeTimeout_should_return_expected_result()
+        {
+            var oldWriteTimeout = TimeSpan.FromSeconds(1);
+            var newWriteTimeout = TimeSpan.FromSeconds(2);
+            var subject = new TcpStreamSettings(writeTimeout: oldWriteTimeout);
+
+            var result = subject.With(writeTimeout: newWriteTimeout);
+
+            result.AddressFamily.Should().Be(subject.AddressFamily);
+            result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            result.ReadTimeout.Should().Be(subject.ReadTimeout);
+            result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
+            result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.WriteTimeout.Should().Be(newWriteTimeout);
         }
     }
 }

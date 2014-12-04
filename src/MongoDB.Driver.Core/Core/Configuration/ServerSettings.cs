@@ -29,12 +29,6 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan _heartbeatTimeout;
 
         // constructors
-        public ServerSettings()
-        {
-            _heartbeatInterval = TimeSpan.FromSeconds(10);
-            _heartbeatTimeout = TimeSpan.FromSeconds(10);
-        }
-
         public ServerSettings(
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
             Optional<TimeSpan> heartbeatTimeout = default(Optional<TimeSpan>))
@@ -59,17 +53,9 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
             Optional<TimeSpan> heartbeatTimeout = default(Optional<TimeSpan>))
         {
-            if (heartbeatInterval.Replaces(_heartbeatInterval) ||
-                heartbeatTimeout.Replaces(_heartbeatTimeout))
-            {
-                return new ServerSettings(
-                    heartbeatInterval: heartbeatInterval.WithDefault(_heartbeatInterval),
-                    heartbeatTimeout: heartbeatTimeout.WithDefault(_heartbeatTimeout));
-            }
-            else
-            {
-                return this;
-            }
+            return new ServerSettings(
+                heartbeatInterval: heartbeatInterval.WithDefault(_heartbeatInterval),
+                heartbeatTimeout: heartbeatTimeout.WithDefault(_heartbeatTimeout));
         }
     }
 }

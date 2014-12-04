@@ -25,12 +25,11 @@ namespace MongoDB.Driver.Core.Configuration
     {
         #region static
         // static fields
-        private static readonly IEqualityComparer<IEnumerable<IAuthenticator>> __authenticatorsComparer = new AuthenticatorsComparer();
         private static readonly IReadOnlyList<IAuthenticator> __noAuthenticators = new IAuthenticator[0];
         #endregion
 
         // fields
-        private readonly IReadOnlyList<IAuthenticator> _authenticators = __noAuthenticators;
+        private readonly IReadOnlyList<IAuthenticator> _authenticators;
         private readonly TimeSpan _maxIdleTime;
         private readonly TimeSpan _maxLifeTime;
 
@@ -40,7 +39,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>))
         {
-            _authenticators = authenticators.HasValue && authenticators.Value != null ? authenticators.Value.ToList() : __noAuthenticators;
+            _authenticators = Ensure.IsNotNull(authenticators.WithDefault(__noAuthenticators), "authenticators").ToList();
             _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
             _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
         }
@@ -67,34 +66,10 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>))
         {
-            if (authenticators.Replaces(_authenticators, __authenticatorsComparer) ||
-                maxIdleTime.Replaces(_maxIdleTime) ||
-                maxLifeTime.Replaces(_maxLifeTime))
-            {
-                return new ConnectionSettings(
-                    Optional.Arg(authenticators.WithDefault(_authenticators)),
-                    maxIdleTime.WithDefault(_maxIdleTime),
-                    maxLifeTime.WithDefault(_maxLifeTime));
-            }
-            else
-            {
-                return this;
-            }
-        }
-
-        // nested types
-        private class AuthenticatorsComparer : IEqualityComparer<IEnumerable<IAuthenticator>>
-        {
-            public bool Equals(IEnumerable<IAuthenticator> x, IEnumerable<IAuthenticator> y)
-            {
-                if (x == null) { return y == null; }
-                return x.SequenceEqual(y);
-            }
-
-            public int GetHashCode(IEnumerable<IAuthenticator> x)
-            {
-                return 1;
-            }
+            return new ConnectionSettings(
+                authenticators: Optional.Create(authenticators.WithDefault(_authenticators)),
+                maxIdleTime: maxIdleTime.WithDefault(_maxIdleTime),
+                maxLifeTime: maxLifeTime.WithDefault(_maxLifeTime));
         }
     }
 }
