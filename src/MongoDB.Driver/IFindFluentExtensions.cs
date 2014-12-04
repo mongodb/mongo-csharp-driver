@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Utils;
@@ -30,6 +31,22 @@ namespace MongoDB.Driver
     /// </summary>
     public static class IFindFluentExtensions
     {
+        /// <summary>
+        /// Projections the specified source.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
+        /// <returns></returns>
+        public static IFindFluent<TDocument, BsonDocument> Projection<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, object projection)
+        {
+            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(projection, "projection");
+
+            return source.Projection<BsonDocument>(projection, BsonDocumentSerializer.Instance);
+        }
+
         /// <summary>
         /// Sorts the by.
         /// </summary>

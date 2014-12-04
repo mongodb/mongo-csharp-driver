@@ -28,6 +28,39 @@ namespace MongoDB.Driver.Tests
     public class IAggregateFluentExtensionsTests
     {
         [Test]
+        public void Group_should_generate_the_correct_group_when_a_result_type_is_not_specified()
+        {
+            var subject = CreateSubject()
+                .Group(new { _id = "$Tags" });
+
+            var expectedGroup = BsonDocument.Parse("{$group: {_id: '$Tags'}}");
+
+            Assert.AreEqual(expectedGroup, subject.Pipeline.Last());
+        }
+
+        [Test]
+        public void Match_should_generate_the_correct_match()
+        {
+            var subject = CreateSubject()
+                .Match(x => x.Age > 20);
+
+            var expectedMatch = BsonDocument.Parse("{$match: {Age: {$gt: 20}}}");
+
+            Assert.AreEqual(expectedMatch, subject.Pipeline.Last());
+        }
+
+        [Test]
+        public void Project_should_generate_the_correct_group_when_a_result_type_is_not_specified()
+        {
+            var subject = CreateSubject()
+                .Project(new { Awesome = "$Tags" });
+
+            var expectedProject = BsonDocument.Parse("{$project: {Awesome: '$Tags'}}");
+
+            Assert.AreEqual(expectedProject, subject.Pipeline.Last());
+        }
+
+        [Test]
         public void SortBy_should_generate_the_correct_sort()
         {
             var subject = CreateSubject()
