@@ -608,7 +608,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 try
                 {
-                    await protocol.ExecuteAsync(_connection, cancellationToken);
+                    await protocol.ExecuteAsync(_connection, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -621,7 +621,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 try
                 {
-                    return await protocol.ExecuteAsync(_connection, cancellationToken);
+                    return await protocol.ExecuteAsync(_connection, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Connections
 
             if (_settings.ConnectTimeout == Timeout.InfiniteTimeSpan)
             {
-                await connectTask;
+                await connectTask.ConfigureAwait(false);
                 return;
             }
 
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Connections
                     throw new TimeoutException(message);
                 }
 
-                await connectTask;
+                await connectTask.ConfigureAwait(false);
             }
         }
     }

@@ -45,11 +45,11 @@ namespace MongoDB.Driver
             using (source)
             {
                 var index = 0;
-                while (await source.MoveNextAsync(cancellationToken))
+                while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     foreach (var document in source.Current)
                     {
-                        await processor(document, index++);
+                        await processor(document, index++).ConfigureAwait(false);
                         cancellationToken.ThrowIfCancellationRequested();
                     }
                 }
@@ -66,7 +66,7 @@ namespace MongoDB.Driver
             // exhausted the thing and don't need it anymore.
             using (source)
             {
-                while (await source.MoveNextAsync(cancellationToken))
+                while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     list.AddRange(source.Current);
                     cancellationToken.ThrowIfCancellationRequested();
