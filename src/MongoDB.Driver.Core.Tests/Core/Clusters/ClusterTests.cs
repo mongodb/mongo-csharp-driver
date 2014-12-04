@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Clusters
         [SetUp]
         public void Setup()
         {
-            _settings = new ClusterSettings().WithServerSelectionTimeout(TimeSpan.FromSeconds(2));
+            _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2));
             _serverFactory = Substitute.For<IClusterableServerFactory>();
             _clusterListener = Substitute.For<IClusterListener>();
         }
@@ -249,7 +249,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         private StubCluster CreateSubject(ClusterConnectionMode connectionMode = ClusterConnectionMode.Automatic)
         {
-            _settings = _settings.WithConnectionMode(connectionMode);
+            _settings = _settings.With(connectionMode: connectionMode);
 
             return new StubCluster(_settings, _serverFactory, _clusterListener);
         }

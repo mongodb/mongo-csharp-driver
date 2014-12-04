@@ -43,11 +43,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionFactory = Substitute.For<IConnectionFactory>();
             _endPoint = new DnsEndPoint("localhost", 27017);
             _serverId = new ServerId(new ClusterId(), _endPoint);
-            _settings = new ConnectionPoolSettings()
-                .WithMaintenanceInterval(Timeout.InfiniteTimeSpan)
-                .WithMaxConnections(4)
-                .WithMinConnections(2)
-                .WithWaitQueueSize(1);
+            _settings = new ConnectionPoolSettings(
+                maintenanceInterval: Timeout.InfiniteTimeSpan,
+                maxConnections: 4,
+                minConnections: 2,
+                waitQueueSize: 1);
         }
 
         [Test]

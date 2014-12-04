@@ -64,8 +64,7 @@ namespace MongoDB.Driver.Core.Servers
                 .ReturnsForAnyArgs(_heartbeatConnection);
 
             _listener = Substitute.For<IServerListener>();
-            _settings = new ServerSettings()
-                .WithHeartbeatInterval(Timeout.InfiniteTimeSpan);
+            _settings = new ServerSettings(heartbeatInterval: Timeout.InfiniteTimeSpan);
 
             _subject = new ClusterableServer(_settings, _clusterId, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
         }

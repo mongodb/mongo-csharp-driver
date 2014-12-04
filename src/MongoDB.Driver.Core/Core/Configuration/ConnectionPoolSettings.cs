@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -30,27 +31,18 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan _waitQueueTimeout;
 
         // constructors
-        public ConnectionPoolSettings()
+        public ConnectionPoolSettings(
+            Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
+            Optional<int> maxConnections = default(Optional<int>),
+            Optional<int> minConnections = default(Optional<int>),
+            Optional<int> waitQueueSize = default(Optional<int>),
+            Optional<TimeSpan> waitQueueTimeout = default(Optional<TimeSpan>))
         {
-            _maintenanceInterval = TimeSpan.FromMinutes(1);
-            _maxConnections = 100;
-            _minConnections = 0;
-            _waitQueueSize = _maxConnections * 5;
-            _waitQueueTimeout = TimeSpan.FromMinutes(2);
-        }
-
-        private ConnectionPoolSettings(
-            TimeSpan maintenanceInterval,
-            int maxConnections,
-            int minConnections,
-            int waitQueueSize,
-            TimeSpan waitQueueTimeout)
-        {
-            _maintenanceInterval = maintenanceInterval;
-            _maxConnections = maxConnections;
-            _minConnections = minConnections;
-            _waitQueueSize = waitQueueSize;
-            _waitQueueTimeout = waitQueueTimeout;
+            _maintenanceInterval = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(maintenanceInterval.WithDefault(TimeSpan.FromMinutes(1)), "maintenanceInterval");
+            _maxConnections = Ensure.IsGreaterThanZero(maxConnections.WithDefault(100), "maxConnections");
+            _minConnections = Ensure.IsGreaterThanOrEqualToZero(minConnections.WithDefault(0), "minConnections");
+            _waitQueueSize = Ensure.IsGreaterThanOrEqualToZero(waitQueueSize.WithDefault(_maxConnections * 5), "waitQueueSize");
+            _waitQueueTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(waitQueueTimeout.WithDefault(TimeSpan.FromMinutes(2)), "waitQueueTimeout");
         }
 
         // properties
@@ -80,60 +72,29 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // methods
-        public ConnectionPoolSettings WithMaintenanceInterval(TimeSpan value)
+        public ConnectionPoolSettings With (
+            Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
+            Optional<int> maxConnections = default(Optional<int>),
+            Optional<int> minConnections = default(Optional<int>),
+            Optional<int> waitQueueSize = default(Optional<int>),
+            Optional<TimeSpan> waitQueueTimeout = default(Optional<TimeSpan>))
         {
-            return (_maintenanceInterval == value) ? this : new Builder(this) { _maintenanceInterval = value }.Build();
-        }
-
-        public ConnectionPoolSettings WithMaxConnections(int value)
-        {
-            return (_maxConnections == value) ? this : new Builder(this) { _maxConnections = value }.Build();
-        }
-
-        public ConnectionPoolSettings WithMinConnections(int value)
-        {
-            return (_minConnections == value) ? this : new Builder(this) { _minConnections = value }.Build();
-        }
-
-        public ConnectionPoolSettings WithWaitQueueSize(int value)
-        {
-            return (_waitQueueSize == value) ? this : new Builder(this) { _waitQueueSize = value }.Build();
-        }
-
-        public ConnectionPoolSettings WithWaitQueueTimeout(TimeSpan value)
-        {
-            return (_waitQueueTimeout == value) ? this : new Builder(this) { _waitQueueTimeout = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public TimeSpan _maintenanceInterval;
-            public int _maxConnections;
-            public int _minConnections;
-            public int _waitQueueSize;
-            public TimeSpan _waitQueueTimeout;
-
-            // constructors
-            public Builder(ConnectionPoolSettings other)
-            {
-                _maintenanceInterval = other._maintenanceInterval;
-                _maxConnections = other._maxConnections;
-                _minConnections = other._minConnections;
-                _waitQueueSize = other._waitQueueSize;
-                _waitQueueTimeout = other._waitQueueTimeout;
-            }
-
-            // methods
-            public ConnectionPoolSettings Build()
+            if (maintenanceInterval.Replaces(_maintenanceInterval) ||
+                maxConnections.Replaces(_maxConnections) ||
+                minConnections.Replaces(_minConnections) ||
+                waitQueueSize.Replaces(_waitQueueSize) ||
+                waitQueueTimeout.Replaces(_waitQueueTimeout))
             {
                 return new ConnectionPoolSettings(
-                    _maintenanceInterval,
-                    _maxConnections,
-                    _minConnections,
-                    _waitQueueSize,
-                    _waitQueueTimeout);
+                    maintenanceInterval.WithDefault(_maintenanceInterval),
+                    maxConnections.WithDefault(_maxConnections),
+                    minConnections.WithDefault(_minConnections),
+                    waitQueueSize.WithDefault(_waitQueueSize),
+                    waitQueueTimeout.WithDefault(_waitQueueTimeout));
+            }
+            else
+            {
+                return this;
             }
         }
     }

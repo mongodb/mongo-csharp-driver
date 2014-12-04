@@ -21,6 +21,14 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
+    public static class Optional
+    {
+        public static Optional<T> Arg<T>(T value)
+        {
+            return new Optional<T>(value);
+        }
+    }
+
     public struct Optional<T>
     {
         private readonly bool _hasValue;
@@ -32,6 +40,23 @@ namespace MongoDB.Driver.Core.Misc
             _value = value;
         }
 
+        public bool HasValue
+        {
+            get { return _hasValue; }
+        }
+
+        public T Value
+        {
+            get
+            {
+                if (!_hasValue)
+                {
+                    throw new InvalidOperationException();
+                }
+                return _value;
+            }
+        }
+
         public static implicit operator Optional<T>(T value)
         {
             return new Optional<T>(value);
@@ -40,6 +65,11 @@ namespace MongoDB.Driver.Core.Misc
         public bool Replaces(T value)
         {
             return _hasValue && !object.Equals(_value, value);
+        }
+
+        public bool Replaces(T value, IEqualityComparer<T> comparer)
+        {
+            return _hasValue && !comparer.Equals(_value, value);
         }
 
         public T WithDefault(T value)

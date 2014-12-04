@@ -40,8 +40,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var oldSetting = AddressFamily.InterNetwork;
             var newSetting = AddressFamily.InterNetworkV6;
-            var subject1 = new TcpStreamSettings().WithAddressFamily(oldSetting);
-            var subject2 = subject1.WithAddressFamily(newSetting);
+            var subject1 = new TcpStreamSettings(addressFamily: oldSetting);
+            var subject2 = subject1.With(addressFamily: newSetting);
             subject2.Should().NotBeSameAs(subject1);
             subject1.AddressFamily.Should().Be(oldSetting);
             subject2.AddressFamily.Should().Be(newSetting);
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void WithAddressFamily_returns_same_instance_if_value_is_equal()
         {
             var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.WithAddressFamily(AddressFamily.InterNetwork);
+            var subject2 = subject1.With(addressFamily: AddressFamily.InterNetwork);
             subject2.Should().BeSameAs(subject1);
         }
 
@@ -60,8 +60,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var oldSetting = TimeSpan.FromMinutes(20);
             var newSetting = TimeSpan.FromMinutes(1);
-            var subject1 = new TcpStreamSettings().WithConnectTimeout(oldSetting);
-            var subject2 = subject1.WithConnectTimeout(newSetting);
+            var subject1 = new TcpStreamSettings(connectTimeout: oldSetting);
+            var subject2 = subject1.With(connectTimeout: newSetting);
             subject2.Should().NotBeSameAs(subject1);
             subject1.ConnectTimeout.Should().Be(oldSetting);
             subject2.ConnectTimeout.Should().Be(newSetting);
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void WithConnectTimeout_returns_same_instance_if_value_is_equal()
         {
             var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.WithConnectTimeout(subject1.ConnectTimeout);
+            var subject2 = subject1.With(connectTimeout: subject1.ConnectTimeout);
             subject2.Should().BeSameAs(subject1);
         }
 
@@ -80,8 +80,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var oldSetting = (TimeSpan?)null;
             var newSetting = TimeSpan.FromMinutes(1);
-            var subject1 = new TcpStreamSettings().WithReadTimeout(oldSetting);
-            var subject2 = subject1.WithReadTimeout(newSetting);
+            var subject1 = new TcpStreamSettings(readTimeout: oldSetting);
+            var subject2 = subject1.With(readTimeout: newSetting);
             subject2.Should().NotBeSameAs(subject1);
             subject1.ReadTimeout.Should().Be(oldSetting);
             subject2.ReadTimeout.Should().Be(newSetting);
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void WithReadTimeout_returns_same_instance_if_value_is_equal()
         {
             var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.WithReadTimeout(null);
+            var subject2 = subject1.With(readTimeout: null);
             subject2.Should().BeSameAs(subject1);
         }
 
@@ -100,8 +100,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var oldSetting = 10;
             var newSetting = 13;
-            var subject1 = new TcpStreamSettings().WithReceiveBufferSize(oldSetting);
-            var subject2 = subject1.WithReceiveBufferSize(newSetting);
+            var subject1 = new TcpStreamSettings(receiveBufferSize: oldSetting);
+            var subject2 = subject1.With(receiveBufferSize: newSetting);
             subject2.Should().NotBeSameAs(subject1);
             subject1.ReceiveBufferSize.Should().Be(oldSetting);
             subject2.ReceiveBufferSize.Should().Be(newSetting);
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void WithReceiveBufferSize_returns_same_instance_if_value_is_equal()
         {
             var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.WithReceiveBufferSize(64 * 1024);
+            var subject2 = subject1.With(receiveBufferSize: 64 * 1024);
             subject2.Should().BeSameAs(subject1);
         }
 
@@ -120,8 +120,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var oldSetting = 10;
             var newSetting = 13;
-            var subject1 = new TcpStreamSettings().WithSendBufferSize(oldSetting);
-            var subject2 = subject1.WithSendBufferSize(newSetting);
+            var subject1 = new TcpStreamSettings(sendBufferSize: oldSetting);
+            var subject2 = subject1.With(sendBufferSize: newSetting);
             subject2.Should().NotBeSameAs(subject1);
             subject1.SendBufferSize.Should().Be(oldSetting);
             subject2.SendBufferSize.Should().Be(newSetting);
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void WithSendBufferSize_returns_same_instance_if_value_is_equal()
         {
             var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.WithSendBufferSize(64 * 1024);
+            var subject2 = subject1.With(sendBufferSize: 64 * 1024);
             subject2.Should().BeSameAs(subject1);
         }
 
@@ -140,8 +140,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var oldSetting = (TimeSpan?)null;
             var newSetting = TimeSpan.FromMinutes(1);
-            var subject1 = new TcpStreamSettings().WithWriteTimeout(oldSetting);
-            var subject2 = subject1.WithWriteTimeout(newSetting);
+            var subject1 = new TcpStreamSettings(writeTimeout: oldSetting);
+            var subject2 = subject1.With(writeTimeout: newSetting);
             subject2.Should().NotBeSameAs(subject1);
             subject1.WriteTimeout.Should().Be(oldSetting);
             subject2.WriteTimeout.Should().Be(newSetting);
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void WithWriteTimeout_returns_same_instance_if_value_is_equal()
         {
             var subject1 = new TcpStreamSettings();
-            var subject2 = subject1.WithWriteTimeout(null);
+            var subject2 = subject1.With(writeTimeout: null);
             subject2.Should().BeSameAs(subject1);
         }
     }

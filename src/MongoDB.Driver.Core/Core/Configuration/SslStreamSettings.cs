@@ -13,26 +13,27 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
 {
     public class SslStreamSettings
     {
+        #region static
+        private static readonly IEqualityComparer<IEnumerable<X509Certificate>> __certificatesComparer = new CertificatesComparer();
+        #endregion
+
         // fields
-        private bool _checkCertificateRevocation;
-        private IEnumerable<X509Certificate> _clientCertificates;
-        private LocalCertificateSelectionCallback _clientCertificateSelector;
-        private SslProtocols _enabledSslProtocols;
-        private RemoteCertificateValidationCallback _serverCertificateValidator;
+        private readonly bool _checkCertificateRevocation;
+        private readonly IEnumerable<X509Certificate> _clientCertificates;
+        private readonly LocalCertificateSelectionCallback _clientCertificateSelector;
+        private readonly SslProtocols _enabledSslProtocols;
+        private readonly RemoteCertificateValidationCallback _serverCertificateValidator;
 
         // constructors
         public SslStreamSettings(
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<SslProtocols> enabledProtocols = default(Optional<SslProtocols>),
             Optional<RemoteCertificateValidationCallback> serverCertificateValidator = default(Optional<RemoteCertificateValidationCallback>))
         {
-            _clientCertificates = clientCertificates.WithDefault(Enumerable.Empty<X509Certificate>());
+            _clientCertificates = clientCertificates.WithDefault(null) ?? Enumerable.Empty<X509Certificate>();
             _checkCertificateRevocation = checkCertificateRevocation.WithDefault(true);
             _clientCertificateSelector = clientCertificateSelector.WithDefault(null);
             _enabledSslProtocols = enabledProtocols.WithDefault(SslProtocols.Default);
@@ -83,12 +84,38 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<SslProtocols> enabledProtocols = default(Optional<SslProtocols>),
             Optional<RemoteCertificateValidationCallback> serverCertificateValidator = default(Optional<RemoteCertificateValidationCallback>))
         {
-            return new SslStreamSettings(
-                new Optional<IEnumerable<X509Certificate>>(clientCertificates.WithDefault(_clientCertificates)),
-                checkCertificateRevocation.WithDefault(_checkCertificateRevocation),
-                clientCertificateSelector.WithDefault(_clientCertificateSelector),
-                enabledProtocols.WithDefault(_enabledSslProtocols),
-                serverCertificateValidator.WithDefault(_serverCertificateValidator));
+            if (clientCertificates.Replaces(_clientCertificates, __certificatesComparer) ||
+                checkCertificateRevocation.Replaces(_checkCertificateRevocation) ||
+                clientCertificateSelector.Replaces(_clientCertificateSelector) ||
+                enabledProtocols.Replaces(_enabledSslProtocols) ||
+                serverCertificateValidator.Replaces(_serverCertificateValidator))
+            {
+                return new SslStreamSettings(
+                    Optional.Arg(clientCertificates.WithDefault(_clientCertificates)),
+                    checkCertificateRevocation.WithDefault(_checkCertificateRevocation),
+                    clientCertificateSelector.WithDefault(_clientCertificateSelector),
+                    enabledProtocols.WithDefault(_enabledSslProtocols),
+                    serverCertificateValidator.WithDefault(_serverCertificateValidator));
+            }
+            else
+            {
+                return this;
+            }
+        }
+
+        // nested types
+        private class CertificatesComparer : IEqualityComparer<IEnumerable<X509Certificate>>
+        {
+            public bool Equals(IEnumerable<X509Certificate> x, IEnumerable<X509Certificate> y)
+            {
+                if (x == null) { return y == null; }
+                return x.SequenceEqual(y);
+            }
+
+            public int GetHashCode(IEnumerable<X509Certificate> x)
+            {
+                return 1;
+            }
         }
     }
 }

@@ -37,8 +37,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var oldHeartbeatInterval = TimeSpan.FromSeconds(1);
             var newHeartbeatInterval = TimeSpan.FromSeconds(2);
-            var subject1 = new ServerSettings().WithHeartbeatInterval(oldHeartbeatInterval);
-            var subject2 = subject1.WithHeartbeatInterval(newHeartbeatInterval);
+            var subject1 = new ServerSettings(heartbeatInterval: oldHeartbeatInterval);
+            var subject2 = subject1.With(heartbeatInterval: newHeartbeatInterval);
             subject2.Should().NotBeSameAs(subject1);
             subject2.HeartbeatInterval.Should().Be(newHeartbeatInterval);
         }
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void WithHeartbeatInterval_returns_same_instance_if_value_is_equal()
         {
             var subject1 = new ServerSettings();
-            var subject2 = subject1.WithHeartbeatInterval(subject1.HeartbeatInterval);
+            var subject2 = subject1.With(heartbeatInterval: subject1.HeartbeatInterval);
             subject2.Should().BeSameAs(subject1);
         }
 
@@ -56,8 +56,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var oldHeartbeatTimeout = TimeSpan.FromSeconds(1);
             var newHeartbeatTimeout = TimeSpan.FromSeconds(2);
-            var subject1 = new ServerSettings().WithHeartbeatTimeout(oldHeartbeatTimeout);
-            var subject2 = subject1.WithHeartbeatTimeout(newHeartbeatTimeout);
+            var subject1 = new ServerSettings(heartbeatTimeout: oldHeartbeatTimeout);
+            var subject2 = subject1.With(heartbeatTimeout: newHeartbeatTimeout);
             subject2.Should().NotBeSameAs(subject1);
             subject2.HeartbeatTimeout.Should().Be(newHeartbeatTimeout);
         }
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Configuration
         public void WithHeartbeatTimeout_returns_same_instance_if_value_is_equal()
         {
             var subject1 = new ServerSettings();
-            var subject2 = subject1.WithHeartbeatTimeout(subject1.HeartbeatTimeout);
+            var subject2 = subject1.With(heartbeatTimeout: subject1.HeartbeatTimeout);
             subject2.Should().BeSameAs(subject1);
         }
     }

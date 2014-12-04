@@ -15,6 +15,7 @@
 
 using System;
 using System.Net.Sockets;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -34,12 +35,12 @@ namespace MongoDB.Driver.Core.Configuration
             _heartbeatTimeout = TimeSpan.FromSeconds(10);
         }
 
-        internal ServerSettings(
-            TimeSpan heartbeatInterval,
-            TimeSpan heartbeatTimeout)
+        public ServerSettings(
+            Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
+            Optional<TimeSpan> heartbeatTimeout = default(Optional<TimeSpan>))
         {
-            _heartbeatInterval = heartbeatInterval;
-            _heartbeatTimeout = heartbeatTimeout;
+            _heartbeatInterval = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(heartbeatInterval.WithDefault(TimeSpan.FromSeconds(10)), "heartbeatInterval");
+            _heartbeatTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(heartbeatTimeout.WithDefault(TimeSpan.FromSeconds(10)), "heartbeatTimeout");
         }
 
         // properties
@@ -54,36 +55,20 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // methods
-        public ServerSettings WithHeartbeatInterval(TimeSpan value)
+        public ServerSettings With(
+            Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
+            Optional<TimeSpan> heartbeatTimeout = default(Optional<TimeSpan>))
         {
-            return (_heartbeatInterval == value) ? this : new Builder(this) { _heartbeatInterval = value }.Build();
-        }
-
-        public ServerSettings WithHeartbeatTimeout(TimeSpan value)
-        {
-            return (_heartbeatTimeout == value) ? this : new Builder(this) { _heartbeatTimeout = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public TimeSpan _heartbeatInterval;
-            public TimeSpan _heartbeatTimeout;
-
-            // constructors
-            public Builder(ServerSettings other)
-            {
-                _heartbeatInterval = other._heartbeatInterval;
-                _heartbeatTimeout = other._heartbeatTimeout;
-            }
-
-            // methods
-            public ServerSettings Build()
+            if (heartbeatInterval.Replaces(_heartbeatInterval) ||
+                heartbeatTimeout.Replaces(_heartbeatTimeout))
             {
                 return new ServerSettings(
-                    _heartbeatInterval,
-                    _heartbeatTimeout);
+                    heartbeatInterval: heartbeatInterval.WithDefault(_heartbeatInterval),
+                    heartbeatTimeout: heartbeatTimeout.WithDefault(_heartbeatTimeout));
+            }
+            else
+            {
+                return this;
             }
         }
     }
