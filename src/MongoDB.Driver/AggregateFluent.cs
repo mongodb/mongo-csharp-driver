@@ -95,9 +95,10 @@ namespace MongoDB.Driver
             return AppendStage(new BsonDocument("$match", ConvertFilterToBsonDocument(filter)));
         }
 
-        public IAggregateFluent<TDocument, TResult> Out(string collectionName)
+        public Task<IAsyncCursor<TResult>> OutAsync(string collectionName)
         {
-            return AppendStage(new BsonDocument("$out", collectionName));
+            AppendStage(new BsonDocument("$out", collectionName));
+            return ToCursorAsync();
         }
 
         public IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project)

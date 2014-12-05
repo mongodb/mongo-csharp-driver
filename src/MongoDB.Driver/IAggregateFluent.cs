@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
@@ -95,7 +96,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">Name of the collection.</param>
         /// <returns></returns>
-        IAggregateFluent<TDocument, TResult> Out(string collectionName);
+        Task<IAsyncCursor<TResult>> OutAsync(string collectionName);
 
         /// <summary>
         /// Projects the specified project.
