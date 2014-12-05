@@ -50,9 +50,9 @@ namespace MongoDB.Driver.Operations
         // methods
         public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                var userExists = await UserExistsAsync(channelSource, cancellationToken);
+                var userExists = await UserExistsAsync(channelSource, cancellationToken).ConfigureAwait(false);
 
                 var roles = new BsonArray();
                 if (_databaseNamespace.DatabaseName == "admin")
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Operations
                 };
 
                 var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                await operation.ExecuteAsync(channelSource, cancellationToken);
+                await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
             }
 
             return true;
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Operations
             {
                 var command = new BsonDocument("usersInfo", _username);
                 var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                var result = await operation.ExecuteAsync(channelSource, ReadPreference.Primary, cancellationToken);
+                var result = await operation.ExecuteAsync(channelSource, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
 
                 BsonValue users;
                 if (result.TryGetValue("users", out users) && users.IsBsonArray && users.AsBsonArray.Count > 0)

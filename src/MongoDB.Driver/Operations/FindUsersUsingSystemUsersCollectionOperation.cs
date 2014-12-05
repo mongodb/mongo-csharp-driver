@@ -51,8 +51,8 @@ namespace MongoDB.Driver.Operations
             {
                 Filter = filter
             };
-            var cursor = await operation.ExecuteAsync(binding, cancellationToken);
-            return await cursor.ToListAsync(cancellationToken);
+            var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 }

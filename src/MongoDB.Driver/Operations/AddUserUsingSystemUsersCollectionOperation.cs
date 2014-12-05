@@ -51,11 +51,11 @@ namespace MongoDB.Driver.Operations
         // methods
         public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
                 var collectionNamespace = new CollectionNamespace(_databaseNamespace, "system.users");
 
-                var user = await FindUserAsync(channelSource, collectionNamespace, cancellationToken);
+                var user = await FindUserAsync(channelSource, collectionNamespace, cancellationToken).ConfigureAwait(false);
                 if (user == null)
                 {
                     user = new BsonDocument
@@ -64,13 +64,13 @@ namespace MongoDB.Driver.Operations
                         { "pwd", _passwordHash },
                         { "readOnly", _readOnly },
                     };
-                    await InsertUserAsync(channelSource, collectionNamespace, user, cancellationToken);
+                    await InsertUserAsync(channelSource, collectionNamespace, user, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
                     user["pwd"] = _passwordHash;
                     user["readOnly"] = _readOnly;
-                    await UpdateUserAsync(channelSource, collectionNamespace, user, cancellationToken);
+                    await UpdateUserAsync(channelSource, collectionNamespace, user, cancellationToken).ConfigureAwait(false);
                 }
             }
 
@@ -84,8 +84,8 @@ namespace MongoDB.Driver.Operations
                 Filter = new BsonDocument("user", _username),
                 Limit = -1
             };
-            var cursor = await operation.ExecuteAsync(channelSource, ReadPreference.Primary, cancellationToken);
-            var userDocuments = await cursor.ToListAsync();
+            var cursor = await operation.ExecuteAsync(channelSource, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
+            var userDocuments = await cursor.ToListAsync().ConfigureAwait(false);
             return userDocuments.FirstOrDefault();
         }
 
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Operations
         {
             var inserts = new[] { new InsertRequest(user) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, inserts, _messageEncoderSettings) { WriteConcern = WriteConcern.Acknowledged };
-            await operation.ExecuteAsync(channelSource, cancellationToken);
+            await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
         }
 
         private async Task UpdateUserAsync(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Operations
             var filter = new BsonDocument("_id", user["_id"]);
             var updates = new[] { new UpdateRequest(UpdateType.Replacement, filter, user) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, updates, _messageEncoderSettings) { WriteConcern = WriteConcern.Acknowledged };
-            await operation.ExecuteAsync(channelSource, cancellationToken);
+            await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
         }
     }
 }

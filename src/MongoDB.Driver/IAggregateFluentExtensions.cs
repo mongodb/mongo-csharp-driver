@@ -270,9 +270,9 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.First();
                 }
@@ -295,9 +295,9 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.FirstOrDefault();
                 }
@@ -321,9 +321,9 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.Single();
                 }
@@ -346,9 +346,9 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.SingleOrDefault();
                 }

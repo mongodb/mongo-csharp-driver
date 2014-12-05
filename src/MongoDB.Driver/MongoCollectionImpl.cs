@@ -122,7 +122,7 @@ namespace MongoDB.Driver
             else
             {
                 var operation = CreateAggregateOperation<TResult>(options, pipelineDocuments);
-                return await ExecuteReadOperation(operation, cancellationToken);
+                return await ExecuteReadOperation(operation, cancellationToken).ConfigureAwait(false);
             }
         }
 

@@ -33,7 +33,7 @@ namespace MongoDB.Driver
                 cancellationTokenSource.CancelAfter(timeout);
                 try
                 {
-                    return await operation.ExecuteAsync(binding, cancellationTokenSource.Token);
+                    return await operation.ExecuteAsync(binding, cancellationTokenSource.Token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException ex)
                 {
@@ -55,7 +55,7 @@ namespace MongoDB.Driver
                 cancellationTokenSource.CancelAfter(timeout);
                 try
                 {
-                    return await operation.ExecuteAsync(binding, cancellationTokenSource.Token);
+                    return await operation.ExecuteAsync(binding, cancellationTokenSource.Token).ConfigureAwait(false);
                 }
                 catch(OperationCanceledException ex)
                 {
