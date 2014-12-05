@@ -92,7 +92,7 @@ namespace MongoDB.Driver
 
         public IAggregateFluent<TDocument, TResult> Match(object filter)
         {
-            return AppendStage(new BsonDocument("$match", ConvertToBsonDocument(filter)));
+            return AppendStage(new BsonDocument("$match", ConvertFilterToBsonDocument(filter)));
         }
 
         public IAggregateFluent<TDocument, TResult> Out(string collectionName)
@@ -177,6 +177,11 @@ namespace MongoDB.Driver
         private BsonDocument ConvertToBsonDocument(object document)
         {
             return BsonDocumentHelper.ToBsonDocument(_collection.Settings.SerializerRegistry, document);
+        }
+
+        private BsonDocument ConvertFilterToBsonDocument(object filter)
+        {
+            return BsonDocumentHelper.FilterToBsonDocument<TResult>(_collection.Settings.SerializerRegistry, filter);
         }
     }
 }

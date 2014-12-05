@@ -16,16 +16,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
 {
@@ -161,7 +164,7 @@ namespace MongoDB.Driver
 
             var operation = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                Filter = ConvertToBsonDocument(filter),
+                Filter = ConvertFilterToBsonDocument(filter),
                 Hint = options.Hint is string ? BsonValue.Create((string)options.Hint) : ConvertToBsonDocument(options.Hint),
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
@@ -206,7 +209,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(filter, "filter");
 
-            var model = new DeleteManyModel<TDocument>(ConvertToBsonDocument(filter));
+            var model = new DeleteManyModel<TDocument>(filter);
             try
             {
                 var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
@@ -222,7 +225,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(filter, "filter");
 
-            var model = new DeleteOneModel<TDocument>(ConvertToBsonDocument(filter));
+            var model = new DeleteOneModel<TDocument>(filter);
             try
             {
                 var result = await BulkWriteAsync(new[] { model }, null, cancellationToken).ConfigureAwait(false);
@@ -248,17 +251,11 @@ namespace MongoDB.Driver
                 fieldName,
                 _messageEncoderSettings)
             {
-                Filter = ConvertToBsonDocument(filter),
+                Filter = ConvertFilterToBsonDocument(filter),
                 MaxTime = options.MaxTime
             };
 
             return ExecuteReadOperation(operation, cancellationToken);
-        }
-
-        public FindFluent<TDocument, TDocument> Find(object filter)
-        {
-            var options = new FindOptions<TDocument>();
-            return new FindFluent<TDocument, TDocument>(this, filter, options);
         }
 
         public Task DropIndexAsync(string name, CancellationToken cancellationToken)
@@ -280,12 +277,38 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
+        public FindFluent<TDocument, TDocument> Find(object filter)
+        {
+            var options = new FindOptions<TDocument>();
+            return new FindFluent<TDocument, TDocument>(this, filter, options);
+        }
+
         public Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
 
             options = options ?? new FindOptions<TResult>();
-            var operation = CreateFindOperation<TResult>(filter, options);
+            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
+
+            var operation = new FindOperation<TResult>(
+                _collectionNamespace,
+                resultSerializer,
+                _messageEncoderSettings)
+            {
+                AllowPartialResults = options.AllowPartialResults,
+                BatchSize = options.BatchSize,
+                Comment = options.Comment,
+                CursorType = options.CursorType.ToCore(),
+                Filter = ConvertFilterToBsonDocument(filter),
+                Limit = options.Limit,
+                MaxTime = options.MaxTime,
+                Modifiers = options.Modifiers,
+                NoCursorTimeout = options.NoCursorTimeout,
+                Projection = ConvertToBsonDocument(options.Projection),
+                Skip = options.Skip,
+                Sort = ConvertToBsonDocument(options.Sort),
+            };
+
             return ExecuteReadOperation(operation, cancellationToken);
         }
 
@@ -303,7 +326,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOneAndDeleteOperation<TResult>(
                 _collectionNamespace,
-                ConvertToBsonDocument(filter),
+                ConvertFilterToBsonDocument(filter),
                 new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
             {
@@ -331,7 +354,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOneAndReplaceOperation<TResult>(
                 _collectionNamespace,
-                ConvertToBsonDocument(filter),
+                ConvertFilterToBsonDocument(filter),
                 ConvertToBsonDocument(replacementObject),
                 new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
@@ -361,7 +384,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOneAndUpdateOperation<TResult>(
                 _collectionNamespace,
-                ConvertToBsonDocument(filter),
+                ConvertFilterToBsonDocument(filter),
                 ConvertToBsonDocument(update),
                 new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
@@ -495,14 +518,14 @@ namespace MongoDB.Driver
                     };
                 case WriteModelType.DeleteMany:
                     var removeManyModel = (DeleteManyModel<TDocument>)model;
-                    return new DeleteRequest(ConvertToBsonDocument(removeManyModel.Filter))
+                    return new DeleteRequest(ConvertFilterToBsonDocument(removeManyModel.Filter))
                     {
                         CorrelationId = index,
                         Limit = 0
                     };
                 case WriteModelType.DeleteOne:
                     var removeOneModel = (DeleteOneModel<TDocument>)model;
-                    return new DeleteRequest(ConvertToBsonDocument(removeOneModel.Filter))
+                    return new DeleteRequest(ConvertFilterToBsonDocument(removeOneModel.Filter))
                     {
                         CorrelationId = index,
                         Limit = 1
@@ -511,7 +534,7 @@ namespace MongoDB.Driver
                     var replaceOneModel = (ReplaceOneModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Replacement,
-                        ConvertToBsonDocument(replaceOneModel.Filter),
+                        ConvertFilterToBsonDocument(replaceOneModel.Filter),
                         new BsonDocumentWrapper(replaceOneModel.Replacement, _serializer))
                     {
                         CorrelationId = index,
@@ -522,7 +545,7 @@ namespace MongoDB.Driver
                     var updateManyModel = (UpdateManyModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Update,
-                        ConvertToBsonDocument(updateManyModel.Filter),
+                        ConvertFilterToBsonDocument(updateManyModel.Filter),
                         ConvertToBsonDocument(updateManyModel.Update))
                     {
                         CorrelationId = index,
@@ -533,7 +556,7 @@ namespace MongoDB.Driver
                     var updateOneModel = (UpdateOneModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Update,
-                        ConvertToBsonDocument(updateOneModel.Filter),
+                        ConvertFilterToBsonDocument(updateOneModel.Filter),
                         ConvertToBsonDocument(updateOneModel.Update))
                     {
                         CorrelationId = index,
@@ -548,6 +571,11 @@ namespace MongoDB.Driver
         private BsonDocument ConvertToBsonDocument(object document)
         {
             return BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, document);
+        }
+
+        private BsonDocument ConvertFilterToBsonDocument(object filter)
+        {
+            return BsonDocumentHelper.FilterToBsonDocument<TDocument>(_settings.SerializerRegistry, filter);
         }
 
         private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
@@ -580,30 +608,6 @@ namespace MongoDB.Driver
                 BatchSize = options.BatchSize,
                 MaxTime = options.MaxTime,
                 UseCursor = options.UseCursor
-            };
-        }
-
-        private FindOperation<TResult> CreateFindOperation<TResult>(object filter, FindOptions<TResult> options)
-        {
-            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
-
-            return new FindOperation<TResult>(
-                _collectionNamespace,
-                resultSerializer,
-                _messageEncoderSettings)
-            {
-                AllowPartialResults = options.AllowPartialResults,
-                BatchSize = options.BatchSize,
-                Comment = options.Comment,
-                CursorType = options.CursorType.ToCore(),
-                Filter = ConvertToBsonDocument(filter),
-                Limit = options.Limit,
-                MaxTime = options.MaxTime,
-                Modifiers = options.Modifiers,
-                NoCursorTimeout = options.NoCursorTimeout,
-                Projection = ConvertToBsonDocument(options.Projection),
-                Skip = options.Skip,
-                Sort = ConvertToBsonDocument(options.Sort),
             };
         }
 

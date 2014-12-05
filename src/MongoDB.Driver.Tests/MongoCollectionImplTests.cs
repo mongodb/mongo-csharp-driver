@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -560,6 +561,50 @@ namespace MongoDB.Driver
             operation.Comment.Should().Be("funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(filter);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.Modifiers.Should().Be(options.Modifiers);
+            operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+            operation.Projection.Should().Be(projection);
+            operation.Skip.Should().Be(options.Skip);
+            operation.Sort.Should().Be(sort);
+        }
+
+        [Test]
+        public async Task Find_with_an_expression_should_execute_correctly()
+        {
+            Expression<Func<BsonDocument, bool>> filter = doc => doc["x"] == 1;
+            var projection = BsonDocument.Parse("{y:1}");
+            var sort = BsonDocument.Parse("{a:1}");
+            var fluent = _subject.Find(filter)
+                .Projection<BsonDocument>(projection)
+                .Sort(sort)
+                .AllowPartialResults(true)
+                .BatchSize(20)
+                .Comment("funny")
+                .CursorType(CursorType.TailableAwait)
+                .Limit(30)
+                .MaxTime(TimeSpan.FromSeconds(3))
+                .Modifiers(BsonDocument.Parse("{$snapshot: true}"))
+                .NoCursorTimeout(true)
+                .Skip(40);
+            var options = fluent.Options;
+
+            var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(fakeCursor);
+
+            await fluent.ToCursorAsync(CancellationToken.None);
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+
+            call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
+            var operation = (FindOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
+            operation.BatchSize.Should().Be(options.BatchSize);
+            operation.Comment.Should().Be("funny");
+            operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
+            operation.Filter.Should().Be(BsonDocument.Parse("{x:1}"));
             operation.Limit.Should().Be(options.Limit);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);

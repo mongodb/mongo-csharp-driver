@@ -62,11 +62,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(filter, "filter");
 
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(filter.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
-            var filterDocument = new QueryBuilder<TResult>(helper).Where(filter).ToBsonDocument();
-
-            return source.Match(filterDocument);
+            return source.Match(filter);
         }
 
         /// <summary>

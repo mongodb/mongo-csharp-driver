@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq.Expressions;
 using System.Threading;
 using MongoDB.Bson;
 using NSubstitute;
@@ -29,9 +31,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             subject.CountAsync(x => x.FirstName == "Jack");
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().CountAsync(expectedFilter, null, default(CancellationToken));
+            subject.Received().CountAsync(Arg.Any<object>(), null, default(CancellationToken));
         }
 
         [Test]
@@ -40,9 +40,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             subject.DeleteManyAsync(x => x.FirstName == "Jack");
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().DeleteManyAsync(expectedFilter, default(CancellationToken));
+            subject.Received().DeleteManyAsync(Arg.Any<object>(), default(CancellationToken));
         }
 
         [Test]
@@ -51,9 +49,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             subject.DeleteOneAsync(x => x.FirstName == "Jack");
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().DeleteOneAsync(expectedFilter, default(CancellationToken));
+            subject.Received().DeleteOneAsync(Arg.Any<object>(), default(CancellationToken));
         }
 
         [Test]
@@ -63,24 +59,12 @@ namespace MongoDB.Driver.Tests
             subject.DistinctAsync(x => x.LastName, x => x.FirstName == "Jack");
 
             var expectedFieldName = "LastName";
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
 
             subject.Received().DistinctAsync(
                 expectedFieldName,
-                expectedFilter,
+                Arg.Any<object>(),
                 Arg.Is<DistinctOptions<string>>(opt => opt.ResultSerializer != null),
                 default(CancellationToken));
-        }
-
-        [Test]
-        public void Find_with_an_expression_should_create_the_correct_find_fluent()
-        {
-            var subject = CreateSubject();
-            var fluent = subject.Find(x => x.FirstName == "Jack");
-
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            Assert.AreEqual(expectedFilter, fluent.Filter);
         }
 
         [Test]
@@ -89,9 +73,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack");
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().FindOneAndDeleteAsync(expectedFilter, null, default(CancellationToken));
+            subject.Received().FindOneAndDeleteAsync(Arg.Any<object>(), null, default(CancellationToken));
         }
 
         [Test]
@@ -101,9 +83,7 @@ namespace MongoDB.Driver.Tests
             var options = new FindOneAndDeleteOptions<BsonDocument>();
             subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack", options);
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().FindOneAndDeleteAsync<BsonDocument>(expectedFilter, options, default(CancellationToken));
+            subject.Received().FindOneAndDeleteAsync<BsonDocument>(Arg.Any<object>(), options, default(CancellationToken));
         }
 
         [Test]
@@ -113,9 +93,7 @@ namespace MongoDB.Driver.Tests
             var replacement = new Person();
             subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement);
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().FindOneAndReplaceAsync(expectedFilter, replacement, null, default(CancellationToken));
+            subject.Received().FindOneAndReplaceAsync(Arg.Any<object>(), replacement, null, default(CancellationToken));
         }
 
         [Test]
@@ -126,9 +104,7 @@ namespace MongoDB.Driver.Tests
             var options = new FindOneAndReplaceOptions<BsonDocument>();
             subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement, options);
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().FindOneAndReplaceAsync<BsonDocument>(expectedFilter, replacement, options, default(CancellationToken));
+            subject.Received().FindOneAndReplaceAsync<BsonDocument>(Arg.Any<object>(), replacement, options, default(CancellationToken));
         }
 
         [Test]
@@ -138,9 +114,7 @@ namespace MongoDB.Driver.Tests
             var update = new BsonDocument();
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update);
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().FindOneAndUpdateAsync(expectedFilter, update, null, default(CancellationToken));
+            subject.Received().FindOneAndUpdateAsync(Arg.Any<object>(), update, null, default(CancellationToken));
         }
 
         [Test]
@@ -151,11 +125,10 @@ namespace MongoDB.Driver.Tests
                 x => x.FirstName == "Jack",
                 ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10));
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
             var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
 
             subject.Received().FindOneAndUpdateAsync(
-                expectedFilter,
+                Arg.Any<object>(),
                 Arg.Is<object>(o => Matches(o, expectedUpdate)),
                 null,
                 default(CancellationToken));
@@ -169,9 +142,7 @@ namespace MongoDB.Driver.Tests
             var options = new FindOneAndUpdateOptions<BsonDocument>();
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().FindOneAndUpdateAsync<BsonDocument>(expectedFilter, update, options, default(CancellationToken));
+            subject.Received().FindOneAndUpdateAsync<BsonDocument>(Arg.Any<object>(), update, options, default(CancellationToken));
         }
 
         [Test]
@@ -184,11 +155,10 @@ namespace MongoDB.Driver.Tests
                 ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10), 
                 options);
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
             var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
 
             subject.Received().FindOneAndUpdateAsync<BsonDocument>(
-                expectedFilter,
+                Arg.Any<object>(),
                 Arg.Is<object>(o => Matches(o, expectedUpdate)),
                 options, 
                 default(CancellationToken));
@@ -201,9 +171,7 @@ namespace MongoDB.Driver.Tests
             var replacement = new Person();
             subject.ReplaceOneAsync(x => x.FirstName == "Jack", replacement);
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().ReplaceOneAsync(expectedFilter, replacement, null, default(CancellationToken));
+            subject.Received().ReplaceOneAsync(Arg.Any<object>(), replacement, null, default(CancellationToken));
         }
 
         [Test]
@@ -213,9 +181,8 @@ namespace MongoDB.Driver.Tests
             var update = new BsonDocument();
             subject.UpdateManyAsync(x => x.FirstName == "Jack", update);
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
 
-            subject.Received().UpdateManyAsync(expectedFilter, update, null, default(CancellationToken));
+            subject.Received().UpdateManyAsync(Arg.Any<object>(), update, null, default(CancellationToken));
         }
 
         [Test]
@@ -226,10 +193,10 @@ namespace MongoDB.Driver.Tests
                 x => x.FirstName == "Jack",
                 ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10));
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
             var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
 
-            subject.Received().UpdateManyAsync(expectedFilter,
+            subject.Received().UpdateManyAsync(
+                Arg.Any<object>(),
                 Arg.Is<object>(o => Matches(o, expectedUpdate)),
                 null,
                 default(CancellationToken));
@@ -242,9 +209,7 @@ namespace MongoDB.Driver.Tests
             var update = new BsonDocument();
             subject.UpdateOneAsync(x => x.FirstName == "Jack", update);
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
-
-            subject.Received().UpdateOneAsync(expectedFilter, update, null, default(CancellationToken));
+            subject.Received().UpdateOneAsync(Arg.Any<object>(), update, null, default(CancellationToken));
         }
 
         [Test]
@@ -255,10 +220,10 @@ namespace MongoDB.Driver.Tests
                 x => x.FirstName == "Jack",
                 ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10));
 
-            var expectedFilter = new BsonDocument("FirstName", "Jack");
             var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
 
-            subject.Received().UpdateOneAsync(expectedFilter,
+            subject.Received().UpdateOneAsync(
+                Arg.Any<object>(),
                 Arg.Is<object>(o => Matches(o, expectedUpdate)),
                 null,
                 default(CancellationToken));
