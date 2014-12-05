@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -76,36 +77,37 @@ namespace MongoDB.Driver.Communication
 
         private ClusterSettings CreateClusterSettings(ClusterKey clusterKey)
         {
-            var endPoints = clusterKey.Servers.Select(s => new DnsEndPoint(s.Host, s.Port));
-            return new ClusterSettings()
-                .WithConnectionMode(clusterKey.ConnectionMode.ToCore())
-                .WithEndPoints(endPoints)
-                .WithReplicaSetName(clusterKey.ReplicaSetName);
+            var endPoints = clusterKey.Servers.Select(s => (EndPoint)new DnsEndPoint(s.Host, s.Port));
+            return new ClusterSettings(
+                connectionMode: clusterKey.ConnectionMode.ToCore(),
+                endPoints: Optional.Create(endPoints),
+                replicaSetName: clusterKey.ReplicaSetName);
         }
 
         private ConnectionPoolSettings CreateConnectionPoolSettings(ClusterKey clusterKey)
         {
-            return new ConnectionPoolSettings()
-                // .WithMaintenanceInterval(_connectionPoolMaintenanceInterval) // TODO: is this configurable?
-                .WithMaxConnections(clusterKey.MaxConnectionPoolSize)
-                .WithMinConnections(clusterKey.MinConnectionPoolSize)
-                .WithWaitQueueSize(clusterKey.WaitQueueSize)
-                .WithWaitQueueTimeout(clusterKey.WaitQueueTimeout);
+            return new ConnectionPoolSettings(
+                // maintenanceInterval: TODO: should this be configurable?
+                maxConnections: clusterKey.MaxConnectionPoolSize,
+                minConnections: clusterKey.MinConnectionPoolSize,
+                waitQueueSize: clusterKey.WaitQueueSize,
+                waitQueueTimeout: clusterKey.WaitQueueTimeout);
         }
 
         private ConnectionSettings CreateConnectionSettings(ClusterKey clusterKey)
         {
-            return new ConnectionSettings()
-                .WithAuthenticators(clusterKey.Credentials.Select(c => c.ToAuthenticator()))
-                .WithMaxIdleTime(clusterKey.MaxConnectionIdleTime)
-                .WithMaxLifeTime(clusterKey.MaxConnectionLifeTime);
+            var authenticators = clusterKey.Credentials.Select(c => c.ToAuthenticator());
+            return new ConnectionSettings(
+                authenticators: Optional.Create(authenticators),
+                maxIdleTime: clusterKey.MaxConnectionIdleTime,
+                maxLifeTime: clusterKey.MaxConnectionLifeTime);
         }
 
         private ServerSettings CreateServerSettings(ClusterKey clusterKey)
         {
-            return new ServerSettings()
-                .WithHeartbeatInterval(clusterKey.HeartbeatInterval)
-                .WithHeartbeatTimeout(clusterKey.HeartbeatTimeout);
+            return new ServerSettings(
+                heartbeatInterval: clusterKey.HeartbeatInterval,
+                heartbeatTimeout: clusterKey.HeartbeatTimeout);
         }
 
         private IStreamFactory CreateStreamFactory(ClusterKey clusterKey)
@@ -116,11 +118,11 @@ namespace MongoDB.Driver.Communication
             if (clusterKey.SslSettings != null)
             {
                 var sslStreamSettings = new SslStreamSettings(
-                    new Optional<IEnumerable<X509Certificate>>(clusterKey.SslSettings.ClientCertificates),
-                    clusterKey.SslSettings.CheckCertificateRevocation,
-                    clusterKey.SslSettings.ClientCertificateSelectionCallback,
-                    clusterKey.SslSettings.EnabledSslProtocols,
-                    clusterKey.SslSettings.ServerCertificateValidationCallback);
+                    clientCertificates: Optional.Create(clusterKey.SslSettings.ClientCertificates ?? Enumerable.Empty<X509Certificate>()),
+                    checkCertificateRevocation: clusterKey.SslSettings.CheckCertificateRevocation,
+                    clientCertificateSelectionCallback: clusterKey.SslSettings.ClientCertificateSelectionCallback,
+                    enabledProtocols: clusterKey.SslSettings.EnabledSslProtocols,
+                    serverCertificateValidationCallback: clusterKey.SslSettings.ServerCertificateValidationCallback);
 
                 streamFactory = new SslStreamFactory(sslStreamSettings, streamFactory);
             }
@@ -130,12 +132,12 @@ namespace MongoDB.Driver.Communication
 
         private TcpStreamSettings CreateTcpStreamSettings(ClusterKey clusterKey)
         {
-            return new TcpStreamSettings()
-                .WithConnectTimeout(clusterKey.ConnectTimeout)
-                .WithReadTimeout(clusterKey.SocketTimeout)
-                .WithReceiveBufferSize(clusterKey.ReceiveBufferSize)
-                .WithSendBufferSize(clusterKey.SendBufferSize)
-                .WithWriteTimeout(clusterKey.SocketTimeout);
+            return new TcpStreamSettings(
+                connectTimeout: clusterKey.ConnectTimeout,
+                readTimeout: clusterKey.SocketTimeout,
+                receiveBufferSize: clusterKey.ReceiveBufferSize,
+                sendBufferSize: clusterKey.SendBufferSize,
+                writeTimeout: clusterKey.SocketTimeout);
         }
 
         private ICluster GetOrCreateCluster(ClusterKey clusterKey)

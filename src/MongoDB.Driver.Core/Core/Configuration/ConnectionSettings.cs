@@ -29,26 +29,19 @@ namespace MongoDB.Driver.Core.Configuration
         #endregion
 
         // fields
-        private readonly IReadOnlyList<IAuthenticator> _authenticators = __noAuthenticators;
+        private readonly IReadOnlyList<IAuthenticator> _authenticators;
         private readonly TimeSpan _maxIdleTime;
         private readonly TimeSpan _maxLifeTime;
 
         // constructors
-        public ConnectionSettings()
+        public ConnectionSettings(
+            Optional<IEnumerable<IAuthenticator>> authenticators = default(Optional<IEnumerable<IAuthenticator>>),
+            Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
+            Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>))
         {
-            _authenticators = new List<IAuthenticator>();
-            _maxIdleTime = TimeSpan.FromMinutes(10);
-            _maxLifeTime = TimeSpan.FromMinutes(30);
-        }
-
-        private ConnectionSettings(
-            IReadOnlyList<IAuthenticator> authenticators,
-            TimeSpan maxIdleTime,
-            TimeSpan maxLifeTime)
-        {
-            _authenticators = authenticators;
-            _maxIdleTime = maxIdleTime;
-            _maxLifeTime = maxLifeTime;
+            _authenticators = Ensure.IsNotNull(authenticators.WithDefault(__noAuthenticators), "authenticators").ToList();
+            _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
+            _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
         }
 
         // properties
@@ -68,54 +61,15 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // methods
-        public ConnectionSettings WithAuthenticators(IEnumerable<IAuthenticator> value)
+        public ConnectionSettings With(
+            Optional<IEnumerable<IAuthenticator>> authenticators = default(Optional<IEnumerable<IAuthenticator>>),
+            Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
+            Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>))
         {
-            Ensure.IsNotNull(value, "value");
-
-            if (object.ReferenceEquals(_authenticators, value))
-            {
-                return this;
-            }
-
-            return _authenticators.SequenceEqual(value) ? this : new Builder(this) { _authenticators = value.ToList() }.Build();
-        }
-
-        public ConnectionSettings WithMaxIdleTime(TimeSpan value)
-        {
-            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(value, "value");
-            return (_maxIdleTime == value) ? this : new Builder(this) { _maxIdleTime = value }.Build();
-        }
-
-        public ConnectionSettings WithMaxLifeTime(TimeSpan value)
-        {
-            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(value, "value");
-            return (_maxLifeTime == value) ? this : new Builder(this) { _maxLifeTime = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public IReadOnlyList<IAuthenticator> _authenticators;
-            public TimeSpan _maxIdleTime;
-            public TimeSpan _maxLifeTime;
-
-            // constructors
-            public Builder(ConnectionSettings other)
-            {
-                _authenticators = other._authenticators;
-                _maxIdleTime = other._maxIdleTime;
-                _maxLifeTime = other._maxLifeTime;
-            }
-
-            // methods
-            public ConnectionSettings Build()
-            {
-                return new ConnectionSettings(
-                    _authenticators,
-                    _maxIdleTime,
-                    _maxLifeTime);
-            }
+            return new ConnectionSettings(
+                authenticators: Optional.Create(authenticators.WithDefault(_authenticators)),
+                maxIdleTime: maxIdleTime.WithDefault(_maxIdleTime),
+                maxLifeTime: maxLifeTime.WithDefault(_maxLifeTime));
         }
     }
 }

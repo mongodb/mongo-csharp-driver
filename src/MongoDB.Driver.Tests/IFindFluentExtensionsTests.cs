@@ -24,6 +24,17 @@ namespace MongoDB.Driver.Tests
     public class IFindFluentExtensionsTests
     {
         [Test]
+        public void Projection_should_generate_the_correct_fields_when_a_result_type_is_not_specified()
+        {
+            var subject = CreateSubject()
+                .Projection(BsonDocument.Parse("{_id: 1, Tags: 1}"));
+
+            var expectedProject = BsonDocument.Parse("{_id: 1, Tags: 1}");
+
+            Assert.AreEqual(expectedProject, subject.Options.Projection);
+        }
+
+        [Test]
         public void SortBy_should_generate_the_correct_sort()
         {
             var subject = CreateSubject();

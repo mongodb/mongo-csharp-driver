@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Configuration
     {
         #region static
         // static fields
-        private readonly IReadOnlyList<EndPoint> __defaultEndPoints = new EndPoint[] { new DnsEndPoint("localhost", 27017) };
+        private static readonly IReadOnlyList<EndPoint> __defaultEndPoints = new EndPoint[] { new DnsEndPoint("localhost", 27017) };
         #endregion
 
         // fields
@@ -40,25 +40,18 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan _serverSelectionTimeout;
 
         // constructors
-        public ClusterSettings()
+        public ClusterSettings(
+            Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
+            Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
+            Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
+            Optional<string> replicaSetName = default(Optional<string>),
+            Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>))
         {
-            _endPoints = __defaultEndPoints;
-            _serverSelectionTimeout = TimeSpan.FromSeconds(30);
-            _maxServerSelectionWaitQueueSize = 500;
-        }
-
-        internal ClusterSettings(
-            ClusterConnectionMode connectionMode,
-            IReadOnlyList<EndPoint> endPoints,
-            int maxServerSelectionWaitQueueSize,
-            string replicaSetName,
-            TimeSpan serverSelectionTimeout)
-        {
-            _connectionMode = connectionMode;
-            _endPoints = endPoints;
-            _maxServerSelectionWaitQueueSize = maxServerSelectionWaitQueueSize;
-            _replicaSetName = replicaSetName;
-            _serverSelectionTimeout = serverSelectionTimeout;
+            _connectionMode = connectionMode.WithDefault(ClusterConnectionMode.Automatic);
+            _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), "endPoints").ToList();
+            _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), "maxServerSelectionWaitQueueSize");
+            _replicaSetName = replicaSetName.WithDefault(null);
+            _serverSelectionTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), "serverSelectionTimeout");
         }
 
         // properties
@@ -88,62 +81,19 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // methods
-        public ClusterSettings WithConnectionMode(ClusterConnectionMode value)
+        public ClusterSettings With(
+            Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
+            Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
+            Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
+            Optional<string> replicaSetName = default(Optional<string>),
+            Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>))
         {
-            return (_connectionMode == value) ? this : new Builder(this) { _connectionMode = value }.Build();
-        }
-
-        public ClusterSettings WithEndPoints(IEnumerable<EndPoint> value)
-        {
-            var list = value.ToList();
-            return EndPointHelper.SequenceEquals(_endPoints, list) ? this : new Builder(this) { _endPoints = list }.Build();
-        }
-
-        public ClusterSettings WithMaxServerSelectionWaitQueueSize(int value)
-        {
-            return (_maxServerSelectionWaitQueueSize == value) ? this : new Builder(this) { _maxServerSelectionWaitQueueSize = value }.Build();
-        }
-
-        public ClusterSettings WithReplicaSetName(string value)
-        {
-            return object.Equals(_replicaSetName, value) ? this : new Builder(this) { _replicaSetName = value }.Build();
-        }
-
-        public ClusterSettings WithServerSelectionTimeout(TimeSpan value)
-        {
-            return (_serverSelectionTimeout == value) ? this : new Builder(this) { _serverSelectionTimeout = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public ClusterConnectionMode _connectionMode;
-            public IReadOnlyList<EndPoint> _endPoints;
-            public int _maxServerSelectionWaitQueueSize;
-            public string _replicaSetName;
-            public TimeSpan _serverSelectionTimeout;
-
-            // constructors
-            public Builder(ClusterSettings other)
-            {
-                _connectionMode = other._connectionMode;
-                _endPoints = other._endPoints;
-                _maxServerSelectionWaitQueueSize = other._maxServerSelectionWaitQueueSize;
-                _replicaSetName = other._replicaSetName;
-                _serverSelectionTimeout = other._serverSelectionTimeout;
-            }
-
-            // methods
-            public ClusterSettings Build()
-            {
-                return new ClusterSettings(
-                    _connectionMode,
-                    _endPoints,
-                    _maxServerSelectionWaitQueueSize,
-                    _replicaSetName,
-                    _serverSelectionTimeout);
-            }
+            return new ClusterSettings(
+                connectionMode: connectionMode.WithDefault(_connectionMode),
+                endPoints: Optional.Create(endPoints.WithDefault(_endPoints)),
+                maxServerSelectionWaitQueueSize: maxServerSelectionWaitQueueSize.WithDefault(_maxServerSelectionWaitQueueSize),
+                replicaSetName: replicaSetName.WithDefault(_replicaSetName),
+                serverSelectionTimeout: serverSelectionTimeout.WithDefault(_serverSelectionTimeout));
         }
     }
 }

@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication
                 new BuildInfoResult(new BsonDocument("version", "2.8.0")));
 
             var authenticator = Substitute.For<IAuthenticator>();
-            var settings = new ConnectionSettings().WithAuthenticators(new[] { authenticator });
+            var settings = new ConnectionSettings(authenticators: new[] { authenticator });
 
             var connection = Substitute.For<IConnection>();
             connection.Description.Returns(description);
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Authentication
                 new BuildInfoResult(new BsonDocument("version", "2.8.0")));
 
             var authenticator = Substitute.For<IAuthenticator>();
-            var settings = new ConnectionSettings().WithAuthenticators(new[] { authenticator });
+            var settings = new ConnectionSettings(authenticators: new[] { authenticator });
 
             var connection = Substitute.For<IConnection>();
             connection.Description.Returns(description);

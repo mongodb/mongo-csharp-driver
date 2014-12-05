@@ -47,12 +47,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _endPoint = new DnsEndPoint("localhost", 27017);
             _listener = Substitute.For<IConnectionPoolListener>();
             _serverId = new ServerId(new ClusterId(), _endPoint);
-            _settings = new ConnectionPoolSettings()
-                .WithMaintenanceInterval(Timeout.InfiniteTimeSpan)
-                .WithMaxConnections(4)
-                .WithMinConnections(2)
-                .WithWaitQueueSize(1)
-                .WithWaitQueueTimeout(TimeSpan.FromSeconds(2));
+            _settings = new ConnectionPoolSettings(
+                maintenanceInterval: Timeout.InfiniteTimeSpan,
+                maxConnections: 4,
+                minConnections: 2,
+                waitQueueSize: 1,
+                waitQueueTimeout: TimeSpan.FromSeconds(2));
 
             _subject = new ExclusiveConnectionPool(
                 _serverId,

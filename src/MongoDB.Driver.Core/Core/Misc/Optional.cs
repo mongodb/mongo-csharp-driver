@@ -21,6 +21,15 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
+    public static class Optional
+    {
+        // when the implicit conversion doesn't work calling Create is an alternative
+        public static Optional<T> Create<T>(T value)
+        {
+            return new Optional<T>(value);
+        }
+    }
+
     public struct Optional<T>
     {
         private readonly bool _hasValue;

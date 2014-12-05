@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Constructor_should_throw_if_more_than_one_endpoint_is_specified()
         {
-            _settings = _settings.WithEndPoints(new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) });
+            _settings = _settings.With(endPoints: new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) });
             Action act = () => new SingleServerCluster(_settings, _serverFactory, _clusterListener);
 
             act.ShouldThrow<ArgumentException>();
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Clusters
             var server = Substitute.For<IClusterableServer>();
             _serverFactory.CreateServer(null, null).ReturnsForAnyArgs(server);
 
-            _settings = _settings.WithConnectionMode(connectionMode);
+            _settings = _settings.With(connectionMode: connectionMode);
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Clusters
             var server = Substitute.For<IClusterableServer>();
             _serverFactory.CreateServer(null, null).ReturnsForAnyArgs(server);
 
-            _settings = _settings.WithConnectionMode(ClusterConnectionMode.Standalone);
+            _settings = _settings.With(connectionMode: ClusterConnectionMode.Standalone);
 
             var subject = CreateSubject();
             subject.Initialize();

@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Utils;
@@ -32,6 +33,22 @@ namespace MongoDB.Driver
     /// </summary>
     public static class IAggregateFluentExtensions
     {
+        /// <summary>
+        /// Groups the specified source.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="group">The group.</param>
+        /// <returns></returns>
+        public static IAggregateFluent<TDocument, BsonDocument> Group<TDocument, TResult>(this IAggregateFluent<TDocument, TResult> source, object group)
+        {
+            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(group, "group");
+
+            return source.Group<BsonDocument>(group, BsonDocumentSerializer.Instance);
+        }
+
         /// <summary>
         /// Matches the specified match.
         /// </summary>
@@ -50,6 +67,22 @@ namespace MongoDB.Driver
             var filterDocument = new QueryBuilder<TResult>(helper).Where(filter).ToBsonDocument();
 
             return source.Match(filterDocument);
+        }
+
+        /// <summary>
+        /// Projects the specified source.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="project">The project.</param>
+        /// <returns></returns>
+        public static IAggregateFluent<TDocument, BsonDocument> Project<TDocument, TResult>(this IAggregateFluent<TDocument, TResult> source, object project)
+        {
+            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(project, "project");
+
+            return source.Project<BsonDocument>(project, BsonDocumentSerializer.Instance);
         }
 
         /// <summary>

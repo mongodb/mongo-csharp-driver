@@ -52,11 +52,11 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 
             return new ClusterBuilder()
                 .ConfigureWithConnectionString("mongodb://localhost")
-                .ConfigureServer(s => s
-                    .WithHeartbeatInterval(TimeSpan.FromMinutes(1))
-                    .WithHeartbeatTimeout(TimeSpan.FromMinutes(1)))
-                .ConfigureConnection(s => s
-                    .WithMaxLifeTime(TimeSpan.FromSeconds(30)))
+                .ConfigureServer(s => s.With(
+                    heartbeatInterval: TimeSpan.FromMinutes(1),
+                    heartbeatTimeout: TimeSpan.FromMinutes(1)))
+                .ConfigureConnection(s => s.With(
+                    maxLifeTime: TimeSpan.FromSeconds(30)))
                 .AddListener(new LogListener(writer, LogLevel.Debug))
                 // .UsePerformanceCounters("test", true)
                 .BuildCluster();
