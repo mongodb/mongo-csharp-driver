@@ -28,17 +28,42 @@ namespace MongoDB.Driver
     {
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Func<TDocument, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await (await source.ToCursorAsync(cancellationToken).ConfigureAwait(false)).ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
+            using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                await cursor.ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Func<TDocument, int, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await (await source.ToCursorAsync(cancellationToken).ConfigureAwait(false)).ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
+            using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                await cursor.ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Action<TDocument> processor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                await cursor.ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Action<TDocument, int> processor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                await cursor.ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         public static async Task<List<TDocument>> ToListAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await (await source.ToCursorAsync(cancellationToken).ConfigureAwait(false)).ToListAsync(cancellationToken).ConfigureAwait(false);
+            using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                return await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
     }
 }

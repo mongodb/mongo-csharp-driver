@@ -96,6 +96,26 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Counts the asynchronous.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public Task<long> CountAsync(CancellationToken cancellationToken)
+        {
+            BsonValue hint;
+            _options.Modifiers.TryGetValue("$hint", out hint);
+            var options = new CountOptions
+            {
+                Hint = hint,
+                Limit = _options.Limit,
+                MaxTime = _options.MaxTime,
+                Skip = _options.Skip
+            };
+
+            return _collection.CountAsync(_filter, options, cancellationToken);
+        }
+
+        /// <summary>
         /// Sets the cursor type.
         /// </summary>
         /// <param name="cursorType">Type of the cursor.</param>
