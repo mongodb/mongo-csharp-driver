@@ -152,7 +152,7 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
-        public async static Task<TResult> FirstAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        public async static Task<TResult> FirstAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
 
@@ -177,7 +177,7 @@ namespace MongoDB.Driver
         /// <param name="source">The source.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
 
@@ -203,7 +203,7 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
-        public async static Task<TResult> SingleAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        public async static Task<TResult> SingleAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
 
@@ -228,7 +228,7 @@ namespace MongoDB.Driver
         /// <param name="source">The source.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
 
