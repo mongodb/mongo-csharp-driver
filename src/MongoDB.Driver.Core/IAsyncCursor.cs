@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     {
         IEnumerable<TDocument> Current { get; }
 
-        Task<bool> MoveNextAsync(CancellationToken cancellationToken);
+        Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 
     public static class IAsyncCursorExtensions
@@ -35,7 +35,7 @@ namespace MongoDB.Driver
             return ForEachAsync(source, (doc, _) => processor(doc), cancellationToken);
         }
 
-        public async static Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Func<TDocument, int, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Func<TDocument, int, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(processor, "processor");
@@ -56,7 +56,33 @@ namespace MongoDB.Driver
             }
         }
 
-        public async static Task<List<TDocument>> ToListAsync<TDocument>(this IAsyncCursor<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Action<TDocument> processor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ForEachAsync(source, (doc, _) => processor(doc), cancellationToken);
+        }
+
+        public static async Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Action<TDocument, int> processor, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(processor, "processor");
+
+            // yes, we are taking ownership... assumption being that they've
+            // exhausted the thing and don't need it anymore.
+            using (source)
+            {
+                var index = 0;
+                while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    foreach (var document in source.Current)
+                    {
+                        processor(document, index++);
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                }
+            }
+        }
+
+        public static async Task<List<TDocument>> ToListAsync<TDocument>(this IAsyncCursor<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
 

@@ -152,13 +152,13 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
-        public async static Task<TResult> FirstAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        public async static Task<TResult> FirstAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.First();
                 }
@@ -177,13 +177,13 @@ namespace MongoDB.Driver
         /// <param name="source">The source.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.FirstOrDefault();
                 }
@@ -203,13 +203,13 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
-        public async static Task<TResult> SingleAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        public async static Task<TResult> SingleAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.Single();
                 }
@@ -228,13 +228,13 @@ namespace MongoDB.Driver
         /// <param name="source">The source.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this FindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.SingleOrDefault();
                 }

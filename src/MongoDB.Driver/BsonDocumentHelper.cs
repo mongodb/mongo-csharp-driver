@@ -13,8 +13,12 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Builders;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
 {
@@ -40,6 +44,19 @@ namespace MongoDB.Driver
 
             var serializer = registry.GetSerializer(document.GetType());
             return new BsonDocumentWrapper(document, serializer);
+        }
+
+        public static BsonDocument FilterToBsonDocument<TDocument>(IBsonSerializerRegistry registry, object filter)
+        {
+            var filterExpr = filter as Expression<Func<TDocument, bool>>;
+            if (filterExpr != null)
+            {
+                var helper = new BsonSerializationInfoHelper();
+                helper.RegisterExpressionSerializer(filterExpr.Parameters[0], registry.GetSerializer<TDocument>());
+                return new QueryBuilder<TDocument>(helper).Where(filterExpr).ToBsonDocument();
+            }
+
+            return ToBsonDocument(registry, filter);
         }
     }
 }

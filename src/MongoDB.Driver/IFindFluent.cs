@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
@@ -61,6 +63,13 @@ namespace MongoDB.Driver
         /// <param name="comment">The comment.</param>
         /// <returns></returns>
         IFindFluent<TDocument, TResult> Comment(string comment);
+
+        /// <summary>
+        /// Counts the asynchronous.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Sets the cursor type.

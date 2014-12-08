@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Operations
         {
             var command = new BsonDocument("dropUser", _username);
             var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            await operation.ExecuteAsync(binding, cancellationToken);
+            await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             return true;
         }
     }

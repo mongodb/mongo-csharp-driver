@@ -62,11 +62,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(filter, "filter");
 
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(filter.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
-            var filterDocument = new QueryBuilder<TResult>(helper).Where(filter).ToBsonDocument();
-
-            return source.Match(filterDocument);
+            return source.Match(filter);
         }
 
         /// <summary>
@@ -274,9 +270,9 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.First();
                 }
@@ -299,9 +295,9 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.FirstOrDefault();
                 }
@@ -325,9 +321,9 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.Single();
                 }
@@ -350,9 +346,9 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(source, "source");
 
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
+            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (await cursor.MoveNextAsync(cancellationToken))
+                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     return cursor.Current.SingleOrDefault();
                 }

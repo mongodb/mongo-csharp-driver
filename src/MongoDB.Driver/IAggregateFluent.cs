@@ -14,6 +14,8 @@
 */
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
@@ -94,8 +96,9 @@ namespace MongoDB.Driver
         /// Outs the specified collection name.
         /// </summary>
         /// <param name="collectionName">Name of the collection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        IAggregateFluent<TDocument, TResult> Out(string collectionName);
+        Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Projects the specified project.

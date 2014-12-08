@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Operations
             var filter = new BsonDocument("user", _username);
             var deletes = new[] { new DeleteRequest(filter) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, deletes, _messageEncoderSettings);
-            await operation.ExecuteAsync(binding, cancellationToken);
+            await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             return true;
         }
     }

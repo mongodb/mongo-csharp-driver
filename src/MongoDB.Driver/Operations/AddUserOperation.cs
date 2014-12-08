@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Operations
         // methods
         public async Task<bool> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
                 IWriteOperation<bool> operation;
                 if (channelSource.ServerDescription.Version >= __serverVersionSupportingUserManagementCommands)
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Operations
                     operation = new AddUserUsingSystemUsersCollectionOperation(_databaseNamespace, _username, _passwordHash, _readOnly, _messageEncoderSettings);
                 }
 
-                return await operation.ExecuteAsync(channelSource, cancellationToken);
+                return await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
             }
         }
     }

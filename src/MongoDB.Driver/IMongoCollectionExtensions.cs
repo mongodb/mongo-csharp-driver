@@ -47,8 +47,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.CountAsync(filterDocument, options, cancellationToken);
+            return collection.CountAsync(filter, options, cancellationToken);
         }
 
         /// <summary>
@@ -66,8 +65,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.DeleteManyAsync(filterDocument, cancellationToken);
+            return collection.DeleteManyAsync(filter, cancellationToken);
         }
 
         /// <summary>
@@ -85,8 +83,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.DeleteOneAsync(filterDocument, cancellationToken);
+            return collection.DeleteOneAsync(filter, cancellationToken);
         }
 
         /// <summary>
@@ -111,13 +108,12 @@ namespace MongoDB.Driver
             helper.RegisterExpressionSerializer(field.Parameters[0], collection.Settings.SerializerRegistry.GetSerializer<TDocument>());
 
             var serializationInfo = helper.GetSerializationInfo(field.Body);
-            var filterDocument = CreateFilterDocument(collection, filter);
             options = options ?? new DistinctOptions<TField>();
             if (options.ResultSerializer == null)
             {
                 options.ResultSerializer = (IBsonSerializer<TField>)serializationInfo.Serializer;
             }
-            return collection.DistinctAsync(serializationInfo.ElementName, filterDocument, options, cancellationToken);
+            return collection.DistinctAsync(serializationInfo.ElementName, filter, options, cancellationToken);
         }
 
         /// <summary>
@@ -129,13 +125,12 @@ namespace MongoDB.Driver
         /// <returns>
         /// A fluent interface.
         /// </returns>
-        public static FindFluent<TDocument, TDocument> Find<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter)
+        public static IFindFluent<TDocument, TDocument> Find<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter)
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return new FindFluent<TDocument, TDocument>(collection, filterDocument, new FindOptions<TDocument>());
+            return new FindFluent<TDocument, TDocument>(collection, filter, new FindOptions<TDocument>());
         }
 
         /// <summary>
@@ -154,8 +149,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.FindOneAndDeleteAsync(filterDocument, options, cancellationToken);
+            return collection.FindOneAndDeleteAsync(filter, options, cancellationToken);
         }
 
         /// <summary>
@@ -175,8 +169,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.FindOneAndDeleteAsync(filterDocument, options, cancellationToken);
+            return collection.FindOneAndDeleteAsync(filter, options, cancellationToken);
         }
 
         /// <summary>
@@ -196,8 +189,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.FindOneAndReplaceAsync(filterDocument, replacement, options, cancellationToken);
+            return collection.FindOneAndReplaceAsync(filter, replacement, options, cancellationToken);
         }
 
         /// <summary>
@@ -218,8 +210,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.FindOneAndReplaceAsync(filterDocument, replacement, options, cancellationToken);
+            return collection.FindOneAndReplaceAsync(filter, replacement, options, cancellationToken);
         }
 
         /// <summary>
@@ -239,8 +230,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(collection, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.FindOneAndUpdateAsync(filterDocument, update, options, cancellationToken);
+            return collection.FindOneAndUpdateAsync(filter, update, options, cancellationToken);
         }
 
         /// <summary>
@@ -261,11 +251,10 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
             var updateBuilder = new UpdateBuilder<TDocument>();
             var updateObj = update(updateBuilder);
 
-            return collection.FindOneAndUpdateAsync(filterDocument, updateObj, options, cancellationToken);
+            return collection.FindOneAndUpdateAsync(filter, updateObj, options, cancellationToken);
         }
 
         /// <summary>
@@ -286,8 +275,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.FindOneAndUpdateAsync(filterDocument, update, options, cancellationToken);
+            return collection.FindOneAndUpdateAsync(filter, update, options, cancellationToken);
         }
 
         /// <summary>
@@ -309,11 +297,10 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
             var updateBuilder = new UpdateBuilder<TDocument>();
             var updateObj = update(updateBuilder);
 
-            return collection.FindOneAndUpdateAsync(filterDocument, updateObj, options, cancellationToken);
+            return collection.FindOneAndUpdateAsync(filter, updateObj, options, cancellationToken);
         }
 
         /// <summary>
@@ -333,8 +320,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.ReplaceOneAsync(filterDocument, replacement, options, cancellationToken);
+            return collection.ReplaceOneAsync(filter, replacement, options, cancellationToken);
         }
 
         /// <summary>
@@ -354,8 +340,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.UpdateManyAsync(filterDocument, update, options, cancellationToken);
+            return collection.UpdateManyAsync(filter, update, options, cancellationToken);
         }
 
         /// <summary>
@@ -376,11 +361,10 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
             var updateBuilder = new UpdateBuilder<TDocument>();
             var updateObj = update(updateBuilder);
 
-            return collection.UpdateManyAsync(filterDocument, updateObj, options, cancellationToken);
+            return collection.UpdateManyAsync(filter, updateObj, options, cancellationToken);
         }
 
         /// <summary>
@@ -400,8 +384,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
-            return collection.UpdateOneAsync(filterDocument, update, options, cancellationToken);
+            return collection.UpdateOneAsync(filter, update, options, cancellationToken);
         }
 
         /// <summary>
@@ -422,18 +405,10 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");
 
-            var filterDocument = CreateFilterDocument(collection, filter);
             var updateBuilder = new UpdateBuilder<TDocument>();
             var updateObj = update(updateBuilder);
 
-            return collection.UpdateOneAsync(filterDocument, updateObj, options, cancellationToken);
-        }
-
-        private static BsonDocument CreateFilterDocument<TDocument>(IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter)
-        {
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(filter.Parameters[0], collection.Settings.SerializerRegistry.GetSerializer<TDocument>());
-            return new QueryBuilder<TDocument>(helper).Where(filter).ToBsonDocument();
+            return collection.UpdateOneAsync(filter, updateObj, options, cancellationToken);
         }
     }
 }
