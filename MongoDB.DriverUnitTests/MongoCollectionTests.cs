@@ -611,7 +611,7 @@ namespace MongoDB.DriverUnitTests
             Assert.IsFalse(collection.Exists());
             var storageEngineOptions = new BsonDocument
             {
-                { "wiredtiger", new BsonDocument("configString", "block_compressor=zlib") },
+                { "wiredTiger", new BsonDocument("configString", "block_compressor=zlib") },
                 { "mmapv1", new BsonDocument() }
             };
             var options = CollectionOptions.SetStorageEngineOptions(storageEngineOptions);
@@ -698,7 +698,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "wiredtiger")]
+        [RequiresServer(StorageEngines = "wiredTiger")]
         public void TestCreateIndexWithStorageOptions()
         {
             _collection.Drop();
@@ -708,7 +708,7 @@ namespace MongoDB.DriverUnitTests
             _collection.CreateIndex(
                 IndexKeys.Ascending("x"),
                 IndexOptions.SetStorageEngineOptions(
-                    new BsonDocument("wiredtiger", new BsonDocument("configString", "block_compressor=zlib"))));
+                    new BsonDocument("wiredTiger", new BsonDocument("configString", "block_compressor=zlib"))));
 
             var result = _collection.GetIndexes();
             Assert.AreEqual(2, result.Count);
