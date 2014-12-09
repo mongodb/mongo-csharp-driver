@@ -603,18 +603,23 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "wiredtiger")]
+        [RequiresServer(MinimumVersion = "2.7.0")]
         public void TestCreateCollectionSetStorageOptions()
         {
-            var collection = _database.GetCollection("cappedcollection");
+            var collection = _database.GetCollection("storage_engine_collection");
             collection.Drop();
             Assert.IsFalse(collection.Exists());
-            var options = CollectionOptions.SetStorageOptions(
-                new BsonDocument("wiredtiger", new BsonDocument("configString", "block_compressor=zlib")));
+            var storageEngineOptions = new BsonDocument
+            {
+                { "wiredtiger", new BsonDocument("configString", "block_compressor=zlib") },
+                { "mmapv1", new BsonDocument() }
+            };
+            var options = CollectionOptions.SetStorageEngineOptions(storageEngineOptions);
             _database.CreateCollection(collection.Name, options);
-            Assert.IsTrue(collection.Exists());
-            var stats = collection.GetStats();
-            collection.Drop();
+
+            var result = _database.RunCommand("listCollections");
+            var resultCollection = result.Response["collections"].AsBsonArray.Where(doc => doc["name"] == collection.Name).Single();
+            Assert.AreEqual(storageEngineOptions, resultCollection["options"]["storageEngine"]);
         }
 
         [Test]
@@ -702,7 +707,7 @@ namespace MongoDB.DriverUnitTests
 
             _collection.CreateIndex(
                 IndexKeys.Ascending("x"),
-                IndexOptions.SetStorageOptions(
+                IndexOptions.SetStorageEngineOptions(
                     new BsonDocument("wiredtiger", new BsonDocument("configString", "block_compressor=zlib"))));
 
             var result = _collection.GetIndexes();
