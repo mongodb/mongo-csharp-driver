@@ -209,7 +209,7 @@ namespace MongoDB.Driver
             bool? capped = null;
             int? maxDocuments = null;
             int? maxSize = null;
-            BsonDocument storageOptions = null;
+            BsonDocument storageEngine = null;
             bool? usePowerOf2Sizes = null;
 
             if (options != null)
@@ -233,9 +233,9 @@ namespace MongoDB.Driver
                 {
                     maxSize = value.ToInt32();
                 }
-                if (optionsDocument.TryGetValue("storageOptions", out value))
+                if (optionsDocument.TryGetValue("storageEngine", out value))
                 {
-                    storageOptions = value.AsBsonDocument;
+                    storageEngine = value.AsBsonDocument;
                 }
                 if (optionsDocument.TryGetValue("flags", out value))
                 {
@@ -249,7 +249,7 @@ namespace MongoDB.Driver
                 Capped = capped,
                 MaxDocuments = maxDocuments,
                 MaxSize = maxSize,
-                StorageOptions = storageOptions,
+                StorageEngine = storageEngine,
                 UsePowerOf2Sizes = usePowerOf2Sizes
             };
 

@@ -110,13 +110,13 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Sets the storage options.
+        /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static IndexOptionsBuilder SetStorageOptions(BsonDocument value)
+        public static IndexOptionsBuilder SetStorageEngineOptions(BsonDocument value)
         {
-            return new IndexOptionsBuilder().SetStorageOptions(value);
+            return new IndexOptionsBuilder().SetStorageEngineOptions(value);
         }
 
         /// <summary>
@@ -273,13 +273,13 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Sets the storage options.
+        /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public IndexOptionsBuilder SetStorageOptions(BsonDocument value)
+        public IndexOptionsBuilder SetStorageEngineOptions(BsonDocument value)
         {
-            _document["storageOptions"] = value;
+            _document["storageEngine"] = value;
             return this;
         }
 
@@ -455,13 +455,13 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Sets the storage options.
+        /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static IndexOptionsBuilder<TDocument> SetStorageOptions(BsonDocument value)
+        public static IndexOptionsBuilder<TDocument> SetStorageEngineOptions(BsonDocument value)
         {
-            return new IndexOptionsBuilder<TDocument>().SetStorageOptions(value);
+            return new IndexOptionsBuilder<TDocument>().SetStorageEngineOptions(value);
         }
 
         /// <summary>
@@ -623,13 +623,13 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Sets the storage options.
+        /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public IndexOptionsBuilder<TDocument> SetStorageOptions(BsonDocument value)
+        public IndexOptionsBuilder<TDocument> SetStorageEngineOptions(BsonDocument value)
         {
-            _indexOptionsBuilder.SetStorageOptions(value);
+            _indexOptionsBuilder.SetStorageEngineOptions(value);
             return this;
         }
 

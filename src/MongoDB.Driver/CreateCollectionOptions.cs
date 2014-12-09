@@ -25,7 +25,7 @@ namespace MongoDB.Driver
         private bool? _capped;
         private long? _maxDocuments;
         private long? _maxSize;
-        private object _storageOptions;
+        private object _storageEngine;
         private bool? _usePowerOf2Sizes;
 
         // properties
@@ -66,12 +66,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the storage options.
+        /// Gets or sets the storage engine options.
         /// </summary>
-        public object StorageOptions
+        public object StorageEngine
         {
-            get { return _storageOptions; }
-            set { _storageOptions = value; }
+            get { return _storageEngine; }
+            set { _storageEngine = value; }
         }
 
         /// <summary>

@@ -34,7 +34,7 @@ namespace MongoDB.Driver
         private string _name;
         private bool? _sparse;
         private int? _sphereIndexVersion;
-        private object _storageOptions;
+        private object _storageEngine;
         private int? _textIndexVersion;
         private bool? _unique;
         private int? _version;
@@ -144,12 +144,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the storage options.
+        /// Gets or sets the storage engine options.
         /// </summary>
-        public object StorageOptions
+        public object StorageEngine
         {
-            get { return _storageOptions; }
-            set { _storageOptions = value; }
+            get { return _storageEngine; }
+            set { _storageEngine = value; }
         }
 
         /// <summary>

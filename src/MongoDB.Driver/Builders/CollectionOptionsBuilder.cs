@@ -77,13 +77,13 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Sets the storage options.
+        /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        public static CollectionOptionsBuilder SetStorageOptions(BsonDocument value)
+        public static CollectionOptionsBuilder SetStorageEngineOptions(BsonDocument value)
         {
-            return new CollectionOptionsBuilder().SetStorageOptions(value);
+            return new CollectionOptionsBuilder().SetStorageEngineOptions(value);
         }
     }
 
@@ -152,13 +152,13 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Sets the storage options.
+        /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public CollectionOptionsBuilder SetStorageOptions(BsonDocument value)
+        public CollectionOptionsBuilder SetStorageEngineOptions(BsonDocument value)
         {
-            _document["storageOptions"] = value;
+            _document["storageEngine"] = value;
             return this;
         }
 

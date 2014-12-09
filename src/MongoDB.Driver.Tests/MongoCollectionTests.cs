@@ -575,21 +575,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "wiredtiger")]
-        public void TestCreateCollectionSetStorageOptions()
-        {
-            var collection = _database.GetCollection("cappedcollection");
-            collection.Drop();
-            Assert.IsFalse(collection.Exists());
-            var options = CollectionOptions.SetStorageOptions(
-                new BsonDocument("wiredtiger", new BsonDocument("configString", "block_compressor=zlib")));
-            _database.CreateCollection(collection.Name, options);
-            Assert.IsTrue(collection.Exists());
-            collection.GetStats();
-            collection.Drop();
-        }
-
-        [Test]
         [RequiresServer(StorageEngines = "mmapv1")]
         public void TestCreateCollectionSetUsePowerOf2Sizes(
             [Values(false, true)]
@@ -685,8 +670,8 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "wiredtiger")]
-        public void TestCreateIndexWithStorageOptions()
+        [RequiresServer(StorageEngines = "wiredTiger")]
+        public void TestCreateIndexWithStorageEngine()
         {
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
@@ -694,8 +679,8 @@ namespace MongoDB.Driver.Tests
 
             _collection.CreateIndex(
                IndexKeys.Ascending("x"),
-                IndexOptions.SetStorageOptions(
-                    new BsonDocument("wiredtiger", new BsonDocument("configString", "block_compressor=zlib"))));
+                IndexOptions.SetStorageEngineOptions(
+                    new BsonDocument("wiredTiger", new BsonDocument("configString", "block_compressor=zlib"))));
 
             var result = _collection.GetIndexes();
             Assert.AreEqual(2, result.Count);
