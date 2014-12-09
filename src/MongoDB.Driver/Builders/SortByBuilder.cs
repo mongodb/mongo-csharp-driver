@@ -144,9 +144,9 @@ namespace MongoDB.Driver.Builders
         // nested classes
         new internal class Serializer : SerializerBase<SortByBuilder>
         {
-            public override void Serialize(BsonSerializationContext context, SortByBuilder value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, SortByBuilder value)
             {
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._document);
+                BsonDocumentSerializer.Instance.Serialize(context, value._document);
             }
         }
     }
@@ -287,9 +287,9 @@ namespace MongoDB.Driver.Builders
         // nested classes
         new internal class Serializer : SerializerBase<SortByBuilder<TDocument>>
         {
-            public override void Serialize(BsonSerializationContext context, SortByBuilder<TDocument> value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, SortByBuilder<TDocument> value)
             {
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._sortByBuilder.ToBsonDocument());
+                BsonDocumentSerializer.Instance.Serialize(context, value._sortByBuilder.ToBsonDocument());
             }
         }
     }

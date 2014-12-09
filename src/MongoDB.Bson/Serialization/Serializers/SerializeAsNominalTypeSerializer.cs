@@ -54,8 +54,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, TActualType value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TActualType value)
         {
             if (value == null)
             {
@@ -64,8 +65,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var childContext = context.CreateChild<TNominalType>(b => b.SerializeAsNominalType = true);
-                _nominalTypeSerializer.Serialize(childContext, value);
+                args.NominalType = typeof(TNominalType);
+                args.SerializeAsNominalType = true;
+                _nominalTypeSerializer.Serialize(context, args, value);
             }
         }
     }

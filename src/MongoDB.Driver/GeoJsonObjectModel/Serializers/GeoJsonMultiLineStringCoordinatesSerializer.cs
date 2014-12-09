@@ -33,8 +33,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        protected override GeoJsonMultiLineStringCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context)
+        protected override GeoJsonMultiLineStringCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             var lineStrings = new List<GeoJsonLineStringCoordinates<TCoordinates>>();
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             bsonReader.ReadStartArray();
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var lineString = _lineStringCoordinatesSerializer.Deserialize(context.CreateChild(_lineStringCoordinatesSerializer.ValueType));
+                var lineString = _lineStringCoordinatesSerializer.Deserialize(context);
                 lineStrings.Add(lineString);
             }
             bsonReader.ReadEndArray();
@@ -54,15 +55,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJsonMultiLineStringCoordinates<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, GeoJsonMultiLineStringCoordinates<TCoordinates> value)
         {
             var bsonWriter = context.Writer;
 
             bsonWriter.WriteStartArray();
             foreach (var lineString in value.LineStrings)
             {
-                context.SerializeWithChildContext(_lineStringCoordinatesSerializer, lineString);
+                _lineStringCoordinatesSerializer.Serialize(context, lineString);
             }
             bsonWriter.WriteEndArray();
         }

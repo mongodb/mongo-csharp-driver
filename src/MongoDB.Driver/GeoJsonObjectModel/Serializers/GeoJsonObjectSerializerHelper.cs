@@ -125,12 +125,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private methods
         private GeoJsonBoundingBox<TCoordinates> DeserializeBoundingBox(BsonDeserializationContext context)
         {
-            return context.DeserializeWithChildContext(_boundingBoxSerializer);
+            return _boundingBoxSerializer.Deserialize(context);
         }
 
         private GeoJsonCoordinateReferenceSystem DeserializeCoordinateReferenceSystem(BsonDeserializationContext context)
         {
-            return context.DeserializeWithChildContext(_coordinateReferenceSystemSerializer);
+            return _coordinateReferenceSystemSerializer.Deserialize(context);
         }
 
         private void DeserializeExtraMember(BsonDeserializationContext context, string elementName, GeoJsonObjectArgs<TCoordinates> args)
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             if (boundingBox != null)
             {
                 context.Writer.WriteName("bbox");
-                context.SerializeWithChildContext(_boundingBoxSerializer, boundingBox);
+                _boundingBoxSerializer.Serialize(context, boundingBox);
             }
         }
 
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             if (coordinateReferenceSystem != null)
             {
                 context.Writer.WriteName("crs");
-                context.SerializeWithChildContext(_coordinateReferenceSystemSerializer, coordinateReferenceSystem);
+                _coordinateReferenceSystemSerializer.Serialize(context, coordinateReferenceSystem);
             }
         }
 
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
                 foreach (var element in value)
                 {
                     context.Writer.WriteName(element.Name);
-                    context.SerializeWithChildContext(BsonValueSerializer.Instance, element.Value);
+                    BsonValueSerializer.Instance.Serialize(context, element.Value);
                 }
             }
         }

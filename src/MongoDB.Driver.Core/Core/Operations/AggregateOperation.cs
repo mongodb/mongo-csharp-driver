@@ -207,7 +207,7 @@ namespace MongoDB.Driver.Core.Operations
                 _resultSerializer = resultSerializer;
             }
 
-            public override AggregateResult Deserialize(BsonDeserializationContext context)
+            public override AggregateResult Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
             {
                 var reader = context.Reader;
                 AggregateResult result = null;
@@ -218,13 +218,13 @@ namespace MongoDB.Driver.Core.Operations
                     if (elementName == "cursor")
                     {
                         var cursorDeserializer = new CursorDeserializer(_resultSerializer);
-                        result = context.DeserializeWithChildContext(cursorDeserializer);
+                        result = cursorDeserializer.Deserialize(context);
                     }
                     else if (elementName == "result")
                     {
                         var arraySerializer = new ArraySerializer<TResult>(_resultSerializer);
                         result = new AggregateResult();
-                        result.Results = context.DeserializeWithChildContext(arraySerializer);
+                        result.Results = arraySerializer.Deserialize(context);
                     }
                     else
                     {
@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Core.Operations
                 _resultSerializer = resultSerializer;
             }
 
-            public override AggregateResult Deserialize(BsonDeserializationContext context)
+            public override AggregateResult Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
             {
                 var reader = context.Reader;
                 var result = new AggregateResult();
@@ -255,12 +255,12 @@ namespace MongoDB.Driver.Core.Operations
                     var elementName = reader.ReadName();
                     if (elementName == "id")
                     {
-                        result.CursorId = context.DeserializeWithChildContext<long>(new Int64Serializer());
+                        result.CursorId = new Int64Serializer().Deserialize(context);
                     }
                     else if (elementName == "firstBatch")
                     {
                         var arraySerializer = new ArraySerializer<TResult>(_resultSerializer);
-                        result.Results = context.DeserializeWithChildContext(arraySerializer);
+                        result.Results = arraySerializer.Deserialize(context);
                     }
                     else
                     {

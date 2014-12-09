@@ -47,12 +47,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override BsonJavaScriptWithScope DeserializeValue(BsonDeserializationContext context)
+        protected override BsonJavaScriptWithScope DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             var code = bsonReader.ReadJavaScriptWithScope();
-            var scope = context.DeserializeWithChildContext(BsonDocumentSerializer.Instance);
+            var scope = BsonDocumentSerializer.Instance.Deserialize(context);
             return new BsonJavaScriptWithScope(code, scope);
         }
 
@@ -60,12 +61,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, BsonJavaScriptWithScope value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, BsonJavaScriptWithScope value)
         {
             var bsonWriter = context.Writer;
             bsonWriter.WriteJavaScriptWithScope(value.Code);
-            context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value.Scope);
+            BsonDocumentSerializer.Instance.Serialize(context, value.Scope);
         }
     }
 }

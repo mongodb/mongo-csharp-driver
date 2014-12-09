@@ -57,8 +57,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The document.</param>
-        public override void Serialize(BsonSerializationContext context, TValue value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TValue value)
         {
             var bsonWriter = context.Writer;
 
@@ -70,7 +71,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 var actualType = value.GetType();
                 var serializer = BsonSerializer.LookupSerializer(actualType);
-                context.SerializeWithChildContext(serializer, value);
+                args.NominalType = actualType;
+                serializer.Serialize(context, args, value);
             }
         }
     }

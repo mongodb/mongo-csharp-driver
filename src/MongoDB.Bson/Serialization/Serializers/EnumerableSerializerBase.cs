@@ -68,8 +68,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override TValue Deserialize(BsonDeserializationContext context)
+        public override TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -85,7 +86,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var accumulator = CreateAccumulator();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
-                        var item = context.DeserializeWithChildContext(_itemSerializer);
+                        var item = _itemSerializer.Deserialize(context);
                         AddItem(accumulator, item);
                     }
                     bsonReader.ReadEndArray();
@@ -121,8 +122,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, TValue value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TValue value)
         {
             var bsonWriter = context.Writer;
 
@@ -133,12 +135,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var actualType = value.GetType();
-                if (actualType == context.NominalType || context.SerializeAsNominalType)
+                if (actualType == args.NominalType || args.SerializeAsNominalType)
                 {
                     bsonWriter.WriteStartArray();
                     foreach (var item in EnumerateItemsInSerializationOrder(value))
                     {
-                        context.SerializeWithChildContext(_itemSerializer, item);
+                        _itemSerializer.Serialize(context, item);
                     }
                     bsonWriter.WriteEndArray();
                 }
@@ -230,8 +232,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override TValue Deserialize(BsonDeserializationContext context)
+        public override TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -247,7 +250,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var accumulator = CreateAccumulator();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
-                        var item = context.DeserializeWithChildContext(_itemSerializer);
+                        var item = _itemSerializer.Deserialize(context);
                         AddItem(accumulator, item);
                     }
                     bsonReader.ReadEndArray();
@@ -284,8 +287,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, TValue value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TValue value)
         {
             var bsonWriter = context.Writer;
 
@@ -296,12 +300,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var actualType = value.GetType();
-                if (actualType == context.NominalType)
+                if (actualType == args.NominalType)
                 {
                     bsonWriter.WriteStartArray();
                     foreach (var item in EnumerateItemsInSerializationOrder(value))
                     {
-                        context.SerializeWithChildContext(_itemSerializer, item);
+                        _itemSerializer.Serialize(context, item);
                     }
                     bsonWriter.WriteEndArray();
                 }

@@ -39,22 +39,24 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override TBsonValue Deserialize(BsonDeserializationContext context)
+        public override TBsonValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             if (_bsonType.HasValue)
             {
                 EnsureBsonTypeEquals(context.Reader, _bsonType.Value);
             }
-            return DeserializeValue(context);
+            return DeserializeValue(context, args);
         }
 
         /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, TBsonValue value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TBsonValue value)
         {
             if (value == null)
             {
@@ -66,14 +68,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             var actualType = value.GetType();
-            if (actualType != ValueType && !context.SerializeAsNominalType)
+            if (actualType != ValueType && !args.SerializeAsNominalType)
             {
                 var serializer = BsonSerializer.LookupSerializer(actualType);
                 serializer.Serialize(context, value);
                 return;
             }
 
-            SerializeValue(context, value);
+            SerializeValue(context, args, value);
         }
 
         // protected methods
@@ -81,14 +83,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected abstract TBsonValue DeserializeValue(BsonDeserializationContext context);
+        protected abstract TBsonValue DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args);
 
         /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected abstract void SerializeValue(BsonSerializationContext context, TBsonValue value);
+        protected abstract void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TBsonValue value);
     }
 }

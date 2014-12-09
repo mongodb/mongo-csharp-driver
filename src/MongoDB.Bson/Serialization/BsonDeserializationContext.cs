@@ -27,7 +27,6 @@ namespace MongoDB.Bson.Serialization
         private readonly bool _allowDuplicateElementNames;
         private readonly IBsonSerializer _dynamicArraySerializer;
         private readonly IBsonSerializer _dynamicDocumentSerializer;
-        private readonly Type _nominalType;
         private readonly BsonDeserializationContext _parent;
         private readonly IBsonReader _reader;
 
@@ -35,14 +34,12 @@ namespace MongoDB.Bson.Serialization
         private BsonDeserializationContext(
             BsonDeserializationContext parent,
             IBsonReader reader,
-            Type nominalType,
             bool allowDuplicateElementNames,
             IBsonSerializer dynamicArraySerializer,
             IBsonSerializer dynamicDocumentSerializer)
         {
             _parent = parent;
             _reader = reader;
-            _nominalType = nominalType;
             _allowDuplicateElementNames = allowDuplicateElementNames;
             _dynamicArraySerializer = dynamicArraySerializer;
             _dynamicDocumentSerializer = dynamicDocumentSerializer;
@@ -83,17 +80,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets the nominal type.
-        /// </summary>
-        /// <value>
-        /// The nominal type.
-        /// </value>
-        public Type NominalType
-        {
-            get { return _nominalType; }
-        }
-
-        /// <summary>
         /// Gets the parent context.
         /// </summary>
         /// <value>
@@ -119,39 +105,16 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Creates a root context.
         /// </summary>
-        /// <typeparam name="TNominalType">The nominal type.</typeparam>
         /// <param name="reader">The reader.</param>
-        /// <param name="configurator">The configurator.</param>
-        /// <returns>
-        /// A root context.
-        /// </returns>
-        public static BsonDeserializationContext CreateRoot<TNominalType>(
-            IBsonReader reader,
-            Action<Builder> configurator = null)
-        {
-            var builder = new Builder(null, reader, typeof(TNominalType));
-            if (configurator != null)
-            {
-                configurator(builder);
-            }
-            return builder.Build();
-        }
-
-        /// <summary>
-        /// Creates a root context.
-        /// </summary>
-        /// <param name="reader">The reader.</param>
-        /// <param name="nominalType">The nominal type.</param>
         /// <param name="configurator">The configurator.</param>
         /// <returns>
         /// A root context.
         /// </returns>
         public static BsonDeserializationContext CreateRoot(
             IBsonReader reader, 
-            Type nominalType,
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(null, reader, nominalType);
+            var builder = new Builder(null, reader);
             if (configurator != null)
             {
                 configurator(builder);
@@ -163,73 +126,19 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Creates a child context.
         /// </summary>
-        /// <typeparam name="TNominalType">The nominal type.</typeparam>
-        /// <param name="configurator">The configurator.</param>
-        /// <returns>
-        /// A child context.
-        /// </returns>
-        public BsonDeserializationContext CreateChild<TNominalType>(
-            Action<Builder> configurator = null)
-        {
-            var builder = new Builder(this, _reader, typeof(TNominalType));
-            if (configurator != null)
-            {
-                configurator(builder);
-            }
-            return builder.Build();
-        }
-
-        /// <summary>
-        /// Creates a child context.
-        /// </summary>
-        /// <param name="nominalType">The nominal type.</param>
         /// <param name="configurator">The configurator.</param>
         /// <returns>
         /// A child context.
         /// </returns>
         public BsonDeserializationContext CreateChild(
-            Type nominalType,
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(this, _reader, nominalType);
+            var builder = new Builder(this, _reader);
             if (configurator != null)
             {
                 configurator(builder);
             }
             return builder.Build();
-        }
-
-        /// <summary>
-        /// Creates a child context and calls the Deserialize method of the serializer with it.
-        /// </summary>
-        /// <typeparam name="TNominalType">The nominal type.</typeparam>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="configurator">The configurator.</param>
-        /// <returns>
-        /// The deserialized value.
-        /// </returns>
-        public TNominalType DeserializeWithChildContext<TNominalType>(
-            IBsonSerializer<TNominalType> serializer,
-            Action<Builder> configurator = null)
-        {
-            var childContext = CreateChild<TNominalType>(configurator);
-            return serializer.Deserialize(childContext);
-        }
-
-        /// <summary>
-        /// Creates a child context and calls the Deserialize method of the serializer with it.
-        /// </summary>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="configurator">The configurator.</param>
-        /// <returns>
-        /// The deserialized value.
-        /// </returns>
-        public object DeserializeWithChildContext(
-            IBsonSerializer serializer,
-            Action<Builder> configurator = null)
-        {
-            var childContext = CreateChild(serializer.ValueType, configurator);
-            return serializer.Deserialize(childContext);
         }
 
         // nested classes
@@ -242,25 +151,19 @@ namespace MongoDB.Bson.Serialization
             private bool _allowDuplicateElementNames;
             private IBsonSerializer _dynamicArraySerializer;
             private IBsonSerializer _dynamicDocumentSerializer;
-            private Type _nominalType;
             private BsonDeserializationContext _parent;
             private IBsonReader _reader;
 
             // constructors
-            internal Builder(BsonDeserializationContext parent, IBsonReader reader, Type nominalType)
+            internal Builder(BsonDeserializationContext parent, IBsonReader reader)
             {
                 if (reader == null)
                 {
                     throw new ArgumentNullException("reader");
                 }
-                if (nominalType == null)
-                {
-                    throw new ArgumentNullException("nominalType");
-                }
 
                 _parent = parent;
                 _reader = reader;
-                _nominalType = nominalType;
                 if (parent != null)
                 {
                     _allowDuplicateElementNames = parent.AllowDuplicateElementNames;
@@ -312,17 +215,6 @@ namespace MongoDB.Bson.Serialization
             }
 
             /// <summary>
-            /// Gets the nominal type.
-            /// </summary>
-            /// <value>
-            /// The nominal type.
-            /// </value>
-            public Type NominalType
-            {
-                get { return _nominalType; }
-            }
-
-            /// <summary>
             /// Gets the parent.
             /// </summary>
             /// <value>
@@ -351,7 +243,7 @@ namespace MongoDB.Bson.Serialization
             /// <returns>A BsonDeserializationContext.</returns>
             internal BsonDeserializationContext Build()
             {
-                return new BsonDeserializationContext(_parent, _reader, _nominalType, _allowDuplicateElementNames, _dynamicArraySerializer, _dynamicDocumentSerializer);
+                return new BsonDeserializationContext(_parent, _reader, _allowDuplicateElementNames, _dynamicArraySerializer, _dynamicDocumentSerializer);
             }
         }
     }

@@ -33,8 +33,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        protected override GeoJsonLineStringCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context)
+        protected override GeoJsonLineStringCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -43,7 +44,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             bsonReader.ReadStartArray();
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var position = _coordinatesSerializer.Deserialize(context.CreateChild(_coordinatesSerializer.ValueType));
+                var position = _coordinatesSerializer.Deserialize(context);
                 positions.Add(position);
             }
             bsonReader.ReadEndArray();
@@ -55,15 +56,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJsonLineStringCoordinates<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, GeoJsonLineStringCoordinates<TCoordinates> value)
         {
             var bsonWriter = context.Writer;
 
             bsonWriter.WriteStartArray();
             foreach (var position in value.Positions)
             {
-                context.SerializeWithChildContext(_coordinatesSerializer, position);
+                _coordinatesSerializer.Serialize(context, position);
             }
             bsonWriter.WriteEndArray();
         }

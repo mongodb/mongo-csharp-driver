@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -65,8 +64,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override TItem[,,] DeserializeValue(BsonDeserializationContext context)
+        protected override TItem[,,] DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             EnsureBsonTypeEquals(bsonReader, BsonType.Array);
@@ -83,7 +83,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var innerList = new List<TItem>();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
-                        var item = context.DeserializeWithChildContext(_itemSerializer);
+                        var item = _itemSerializer.Deserialize(context);
                         innerList.Add(item);
                     }
                     bsonReader.ReadEndArray();
@@ -128,8 +128,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, TItem[,,] value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TItem[,,] value)
         {
             var bsonWriter = context.Writer;
 
@@ -146,7 +147,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteStartArray();
                     for (int k = 0; k < length3; k++)
                     {
-                        context.SerializeWithChildContext(_itemSerializer, value[i, j, k]);
+                        _itemSerializer.Serialize(context, value[i, j, k]);
                     }
                     bsonWriter.WriteEndArray();
                 }

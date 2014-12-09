@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using MongoDB.Bson.IO;
@@ -115,8 +114,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override TDictionary DeserializeValue(BsonDeserializationContext context)
+        protected override TDictionary DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             var bsonType = bsonReader.GetCurrentBsonType();
@@ -135,8 +135,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, TDictionary value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
             var bsonWriter = context.Writer;
 
@@ -184,8 +185,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     case BsonType.Array:
                         bsonReader.ReadStartArray();
-                        key = context.DeserializeWithChildContext(_keySerializer);
-                        value = context.DeserializeWithChildContext(_valueSerializer);
+                        key = _keySerializer.Deserialize(context);
+                        value = _valueSerializer.Deserialize(context);
                         bsonReader.ReadEndArray();
                         break;
 
@@ -196,8 +197,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             switch (flag)
                             {
-                                case Flags.Key: key = context.DeserializeWithChildContext(_keySerializer); break;
-                                case Flags.Value: value = context.DeserializeWithChildContext(_valueSerializer); break;
+                                case Flags.Key: key = _keySerializer.Deserialize(context); break;
+                                case Flags.Value: value = _valueSerializer.Deserialize(context); break;
                             }
                         });
                         break;
@@ -221,7 +222,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
                 var key = DeserializeKeyString(bsonReader.ReadName());
-                var value = context.DeserializeWithChildContext(_valueSerializer);
+                var value = _valueSerializer.Deserialize(context);
                 dictionary.Add(key, value);
             }
             bsonReader.ReadEndDocument();
@@ -233,10 +234,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyDocument = new BsonDocument("k", keyString);
             using (var keyReader = new BsonDocumentReader(keyDocument))
             {
-                var context = BsonDeserializationContext.CreateRoot<BsonDocument>(keyReader);
+                var context = BsonDeserializationContext.CreateRoot(keyReader);
                 keyReader.ReadStartDocument();
                 keyReader.ReadName("k");
-                var key = context.DeserializeWithChildContext(_keySerializer);
+                var key = _keySerializer.Deserialize(context);
                 keyReader.ReadEndDocument();
                 return key;
             }
@@ -249,8 +250,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             foreach (DictionaryEntry dictionaryEntry in value)
             {
                 bsonWriter.WriteStartArray();
-                context.SerializeWithChildContext(_keySerializer, dictionaryEntry.Key);
-                context.SerializeWithChildContext(_valueSerializer, dictionaryEntry.Value);
+                _keySerializer.Serialize(context, dictionaryEntry.Key);
+                _valueSerializer.Serialize(context, dictionaryEntry.Value);
                 bsonWriter.WriteEndArray();
             }
             bsonWriter.WriteEndArray();
@@ -264,9 +265,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("k");
-                context.SerializeWithChildContext(_keySerializer, dictionaryEntry.Key);
+                _keySerializer.Serialize(context, dictionaryEntry.Key);
                 bsonWriter.WriteName("v");
-                context.SerializeWithChildContext(_valueSerializer, dictionaryEntry.Value);
+                _valueSerializer.Serialize(context, dictionaryEntry.Value);
                 bsonWriter.WriteEndDocument();
             }
             bsonWriter.WriteEndArray();
@@ -279,7 +280,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             foreach (DictionaryEntry dictionaryEntry in value)
             {
                 bsonWriter.WriteName(SerializeKeyString(dictionaryEntry.Key));
-                context.SerializeWithChildContext(_valueSerializer, dictionaryEntry.Value);
+                _valueSerializer.Serialize(context, dictionaryEntry.Value);
             }
             bsonWriter.WriteEndDocument();
         }
@@ -289,10 +290,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyDocument = new BsonDocument();
             using (var keyWriter = new BsonDocumentWriter(keyDocument))
             {
-                var context = BsonSerializationContext.CreateRoot<BsonDocument>(keyWriter);
+                var context = BsonSerializationContext.CreateRoot(keyWriter);
                 keyWriter.WriteStartDocument();
                 keyWriter.WriteName("k");
-                context.SerializeWithChildContext(_keySerializer, key);
+                _keySerializer.Serialize(context, key);
                 keyWriter.WriteEndDocument();
             }
 
@@ -403,8 +404,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override TDictionary DeserializeValue(BsonDeserializationContext context)
+        protected override TDictionary DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -424,8 +426,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, TDictionary value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
             var bsonWriter = context.Writer;
 
@@ -476,8 +479,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     case BsonType.Array:
                         bsonReader.ReadStartArray();
-                        key = context.DeserializeWithChildContext(_keySerializer);
-                        value = context.DeserializeWithChildContext(_valueSerializer);
+                        key = _keySerializer.Deserialize(context);
+                        value = _valueSerializer.Deserialize(context);
                         bsonReader.ReadEndArray();
                         break;
 
@@ -488,8 +491,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             switch (flag)
                             {
-                                case Flags.Key: key = context.DeserializeWithChildContext(_keySerializer); break;
-                                case Flags.Value: value = context.DeserializeWithChildContext(_valueSerializer); break;
+                                case Flags.Key: key = _keySerializer.Deserialize(context); break;
+                                case Flags.Value: value = _valueSerializer.Deserialize(context); break;
                             }
                         });
                         break;
@@ -514,7 +517,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
                 var key = DeserializeKeyString(bsonReader.ReadName());
-                var value = context.DeserializeWithChildContext(_valueSerializer);
+                var value = _valueSerializer.Deserialize(context);
                 dictionary.Add(key, value);
             }
             bsonReader.ReadEndDocument();
@@ -527,10 +530,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyDocument = new BsonDocument("k", keyString);
             using (var keyReader = new BsonDocumentReader(keyDocument))
             {
-                var context = BsonDeserializationContext.CreateRoot<BsonDocument>(keyReader);
+                var context = BsonDeserializationContext.CreateRoot(keyReader);
                 keyReader.ReadStartDocument();
                 keyReader.ReadName("k");
-                var key = context.DeserializeWithChildContext(_keySerializer);
+                var key = _keySerializer.Deserialize(context);
                 keyReader.ReadEndDocument();
                 return key;
             }
@@ -543,8 +546,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             foreach (var keyValuePair in value)
             {
                 bsonWriter.WriteStartArray();
-                context.SerializeWithChildContext(_keySerializer, keyValuePair.Key);
-                context.SerializeWithChildContext(_valueSerializer, keyValuePair.Value);
+                _keySerializer.Serialize(context, keyValuePair.Key);
+                _valueSerializer.Serialize(context, keyValuePair.Value);
                 bsonWriter.WriteEndArray();
             }
             bsonWriter.WriteEndArray();
@@ -558,9 +561,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("k");
-                context.SerializeWithChildContext(_keySerializer, keyValuePair.Key);
+                _keySerializer.Serialize(context, keyValuePair.Key);
                 bsonWriter.WriteName("v");
-                context.SerializeWithChildContext(_valueSerializer, keyValuePair.Value);
+                _valueSerializer.Serialize(context, keyValuePair.Value);
                 bsonWriter.WriteEndDocument();
             }
             bsonWriter.WriteEndArray();
@@ -573,7 +576,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             foreach (var keyValuePair in value)
             {
                 bsonWriter.WriteName(SerializeKeyString(keyValuePair.Key));
-                context.SerializeWithChildContext(_valueSerializer, keyValuePair.Value);
+                _valueSerializer.Serialize(context, keyValuePair.Value);
             }
             bsonWriter.WriteEndDocument();
         }
@@ -583,10 +586,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyDocument = new BsonDocument();
             using (var keyWriter = new BsonDocumentWriter(keyDocument))
             {
-                var context = BsonSerializationContext.CreateRoot<BsonDocument>(keyWriter);
+                var context = BsonSerializationContext.CreateRoot(keyWriter);
                 keyWriter.WriteStartDocument();
                 keyWriter.WriteName("k");
-                context.SerializeWithChildContext(_keySerializer, key);
+                _keySerializer.Serialize(context, key);
                 keyWriter.WriteEndDocument();
             }
 

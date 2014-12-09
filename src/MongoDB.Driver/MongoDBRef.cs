@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -255,8 +254,9 @@ namespace MongoDB.Driver
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        protected override MongoDBRef DeserializeValue(BsonDeserializationContext context)
+        protected override MongoDBRef DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -269,7 +269,7 @@ namespace MongoDB.Driver
                 switch (flag)
                 {
                     case Flags.CollectionName: collectionName = bsonReader.ReadString(); break;
-                    case Flags.Id:  id = context.DeserializeWithChildContext(BsonValueSerializer.Instance); break;
+                    case Flags.Id:  id = BsonValueSerializer.Instance.Deserialize(context); break;
                     case Flags.DatabaseName:  databaseName = bsonReader.ReadString(); break;
                 }
             });
@@ -281,15 +281,16 @@ namespace MongoDB.Driver
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, MongoDBRef value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, MongoDBRef value)
         {
             var bsonWriter = context.Writer;
 
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteString("$ref", value.CollectionName);
             bsonWriter.WriteName("$id");
-            context.SerializeWithChildContext(BsonValueSerializer.Instance, value.Id);
+            BsonValueSerializer.Instance.Serialize(context, value.Id);
             if (value.DatabaseName != null)
             {
                 bsonWriter.WriteString("$db", value.DatabaseName);

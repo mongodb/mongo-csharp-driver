@@ -363,7 +363,7 @@ namespace MongoDB.Bson
         {
             using (var bsonReader = new JsonReader(json))
             {
-                var context = BsonDeserializationContext.CreateRoot<BsonDocument>(bsonReader);
+                var context = BsonDeserializationContext.CreateRoot(bsonReader);
                 return BsonDocumentSerializer.Instance.Deserialize(context);
             }
         }

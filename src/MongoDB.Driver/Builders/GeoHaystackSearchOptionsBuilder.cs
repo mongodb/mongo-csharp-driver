@@ -138,9 +138,9 @@ namespace MongoDB.Driver.Builders
         // nested classes
         new internal class Serializer : SerializerBase<GeoHaystackSearchOptionsBuilder>
         {
-            public override void Serialize(BsonSerializationContext context, GeoHaystackSearchOptionsBuilder value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GeoHaystackSearchOptionsBuilder value)
             {
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._document);
+                BsonDocumentSerializer.Instance.Serialize(context, value._document);
             }
         }
     }
@@ -268,9 +268,9 @@ namespace MongoDB.Driver.Builders
         // nested classes
         new internal class Serializer : SerializerBase<GeoHaystackSearchOptionsBuilder<TDocument>>
         {
-            public override void Serialize(BsonSerializationContext context, GeoHaystackSearchOptionsBuilder<TDocument> value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GeoHaystackSearchOptionsBuilder<TDocument> value)
             {
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._geoHaystackBuilder.ToBsonDocument());
+                BsonDocumentSerializer.Instance.Serialize(context, value._geoHaystackBuilder.ToBsonDocument());
             }
         }
     }

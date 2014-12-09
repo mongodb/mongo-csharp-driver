@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -53,10 +52,11 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        protected override GeoJsonMultiLineString<TCoordinates> DeserializeValue(BsonDeserializationContext context)
+        protected override GeoJsonMultiLineString<TCoordinates> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var args = new GeoJsonObjectArgs<TCoordinates>();
+            var geoJsonObjectArgs = new GeoJsonObjectArgs<TCoordinates>();
             GeoJsonMultiLineStringCoordinates<TCoordinates> coordinates = null;
 
             _helper.DeserializeMembers(context, (elementName, flag) =>
@@ -64,19 +64,20 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
                 switch (flag)
                 {
                     case Flags.Coordinates: coordinates = DeserializeCoordinates(context); break;
-                    default: _helper.DeserializeBaseMember(context, elementName, flag, args); break;
+                    default: _helper.DeserializeBaseMember(context, elementName, flag, geoJsonObjectArgs); break;
                 }
             });
 
-            return new GeoJsonMultiLineString<TCoordinates>(args, coordinates);
+            return new GeoJsonMultiLineString<TCoordinates>(geoJsonObjectArgs, coordinates);
         }
 
         /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJsonMultiLineString<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, GeoJsonMultiLineString<TCoordinates> value)
         {
             _helper.SerializeMembers(context, value, SerializeDerivedMembers);
         }
@@ -84,13 +85,13 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private methods
         private GeoJsonMultiLineStringCoordinates<TCoordinates> DeserializeCoordinates(BsonDeserializationContext context)
         {
-            return context.DeserializeWithChildContext(_coordinatesSerializer);
+            return _coordinatesSerializer.Deserialize(context);
         }
 
         private void SerializeCoordinates(BsonSerializationContext context, GeoJsonMultiLineStringCoordinates<TCoordinates> coordinates)
         {
             context.Writer.WriteName("coordinates");
-            context.SerializeWithChildContext(_coordinatesSerializer, coordinates);
+            _coordinatesSerializer.Serialize(context, coordinates);
         }
 
         private void SerializeDerivedMembers(BsonSerializationContext context, GeoJsonMultiLineString<TCoordinates> value)

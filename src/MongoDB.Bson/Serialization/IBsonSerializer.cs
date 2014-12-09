@@ -36,15 +36,17 @@ namespace MongoDB.Bson.Serialization
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        object Deserialize(BsonDeserializationContext context);
+        object Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args);
 
         /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        void Serialize(BsonSerializationContext context, object value);
+        void Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value);
     }
 
     /// <summary>
@@ -57,14 +59,16 @@ namespace MongoDB.Bson.Serialization
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        new TValue Deserialize(BsonDeserializationContext context);
+        new TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args);
 
         /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        void Serialize(BsonSerializationContext context, TValue value);
+        void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TValue value);
     }
 }

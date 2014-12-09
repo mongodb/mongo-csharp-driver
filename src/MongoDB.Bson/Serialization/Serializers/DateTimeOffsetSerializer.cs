@@ -94,8 +94,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override DateTimeOffset Deserialize(BsonDeserializationContext context)
+        public override DateTimeOffset Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             long ticks;
@@ -119,8 +120,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                         switch (flag)
                         {
                             case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value
-                            case Flags.Ticks: ticks = context.DeserializeWithChildContext(_int64Serializer); break;
-                            case Flags.Offset: offset = TimeSpan.FromMinutes(context.DeserializeWithChildContext(_int32Serializer)); break;
+                            case Flags.Ticks: ticks = _int64Serializer.Deserialize(context); break;
+                            case Flags.Offset: offset = TimeSpan.FromMinutes(_int32Serializer.Deserialize(context)); break;
                         }
                     });
                     return new DateTimeOffset(ticks, offset);
@@ -137,8 +138,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, DateTimeOffset value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, DateTimeOffset value)
         {
             var bsonWriter = context.Writer;
 

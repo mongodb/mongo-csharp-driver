@@ -62,11 +62,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes the value.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns></returns>
-        protected override Tuple<T1> DeserializeValue(BsonDeserializationContext context)
+        protected override Tuple<T1> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = context.DeserializeWithChildContext<T1>(_item1Serializer);
+            var item1 = _item1Serializer.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1>(item1);
@@ -75,12 +76,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Serializes the value.
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, Tuple<T1> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1> value)
         {
             context.Writer.WriteStartArray();
-            context.SerializeWithChildContext<T1>(_item1Serializer, value.Item1);
+            _item1Serializer.Serialize(context, value.Item1);
             context.Writer.WriteEndArray();
         }
     }
@@ -145,12 +147,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes the value.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns></returns>
-        protected override Tuple<T1, T2> DeserializeValue(BsonDeserializationContext context)
+        protected override Tuple<T1, T2> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = context.DeserializeWithChildContext<T1>(_item1Serializer);
-            var item2 = context.DeserializeWithChildContext<T2>(_item2Serializer);
+            var item1 = _item1Serializer.Deserialize(context);
+            var item2 = _item2Serializer.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2>(item1, item2);
@@ -159,13 +162,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Serializes the value.
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, Tuple<T1, T2> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2> value)
         {
             context.Writer.WriteStartArray();
-            context.SerializeWithChildContext<T1>(_item1Serializer, value.Item1);
-            context.SerializeWithChildContext<T2>(_item2Serializer, value.Item2);
+            _item1Serializer.Serialize(context, value.Item1);
+            _item2Serializer.Serialize(context, value.Item2);
             context.Writer.WriteEndArray();
         }
     }
@@ -245,13 +249,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes the value.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns></returns>
-        protected override Tuple<T1, T2, T3> DeserializeValue(BsonDeserializationContext context)
+        protected override Tuple<T1, T2, T3> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = context.DeserializeWithChildContext<T1>(_item1Serializer);
-            var item2 = context.DeserializeWithChildContext<T2>(_item2Serializer);
-            var item3 = context.DeserializeWithChildContext<T3>(_item3Serializer);
+            var item1 = _item1Serializer.Deserialize(context);
+            var item2 = _item2Serializer.Deserialize(context);
+            var item3 = _item3Serializer.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3>(item1, item2, item3);
@@ -260,14 +265,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Serializes the value.
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, Tuple<T1, T2, T3> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3> value)
         {
             context.Writer.WriteStartArray();
-            context.SerializeWithChildContext<T1>(_item1Serializer, value.Item1);
-            context.SerializeWithChildContext<T2>(_item2Serializer, value.Item2);
-            context.SerializeWithChildContext<T3>(_item3Serializer, value.Item3);
+            _item1Serializer.Serialize(context, value.Item1);
+            _item2Serializer.Serialize(context, value.Item2);
+            _item3Serializer.Serialize(context, value.Item3);
             context.Writer.WriteEndArray();
         }
     }
@@ -362,14 +368,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes the value.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns></returns>
-        protected override Tuple<T1, T2, T3, T4> DeserializeValue(BsonDeserializationContext context)
+        protected override Tuple<T1, T2, T3, T4> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = context.DeserializeWithChildContext<T1>(_item1Serializer);
-            var item2 = context.DeserializeWithChildContext<T2>(_item2Serializer);
-            var item3 = context.DeserializeWithChildContext<T3>(_item3Serializer);
-            var item4 = context.DeserializeWithChildContext<T4>(_item4Serializer);
+            var item1 = _item1Serializer.Deserialize(context);
+            var item2 = _item2Serializer.Deserialize(context);
+            var item3 = _item3Serializer.Deserialize(context);
+            var item4 = _item4Serializer.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3, T4>(item1, item2, item3, item4);
@@ -378,15 +385,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Serializes the value.
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, Tuple<T1, T2, T3, T4> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3, T4> value)
         {
             context.Writer.WriteStartArray();
-            context.SerializeWithChildContext<T1>(_item1Serializer, value.Item1);
-            context.SerializeWithChildContext<T2>(_item2Serializer, value.Item2);
-            context.SerializeWithChildContext<T3>(_item3Serializer, value.Item3);
-            context.SerializeWithChildContext<T4>(_item4Serializer, value.Item4);
+            _item1Serializer.Serialize(context, value.Item1);
+            _item2Serializer.Serialize(context, value.Item2);
+            _item3Serializer.Serialize(context, value.Item3);
+            _item4Serializer.Serialize(context, value.Item4);
             context.Writer.WriteEndArray();
         }
     }
@@ -496,15 +504,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes the value.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns></returns>
-        protected override Tuple<T1, T2, T3, T4, T5> DeserializeValue(BsonDeserializationContext context)
+        protected override Tuple<T1, T2, T3, T4, T5> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = context.DeserializeWithChildContext<T1>(_item1Serializer);
-            var item2 = context.DeserializeWithChildContext<T2>(_item2Serializer);
-            var item3 = context.DeserializeWithChildContext<T3>(_item3Serializer);
-            var item4 = context.DeserializeWithChildContext<T4>(_item4Serializer);
-            var item5 = context.DeserializeWithChildContext<T5>(_item5Serializer);
+            var item1 = _item1Serializer.Deserialize(context);
+            var item2 = _item2Serializer.Deserialize(context);
+            var item3 = _item3Serializer.Deserialize(context);
+            var item4 = _item4Serializer.Deserialize(context);
+            var item5 = _item5Serializer.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3, T4, T5>(item1, item2, item3, item4, item5);
@@ -513,16 +522,17 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Serializes the value.
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, Tuple<T1, T2, T3, T4, T5> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3, T4, T5> value)
         {
             context.Writer.WriteStartArray();
-            context.SerializeWithChildContext<T1>(_item1Serializer, value.Item1);
-            context.SerializeWithChildContext<T2>(_item2Serializer, value.Item2);
-            context.SerializeWithChildContext<T3>(_item3Serializer, value.Item3);
-            context.SerializeWithChildContext<T4>(_item4Serializer, value.Item4);
-            context.SerializeWithChildContext<T5>(_item5Serializer, value.Item5);
+            _item1Serializer.Serialize(context, value.Item1);
+            _item2Serializer.Serialize(context, value.Item2);
+            _item3Serializer.Serialize(context, value.Item3);
+            _item4Serializer.Serialize(context, value.Item4);
+            _item5Serializer.Serialize(context, value.Item5);
             context.Writer.WriteEndArray();
         }
     }
@@ -647,16 +657,17 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes the value.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns></returns>
-        protected override Tuple<T1, T2, T3, T4, T5, T6> DeserializeValue(BsonDeserializationContext context)
+        protected override Tuple<T1, T2, T3, T4, T5, T6> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = context.DeserializeWithChildContext<T1>(_item1Serializer);
-            var item2 = context.DeserializeWithChildContext<T2>(_item2Serializer);
-            var item3 = context.DeserializeWithChildContext<T3>(_item3Serializer);
-            var item4 = context.DeserializeWithChildContext<T4>(_item4Serializer);
-            var item5 = context.DeserializeWithChildContext<T5>(_item5Serializer);
-            var item6 = context.DeserializeWithChildContext<T6>(_item6Serializer);
+            var item1 = _item1Serializer.Deserialize(context);
+            var item2 = _item2Serializer.Deserialize(context);
+            var item3 = _item3Serializer.Deserialize(context);
+            var item4 = _item4Serializer.Deserialize(context);
+            var item5 = _item5Serializer.Deserialize(context);
+            var item6 = _item6Serializer.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3, T4, T5, T6>(item1, item2, item3, item4, item5, item6);
@@ -665,17 +676,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Serializes the value.
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, Tuple<T1, T2, T3, T4, T5, T6> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3, T4, T5, T6> value)
         {
             context.Writer.WriteStartArray();
-            context.SerializeWithChildContext<T1>(_item1Serializer, value.Item1);
-            context.SerializeWithChildContext<T2>(_item2Serializer, value.Item2);
-            context.SerializeWithChildContext<T3>(_item3Serializer, value.Item3);
-            context.SerializeWithChildContext<T4>(_item4Serializer, value.Item4);
-            context.SerializeWithChildContext<T5>(_item5Serializer, value.Item5);
-            context.SerializeWithChildContext<T6>(_item6Serializer, value.Item6);
+            _item1Serializer.Serialize(context, value.Item1);
+            _item2Serializer.Serialize(context, value.Item2);
+            _item3Serializer.Serialize(context, value.Item3);
+            _item4Serializer.Serialize(context, value.Item4);
+            _item5Serializer.Serialize(context, value.Item5);
+            _item6Serializer.Serialize(context, value.Item6);
             context.Writer.WriteEndArray();
         }
     }
@@ -815,17 +827,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes the value.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns></returns>
-        protected override Tuple<T1, T2, T3, T4, T5, T6, T7> DeserializeValue(BsonDeserializationContext context)
+        protected override Tuple<T1, T2, T3, T4, T5, T6, T7> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = context.DeserializeWithChildContext<T1>(_item1Serializer);
-            var item2 = context.DeserializeWithChildContext<T2>(_item2Serializer);
-            var item3 = context.DeserializeWithChildContext<T3>(_item3Serializer);
-            var item4 = context.DeserializeWithChildContext<T4>(_item4Serializer);
-            var item5 = context.DeserializeWithChildContext<T5>(_item5Serializer);
-            var item6 = context.DeserializeWithChildContext<T6>(_item6Serializer);
-            var item7 = context.DeserializeWithChildContext<T7>(_item7Serializer);
+            var item1 = _item1Serializer.Deserialize(context);
+            var item2 = _item2Serializer.Deserialize(context);
+            var item3 = _item3Serializer.Deserialize(context);
+            var item4 = _item4Serializer.Deserialize(context);
+            var item5 = _item5Serializer.Deserialize(context);
+            var item6 = _item6Serializer.Deserialize(context);
+            var item7 = _item7Serializer.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3, T4, T5, T6, T7>(item1, item2, item3, item4, item5, item6, item7);
@@ -834,18 +847,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Serializes the value.
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, Tuple<T1, T2, T3, T4, T5, T6, T7> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3, T4, T5, T6, T7> value)
         {
             context.Writer.WriteStartArray();
-            context.SerializeWithChildContext<T1>(_item1Serializer, value.Item1);
-            context.SerializeWithChildContext<T2>(_item2Serializer, value.Item2);
-            context.SerializeWithChildContext<T3>(_item3Serializer, value.Item3);
-            context.SerializeWithChildContext<T4>(_item4Serializer, value.Item4);
-            context.SerializeWithChildContext<T5>(_item5Serializer, value.Item5);
-            context.SerializeWithChildContext<T6>(_item6Serializer, value.Item6);
-            context.SerializeWithChildContext<T7>(_item7Serializer, value.Item7);
+            _item1Serializer.Serialize(context, value.Item1);
+            _item2Serializer.Serialize(context, value.Item2);
+            _item3Serializer.Serialize(context, value.Item3);
+            _item4Serializer.Serialize(context, value.Item4);
+            _item5Serializer.Serialize(context, value.Item5);
+            _item6Serializer.Serialize(context, value.Item6);
+            _item7Serializer.Serialize(context, value.Item7);
             context.Writer.WriteEndArray();
         }
     }
@@ -1000,18 +1014,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes the value.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns></returns>
-        protected override Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> DeserializeValue(BsonDeserializationContext context)
+        protected override Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
-            var item1 = context.DeserializeWithChildContext<T1>(_item1Serializer);
-            var item2 = context.DeserializeWithChildContext<T2>(_item2Serializer);
-            var item3 = context.DeserializeWithChildContext<T3>(_item3Serializer);
-            var item4 = context.DeserializeWithChildContext<T4>(_item4Serializer);
-            var item5 = context.DeserializeWithChildContext<T5>(_item5Serializer);
-            var item6 = context.DeserializeWithChildContext<T6>(_item6Serializer);
-            var item7 = context.DeserializeWithChildContext<T7>(_item7Serializer);
-            var rest = context.DeserializeWithChildContext<TRest>(_restSerializer);
+            var item1 = _item1Serializer.Deserialize(context);
+            var item2 = _item2Serializer.Deserialize(context);
+            var item3 = _item3Serializer.Deserialize(context);
+            var item4 = _item4Serializer.Deserialize(context);
+            var item5 = _item5Serializer.Deserialize(context);
+            var item6 = _item6Serializer.Deserialize(context);
+            var item7 = _item7Serializer.Deserialize(context);
+            var rest = _restSerializer.Deserialize(context);
             context.Reader.ReadEndArray();
 
             return new Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>(item1, item2, item3, item4, item5, item6, item7, rest);
@@ -1020,19 +1035,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Serializes the value.
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
         {
             context.Writer.WriteStartArray();
-            context.SerializeWithChildContext<T1>(_item1Serializer, value.Item1);
-            context.SerializeWithChildContext<T2>(_item2Serializer, value.Item2);
-            context.SerializeWithChildContext<T3>(_item3Serializer, value.Item3);
-            context.SerializeWithChildContext<T4>(_item4Serializer, value.Item4);
-            context.SerializeWithChildContext<T5>(_item5Serializer, value.Item5);
-            context.SerializeWithChildContext<T6>(_item6Serializer, value.Item6);
-            context.SerializeWithChildContext<T7>(_item7Serializer, value.Item7);
-            context.SerializeWithChildContext<TRest>(_restSerializer, value.Rest);
+            _item1Serializer.Serialize(context, value.Item1);
+            _item2Serializer.Serialize(context, value.Item2);
+            _item3Serializer.Serialize(context, value.Item3);
+            _item4Serializer.Serialize(context, value.Item4);
+            _item5Serializer.Serialize(context, value.Item5);
+            _item6Serializer.Serialize(context, value.Item6);
+            _item7Serializer.Serialize(context, value.Item7);
+            _restSerializer.Serialize(context, value.Rest);
             context.Writer.WriteEndArray();
         }
     }

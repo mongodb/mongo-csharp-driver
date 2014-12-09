@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         public ReplyMessage<TDocument> ReadMessage()
         {
             var jsonReader = CreateJsonReader();
-            var messageContext = BsonDeserializationContext.CreateRoot<BsonDocument>(jsonReader);
+            var messageContext = BsonDeserializationContext.CreateRoot(jsonReader);
             var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
 
             var opcode = messageDocument["opcode"].AsString;
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 {
                     using (var documentReader = new BsonDocumentReader(serializedDocument))
                     {
-                        var documentContext = BsonDeserializationContext.CreateRoot<TDocument>(documentReader);
+                        var documentContext = BsonDeserializationContext.CreateRoot(documentReader);
                         var document = _serializer.Deserialize(documentContext);
                         documents.Add(document);
                     }
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             };
 
             var jsonWriter = CreateJsonWriter();
-            var messageContext = BsonSerializationContext.CreateRoot<BsonDocument>(jsonWriter);
+            var messageContext = BsonSerializationContext.CreateRoot(jsonWriter);
             BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 

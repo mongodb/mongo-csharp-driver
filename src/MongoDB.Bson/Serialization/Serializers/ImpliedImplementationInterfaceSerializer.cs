@@ -147,11 +147,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>
         /// A document.
         /// </returns>
         /// <exception cref="System.FormatException"></exception>
-        public override TInterface Deserialize(BsonDeserializationContext context)
+        public override TInterface Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -205,8 +206,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The document.</param>
-        public override void Serialize(BsonSerializationContext context, TInterface value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TInterface value)
         {
             var bsonWriter = context.Writer;
 
@@ -219,12 +221,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var actualType = value.GetType();
                 if (actualType == typeof(TImplementation))
                 {
-                    context.SerializeWithChildContext(_implementationSerializer, (TImplementation)value);
+                    _implementationSerializer.Serialize(context, (TImplementation)value);
                 }
                 else
                 {
                     var serializer = BsonSerializer.LookupSerializer(actualType);
-                    context.SerializeWithChildContext(serializer, value);
+                    serializer.Serialize(context, value);
                 }
             }
         }

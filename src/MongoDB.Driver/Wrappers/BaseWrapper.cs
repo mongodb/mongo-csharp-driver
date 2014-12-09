@@ -60,14 +60,13 @@ namespace MongoDB.Driver.Wrappers
         protected void SerializeWrappedObject(BsonSerializationContext context)
         {
             var serializer = BsonSerializer.LookupSerializer(_nominalType);
-            var childContext = context.CreateChild(_nominalType);
-            serializer.Serialize(childContext, _wrapped);
+            serializer.Serialize(context, _wrapped);
         }
 
         // nested classes
         internal class Serializer : SerializerBase<BaseWrapper>
         {
-            public override void Serialize(BsonSerializationContext context, BaseWrapper value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, BaseWrapper value)
             {
                 value.SerializeWrappedObject(context);
             }

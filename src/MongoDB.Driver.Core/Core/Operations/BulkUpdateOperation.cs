@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
             // methods
             private void SerializeFilter(BsonBinaryWriter bsonWriter, BsonDocument filter)
             {
-                var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 BsonDocumentSerializer.Instance.Serialize(context, filter);
             }
 
@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Core.Operations
                 bsonWriter.PushElementNameValidator(ElementNameValidatorFactory.ForUpdateType(updateType));
                 try
                 {
-                    var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter);
                     BsonDocumentSerializer.Instance.Serialize(context, update);
                 }
                 finally

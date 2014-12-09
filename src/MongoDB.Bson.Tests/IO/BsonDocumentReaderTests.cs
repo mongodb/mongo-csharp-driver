@@ -236,7 +236,7 @@ namespace MongoDB.Bson.Tests.IO
 
         private BsonDocument DeserializeBsonDocument(IBsonReader bsonReader)
         {
-            var context = BsonDeserializationContext.CreateRoot<BsonDocument>(bsonReader);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader);
             return BsonDocumentSerializer.Instance.Deserialize(context);
         }
     }

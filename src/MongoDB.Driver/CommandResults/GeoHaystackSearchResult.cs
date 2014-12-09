@@ -390,12 +390,12 @@ namespace MongoDB.Driver
         {
             private readonly IBsonSerializer<GeoHaystackSearchResult<TDocument>> _serializer = new CommandResultSerializer<GeoHaystackSearchResult<TDocument>>();
 
-            public override GeoHaystackSearchResult<TDocument> Deserialize(BsonDeserializationContext context)
+            public override GeoHaystackSearchResult<TDocument> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
             {
                 return _serializer.Deserialize(context);
             }
 
-            public override void Serialize(BsonSerializationContext context, GeoHaystackSearchResult<TDocument> value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GeoHaystackSearchResult<TDocument> value)
             {
                 _serializer.Serialize(context, value);
             }

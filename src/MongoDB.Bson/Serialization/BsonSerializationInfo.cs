@@ -78,10 +78,10 @@ namespace MongoDB.Bson.Serialization
             var tempDocument = new BsonDocument("value", value);
             using (var reader = new BsonDocumentReader(tempDocument))
             {
-                var context = BsonDeserializationContext.CreateRoot<BsonDocument>(reader);
+                var context = BsonDeserializationContext.CreateRoot(reader);
                 reader.ReadStartDocument();
                 reader.ReadName("value");
-                var deserializedValue = context.DeserializeWithChildContext(_serializer);
+                var deserializedValue = _serializer.Deserialize(context);
                 reader.ReadEndDocument();
                 return deserializedValue;
             }
@@ -97,10 +97,10 @@ namespace MongoDB.Bson.Serialization
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
             {
-                var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("value");
-                context.SerializeWithChildContext(_serializer, value);
+                _serializer.Serialize(context, value);
                 bsonWriter.WriteEndDocument();
                 return tempDocument[0];
             }
@@ -116,13 +116,13 @@ namespace MongoDB.Bson.Serialization
             var tempDocument = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(tempDocument))
             {
-                var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("values");
                 bsonWriter.WriteStartArray();
                 foreach (var value in values)
                 {
-                    context.SerializeWithChildContext(_serializer, value);
+                    _serializer.Serialize(context, value);
                 }
                 bsonWriter.WriteEndArray();
                 bsonWriter.WriteEndDocument();

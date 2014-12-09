@@ -112,9 +112,7 @@ namespace MongoDB.Driver.Core.Operations
                 bsonWriter.PushElementNameValidator(_elementNameValidator);
                 try
                 {
-                    var documentNominalType = serializer.ValueType;
-                    var documentContext = context.CreateChild(documentNominalType);
-                    serializer.Serialize(documentContext, document);
+                    serializer.Serialize(context, document);
                 }
                 finally
                 {

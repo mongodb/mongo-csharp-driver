@@ -54,8 +54,9 @@ namespace MongoDB.Driver
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        public override DistinctCommandResult<TValue> Deserialize(BsonDeserializationContext context)
+        public override DistinctCommandResult<TValue> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             var response = new BsonDocument();
@@ -71,7 +72,7 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    var value = BsonValueSerializer.Instance.Deserialize(context.CreateChild(typeof(BsonValue)));
+                    var value = BsonValueSerializer.Instance.Deserialize(context);
                     response.Add(name, value);
                 }
             }
@@ -89,7 +90,7 @@ namespace MongoDB.Driver
             bsonReader.ReadStartArray();
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                values.Add(context.DeserializeWithChildContext(_valueSerializer));
+                values.Add(_valueSerializer.Deserialize(context));
             }
             bsonReader.ReadEndArray();
 

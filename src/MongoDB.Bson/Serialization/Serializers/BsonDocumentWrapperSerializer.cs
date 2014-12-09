@@ -46,8 +46,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a class.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override BsonDocumentWrapper Deserialize(BsonDeserializationContext context)
+        public override BsonDocumentWrapper Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             throw CreateCannotBeDeserializedException();
         }
@@ -57,8 +58,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a class.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override BsonDocumentWrapper DeserializeValue(BsonDeserializationContext context)
+        protected override BsonDocumentWrapper DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             throw CreateCannotBeDeserializedException();
         }
@@ -67,10 +69,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, BsonDocumentWrapper value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, BsonDocumentWrapper value)
         {
-            context.SerializeWithChildContext(value.Serializer, value.Wrapped);
+            value.Serializer.Serialize(context, value.Wrapped);
         }
     }
 }

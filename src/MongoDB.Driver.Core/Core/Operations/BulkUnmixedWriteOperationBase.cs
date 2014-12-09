@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Core.Operations
                 return new ByteArrayBuffer(lastRequest, sliceOffset, lastRequest.Length - sliceOffset, true);
             }
 
-            public override void Serialize(BsonSerializationContext context, BatchableSource<WriteRequest> requestSource)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, BatchableSource<WriteRequest> requestSource)
             {
                 if (requestSource.Batch == null)
                 {
