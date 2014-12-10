@@ -27,18 +27,15 @@ namespace MongoDB.Bson.Serialization
         private readonly bool _allowDuplicateElementNames;
         private readonly IBsonSerializer _dynamicArraySerializer;
         private readonly IBsonSerializer _dynamicDocumentSerializer;
-        private readonly BsonDeserializationContext _parent;
         private readonly IBsonReader _reader;
 
         // constructors
         private BsonDeserializationContext(
-            BsonDeserializationContext parent,
             IBsonReader reader,
             bool allowDuplicateElementNames,
             IBsonSerializer dynamicArraySerializer,
             IBsonSerializer dynamicDocumentSerializer)
         {
-            _parent = parent;
             _reader = reader;
             _allowDuplicateElementNames = allowDuplicateElementNames;
             _dynamicArraySerializer = dynamicArraySerializer;
@@ -80,17 +77,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets the parent context.
-        /// </summary>
-        /// <value>
-        /// The parent context. The parent of the root context is null.
-        /// </value>
-        public BsonDeserializationContext Parent
-        {
-            get { return _parent; }
-        }
-
-        /// <summary>
         /// Gets the reader.
         /// </summary>
         /// <value>
@@ -124,13 +110,13 @@ namespace MongoDB.Bson.Serialization
 
         // public methods
         /// <summary>
-        /// Creates a child context.
+        /// Creates a new context with some values changed.
         /// </summary>
         /// <param name="configurator">The configurator.</param>
         /// <returns>
-        /// A child context.
+        /// A new context.
         /// </returns>
-        public BsonDeserializationContext CreateChild(
+        public BsonDeserializationContext With(
             Action<Builder> configurator = null)
         {
             var builder = new Builder(this, _reader);
@@ -151,24 +137,22 @@ namespace MongoDB.Bson.Serialization
             private bool _allowDuplicateElementNames;
             private IBsonSerializer _dynamicArraySerializer;
             private IBsonSerializer _dynamicDocumentSerializer;
-            private BsonDeserializationContext _parent;
             private IBsonReader _reader;
 
             // constructors
-            internal Builder(BsonDeserializationContext parent, IBsonReader reader)
+            internal Builder(BsonDeserializationContext other, IBsonReader reader)
             {
                 if (reader == null)
                 {
                     throw new ArgumentNullException("reader");
                 }
 
-                _parent = parent;
                 _reader = reader;
-                if (parent != null)
+                if (other != null)
                 {
-                    _allowDuplicateElementNames = parent.AllowDuplicateElementNames;
-                    _dynamicArraySerializer = parent.DynamicArraySerializer;
-                    _dynamicDocumentSerializer = parent.DynamicDocumentSerializer;
+                    _allowDuplicateElementNames = other.AllowDuplicateElementNames;
+                    _dynamicArraySerializer = other.DynamicArraySerializer;
+                    _dynamicDocumentSerializer = other.DynamicDocumentSerializer;
                 }
                 else
                 {
@@ -215,17 +199,6 @@ namespace MongoDB.Bson.Serialization
             }
 
             /// <summary>
-            /// Gets the parent.
-            /// </summary>
-            /// <value>
-            /// The parent.
-            /// </value>
-            public BsonDeserializationContext Parent
-            {
-                get { return _parent; }
-            }
-
-            /// <summary>
             /// Gets the reader.
             /// </summary>
             /// <value>
@@ -243,7 +216,7 @@ namespace MongoDB.Bson.Serialization
             /// <returns>A BsonDeserializationContext.</returns>
             internal BsonDeserializationContext Build()
             {
-                return new BsonDeserializationContext(_parent, _reader, _allowDuplicateElementNames, _dynamicArraySerializer, _dynamicDocumentSerializer);
+                return new BsonDeserializationContext(_reader, _allowDuplicateElementNames, _dynamicArraySerializer, _dynamicDocumentSerializer);
             }
         }
     }

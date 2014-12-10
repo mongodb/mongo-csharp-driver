@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Document:
-                    var dynamicContext = context.CreateChild(ConfigureDeserializationContext);
+                    var dynamicContext = context.With(ConfigureDeserializationContext);
                     bsonReader.ReadStartDocument();
                     var document = CreateDocument();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
@@ -82,7 +82,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             var metaObject = value.GetMetaObject(Expression.Constant(value));
             var memberNames = metaObject.GetDynamicMemberNames();
-            var dynamicContext = context.CreateChild(ConfigureSerializationContext);
+            var dynamicContext = context.With(ConfigureSerializationContext);
 
             bsonWriter.WriteStartDocument();
             foreach (var memberName in memberNames)

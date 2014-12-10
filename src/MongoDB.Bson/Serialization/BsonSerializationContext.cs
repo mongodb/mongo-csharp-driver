@@ -25,16 +25,13 @@ namespace MongoDB.Bson.Serialization
     {
         // private fields
         private readonly Func<Type, bool> _isDynamicType;
-        private readonly BsonSerializationContext _parent;
         private readonly IBsonWriter _writer;
 
         // constructors
         private BsonSerializationContext(
-            BsonSerializationContext parent,
             IBsonWriter writer,
             Func<Type, bool> isDynamicType)
         {
-            _parent = parent;
             _writer = writer;
             _isDynamicType = isDynamicType;
         }
@@ -47,17 +44,6 @@ namespace MongoDB.Bson.Serialization
         public Func<Type, bool> IsDynamicType
         {
             get { return _isDynamicType; }
-        }
-
-        /// <summary>
-        /// Gets the parent context.
-        /// </summary>
-        /// <value>
-        /// The parent context. The parent of the root context is null.
-        /// </value>
-        public BsonSerializationContext Parent
-        {
-            get { return _parent; }
         }
 
         /// <summary>
@@ -93,13 +79,13 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Creates a child context.
+        /// Creates a new context with some values changed.
         /// </summary>
         /// <param name="configurator">The serialization context configurator.</param>
         /// <returns>
-        /// A child context.
+        /// A new context.
         /// </returns>
-        public BsonSerializationContext CreateChild(
+        public BsonSerializationContext With(
             Action<Builder> configurator = null)
         {
             var builder = new Builder(this, _writer);
@@ -118,22 +104,20 @@ namespace MongoDB.Bson.Serialization
         {
             // private fields
             private Func<Type, bool> _isDynamicType;
-            private BsonSerializationContext _parent;
             private IBsonWriter _writer;
 
             // constructors
-            internal Builder(BsonSerializationContext parent, IBsonWriter writer)
+            internal Builder(BsonSerializationContext other, IBsonWriter writer)
             {
                 if (writer == null)
                 {
                     throw new ArgumentNullException("writer");
                 }
 
-                _parent = parent;
                 _writer = writer;
-                if (parent != null)
+                if (other != null)
                 {
-                    _isDynamicType = parent._isDynamicType;
+                    _isDynamicType = other._isDynamicType;
                 }
                 else
                 {
@@ -154,17 +138,6 @@ namespace MongoDB.Bson.Serialization
             }
 
             /// <summary>
-            /// Gets the parent.
-            /// </summary>
-            /// <value>
-            /// The parent.
-            /// </value>
-            public BsonSerializationContext Parent
-            {
-                get { return _parent; }
-            }
-
-            /// <summary>
             /// Gets the writer.
             /// </summary>
             /// <value>
@@ -182,7 +155,7 @@ namespace MongoDB.Bson.Serialization
             /// <returns>A BsonSerializationContext.</returns>
             internal BsonSerializationContext Build()
             {
-                return new BsonSerializationContext(_parent, _writer, _isDynamicType);
+                return new BsonSerializationContext(_writer, _isDynamicType);
             }
         }
     }
