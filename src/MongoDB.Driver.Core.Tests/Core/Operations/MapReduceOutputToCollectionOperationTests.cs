@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer]
+        [RequiresServer(ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public async Task ExecuteAsync_should_return_expected_result()
         {
             await EnsureTestDataAsync();
