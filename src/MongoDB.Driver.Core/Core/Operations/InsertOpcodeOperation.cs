@@ -174,12 +174,12 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<IEnumerable<WriteConcernResult>> InsertMultipleBatchesAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            var results = _writeConcern.Enabled ? new List<WriteConcernResult>() : null;
+            var results = _writeConcern.IsAcknowledged ? new List<WriteConcernResult>() : null;
             Exception finalException = null;
 
             WriteConcern batchWriteConcern = _writeConcern;
             Func<bool> shouldSendGetLastError = null;
-            if (!_writeConcern.Enabled && !_continueOnError)
+            if (!_writeConcern.IsAcknowledged && !_continueOnError)
             {
                 batchWriteConcern = WriteConcern.Acknowledged;
                 shouldSendGetLastError = () => _documentSource.HasMore;
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         finalException = ex;
                     }
-                    else if (_writeConcern.Enabled)
+                    else if (_writeConcern.IsAcknowledged)
                     {
                         results.Add(result);
                         ex.Data["results"] = results;
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Core.Operations
                 _documentSource.ClearBatch();
             }
 
-            if (_writeConcern.Enabled && finalException != null)
+            if (_writeConcern.IsAcknowledged && finalException != null)
             {
                 finalException.Data["results"] = results;
                 throw finalException;

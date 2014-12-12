@@ -343,11 +343,11 @@ namespace MongoDB.Driver.Tests
         [TestCase(true, true, "mongodb://localhost/?w=1")]
         [TestCase(true, true, "mongodb://localhost/?w=2")]
         [TestCase(true, true, "mongodb://localhost/?w=mode")]
-        public void TestGetWriteConcern_Enabled(bool enabledDefault, bool enabled, string connectionString)
+        public void TestGetWriteConcern_IsAcknowledged(bool acknowledgedDefault, bool acknowledged, string connectionString)
         {
             var builder = new MongoUrlBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(enabledDefault);
-            Assert.AreEqual(enabled, writeConcern.Enabled);
+            var writeConcern = builder.GetWriteConcern(acknowledgedDefault);
+            Assert.AreEqual(acknowledged, writeConcern.IsAcknowledged);
         }
 
         [Test]
@@ -387,12 +387,12 @@ namespace MongoDB.Driver.Tests
         [TestCase(true, true, 1, "mongodb://localhost/?w=1")]
         [TestCase(true, true, 2, "mongodb://localhost/?w=2")]
         [TestCase(true, true, "mode", "mongodb://localhost/?w=mode")]
-        public void TestGetWriteConcern_W(bool enabledDefault, bool enabled, object wobj, string connectionString)
+        public void TestGetWriteConcern_W(bool acknowledgedDefault, bool acknowledged, object wobj, string connectionString)
         {
             var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobj) : new WriteConcern.WMode((string)wobj);
             var builder = new MongoUrlBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(enabledDefault);
-            Assert.AreEqual(enabled, writeConcern.Enabled);
+            var writeConcern = builder.GetWriteConcern(acknowledgedDefault);
+            Assert.AreEqual(acknowledged, writeConcern.IsAcknowledged);
             Assert.AreEqual(w, writeConcern.W);
         }
 
@@ -856,15 +856,15 @@ namespace MongoDB.Driver.Tests
         [TestCase(true, true, 1, "mongodb://localhost/?w=1")]
         [TestCase(true, true, 2, "mongodb://localhost/?w=2")]
         [TestCase(true, true, "mode", "mongodb://localhost/?w=mode")]
-        public void TestW(bool enabledDefault, bool enabled, object wobj, string connectionString)
+        public void TestW(bool acknowledgedDefault, bool acknowledged, object wobj, string connectionString)
         {
             var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobj) : new WriteConcern.WMode((string)wobj);
             var built = new MongoUrlBuilder { Server = _localhost, W = w };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                var writeConcern = builder.GetWriteConcern(enabledDefault);
-                Assert.AreEqual(enabled, writeConcern.Enabled);
+                var writeConcern = builder.GetWriteConcern(acknowledgedDefault);
+                Assert.AreEqual(acknowledged, writeConcern.IsAcknowledged);
                 Assert.AreEqual(w, writeConcern.W);
                 Assert.AreEqual(connectionString, builder.ToString());
             }

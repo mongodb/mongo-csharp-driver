@@ -27,148 +27,361 @@ namespace MongoDB.Driver
     [TestFixture]
     public class WriteConcernTests
     {
-        [Test]
-        public void Acknowledged_should_return_properly_initialized_instance()
-        {
-            var writeConcern = WriteConcern.Acknowledged;
-            writeConcern.FSync.Should().NotHaveValue();
-            writeConcern.Journal.Should().NotHaveValue();
-            writeConcern.W.Should().BeNull();
-            writeConcern.WTimeout.Should().NotHaveValue();
-        }
+        private static readonly WriteConcern __default = new WriteConcern();
 
-        [TestCase(null, null, null, null)]
-        [TestCase(1, null, null, null)]
-        [TestCase(2, null, null, null)]
-        [TestCase(null, 1, null, null)]
-        [TestCase(null, 2, null, null)]
-        [TestCase(null, null, false, null)]
-        [TestCase(null, null, true, null)]
-        [TestCase(null, null, null, false)]
-        [TestCase(null, null, null, true)]
-        public void Constructor_with_four_arguments_should_properly_initialize_instance(int? w, int? wTimeoutSeconds, bool? fsync, bool? journal)
+        [Test]
+        public void Acknowledged_should_return_expected_result()
         {
-            var wCount = w.HasValue ? (WriteConcern.WValue)w.Value : null;
-            var wTimeout = wTimeoutSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(wTimeoutSeconds.Value) : null;
-            var writeConcern = new WriteConcern(wCount, wTimeout, fsync, journal);
-            writeConcern.W.Should().Be(wCount);
-            writeConcern.WTimeout.Should().Be(wTimeout);
-            writeConcern.FSync.Should().Be(fsync);
-            writeConcern.Journal.Should().Be(journal);
+            var result = WriteConcern.Acknowledged;
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().BeNull();
+            result.WTimeout.Should().NotHaveValue();
         }
 
         [Test]
-        public void Constructor_with_int_argument_should_properly_initialize_instance()
+        public void constructor_with_fsync_should_initialize_instance(
+            [Values(false, true, null)]
+            bool? fsync)
         {
-            var writeConcern = new WriteConcern(1);
-            writeConcern.FSync.Should().NotHaveValue();
-            writeConcern.Journal.Should().NotHaveValue();
-            writeConcern.W.Should().Be((WriteConcern.WValue)1);
-            writeConcern.WTimeout.Should().NotHaveValue();
+            var result = new WriteConcern(fsync: fsync);
+
+            result.FSync.Should().Be(fsync);
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().BeNull();
+            result.WTimeout.Should().NotHaveValue();
         }
 
         [Test]
-        public void Constructor_with_no_arguments_should_properly_initialize_instance()
+        public void constructor_with_journal_should_initialize_instance(
+            [Values(false, true, null)]
+            bool? journal)
         {
-            var writeConcern = new WriteConcern();
-            writeConcern.FSync.Should().NotHaveValue();
-            writeConcern.Journal.Should().NotHaveValue();
-            writeConcern.W.Should().BeNull();
-            writeConcern.WTimeout.Should().NotHaveValue();
+            var result = new WriteConcern(journal: journal);
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().Be(journal);
+            result.W.Should().BeNull();
+            result.WTimeout.Should().NotHaveValue();
         }
 
         [Test]
-        public void Constructor_with_string_argument_should_properly_initialize_instance()
+        public void constructor_with_mode_and_fsync_should_initialize_instance(
+            [Values("abc", "def")]
+            string mode,
+            [Values(false, true, null)]
+            bool? fsync)
         {
-            var writeConcern = new WriteConcern("mode");
-            writeConcern.FSync.Should().NotHaveValue();
-            writeConcern.Journal.Should().NotHaveValue();
-            writeConcern.W.Should().Be((WriteConcern.WValue)"mode");
-            writeConcern.WTimeout.Should().NotHaveValue();
+            var result = new WriteConcern(mode, fsync: fsync);
+
+            result.FSync.Should().Be(fsync);
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be(new WriteConcern.WMode(mode));
+            result.WTimeout.Should().NotHaveValue();
         }
 
-        [TestCase(null, null, null, null)]
-        [TestCase(1, null, null, null)]
-        [TestCase(2, null, null, null)]
-        [TestCase(null, 1, null, null)]
-        [TestCase(null, 2, null, null)]
-        [TestCase(null, null, false, null)]
-        [TestCase(null, null, true, null)]
-        [TestCase(null, null, null, false)]
-        [TestCase(null, null, null, true)]
-        public void Equals_should_return_true_if_all_fields_are_equal(int? w, int? wTimeoutSeconds, bool? fsync, bool? journal)
+        [Test]
+        public void constructor_with_mode_and_journal_should_initialize_instance(
+            [Values("abc", "def")]
+            string mode,
+            [Values(false, true, null)]
+            bool? journal)
         {
-            var wCount = w.HasValue ? (WriteConcern.WValue)w.Value : null;
-            var wTimeout = wTimeoutSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(wTimeoutSeconds.Value) : null;
-            var writeConcern1 = new WriteConcern(wCount, wTimeout, fsync, journal);
-            var writeConcern2 = new WriteConcern(wCount, wTimeout, fsync, journal);
-            writeConcern1.Equals((WriteConcern)writeConcern2).Should().BeTrue();
-            writeConcern1.Equals((object)writeConcern2).Should().BeTrue();
-            writeConcern1.GetHashCode().Should().Be(writeConcern2.GetHashCode());
+            var result = new WriteConcern(mode, journal: journal);
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().Be(journal);
+            result.W.Should().Be(new WriteConcern.WMode(mode));
+            result.WTimeout.Should().NotHaveValue();
         }
 
-        [TestCase(null, false)]
-        [TestCase(null, true)]
-        [TestCase(false, null)]
-        [TestCase(false, true)]
-        [TestCase(true, null)]
-        [TestCase(true, false)]
-        public void Equals_should_return_false_if_fsync_is_not_equal(bool? fsync1, bool? fsync2)
+        [Test]
+        public void constructor_with_mode_and_wTimeout_should_initialize_instance(
+            [Values("abc", "def")]
+            string mode,
+            [Values(1, null)]
+            int? wTimeoutSeconds)
         {
-            var writeConcern1 = new WriteConcern(null, null, fsync1, null);
-            var writeConcern2 = new WriteConcern(null, null, fsync2, null);
-            writeConcern1.Equals((WriteConcern)writeConcern2).Should().BeFalse();
-            writeConcern1.Equals((object)writeConcern2).Should().BeFalse();
-            writeConcern1.GetHashCode().Should().NotBe(writeConcern2.GetHashCode());
+            var wTimeout = ToWTimeout(wTimeoutSeconds);
+
+            var result = new WriteConcern(mode, wTimeout: wTimeout);
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be(new WriteConcern.WMode(mode));
+            result.WTimeout.Should().Be(wTimeout);
         }
 
-        [TestCase(null, false)]
-        [TestCase(null, true)]
-        [TestCase(false, null)]
-        [TestCase(false, true)]
-        [TestCase(true, null)]
-        [TestCase(true, false)]
-        public void Equals_should_return_false_if_journal_is_not_equal(bool? journal1, bool? journal2)
+        [Test]
+        public void constructor_with_mode_should_initialize_instance()
         {
-            var writeConcern1 = new WriteConcern(null, null, null, journal1);
-            var writeConcern2 = new WriteConcern(null, null, null, journal2);
-            writeConcern1.Equals((WriteConcern)writeConcern2).Should().BeFalse();
-            writeConcern1.Equals((object)writeConcern2).Should().BeFalse();
-            writeConcern1.GetHashCode().Should().NotBe(writeConcern2.GetHashCode());
+            var result = new WriteConcern("mode");
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be(new WriteConcern.WMode("mode"));
+            result.WTimeout.Should().NotHaveValue();
         }
 
-        [TestCase(null, 1)]
-        [TestCase(null, 2)]
-        [TestCase(1, null)]
-        [TestCase(1, 2)]
-        [TestCase(2, null)]
-        [TestCase(2, 1)]
-        public void Equals_should_return_false_if_w_is_not_equal(int? w1, int? w2)
+        [Test]
+        public void constructor_with_mode_should_throw_when_mode_is_empty()
         {
-            var wCount1 = w1.HasValue ? (WriteConcern.WValue)w1.Value : null;
-            var wCount2 = w2.HasValue ? (WriteConcern.WValue)w2.Value : null;
-            var writeConcern1 = new WriteConcern(wCount1, null, null, null);
-            var writeConcern2 = new WriteConcern(wCount2, null, null, null);
-            writeConcern1.Equals((WriteConcern)writeConcern2).Should().BeFalse();
-            writeConcern1.Equals((object)writeConcern2).Should().BeFalse();
-            writeConcern1.GetHashCode().Should().NotBe(writeConcern2.GetHashCode());
+            Action action = () => new WriteConcern(mode: "");
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("mode");
         }
 
-        [TestCase(null, 1)]
-        [TestCase(null, 2)]
-        [TestCase(1, null)]
-        [TestCase(1, 2)]
-        [TestCase(2, null)]
-        [TestCase(2, 1)]
-        public void Equals_should_return_false_if_wTimeout_is_not_equal(int? wTimeout1Seconds, int? wTimeout2Seconds)
+        [Test]
+        public void constructor_with_mode_should_throw_when_mode_is_null()
         {
-            var wTimeout1 = wTimeout1Seconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(wTimeout1Seconds.Value) : null;
-            var wTimeout2 = wTimeout2Seconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(wTimeout2Seconds.Value) : null;
-            var writeConcern1 = new WriteConcern(null, wTimeout1, null, null);
-            var writeConcern2 = new WriteConcern(null, wTimeout2, null, null);
-            writeConcern1.Equals((WriteConcern)writeConcern2).Should().BeFalse();
-            writeConcern1.Equals((object)writeConcern2).Should().BeFalse();
-            writeConcern1.GetHashCode().Should().NotBe(writeConcern2.GetHashCode());
+            Action action = () => new WriteConcern(mode: null);
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("mode");
+        }
+
+        [Test]
+        public void constructor_with_no_arguments_should_initialize_instance()
+        {
+            var result = new WriteConcern();
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().BeNull();
+            result.WTimeout.Should().NotHaveValue();
+        }
+
+        [Test]
+        public void constructor_with_w_should_initialize_instance(
+            [Values(0, 1)]
+            int w)
+        {
+            var result = new WriteConcern(w);
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be(new WriteConcern.WCount(w));
+            result.WTimeout.Should().NotHaveValue();
+        }
+
+        [Test]
+        public void constructor_with_w_should_throw_when_w_is_negative()
+        {
+            Action action = () => new WriteConcern(-1);
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("w");
+        }
+
+        [Test]
+        public void constructor_with_w_and_fsync_should_initialize_instance(
+            [Values(0, 1)]
+            int w,
+            [Values(false, true, null)]
+            bool? fsync)
+        {
+            var result = new WriteConcern(w, fsync: fsync);
+
+            result.FSync.Should().Be(fsync);
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be(new WriteConcern.WCount(w));
+            result.WTimeout.Should().NotHaveValue();
+        }
+
+        [Test]
+        public void constructor_with_w_and_journal_should_initialize_instance(
+            [Values(0, 1)]
+            int w,
+            [Values(false, true, null)]
+            bool? journal)
+        {
+            var result = new WriteConcern(w, journal: journal);
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().Be(journal);
+            result.W.Should().Be(new WriteConcern.WCount(w));
+            result.WTimeout.Should().NotHaveValue();
+        }
+
+        [Test]
+        public void constructor_with_w_and_wTimeout_should_initialize_instance(
+            [Values(0, 1)]
+            int w,
+            [Values(1, null)]
+            int? wTimeoutSeconds)
+        {
+            var wTimeout = ToWTimeout(wTimeoutSeconds);
+
+            var result = new WriteConcern(w, wTimeout: wTimeout);
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be(new WriteConcern.WCount(w));
+            result.WTimeout.Should().Be(wTimeout);
+        }
+
+        [Test]
+        public void constructor_with_wTimeout_should_initialize_instance(
+            [Values(1, null)]
+            int? wTimeoutSeconds)
+        {
+            var wTimeout = ToWTimeout(wTimeoutSeconds);
+
+            var result = new WriteConcern(wTimeout: wTimeout);
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().BeNull();
+            result.WTimeout.Should().Be(wTimeout);
+        }
+
+        [Test]
+        public void constructor_with_wTimeout_should_throw_when_wTimeout_is_negative()
+        {
+            Action action = () => new WriteConcern(wTimeout: TimeSpan.FromSeconds(-1));
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("wTimeout");
+        }
+
+        [Test]
+        public void constructor_with_wValue_should_initialize_instance(
+            [Values(1, "abc", null)]
+            object w)
+        {
+            var wValue = ToWValue(w);
+
+            var result = new WriteConcern(wValue);
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be(wValue);
+            result.WTimeout.Should().NotHaveValue();
+        }
+
+        [Test]
+        public void Equals_should_return_false_when_any_fields_are_not_equal(
+            [Values("fsync", "journal", "w", "wTimeout")]
+            string notEqualFieldName)
+        {
+            var subject1 = new WriteConcern(1, TimeSpan.FromSeconds(1), false, false);
+            WriteConcern subject2;
+            switch (notEqualFieldName)
+            {
+                case "fsync": subject2 = subject1.With(fsync: true); break;
+                case "journal": subject2 = subject1.With(journal: true); break;
+                case "w": subject2 = subject1.With(w: 2); break;
+                case "wTimeout": subject2 = subject1.With(wTimeout: TimeSpan.FromSeconds(2)); break;
+                default: throw new ArgumentException("notEqualFieldName");
+            }
+
+            var result1 = subject1.Equals(subject2);
+            var result2 = subject1.Equals((object)subject2);
+            var hashCode1 = subject1.GetHashCode();
+            var hashCode2 = subject2.GetHashCode();
+
+            result1.Should().BeFalse();
+            result2.Should().BeFalse();
+            hashCode1.Should().NotBe(hashCode2);
+        }
+
+        [Test]
+        public void Equals_should_return_false_when_other_is_null()
+        {
+            var subject = new WriteConcern(1, TimeSpan.FromSeconds(1), false, false);
+
+            var result1 = subject.Equals((WriteConcern)null);
+            var result2 = subject.Equals((object)null);
+
+            result1.Should().BeFalse();
+            result2.Should().BeFalse();
+        }
+
+        [Test]
+        public void Equals_should_return_false_when_other_is_wrong_type()
+        {
+            var subject = new WriteConcern(1, TimeSpan.FromSeconds(1), false, false);
+            var other = new object();
+
+            var result = subject.Equals(other);
+
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public void Equals_should_return_true_when_all_fields_are_equal()
+        {
+            var subject1 = new WriteConcern(1, TimeSpan.FromSeconds(1), false, false);
+            var subject2 = new WriteConcern(1, TimeSpan.FromSeconds(1), false, false);
+
+            var result1 = subject1.Equals(subject2);
+            var result2 = subject1.Equals((object)subject2);
+            var hashCode1 = subject1.GetHashCode();
+            var hashCode2 = subject2.GetHashCode();
+
+            result1.Should().BeTrue();
+            result2.Should().BeTrue();
+            hashCode1.Should().Be(hashCode2);
+        }
+
+        [TestCase(0, null, null, null, false)]
+        [TestCase(1, null, null, null, true)]
+        [TestCase(0, false, null, null, true)]
+        [TestCase(0, true, null, null, true)]
+        [TestCase(0, null, false, null, true)]
+        [TestCase(0, null, true, null, true)]
+        [TestCase(0, null, null, 1, true)]
+        public void IsAcknowledged_should_return_expected_result(
+            int? w,
+            bool? fsync,
+            bool? journal,
+            int? wTimeoutSeconds,
+            bool expectedResult)
+        {
+            var wValue = ToWValue(w);
+            var wTimeout = ToWTimeout(wTimeoutSeconds);
+            var subject = new WriteConcern(wValue, fsync: fsync, journal: journal, wTimeout: wTimeout);
+
+            var result = subject.IsAcknowledged;
+
+            result.Should().Be(expectedResult);
+            subject.Enabled.Should().Be(subject.IsAcknowledged); // Enabled should always have the same value as IsAcknowledged
+        }
+
+        [TestCase(null, null, null)]
+        [TestCase(false, null, null)]
+        [TestCase(true, null, null)]
+        [TestCase(null, false, null)]
+        [TestCase(null, true, null)]
+        [TestCase(null, null, 1)]
+        public void IsAcknowledged_should_return_expected_result(
+            bool? fsync,
+            bool? journal,
+            int? wTimeoutSeconds)
+        {
+            var wTimeout = ToWTimeout(wTimeoutSeconds);
+            var subject = new WriteConcern("mode", fsync: fsync, journal: journal, wTimeout: wTimeout);
+
+            var result = subject.IsAcknowledged;
+
+            result.Should().BeTrue();
+            subject.Enabled.Should().BeTrue(); // Enabled should always have the same value as IsAcknowledged
+        }
+
+        [TestCase(null, null, null, null, "{ }")]
+        [TestCase(1, null, null, null, "{ w : 1 }")]
+        [TestCase(null, 2, null, null, "{ wtimeout : 2000 }")]
+        [TestCase(null, null, true, null, "{ fsync : true }")]
+        [TestCase(null, null, null, true, "{ j : true }")]
+        [TestCase(1, 2, true, true, "{ w : 1, wtimeout : 2000, fsync : true, j : true }")]
+        [TestCase("majority", 2, true, true, "{ w : \"majority\", wtimeout : 2000, fsync : true, j : true }")]
+        public void ToBsonDocument_should_return_expected_result(object w, int? wTimeoutSeconds, bool? fsync, bool? journal, string expectedResult)
+        {
+            var wValue = ToWValue(w);
+            var wTimeout = ToWTimeout(wTimeoutSeconds);
+            var subject = new WriteConcern(wValue, wTimeout, fsync, journal);
+
+            var result = subject.ToBsonDocument();
+
+            result.Should().Be(expectedResult);
         }
 
         [TestCase(null, null, null, null, "{ }")]
@@ -178,174 +391,173 @@ namespace MongoDB.Driver
         [TestCase(null, null, null, true, "{ journal : true }")]
         [TestCase(1, 2, true, true, "{ w : 1, wtimeout : 2s, fsync : true, journal : true }")]
         [TestCase("majority", 2, true, true, "{ w : \"majority\", wtimeout : 2s, fsync : true, journal : true }")]
-        public void ToString_should_return_expected_value(object w, int? wTimeoutSeconds, bool? fsync, bool? journal, string expected)
+        public void ToString_should_return_expected_result(object w, int? wTimeoutSeconds, bool? fsync, bool? journal, string expectedResult)
         {
-            WriteConcern.WValue parsedW;
-            if(w == null)
+            var wValue = ToWValue(w);
+            var wTimeout = ToWTimeout(wTimeoutSeconds);
+            var subject = new WriteConcern(wValue, wTimeout, fsync, journal);
+
+            var result = subject.ToString();
+            
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void Unacknowledged_should_return_expected_result()
+        {
+            var result = WriteConcern.Unacknowledged;
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be((WriteConcern.WValue)0);
+            result.WTimeout.Should().NotHaveValue();
+        }
+
+        [Test]
+        public void W1_should_return_expected_result()
+        {
+            var result = WriteConcern.W1;
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be((WriteConcern.WValue)1);
+            result.WTimeout.Should().NotHaveValue();
+        }
+
+        [Test]
+        public void W2_should_return_expected_result()
+        {
+            var result = WriteConcern.W2;
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be((WriteConcern.WValue)2);
+            result.WTimeout.Should().NotHaveValue();
+        }
+
+        [Test]
+        public void W3_should_return_expected_result()
+        {
+            var result = WriteConcern.W3;
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be((WriteConcern.WValue)3);
+            result.WTimeout.Should().NotHaveValue();
+        }
+
+        [Test]
+        public void With_should_return_new_instance_when_any_value_is_not_equal(
+            [Values("w", "wTimeout", "fsync", "journal")]
+            string notEqualFieldName)
+        {
+            var w = (WriteConcern.WValue)1;
+            var wTimeout = TimeSpan.FromSeconds(2);
+            var fsync = false;
+            var journal = false;
+            var subject = new WriteConcern(w, wTimeout, fsync, journal);
+            switch (notEqualFieldName)
             {
-                parsedW = null;
+                case "w": w = (WriteConcern.WValue)2; break;
+                case "wTimeout": wTimeout = TimeSpan.FromSeconds(3); break;
+                case "fsync": fsync = true; break;
+                case "journal": journal = true; break;
+                default: throw new ArgumentException("notEqualFieldName");
             }
-            else if (w is int)
+
+            var result = subject.With(w, wTimeout, fsync, journal);
+
+            result.Should().NotBeSameAs(subject);
+            result.W.Should().Be(w);
+            result.WTimeout.Should().Be(wTimeout);
+            result.FSync.Should().Be(fsync);
+            result.Journal.Should().Be(journal);
+        }
+
+        [Test]
+        public void With_should_return_same_instance_when_all_values_are_equal()
+        {
+            var subject = new WriteConcern(1, TimeSpan.FromSeconds(2), true, true);
+
+            var result = subject.With(1, TimeSpan.FromSeconds(2), true, true);
+
+            result.Should().BeSameAs(subject);
+        }
+
+        [Test]
+        public void With_should_return_same_instance_when_no_values_are_provided()
+        {
+            var subject = new WriteConcern();
+
+            var result = subject.With();
+
+            result.Should().BeSameAs(subject);
+        }
+
+        [Test]
+        public void With_should_return_same_instance_when_value_is_equal(
+            [Values("w", "mode", "wValue", "wTimeout", "fsync", "journal")]
+            string fieldName)
+        {
+            var wValue = fieldName == "mode" ? (WriteConcern.WValue)new WriteConcern.WMode("mode") : new WriteConcern.WCount(1);
+            var wTimeout = TimeSpan.FromSeconds(2);
+            var fsync = false;
+            var journal = true;
+            var subject = new WriteConcern(wValue, wTimeout, fsync, journal);
+
+            WriteConcern result;
+            switch (fieldName)
             {
-                parsedW = new WriteConcern.WCount((int)w);
+                case "w": result = subject.With(w: 1); break;
+                case "mode": result = subject.With(mode: "mode"); break;
+                case "wValue": result = subject.With(w: wValue); break;
+                case "wTimeout": result = subject.With(wTimeout: wTimeout); break;
+                case "fsync": result = subject.With(fsync: fsync); break;
+                case "journal": result = subject.With(journal: journal); break;
+                default: throw new ArgumentException("providedFieldName");
+            }
+
+            result.Should().BeSameAs(subject);
+        }
+
+        [Test]
+        public void WMajority_should_return_expected_result()
+        {
+            var result = WriteConcern.WMajority;
+
+            result.FSync.Should().NotHaveValue();
+            result.Journal.Should().NotHaveValue();
+            result.W.Should().Be((WriteConcern.WMode)"majority");
+            result.WTimeout.Should().NotHaveValue();
+        }
+
+        // helper methods
+        private TimeSpan? ToWTimeout(int? wtimeoutSeconds)
+        {
+            if (wtimeoutSeconds.HasValue)
+            {
+                return TimeSpan.FromSeconds(wtimeoutSeconds.Value);
             }
             else
             {
-                parsedW = new WriteConcern.WMode((string)w);
+                return null;
             }
-
-            var wTimeout = wTimeoutSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(wTimeoutSeconds.Value) : null;
-            var writeConcern = new WriteConcern(parsedW, wTimeout, fsync, journal);
-            writeConcern.ToString().Should().Be(expected);
         }
 
-        [Test]
-        public void Unacknowledged_should_return_properly_initialized_instance()
+        private WriteConcern.WValue ToWValue(object w)
         {
-            var writeConcern = WriteConcern.Unacknowledged;
-            writeConcern.FSync.Should().NotHaveValue();
-            writeConcern.Journal.Should().NotHaveValue();
-            writeConcern.W.Should().Be((WriteConcern.WValue)0);
-            writeConcern.WTimeout.Should().NotHaveValue();
-        }
-
-        [Test]
-        public void W1_should_return_properly_initialized_instance()
-        {
-            var writeConcern = WriteConcern.W1;
-            writeConcern.FSync.Should().NotHaveValue();
-            writeConcern.Journal.Should().NotHaveValue();
-            writeConcern.W.Should().Be((WriteConcern.WValue)1);
-            writeConcern.WTimeout.Should().NotHaveValue();
-        }
-
-        [Test]
-        public void W2_should_return_properly_initialized_instance()
-        {
-            var writeConcern = WriteConcern.W2;
-            writeConcern.FSync.Should().NotHaveValue();
-            writeConcern.Journal.Should().NotHaveValue();
-            writeConcern.W.Should().Be((WriteConcern.WValue)2);
-            writeConcern.WTimeout.Should().NotHaveValue();
-        }
-
-        [Test]
-        public void W3_should_return_properly_initialized_instance()
-        {
-            var writeConcern = WriteConcern.W3;
-            writeConcern.FSync.Should().NotHaveValue();
-            writeConcern.Journal.Should().NotHaveValue();
-            writeConcern.W.Should().Be((WriteConcern.WValue)3);
-            writeConcern.WTimeout.Should().NotHaveValue();
-        }
-
-        [TestCase(null)]
-        [TestCase(false)]
-        [TestCase(true)]
-        public void WithFSync_should_return_same_instance_if_value_is_equal(bool? fsync)
-        {
-            var writeConcern1 = new WriteConcern(null, null, fsync, null);
-            var writeConcern2 = writeConcern1.WithFSync(fsync);
-            writeConcern2.Should().BeSameAs(writeConcern1);
-        }
-
-        [TestCase(null, false)]
-        [TestCase(null, true)]
-        [TestCase(false, null)]
-        [TestCase(false, true)]
-        [TestCase(true, null)]
-        [TestCase(true, false)]
-        public void WithFSync_should_return_new_instance_if_value_is_not_equal(bool? fsync1, bool? fsync2)
-        {
-            var writeConcern1 = new WriteConcern(null, null, fsync1, null);
-            var writeConcern2 = writeConcern1.WithFSync(fsync2);
-            writeConcern2.Should().NotBeSameAs(writeConcern1);
-            writeConcern2.FSync.Should().Be(fsync2);
-        }
-
-        [TestCase(null)]
-        [TestCase(false)]
-        [TestCase(true)]
-        public void WithJournal_should_return_same_instance_if_value_is_equal(bool? journal)
-        {
-            var writeConcern1 = new WriteConcern(null, null, null, journal);
-            var writeConcern2 = writeConcern1.WithJournal(journal);
-            writeConcern2.Should().BeSameAs(writeConcern1);
-        }
-
-        [TestCase(null, false)]
-        [TestCase(null, true)]
-        [TestCase(false, null)]
-        [TestCase(false, true)]
-        [TestCase(true, null)]
-        [TestCase(true, false)]
-        public void WithJournal_should_return_new_instance_if_value_is_not_equal(bool? journal1, bool? journal2)
-        {
-            var writeConcern1 = new WriteConcern(null, null, null, journal1);
-            var writeConcern2 = writeConcern1.WithJournal(journal2);
-            writeConcern2.Should().NotBeSameAs(writeConcern1);
-            writeConcern2.Journal.Should().Be(journal2);
-        }
-
-        [TestCase(null)]
-        [TestCase(1)]
-        [TestCase(2)]
-        public void WithW_should_return_same_instance_if_value_is_equal(int? wCount)
-        {
-            var writeConcern1 = new WriteConcern(wCount, null, null, null);
-            var writeConcern2 = writeConcern1.WithW(wCount);
-            writeConcern2.Should().BeSameAs(writeConcern1);
-        }
-
-        [TestCase(null, 1)]
-        [TestCase(null, 2)]
-        [TestCase(1, null)]
-        [TestCase(1, 2)]
-        [TestCase(2, null)]
-        [TestCase(2, 1)]
-        public void WithW_should_return_new_instance_if_value_is_not_equal(int? wCount1, int? wCount2)
-        {
-            var writeConcern1 = new WriteConcern(wCount1, null, null, null);
-            var writeConcern2 = writeConcern1.WithW(wCount2);
-            writeConcern2.Should().NotBeSameAs(writeConcern1);
-            writeConcern2.W.Should().Be((WriteConcern.WValue)wCount2);
-        }
-
-        [TestCase(null)]
-        [TestCase(1)]
-        [TestCase(2)]
-        public void WithWTimeout_should_return_same_instance_if_value_is_equal(int? wTimeoutSeconds)
-        {
-            var wTimeout = wTimeoutSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(wTimeoutSeconds.Value) : null;
-            var writeConcern1 = new WriteConcern(null, wTimeout, null, null);
-            var writeConcern2 = writeConcern1.WithWTimeout(wTimeout);
-            writeConcern2.Should().BeSameAs(writeConcern1);
-        }
-
-        [TestCase(null, 1)]
-        [TestCase(null, 2)]
-        [TestCase(1, null)]
-        [TestCase(1, 2)]
-        [TestCase(2, null)]
-        [TestCase(2, 1)]
-        public void WithWTimeout_should_return_new_instance_if_value_is_not_equal(int? wTimeoutSeconds1, int? wTimeoutSeconds2)
-        {
-            var wTimeout1 = wTimeoutSeconds1.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(wTimeoutSeconds1.Value) : null;
-            var wTimeout2 = wTimeoutSeconds2.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(wTimeoutSeconds2.Value) : null;
-            var writeConcern1 = new WriteConcern(null, wTimeout1, null, null);
-            var writeConcern2 = writeConcern1.WithWTimeout(wTimeout2);
-            writeConcern2.Should().NotBeSameAs(writeConcern1);
-            writeConcern2.WTimeout.Should().Be(wTimeout2);
-        }
-
-        [Test]
-        public void WMajority_should_return_properly_initialized_instance()
-        {
-            var writeConcern = WriteConcern.WMajority;
-            writeConcern.FSync.Should().NotHaveValue();
-            writeConcern.Journal.Should().NotHaveValue();
-            writeConcern.W.Should().Be((WriteConcern.WValue)"majority");
-            writeConcern.WTimeout.Should().NotHaveValue();
+            if (w == null)
+            {
+                return null;
+            }
+            else if (w is int)
+            {
+                return new WriteConcern.WCount((int)w);
+            }
+            else
+            {
+                return new WriteConcern.WMode((string)w);
+            }
         }
     }
 
@@ -353,41 +565,65 @@ namespace MongoDB.Driver
     public class WriteConcernWValueTests
     {
         [Test]
-        public void Static_implicit_conversion_with_int_argument_returns_properly_initialized_instance()
+        public void implicit_conversion_from_int_should_return_expected_result()
         {
-            WriteConcern.WValue wValue = 1;
-            wValue.Should().BeOfType<WriteConcern.WCount>();
-            ((WriteConcern.WCount)wValue).Value.Should().Be(1);
+            WriteConcern.WValue result = 1;
+
+            result.Should().BeOfType<WriteConcern.WCount>();
+            ((WriteConcern.WCount)result).Value.Should().Be(1);
         }
 
         [Test]
-        public void Static_implicit_conversion_with_null_int_argument_returns_properly_initialized_instance()
+        public void implicit_conversion_from_nullable_int_should_return_expected_result_when_value_is_not_null()
         {
-            WriteConcern.WValue wValue = (int?)null;
-            wValue.Should().BeNull();
+            WriteConcern.WValue result = (int?)1;
+
+            result.Should().BeOfType<WriteConcern.WCount>();
+            ((WriteConcern.WCount)result).Value.Should().Be(1);
         }
 
         [Test]
-        public void Static_implicit_conversion_with_nullable_int_argument_returns_properly_initialized_instance()
+        public void implicit_conversion_from_nullable_int_should_return_expected_result_when_value_is_null()
         {
-            WriteConcern.WValue wValue = (int?)1;
-            wValue.Should().BeOfType<WriteConcern.WCount>();
-            ((WriteConcern.WCount)wValue).Value.Should().Be(1);
+            WriteConcern.WValue result = (int?)null;
+
+            result.Should().BeNull();
         }
 
         [Test]
-        public void Static_implicit_conversion_with_string_argument_returns_properly_initialized_instance()
+        public void implicit_conversion_from_string_should_return_expected_result_when_value_is_not_null()
         {
-            WriteConcern.WValue wValue = "mode";
-            wValue.Should().BeOfType<WriteConcern.WMode>();
-            ((WriteConcern.WMode)wValue).Value.Should().Be("mode");
+            WriteConcern.WValue result = (string)null;
+
+            result.Should().BeNull();
         }
 
         [Test]
-        public void Static_implicit_conversion_with_null_string_argument_returns_properly_initialized_instance()
+        public void implicit_conversion_from_string_should_return_expected_result_when_value_is_null()
         {
-            WriteConcern.WValue wValue = (string)null;
-            wValue.Should().BeNull();
+            WriteConcern.WValue result = "mode";
+
+            result.Should().BeOfType<WriteConcern.WMode>();
+            ((WriteConcern.WMode)result).Value.Should().Be("mode");
+        }
+
+        [Test]
+        public void Parse_should_return_expected_result_when_value_is_not_numeric()
+        {
+            var result = WriteConcern.WValue.Parse("mode");
+
+            result.Should().Be(new WriteConcern.WMode("mode"));
+        }
+
+        [TestCase("0", 0)]
+        [TestCase("1", 1)]
+        public void Parse_should_return_expected_result_when_value_is_numeric(
+            string value,
+            int w)
+        {
+            var result = WriteConcern.WValue.Parse(value);
+
+            result.Should().Be(new WriteConcern.WCount(w));
         }
     }
 
@@ -396,55 +632,72 @@ namespace MongoDB.Driver
     {
         [TestCase(0)]
         [TestCase(1)]
-        public void Constructor_should_initialize_instance(int w)
+        public void constructor_should_initialize_instance(int w)
         {
-            var wCount = new WriteConcern.WCount(w);
-            wCount.Value.Should().Be(w);
+            var result = new WriteConcern.WCount(w);
+
+            result.Value.Should().Be(w);
         }
 
         [Test]
-        public void Constructor_with_negative_value_should_throw()
+        public void constructor_should_throw_when_w_is_negative()
         {
             Action action = () => new WriteConcern.WCount(-1);
-            action.ShouldThrow<ArgumentOutOfRangeException>();
-        }
 
-        [TestCase(0, 1)]
-        [TestCase(1, 0)]
-        public void Equals_should_return_false_if_any_fields_are_not_equal(int w1, int w2)
-        {
-            var wCount1 = new WriteConcern.WCount(w1);
-            var wCount2 = new WriteConcern.WCount(w2);
-            wCount1.Equals(wCount2).Should().BeFalse();
-            wCount1.Equals((object)wCount2).Should().BeFalse();
-            wCount1.GetHashCode().Should().NotBe(wCount2.GetHashCode());
-        }
-
-        [TestCase(0)]
-        [TestCase(1)]
-        public void Equals_should_return_true_if_all_fields_are_equal(int w)
-        {
-            var wCount1 = new WriteConcern.WCount(w);
-            var wCount2 = new WriteConcern.WCount(w);
-            wCount1.Equals(wCount2).Should().BeTrue();
-            wCount1.Equals((object)wCount2).Should().BeTrue();
-            wCount1.GetHashCode().Should().Be(wCount2.GetHashCode());
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("w");
         }
 
         [Test]
-        public void ToBsonValue_should_return_proper_value()
+        public void Equals_should_return_false_if_any_fields_are_not_equal()
         {
-            var wCount = new WriteConcern.WCount(1);
-            var bsonValue = wCount.ToBsonValue();
-            bsonValue.Should().BeOfType<BsonInt32>();
-            bsonValue.AsInt32.Should().Be(1);
+            var subject1 = new WriteConcern.WCount(0);
+            var subject2 = new WriteConcern.WCount(1);
+
+            var result1 = subject1.Equals(subject2);
+            var result2 = subject1.Equals((object)subject2);
+            var hashCode1 = subject1.GetHashCode();
+            var hashCode2 = subject2.GetHashCode();
+
+            result1.Should().BeFalse();
+            result2.Should().BeFalse();
+            hashCode1.Should().NotBe(hashCode2);
         }
 
         [Test]
-        public void ToString_should_return_proper_value()
+        public void Equals_should_return_true_if_all_fields_are_equal()
         {
-            var wCount = new WriteConcern.WCount(1);
-            wCount.ToString().Should().Be("1");
+            var subject1 = new WriteConcern.WCount(1);
+            var subject2 = new WriteConcern.WCount(1);
+
+            var result1 = subject1.Equals(subject2);
+            var result2 = subject1.Equals((object)subject2);
+            var hashCode1 = subject1.GetHashCode();
+            var hashCode2 = subject2.GetHashCode();
+
+            result1.Should().BeTrue();
+            result2.Should().BeTrue();
+            hashCode1.Should().Be(hashCode2);
+        }
+
+        [Test]
+        public void ToBsonValue_should_return_expected_result()
+        {
+            var subject = new WriteConcern.WCount(1);
+
+            var result = subject.ToBsonValue();
+
+            result.Should().BeOfType<BsonInt32>();
+            result.AsInt32.Should().Be(1);
+        }
+
+        [Test]
+        public void ToString_should_return_expected_result()
+        {
+            var subject = new WriteConcern.WCount(1);
+
+            var result = subject.ToString();
+            
+            result.Should().Be("1");
         }
     }
 
@@ -452,86 +705,88 @@ namespace MongoDB.Driver
     public class WriteConcernWModeTests
     {
         [Test]
-        public void Constructor_should_initialize_instance()
+        public void constructor_should_initialize_instance()
         {
-            var mode = new WriteConcern.WMode("mode");
-            mode.Value.Should().Be("mode");
+            var result = new WriteConcern.WMode("mode");
+
+            result.Value.Should().Be("mode");
         }
 
         [Test]
-        public void Constructor_with_empty_mode_should_throw()
+        public void constructor_should_throw_when_mode_is_empty()
         {
             Action action = () => new WriteConcern.WMode("");
-            action.ShouldThrow<ArgumentException>();
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("mode");
         }
 
         [Test]
-        public void Constructor_with_null_mode_should_throw()
+        public void constructor_should_throw_when_mode_is_null()
         {
             Action action = () => new WriteConcern.WMode(null);
-            action.ShouldThrow<ArgumentNullException>();
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("mode");
         }
 
         [Test]
-        public void Majority_should_return_proper_value()
+        public void Majority_should_return_expected_result()
         {
-            var mode = WriteConcern.WMode.Majority;
-            mode.Value.Should().Be("majority");
-        }
+            var result = WriteConcern.WMode.Majority;
 
-        [TestCase("mode1", "mode2")]
-        [TestCase("mode2", "mode1")]
-        public void Equals_should_return_false_if_values_are_not_equal(string value1, string value2)
-        {
-            var wMode1 = new WriteConcern.WMode(value1);
-            var wMode2 = new WriteConcern.WMode(value2);
-            wMode1.Equals(wMode2).Should().BeFalse();
-            wMode1.Equals((object)wMode2).Should().BeFalse();
-            wMode1.GetHashCode().Should().NotBe(wMode2.GetHashCode());
+            result.Value.Should().Be("majority");
         }
 
         [Test]
-        public void Equals_should_return_true_if_all_fields_are_equal()
+        public void Equals_should_return_false_when_any_fields_are_not_equal()
         {
-            var wMode1 = new WriteConcern.WMode("mode");
-            var wMode2 = new WriteConcern.WMode("mode");
-            wMode1.Equals(wMode2).Should().BeTrue();
-            wMode1.Equals((object)wMode2).Should().BeTrue();
-            wMode1.GetHashCode().Should().Be(wMode2.GetHashCode());
+            var subject1 = new WriteConcern.WMode("mode1");
+            var subject2 = new WriteConcern.WMode("mode2");
+
+            var result1 = subject1.Equals(subject2);
+            var result2 = subject1.Equals((object)subject2);
+            var hashCode1 = subject1.GetHashCode();
+            var hashCode2 = subject2.GetHashCode();
+
+            result1.Should().BeFalse();
+            result2.Should().BeFalse();
+            hashCode1.Should().NotBe(hashCode2);
         }
 
         [Test]
-        public void ToBsonValue_should_return_proper_value()
+        public void Equals_should_return_true_when_all_fields_are_equal()
         {
-            var wMode = new WriteConcern.WMode("mode");
-            var bsonValue = wMode.ToBsonValue();
-            bsonValue.Should().BeOfType<BsonString>();
-            bsonValue.AsString.Should().Be("mode");
+            var subject1 = new WriteConcern.WMode("mode");
+            var subject2 = new WriteConcern.WMode("mode");
+
+            var result1 = subject1.Equals(subject2);
+            var result2 = subject1.Equals((object)subject2);
+            var hashCode1 = subject1.GetHashCode();
+            var hashCode2 = subject2.GetHashCode();
+
+            result1.Should().BeTrue();
+            result2.Should().BeTrue();
+            hashCode1.Should().Be(hashCode2);
         }
 
         [Test]
-        public void ToString_should_return_proper_value()
+        public void ToBsonValue_should_return_expected_result()
         {
-            var wMode = new WriteConcern.WMode("mode");
-            wMode.ToString().Should().Be("mode");
+            var subject = new WriteConcern.WMode("mode");
+
+            var result = subject.ToBsonValue();
+
+            result.Should().BeOfType<BsonString>();
+            result.AsString.Should().Be("mode");
         }
 
         [Test]
-        public void WValue_Parse_should_create_WCount_when_the_value_is_a_number()
+        public void ToString_should_return_expected_result()
         {
-            var wValue = WriteConcern.WValue.Parse("2");
+            var subject = new WriteConcern.WMode("mode");
 
-            wValue.Should().BeOfType<WriteConcern.WCount>();
-            ((WriteConcern.WCount)wValue).Value.Should().Be(2);
-        }
-
-        [Test]
-        public void WValue_Parse_should_create_WMode_when_value_is_not_a_number()
-        {
-            var wValue = WriteConcern.WValue.Parse("goofy");
-
-            wValue.Should().BeOfType<WriteConcern.WMode>();
-            ((WriteConcern.WMode)wValue).Value.Should().Be("goofy");
+            var result = subject.ToString();
+            
+            result.Should().Be("mode");
         }
     }
 }

@@ -41,6 +41,23 @@ namespace MongoDB.Driver.Core.Misc
             _value = value;
         }
 
+        public bool HasValue
+        {
+            get { return _hasValue; }
+        }
+
+        public T Value
+        {
+            get
+            {
+                if (!_hasValue)
+                {
+                    throw new InvalidOperationException("This instance does not have a value.");
+                }
+                return _value;                
+            }
+        }
+
         public static implicit operator Optional<T>(T value)
         {
             return new Optional<T>(value);

@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests
 
             var mongoUrl = new MongoUrl(connectionString);
             var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
-            if (!clientSettings.WriteConcern.Enabled)
+            if (!clientSettings.WriteConcern.IsAcknowledged)
             {
                 clientSettings.WriteConcern = WriteConcern.Acknowledged; // ensure WriteConcern is enabled regardless of what the URL says
             }

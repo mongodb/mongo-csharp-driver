@@ -1193,7 +1193,7 @@ namespace MongoDB.Driver.Tests.Operations
                 var bulk = _collection.InitializeUnorderedBulkOperation();
                 bulk.Insert(new BsonDocument("_id", 1));
                 bulk.Insert(new BsonDocument("_id", 1));
-                var exception = Assert.Throws<MongoBulkWriteException<BsonDocument>>(() => bulk.Execute(new WriteConcern(999, TimeSpan.FromMilliseconds(1), null, null)));
+                var exception = Assert.Throws<MongoBulkWriteException<BsonDocument>>(() => bulk.Execute(new WriteConcern(w: 999, wTimeout: TimeSpan.FromMilliseconds(1))));
                 var result = exception.Result;
 
                 var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 2 };
