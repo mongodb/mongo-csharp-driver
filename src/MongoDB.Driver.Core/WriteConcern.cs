@@ -105,11 +105,6 @@ namespace MongoDB.Driver
         }
 
         // properties
-        public bool Enabled
-        {
-            get { return IsAcknowledged; }
-        }
-
         public bool? FSync
         {
             get { return _fsync; }

@@ -343,7 +343,6 @@ namespace MongoDB.Driver
             var result = subject.IsAcknowledged;
 
             result.Should().Be(expectedResult);
-            subject.Enabled.Should().Be(subject.IsAcknowledged); // Enabled should always have the same value as IsAcknowledged
         }
 
         [TestCase(null, null, null)]
@@ -363,7 +362,6 @@ namespace MongoDB.Driver
             var result = subject.IsAcknowledged;
 
             result.Should().BeTrue();
-            subject.Enabled.Should().BeTrue(); // Enabled should always have the same value as IsAcknowledged
         }
 
         [TestCase(null, null, null, null, "{ }")]
