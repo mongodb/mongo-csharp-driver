@@ -62,6 +62,11 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             }
         }
 
+        public override string ToString()
+        {
+            return string.Format("ReadPreferenceServerSelector{{ ReadPreference = {0} }}", _readPreference);
+        }
+
         private IEnumerable<ServerDescription> SelectByTagSets(IEnumerable<ServerDescription> servers)
         {
             var tagSets = _readPreference.TagSets;

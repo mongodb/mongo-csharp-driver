@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 MaxConnectionPoolSize = 10,
                 MinConnectionPoolSize = 5,
                 ReplicaSetName = "rs",
+                SecondaryAcceptableLatency = TimeSpan.FromMilliseconds(20),
                 Servers = servers,
                 SocketTimeout = TimeSpan.FromSeconds(4),
                 SslSettings = sslSettings,
@@ -72,6 +73,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             subject.MaxConnectionPoolSize.Should().Be(clientSettings.MaxConnectionPoolSize);
             subject.MinConnectionPoolSize.Should().Be(clientSettings.MinConnectionPoolSize);
             subject.ReplicaSetName.Should().Be(clientSettings.ReplicaSetName);
+            subject.SecondaryAcceptableLatency.Should().Be(clientSettings.SecondaryAcceptableLatency);
             subject.Servers.Should().Equal(clientSettings.Servers);
             subject.SocketTimeout.Should().Be(clientSettings.SocketTimeout);
             subject.SslSettings.Should().Be(clientSettings.SslSettings);
@@ -105,6 +107,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 MaxConnectionPoolSize = 10,
                 MinConnectionPoolSize = 5,
                 ReplicaSetName = "rs",
+                SecondaryAcceptableLatency = TimeSpan.FromMilliseconds(20),
                 Servers = servers,
                 SocketTimeout = TimeSpan.FromSeconds(4),
                 SslSettings = sslSettings,
@@ -125,6 +128,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             subject.MaxConnectionPoolSize.Should().Be(serverSettings.MaxConnectionPoolSize);
             subject.MinConnectionPoolSize.Should().Be(serverSettings.MinConnectionPoolSize);
             subject.ReplicaSetName.Should().Be(serverSettings.ReplicaSetName);
+            subject.SecondaryAcceptableLatency.Should().Be(serverSettings.SecondaryAcceptableLatency);
             subject.Servers.Should().Equal(serverSettings.Servers);
             subject.SocketTimeout.Should().Be(serverSettings.SocketTimeout);
             subject.SslSettings.Should().Be(serverSettings.SslSettings);
@@ -153,6 +157,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [TestCase("MaxConnectionPoolSize", true)]
         [TestCase("MinConnectionPoolSize", true)]
         [TestCase("ReplicaSetName", true)]
+        [TestCase("SecondaryAcceptableLatency", true)]
         [TestCase("Servers", false)]
         [TestCase("SocketTimeout", true)]
         [TestCase("SslSettings", true)]
@@ -181,6 +186,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var maxConnectionPoolSize = 50;
             var minConnectionPoolSize = 5;
             var replicaSetName = "abc";
+            var secondaryAcceptableLatency = TimeSpan.FromMilliseconds(20);
             var servers = new[] { new MongoServerAddress("localhost") };
             var socketTimeout = TimeSpan.FromSeconds(4);
             var sslSettings = new SslSettings
@@ -191,7 +197,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var useSsl = false;
             var verifySslCertificate = false;
             var waitQueueSize = 20;
-            var waitQueueTimeout =TimeSpan.FromSeconds(5);
+            var waitQueueTimeout = TimeSpan.FromSeconds(5);
 
             switch (notEqualFieldName)
             {
@@ -204,6 +210,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 case "MaxConnectionPoolSize": maxConnectionPoolSize = 99; break;
                 case "MinConnectionPoolSize": minConnectionPoolSize = 99; break;
                 case "ReplicaSetName": replicaSetName = "different"; break;
+                case "SecondaryAcceptableLatency": secondaryAcceptableLatency = TimeSpan.FromMilliseconds(99); break;
                 case "Servers": servers = new[] { new MongoServerAddress("different") }; break;
                 case "SocketTimeout": socketTimeout = TimeSpan.FromSeconds(99); break;
                 case "SslSettings": sslSettings.CheckCertificateRevocation = !sslSettings.CheckCertificateRevocation; break;
@@ -225,6 +232,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 MaxConnectionPoolSize = maxConnectionPoolSize,
                 MinConnectionPoolSize = minConnectionPoolSize,
                 ReplicaSetName = replicaSetName,
+                SecondaryAcceptableLatency = secondaryAcceptableLatency,
                 Servers = servers,
                 SocketTimeout = socketTimeout,
                 SslSettings = sslSettings,

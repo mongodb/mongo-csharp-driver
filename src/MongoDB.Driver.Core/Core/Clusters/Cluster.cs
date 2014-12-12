@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -183,6 +184,25 @@ namespace MongoDB.Driver.Core.Clusters
             var timeoutAt = DateTime.UtcNow + _settings.ServerSelectionTimeout;
 
             var serverSelectionWaitQueueEntered = false;
+
+            if (_settings.PreServerSelector != null || _settings.PostServerSelector != null)
+            {
+                var allSelectors = new List<IServerSelector>();
+                if(_settings.PreServerSelector != null)
+                {
+                    allSelectors.Add(_settings.PreServerSelector);
+                }
+
+                allSelectors.Add(selector);
+
+                if(_settings.PostServerSelector != null)
+                {
+                    allSelectors.Add(_settings.PostServerSelector);
+                }
+
+                selector = new CompositeServerSelector(allSelectors);
+            }
+
             try
             {
                 while (true)
@@ -226,10 +246,10 @@ namespace MongoDB.Driver.Core.Clusters
                     var timeoutRemaining = timeoutAt - DateTime.UtcNow;
                     if (timeoutRemaining <= TimeSpan.Zero)
                     {
-                        ThrowTimeoutException(description);
+                        ThrowTimeoutException(selector, description);
                     }
 
-                    await WaitForDescriptionChangedAsync(description, descriptionChangedTask, timeoutRemaining, cancellationToken).ConfigureAwait(false);
+                    await WaitForDescriptionChangedAsync(selector, description, descriptionChangedTask, timeoutRemaining, cancellationToken).ConfigureAwait(false);
                 }
             }
             finally
@@ -261,12 +281,13 @@ namespace MongoDB.Driver.Core.Clusters
             oldDescriptionChangedTaskCompletionSource.TrySetResult(true);
         }
 
-        private string BuildTimeoutExceptionMessage(TimeSpan timeout, ClusterDescription clusterDescription)
+        private string BuildTimeoutExceptionMessage(TimeSpan timeout, IServerSelector selector, ClusterDescription clusterDescription)
         {
             var ms = (int)Math.Round(timeout.TotalMilliseconds);
             return string.Format(
-                "A timeout occured after {0}ms selecting a server. Client view of cluster state is {1}.",
+                "A timeout occured after {0}ms selecting a server using {1}. Client view of cluster state is {2}.",
                 ms.ToString(),
+                selector.ToString(),
                 clusterDescription.ToString());
         }
 
@@ -298,7 +319,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private async Task WaitForDescriptionChangedAsync(ClusterDescription description, Task descriptionChangedTask, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task WaitForDescriptionChangedAsync(IServerSelector selector, ClusterDescription description, Task descriptionChangedTask, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var cancellationTaskCompletionSource = new TaskCompletionSource<bool>();
             using (cancellationToken.Register(() => cancellationTaskCompletionSource.TrySetCanceled()))
@@ -309,7 +330,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 if (completedTask == timeoutTask)
                 {
-                    ThrowTimeoutException(description);
+                    ThrowTimeoutException(selector, description);
                 }
                 timeoutCancellationTokenSource.Cancel();
 
@@ -322,9 +343,9 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private void ThrowTimeoutException(ClusterDescription description)
+        private void ThrowTimeoutException(IServerSelector selector, ClusterDescription description)
         {
-            var message = BuildTimeoutExceptionMessage(_settings.ServerSelectionTimeout, description);
+            var message = BuildTimeoutExceptionMessage(_settings.ServerSelectionTimeout, selector, description);
             throw new TimeoutException(message);
         }
 

@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Communication.Security
@@ -62,6 +63,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 MaxConnectionPoolSize = 10,
                 MinConnectionPoolSize = 5,
                 ReplicaSetName = "rs",
+                SecondaryAcceptableLatency = TimeSpan.FromMilliseconds(20),
                 Servers = servers,
                 SocketTimeout = TimeSpan.FromSeconds(4),
                 SslSettings = sslSettings,
@@ -80,6 +82,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 cluster.Settings.ConnectionMode.Should().Be(ClusterConnectionMode.ReplicaSet);
                 cluster.Settings.EndPoints.Equals(endPoints);
                 cluster.Settings.ReplicaSetName.Should().Be("rs");
+                cluster.Settings.PostServerSelector.Should().NotBeNull().And.Subject.Should().BeOfType<LatencyLimitingServerSelector>();
 
                 var serverDescription = cluster.Description.Servers.Single(s => s.EndPoint.Equals(endPoints[0]));
                 serverDescription.EndPoint.Should().Be(endPoints[0]);

@@ -19,6 +19,7 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
@@ -81,7 +82,8 @@ namespace MongoDB.Driver.Communication
             return new ClusterSettings(
                 connectionMode: clusterKey.ConnectionMode.ToCore(),
                 endPoints: Optional.Create(endPoints),
-                replicaSetName: clusterKey.ReplicaSetName);
+                replicaSetName: clusterKey.ReplicaSetName,
+                postServerSelector: new LatencyLimitingServerSelector(clusterKey.SecondaryAcceptableLatency));
         }
 
         private ConnectionPoolSettings CreateConnectionPoolSettings(ClusterKey clusterKey)

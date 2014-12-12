@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Communication
         private readonly int _minConnectionPoolSize;
         private readonly int _receiveBufferSize;
         private readonly string _replicaSetName;
+        private readonly TimeSpan _secondaryAcceptableLatency;
         private readonly int _sendBufferSize;
         private readonly IReadOnlyList<MongoServerAddress> _servers;
         private readonly TimeSpan _socketTimeout;
@@ -81,6 +82,7 @@ namespace MongoDB.Driver.Communication
             _minConnectionPoolSize = clientSettings.MinConnectionPoolSize;
             _receiveBufferSize = __defaultReceiveBufferSize; // TODO: add ReceiveBufferSize to MongoClientSettings?
             _replicaSetName = clientSettings.ReplicaSetName;
+            _secondaryAcceptableLatency = clientSettings.SecondaryAcceptableLatency;
             _sendBufferSize = __defaultSendBufferSize; // TODO: add SendBufferSize to MongoClientSettings?
             _servers = clientSettings.Servers.ToList();
             _socketTimeout = clientSettings.SocketTimeout;
@@ -106,6 +108,7 @@ namespace MongoDB.Driver.Communication
             _minConnectionPoolSize = serverSettings.MinConnectionPoolSize;
             _receiveBufferSize = __defaultReceiveBufferSize; // TODO: add ReceiveBufferSize to MongoServerSettings?
             _replicaSetName = serverSettings.ReplicaSetName;
+            _secondaryAcceptableLatency = serverSettings.SecondaryAcceptableLatency;
             _sendBufferSize = __defaultSendBufferSize; // TODO: add SendBufferSize to MongoServerSettings?
             _servers = serverSettings.Servers.ToList();
             _socketTimeout = serverSettings.SocketTimeout;
@@ -130,6 +133,7 @@ namespace MongoDB.Driver.Communication
         public int MinConnectionPoolSize { get { return _minConnectionPoolSize; } }
         public int ReceiveBufferSize { get { return _receiveBufferSize; } }
         public string ReplicaSetName { get { return _replicaSetName; } }
+        public TimeSpan SecondaryAcceptableLatency { get { return _secondaryAcceptableLatency; } }
         public int SendBufferSize { get { return _sendBufferSize; } }
         public IReadOnlyList<MongoServerAddress> Servers { get { return _servers; } }
         public TimeSpan SocketTimeout { get { return _socketTimeout; } }
@@ -170,6 +174,7 @@ namespace MongoDB.Driver.Communication
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
                 _receiveBufferSize == rhs._receiveBufferSize &&
                 _replicaSetName == rhs._replicaSetName &&
+                _secondaryAcceptableLatency == rhs._secondaryAcceptableLatency &&
                 _sendBufferSize == rhs._sendBufferSize &&
                 _servers.SequenceEqual(rhs._servers) &&
                 _socketTimeout == rhs._socketTimeout &&
