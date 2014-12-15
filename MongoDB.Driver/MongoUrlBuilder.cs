@@ -402,7 +402,7 @@ namespace MongoDB.Driver
                     var writeConcern = value.WriteConcern;
                     FSync = writeConcern.FSync;
                     Journal = writeConcern.Journal;
-                    W = writeConcern.W ?? (writeConcern.Enabled ? 1 : 0);
+                    W = writeConcern.W ?? (writeConcern.IsAcknowledged ? 1 : 0);
                     WTimeout = writeConcern.WTimeout;
                 }
             }

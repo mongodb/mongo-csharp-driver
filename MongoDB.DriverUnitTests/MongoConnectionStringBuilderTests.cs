@@ -339,7 +339,7 @@ namespace MongoDB.DriverUnitTests
         {
             var builder = new MongoConnectionStringBuilder(connectionString);
             var writeConcern = builder.GetWriteConcern(enabledDefault);
-            Assert.AreEqual(enabled, writeConcern.Enabled);
+            Assert.AreEqual(enabled, writeConcern.IsAcknowledged);
         }
 
         [Test]
@@ -384,7 +384,7 @@ namespace MongoDB.DriverUnitTests
             var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobj) : new WriteConcern.WMode((string)wobj);
             var builder = new MongoConnectionStringBuilder(connectionString);
             var writeConcern = builder.GetWriteConcern(enabledDefault);
-            Assert.AreEqual(enabled, writeConcern.Enabled);
+            Assert.AreEqual(enabled, writeConcern.IsAcknowledged);
             Assert.AreEqual(w, writeConcern.W);
         }
 
@@ -1125,7 +1125,7 @@ namespace MongoDB.DriverUnitTests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 var writeConcern = builder.GetWriteConcern(enabledDefault);
-                Assert.AreEqual(enabled, writeConcern.Enabled);
+                Assert.AreEqual(enabled, writeConcern.IsAcknowledged);
                 Assert.AreEqual(w, writeConcern.W);
                 Assert.AreEqual(connectionString, builder.ToString());
             }

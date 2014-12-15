@@ -29,7 +29,7 @@ namespace MongoDB.DriverUnitTests
         {
             var acknowledgedWriteConcern = WriteConcern.Acknowledged;
             Assert.IsTrue(acknowledgedWriteConcern.IsFrozen);
-            Assert.IsTrue(acknowledgedWriteConcern.Enabled);
+            Assert.IsTrue(acknowledgedWriteConcern.IsAcknowledged);
             Assert.IsNull(acknowledgedWriteConcern.FSync);
             Assert.IsNull(acknowledgedWriteConcern.Journal);
             Assert.IsNull(acknowledgedWriteConcern.W);
@@ -41,7 +41,7 @@ namespace MongoDB.DriverUnitTests
         {
             var acknowledgedWriteConcern = WriteConcern.W1;
             Assert.IsTrue(acknowledgedWriteConcern.IsFrozen);
-            Assert.IsTrue(acknowledgedWriteConcern.Enabled);
+            Assert.IsTrue(acknowledgedWriteConcern.IsAcknowledged);
             Assert.IsNull(acknowledgedWriteConcern.FSync);
             Assert.IsNull(acknowledgedWriteConcern.Journal);
             Assert.IsTrue(1 == acknowledgedWriteConcern.W);
@@ -61,7 +61,7 @@ namespace MongoDB.DriverUnitTests
 #pragma warning disable 618 // about obsolete MongoServer.Create
             var server = MongoServer.Create();
 #pragma warning restore 618 
-            Assert.IsFalse(server.Settings.WriteConcern.Enabled);
+            Assert.IsFalse(server.Settings.WriteConcern.IsAcknowledged);
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace MongoDB.DriverUnitTests
 #pragma warning disable 618 // about obsolete MongoServer.Create
             var server = MongoServer.Create(__noWriteConcernConnectionUri);
 #pragma warning restore 618
-            Assert.IsFalse(server.Settings.WriteConcern.Enabled);
+            Assert.IsFalse(server.Settings.WriteConcern.IsAcknowledged);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace MongoDB.DriverUnitTests
             if (writeConcern == null) { return false; }
             return
                 writeConcern.IsFrozen &&
-                writeConcern.Enabled &&
+                writeConcern.IsAcknowledged &&
                 (writeConcern.FSync == null) &&
                 (writeConcern.Journal == null) &&
                 (writeConcern.WTimeout == null) &&

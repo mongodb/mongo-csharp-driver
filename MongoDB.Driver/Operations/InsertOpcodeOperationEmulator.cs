@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Operations
             }
             else
             {
-                if (_args.WriteConcern.Enabled)
+                if (_args.WriteConcern.IsAcknowledged)
                 {
                     return new[] { converter.ToWriteConcernResult(bulkWriteResult) };
                 }

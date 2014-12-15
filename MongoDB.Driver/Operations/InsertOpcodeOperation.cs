@@ -40,13 +40,13 @@ namespace MongoDB.Driver.Operations
         public IEnumerable<WriteConcernResult> Execute(MongoConnection connection)
         {
             var serverInstance = connection.ServerInstance;
-            if (serverInstance.Supports(FeatureId.WriteCommands) && _args.WriteConcern.Enabled)
+            if (serverInstance.Supports(FeatureId.WriteCommands) && _args.WriteConcern.IsAcknowledged)
             {
                 var emulator = new InsertOpcodeOperationEmulator(_args);
                 return emulator.Execute(connection);
             }
 
-            var results = WriteConcern.Enabled ? new List<WriteConcernResult>() : null;
+            var results = WriteConcern.IsAcknowledged ? new List<WriteConcernResult>() : null;
             var finalException = (Exception)null;
 
             var requests = _args.Requests.Cast<InsertRequest>();
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Operations
                             {
                                 finalException = ex;
                             }
-                            else if (WriteConcern.Enabled)
+                            else if (WriteConcern.IsAcknowledged)
                             {
                                 results.Add(writeConcernResult);
                                 ex.Data["results"] = results;
@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Operations
                 }
             }
 
-            if (WriteConcern.Enabled && finalException != null)
+            if (WriteConcern.IsAcknowledged && finalException != null)
             {
                 finalException.Data["results"] = results;
                 throw finalException;
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Operations
         private SendMessageWithWriteConcernResult SendBatch(MongoConnection connection, BsonBuffer buffer, int requestId, bool isLast)
         {
             var writeConcern = WriteConcern;
-            if (!writeConcern.Enabled && !_continueOnError && !isLast)
+            if (!writeConcern.IsAcknowledged && !_continueOnError && !isLast)
             {
                 writeConcern = WriteConcern.Acknowledged;
             }

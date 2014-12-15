@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Operations
                 }
             }
 
-            var combiner = new BulkWriteBatchResultCombiner(batchResults, _args.WriteConcern.Enabled);
+            var combiner = new BulkWriteBatchResultCombiner(batchResults, _args.WriteConcern.IsAcknowledged);
             return combiner.CreateResultOrThrowIfHasErrors(remainingRequests);
         }
 

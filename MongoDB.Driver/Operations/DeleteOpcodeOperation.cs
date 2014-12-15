@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Operations
         public WriteConcernResult Execute(MongoConnection connection)
         {
             var serverInstance = connection.ServerInstance;
-            if (serverInstance.Supports(FeatureId.WriteCommands) && _args.WriteConcern.Enabled)
+            if (serverInstance.Supports(FeatureId.WriteCommands) && _args.WriteConcern.IsAcknowledged)
             {
                 var emulator = new DeleteOpcodeOperationEmulator(_args);
                 return emulator.Execute(connection);
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Operations
                 sendMessageResult = SendMessageWithWriteConcern(connection, buffer, message.RequestId, ReaderSettings, WriterSettings, WriteConcern);
             }
 
-            return WriteConcern.Enabled ? ReadWriteConcernResult(connection, sendMessageResult) : null;
+            return WriteConcern.IsAcknowledged ? ReadWriteConcernResult(connection, sendMessageResult) : null;
         }
     }
 }

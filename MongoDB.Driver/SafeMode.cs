@@ -195,13 +195,13 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Enabled
         {
-            get { return _writeConcern.Enabled; }
+            get { return _writeConcern.IsAcknowledged; }
             set
             {
                 if (IsFrozen) { ThrowFrozenException(); }
                 if (value)
                 {
-                    if (!_writeConcern.Enabled)
+                    if (!_writeConcern.IsAcknowledged)
                     {
                         _writeConcern.W = 1;
                     }

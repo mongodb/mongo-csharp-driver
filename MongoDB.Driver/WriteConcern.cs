@@ -118,9 +118,31 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets or sets whether WriteConcern is enabled.
+        /// Gets whether WriteConcern is enabled.
         /// </summary>
+        [Obsolete("Use IsAcknowledged instead.")]
         public bool Enabled
+        {
+            get { return IsAcknowledged; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the write concern includes { fsync : true }.
+        /// </summary>
+        public bool? FSync
+        {
+            get { return _fsync; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozenException(); }
+                _fsync = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this WriteConcern is acknowledged.
+        /// </summary>
+        public bool IsAcknowledged
         {
             get
             {
@@ -147,19 +169,6 @@ namespace MongoDB.Driver
                 }
 
                 return _enabledDefault;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets whether the write concern includes { fsync : true }.
-        /// </summary>
-        public bool? FSync
-        {
-            get { return _fsync; }
-            set
-            {
-                if (_isFrozen) { ThrowFrozenException(); }
-                _fsync = value;
             }
         }
 
@@ -396,7 +405,7 @@ namespace MongoDB.Driver
 
             if (parts.Count == 0)
             {
-                return Enabled ? "Acknowledged" : "w=0";
+                return IsAcknowledged ? "Acknowledged" : "w=0";
             }
             else
             {

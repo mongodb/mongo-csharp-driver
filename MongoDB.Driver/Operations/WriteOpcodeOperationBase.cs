@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Operations
         {
             var result = new SendMessageWithWriteConcernResult();
 
-            if (writeConcern.Enabled)
+            if (writeConcern.IsAcknowledged)
             {
                 var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
 

@@ -35,7 +35,7 @@ namespace MongoDB.DriverUnitTests.Jira
         public void TestMongoGridFSSettingsInheritsSafeModeFromDatabase()
         {
             var gridFS = _database.GridFS;
-            Assert.AreEqual(true, gridFS.Settings.WriteConcern.Enabled);
+            Assert.AreEqual(true, gridFS.Settings.WriteConcern.IsAcknowledged);
         }
     }
 }
