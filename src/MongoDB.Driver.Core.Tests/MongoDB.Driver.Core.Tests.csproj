@@ -51,6 +51,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Clusters\ReplicaSetConfigTests.cs" />
     <Compile Include="Core\Configuration\ClusterSettingsTests.cs" />
     <Compile Include="Core\Configuration\ConnectionPoolSettingsTests.cs" />
     <Compile Include="Core\Configuration\ConnectionSettingsTests.cs" />
