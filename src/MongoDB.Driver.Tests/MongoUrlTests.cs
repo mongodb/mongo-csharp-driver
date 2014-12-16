@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Tests
                 Password = "password",
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
-                SecondaryAcceptableLatency = TimeSpan.FromSeconds(6),
+                LocalThreshold = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
                 SocketTimeout = TimeSpan.FromSeconds(7),
                 Username = "username",
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests
                 "maxLifeTime=3s",
                 "maxPoolSize=4",
                 "minPoolSize=5",
-                "secondaryAcceptableLatency=6s",
+                "localThreshold=6s",
                 "socketTimeout=7s",
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual("password", url.Password);
                 Assert.AreEqual(readPreference, url.ReadPreference);
                 Assert.AreEqual("name", url.ReplicaSetName);
-                Assert.AreEqual(TimeSpan.FromSeconds(6), url.SecondaryAcceptableLatency);
+                Assert.AreEqual(TimeSpan.FromSeconds(6), url.LocalThreshold);
                 Assert.AreEqual(new MongoServerAddress("host", 27017), url.Server);
                 Assert.AreEqual(TimeSpan.FromSeconds(7), url.SocketTimeout);
                 Assert.AreEqual("username", url.Username);

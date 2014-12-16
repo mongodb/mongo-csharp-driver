@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 MaxConnectionPoolSize = 10,
                 MinConnectionPoolSize = 5,
                 ReplicaSetName = "rs",
-                SecondaryAcceptableLatency = TimeSpan.FromMilliseconds(20),
+                LocalThreshold = TimeSpan.FromMilliseconds(20),
                 Servers = servers,
                 SocketTimeout = TimeSpan.FromSeconds(4),
                 SslSettings = sslSettings,

@@ -51,13 +51,13 @@ namespace MongoDB.Driver.Communication
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
         private readonly bool _ipv6;
+        private readonly TimeSpan _localThreshold;
         private readonly TimeSpan _maxConnectionIdleTime;
         private readonly TimeSpan _maxConnectionLifeTime;
         private readonly int _maxConnectionPoolSize;
         private readonly int _minConnectionPoolSize;
         private readonly int _receiveBufferSize;
         private readonly string _replicaSetName;
-        private readonly TimeSpan _secondaryAcceptableLatency;
         private readonly int _sendBufferSize;
         private readonly IReadOnlyList<MongoServerAddress> _servers;
         private readonly TimeSpan _socketTimeout;
@@ -76,13 +76,13 @@ namespace MongoDB.Driver.Communication
             _heartbeatInterval = __defaultHeartbeatInterval; // TODO: add HeartbeatInterval to MongoClientSettings?
             _heartbeatTimeout = __defaultHeartbeatTimeout; // TODO: add HeartbeatTimeout to MongoClientSettings?
             _ipv6 = clientSettings.IPv6;
+            _localThreshold = clientSettings.LocalThreshold;
             _maxConnectionIdleTime = clientSettings.MaxConnectionIdleTime;
             _maxConnectionLifeTime = clientSettings.MaxConnectionLifeTime;
             _maxConnectionPoolSize = clientSettings.MaxConnectionPoolSize;
             _minConnectionPoolSize = clientSettings.MinConnectionPoolSize;
             _receiveBufferSize = __defaultReceiveBufferSize; // TODO: add ReceiveBufferSize to MongoClientSettings?
             _replicaSetName = clientSettings.ReplicaSetName;
-            _secondaryAcceptableLatency = clientSettings.SecondaryAcceptableLatency;
             _sendBufferSize = __defaultSendBufferSize; // TODO: add SendBufferSize to MongoClientSettings?
             _servers = clientSettings.Servers.ToList();
             _socketTimeout = clientSettings.SocketTimeout;
@@ -102,13 +102,13 @@ namespace MongoDB.Driver.Communication
             _heartbeatInterval = __defaultHeartbeatInterval; // TODO: add HeartbeatInterval to MongoServerSettings?
             _heartbeatTimeout = __defaultHeartbeatTimeout; // TODO: add HeartbeatTimeout to MongoServerSettings?
             _ipv6 = serverSettings.IPv6;
+            _localThreshold = serverSettings.LocalThreshold;
             _maxConnectionIdleTime = serverSettings.MaxConnectionIdleTime;
             _maxConnectionLifeTime = serverSettings.MaxConnectionLifeTime;
             _maxConnectionPoolSize = serverSettings.MaxConnectionPoolSize;
             _minConnectionPoolSize = serverSettings.MinConnectionPoolSize;
             _receiveBufferSize = __defaultReceiveBufferSize; // TODO: add ReceiveBufferSize to MongoServerSettings?
             _replicaSetName = serverSettings.ReplicaSetName;
-            _secondaryAcceptableLatency = serverSettings.SecondaryAcceptableLatency;
             _sendBufferSize = __defaultSendBufferSize; // TODO: add SendBufferSize to MongoServerSettings?
             _servers = serverSettings.Servers.ToList();
             _socketTimeout = serverSettings.SocketTimeout;
@@ -127,13 +127,13 @@ namespace MongoDB.Driver.Communication
         public TimeSpan HeartbeatInterval { get { return _heartbeatInterval; } }
         public TimeSpan HeartbeatTimeout { get { return _heartbeatTimeout; } }
         public bool IPv6 { get { return _ipv6; } }
+        public TimeSpan LocalThreshold { get { return _localThreshold; } }
         public TimeSpan MaxConnectionIdleTime { get { return _maxConnectionIdleTime; } }
         public TimeSpan MaxConnectionLifeTime { get { return _maxConnectionLifeTime; } }
         public int MaxConnectionPoolSize { get { return _maxConnectionPoolSize; } }
         public int MinConnectionPoolSize { get { return _minConnectionPoolSize; } }
         public int ReceiveBufferSize { get { return _receiveBufferSize; } }
         public string ReplicaSetName { get { return _replicaSetName; } }
-        public TimeSpan SecondaryAcceptableLatency { get { return _secondaryAcceptableLatency; } }
         public int SendBufferSize { get { return _sendBufferSize; } }
         public IReadOnlyList<MongoServerAddress> Servers { get { return _servers; } }
         public TimeSpan SocketTimeout { get { return _socketTimeout; } }
@@ -168,13 +168,13 @@ namespace MongoDB.Driver.Communication
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
+                _localThreshold == rhs._localThreshold &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
                 _receiveBufferSize == rhs._receiveBufferSize &&
                 _replicaSetName == rhs._replicaSetName &&
-                _secondaryAcceptableLatency == rhs._secondaryAcceptableLatency &&
                 _sendBufferSize == rhs._sendBufferSize &&
                 _servers.SequenceEqual(rhs._servers) &&
                 _socketTimeout == rhs._socketTimeout &&

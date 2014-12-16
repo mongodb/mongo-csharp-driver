@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadPreference.Should().BeNull();
             subject.ReadPreferenceTags.Should().BeNull();
             subject.ReplicaSet.Should().BeNull();
-            subject.SecondaryAcceptableLatency.Should().Be(null);
+            subject.LocalThreshold.Should().Be(null);
             subject.SocketTimeout.Should().Be(null);
             subject.Ssl.Should().Be(null);
             subject.SslVerifyCertificate.Should().Be(null);
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "readPreference=primary;" +
                 "readPreferenceTags=dc:1;" +
                 "replicaSet=funny;" +
-                "secondaryAcceptableLatency=50ms;" +
+                "localThreshold=50ms;" +
                 "socketTimeout=40ms;" +
                 "ssl=false;" +
                 "sslVerifyCertificate=true;" +
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadPreference.Should().Be(ReadPreferenceMode.Primary);
             subject.ReadPreferenceTags.Single().Should().Be(new TagSet(new [] { new Tag("dc", "1") }));
             subject.ReplicaSet.Should().Be("funny");
-            subject.SecondaryAcceptableLatency.Should().Be(TimeSpan.FromMilliseconds(50));
+            subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(50));
             subject.SocketTimeout.Should().Be(TimeSpan.FromMilliseconds(40));
             subject.Ssl.Should().BeFalse();
             subject.SslVerifyCertificate.Should().Be(true);
@@ -486,6 +486,20 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Test]
+        [TestCase("mongodb://localhost?localThreshold=15ms", 15)]
+        [TestCase("mongodb://localhost?localThresholdMS=15", 15)]
+        [TestCase("mongodb://localhost?localThreshold=15", 1000 * 15)]
+        [TestCase("mongodb://localhost?localThreshold=15s", 1000 * 15)]
+        [TestCase("mongodb://localhost?localThreshold=15m", 1000 * 60 * 15)]
+        [TestCase("mongodb://localhost?localThreshold=15h", 1000 * 60 * 60 * 15)]
+        public void When_localThreshold_is_specified(string connectionString, int milliseconds)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
+        }
+
+        [Test]
         [TestCase("mongodb://localhost?secondaryAcceptableLatency=15ms", 15)]
         [TestCase("mongodb://localhost?secondaryAcceptableLatencyMS=15", 15)]
         [TestCase("mongodb://localhost?secondaryAcceptableLatency=15", 1000 * 15)]
@@ -496,7 +510,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString(connectionString);
 
-            subject.SecondaryAcceptableLatency.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
+            subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
         }
 
         [Test]
