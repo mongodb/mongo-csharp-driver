@@ -190,10 +190,8 @@
     <Compile Include="Core\Clusters\ClusterType.cs" />
     <Compile Include="Core\ConnectionPools\ExclusiveConnectionPool.cs" />
     <Compile Include="Core\ConnectionPools\ExclusiveConnectionPoolFactory.cs" />
-    <Compile Include="Core\Connections\ConnectionHandle.cs" />
     <Compile Include="Core\Connections\ConnectionId.cs" />
     <Compile Include="Core\Connections\IConnectionInitializer.cs" />
-    <Compile Include="Core\Connections\ReferenceCountedConnection.cs" />
     <Compile Include="Core\Clusters\ClusterDescriptionChangedEventArgs.cs" />
     <Compile Include="Core\Events\ClusterListenerPair.cs" />
     <Compile Include="Core\Events\ConnectionListenerPair.cs" />
@@ -248,7 +246,6 @@
     <Compile Include="Core\Connections\ConnectionExtensionMethods.cs" />
     <Compile Include="Core\Connections\ConnectionInitializer.cs" />
     <Compile Include="Core\Configuration\ConnectionSettings.cs" />
-    <Compile Include="Core\Connections\ConnectionWrapper.cs" />
     <Compile Include="Core\Connections\IConnection.cs" />
     <Compile Include="Core\Connections\IConnectionFactory.cs" />
     <Compile Include="Core\Connections\IStreamFactory.cs" />

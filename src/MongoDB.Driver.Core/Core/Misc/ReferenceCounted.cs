@@ -22,12 +22,19 @@ namespace MongoDB.Driver.Core.Misc
     {
         // fields
         private readonly T _instance;
+        private readonly Action<T> _release;
         private int _referenceCount;
         
         // constructors
         public ReferenceCounted(T instance)
+            : this(instance, x => x.Dispose())
+        {
+        }
+
+        public ReferenceCounted(T instance, Action<T> release)
         {
             _instance = Ensure.IsNotNull(instance, "instance");
+            _release = Ensure.IsNotNull(release, "release");
             _referenceCount = 1;
         }
 
@@ -48,7 +55,7 @@ namespace MongoDB.Driver.Core.Misc
             var value = Interlocked.Decrement(ref _referenceCount);
             if (value == 0)
             {
-                _instance.Dispose();
+                _release(_instance);
             }
         }
 
