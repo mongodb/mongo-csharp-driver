@@ -108,7 +108,28 @@ namespace MongoDB.Driver.Operations
             var operation = new CommandOperation<CommandResult>(_databaseName, _readerSettings, _writerSettings, command, flags, options, _readPreference, serializationOptions, serializer);
             var result = operation.Execute(connection);
             var response = result.Response;
-            return response["collections"].AsBsonArray.Select(value => (BsonDocument)value).ToList();
+            var cursorDocument = response["cursor"];
+            var cursorId = cursorDocument["id"].ToInt64();
+            var firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v => v.AsBsonDocument);
+            var ns = cursorDocument["ns"].ToString();
+            using (var enumerator = new CursorEnumerator<BsonDocument>(
+                new ServerInstanceConnectionProvider(connection.ServerInstance),
+                ns,
+                firstBatch,
+                cursorId,
+                0,
+                0,
+                _readerSettings,
+                BsonDocumentSerializer.Instance,
+                null))
+            {
+                var collections = new List<BsonDocument>();
+                while (enumerator.MoveNext())
+                {
+                    collections.Add(enumerator.Current);
+                }
+                return collections;
+            }
         }
 
         private IEnumerable<BsonDocument> ExecuteUsingQuery(MongoConnection connection)

@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Operations
             ReadPreference readPreference,
             BsonBinaryReaderSettings readerSettings,
             BsonBinaryWriterSettings writerSettings)
-       {
+        {
             if (string.IsNullOrEmpty(databaseName))
             {
                 throw new ArgumentException("Database name cannot be null or empty.", "databaseName");
@@ -95,7 +95,10 @@ namespace MongoDB.Driver.Operations
 
         private IEnumerable<BsonDocument> ExecuteUsingCommand(MongoConnection connection)
         {
-            var command = new CommandDocument("listIndexes", _collectionName);
+            var command = new CommandDocument
+            {
+                { "listIndexes", _collectionName }
+            };
             var flags = QueryFlags.None;
             var options = new BsonDocument();
             IBsonSerializationOptions serializationOptions = null;
@@ -118,7 +121,29 @@ namespace MongoDB.Driver.Operations
                 throw;
             }
 
-            return result.Response["indexes"].AsBsonArray.Cast<BsonDocument>();
+
+            var cursorDocument = result.Response["cursor"];
+            var cursorId = cursorDocument["id"].ToInt64();
+            var firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v => v.AsBsonDocument);
+            var ns = cursorDocument["ns"].ToString();
+            using (var enumerator = new CursorEnumerator<BsonDocument>(
+                new ServerInstanceConnectionProvider(connection.ServerInstance),
+                ns,
+                firstBatch,
+                cursorId,
+                0,
+                0,
+                _readerSettings,
+                BsonDocumentSerializer.Instance,
+                null))
+            {
+                var collections = new List<BsonDocument>();
+                while (enumerator.MoveNext())
+                {
+                    collections.Add(enumerator.Current);
+                }
+                return collections;
+            }
         }
 
         private IEnumerable<BsonDocument> ExecuteUsingQuery(MongoConnection connection)
