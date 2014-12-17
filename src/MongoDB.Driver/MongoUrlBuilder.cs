@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -560,7 +561,7 @@ namespace MongoDB.Driver
                 {
                     throw new MongoConfigurationException("ReadPreferenceMode is required when using tag sets.");
                 }
-                _readPreference = _readPreference.WithTagSets(connectionString.ReadPreferenceTags);
+                _readPreference = _readPreference.With(tagSets: Optional.Create<IEnumerable<TagSet>>(connectionString.ReadPreferenceTags));
             }
 
             _replicaSetName = connectionString.ReplicaSet;
