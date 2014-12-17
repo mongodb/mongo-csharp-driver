@@ -20,9 +20,10 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 {
     public static class Program
     {
+        private static CancellationTokenSource __cancellationTokenSource = new CancellationTokenSource();
         private static CollectionNamespace __collection = new CollectionNamespace("foo", "bar");
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
-        private static int __numConcurrentWorkers = 8;
+        private static int __numConcurrentWorkers = 150;
 
         public static void Main(string[] args)
         {
@@ -52,13 +53,8 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 
             return new ClusterBuilder()
                 .ConfigureWithConnectionString("mongodb://localhost")
-                .ConfigureServer(s => s.With(
-                    heartbeatInterval: TimeSpan.FromMinutes(1),
-                    heartbeatTimeout: TimeSpan.FromMinutes(1)))
-                .ConfigureConnection(s => s.With(
-                    maxLifeTime: TimeSpan.FromSeconds(30)))
-                .AddListener(new LogListener(writer, LogLevel.Debug))
-                // .UsePerformanceCounters("test", true)
+                .AddListener(new LogListener(writer, LogLevel.Error))
+                //.UsePerformanceCounters("test", true)
                 .BuildCluster();
         }
 
@@ -72,18 +68,17 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             Console.WriteLine("Inserting Seed Data");
             await InsertData(cluster);
 
-            var cancellationTokenSource = new CancellationTokenSource();
             Console.WriteLine("Running CRUD (errors will show up as + (query error) or * (insert/update error))");
             List<Task> tasks = new List<Task>();
             for (int i = 0; i < __numConcurrentWorkers; i++)
             {
-                tasks.Add(DoWork(cluster, cancellationTokenSource.Token));
+                tasks.Add(DoWork(cluster));
             }
 
             Console.WriteLine("Press Enter to shutdown");
             Console.ReadLine();
 
-            cancellationTokenSource.Cancel();
+            __cancellationTokenSource.Cancel();
             Task.WaitAll(tasks.ToArray());
         }
 
@@ -107,65 +102,62 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             }
         }
 
-        private async static Task DoWork(ICluster cluster, CancellationToken cancellationToken)
+        private async static Task DoWork(ICluster cluster)
         {
             var rand = new Random();
             using (var binding = new WritableServerBinding(cluster))
-            while (!cancellationToken.IsCancellationRequested)
             {
-                var i = rand.Next(0, 10000);
-                IReadOnlyList<BsonDocument> docs;
-                IAsyncCursor<BsonDocument> cursor = null;
-                try
+                while (!__cancellationTokenSource.IsCancellationRequested)
                 {
-                    cursor = await Query(binding, new BsonDocument("i", i));
-                    if (await cursor.MoveNextAsync(cancellationToken))
+                    var i = rand.Next(0, 10000);
+                    IReadOnlyList<BsonDocument> docs;
+                    using (var cursor = await Query(binding, new BsonDocument("i", i)))
                     {
-                        docs = cursor.Current.ToList();
+                        try
+                        {
+                            if (await cursor.MoveNextAsync(__cancellationTokenSource.Token))
+                            {
+                                docs = cursor.Current.ToList();
+                            }
+                            else
+                            {
+                                docs = null;
+                            }
+                            //Console.Write(".");
+                        }
+                        catch
+                        {
+                            Console.Write("+");
+                            continue;
+                        }
+                    }
+
+
+                    if (docs == null || docs.Count == 0)
+                    {
+                        try
+                        {
+                            await Insert(binding, new BsonDocument().Add("i", i));
+                            //Console.Write(".");
+                        }
+                        catch (Exception)
+                        {
+                            Console.Write("*");
+                        }
                     }
                     else
                     {
-                        docs = null;
-                    }
-                    //Console.Write(".");
-                }
-                catch (Exception)
-                {
-                    Console.Write("+");
-                    continue;
-                }
-                finally
-                {
-                    if (cursor != null)
-                    {
-                        cursor.Dispose();
-                    }
-                }
-
-                if (docs == null || docs.Count == 0)
-                {
-                    try
-                    {
-                        await Insert(binding, new BsonDocument().Add("i", i));
-                        //Console.Write(".");
-                    }
-                    catch (Exception)
-                    {
-                        Console.Write("*");
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        var filter = new BsonDocument("_id", docs[0]["_id"]);
-                        var update = new BsonDocument("$set", new BsonDocument("i", i + 1));
-                        await Update(binding, filter, update);
-                        //Console.Write(".");
-                    }
-                    catch (Exception)
-                    {
-                        Console.Write("*");
+                        try
+                        {
+                            var filter = new BsonDocument("_id", docs[0]["_id"]);
+                            var update = new BsonDocument("$set", new BsonDocument("i", i + 1));
+                            await Update(binding, filter, update);
+                            //Console.Write(".");
+                        }
+                        catch (Exception)
+                        {
+                            Console.Write("*");
+                        }
                     }
                 }
             }
@@ -176,7 +168,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             var documentSource = new BatchableSource<BsonDocument>(new[] { document });
             var insertOp = new InsertOpcodeOperation<BsonDocument>(__collection, documentSource, BsonDocumentSerializer.Instance, __messageEncoderSettings);
 
-            return insertOp.ExecuteAsync(binding, CancellationToken.None);
+            return insertOp.ExecuteAsync(binding, __cancellationTokenSource.Token);
         }
 
         private static Task<IAsyncCursor<BsonDocument>> Query(IReadBinding binding, BsonDocument filter)
@@ -187,7 +179,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 Limit = -1
             };
 
-            return findOp.ExecuteAsync(binding, CancellationToken.None);
+            return findOp.ExecuteAsync(binding, __cancellationTokenSource.Token);
         }
 
         private static Task Update(IWriteBinding binding, BsonDocument filter, BsonDocument update)
@@ -197,7 +189,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 new UpdateRequest(UpdateType.Update, filter, update),
                 __messageEncoderSettings);
 
-            return updateOp.ExecuteAsync(binding, CancellationToken.None);
+            return updateOp.ExecuteAsync(binding, __cancellationTokenSource.Token);
         }
     }
 }
