@@ -21,6 +21,7 @@ using System.Net.Sockets;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -31,6 +32,7 @@ namespace MongoDB.Driver
     public class MongoServerSettings : IEquatable<MongoServerSettings>
     {
         // private fields
+        private Action<ClusterBuilder> _clusterConfigurator;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
@@ -99,6 +101,19 @@ namespace MongoDB.Driver
         public AddressFamily AddressFamily
         {
             get { return _ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork; }
+        }
+
+        /// <summary>
+        /// Gets or sets the cluster configurator.
+        /// </summary>
+        public Action<ClusterBuilder> ClusterConfigurator
+        {
+            get { return _clusterConfigurator; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _clusterConfigurator = value;
+            }
         }
 
         /// <summary>
@@ -614,6 +629,7 @@ namespace MongoDB.Driver
             if (object.ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
             var rhs = (MongoServerSettings)obj;
             return
+                object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                _connectionMode == rhs._connectionMode &&
                _connectTimeout == rhs._connectTimeout &&
                _credentials == rhs._credentials &&
@@ -682,6 +698,7 @@ namespace MongoDB.Driver
             }
 
             return new Hasher()
+                .Hash(_clusterConfigurator)
                 .Hash(_connectionMode)
                 .Hash(_connectTimeout)
                 .Hash(_credentials)

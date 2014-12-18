@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -30,6 +31,7 @@ namespace MongoDB.Driver
     public class MongoClientSettings : IEquatable<MongoClientSettings>
     {
         // private fields
+        private Action<ClusterBuilder> _clusterConfigurator;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
@@ -91,6 +93,19 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets the cluster configurator.
+        /// </summary>
+        public Action<ClusterBuilder> ClusterConfigurator
+        {
+            get { return _clusterConfigurator; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _clusterConfigurator = value;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the connection mode.
         /// </summary>
@@ -570,6 +585,7 @@ namespace MongoDB.Driver
             if (object.ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
             var rhs = (MongoClientSettings)obj;
             return
+                object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                 _connectionMode == rhs._connectionMode &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials == rhs._credentials &&
@@ -638,6 +654,7 @@ namespace MongoDB.Driver
             }
 
             return new Hasher()
+                .Hash(_clusterConfigurator)
                 .Hash(_connectionMode)
                 .Hash(_connectTimeout)
                 .Hash(_credentials)

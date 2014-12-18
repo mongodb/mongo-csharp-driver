@@ -60,16 +60,22 @@ namespace MongoDB.Driver.Communication
         // methods
         private ICluster CreateCluster(ClusterKey clusterKey)
         {
-            var builder = new ClusterBuilder();
-            builder.ConfigureCluster(settings => ConfigureCluster(settings, clusterKey));
-            builder.ConfigureServer(settings => ConfigureServer(settings, clusterKey));
-            builder.ConfigureConnectionPool(settings => ConfigureConnectionPool(settings, clusterKey));
-            builder.ConfigureConnection(settings => ConfigureConnection(settings, clusterKey));
+            var builder = new ClusterBuilder()
+                .ConfigureCluster(settings => ConfigureCluster(settings, clusterKey))
+                .ConfigureServer(settings => ConfigureServer(settings, clusterKey))
+                .ConfigureConnectionPool(settings => ConfigureConnectionPool(settings, clusterKey))
+                .ConfigureConnection(settings => ConfigureConnection(settings, clusterKey))
+                .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey));
+
             if (clusterKey.UseSsl)
             {
                 builder.ConfigureSsl(settings => ConfigureSsl(settings, clusterKey));
             }
-            builder.ConfigureTcp(settings => ConfigureTcp(settings, clusterKey));
+
+            if (clusterKey.ClusterConfigurator != null)
+            {
+                clusterKey.ClusterConfigurator(builder);
+            }
 
             var cluster = builder.BuildCluster();
             cluster.Initialize();

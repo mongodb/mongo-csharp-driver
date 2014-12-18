@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Communication
         #endregion
 
         // fields
+        private readonly Action<ClusterBuilder> _clusterConfigurator;
         private readonly ConnectionMode _connectionMode;
         private readonly TimeSpan _connectTimeout;
         private readonly IReadOnlyList<MongoCredential> _credentials;
@@ -70,6 +71,7 @@ namespace MongoDB.Driver.Communication
         // constructors
         public ClusterKey(MongoClientSettings clientSettings)
         {
+            _clusterConfigurator = clientSettings.ClusterConfigurator;
             _connectionMode = clientSettings.ConnectionMode;
             _connectTimeout = clientSettings.ConnectTimeout;
             _credentials = clientSettings.Credentials.ToList();
@@ -96,6 +98,7 @@ namespace MongoDB.Driver.Communication
 
         public ClusterKey(MongoServerSettings serverSettings)
         {
+            _clusterConfigurator = serverSettings.ClusterConfigurator;
             _connectionMode = serverSettings.ConnectionMode;
             _connectTimeout = serverSettings.ConnectTimeout;
             _credentials = serverSettings.Credentials.ToList();
@@ -121,6 +124,7 @@ namespace MongoDB.Driver.Communication
         }
 
         // properties
+        public Action<ClusterBuilder> ClusterConfigurator { get { return _clusterConfigurator; } }
         public ConnectionMode ConnectionMode { get { return _connectionMode; } }
         public TimeSpan ConnectTimeout { get { return _connectTimeout; } }
         public IReadOnlyList<MongoCredential> Credentials { get { return _credentials; } }
@@ -162,6 +166,7 @@ namespace MongoDB.Driver.Communication
             var rhs = (ClusterKey)obj;
             return
                 _hashCode == rhs._hashCode && // fail fast
+                object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                 _connectionMode == rhs._connectionMode &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials.SequenceEqual(rhs._credentials) &&
