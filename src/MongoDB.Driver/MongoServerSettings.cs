@@ -492,6 +492,7 @@ namespace MongoDB.Driver
         public static MongoServerSettings FromClientSettings(MongoClientSettings clientSettings)
         {
             var serverSettings = new MongoServerSettings();
+            serverSettings.ClusterConfigurator = clientSettings.ClusterConfigurator;
             serverSettings.ConnectionMode = clientSettings.ConnectionMode;
             serverSettings.ConnectTimeout = clientSettings.ConnectTimeout;
             serverSettings.Credentials = clientSettings.Credentials;
@@ -579,6 +580,7 @@ namespace MongoDB.Driver
         public MongoServerSettings Clone()
         {
             var clone = new MongoServerSettings();
+            clone._clusterConfigurator = _clusterConfigurator;
             clone._connectionMode = _connectionMode;
             clone._connectTimeout = _connectTimeout;
             clone._credentials = _credentials;
