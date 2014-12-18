@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -58,37 +59,36 @@ namespace MongoDB.Driver.Communication
         // methods
         private ICluster CreateCluster(ClusterKey clusterKey)
         {
-            var clusterSettings = CreateClusterSettings(clusterKey);
-            var serverSettings = CreateServerSettings(clusterKey);
-            var connectionSettings = CreateConnectionSettings(clusterKey);
-            var connectionPoolSettings = CreateConnectionPoolSettings(clusterKey);
+            var builder = new ClusterBuilder();
+            builder.ConfigureCluster(settings => ConfigureCluster(settings, clusterKey));
+            builder.ConfigureServer(settings => ConfigureServer(settings, clusterKey));
+            builder.ConfigureConnectionPool(settings => ConfigureConnectionPool(settings, clusterKey));
+            builder.ConfigureConnection(settings => ConfigureConnection(settings, clusterKey));
+            if (clusterKey.UseSsl)
+            {
+                builder.ConfigureSsl(settings => ConfigureSsl(settings, clusterKey));
+            }
+            builder.ConfigureTcp(settings => ConfigureTcp(settings, clusterKey));
 
-            var listener = EmptyListener.Instance;
-            var streamFactory = CreateStreamFactory(clusterKey);
-            var connectionFactory = new BinaryConnectionFactory(connectionSettings, streamFactory, listener);
-            var connectionPoolFactory = new ExclusiveConnectionPoolFactory(connectionPoolSettings, connectionFactory, listener);
-            var serverFactory = new ServerFactory(serverSettings, connectionPoolFactory, connectionFactory, listener);
-            var clusterFactory = new ClusterFactory(clusterSettings, serverFactory, listener);
-
-            var cluster = clusterFactory.CreateCluster();
+            var cluster = builder.BuildCluster();
             cluster.Initialize();
 
             return cluster;
         }
 
-        private ClusterSettings CreateClusterSettings(ClusterKey clusterKey)
+        private ClusterSettings ConfigureCluster(ClusterSettings settings, ClusterKey clusterKey)
         {
             var endPoints = clusterKey.Servers.Select(s => (EndPoint)new DnsEndPoint(s.Host, s.Port));
-            return new ClusterSettings(
+            return settings.With(
                 connectionMode: clusterKey.ConnectionMode.ToCore(),
                 endPoints: Optional.Create(endPoints),
                 replicaSetName: clusterKey.ReplicaSetName,
                 postServerSelector: new LatencyLimitingServerSelector(clusterKey.LocalThreshold));
         }
 
-        private ConnectionPoolSettings CreateConnectionPoolSettings(ClusterKey clusterKey)
+        private ConnectionPoolSettings ConfigureConnectionPool(ConnectionPoolSettings settings, ClusterKey clusterKey)
         {
-            return new ConnectionPoolSettings(
+            return settings.With(
                 // maintenanceInterval: TODO: should this be configurable?
                 maxConnections: clusterKey.MaxConnectionPoolSize,
                 minConnections: clusterKey.MinConnectionPoolSize,
@@ -96,45 +96,40 @@ namespace MongoDB.Driver.Communication
                 waitQueueTimeout: clusterKey.WaitQueueTimeout);
         }
 
-        private ConnectionSettings CreateConnectionSettings(ClusterKey clusterKey)
+        private ConnectionSettings ConfigureConnection(ConnectionSettings settings, ClusterKey clusterKey)
         {
             var authenticators = clusterKey.Credentials.Select(c => c.ToAuthenticator());
-            return new ConnectionSettings(
+            return settings.With(
                 authenticators: Optional.Create(authenticators),
                 maxIdleTime: clusterKey.MaxConnectionIdleTime,
                 maxLifeTime: clusterKey.MaxConnectionLifeTime);
         }
 
-        private ServerSettings CreateServerSettings(ClusterKey clusterKey)
+        private ServerSettings ConfigureServer(ServerSettings settings, ClusterKey clusterKey)
         {
-            return new ServerSettings(
+            return settings.With(
                 heartbeatInterval: clusterKey.HeartbeatInterval,
                 heartbeatTimeout: clusterKey.HeartbeatTimeout);
         }
 
-        private IStreamFactory CreateStreamFactory(ClusterKey clusterKey)
+        private SslStreamSettings ConfigureSsl(SslStreamSettings settings, ClusterKey clusterKey)
         {
-            var tcpStreamSettings = CreateTcpStreamSettings(clusterKey);
-            IStreamFactory streamFactory = new TcpStreamFactory(tcpStreamSettings);
-
             if (clusterKey.SslSettings != null)
             {
-                var sslStreamSettings = new SslStreamSettings(
+                return settings.With(
                     clientCertificates: Optional.Create(clusterKey.SslSettings.ClientCertificates ?? Enumerable.Empty<X509Certificate>()),
                     checkCertificateRevocation: clusterKey.SslSettings.CheckCertificateRevocation,
                     clientCertificateSelectionCallback: clusterKey.SslSettings.ClientCertificateSelectionCallback,
                     enabledProtocols: clusterKey.SslSettings.EnabledSslProtocols,
                     serverCertificateValidationCallback: clusterKey.SslSettings.ServerCertificateValidationCallback);
-
-                streamFactory = new SslStreamFactory(sslStreamSettings, streamFactory);
             }
 
-            return streamFactory;
+            return settings;
         }
 
-        private TcpStreamSettings CreateTcpStreamSettings(ClusterKey clusterKey)
+        private TcpStreamSettings ConfigureTcp(TcpStreamSettings settings, ClusterKey clusterKey)
         {
-            return new TcpStreamSettings(
+            return settings.With(
                 connectTimeout: clusterKey.ConnectTimeout,
                 readTimeout: clusterKey.SocketTimeout,
                 receiveBufferSize: clusterKey.ReceiveBufferSize,
