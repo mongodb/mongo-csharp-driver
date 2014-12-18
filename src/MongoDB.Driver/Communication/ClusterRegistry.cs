@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
@@ -116,12 +117,18 @@ namespace MongoDB.Driver.Communication
         {
             if (clusterKey.SslSettings != null)
             {
+                var validationCallback = clusterKey.SslSettings.ServerCertificateValidationCallback;
+                if (validationCallback == null && !clusterKey.VerifySslCertificate)
+                {
+                    validationCallback = AcceptAnySslCertificate;
+                }
+
                 return settings.With(
                     clientCertificates: Optional.Create(clusterKey.SslSettings.ClientCertificates ?? Enumerable.Empty<X509Certificate>()),
                     checkCertificateRevocation: clusterKey.SslSettings.CheckCertificateRevocation,
                     clientCertificateSelectionCallback: clusterKey.SslSettings.ClientCertificateSelectionCallback,
                     enabledProtocols: clusterKey.SslSettings.EnabledSslProtocols,
-                    serverCertificateValidationCallback: clusterKey.SslSettings.ServerCertificateValidationCallback);
+                    serverCertificateValidationCallback: validationCallback);
             }
 
             return settings;
@@ -171,6 +178,16 @@ namespace MongoDB.Driver.Communication
         {
             var clusterKey = new ClusterKey(serverSettings);
             return GetOrCreateCluster(clusterKey);
+        }
+
+        private static bool AcceptAnySslCertificate(
+            object sender,
+            X509Certificate certificate,
+            X509Chain chain,
+            SslPolicyErrors sslPolicyErrors
+        )
+        {
+            return true;
         }
     }
 }
