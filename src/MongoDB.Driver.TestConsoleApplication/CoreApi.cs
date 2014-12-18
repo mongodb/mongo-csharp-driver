@@ -16,22 +16,24 @@ using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
-namespace MongoDB.Driver.Core.TestConsoleApplication
+namespace MongoDB.Driver.TestConsoleApplication
 {
-    public static class Program
+    public class CoreApi
     {
-        private static CancellationTokenSource __cancellationTokenSource = new CancellationTokenSource();
-        private static CollectionNamespace __collection = new CollectionNamespace("foo", "bar");
-        private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
-        private static int __numConcurrentWorkers = 150;
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private CollectionNamespace _collection = new CollectionNamespace("foo", "bar");
+        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
 
-        public static void Main(string[] args)
+        public void Run(int numConcurrentWorkers, Action<ClusterBuilder> configurator)
         {
             try
             {
-                using (var cluster = CreateCluster())
+                var clusterBuilder = new ClusterBuilder();
+                configurator(clusterBuilder);
+
+                using (var cluster = clusterBuilder.BuildCluster())
                 {
-                    MainAsync(cluster).GetAwaiter().GetResult();
+                    RunAsync(numConcurrentWorkers, cluster).GetAwaiter().GetResult();
                 }
             }
             catch (Exception ex)
@@ -44,21 +46,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             Console.ReadLine();
         }
 
-        private static ICluster CreateCluster()
-        {
-            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var file = Path.Combine(desktop, "log.txt");
-            var streamWriter = new StreamWriter(file);
-            var writer = TextWriter.Synchronized(streamWriter);
-
-            return new ClusterBuilder()
-                .ConfigureWithConnectionString("mongodb://localhost")
-                .AddListener(new LogListener(writer, LogLevel.Error))
-                //.UsePerformanceCounters("test", true)
-                .BuildCluster();
-        }
-
-        private static async Task MainAsync(ICluster cluster)
+        private async Task RunAsync(int numConcurrentWorkers, ICluster cluster)
         {
             Console.WriteLine("Press Enter to begin");
             Console.ReadLine();
@@ -70,7 +58,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
 
             Console.WriteLine("Running CRUD (errors will show up as + (query error) or * (insert/update error))");
             List<Task> tasks = new List<Task>();
-            for (int i = 0; i < __numConcurrentWorkers; i++)
+            for (int i = 0; i < numConcurrentWorkers; i++)
             {
                 tasks.Add(DoWork(cluster));
             }
@@ -78,20 +66,20 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             Console.WriteLine("Press Enter to shutdown");
             Console.ReadLine();
 
-            __cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Cancel();
             Task.WaitAll(tasks.ToArray());
         }
 
-        private async static Task ClearData(ICluster cluster)
+        private async Task ClearData(ICluster cluster)
         {
             using (var binding = new WritableServerBinding(cluster))
             {
-                var commandOp = new DropDatabaseOperation(__collection.DatabaseNamespace, __messageEncoderSettings);
+                var commandOp = new DropDatabaseOperation(_collection.DatabaseNamespace, _messageEncoderSettings);
                 await commandOp.ExecuteAsync(binding, CancellationToken.None);
             }
         }
 
-        private async static Task InsertData(ICluster cluster)
+        private async Task InsertData(ICluster cluster)
         {
             using (var binding = new WritableServerBinding(cluster))
             {
@@ -102,12 +90,12 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             }
         }
 
-        private async static Task DoWork(ICluster cluster)
+        private async Task DoWork(ICluster cluster)
         {
             var rand = new Random();
             using (var binding = new WritableServerBinding(cluster))
             {
-                while (!__cancellationTokenSource.IsCancellationRequested)
+                while (!_cancellationTokenSource.IsCancellationRequested)
                 {
                     var i = rand.Next(0, 10000);
                     IReadOnlyList<BsonDocument> docs;
@@ -115,7 +103,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                     {
                         try
                         {
-                            if (await cursor.MoveNextAsync(__cancellationTokenSource.Token))
+                            if (await cursor.MoveNextAsync(_cancellationTokenSource.Token))
                             {
                                 docs = cursor.Current.ToList();
                             }
@@ -163,33 +151,45 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             }
         }
 
-        private static Task Insert(IWriteBinding binding, BsonDocument document)
+        private async Task Insert(IWriteBinding binding, BsonDocument document)
         {
             var documentSource = new BatchableSource<BsonDocument>(new[] { document });
-            var insertOp = new InsertOpcodeOperation<BsonDocument>(__collection, documentSource, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+            var insertOp = new InsertOpcodeOperation<BsonDocument>(_collection, documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            return insertOp.ExecuteAsync(binding, __cancellationTokenSource.Token);
+            using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+            using (var linked = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellationTokenSource.Token))
+            {
+                await insertOp.ExecuteAsync(binding, linked.Token);
+            }
         }
 
-        private static Task<IAsyncCursor<BsonDocument>> Query(IReadBinding binding, BsonDocument filter)
+        private async Task<IAsyncCursor<BsonDocument>> Query(IReadBinding binding, BsonDocument filter)
         {
-            var findOp = new FindOperation<BsonDocument>(__collection, BsonDocumentSerializer.Instance, __messageEncoderSettings)
+            var findOp = new FindOperation<BsonDocument>(_collection, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Filter = filter,
                 Limit = -1
             };
 
-            return findOp.ExecuteAsync(binding, __cancellationTokenSource.Token);
+            using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+            using (var linked = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellationTokenSource.Token))
+            {
+                return await findOp.ExecuteAsync(binding, linked.Token);
+            }
         }
 
-        private static Task Update(IWriteBinding binding, BsonDocument filter, BsonDocument update)
+        private async Task Update(IWriteBinding binding, BsonDocument filter, BsonDocument update)
         {
             var updateOp = new UpdateOpcodeOperation(
-                __collection,
+                _collection,
                 new UpdateRequest(UpdateType.Update, filter, update),
-                __messageEncoderSettings);
+                _messageEncoderSettings);
 
-            return updateOp.ExecuteAsync(binding, __cancellationTokenSource.Token);
+            using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+            using (var linked = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellationTokenSource.Token))
+            {
+                await updateOp.ExecuteAsync(binding, linked.Token);
+            }
         }
     }
 }
