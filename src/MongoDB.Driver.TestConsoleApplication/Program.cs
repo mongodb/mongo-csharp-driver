@@ -13,22 +13,23 @@ namespace MongoDB.Driver.TestConsoleApplication
     {
         static void Main(string[] args)
         {
-            int numConcurrentWorkers = 8;
+            int numConcurrentWorkers = 50;
             //new CoreApi().Run(numConcurrentWorkers, ConfigureCluster);
 
-            //new Api().Run(numConcurrentWorkers, ConfigureCluster);
+            new Api().Run(numConcurrentWorkers, ConfigureCluster);
 
-            new LegacyApi().Run(numConcurrentWorkers, ConfigureCluster);
+            //new LegacyApi().Run(numConcurrentWorkers, ConfigureCluster);
         }
 
         private static void ConfigureCluster(ClusterBuilder cb)
         {
-            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var file = Path.Combine(desktop, "log.txt");
-            var streamWriter = new StreamWriter(file);
-            var writer = TextWriter.Synchronized(streamWriter);
+            //string desktop =
+            //Environment.GetFolderPath(Environment.SpecialFolder.Desktop); var
+            //file = Path.Combine(desktop, "log.txt"); var streamWriter = new
+            //StreamWriter(file); var writer =
+            //TextWriter.Synchronized(streamWriter);
 
-            cb.AddListener(new LogListener(writer, LogLevel.Error));
+            //cb.AddListener(new LogListener(writer, LogLevel.Error));
             cb.UsePerformanceCounters("test", true);
         }
     }

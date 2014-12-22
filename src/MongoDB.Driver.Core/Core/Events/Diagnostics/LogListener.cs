@@ -282,16 +282,13 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         private string Format(EndPoint endPoint)
         {
-            var dnsEndPoint = endPoint as DnsEndPoint;
+            var dnsEndPoint = endPoint as DnsEndPoint; 
             if (dnsEndPoint != null)
             {
-                return dnsEndPoint.Host + ":" + dnsEndPoint.Port.ToString();
-            }
-
-            var ipEndPoint = endPoint as IPEndPoint;
-            if (ipEndPoint != null)
-            {
-                return ipEndPoint.Address.ToString() + ":" + ipEndPoint.Port.ToString();
+                return string.Concat(
+                    dnsEndPoint.Host,
+                    ":",
+                    dnsEndPoint.Port.ToString());
             }
 
             return endPoint.ToString();
