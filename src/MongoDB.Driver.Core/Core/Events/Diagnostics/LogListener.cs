@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         public override void ServerAfterHeartbeating(ServerAfterHeartbeatingEvent @event)
         {
-            Log(LogLevel.Debug, "{0}: sent heartbeat in {1}ms.", Label(@event.ConnectionId), @event.Elapsed.TotalMilliseconds);
+            Log(LogLevel.Info, "{0}: sent heartbeat in {1}ms.", Label(@event.ConnectionId), @event.Elapsed.TotalMilliseconds);
         }
 
         public override void ServerErrorHeartbeating(ServerErrorHeartbeatingEvent @event)
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         public override void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
         {
-            Log(LogLevel.Info, "{0}: error receiving message in response to {1}. Exception: .", Label(@event.ConnectionId), @event.ResponseTo.ToString(), @event.Exception);
+            Log(LogLevel.Error, "{0}: error receiving message in response to {1}. Exception: {2}.", Label(@event.ConnectionId), @event.ResponseTo.ToString(), @event.Exception);
         }
 
         public override void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
@@ -258,7 +258,10 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         private string Label(ServerId serverId)
         {
-            return string.Format("{0}:{1}", serverId.ClusterId.Value.ToString(), Format(serverId.EndPoint));
+            return string.Concat(
+                serverId.ClusterId.Value.ToString(),
+                ":",
+                Format(serverId.EndPoint));
         }
 
         private string Label(ClusterId clusterId)

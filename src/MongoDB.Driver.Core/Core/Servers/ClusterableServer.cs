@@ -16,7 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -44,6 +46,15 @@ namespace MongoDB.Driver.Core.Servers
         #region static
         // static fields
         private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(10);
+        private static readonly List<Type> __invalidatableExceptions = new List<Type>
+        {
+            typeof(MongoNotPrimaryException),
+            typeof(MongoNotPrimaryException),
+            typeof(MongoConnectionException),
+            typeof(SocketException),
+            typeof(EndOfStreamException),
+            typeof(IOException),
+        };
         #endregion
 
         // fields
@@ -368,7 +379,7 @@ namespace MongoDB.Driver.Core.Servers
                 return;
             }
 
-            if (ex.GetType() == typeof(MongoNotPrimaryException) || ex.GetType() == typeof(MongoNodeIsRecoveringException))
+            if (__invalidatableExceptions.Contains(ex.GetType()))
             {
                 Invalidate();
             }
