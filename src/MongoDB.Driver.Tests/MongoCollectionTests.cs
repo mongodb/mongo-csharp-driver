@@ -465,10 +465,11 @@ namespace MongoDB.Driver.Tests
         [RequiresServer]
         public void TestCountWithReadPreferenceFromFind()
         {
-            _collection.RemoveAll();
-            _collection.Insert(new BsonDocument("x", 1));
-            _collection.Insert(new BsonDocument("x", 2));
-            _collection.CreateIndex(IndexKeys.Ascending("x"));
+            _collection.Drop();
+            var all = Configuration.TestServer.Secondaries.Length + 1;
+            var options = new MongoInsertOptions { WriteConcern = new WriteConcern(w: all) };
+            _collection.Insert(new BsonDocument("x", 1), options);
+            _collection.Insert(new BsonDocument("x", 2), options);
             var count = _collection.Find(Query.EQ("x", 1)).SetReadPreference(ReadPreference.Secondary).Count();
             Assert.AreEqual(1, count);
         }
