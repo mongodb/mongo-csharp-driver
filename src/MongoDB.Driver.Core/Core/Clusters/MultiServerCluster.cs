@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 try
                 {
-                    var eventArgs = await _serverDescriptionChangedQueue.DequeueAsync().ConfigureAwait(false); // TODO: add timeout and cancellationToken to DequeueAsync
+                    var eventArgs = await _serverDescriptionChangedQueue.DequeueAsync(monitorServersCancellationToken).ConfigureAwait(false); // TODO: add timeout and cancellationToken to DequeueAsync
                     ProcessServerDescriptionChanged(eventArgs);
                 }
                 catch

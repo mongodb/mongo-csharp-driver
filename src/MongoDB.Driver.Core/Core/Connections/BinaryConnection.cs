@@ -307,34 +307,41 @@ namespace MongoDB.Driver.Core.Connections
             var backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
             while (!backgroundTaskCancellationToken.IsCancellationRequested)
             {
-                var entry = await _outboundQueue.DequeueAsync().ConfigureAwait(false);
-
-                // Before we might blow up the stream, let's see if we have been
-                // asked to cancel. No reason to do work on the stream if the user
-                // no longer cares.
-                if (entry.CancellationToken.IsCancellationRequested)
-                {
-                    entry.TaskCompletionSource.TrySetCanceled();
-                    continue;
-                }
-
                 try
                 {
-                    // Don't use the entry's cancellation token because once we
-                    // start writing the message, we don't want to stop arbitrarily
-                    // and render the connection unusable at the whim of a user.
-                    await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, backgroundTaskCancellationToken).ConfigureAwait(false);
-                    _lastUsedAtUtc = DateTime.UtcNow;
-                    entry.TaskCompletionSource.TrySetResult(true);
+                    var entry = await _outboundQueue.DequeueAsync(backgroundTaskCancellationToken).ConfigureAwait(false);
+
+                    // Before we might blow up the stream, let's see if we have been
+                    // asked to cancel. No reason to do work on the stream if the user
+                    // no longer cares.
+                    if (entry.CancellationToken.IsCancellationRequested)
+                    {
+                        entry.TaskCompletionSource.TrySetCanceled();
+                        continue;
+                    }
+
+                    try
+                    {
+                        // Don't use the entry's cancellation token because once we
+                        // start writing the message, we don't want to stop arbitrarily
+                        // and render the connection unusable at the whim of a user.
+                        await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, backgroundTaskCancellationToken).ConfigureAwait(false);
+                        _lastUsedAtUtc = DateTime.UtcNow;
+                        entry.TaskCompletionSource.TrySetResult(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        // We have to kill the connection off here because we may have
+                        // partially written the bytes to the stream, leaving it
+                        // unusable.
+                        ConnectionFailed(ex);
+                        entry.TaskCompletionSource.TrySetException(ex);
+                        return;
+                    }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    // We have to kill the connection off here because we may have
-                    // partially written the bytes to the stream, leaving it
-                    // unusable.
-                    ConnectionFailed(ex);
-                    entry.TaskCompletionSource.TrySetException(ex);
-                    return;
+                    // ignore this exception
                 }
             }
         }

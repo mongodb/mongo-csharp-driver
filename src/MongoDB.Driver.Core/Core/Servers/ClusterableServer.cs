@@ -205,6 +205,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 try
                 {
+                    await HeartbeatAsync(heartbeatCancellationToken);
                     var newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), __minHeartbeatInterval);
                     var oldHeartbeatDelay = Interlocked.Exchange(ref _heartbeatDelay, newHeartbeatDelay);
                     if (oldHeartbeatDelay != null)
@@ -212,7 +213,6 @@ namespace MongoDB.Driver.Core.Servers
                         oldHeartbeatDelay.Dispose();
                     }
                     await newHeartbeatDelay.Task;
-                    await HeartbeatAsync(heartbeatCancellationToken);
                 }
                 catch
                 {
