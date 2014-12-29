@@ -618,7 +618,7 @@ namespace MongoDB.DriverUnitTests
             _database.CreateCollection(collection.Name, options);
 
             var result = _database.RunCommand("listCollections");
-            var resultCollection = result.Response["collections"].AsBsonArray.Where(doc => doc["name"] == collection.Name).Single();
+            var resultCollection = result.Response["cursor"]["firstBatch"].AsBsonArray.Where(doc => doc["name"] == collection.Name).Single();
             Assert.AreEqual(storageEngineOptions, resultCollection["options"]["storageEngine"]);
         }
 
