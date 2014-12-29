@@ -39,6 +39,7 @@ namespace MongoDB.Driver
             "geoSearch",
             "geoWalk",
             "group",
+            "isMaster",
             "parallelCollectionScan",
             "text"
         };

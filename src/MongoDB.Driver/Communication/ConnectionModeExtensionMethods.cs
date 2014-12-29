@@ -25,9 +25,10 @@ namespace MongoDB.Driver.Communication
             switch (value)
             {
                 case ConnectionMode.Automatic: return ClusterConnectionMode.Automatic;
-                case ConnectionMode.Direct: return ClusterConnectionMode.Standalone;
+                case ConnectionMode.Direct: return ClusterConnectionMode.Direct;
                 case ConnectionMode.ReplicaSet: return ClusterConnectionMode.ReplicaSet;
                 case ConnectionMode.ShardRouter: return ClusterConnectionMode.Sharded;
+                case ConnectionMode.Standalone: return ClusterConnectionMode.Standalone;
                 default: throw new ArgumentException("Invalid ConnectionMode.", "value");
             }
         }
