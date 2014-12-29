@@ -229,27 +229,30 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async Task<bool> ReceiveBackgroundTask(CancellationToken cancellationToken)
+        private async void ReceiveBackgroundTask()
         {
-            try
+            var backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
+            while (!backgroundTaskCancellationToken.IsCancellationRequested)
             {
-                var messageSizeBytes = new byte[4];
-                await _stream.FillBufferAsync(messageSizeBytes, 0, 4, cancellationToken).ConfigureAwait(false);
-                var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
-                var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, messageSize);
-                buffer.WriteBytes(0, messageSizeBytes, 0, 4);
-                await _stream.FillBufferAsync(buffer, 4, messageSize - 4, cancellationToken).ConfigureAwait(false);
-                _lastUsedAtUtc = DateTime.UtcNow;
-                var responseToBytes = new byte[4];
-                buffer.ReadBytes(8, responseToBytes, 0, 4);
-                var responseTo = BitConverter.ToInt32(responseToBytes, 0);
-                _inboundDropbox.Post(responseTo, buffer);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ConnectionFailed(ex);
-                return false;
+                try
+                {
+                    var messageSizeBytes = new byte[4];
+                    await _stream.FillBufferAsync(messageSizeBytes, 0, 4, backgroundTaskCancellationToken).ConfigureAwait(false);
+                    var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
+                    var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, messageSize);
+                    buffer.WriteBytes(0, messageSizeBytes, 0, 4);
+                    await _stream.FillBufferAsync(buffer, 4, messageSize - 4, backgroundTaskCancellationToken).ConfigureAwait(false);
+                    _lastUsedAtUtc = DateTime.UtcNow;
+                    var responseToBytes = new byte[4];
+                    buffer.ReadBytes(8, responseToBytes, 0, 4);
+                    var responseTo = BitConverter.ToInt32(responseToBytes, 0);
+                    _inboundDropbox.Post(responseTo, buffer);
+                }
+                catch (Exception ex)
+                {
+                    ConnectionFailed(ex);
+                    return;
+                }
             }
         }
 
@@ -299,35 +302,40 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async Task<bool> SendBackgroundTask(CancellationToken cancellationToken)
+        private async void SendBackgroundTask()
         {
-            var entry = await _outboundQueue.DequeueAsync().ConfigureAwait(false);
-            // Before we might blow up the stream, let's see if we have been
-            // asked to cancel. No reason to do work on the stream if the user
-            // no longer cares.
-            if (entry.CancellationToken.IsCancellationRequested)
+            var backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
+            while (!backgroundTaskCancellationToken.IsCancellationRequested)
             {
-                entry.TaskCompletionSource.TrySetCanceled();
-                return true; // means to not exit the background task...
-            }
-            try
-            {
-                // Don't use the entry's cancellation token because once we
-                // start writing the message, we don't want to stop arbitrarily
-                // and render the connection unusable at the whim of a user.
-                await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, cancellationToken).ConfigureAwait(false);
-                _lastUsedAtUtc = DateTime.UtcNow;
-                entry.TaskCompletionSource.TrySetResult(true);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                // We have to kill the connection off here because we may have
-                // partially written the bytes to the stream, leaving it
-                // unusable.
-                ConnectionFailed(ex);
-                entry.TaskCompletionSource.TrySetException(ex);
-                return false; // stop the loop, we are done!!!
+                var entry = await _outboundQueue.DequeueAsync().ConfigureAwait(false);
+
+                // Before we might blow up the stream, let's see if we have been
+                // asked to cancel. No reason to do work on the stream if the user
+                // no longer cares.
+                if (entry.CancellationToken.IsCancellationRequested)
+                {
+                    entry.TaskCompletionSource.TrySetCanceled();
+                    continue;
+                }
+
+                try
+                {
+                    // Don't use the entry's cancellation token because once we
+                    // start writing the message, we don't want to stop arbitrarily
+                    // and render the connection unusable at the whim of a user.
+                    await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, backgroundTaskCancellationToken).ConfigureAwait(false);
+                    _lastUsedAtUtc = DateTime.UtcNow;
+                    entry.TaskCompletionSource.TrySetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    // We have to kill the connection off here because we may have
+                    // partially written the bytes to the stream, leaving it
+                    // unusable.
+                    ConnectionFailed(ex);
+                    entry.TaskCompletionSource.TrySetException(ex);
+                    return;
+                }
             }
         }
 
@@ -393,10 +401,8 @@ namespace MongoDB.Driver.Core.Connections
 
         private void StartBackgroundTasks()
         {
-            AsyncBackgroundTask.Start(SendBackgroundTask, TimeSpan.FromMilliseconds(0), _backgroundTaskCancellationTokenSource.Token)
-                .HandleUnobservedException(ConnectionFailed);
-            AsyncBackgroundTask.Start(ReceiveBackgroundTask, TimeSpan.FromMilliseconds(0), _backgroundTaskCancellationTokenSource.Token)
-                .HandleUnobservedException(ConnectionFailed);
+            SendBackgroundTask();
+            ReceiveBackgroundTask();
         }
 
         private void ThrowIfDisposed()

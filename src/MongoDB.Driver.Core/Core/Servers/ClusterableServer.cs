@@ -122,21 +122,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 var stopwatch = Stopwatch.StartNew();
                 _connectionPool.Initialize();
-                var metronome = new Metronome(_settings.HeartbeatInterval);
-                AsyncBackgroundTask.Start(
-                    HeartbeatAsync,
-                    ct =>
-                    {
-                        var newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), __minHeartbeatInterval);
-                        var oldHeartbeatDelay = Interlocked.Exchange(ref _heartbeatDelay, newHeartbeatDelay);
-                        if (oldHeartbeatDelay != null)
-                        {
-                            oldHeartbeatDelay.Dispose();
-                        }
-                        return newHeartbeatDelay.Task;
-                    },
-                    _heartbeatCancellationTokenSource.Token)
-                    .HandleUnobservedException(ex => { }); // TODO: do we need to do anything here?
+                MonitorServer();
                 stopwatch.Stop();
 
                 if (_listener != null)
@@ -208,6 +194,30 @@ namespace MongoDB.Driver.Core.Servers
             {
                 connection.Dispose();
                 throw;
+            }
+        }
+
+        private async void MonitorServer()
+        {
+            var metronome = new Metronome(_settings.HeartbeatInterval);
+            var heartbeatCancellationToken = _heartbeatCancellationTokenSource.Token;
+            while(!heartbeatCancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    var newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), __minHeartbeatInterval);
+                    var oldHeartbeatDelay = Interlocked.Exchange(ref _heartbeatDelay, newHeartbeatDelay);
+                    if (oldHeartbeatDelay != null)
+                    {
+                        oldHeartbeatDelay.Dispose();
+                    }
+                    await newHeartbeatDelay.Task;
+                    await HeartbeatAsync(heartbeatCancellationToken);
+                }
+                catch
+                {
+                    // ignore these exceptions
+                }
             }
         }
 

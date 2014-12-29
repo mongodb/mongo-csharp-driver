@@ -248,11 +248,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     _listener.ConnectionPoolBeforeOpening(new ConnectionPoolBeforeOpeningEvent(_serverId, _settings));
                 }
-                AsyncBackgroundTask.Start(
-                    ct => MaintainSizeAsync(ct),
-                    _settings.MaintenanceInterval,
-                    _maintenanceCancellationTokenSource.Token)
-                    .HandleUnobservedException(ex => { }); // TODO: do we need to handle any error here?
+
+                MaintainSize();
 
                 if (_listener != null)
                 {
@@ -282,19 +279,23 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private async Task<bool> MaintainSizeAsync(CancellationToken cancellationToken)
+        private async void MaintainSize()
         {
-            try
+            var maintenanceCancellationToken = _maintenanceCancellationTokenSource.Token;
+            while (!maintenanceCancellationToken.IsCancellationRequested)
             {
-                await PrunePoolAsync(cancellationToken).ConfigureAwait(false);
-                await EnsureMinSizeAsync(cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    await PrunePoolAsync(maintenanceCancellationToken).ConfigureAwait(false);
+                    await EnsureMinSizeAsync(maintenanceCancellationToken).ConfigureAwait(false);
+                    await Task.Delay(_settings.MaintenanceInterval, maintenanceCancellationToken);
+                }
+                catch
+                {
+                    // do nothing, this is called in the background and, quite frankly, should never
+                    // result in an error
+                }
             }
-            catch
-            {
-                // do nothing, this is called in the background
-            }
-
-            return true;
         }
 
         private async Task PrunePoolAsync(CancellationToken cancellationToken)
