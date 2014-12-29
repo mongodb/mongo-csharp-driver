@@ -22,7 +22,8 @@ namespace MongoDB.Driver.Core.Servers
     internal sealed class HeartbeatDelay : IDisposable
     {
         // fields
-        private DateTime _earlyHeartbeatAt;
+        private readonly DateTime _earlyHeartbeatAt;
+        private int _earlyHeartbeatHasBeenRequested;
         private readonly TaskCompletionSource<bool> _taskCompletionSource = new TaskCompletionSource<bool>();
         private readonly Timer _timer;
 
@@ -48,14 +49,19 @@ namespace MongoDB.Driver.Core.Servers
 
         public void RequestHeartbeat()
         {
-            var earlyHeartbeatDelay = _earlyHeartbeatAt - DateTime.UtcNow;
-            if (earlyHeartbeatDelay <= TimeSpan.Zero)
+            if (Interlocked.CompareExchange(ref _earlyHeartbeatHasBeenRequested, 1, 0) == 0)
             {
-                _taskCompletionSource.TrySetResult(true);
-            }
-            else
-            {
-                _timer.Change(earlyHeartbeatDelay, Timeout.InfiniteTimeSpan);
+                var earlyHeartbeatDelay = _earlyHeartbeatAt - DateTime.UtcNow;
+                if (earlyHeartbeatDelay <= TimeSpan.Zero)
+                {
+                    _timer.Dispose();
+                    _taskCompletionSource.TrySetResult(true);
+                }
+                else
+                {
+                    _timer.Change(earlyHeartbeatDelay, Timeout.InfiniteTimeSpan);
+                }
+
             }
         }
 
