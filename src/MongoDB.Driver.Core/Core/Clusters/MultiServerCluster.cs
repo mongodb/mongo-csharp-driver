@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 servers = _servers.ToList();
             }
-           
+
             foreach (var server in servers)
             {
                 server.RequestHeartbeat();

@@ -46,9 +46,8 @@ namespace MongoDB.Driver.Core.Servers
         #region static
         // static fields
         private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(10);
-        private static readonly List<Type> __invalidatableExceptions = new List<Type>
+        private static readonly List<Type> __invalidatingExceptions = new List<Type>
         {
-            typeof(MongoNotPrimaryException),
             typeof(MongoNotPrimaryException),
             typeof(MongoConnectionException),
             typeof(SocketException),
@@ -201,7 +200,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var metronome = new Metronome(_settings.HeartbeatInterval);
             var heartbeatCancellationToken = _heartbeatCancellationTokenSource.Token;
-            while(!heartbeatCancellationToken.IsCancellationRequested)
+            while (!heartbeatCancellationToken.IsCancellationRequested)
             {
                 try
                 {
@@ -389,7 +388,7 @@ namespace MongoDB.Driver.Core.Servers
                 return;
             }
 
-            if (__invalidatableExceptions.Contains(ex.GetType()))
+            if (__invalidatingExceptions.Contains(ex.GetType()))
             {
                 Invalidate();
             }
@@ -496,7 +495,7 @@ namespace MongoDB.Driver.Core.Servers
                 BsonDocument query,
                 bool isMulti,
                 MessageEncoderSettings messageEncoderSettings,
-                WriteConcern writeConcern, 
+                WriteConcern writeConcern,
                 CancellationToken cancellationToken)
             {
                 var protocol = new DeleteWireProtocol(
