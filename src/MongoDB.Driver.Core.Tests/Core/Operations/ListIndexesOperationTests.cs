@@ -78,8 +78,9 @@ namespace MongoDB.Driver.Core.Operations
                 var expectedNames = new[] { "_id_" };
 
                 var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var list = await result.ToListAsync();
 
-                result.Select(index => index["name"].AsString).Should().BeEquivalentTo(expectedNames);
+                list.Select(index => index["name"].AsString).Should().BeEquivalentTo(expectedNames);
             }
         }
 
@@ -93,8 +94,9 @@ namespace MongoDB.Driver.Core.Operations
                 await DropCollectionAsync(binding);
 
                 var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var list = await result.ToListAsync();
 
-                result.Count().Should().Be(0);
+                list.Count.Should().Be(0);
             }
         }
 
@@ -108,8 +110,9 @@ namespace MongoDB.Driver.Core.Operations
                 await DropDatabaseAsync(binding);
 
                 var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var list = await result.ToListAsync();
 
-                result.Count().Should().Be(0);
+                list.Count.Should().Be(0);
             }
         }
 

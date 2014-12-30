@@ -761,7 +761,7 @@ namespace MongoDB.Driver
         {
             await _subject.GetIndexesAsync(CancellationToken.None);
 
-            var call = _operationExecutor.GetReadCall<IReadOnlyList<BsonDocument>>();
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
             call.Operation.Should().BeOfType<ListIndexesOperation>();
             var operation = (ListIndexesOperation)call.Operation;

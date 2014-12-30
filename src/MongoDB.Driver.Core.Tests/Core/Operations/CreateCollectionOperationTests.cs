@@ -266,8 +266,10 @@ namespace MongoDB.Driver.Core.Operations
                 result["ok"].ToBoolean().Should().BeTrue();
 
                 var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-                var indexes = await listIndexesOperation.ExecuteAsync(binding, CancellationToken.None);
-                indexes.Count().Should().Be(autoIndexId ? 1 : 0);
+                var cursor = await listIndexesOperation.ExecuteAsync(binding, CancellationToken.None);
+                var indexes = await cursor.ToListAsync();
+
+                indexes.Count.Should().Be(autoIndexId ? 1 : 0);
             }
         }
 

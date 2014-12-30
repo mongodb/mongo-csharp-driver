@@ -399,7 +399,7 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task<IReadOnlyList<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IAsyncCursor<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var op = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
             return ExecuteReadOperation(op, cancellationToken);
