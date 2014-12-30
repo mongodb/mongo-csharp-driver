@@ -15,6 +15,7 @@
 
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
 namespace MongoDB.Bson.Tests
@@ -50,7 +51,7 @@ namespace MongoDB.Bson.Tests
         public void TestToBsonIdFirst()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
-            var bson = c.ToBson(configurator: b => { b.SerializeIdFirst = true; });
+            var bson = c.ToBson(args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = new byte[] { 29, 0, 0, 0, 7, 95, 105, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 78, 0, 1, 0, 0, 0, 0 };
             Assert.IsTrue(expected.SequenceEqual(bson));
         }
@@ -81,7 +82,7 @@ namespace MongoDB.Bson.Tests
         public void TestToBsonDocumentIdFirst()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
-            var document = c.ToBsonDocument(configurator: b => { b.SerializeIdFirst = true; });
+            var document = c.ToBsonDocument(args: new BsonSerializationArgs { SerializeIdFirst = true });
             Assert.AreEqual(2, document.ElementCount);
             Assert.AreEqual("_id", document.GetElement(0).Name);
             Assert.AreEqual("N", document.GetElement(1).Name);
@@ -113,7 +114,7 @@ namespace MongoDB.Bson.Tests
         public void TestToJsonIdFirst()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
-            var json = c.ToJson(configurator: b => { b.SerializeIdFirst = true; });
+            var json = c.ToJson(args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), 'N' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }

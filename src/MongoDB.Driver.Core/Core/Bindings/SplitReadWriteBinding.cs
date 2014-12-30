@@ -47,16 +47,16 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
-        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _readBinding.GetReadConnectionSourceAsync(cancellationToken);
+            return _readBinding.GetReadChannelSourceAsync(cancellationToken);
         }
 
-        public Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _writeBinding.GetWriteConnectionSourceAsync(cancellationToken);
+            return _writeBinding.GetWriteChannelSourceAsync(cancellationToken);
         }
 
         public void Dispose()

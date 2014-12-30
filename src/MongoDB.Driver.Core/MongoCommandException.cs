@@ -21,30 +21,26 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
     [Serializable]
-    public class MongoCommandException : MongoException
+    public class MongoCommandException : MongoServerException
     {
         // fields
         private readonly BsonDocument _command;
         private readonly BsonDocument _result;
 
         // constructors
-        public MongoCommandException(string message, BsonDocument command)
-            : this(message, command, null, null)
+        public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command)
+            : this(connectionId, message, command, null)
         {
         }
 
-        public MongoCommandException(string message, BsonDocument command, BsonDocument result)
-            : this(message, command, result, null)
-        {
-        }
-
-        public MongoCommandException(string message, BsonDocument command, BsonDocument result, Exception innerException)
-            : base(message, innerException)
+        public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result)
+            : base(connectionId, message)
         {
             _command = command;
             _result = result; // can be null
@@ -53,18 +49,8 @@ namespace MongoDB.Driver
         protected MongoCommandException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            foreach (SerializationEntry entry in info)
-            {
-                switch (entry.Name)
-                {
-                    case "_command":
-                        _command = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_command", typeof(byte[])));
-                        break;
-                    case "_result":
-                        _result = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_result", typeof(byte[])));
-                        break;
-                }
-            }
+            _command = (BsonDocument)info.GetValue("_command", typeof(BsonDocument));
+            _result = (BsonDocument)info.GetValue("_result", typeof(BsonDocument));
         }
 
         // properties
@@ -92,14 +78,8 @@ namespace MongoDB.Driver
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            if (_command != null)
-            {
-                info.AddValue("_command", _command.ToBson());
-            }
-            if (_result != null)
-            {
-                info.AddValue("_result", _result.ToBson());
-            }
+            info.AddValue("_command", _command);
+            info.AddValue("_result", _result);
         }
     }
 }

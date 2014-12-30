@@ -82,10 +82,10 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             // methods
-            private void SerializeCriteria(BsonBinaryWriter bsonWriter, BsonDocument criteria)
+            private void SerializeFilter(BsonBinaryWriter bsonWriter, BsonDocument filter)
             {
-                var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
-                BsonDocumentSerializer.Instance.Serialize(context, criteria);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                BsonDocumentSerializer.Instance.Serialize(context, filter);
             }
 
             protected override void SerializeRequest(BsonSerializationContext context, WriteRequest request)
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteName("q");
-                    SerializeCriteria(bsonWriter, updateRequest.Criteria);
+                    SerializeFilter(bsonWriter, updateRequest.Filter);
                     bsonWriter.WriteName("u");
                     SerializeUpdate(bsonWriter, updateRequest.Update, updateRequest.UpdateType);
                     if (updateRequest.IsMulti)
@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Core.Operations
                 bsonWriter.PushElementNameValidator(ElementNameValidatorFactory.ForUpdateType(updateType));
                 try
                 {
-                    var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter);
                     BsonDocumentSerializer.Instance.Serialize(context, update);
                 }
                 finally

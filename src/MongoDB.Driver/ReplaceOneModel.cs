@@ -26,10 +26,11 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for replacing a single document.
     /// </summary>
+    [Serializable]
     public sealed class ReplaceOneModel<T> : WriteModel<T>
     {
         // fields
-        private readonly object _criteria;
+        private readonly object _filter;
         private bool _isUpsert;
         private readonly T _replacement;
 
@@ -37,11 +38,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplaceOneModel{T}"/> class.
         /// </summary>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
-        public ReplaceOneModel(object criteria, T replacement)
+        public ReplaceOneModel(object filter, T replacement)
         {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _filter = Ensure.IsNotNull(filter, "filter");
             _replacement = replacement;
         }
 
@@ -49,9 +50,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the document.
         /// </summary>
-        public object Criteria
+        public object Filter
         {
-            get { return _criteria; }
+            get { return _filter; }
         }
 
         /// <summary>

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Authentication
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(description, "description");
 
-            using (var conversation = new SaslConversation())
+            using (var conversation = new SaslConversation(description.ConnectionId))
             {
                 var currentStep = _mechanism.Initialize(connection, description);
 
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication
                     catch(MongoCommandException ex)
                     {
                         var message = string.Format("Unable to authenticate using sasl protocol mechanism {0}.", Name);
-                        throw new MongoAuthenticationException(message, ex);
+                        throw new MongoAuthenticationException(connection.ConnectionId, message, ex);
                     }
 
                     // we might be done here if the client is not expecting a reply from the server
@@ -87,13 +87,21 @@ namespace MongoDB.Driver.Core.Authentication
         protected sealed class SaslConversation : IDisposable
         {
             // fields
+            private readonly ConnectionId _connectionId;
             private List<IDisposable> _itemsNeedingDisposal;
             private bool _isDisposed;
 
             // constructors
-            public SaslConversation()
+            public SaslConversation(ConnectionId connectionId)
             {
+                _connectionId = connectionId;
                 _itemsNeedingDisposal = new List<IDisposable>();
+            }
+
+            // properties
+            public ConnectionId ConnectionId
+            {
+                get { return _connectionId; }
             }
 
             // methods

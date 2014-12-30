@@ -34,7 +34,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="pattern">A regular expression pattern.</param>
         public BsonRegularExpression(string pattern)
-            : base(BsonType.RegularExpression)
         {
             if (pattern == null)
             {
@@ -61,7 +60,6 @@ namespace MongoDB.Bson
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">Regular expression options.</param>
         public BsonRegularExpression(string pattern, string options)
-            : base(BsonType.RegularExpression)
         {
             if (pattern == null)
             {
@@ -76,7 +74,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="regex">A Regex.</param>
         public BsonRegularExpression(Regex regex)
-            : base(BsonType.RegularExpression)
         {
             if (regex == null)
             {
@@ -103,6 +100,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.RegularExpression; }
+        }
+
         /// <summary>
         /// Gets the regular expression pattern.
         /// </summary>

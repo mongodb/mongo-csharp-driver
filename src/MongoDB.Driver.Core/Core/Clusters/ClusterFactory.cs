@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
             }
 
-            var settings = _settings.WithConnectionMode(connectionMode);
+            var settings = _settings.With(connectionMode: connectionMode);
 
             switch (connectionMode)
             {

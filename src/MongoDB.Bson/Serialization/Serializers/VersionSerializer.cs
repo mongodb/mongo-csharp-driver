@@ -14,7 +14,7 @@
 */
 
 using System;
-using System.IO;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -94,8 +94,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override Version DeserializeValue(BsonDeserializationContext context)
+        protected override Version DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -108,10 +109,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         switch (flag)
                         {
-                            case Flags.Major: major = context.DeserializeWithChildContext(_int32Serializer); break;
-                            case Flags.Minor: minor = context.DeserializeWithChildContext(_int32Serializer); break;
-                            case Flags.Build: build = context.DeserializeWithChildContext(_int32Serializer); break;
-                            case Flags.Revision: revision = context.DeserializeWithChildContext(_int32Serializer); break;
+                            case Flags.Major: major = _int32Serializer.Deserialize(context); break;
+                            case Flags.Minor: minor = _int32Serializer.Deserialize(context); break;
+                            case Flags.Build: build = _int32Serializer.Deserialize(context); break;
+                            case Flags.Revision: revision = _int32Serializer.Deserialize(context); break;
                         }
                     });
                     switch (foundMemberFlags)
@@ -134,8 +135,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, Version value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, Version value)
         {
             var bsonWriter = context.Writer;
 

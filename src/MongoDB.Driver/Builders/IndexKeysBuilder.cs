@@ -262,9 +262,9 @@ namespace MongoDB.Driver.Builders
         // nested class
         new internal class Serializer : SerializerBase<IndexKeysBuilder>
         {
-            public override void Serialize(BsonSerializationContext context, IndexKeysBuilder value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IndexKeysBuilder value)
             {
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._document);
+                BsonDocumentSerializer.Instance.Serialize(context, value._document);
             }
         }
     }
@@ -576,9 +576,9 @@ namespace MongoDB.Driver.Builders
         // nested classes
         new internal class Serializer : SerializerBase<IndexKeysBuilder<TDocument>>
         {
-            public override void Serialize(BsonSerializationContext context, IndexKeysBuilder<TDocument> value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IndexKeysBuilder<TDocument> value)
             {
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._indexKeysBuilder.ToBsonDocument());
+                BsonDocumentSerializer.Instance.Serialize(context, value._indexKeysBuilder.ToBsonDocument());
             }
         }
     }

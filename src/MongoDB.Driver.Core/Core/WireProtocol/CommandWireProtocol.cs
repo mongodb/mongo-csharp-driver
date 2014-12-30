@@ -117,24 +117,24 @@ namespace MongoDB.Driver.Core.WireProtocol
             var message = CreateMessage();
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             var reply = await connection.ReceiveMessageAsync<RawBsonDocument>(message.RequestId, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            return ProcessReply(reply);
+            return ProcessReply(connection.ConnectionId, reply);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        private TCommandResult ProcessReply(ReplyMessage<RawBsonDocument> reply)
+        private TCommandResult ProcessReply(ConnectionId connectionId, ReplyMessage<RawBsonDocument> reply)
         {
             if (reply.NumberReturned == 0)
             {
-                throw new MongoCommandException("Command returned no documents.", _command);
+                throw new MongoCommandException(connectionId, "Command returned no documents.", _command);
             }
             if (reply.NumberReturned > 1)
             {
-                throw new MongoCommandException("Command returned multiple documents.", _command);
+                throw new MongoCommandException(connectionId, "Command returned multiple documents.", _command);
             }
             if (reply.QueryFailure)
             {
                 var failureDocument = reply.QueryFailureDocument;
-                throw ExceptionMapper.Map(failureDocument) ?? new MongoCommandException("Command failed.", _command, failureDocument);
+                throw ExceptionMapper.Map(connectionId, failureDocument) ?? new MongoCommandException(connectionId, "Command failed.", _command, failureDocument);
             }
 
             using (var rawDocument = reply.Documents[0])
@@ -147,17 +147,32 @@ namespace MongoDB.Driver.Core.WireProtocol
                     {
                         commandName = _command["$query"].AsBsonDocument.GetElement(0).Name;
                     }
-                    BsonValue serverMessage;
-                    string message;
-                    if (!rawDocument.TryGetValue("errmsg", out serverMessage) || serverMessage.IsBsonNull)
+
+                    var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, materializedDocument, "errmsg");
+                    if (notPrimaryOrNodeIsRecoveringException != null)
                     {
-                        message = string.Format("Command {0} failed.", commandName);
+                        throw notPrimaryOrNodeIsRecoveringException;
+                    }
+
+                    string message;
+                    BsonValue errmsgBsonValue;
+                    if (materializedDocument.TryGetValue("errmsg", out errmsgBsonValue) && errmsgBsonValue.IsString)
+                    {
+                        var errmsg = errmsgBsonValue.ToString();
+                        message = string.Format("Command {0} failed: {1}.", commandName, errmsg);
                     }
                     else
                     {
-                        message = string.Format("Command {0} failed: {1}.", commandName, serverMessage.ToString());
+                        message = string.Format("Command {0} failed.", commandName);
                     }
-                    throw ExceptionMapper.Map(materializedDocument) ?? new MongoCommandException(message, _command, materializedDocument);
+
+                    var mappedException = ExceptionMapper.Map(connectionId, materializedDocument);
+                    if (mappedException != null)
+                    {
+                        throw mappedException;
+                    }
+
+                    throw new MongoCommandException(connectionId, message, _command, materializedDocument);
                 }
 
                 using (var stream = new ByteBufferStream(rawDocument.Slice, ownsByteBuffer: false))
@@ -166,7 +181,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     var encoder = (ReplyMessageBinaryEncoder<TCommandResult>)encoderFactory.GetReplyMessageEncoder<TCommandResult>(_resultSerializer);
                     using (var reader = encoder.CreateBinaryReader())
                     {
-                        var context = BsonDeserializationContext.CreateRoot<TCommandResult>(reader);
+                        var context = BsonDeserializationContext.CreateRoot(reader);
                         return _resultSerializer.Deserialize(context);
                     }
                 }

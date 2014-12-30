@@ -23,12 +23,12 @@ namespace MongoDB.Driver.Core.Bindings
     public interface IReadBinding : IDisposable
     {
         ReadPreference ReadPreference { get; }
-        Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(CancellationToken cancellationToken);
+        Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken);
     }
 
     public interface IWriteBinding : IDisposable
     {
-        Task<IConnectionSourceHandle> GetWriteConnectionSourceAsync(CancellationToken cancellationToken);
+        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken);
     }
 
     public interface IReadWriteBinding : IReadBinding, IWriteBinding

@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp269
             }
 
             // use RequestStart so that if we are running this test against a replica set we will bind to a specific secondary
-            using (_server.RequestStart(_database, ReadPreference.SecondaryPreferred))
+            using (_server.RequestStart(ReadPreference.SecondaryPreferred))
             {
                 // wait for the GridFS file to be replicated before trying to Download it
                 var timeoutAt = DateTime.UtcNow.AddSeconds(30);

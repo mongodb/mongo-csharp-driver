@@ -141,9 +141,9 @@ namespace MongoDB.Driver.Builders
         // nested classes
         new internal class Serializer : SerializerBase<GeoNearOptionsBuilder>
         {
-            public override void Serialize(BsonSerializationContext context, GeoNearOptionsBuilder value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GeoNearOptionsBuilder value)
             {
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._document);
+                BsonDocumentSerializer.Instance.Serialize(context, value._document);
             }
         }
     }

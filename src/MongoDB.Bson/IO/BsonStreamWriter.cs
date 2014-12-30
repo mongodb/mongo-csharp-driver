@@ -130,6 +130,25 @@ namespace MongoDB.Bson.IO
         {
             _stream.Write(value, 0, value.Length);
         }
+
+        /// <summary>
+        /// Writes a BSON CString to the stream.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        internal void WriteCString(byte[] value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+
+            if (Array.IndexOf<byte>(value, 0) != -1)
+            {
+                throw new ArgumentException("UTF8 representation cannot contain null bytes when writing a BSON CString.", "value");
+            }
+            _stream.Write(value, 0, value.Length);
+            _stream.WriteByte(0);
+        }
         
         /// <summary>
         /// Writes a BSON CString to the stream.
@@ -155,12 +174,7 @@ namespace MongoDB.Bson.IO
             else
             {
                 var bytes = Utf8Encodings.Strict.GetBytes(value);
-                if (bytes.Contains<byte>(0))
-                {
-                    throw new ArgumentException("UTF8 representation cannot contain null bytes when writing a BSON CString.", "value");
-                }
-                _stream.Write(bytes, 0, bytes.Length);
-                _stream.WriteByte(0);
+                WriteCString(bytes);
             }
         }
 

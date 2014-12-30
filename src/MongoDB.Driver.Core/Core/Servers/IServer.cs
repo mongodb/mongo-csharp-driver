@@ -20,6 +20,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 
@@ -39,7 +40,7 @@ namespace MongoDB.Driver.Core.Servers
         ServerId ServerId { get; }
 
         // methods
-        Task<IConnectionHandle> GetConnectionAsync(CancellationToken cancellationToken);
+        Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken);
     }
 
     /// <summary>
@@ -50,5 +51,6 @@ namespace MongoDB.Driver.Core.Servers
         // methods
         void Initialize();
         void Invalidate();
+        void RequestHeartbeat();
     }
 }

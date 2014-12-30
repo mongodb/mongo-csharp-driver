@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Core.Configuration
         private IReadOnlyList<EndPoint> _hosts;
         private bool? _ipv6;
         private bool? _journal;
+        private TimeSpan? _localThreshold;
         private TimeSpan? _maxIdleTime;
         private TimeSpan? _maxLifeTime;
         private int? _maxPoolSize;
@@ -58,7 +59,6 @@ namespace MongoDB.Driver.Core.Configuration
         private ReadPreferenceMode? _readPreference;
         private IReadOnlyList<TagSet> _readPreferenceTags;
         private string _replicaSet;
-        private TimeSpan? _secondaryAcceptableLatency;
         private TimeSpan? _socketTimeout;
         private bool? _ssl;
         private bool? _sslVerifyCertificate;
@@ -183,6 +183,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets the local threshold.
+        /// </summary>
+        public TimeSpan? LocalThreshold
+        {
+            get { return _localThreshold; }
+        }
+
+        /// <summary>
         /// Gets the max idle time.
         /// </summary>
         public TimeSpan? MaxIdleTime
@@ -244,14 +252,6 @@ namespace MongoDB.Driver.Core.Configuration
         public IReadOnlyList<TagSet> ReadPreferenceTags
         {
             get { return _readPreferenceTags; }
-        }
-
-        /// <summary>
-        /// Gets the secondary acceptable latency.
-        /// </summary>
-        public TimeSpan? SecondaryAcceptableLatency
-        {
-            get { return _secondaryAcceptableLatency; }
         }
 
         /// <summary>
@@ -378,7 +378,7 @@ namespace MongoDB.Driver.Core.Configuration
                 }
                 else
                 {
-                    throw new ConfigurationException(string.Format("Host '{0}' is not valid.", host.Value));
+                    throw new MongoConfigurationException(string.Format("Host '{0}' is not valid.", host.Value));
                 }
             }
 
@@ -425,7 +425,7 @@ namespace MongoDB.Driver.Core.Configuration
             if (!match.Success)
             {
                 var message = string.Format("The connection string '{0}' is not valid.", _originalConnectionString);
-                throw new ConfigurationException(message);
+                throw new MongoConfigurationException(message);
             }
 
             ExtractUsernameAndPassword(match);
@@ -524,14 +524,16 @@ namespace MongoDB.Driver.Core.Configuration
                         }
                     }
                     break;
+                case "localthreshold":
+                case "localthresholdms":
                 case "secondaryacceptablelatency":
                 case "secondaryacceptablelatencyms":
-                    _secondaryAcceptableLatency = ParseTimeSpan(name, value);
+                    _localThreshold = ParseTimeSpan(name, value);
                     break;
                 case "slaveok":
                     if (_readPreference != null)
                     {
-                        throw new ConfigurationException("ReadPreference has already been configured.");
+                        throw new MongoConfigurationException("ReadPreference has already been configured.");
                     }
                     _readPreference = ParseBoolean(name, value) ?
                         ReadPreferenceMode.SecondaryPreferred :
@@ -582,7 +584,7 @@ namespace MongoDB.Driver.Core.Configuration
                 var parts = property.Split(':');
                 if (parts.Length != 2)
                 {
-                    throw new ConfigurationException(string.Format("{0} has an invalid value of {1}.", name, value));
+                    throw new MongoConfigurationException(string.Format("{0} has an invalid value of {1}.", name, value));
                 }
                 yield return new KeyValuePair<string, string>(parts[0], parts[1]);
             }
@@ -596,7 +598,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
             catch (Exception ex)
             {
-                throw new ConfigurationException(string.Format("{0} has an invalid boolean value of {1}.", name, value), ex);
+                throw new MongoConfigurationException(string.Format("{0} has an invalid boolean value of {1}.", name, value), ex);
             }
         }
 
@@ -608,7 +610,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
             catch (Exception ex)
             {
-                throw new ConfigurationException(string.Format("{0} has an invalid double value of {1}.", name, value), ex);
+                throw new MongoConfigurationException(string.Format("{0} has an invalid double value of {1}.", name, value), ex);
             }
         }
 
@@ -621,7 +623,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
             catch (Exception ex)
             {
-                throw new ConfigurationException(string.Format("{0} has an invalid {1} value of {2}.", name, typeof(TEnum), value), ex);
+                throw new MongoConfigurationException(string.Format("{0} has an invalid {1} value of {2}.", name, typeof(TEnum), value), ex);
             }
         }
 
@@ -642,7 +644,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
             catch (Exception ex)
             {
-                throw new ConfigurationException(string.Format("{0} has an invalid int32 value of {1}.", name, value), ex);
+                throw new MongoConfigurationException(string.Format("{0} has an invalid int32 value of {1}.", name, value), ex);
             }
         }
 
@@ -654,7 +656,7 @@ namespace MongoDB.Driver.Core.Configuration
                 var parts = tagString.Split(':');
                 if (parts.Length != 2)
                 {
-                    throw new ConfigurationException(string.Format("{0} has an invalid value of {1}.", name, value));
+                    throw new MongoConfigurationException(string.Format("{0} has an invalid value of {1}.", name, value));
                 }
                 var tag = new Tag(parts[0].Trim(), parts[1].Trim());
                 tags.Add(tag);
@@ -702,7 +704,7 @@ namespace MongoDB.Driver.Core.Configuration
                 }
                 catch (Exception ex)
                 {
-                    throw new ConfigurationException(string.Format("{0} has an invalid TimeSpan value of {1}.", name, value), ex);
+                    throw new MongoConfigurationException(string.Format("{0} has an invalid TimeSpan value of {1}.", name, value), ex);
                 }
             }
 
@@ -712,7 +714,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
             catch (Exception ex)
             {
-                throw new ConfigurationException(string.Format("{0} has an invalid TimeSpan value of {1}.", name, value), ex);
+                throw new MongoConfigurationException(string.Format("{0} has an invalid TimeSpan value of {1}.", name, value), ex);
             }
         }
     }

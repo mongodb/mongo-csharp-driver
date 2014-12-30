@@ -178,7 +178,7 @@ namespace MongoDB.Bson
             var writerSettings = BsonDocumentWriterSettings.Defaults;
             using (var bsonWriter = new BsonDocumentWriter(bsonDocument, writerSettings))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter, _serializer.ValueType);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 _serializer.Serialize(context, _wrapped);
             }
 

@@ -14,12 +14,8 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -31,37 +27,38 @@ namespace MongoDB.Driver.Core.Configuration
     {
         // fields
         private readonly AddressFamily _addressFamily;
+        private readonly TimeSpan _connectTimeout;
         private readonly TimeSpan? _readTimeout;
         private readonly int _receiveBufferSize;
         private readonly int _sendBufferSize;
         private readonly TimeSpan? _writeTimeout;
 
         // constructors
-        public TcpStreamSettings()
+        public TcpStreamSettings(
+            Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
+            Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
+            Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
+            Optional<int> receiveBufferSize = default(Optional<int>),
+            Optional<int> sendBufferSize = default(Optional<int>),
+            Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
         {
-            _addressFamily = AddressFamily.InterNetwork;
-            _receiveBufferSize = 64 * 1024;
-            _sendBufferSize = 64 * 1024;
-        }
-
-        private TcpStreamSettings(
-            AddressFamily addressFamily,
-            TimeSpan? readTimeout,
-            int receiveBufferSize,
-            int sendBufferSize,
-            TimeSpan? writeTimeout)
-        {
-            _addressFamily = addressFamily;
-            _readTimeout = readTimeout;
-            _receiveBufferSize = receiveBufferSize;
-            _sendBufferSize = sendBufferSize;
-            _writeTimeout = writeTimeout;
+            _addressFamily = addressFamily.WithDefault(AddressFamily.InterNetwork);
+            _connectTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(connectTimeout.WithDefault(Timeout.InfiniteTimeSpan), "connectTimeout");
+            _readTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(readTimeout.WithDefault(null), "readTimeout");
+            _receiveBufferSize = Ensure.IsGreaterThanZero(receiveBufferSize.WithDefault(64 * 1024), "receiveBufferSize");
+            _sendBufferSize = Ensure.IsGreaterThanZero(sendBufferSize.WithDefault(64 * 1024), "sendBufferSize");
+            _writeTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(writeTimeout.WithDefault(null), "writeTimeout");
         }
 
         // properties
         public AddressFamily AddressFamily
         {
             get { return _addressFamily; }
+        }
+
+        public TimeSpan ConnectTimeout
+        {
+            get { return _connectTimeout; }
         }
 
         public TimeSpan? ReadTimeout
@@ -85,65 +82,21 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // methods
-        public TcpStreamSettings WithAddressFamily(AddressFamily value)
+        public TcpStreamSettings With(
+            Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
+            Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
+            Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
+            Optional<int> receiveBufferSize = default(Optional<int>),
+            Optional<int> sendBufferSize = default(Optional<int>),
+            Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
         {
-            return _addressFamily == value ? this : new Builder(this) { _addressFamily = value }.Build();
-        }
-
-        public TcpStreamSettings WithReadTimeout(TimeSpan? value)
-        {
-            Ensure.IsNullOrValidTimeout(value, "value");
-            return _readTimeout == value ? this : new Builder(this) { _readTimeout = value }.Build();
-        }
-
-        public TcpStreamSettings WithReceiveBufferSize(int value)
-        {
-            Ensure.IsGreaterThanZero(value, "value");
-            return _receiveBufferSize == value ? this : new Builder(this) { _receiveBufferSize = value }.Build();
-        }
-
-        public TcpStreamSettings WithSendBufferSize(int value)
-        {
-            Ensure.IsGreaterThanZero(value, "value");
-            return _sendBufferSize == value ? this : new Builder(this) { _sendBufferSize = value }.Build();
-        }
-
-        public TcpStreamSettings WithWriteTimeout(TimeSpan? value)
-        {
-            Ensure.IsNullOrValidTimeout(value, "value");
-            return _writeTimeout == value ? this : new Builder(this) { _writeTimeout = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public AddressFamily _addressFamily;
-            public TimeSpan? _readTimeout;
-            public int _receiveBufferSize;
-            public int _sendBufferSize;
-            public TimeSpan? _writeTimeout;
-
-            // constructors
-            public Builder(TcpStreamSettings other)
-            {
-                _addressFamily = other._addressFamily;
-                _readTimeout = other._readTimeout;
-                _receiveBufferSize = other._receiveBufferSize;
-                _sendBufferSize = other._sendBufferSize;
-                _writeTimeout = other._writeTimeout;
-            }
-
-            // methods
-            public TcpStreamSettings Build()
-            {
-                return new TcpStreamSettings(
-                    _addressFamily,
-                    _readTimeout,
-                    _receiveBufferSize,
-                    _sendBufferSize,
-                    _writeTimeout);
-            }
+            return new TcpStreamSettings(
+                addressFamily: addressFamily.WithDefault(_addressFamily),
+                connectTimeout: connectTimeout.WithDefault(_connectTimeout),
+                readTimeout: readTimeout.WithDefault(_readTimeout),
+                receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
+                sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
+                writeTimeout: writeTimeout.WithDefault(_writeTimeout));
         }
     }
 }

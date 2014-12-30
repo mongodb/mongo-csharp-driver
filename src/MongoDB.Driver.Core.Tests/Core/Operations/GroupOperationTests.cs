@@ -33,13 +33,13 @@ namespace MongoDB.Driver.Core.Operations
             var key = new BsonDocument("key", 1);
             var initial = new BsonDocument("x", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, criteria, messageEncoderSettings);
+            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
 
             subject.CollectionNamespace.Should().Be(collectionNamespace);
-            subject.Criteria.Should().Be(criteria);
+            subject.Filter.Should().Be(filter);
             subject.FinalizeFunction.Should().BeNull();
             subject.Initial.Should().Be(initial);
             subject.Key.Should().Be(key);
@@ -56,10 +56,10 @@ namespace MongoDB.Driver.Core.Operations
             var key = new BsonDocument("key", 1);
             var initial = new BsonDocument("x", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            Action action = () => new GroupOperation<BsonDocument>(null, key, initial, reduceFunction, criteria, messageEncoderSettings);
+            Action action = () => new GroupOperation<BsonDocument>(null, key, initial, reduceFunction, filter, messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -70,10 +70,10 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
             var key = new BsonDocument("key", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, key, null, reduceFunction, criteria, messageEncoderSettings);
+            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, key, null, reduceFunction, filter, messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -84,10 +84,10 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
             var initial = new BsonDocument("x", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, (BsonDocument)null, initial, reduceFunction, criteria, messageEncoderSettings);
+            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, (BsonDocument)null, initial, reduceFunction, filter, messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -98,10 +98,10 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
             var key = new BsonDocument("key", 1);
             var initial = new BsonDocument("x", 1);
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, key, initial, null, criteria, messageEncoderSettings);
+            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, key, initial, null, filter, messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -113,13 +113,13 @@ namespace MongoDB.Driver.Core.Operations
             var keyFunction = new BsonJavaScript("keyFunction");
             var initial = new BsonDocument("x", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, keyFunction, initial, reduceFunction, criteria, messageEncoderSettings);
+            var subject = new GroupOperation<BsonDocument>(collectionNamespace, keyFunction, initial, reduceFunction, filter, messageEncoderSettings);
 
             subject.CollectionNamespace.Should().Be(collectionNamespace);
-            subject.Criteria.Should().Be(criteria);
+            subject.Filter.Should().Be(filter);
             subject.FinalizeFunction.Should().BeNull();
             subject.Initial.Should().Be(initial);
             subject.Key.Should().BeNull();
@@ -136,10 +136,10 @@ namespace MongoDB.Driver.Core.Operations
             var keyFunction = new BsonJavaScript("keyFunction");
             var initial = new BsonDocument("x", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            Action action = () => new GroupOperation<BsonDocument>(null, keyFunction, initial, reduceFunction, criteria, messageEncoderSettings);
+            Action action = () => new GroupOperation<BsonDocument>(null, keyFunction, initial, reduceFunction, filter, messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -150,10 +150,10 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
             var initial = new BsonDocument("x", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, (BsonJavaScript)null, initial, reduceFunction, criteria, messageEncoderSettings);
+            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, (BsonJavaScript)null, initial, reduceFunction, filter, messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -164,10 +164,10 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
             var keyFunction = new BsonJavaScript("keyFunction");
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, keyFunction, null, reduceFunction, criteria, messageEncoderSettings);
+            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, keyFunction, null, reduceFunction, filter, messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -178,10 +178,10 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
             var keyFunction = new BsonJavaScript("keyFunction");
             var initial = new BsonDocument("x", 1);
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
 
-            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, keyFunction, initial, null, criteria, messageEncoderSettings);
+            Action action = () => new GroupOperation<BsonDocument>(collectionNamespace, keyFunction, initial, null, filter, messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -213,15 +213,15 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void CreateCommand_should_return_expected_result_when_criteria_was_provided()
+        public void CreateCommand_should_return_expected_result_when_filter_was_provided()
         {
             var collectionNamespace = new CollectionNamespace("databaseName", "collectionName");
             var key = new BsonDocument("key", 1);
             var initial = new BsonDocument("x", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, criteria, messageEncoderSettings);
+            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
             var expectedResult = new BsonDocument
             {
                 { "group", new BsonDocument
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Core.Operations
                         { "key", key },
                         { "$reduce", reduceFunction },
                         { "initial", initial },
-                        { "cond", criteria }
+                        { "cond", filter }
                     }
                 }
             };
@@ -330,9 +330,9 @@ namespace MongoDB.Driver.Core.Operations
             var key = new BsonDocument("key", 1);
             var initial = new BsonDocument("x", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, criteria, messageEncoderSettings);
+            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
             var finalizeFunction = new BsonJavaScript("finalizeFunction");
 
             subject.FinalizeFunction = finalizeFunction;
@@ -347,9 +347,9 @@ namespace MongoDB.Driver.Core.Operations
             var key = new BsonDocument("key", 1);
             var initial = new BsonDocument("x", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, criteria, messageEncoderSettings);
+            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
             var maxTime = TimeSpan.FromSeconds(1);
 
             subject.MaxTime = maxTime;
@@ -364,9 +364,9 @@ namespace MongoDB.Driver.Core.Operations
             var key = new BsonDocument("key", 1);
             var initial = new BsonDocument("x", 1);
             var reduceFunction = new BsonJavaScript("reduceFunction");
-            var criteria = new BsonDocument("y", 1);
+            var filter = new BsonDocument("y", 1);
             var messageEncoderSettings = new MessageEncoderSettings();
-            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, criteria, messageEncoderSettings);
+            var subject = new GroupOperation<BsonDocument>(collectionNamespace, key, initial, reduceFunction, filter, messageEncoderSettings);
             var resultSerializer = Substitute.For<IBsonSerializer<BsonDocument>>();
 
             subject.ResultSerializer = resultSerializer;

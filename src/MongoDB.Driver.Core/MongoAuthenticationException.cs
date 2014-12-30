@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
 {
@@ -22,25 +23,27 @@ namespace MongoDB.Driver
     /// Represents a MongoDB authentication exception
     /// </summary>
     [Serializable]
-    public class MongoAuthenticationException : MongoException
+    public class MongoAuthenticationException : MongoConnectionException
     {
         // constructors
         /// <summary>
         /// Initializes a new instance of the MongoAuthenticationException class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
-        public MongoAuthenticationException(string message)
-            : base(message)
+        public MongoAuthenticationException(ConnectionId connectionId, string message)
+            : base(connectionId, message)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the MongoAuthenticationException class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public MongoAuthenticationException(string message, Exception innerException)
-            : base(message, innerException)
+        public MongoAuthenticationException(ConnectionId connectionId, string message, Exception innerException)
+            : base(connectionId, message, innerException)
         {
         }
 

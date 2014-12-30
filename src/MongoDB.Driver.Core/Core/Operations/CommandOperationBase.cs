@@ -98,11 +98,19 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private CommandWireProtocol<TCommandResult> CreateProtocol(ServerDescription serverDescription, ReadPreference readPreference)
+        private Task<TCommandResult> ExecuteProtocolAsync(IChannelHandle channel, ServerDescription serverDescription, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
             var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
-            return new CommandWireProtocol<TCommandResult>(_databaseNamespace, wrappedCommand, _commandValidator, slaveOk, _resultSerializer, _messageEncoderSettings);
+
+            return channel.CommandAsync<TCommandResult>(
+                _databaseNamespace,
+                wrappedCommand,
+                _commandValidator,
+                slaveOk,
+                _resultSerializer,
+                _messageEncoderSettings,
+                cancellationToken);
         }
 
         private BsonDocument CreateWrappedCommand(ServerDescription serverDescription, ReadPreference readPreference)
@@ -134,15 +142,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected async Task<TCommandResult> ExecuteCommandAsync(
-            IConnectionSource connectionSource,
+        protected async Task<TCommandResult> ExecuteProtocolAsync(
+            IChannelSource channelSource,
             ReadPreference readPreference,
             CancellationToken cancellationToken)
         {
-            using (var connection = await connectionSource.GetConnectionAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                var protocol = CreateProtocol(connectionSource.ServerDescription, readPreference);
-                return await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(channel, channelSource.ServerDescription, readPreference, cancellationToken).ConfigureAwait(false);
             }
         }
     }

@@ -64,8 +64,7 @@ namespace MongoDB.Driver.Core.Servers
                 .ReturnsForAnyArgs(_heartbeatConnection);
 
             _listener = Substitute.For<IServerListener>();
-            _settings = new ServerSettings()
-                .WithHeartbeatInterval(Timeout.InfiniteTimeSpan);
+            _settings = new ServerSettings(heartbeatInterval: Timeout.InfiniteTimeSpan);
 
             _subject = new ClusterableServer(_settings, _clusterId, _endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
         }
@@ -168,35 +167,50 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Test]
-        public void GetConnectionAsync_should_throw_when_not_initialized()
+        public void GetChannelAsync_should_throw_when_not_initialized()
         {
-            Action act = () => _subject.GetConnectionAsync(CancellationToken.None).Wait();
+            Action act = () => _subject.GetChannelAsync(CancellationToken.None).Wait();
 
             act.ShouldThrow<InvalidOperationException>();
         }
 
         [Test]
-        public void GetConnectionAsync_should_throw_when_disposed()
+        public void GetChannelAsync_should_throw_when_disposed()
         {
             _subject.Dispose();
 
-            Action act = () => _subject.GetConnectionAsync(CancellationToken.None).Wait();
+            Action act = () => _subject.GetChannelAsync(CancellationToken.None).Wait();
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetConnectionAsync_should_get_a_connection()
+        public void GetChannelAsync_should_get_a_connection()
         {
             _subject.Initialize();
 
-            var connection = _subject.GetConnectionAsync(CancellationToken.None).Result;
+            var channel = _subject.GetChannelAsync(CancellationToken.None).Result;
 
-            connection.Should().NotBeNull();
+            channel.Should().NotBeNull();
         }
 
         [Test]
-        public void Invalidate_should_force_another_heartbeat()
+        public void RequestHeartbeat_should_force_another_heartbeat()
+        {
+            SetupHeartbeatConnection();
+            _subject.Initialize();
+
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
+
+            _subject.RequestHeartbeat();
+
+            // the next requests down heartbeat connection will fail, so the state should
+            // go back to disconnected
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4));
+        }
+
+        [Test]
+        public void Invalidate_should_do_everything_invalidate_is_supposed_to_do()
         {
             SetupHeartbeatConnection();
             _subject.Initialize();
@@ -204,6 +218,9 @@ namespace MongoDB.Driver.Core.Servers
             SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
 
             _subject.Invalidate();
+
+            _connectionPool.Received().Clear();
+            _subject.Description.Type.Should().Be(ServerType.Unknown);
 
             // the next requests down heartbeat connection will fail, so the state should
             // go back to disconnected
@@ -218,7 +235,7 @@ namespace MongoDB.Driver.Core.Servers
 
             SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
 
-            _subject.Invalidate();
+            _subject.RequestHeartbeat();
 
             // the next requests down heartbeat connection will fail, so the state should
             // go back to disconnected

@@ -33,12 +33,19 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value.</param>
         public BsonDouble(double value)
-            : base(BsonType.Double)
         {
             _value = value;
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Double; }
+        }
+
         /// <summary>
         /// Gets the BsonDouble as a double.
         /// </summary>

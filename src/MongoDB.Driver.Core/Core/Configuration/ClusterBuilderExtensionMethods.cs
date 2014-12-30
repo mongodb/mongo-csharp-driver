@@ -15,6 +15,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using MongoDB.Driver.Core.Authentication;
@@ -43,18 +45,18 @@ namespace MongoDB.Driver.Core.Configuration
             // TCP
             if (connectionString.ConnectTimeout != null)
             {
-                // TODO: nowhere to set this
+                configuration.ConfigureTcp(s => s.With(connectTimeout: connectionString.ConnectTimeout.Value));
             }
             if (connectionString.Ipv6.HasValue && connectionString.Ipv6.Value)
             {
-                configuration.ConfigureTcp(s => s.WithAddressFamily(AddressFamily.InterNetworkV6));
+                configuration.ConfigureTcp(s => s.With(addressFamily: AddressFamily.InterNetworkV6));
             }
 
             if (connectionString.SocketTimeout != null)
             {
-                configuration.ConfigureTcp(s => s
-                    .WithReadTimeout(connectionString.SocketTimeout.Value)
-                    .WithWriteTimeout(connectionString.SocketTimeout.Value));
+                configuration.ConfigureTcp(s => s.With(
+                    readTimeout: connectionString.SocketTimeout.Value,
+                    writeTimeout: connectionString.SocketTimeout.Value));
             }
 
             if (connectionString.Ssl != null)
@@ -64,7 +66,7 @@ namespace MongoDB.Driver.Core.Configuration
                     if (connectionString.SslVerifyCertificate.GetValueOrDefault(true))
                     {
                         ssl = ssl.With(
-                            serverCertificateValidator: new RemoteCertificateValidationCallback((obj, cert, chain, errors) => true));
+                            serverCertificateValidationCallback: new RemoteCertificateValidationCallback((obj, cert, chain, errors) => true));
                     }
 
                     return ssl;
@@ -75,40 +77,40 @@ namespace MongoDB.Driver.Core.Configuration
             if (connectionString.Username != null)
             {
                 var authenticator = CreateAuthenticator(connectionString);
-                configuration.ConfigureConnection(s => s.WithAuthenticators(new[] { authenticator }));
+                configuration.ConfigureConnection(s => s.With(authenticators: new[] { authenticator }));
             }
 
             if (connectionString.MaxIdleTime != null)
             {
-                configuration.ConfigureConnection(s => s.WithMaxIdleTime(connectionString.MaxIdleTime.Value));
+                configuration.ConfigureConnection(s => s.With(maxIdleTime: connectionString.MaxIdleTime.Value));
             }
             if (connectionString.MaxLifeTime != null)
             {
-                configuration.ConfigureConnection(s => s.WithMaxLifeTime(connectionString.MaxLifeTime.Value));
+                configuration.ConfigureConnection(s => s.With(maxLifeTime: connectionString.MaxLifeTime.Value));
             }
 
             // Connection Pool
             if (connectionString.MaxPoolSize != null)
             {
-                configuration.ConfigureConnectionPool(s => s.WithMaxConnections(connectionString.MaxPoolSize.Value));
+                configuration.ConfigureConnectionPool(s => s.With(maxConnections: connectionString.MaxPoolSize.Value));
             }
             if (connectionString.MinPoolSize != null)
             {
-                configuration.ConfigureConnectionPool(s => s.WithMinConnections(connectionString.MinPoolSize.Value));
+                configuration.ConfigureConnectionPool(s => s.With(minConnections: connectionString.MinPoolSize.Value));
             }
             if (connectionString.WaitQueueSize != null)
             {
-                configuration.ConfigureConnectionPool(s => s.WithWaitQueueSize(connectionString.WaitQueueSize.Value));
+                configuration.ConfigureConnectionPool(s => s.With(waitQueueSize: connectionString.WaitQueueSize.Value));
             }
             else if (connectionString.WaitQueueMultiple != null)
             {
                 var maxConnections = connectionString.MaxPoolSize ?? new ConnectionPoolSettings().MaxConnections;
                 var waitQueueSize = (int)Math.Round(maxConnections * connectionString.WaitQueueMultiple.Value);
-                configuration.ConfigureConnectionPool(s => s.WithWaitQueueSize(waitQueueSize));
+                configuration.ConfigureConnectionPool(s => s.With(waitQueueSize: waitQueueSize));
             }
             if (connectionString.WaitQueueTimeout != null)
             {
-                configuration.ConfigureConnectionPool(s => s.WithWaitQueueTimeout(connectionString.WaitQueueTimeout.Value));
+                configuration.ConfigureConnectionPool(s => s.With(waitQueueTimeout: connectionString.WaitQueueTimeout.Value));
             }
 
             // Server
@@ -116,12 +118,12 @@ namespace MongoDB.Driver.Core.Configuration
             // Cluster
             if (connectionString.Hosts.Count > 0)
             {
-                configuration.ConfigureCluster(s => s.WithEndPoints(connectionString.Hosts));
+                configuration.ConfigureCluster(s => s.With(endPoints: Optional.Create<IEnumerable<EndPoint>>(connectionString.Hosts)));
             }
             if (connectionString.ReplicaSet != null)
             {
-                configuration.ConfigureCluster(s => s
-                    .WithReplicaSetName(connectionString.ReplicaSet));
+                configuration.ConfigureCluster(s => s.With(
+                    replicaSetName: connectionString.ReplicaSet));
             }
 
             return configuration;

@@ -297,6 +297,24 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        public void CreateCommand_should_return_expected_result_when_StorageEngine_has_value()
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys);
+            subject.StorageEngine = new BsonDocument("awesome", true);
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "storageEngine", new BsonDocument("awesome", true) }
+            };
+
+            var result = subject.CreateIndexDocument();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
         public void CreateIndexDocument_should_return_expected_result_when_textIndexVersion_has_value()
         {
             var keys = new BsonDocument("x", 1);

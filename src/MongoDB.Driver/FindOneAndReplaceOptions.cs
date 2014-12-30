@@ -33,16 +33,16 @@ namespace MongoDB.Driver
         private TimeSpan? _maxTime;
         private object _projection;
         private IBsonSerializer<TResult> _resultSerializer;
-        private bool _returnOriginal;
+        private ReturnDocument _returnDocument;
         private object _sort;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindOneAndReplaceOptions{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="FindOneAndReplaceOptions{TResult}"/> class.
         /// </summary>
         public FindOneAndReplaceOptions()
         {
-            _returnOriginal = true;
+            _returnDocument = ReturnDocument.Before;
         }
 
         // properties
@@ -86,15 +86,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether [return replaced].
+        /// Gets or sets the return document.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if [return replaced]; otherwise, <c>false</c>.
-        /// </value>
-        public bool ReturnOriginal
+        public ReturnDocument ReturnDocument
         {
-            get { return _returnOriginal; }
-            set { _returnOriginal = value; }
+            get { return _returnDocument; }
+            set { _returnDocument = value; }
         }
 
         /// <summary>

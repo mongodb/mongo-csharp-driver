@@ -67,22 +67,17 @@ namespace MongoDB.Driver
         private readonly IReadOnlyList<TagSet> _tagSets;
 
         // constructors
-        public ReadPreference(ReadPreferenceMode mode)
+        public ReadPreference(
+            Optional<ReadPreferenceMode> mode = default(Optional<ReadPreferenceMode>), 
+            Optional<IEnumerable<TagSet>> tagSets = default(Optional<IEnumerable<TagSet>>))
         {
-            _mode = mode;
-            _tagSets = __noTagSets;
-        }
+            _mode = mode.WithDefault(ReadPreferenceMode.Primary);
+            _tagSets = Ensure.IsNotNull(tagSets.WithDefault(Enumerable.Empty<TagSet>()), "tagSets").ToList();
 
-        public ReadPreference(ReadPreferenceMode mode, IEnumerable<TagSet> tagSets)
-        {
-            Ensure.IsNotNull(tagSets, "tagSets");
-            if (mode == ReadPreferenceMode.Primary && tagSets.Count() > 0)
+            if (_mode == ReadPreferenceMode.Primary && _tagSets.Count() > 0)
             {
                 throw new ArgumentException("TagSets cannot be used with ReadPreferenceMode Primary.", "tagSets");
             }
-
-            _mode = mode;
-            _tagSets = tagSets.ToList();
         }
 
         // properties
@@ -104,7 +99,8 @@ namespace MongoDB.Driver
                 return false;
             }
 
-            return _mode == other._mode &&
+            return
+                _mode == other._mode &&
                 _tagSets.SequenceEqual(other.TagSets);
         }
 
@@ -126,22 +122,13 @@ namespace MongoDB.Driver
             return string.Format("{{ Mode = {0}, TagSets = {1} }}", _mode, _tagSets);
         }
 
-        public ReadPreference WithMode(ReadPreferenceMode value)
+        public ReadPreference With(
+            Optional<ReadPreferenceMode> mode = default(Optional<ReadPreferenceMode>), 
+            Optional<IEnumerable<TagSet>> tagSets = default(Optional<IEnumerable<TagSet>>))
         {
-            return (_mode == value) ? this : new ReadPreference(value, _tagSets);
-        }
-
-        public ReadPreference WithTagSets(IEnumerable<TagSet> value)
-        {
-            if (object.ReferenceEquals(_tagSets, value))
-            {
-                return this;
-            }
-            if (!object.ReferenceEquals(_tagSets, null) && !object.ReferenceEquals(value, null) && _tagSets.SequenceEqual(value))
-            {
-                return this;
-            }
-            return new ReadPreference(_mode, value);
+            return new ReadPreference(
+                mode.WithDefault(_mode),
+                Optional.Create(tagSets.WithDefault(_tagSets)));
         }
     }
 }

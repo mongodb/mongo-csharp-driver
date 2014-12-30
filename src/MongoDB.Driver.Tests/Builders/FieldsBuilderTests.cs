@@ -105,35 +105,30 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestMetaText()
         {
-            var server = Configuration.TestServer;
-            var primary = server.Primary;
-            if (primary.Supports(FeatureId.TextSearchQuery))
+            if (Configuration.TestServer.Primary.Supports(FeatureId.TextSearchQuery))
             {
-                using (server.RequestStart(null, primary))
+                var collection = Configuration.TestDatabase.GetCollection<BsonDocument>("test_meta_text");
+                collection.Drop();
+                collection.CreateIndex(IndexKeys.Text("textfield"));
+                collection.Insert(new BsonDocument
                 {
-                    var collection = Configuration.TestDatabase.GetCollection<BsonDocument>("test_meta_text");
-                    collection.Drop();
-                    collection.CreateIndex(IndexKeys.Text("textfield"));
-                    collection.Insert(new BsonDocument
-                    {
-                        { "_id", 1 },
-                        { "textfield", "The quick brown fox jumped" }
-                    });
-                    collection.Insert(new BsonDocument
-                    {
-                        { "_id", 2 },
-                        { "textfield", "over the lazy brown dog" }
-                    });
-                    var query = Query.Text("fox");
-                    var result = collection.FindOneAs<BsonDocument>(query);
-                    Assert.AreEqual(2, result.ElementCount);
-                    Assert.IsFalse(result.Contains("relevance"));
+                    { "_id", 1 },
+                    { "textfield", "The quick brown fox jumped" }
+                });
+                collection.Insert(new BsonDocument
+                {
+                    { "_id", 2 },
+                    { "textfield", "over the lazy brown dog" }
+                });
+                var query = Query.Text("fox");
+                var result = collection.FindOneAs<BsonDocument>(query);
+                Assert.AreEqual(2, result.ElementCount);
+                Assert.IsFalse(result.Contains("relevance"));
 
-                    var fields = Fields.MetaTextScore("relevance");
-                    result = collection.FindOneAs<BsonDocument>(new FindOneArgs { Query = query, Fields = fields });
-                    Assert.AreEqual(3, result.ElementCount);
-                    Assert.IsTrue(result.Contains("relevance"));
-                }
+                var fields = Fields.MetaTextScore("relevance");
+                result = collection.FindOneAs<BsonDocument>(new FindOneArgs { Query = query, Fields = fields });
+                Assert.AreEqual(3, result.ElementCount);
+                Assert.IsTrue(result.Contains("relevance"));
             }
         }
 

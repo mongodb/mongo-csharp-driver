@@ -16,20 +16,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
-using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.GridFS;
+using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver
 {
@@ -161,17 +159,13 @@ namespace MongoDB.Driver
         [Obsolete("Use the new user management command 'createUser' or 'updateUser'.")]
         public virtual void AddUser(MongoUser user)
         {
-            using (RequestStart(ReadPreference.Primary))
-            {
-                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
-                {
-                    AddUserWithUserManagementCommands(user);
-                }
-                else
-                {
-                    AddUserWithInsert(user);
-                }
-            }
+            var operation = new AddUserOperation(
+                _namespace,
+                user.Username,
+                user.PasswordHash,
+                user.IsReadOnly,
+                GetMessageEncoderSettings());
+            ExecuteWriteOperation(operation);
         }
 
         /// <summary>
@@ -215,6 +209,7 @@ namespace MongoDB.Driver
             bool? capped = null;
             int? maxDocuments = null;
             int? maxSize = null;
+            BsonDocument storageEngine = null;
             bool? usePowerOf2Sizes = null;
 
             if (options != null)
@@ -238,6 +233,10 @@ namespace MongoDB.Driver
                 {
                     maxSize = value.ToInt32();
                 }
+                if (optionsDocument.TryGetValue("storageEngine", out value))
+                {
+                    storageEngine = value.AsBsonDocument;
+                }
                 if (optionsDocument.TryGetValue("flags", out value))
                 {
                     usePowerOf2Sizes = value.ToInt32() == 1;
@@ -250,6 +249,7 @@ namespace MongoDB.Driver
                 Capped = capped,
                 MaxDocuments = maxDocuments,
                 MaxSize = maxSize,
+                StorageEngine = storageEngine,
                 UsePowerOf2Sizes = usePowerOf2Sizes
             };
 
@@ -379,15 +379,9 @@ namespace MongoDB.Driver
         [Obsolete("Use the new user management command 'usersInfo'.")]
         public virtual MongoUser[] FindAllUsers()
         {
-            using (RequestStart(ReadPreference.Primary))
-            {
-                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
-                {
-                    return FindAllUsersWithUserManagementCommands();
-                }
-
-                return FindAllUsersWithQuery();
-            }
+            var operation = new FindUsersOperation(_namespace, null, GetMessageEncoderSettings());
+            var userDocuments = ExecuteReadOperation(operation, ReadPreference.Primary);
+            return userDocuments.Select(u => ToMongoUser(u)).ToArray();
         }
 
         /// <summary>
@@ -398,15 +392,9 @@ namespace MongoDB.Driver
         [Obsolete("Use the new user management command 'usersInfo'.")]
         public virtual MongoUser FindUser(string username)
         {
-            using (RequestStart(ReadPreference.Primary))
-            {
-                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
-                {
-                    return FindUserWithUserManagementCommands(username);
-                }
-
-                return FindUserWithQuery(username);
-            }
+            var operation = new FindUsersOperation(_namespace, username, GetMessageEncoderSettings());
+            var userDocuments = ExecuteReadOperation(operation, ReadPreference.Primary);
+            return userDocuments.Select(u => ToMongoUser(u)).FirstOrDefault();
         }
 
         /// <summary>
@@ -590,7 +578,7 @@ namespace MongoDB.Driver
         public GetProfilingLevelResult GetProfilingLevel()
         {
             var command = new CommandDocument("profile", -1);
-            return RunCommandAs<GetProfilingLevelResult>(command);
+            return RunCommandAs<GetProfilingLevelResult>(command, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -609,7 +597,8 @@ namespace MongoDB.Driver
         /// <returns>An instance of DatabaseStatsResult.</returns>
         public virtual DatabaseStatsResult GetStats()
         {
-            return RunCommandAs<DatabaseStatsResult>("dbstats");
+            var command = new CommandDocument("dbstats", 1);
+            return RunCommandAs<DatabaseStatsResult>(command, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -666,18 +655,8 @@ namespace MongoDB.Driver
         [Obsolete("Use RunCommand with a { dropUser: <username> } document.")]
         public virtual void RemoveUser(string username)
         {
-            using (RequestStart(ReadPreference.Primary))
-            {
-                if (_server.RequestServerInstance.Supports(FeatureId.UserManagementCommands))
-                {
-                    RunCommand(new CommandDocument("dropUser", username));
-                }
-                else
-                {
-                    var users = GetCollection("system.users");
-                    users.Remove(Query.EQ("user", username));
-                }
-            }
+            var operation = new DropUserOperation(_namespace, username, GetMessageEncoderSettings());
+            ExecuteWriteOperation(operation);
         }
 
         /// <summary>
@@ -725,38 +704,6 @@ namespace MongoDB.Driver
             return new CommandResult(response);
         }
 
-        /// <summary>
-        /// Lets the server know that this thread is done with a series of related operations. Instead of calling this method it is better
-        /// to put the return value of RequestStart in a using statement.
-        /// </summary>
-        public virtual void RequestDone()
-        {
-            _server.RequestDone();
-        }
-
-        /// <summary>
-        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
-        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
-        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
-        /// </summary>
-        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart()
-        {
-            return RequestStart(ReadPreference.Primary);
-        }
-
-        /// <summary>
-        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
-        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
-        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
-        /// </summary>
-        /// <param name="readPreference">The read preference.</param>
-        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart(ReadPreference readPreference)
-        {
-            return _server.RequestStart(this, readPreference);
-        }
-
         // TODO: mongo shell has ResetError at the database level
 
         /// <summary>
@@ -788,8 +735,7 @@ namespace MongoDB.Driver
         public virtual TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command)
             where TCommandResult : CommandResult
         {
-            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
-            return RunCommandAs<TCommandResult>(command, resultSerializer);
+            return RunCommandAs<TCommandResult>(command, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -853,7 +799,7 @@ namespace MongoDB.Driver
                 { "profile", (int) level },
                 { "slowms", slow.TotalMilliseconds, slow != TimeSpan.Zero } // optional
             };
-            return RunCommandAs<CommandResult>(command);
+            return RunCommandAs<CommandResult>(command, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -866,54 +812,6 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        #pragma warning disable 618
-        private void AddUserWithInsert(MongoUser user)
-        {
-            var users = GetCollection("system.users");
-            var document = users.FindOne(Query.EQ("user", user.Username));
-            if (document == null)
-            {
-                document = new BsonDocument("user", user.Username);
-            }
-            document["readOnly"] = user.IsReadOnly;
-            document["pwd"] = user.PasswordHash;
-            users.Save(document);
-        }
-        #pragma warning restore
-
-        #pragma warning disable 618
-        private void AddUserWithUserManagementCommands(MongoUser user)
-        {
-            var usersInfo = RunCommand(new CommandDocument("usersInfo", user.Username));
-
-            var roles = new BsonArray();
-            if (_namespace.DatabaseName == "admin")
-            {
-                roles.Add(user.IsReadOnly ? "readAnyDatabase" : "root");
-            }
-            else
-            {
-                roles.Add(user.IsReadOnly ? "read" : "dbOwner");
-            }
-
-            var commandName = "createUser";
-
-            if (usersInfo.Response.Contains("users") && usersInfo.Response["users"].AsBsonArray.Count > 0)
-            {
-                commandName = "updateUser";
-            }
-
-            var userCommand = new CommandDocument
-            {
-                { commandName, user.Username },
-                { "pwd", user.PasswordHash },
-                { "digestPassword", false },
-                { "roles", roles }
-            };
-
-            RunCommand(userCommand);
-        }
-        #pragma warning restore
         private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference = null)
         {
             readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
@@ -931,69 +829,6 @@ namespace MongoDB.Driver
             }
         }
 
-        #pragma warning disable 618
-        private MongoUser FindUserWithQuery(string username)
-        {
-            var users = GetCollection("system.users");
-            var query = Query.EQ("user", username);
-            var document = users.FindOne(query);
-            if (document != null)
-            {
-                var passwordHash = document.GetValue("pwd", "").AsString;
-                var readOnly = document["readOnly"].ToBoolean();
-                return new MongoUser(username, passwordHash, readOnly);
-            }
-
-            return null;
-        }
-        #pragma warning restore
-
-        #pragma warning disable 618
-        private MongoUser FindUserWithUserManagementCommands(string username)
-        {
-            var usersInfoResult = RunCommand(new CommandDocument("usersInfo", username));
-            if (usersInfoResult.Response.Contains("users") && usersInfoResult.Response["users"].AsBsonArray.Count > 0)
-            {
-                return new MongoUser(username, new PasswordEvidence(""), false);
-            }
-
-            return null;
-        }
-        #pragma warning restore
-
-        #pragma warning disable 618
-        private MongoUser[] FindAllUsersWithQuery()
-        {
-            var results = new List<MongoUser>();
-            var users = GetCollection("system.users");
-            foreach (var document in users.FindAll())
-            {
-                var username = document["user"].AsString;
-                var passwordHash = document.GetValue("pwd", "").AsString;
-                var readOnly = document["readOnly"].ToBoolean();
-                var user = new MongoUser(username, passwordHash, readOnly);
-                results.Add(user);
-            };
-            return results.ToArray();
-        }
-        #pragma warning restore
-
-        #pragma warning disable 618
-        private MongoUser[] FindAllUsersWithUserManagementCommands()
-        {
-            var results = new List<MongoUser>();
-            var usersInfoResult = RunCommand(new CommandDocument("usersInfo", 1));
-            if (usersInfoResult.Response.Contains("users"))
-            {
-                foreach (var document in usersInfoResult.Response["users"].AsBsonArray)
-                {
-                    results.Add(new MongoUser(document["user"].AsString, new PasswordEvidence(""), false));
-                }
-            }
-            return results.ToArray();
-        }
-        #pragma warning restore
-
         private MessageEncoderSettings GetMessageEncoderSettings()
         {
             return new MessageEncoderSettings
@@ -1006,19 +841,12 @@ namespace MongoDB.Driver
 
         internal TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command,
-            IBsonSerializer<TCommandResult> resultSerializer)
-            where TCommandResult : CommandResult
-        {
-            return RunCommandAs<TCommandResult>(command, resultSerializer, _settings.ReadPreference);
-        }
-
-        internal TCommandResult RunCommandAs<TCommandResult>(
-            IMongoCommand command,
             IBsonSerializer<TCommandResult> resultSerializer,
             ReadPreference readPreference)
             where TCommandResult : CommandResult
         {
-            var isReadCommand = CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument());
+            var commandDocument = command.ToBsonDocument();
+            var isReadCommand = CanCommandBeSentToSecondary.Delegate(commandDocument);
 
             if (readPreference != ReadPreference.Primary)
             {
@@ -1043,39 +871,37 @@ namespace MongoDB.Driver
                 }
             }
 
-            TCommandResult commandResult;
-            var wrappedCommand = new BsonDocumentWrapper(command);
+            var messageEncoderSettings = GetMessageEncoderSettings();
+
             if (isReadCommand)
             {
-                commandResult = RunReadCommandAs<TCommandResult>(wrappedCommand, resultSerializer, readPreference);
+                var operation = new ReadCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
+                return ExecuteReadOperation(operation, readPreference);
             }
             else
             {
-                commandResult = RunWriteCommandAs<TCommandResult>(wrappedCommand, resultSerializer);
+                var operation = new WriteCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
+                return ExecuteWriteOperation(operation);
             }
-
-            return commandResult;
         }
 
-        private TCommandResult RunReadCommandAs<TCommandResult>(
-            BsonDocument command,
-            IBsonSerializer<TCommandResult> resultSerializer,
+        internal TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command,
             ReadPreference readPreference)
             where TCommandResult : CommandResult
         {
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ReadCommandOperation<TCommandResult>(_namespace, command, resultSerializer, messageEncoderSettings);
-            return ExecuteReadOperation(operation, readPreference);
+            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
+            return RunCommandAs<TCommandResult>(command, resultSerializer, readPreference);
         }
 
-        private TCommandResult RunWriteCommandAs<TCommandResult>(
-            BsonDocument command,
-            IBsonSerializer<TCommandResult> resultSerializer)
-            where TCommandResult : CommandResult
+#pragma warning disable 618
+        private MongoUser ToMongoUser(BsonDocument userDocument)
         {
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new WriteCommandOperation<TCommandResult>(_namespace, command, resultSerializer, messageEncoderSettings);
-            return ExecuteWriteOperation(operation);
+            var username = userDocument["user"].AsString;
+            var passwordHash = userDocument.GetValue("pwd", "").AsString;
+            var readOnly = userDocument.GetValue("readOnly", false).ToBoolean();
+            return new MongoUser(username, passwordHash, readOnly);
         }
+#pragma warning restore
     }
 }

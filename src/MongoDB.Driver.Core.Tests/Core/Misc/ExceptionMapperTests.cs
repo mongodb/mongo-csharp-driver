@@ -13,7 +13,11 @@
 * limitations under the License.
 */
 
+using System.Net;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Misc
@@ -21,6 +25,8 @@ namespace MongoDB.Driver.Core.Misc
     [TestFixture]
     public class ExceptionMapperTests
     {
+        private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(0), new DnsEndPoint("localhost", 27017)), 0);
+
         [Test]
         public void TestDoesNotThrowExceptionWhenEverythingIsKosherWithAWriteConcernResult()
         {
@@ -32,7 +38,7 @@ namespace MongoDB.Driver.Core.Misc
             };
 
             var writeConcernResult = new WriteConcernResult(response);
-            var ex = ExceptionMapper.Map(writeConcernResult);
+            var ex = ExceptionMapper.Map(_connectionId, writeConcernResult);
 
             Assert.IsNull(ex);
         }
@@ -42,7 +48,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             var response = new BsonDocument();
 
-            var ex = ExceptionMapper.Map(response);
+            var ex = ExceptionMapper.Map(_connectionId, response);
 
             Assert.IsNull(ex);
         }
@@ -63,7 +69,7 @@ namespace MongoDB.Driver.Core.Misc
             };
 
             var writeConcernResult = new WriteConcernResult(response);
-            var ex = ExceptionMapper.Map(writeConcernResult);
+            var ex = ExceptionMapper.Map(_connectionId, writeConcernResult);
 
             Assert.IsNotNull(ex);
             Assert.IsInstanceOf<MongoDuplicateKeyException>(ex);
@@ -97,7 +103,7 @@ namespace MongoDB.Driver.Core.Misc
             };
 
             var writeConcernResult = new WriteConcernResult(response);
-            var ex = ExceptionMapper.Map(writeConcernResult);
+            var ex = ExceptionMapper.Map(_connectionId, writeConcernResult);
 
             Assert.IsNotNull(ex);
             Assert.IsInstanceOf<MongoDuplicateKeyException>(ex);
@@ -116,10 +122,10 @@ namespace MongoDB.Driver.Core.Misc
             };
 
             var writeConcernResult = new WriteConcernResult(response);
-            var ex = ExceptionMapper.Map(writeConcernResult);
+            var ex = ExceptionMapper.Map(_connectionId, writeConcernResult);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<WriteConcernException>(ex);
+            Assert.IsInstanceOf<MongoWriteConcernException>(ex);
         }
 
         [Test]
@@ -135,10 +141,10 @@ namespace MongoDB.Driver.Core.Misc
             };
 
             var writeConcernResult = new WriteConcernResult(response);
-            var ex = ExceptionMapper.Map(writeConcernResult);
+            var ex = ExceptionMapper.Map(_connectionId, writeConcernResult);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<WriteConcernException>(ex);
+            Assert.IsInstanceOf<MongoWriteConcernException>(ex);
         }
 
         [Test]
@@ -154,10 +160,10 @@ namespace MongoDB.Driver.Core.Misc
                 { "code", code },
             };
 
-            var ex = ExceptionMapper.Map(response);
+            var ex = ExceptionMapper.Map(_connectionId, response);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<ExecutionTimeoutException>(ex);
+            Assert.IsInstanceOf<MongoExecutionTimeoutException>(ex);
         }
 
         [Test]
@@ -170,10 +176,10 @@ namespace MongoDB.Driver.Core.Misc
                 { "errmsg", errmsg }
             };
 
-            var ex = ExceptionMapper.Map(response);
+            var ex = ExceptionMapper.Map(_connectionId, response);
 
             Assert.IsNotNull(ex);
-            Assert.IsInstanceOf<ExecutionTimeoutException>(ex);
+            Assert.IsInstanceOf<MongoExecutionTimeoutException>(ex);
         }
     }
 }

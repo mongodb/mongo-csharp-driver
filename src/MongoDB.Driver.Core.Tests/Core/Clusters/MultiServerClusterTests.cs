@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Constructor_should_throw_if_no_endpoints_are_specified()
         {
-            var settings = new ClusterSettings().WithEndPoints(new EndPoint[0]);
+            var settings = new ClusterSettings(endPoints: new EndPoint[0]);
             Action act = () => new MultiServerCluster(settings, _serverFactory, _clusterListener);
 
             act.ShouldThrow<ArgumentOutOfRangeException>();
@@ -62,9 +62,9 @@ namespace MongoDB.Driver.Core.Clusters
         [TestCase(ClusterConnectionMode.Standalone)]
         public void Constructor_should_throw_if_cluster_connection_mode_is_not_supported(ClusterConnectionMode mode)
         {
-            var settings = new ClusterSettings()
-                .WithEndPoints(new[] { new DnsEndPoint("localhost", 27017) })
-                .WithConnectionMode(mode);
+            var settings = new ClusterSettings(
+                endPoints: new[] { new DnsEndPoint("localhost", 27017) },
+                connectionMode: mode);
             Action act = () => new MultiServerCluster(settings, _serverFactory, _clusterListener);
 
             act.ShouldThrow<ArgumentException>();
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Description_should_be_correct_after_initialization()
         {
-            _settings = _settings.WithEndPoints(new [] { _firstEndPoint });
+            _settings = _settings.With(endPoints: new [] { _firstEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Initialize_should_throw_when_already_disposed()
         {
-            _settings = _settings.WithEndPoints(new [] { _firstEndPoint });
+            _settings = _settings.With(endPoints: new [] { _firstEndPoint });
             var subject = CreateSubject();
             subject.Dispose();
 
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_discover_all_servers_in_the_cluster_reported_by_the_primary()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_discover_all_servers_in_the_cluster_when_notified_by_a_secondary()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_remove_a_server_that_is_no_longer_in_the_primary_host_list()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_not_remove_a_server_that_is_no_longer_in_a_secondaries_host_list()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_not_remove_a_server_that_is_disconnected()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_not_add_a_new_server_from_a_secondary_when_a_primary_exists()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint, _secondEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -211,9 +211,9 @@ namespace MongoDB.Driver.Core.Clusters
         [TestCase(ClusterConnectionMode.Sharded, ServerType.Standalone)]
         public void Should_remove_server_of_the_wrong_type(ClusterConnectionMode connectionMode, ServerType wrongType)
         {
-            _settings = _settings
-                .WithEndPoints(new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint })
-                .WithConnectionMode(connectionMode);
+            _settings = _settings.With(
+                endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint },
+                connectionMode: connectionMode);
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -228,7 +228,7 @@ namespace MongoDB.Driver.Core.Clusters
         [TestCase(ServerType.Standalone)]
         public void Should_remove_a_discovered_server_of_the_wrong_type(ServerType wrongType)
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -243,7 +243,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_ignore_changes_from_a_ReplicaSetGhost()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -258,9 +258,9 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_remove_a_server_reporting_the_wrong_set_name()
         {
-            _settings = _settings
-                .WithEndPoints(new[] { _firstEndPoint, _secondEndPoint })
-                .WithReplicaSetName("test");
+            _settings = _settings.With(
+                endPoints: new[] { _firstEndPoint, _secondEndPoint },
+                replicaSetName: "test");
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -277,7 +277,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void Should_remove_server_from_the_seed_list_that_is_not_in_the_hosts_lists()
         {
             var alternateEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 27017);
-            _settings = _settings.WithEndPoints(new[] { alternateEndPoint });
+            _settings = _settings.With(endPoints: new[] { alternateEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -291,7 +291,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_invalidate_existing_primary_when_a_new_primary_shows_up()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -308,7 +308,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_ignore_a_notification_from_a_server_which_has_been_removed()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -327,7 +327,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_call_initialize_on_all_servers()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint, _secondEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -345,7 +345,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_call_dispose_on_servers_when_they_are_removed()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -360,7 +360,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Test]
         public void Should_call_dispose_on_servers_when_the_cluster_is_disposed()
         {
-            _settings = _settings.WithEndPoints(new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
+            _settings = _settings.With(endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();

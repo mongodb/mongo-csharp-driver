@@ -35,7 +35,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value.</param>
         public BsonObjectId(ObjectId value)
-            : base(BsonType.ObjectId)
         {
             _value = value;
         }
@@ -46,7 +45,6 @@ namespace MongoDB.Bson
         /// <param name="bytes">The bytes.</param>
         [Obsolete("Use new BsonObjectId(byte[] bytes) instead.")]
         public BsonObjectId(byte[] bytes)
-            : base(BsonType.ObjectId)
         {
             _value = new ObjectId(bytes);
         }
@@ -60,7 +58,6 @@ namespace MongoDB.Bson
         /// <param name="increment">The increment.</param>
         [Obsolete("Use new BsonObjectId(new ObjectId(DateTime timestamp, int machine, short pid, int increment)) instead.")]
         public BsonObjectId(DateTime timestamp, int machine, short pid, int increment)
-            : base(BsonType.ObjectId)
         {
             _value = new ObjectId(timestamp, machine, pid, increment);
         }
@@ -74,7 +71,6 @@ namespace MongoDB.Bson
         /// <param name="increment">The increment.</param>
         [Obsolete("Use new BsonObjectId(new ObjectId(int timestamp, int machine, short pid, int increment)) instead.")]
         public BsonObjectId(int timestamp, int machine, short pid, int increment)
-            : base(BsonType.ObjectId)
         {
             _value = new ObjectId(timestamp, machine, pid, increment);
         }
@@ -85,7 +81,6 @@ namespace MongoDB.Bson
         /// <param name="value">The value.</param>
         [Obsolete("Use new BsonObjectId(new ObjectId(string value)) instead.")]
         public BsonObjectId(string value)
-            : base(BsonType.ObjectId)
         {
             _value = new ObjectId(value);
         }
@@ -100,6 +95,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.ObjectId; }
+        }
+
         /// <summary>
         /// Gets the timestamp.
         /// </summary>

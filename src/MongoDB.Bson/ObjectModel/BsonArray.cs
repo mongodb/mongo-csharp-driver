@@ -137,7 +137,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="capacity">The initial capacity of the array.</param>
         public BsonArray(int capacity)
-            : base(BsonType.Array)
         {
             _values = new List<BsonValue>(capacity);
         }
@@ -166,6 +165,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Array; }
+        }
+
         /// <summary>
         /// Gets or sets the total number of elements the internal data structure can hold without resizing.
         /// </summary>
@@ -240,17 +247,6 @@ namespace MongoDB.Bson
             }
 
             return (BsonArray)BsonTypeMapper.MapToBsonValue(value, BsonType.Array);
-        }
-
-        /// <summary>
-        /// Reads a BsonArray from a BsonReader.
-        /// </summary>
-        /// <param name="bsonReader">The reader.</param>
-        /// <returns>A BsonArray.</returns>
-        [Obsolete("Use BsonSerializer.Deserialize<BsonArray> instead.")]
-        public static new BsonArray ReadFrom(BsonReader bsonReader)
-        {
-            return BsonSerializer.Deserialize<BsonArray>(bsonReader);
         }
 
         // public methods
@@ -731,16 +727,6 @@ namespace MongoDB.Bson
             }
             sb.Append("]");
             return sb.ToString();
-        }
-
-        /// <summary>
-        /// Writes the array to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        [Obsolete("Use BsonSerializer.Serialize<BsonArray> instead.")]
-        public new void WriteTo(BsonWriter bsonWriter)
-        {
-            BsonSerializer.Serialize(bsonWriter, this);
         }
 
         // explicit interface implementations

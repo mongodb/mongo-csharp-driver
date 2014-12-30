@@ -21,6 +21,15 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
+    public static class Optional
+    {
+        // when the implicit conversion doesn't work calling Create is an alternative
+        public static Optional<T> Create<T>(T value)
+        {
+            return new Optional<T>(value);
+        }
+    }
+
     public struct Optional<T>
     {
         private readonly bool _hasValue;
@@ -30,6 +39,23 @@ namespace MongoDB.Driver.Core.Misc
         {
             _hasValue = true;
             _value = value;
+        }
+
+        public bool HasValue
+        {
+            get { return _hasValue; }
+        }
+
+        public T Value
+        {
+            get
+            {
+                if (!_hasValue)
+                {
+                    throw new InvalidOperationException("This instance does not have a value.");
+                }
+                return _value;                
+            }
         }
 
         public static implicit operator Optional<T>(T value)

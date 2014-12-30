@@ -75,8 +75,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override Guid Deserialize(BsonDeserializationContext context)
+        public override Guid Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             string message;
@@ -92,12 +93,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                     if (bytes.Length != 16)
                     {
                         message = string.Format("Expected length to be 16, not {0}.", bytes.Length);
-                        throw new FileFormatException(message);
+                        throw new FormatException(message);
                     }
                     if (subType != BsonBinarySubType.UuidStandard && subType != BsonBinarySubType.UuidLegacy)
                     {
                         message = string.Format("Expected binary sub type to be UuidStandard or UuidLegacy, not {0}.", subType);
-                        throw new FileFormatException(message);
+                        throw new FormatException(message);
                     }
                     if (guidRepresentation == GuidRepresentation.Unspecified)
                     {
@@ -117,8 +118,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, Guid value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Guid value)
         {
             var bsonWriter = context.Writer;
 

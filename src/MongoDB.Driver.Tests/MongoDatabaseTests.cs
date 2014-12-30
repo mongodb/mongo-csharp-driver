@@ -18,6 +18,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Core;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -68,6 +69,26 @@ namespace MongoDB.Driver.Tests
 
             _database.CreateCollection(collectionName);
             Assert.IsTrue(_database.CollectionExists(collectionName));
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.7.0")]
+        public void TestCreateCollectionSetStorageEngine()
+        {
+            var collection = _database.GetCollection("storage_engine_collection");
+            collection.Drop();
+            Assert.IsFalse(collection.Exists());
+            var storageEngineOptions = new BsonDocument
+            {
+                { "wiredTiger", new BsonDocument("configString", "block_compressor=zlib") },
+                { "mmapv1", new BsonDocument() }
+            };
+            var options = CollectionOptions.SetStorageEngineOptions(storageEngineOptions);
+            _database.CreateCollection(collection.Name, options);
+
+            var result = _database.RunCommand("listCollections");
+            var resultCollection = result.Response["collections"].AsBsonArray.Where(doc => doc["name"] == collection.Name).Single();
+            Assert.AreEqual(storageEngineOptions, resultCollection["options"]["storageEngine"]);
         }
 
         [Test]
@@ -126,7 +147,7 @@ namespace MongoDB.Driver.Tests
                                 Code = "return 0;",
                                 MaxTime = TimeSpan.FromMilliseconds(1)
                             };
-                            Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
+                            Assert.Throws<MongoExecutionTimeoutException>(() => _database.Eval(args));
                         }
                     }
                 }
@@ -381,6 +402,17 @@ namespace MongoDB.Driver.Tests
             {
                 Assert.AreEqual(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, password)), users[0].PasswordHash);
                 Assert.AreEqual(isReadOnly, users[0].IsReadOnly);
+            }
+
+            // test updating existing user
+            _database.AddUser(new MongoUser(username, new PasswordEvidence("newpassword"), !isReadOnly));
+            user = _database.FindUser(username);
+            Assert.IsNotNull(user);
+            Assert.AreEqual(username, user.Username);
+            if (!usesCommands)
+            {
+                Assert.AreEqual(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, "newpassword")), user.PasswordHash);
+                Assert.AreEqual(!isReadOnly, user.IsReadOnly);
             }
 
             _database.RemoveUser(user);

@@ -14,7 +14,7 @@
 */
 
 using System;
-using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -64,8 +64,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Deserializes a class.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override GeoJsonNamedCoordinateReferenceSystem DeserializeValue(BsonDeserializationContext context)
+        protected override GeoJsonNamedCoordinateReferenceSystem DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -100,8 +101,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJsonNamedCoordinateReferenceSystem value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, GeoJsonNamedCoordinateReferenceSystem value)
         {
             var bsonWriter = context.Writer;
 

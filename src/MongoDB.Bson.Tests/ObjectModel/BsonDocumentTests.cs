@@ -156,7 +156,7 @@ namespace MongoDB.Bson.Tests
             Assert.AreEqual(1, document["x"].AsInt32);
             Assert.AreEqual(true, document.Contains("x"));
             Assert.AreEqual(true, document.ContainsValue(1));
-            Assert.AreSame(element, document.GetElement("x"));
+            Assert.AreSame(element.Value, document.GetElement("x").Value);
         }
 
         [Test]
@@ -174,8 +174,8 @@ namespace MongoDB.Bson.Tests
             Assert.AreEqual(true, document.Contains("y"));
             Assert.AreEqual(true, document.ContainsValue(1));
             Assert.AreEqual(true, document.ContainsValue(2));
-            Assert.AreSame(elements[0], document.GetElement("x"));
-            Assert.AreSame(elements[1], document.GetElement("y"));
+            Assert.AreSame(elements[0].Value, document.GetElement("x").Value);
+            Assert.AreSame(elements[1].Value, document.GetElement("y").Value);
         }
 
         [Test]
@@ -190,8 +190,8 @@ namespace MongoDB.Bson.Tests
             Assert.AreEqual(true, document.Contains("y"));
             Assert.AreEqual(true, document.ContainsValue(1));
             Assert.AreEqual(true, document.ContainsValue(2));
-            Assert.AreSame(originalDocument.GetElement("x"), document.GetElement("x"));
-            Assert.AreSame(originalDocument.GetElement("y"), document.GetElement("y"));
+            Assert.AreSame(originalDocument.GetElement("x").Value, document.GetElement("x").Value);
+            Assert.AreSame(originalDocument.GetElement("y").Value, document.GetElement("y").Value);
         }
 
         [Test]
@@ -209,8 +209,8 @@ namespace MongoDB.Bson.Tests
             Assert.AreEqual(true, document.Contains("y"));
             Assert.AreEqual(true, document.ContainsValue(1));
             Assert.AreEqual(true, document.ContainsValue(2));
-            Assert.AreSame(element1, document.GetElement("x"));
-            Assert.AreSame(element2, document.GetElement("y"));
+            Assert.AreSame(element1.Value, document.GetElement("x").Value);
+            Assert.AreSame(element2.Value, document.GetElement("y").Value);
         }
 
         [Test]
@@ -510,6 +510,24 @@ namespace MongoDB.Bson.Tests
             document["x"] = 1;
             Assert.AreEqual(1, document["x", 1].AsInt32);
 #pragma warning restore
+        }
+
+        [TestCase("_id", 0)]
+        [TestCase("x", 1)]
+        [TestCase("y", 2)]
+        [TestCase("z", -1)]
+        public void TestIndexOfName(string name, int expectedResult)
+        {
+            var subject = new BsonDocument
+            {
+                { "_id", 1 },
+                { "x", 2 },
+                { "y", 3 }
+            };
+
+            var result = subject.IndexOfName(name);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
 
         [Test]
@@ -899,8 +917,8 @@ namespace MongoDB.Bson.Tests
         public void TestSpecBsonAwesomeWithBsonWriter()
         {
             // this test is from http://bsonspec.org/#/specification
-            MemoryStream stream = new MemoryStream();
-            using (BsonWriter bsonWriter = new BsonBinaryWriter(stream))
+            var stream = new MemoryStream();
+            using (var bsonWriter = new BsonBinaryWriter(stream))
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteStartArray("BSON");
@@ -927,8 +945,8 @@ namespace MongoDB.Bson.Tests
         public void TestSpecHelloWorldWithBsonWriter()
         {
             // this test is from http://bsonspec.org/#/specification
-            MemoryStream stream = new MemoryStream();
-            using (BsonWriter bsonWriter = new BsonBinaryWriter(stream))
+            var stream = new MemoryStream();
+            using (var bsonWriter = new BsonBinaryWriter(stream))
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteString("hello", "world");

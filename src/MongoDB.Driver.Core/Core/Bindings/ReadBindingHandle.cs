@@ -33,10 +33,10 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
-        public Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(CancellationToken cancellationToken)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadConnectionSourceAsync(cancellationToken);
+            return _reference.Instance.GetReadChannelSourceAsync(cancellationToken);
         }
 
         public void Dispose()

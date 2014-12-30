@@ -33,18 +33,6 @@ namespace MongoDB.Driver.Core.Async
             });
         }
 
-        public static TaskCompletionSource<T> WithCancellationToken<T>(this TaskCompletionSource<T> source, CancellationToken cancellationToken)
-        {
-            if (cancellationToken != default(CancellationToken))
-            {
-                cancellationToken.Register(() =>
-                {
-                    source.TrySetCanceled();
-                });
-            }
-            return source;
-        }
-
         public static async Task WithTimeout(this Task task, TimeSpan timeout)
         {
             var source = new CancellationTokenSource();

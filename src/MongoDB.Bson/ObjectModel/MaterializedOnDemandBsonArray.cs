@@ -27,7 +27,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON array that is not materialized until you start using it.
     /// </summary>
-    [Serializable]
     [BsonSerializer(typeof(MaterializedOnDemandBsonArraySerializer))]
     public abstract class MaterializedOnDemandBsonArray : BsonArray, IDisposable
     {

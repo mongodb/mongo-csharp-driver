@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
@@ -29,21 +30,21 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public methods
-        public Exception ToWriteConcernException(BulkWriteOperationException bulkWriteException)
+        public Exception ToWriteConcernException(ConnectionId connectionId, MongoBulkWriteOperationException bulkWriteException)
         {
             var writeConcernResult = ToWriteConcernResult(bulkWriteException.Result, bulkWriteException);
 
-            var exception = ExceptionMapper.Map(writeConcernResult.Response);
+            var exception = ExceptionMapper.Map(connectionId, writeConcernResult.Response);
             if (exception == null)
             {
-                exception = ExceptionMapper.Map(writeConcernResult);
+                exception = ExceptionMapper.Map(connectionId, writeConcernResult);
             }
             if (exception == null)
             {
-                exception = new WriteConcernException(bulkWriteException.Message, writeConcernResult);
+                exception = new MongoWriteConcernException(connectionId, bulkWriteException.Message, writeConcernResult);
             }
 
-            var writeConcernException = exception as WriteConcernException;
+            var writeConcernException = exception as MongoWriteConcernException;
             if (writeConcernException != null)
             { 
                 writeConcernException.Data["results"] = new List<WriteConcernResult>(new[] { writeConcernResult });
@@ -58,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private WriteConcernResult ToWriteConcernResult(BulkWriteOperationResult bulkWriteResult, BulkWriteOperationException bulkWriteException)
+        private WriteConcernResult ToWriteConcernResult(BulkWriteOperationResult bulkWriteResult, MongoBulkWriteOperationException bulkWriteException)
         {
             if (!bulkWriteResult.IsAcknowledged)
             {

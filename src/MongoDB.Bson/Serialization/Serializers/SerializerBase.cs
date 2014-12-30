@@ -42,8 +42,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        public virtual TValue Deserialize(BsonDeserializationContext context)
+        public virtual TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             throw CreateCannotBeDeserializedException();
         }
@@ -52,8 +53,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        public virtual void Serialize(BsonSerializationContext context, TValue value)
+        public virtual void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TValue value)
         {
             throw CreateCannotBeSerializedException();
         }
@@ -100,7 +102,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="reader">The reader.</param>
         /// <param name="bsonType">The expected type.</param>
-        protected void EnsureBsonTypeEquals(BsonReader reader, BsonType bsonType)
+        protected void EnsureBsonTypeEquals(IBsonReader reader, BsonType bsonType)
         {
             if (reader.GetCurrentBsonType() != bsonType)
             {
@@ -109,14 +111,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // explicit interface implementations
-        object IBsonSerializer.Deserialize(BsonDeserializationContext context)
+        object IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            return Deserialize(context);
+            return Deserialize(context, args);
         }
 
-        void IBsonSerializer.Serialize(BsonSerializationContext context, object value)
+        void IBsonSerializer.Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value)
         {
-            Serialize(context, (TValue)value);
+            Serialize(context, args, (TValue)value);
         }
     }
 }

@@ -13,13 +13,12 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -38,12 +37,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         //  methods
-        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
+        protected override Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
         {
             var insertRequest = (InsertRequest)request;
             var documentSource = new BatchableSource<BsonDocument>(new[] { insertRequest.Document });
 
-            return new InsertWireProtocol<BsonDocument>(
+            return channel.InsertAsync(
                 CollectionNamespace,
                 WriteConcern,
                 BsonDocumentSerializer.Instance,
@@ -51,7 +50,9 @@ namespace MongoDB.Driver.Core.Operations
                 documentSource,
                 MaxBatchCount,
                 MaxBatchLength,
-                continueOnError: false);               
+                false, // continueOnError
+                null, // shouldSendGetLastError
+                cancellationToken);
         }
     }
 }

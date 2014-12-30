@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var stream = await _wrapped.CreateStreamAsync(endPoint, cancellationToken);
+            var stream = await _wrapped.CreateStreamAsync(endPoint, cancellationToken).ConfigureAwait(false);
 
             var sslStream = new SslStream(
                 stream,
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var clientCertificates = new X509CertificateCollection(_settings.ClientCertificates.ToArray());
 
-            await sslStream.AuthenticateAsClientAsync(targetHost, clientCertificates, _settings.EnabledSslProtocols, _settings.CheckCertificateRevocation);
+            await sslStream.AuthenticateAsClientAsync(targetHost, clientCertificates, _settings.EnabledSslProtocols, _settings.CheckCertificateRevocation).ConfigureAwait(false);
             return sslStream;
         }
     }

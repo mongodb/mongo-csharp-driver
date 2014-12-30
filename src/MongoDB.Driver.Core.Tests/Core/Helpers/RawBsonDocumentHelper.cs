@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Helpers
             {
                 using (var bsonWriter = new BsonBinaryWriter(memoryStream, BsonBinaryWriterSettings.Defaults))
                 {
-                    var context = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter);
                     BsonDocumentSerializer.Instance.Serialize(context, document);
                 }
                 return new RawBsonDocument(memoryStream.ToArray());

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 
 namespace MongoDB.Bson.IO
@@ -60,7 +61,7 @@ namespace MongoDB.Bson.IO
             if (actualSize != _size)
             {
                 var message = string.Format("Expected size to be {0}, not {1}.", _size, actualSize);
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
             return _parentContext;
         }

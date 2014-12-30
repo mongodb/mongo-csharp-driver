@@ -198,10 +198,10 @@ namespace MongoDB.Driver
         {
             if (args == null) { throw new ArgumentNullException("args"); }
 
-            var criteria = args.Query == null ? null : new BsonDocumentWrapper(args.Query);
+            var filter = args.Query == null ? null : new BsonDocumentWrapper(args.Query);
             var operation = new CountOperation(_collectionNamespace, GetMessageEncoderSettings())
             {
-                Criteria = criteria,
+                Filter = filter,
                 Hint = args.Hint,
                 Limit = args.Limit,
                 MaxTime = args.MaxTime,
@@ -242,7 +242,7 @@ namespace MongoDB.Driver
             catch (MongoCommandException ex)
             {
                 var writeConcernResult = new WriteConcernResult(ex.Result);
-                throw new WriteConcernException(ex.Message, writeConcernResult);
+                throw new MongoWriteConcernException(ex.ConnectionId, ex.Message, writeConcernResult);
             }
         }
 
@@ -279,7 +279,7 @@ namespace MongoDB.Driver
             var valueSerializer = (IBsonSerializer<TValue>)args.ValueSerializer ?? BsonSerializer.LookupSerializer<TValue>();
             var operation = new DistinctOperation<TValue>(_collectionNamespace, valueSerializer, args.Key, GetMessageEncoderSettings())
             {
-                Criteria = new BsonDocumentWrapper(args.Query),
+                Filter = new BsonDocumentWrapper(args.Query),
                 MaxTime = args.MaxTime,
             };
 
@@ -548,35 +548,37 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Update == null) { throw new ArgumentException("Update is null.", "args"); }
 
-            var criteria = args.Query == null ? new BsonDocument() : new BsonDocumentWrapper(args.Query);
+            var filter = args.Query == null ? new BsonDocument() : new BsonDocumentWrapper(args.Query);
             var updateDocument = args.Update.ToBsonDocument();
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = GetMessageEncoderSettings();
             var projection = args.Fields == null ? null : new BsonDocumentWrapper(args.Fields);
-            var returnOriginal = args.VersionReturned == FindAndModifyDocumentVersion.Original;
+            var returnDocument = args.VersionReturned == FindAndModifyDocumentVersion.Original
+                ? Core.Operations.ReturnDocument.Before
+                : Core.Operations.ReturnDocument.After;
             var sort = args.SortBy == null ? null : new BsonDocumentWrapper(args.SortBy);
 
             FindAndModifyOperationBase<BsonDocument> operation;
             if (updateDocument.ElementCount > 0 && updateDocument.GetElement(0).Name.StartsWith("$"))
             {
-                operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, criteria, updateDocument, resultSerializer, messageEncoderSettings)
+                operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, filter, updateDocument, resultSerializer, messageEncoderSettings)
                 {
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
-                    ReturnOriginal = returnOriginal,
+                    ReturnDocument = returnDocument,
                     Sort = sort
                 };
             }
             else
             {
                 var replacement = updateDocument;
-                operation = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, criteria, replacement, resultSerializer, messageEncoderSettings)
+                operation = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, filter, replacement, resultSerializer, messageEncoderSettings)
                 {
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
-                    ReturnOriginal = returnOriginal,
+                    ReturnDocument = returnDocument,
                     Sort = sort
                 };
             }
@@ -624,13 +626,13 @@ namespace MongoDB.Driver
         {
             if (args == null) { throw new ArgumentNullException("args"); }
 
-            var criteria = args.Query == null ? new BsonDocument() : new BsonDocumentWrapper(args.Query);
+            var filter = args.Query == null ? new BsonDocument() : new BsonDocumentWrapper(args.Query);
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = GetMessageEncoderSettings();
             var projection = args.Fields == null ? null : new BsonDocumentWrapper(args.Fields);
             var sort = args.SortBy == null ? null : new BsonDocumentWrapper(args.SortBy);
 
-            var operation = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, criteria, resultSerializer, messageEncoderSettings)
+            var operation = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, filter, resultSerializer, messageEncoderSettings)
             {
                 MaxTime = args.MaxTime,
                 Projection = projection,
@@ -714,7 +716,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOperation<TDocument>(_collectionNamespace, serializer, messageEncoderSettings)
             {
-                Criteria = queryDocument,
+                Filter = queryDocument,
                 Limit = -1,
                 MaxTime = args.MaxTime,
                 Projection = fields,
@@ -866,7 +868,7 @@ namespace MongoDB.Driver
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            return RunCommandAs<GeoHaystackSearchResult<TDocument>>(command);
+            return _database.RunCommandAs<GeoHaystackSearchResult<TDocument>>(command, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -926,7 +928,7 @@ namespace MongoDB.Driver
                 { "uniqueDocs", () => args.UniqueDocs.Value, args.UniqueDocs.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            var result = RunCommandAs<GeoNearResult<TDocument>>(command);
+            var result = _database.RunCommandAs<GeoNearResult<TDocument>>(command, _settings.ReadPreference);
             result.Response["ns"] = FullName;
             return result;
         }
@@ -1070,7 +1072,7 @@ namespace MongoDB.Driver
                 { "scale", () => args.Scale.Value, args.Scale.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            return RunCommandAs<CollectionStatsResult>(command);
+            return _database.RunCommandAs<CollectionStatsResult>(command, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -1130,18 +1132,18 @@ namespace MongoDB.Driver
                 throw new ArgumentException("ReduceFunction is null.", "args");
             }
 
-            var criteria = args.Query == null ? null : BsonDocumentWrapper.Create(args.Query);
+            var filter = args.Query == null ? null : BsonDocumentWrapper.Create(args.Query);
             var messageEncoderSettings = GetMessageEncoderSettings();
 
             GroupOperation<BsonDocument> operation;
             if (args.KeyFields != null)
             {
                 var key = new BsonDocumentWrapper(args.KeyFields);
-                operation = new GroupOperation<BsonDocument>(_collectionNamespace, key, args.Initial, args.ReduceFunction, criteria, messageEncoderSettings);
+                operation = new GroupOperation<BsonDocument>(_collectionNamespace, key, args.Initial, args.ReduceFunction, filter, messageEncoderSettings);
             }
             else
             {
-                operation = new GroupOperation<BsonDocument>(_collectionNamespace, args.KeyFunction, args.Initial, args.ReduceFunction, criteria, messageEncoderSettings);
+                operation = new GroupOperation<BsonDocument>(_collectionNamespace, args.KeyFunction, args.Initial, args.ReduceFunction, filter, messageEncoderSettings);
             }
             operation.FinalizeFunction = args.FinalizeFunction;
             operation.MaxTime = args.MaxTime;
@@ -1714,7 +1716,7 @@ namespace MongoDB.Driver
         public virtual CommandResult ReIndex()
         {
             var command = new CommandDocument("reIndex", _collectionNamespace.CollectionName);
-            return RunCommandAs<CommandResult>(command);
+            return _database.RunCommandAs<CommandResult>(command, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -1891,8 +1893,9 @@ namespace MongoDB.Driver
             var writerSettings = new BsonDocumentWriterSettings { GuidRepresentation = _settings.GuidRepresentation };
             using (var bsonWriter = new BsonDocumentWriter(bsonDocument, writerSettings))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter, nominalType);
-                serializer.Serialize(context, document);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var args = new BsonSerializationArgs { NominalType = nominalType };
+                serializer.Serialize(context, args, document);
             }
 
             BsonValue idBsonValue;
@@ -2063,7 +2066,7 @@ namespace MongoDB.Driver
                 { "scandata", () => args.ScanData.Value, args.ScanData.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            return RunCommandAs<ValidateCollectionResult>(command);
+            return _database.RunCommandAs<ValidateCollectionResult>(command, ReadPreference.Primary);
         }
 
         // internal methods
@@ -2226,19 +2229,6 @@ namespace MongoDB.Driver
             }
 
             return args;
-        }
-
-        private TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult
-        {
-            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
-            return RunCommandAs<TCommandResult>(command, resultSerializer);
-        }
-
-        private TCommandResult RunCommandAs<TCommandResult>(
-            IMongoCommand command,
-            IBsonSerializer<TCommandResult> resultSerializer) where TCommandResult : CommandResult
-        {
-            return _database.RunCommandAs<TCommandResult>(command, resultSerializer, _settings.ReadPreference);
         }
     }
 

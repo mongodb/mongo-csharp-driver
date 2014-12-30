@@ -97,24 +97,29 @@ namespace MongoDB.Driver.Core.WireProtocol
             var message = CreateMessage();
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            return ProcessReply(reply);
+            return ProcessReply(connection.ConnectionId, reply);
         }
 
-        private CursorBatch<TDocument> ProcessReply(ReplyMessage<TDocument> reply)
+        private CursorBatch<TDocument> ProcessReply(ConnectionId connectionId, ReplyMessage<TDocument> reply)
         {
             if (reply.QueryFailure)
             {
-                var document = reply.QueryFailureDocument;
+                var response = reply.QueryFailureDocument;
 
-                var mappedException = ExceptionMapper.Map(document);
+                var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, response, "$err");
+                if (notPrimaryOrNodeIsRecoveringException != null)
+                {
+                    throw notPrimaryOrNodeIsRecoveringException;
+                }
+
+                var mappedException = ExceptionMapper.Map(connectionId, response);
                 if (mappedException != null)
                 {
                     throw mappedException;
                 }
 
-                var err = document.GetValue("$err", "Unknown error.");
-                var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, document.ToJson());
-                throw new MongoQueryException(message, _query, document);
+                var message = string.Format("QueryFailure flag was true (response was {0}).", response.ToJson());
+                throw new MongoQueryException(connectionId, message, _query, response);
             }
 
             return new CursorBatch<TDocument>(reply.CursorId, reply.Documents);

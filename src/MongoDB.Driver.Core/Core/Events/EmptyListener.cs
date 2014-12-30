@@ -40,192 +40,193 @@ namespace MongoDB.Driver.Core.Events
         #endregion static
 
         #region Clusters
-        public virtual void ClusterBeforeClosing(ClusterId clusterId)
+        public virtual void ClusterBeforeClosing(ClusterBeforeClosingEvent @event)
         {
         }
 
-        public virtual void ClusterAfterClosing(ClusterId clusterId, TimeSpan elapsed)
+        public virtual void ClusterAfterClosing(ClusterAfterClosingEvent @event)
         {
         }
 
-        public virtual void ClusterBeforeOpening(ClusterId clusterId, ClusterSettings settings)
+        public virtual void ClusterBeforeOpening(ClusterBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void ClusterAfterOpening(ClusterId clusterId, ClusterSettings settings, TimeSpan elapsed)
+        public virtual void ClusterAfterOpening(ClusterAfterOpeningEvent @event)
         {
         }
 
-        public virtual void ClusterBeforeAddingServer(ClusterId clusterId, System.Net.EndPoint endPoint)
+        public virtual void ClusterBeforeAddingServer(ClusterBeforeAddingServerEvent @event)
         {
         }
 
-        public virtual void ClusterAfterAddingServer(ServerId serverId, TimeSpan elapsed)
+        public virtual void ClusterAfterAddingServer(ClusterAfterAddingServerEvent @event)
         {
         }
 
-        public virtual void ClusterBeforeRemovingServer(ServerId serverId, string reason)
+        public virtual void ClusterBeforeRemovingServer(ClusterBeforeRemovingServerEvent @event)
         {
         }
 
-        public virtual void ClusterAfterRemovingServer(ServerId serverId, string reason, TimeSpan elapsed)
+        public virtual void ClusterAfterRemovingServer(ClusterAfterRemovingServerEvent @event)
         {
         }
 
-        public virtual void ClusterDescriptionChanged(Clusters.ClusterDescription oldClusterDescription, Clusters.ClusterDescription newClusterDescription)
+        public virtual void ClusterAfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event)
         {
         }
         #endregion
 
         #region Server
-        public virtual void ServerBeforeClosing(ServerId serverId)
+        public virtual void ServerBeforeClosing(ServerBeforeClosingEvent @event)
         {
         }
 
-        public virtual void ServerAfterClosing(ServerId serverId)
+        public virtual void ServerAfterClosing(ServerAfterClosingEvent @event)
         {
         }
 
-        public virtual void ServerBeforeOpening(ServerId serverId, ServerSettings settings)
+        public virtual void ServerBeforeOpening(ServerBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void ServerAfterOpening(ServerId serverId, ServerSettings settings, TimeSpan elapsed)
+        public virtual void ServerAfterOpening(ServerAfterOpeningEvent @event)
         {
         }
 
-        public virtual void ServerBeforeHeartbeating(ConnectionId connectionId)
+        public virtual void ServerBeforeHeartbeating(ServerBeforeHeartbeatingEvent @event)
         {
         }
 
-        public virtual void ServerAfterHeartbeating(ConnectionId connectionId, TimeSpan elapsed)
+        public virtual void ServerAfterHeartbeating(ServerAfterHeartbeatingEvent @event)
         {
         }
 
-        public virtual void ServerErrorHeartbeating(ConnectionId connectionId, Exception exception)
+        public virtual void ServerErrorHeartbeating(ServerErrorHeartbeatingEvent @event)
         {
         }
 
-        public virtual void ServerAfterDescriptionChanged(Servers.ServerDescription oldDescription, Servers.ServerDescription newDescription)
+        public virtual void ServerAfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event)
         {
         }
         #endregion
 
         #region Connection Pools
-        public virtual void ConnectionPoolBeforeClosing(ServerId serverId)
+        public virtual void ConnectionPoolBeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterClosing(ServerId serverId)
+        public virtual void ConnectionPoolAfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public virtual void ConnectionPoolBeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterOpening(ServerId serverId, ConnectionPoolSettings settings)
+        public virtual void ConnectionPoolAfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeAddingAConnection(ServerId serverId)
+        public virtual void ConnectionPoolBeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterAddingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public virtual void ConnectionPoolAfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeRemovingAConnection(ConnectionId connectionId)
+        public virtual void ConnectionPoolBeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterRemovingAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public virtual void ConnectionPoolAfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeEnteringWaitQueue(ServerId serverId)
+        public virtual void ConnectionPoolBeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterEnteringWaitQueue(ServerId serverId, TimeSpan elapsed)
+        public virtual void ConnectionPoolAfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolErrorEnteringWaitQueue(ServerId serverId, TimeSpan elapsed, Exception ex)
+        public virtual void ConnectionPoolErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeCheckingOutAConnection(ServerId serverId)
+        public virtual void ConnectionPoolBeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterCheckingOutAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public virtual void ConnectionPoolAfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolErrorCheckingOutAConnection(ServerId serverId, TimeSpan elapsed, Exception ex)
+        public virtual void ConnectionPoolErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolBeforeCheckingInAConnection(ConnectionId connectionId)
+        public virtual void ConnectionPoolBeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
         }
 
-        public virtual void ConnectionPoolAfterCheckingInAConnection(ConnectionId connectionId, TimeSpan elapsed)
+        public virtual void ConnectionPoolAfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
         }
 
         #endregion
 
         #region Connections
-        public virtual void ConnectionFailed(ConnectionId connectionId, Exception exception)
+        public virtual void ConnectionFailed(ConnectionFailedEvent @event)
         {
         }
 
-        public virtual void ConnectionBeforeClosing(ConnectionId connectionId)
+        public virtual void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event)
         {
         }
 
-        public virtual void ConnectionAfterClosing(ConnectionId connectionId)
+        public virtual void ConnectionAfterClosing(ConnectionAfterClosingEvent @event)
         {
         }
 
-        public virtual void ConnectionBeforeOpening(ConnectionId connectionId, ConnectionSettings settings)
+        public virtual void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
         }
 
-        public virtual void ConnectionAfterOpening(ConnectionId connectionId, ConnectionSettings settings, TimeSpan elapsed)
+        public virtual void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event)
         {
         }
 
-        public virtual void ConnectionErrorOpening(ConnectionId connectionId, Exception exception)
+        public virtual void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event)
         {
         }
 
-        public virtual void ConnectionBeforeReceivingMessage(ConnectionId connectionId, int responseTo)
+        public virtual void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
         }
 
-        public virtual void ConnectionAfterReceivingMessage<T>(ConnectionId connectionId, ReplyMessage<T> message, int length, TimeSpan elapsed)
+        public virtual void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
         }
 
-        public virtual void ConnectionErrorReceivingMessage(ConnectionId connectionId, int responseTo, Exception exception)
+        public virtual void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent@event)
         {
         }
 
-        public virtual void ConnectionBeforeSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages)
+        public virtual void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
         }
 
-        public virtual void ConnectionAfterSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, int length, TimeSpan elapsed)
+        public virtual void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
         }
 
-        public virtual void ConnectionErrorSendingMessages(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, Exception exception)
+        public virtual void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
         }
+
         #endregion
     }
 }

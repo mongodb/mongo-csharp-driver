@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
@@ -40,19 +41,20 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected override IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request)
+        protected override Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken)
         {
             var updateRequest = (UpdateRequest)request;
 
-            return new UpdateWireProtocol(
+            return channel.UpdateAsync(
                 CollectionNamespace,
                 MessageEncoderSettings,
                 WriteConcern,
-                updateRequest.Criteria,
+                updateRequest.Filter,
                 updateRequest.Update,
                 ElementNameValidatorFactory.ForUpdateType(updateRequest.UpdateType),
                 updateRequest.IsMulti,
-                updateRequest.IsUpsert);
+                updateRequest.IsUpsert,
+                cancellationToken);
         }
     }
 }

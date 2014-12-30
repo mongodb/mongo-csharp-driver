@@ -65,16 +65,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="WindowsBase">
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
@@ -84,8 +75,10 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="IAggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="AggregateEnumerable.cs" />
+    <Compile Include="BsonDocumentHelper.cs" />
     <Compile Include="Builders\UpdateCurrentDateType.cs" />
     <Compile Include="BulkWriteOptions.cs" />
     <Compile Include="Communication\ClusterKey.cs" />
@@ -93,7 +86,20 @@
     <Compile Include="Communication\ConnectionModeExtensionMethods.cs" />
     <Compile Include="CountOptions.cs" />
     <Compile Include="CreateIndexOptions.cs" />
+    <Compile Include="IAggregateFluent.cs" />
+    <Compile Include="IFindFluent.cs" />
+    <Compile Include="IFindFluentExtensions.cs" />
+    <Compile Include="IMongoCollectionExtensions.cs" />
     <Compile Include="IMongoIndexManager.cs" />
+    <Compile Include="Operations\AddUserOperation.cs" />
+    <Compile Include="Operations\AddUserUsingUserManagementCommandsOperation.cs" />
+    <Compile Include="Operations\AddUserUsingSystemUsersCollectionOperation.cs" />
+    <Compile Include="Operations\DropUserOperation.cs" />
+    <Compile Include="Operations\DropUserUsingUserManagementCommandsOperation.cs" />
+    <Compile Include="Operations\DropUserUsingSystemUsersCollectionOperation.cs" />
+    <Compile Include="Operations\FindUsersOperation.cs" />
+    <Compile Include="Operations\FindUsersUsingUserManagementCommandsOperation.cs" />
+    <Compile Include="Operations\FindUsersUsingSystemUsersCollectionOperation.cs" />
     <Compile Include="RenameCollectionOptions.cs" />
     <Compile Include="CreateCollectionOptions.cs" />
     <Compile Include="DistinctOptions.cs" />
@@ -110,6 +116,8 @@
     <Compile Include="DeleteResult.cs" />
     <Compile Include="InsertOneModel.cs" />
     <Compile Include="ReplaceOneModel.cs" />
+    <Compile Include="CursorType.cs" />
+    <Compile Include="ReturnDocument.cs" />
     <Compile Include="UpdateOptions.cs" />
     <Compile Include="UpdateOneModel.cs" />
     <Compile Include="UpdateManyModel.cs" />
@@ -126,7 +134,7 @@
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="BulkWriteResult.cs" />
     <Compile Include="BulkWriteUpsert.cs" />
-    <Compile Include="BulkWriteException.cs" />
+    <Compile Include="MongoBulkWriteException.cs" />
     <Compile Include="Support\IndexMap.cs" />
     <Compile Include="Operations\BulkWriteOperation.cs" />
     <Compile Include="Operations\BulkWriteRequestBuilder.cs" />
@@ -344,7 +352,7 @@
     <Compile Include="UpdateFlags.cs" />
     <Compile Include="ExternalEvidence.cs" />
     <Compile Include="WriteError.cs" />
-    <Compile Include="WriteException.cs" />
+    <Compile Include="MongoWriteException.cs" />
     <Compile Include="WriteModel.cs" />
     <Compile Include="WriteModelType.cs" />
     <Compile Include="XYPoint.cs" />

@@ -294,13 +294,11 @@ namespace MongoDB.Bson.Tests
             var b = new BsonElement("a", 1);
             var c = new BsonElement("b", 1);
             var d = new BsonElement("b", 2);
-            var n = (BsonElement)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
             Assert.IsFalse(object.Equals(a, d));
             Assert.IsFalse(object.Equals(c, d));
-            Assert.IsFalse(a.Equals(n));
             Assert.IsFalse(a.Equals(null));
 
             Assert.IsTrue(a == b);
@@ -309,8 +307,6 @@ namespace MongoDB.Bson.Tests
             Assert.IsFalse(c == d);
             Assert.IsFalse(a == null);
             Assert.IsFalse(null == a);
-            Assert.IsTrue(n == null);
-            Assert.IsTrue(null == n);
 
             Assert.IsFalse(a != b);
             Assert.IsTrue(a != c);
@@ -318,8 +314,6 @@ namespace MongoDB.Bson.Tests
             Assert.IsTrue(c != d);
             Assert.IsTrue(a != null);
             Assert.IsTrue(null != a);
-            Assert.IsFalse(n != null);
-            Assert.IsFalse(null != n);
         }
 
         [Test]

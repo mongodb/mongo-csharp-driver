@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateReadPreferenceDocument_should_return_a_document_when_their_are_tag_sets()
         {
-            var rp = ReadPreference.Secondary.WithTagSets(new[] { new TagSet(new[] { new Tag("dc", "tx") }) });
+            var rp = ReadPreference.Secondary.With(tagSets: new[] { new TagSet(new[] { new Tag("dc", "tx") }) });
 
             var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ShardRouter, rp);
 

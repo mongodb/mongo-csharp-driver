@@ -69,11 +69,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override TValue Deserialize(BsonDeserializationContext context)
+        public override TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            var nominalType = context.NominalType;
+            var nominalType = args.NominalType;
             var actualType = _discriminatorConvention.GetActualType(bsonReader, nominalType);
             var serializer = BsonSerializer.LookupSerializer(actualType);
 
@@ -82,8 +83,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 switch (flag)
                 {
-                    case Flags.Discriminator: bsonReader.SkipValue(); break;
-                    case Flags.Value: value = (TValue)serializer.Deserialize(context.CreateChild(actualType)); break;
+                    case Flags.Discriminator:
+                        bsonReader.SkipValue();
+                        break;
+                    case Flags.Value:
+                        var valueDeserializationArgs = new BsonDeserializationArgs { NominalType = actualType };
+                        value = (TValue)serializer.Deserialize(context, valueDeserializationArgs);
+                        break;
                 }
             });
 
@@ -119,19 +125,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, TValue value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TValue value)
         {
             var bsonWriter = context.Writer;
-            var nominalType = context.NominalType;
+            var nominalType = args.NominalType;
             var actualType = value.GetType();
             var discriminator = _discriminatorConvention.GetDiscriminator(nominalType, actualType);
 
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteName(_discriminatorConvention.ElementName);
-            context.SerializeWithChildContext(BsonValueSerializer.Instance, discriminator);
+            BsonValueSerializer.Instance.Serialize(context, discriminator);
             bsonWriter.WriteName("_v");
-            _wrappedSerializer.Serialize(context.CreateChild(actualType), value);
+            args.NominalType = actualType;
+            _wrappedSerializer.Serialize(context, args, value);
             bsonWriter.WriteEndDocument();
         }
     }

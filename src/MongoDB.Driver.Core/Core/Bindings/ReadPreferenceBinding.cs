@@ -45,11 +45,11 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
-        public async Task<IConnectionSourceHandle> GetReadConnectionSourceAsync(CancellationToken cancellationToken)
+        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             var server = await _cluster.SelectServerAsync(_serverSelector, cancellationToken).ConfigureAwait(false);
-            return new ConnectionSourceHandle(new ServerConnectionSource(server));
+            return new ChannelSourceHandle(new ServerChannelSource(server));
         }
 
         public void Dispose()

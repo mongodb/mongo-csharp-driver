@@ -31,27 +31,27 @@ namespace MongoDB.Driver.Core.Operations
     public class FindOneAndReplaceOperation<TResult> : FindAndModifyOperationBase<TResult>
     {
         // fields
-        private readonly BsonDocument _criteria;
+        private readonly BsonDocument _filter;
         private bool _isUpsert;
         private TimeSpan? _maxTime;
         private BsonDocument _projection;
         private readonly BsonDocument _replacement;
-        private bool _returnOriginal;
+        private ReturnDocument _returnDocument;
         private BsonDocument _sort;
 
         // constructors
-        public FindOneAndReplaceOperation(CollectionNamespace collectionNamespace, BsonDocument criteria, BsonDocument replacement, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+        public FindOneAndReplaceOperation(CollectionNamespace collectionNamespace, BsonDocument filter, BsonDocument replacement, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(collectionNamespace, resultSerializer, messageEncoderSettings)
         {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _filter = Ensure.IsNotNull(filter, "filter");
             _replacement = Ensure.IsNotNull(replacement, "replacement");
-            _returnOriginal = true;
+            _returnDocument = ReturnDocument.Before;
         }
 
         // properties
-        public BsonDocument Criteria
+        public BsonDocument Filter
         {
-            get { return _criteria; }
+            get { return _filter; }
         }
 
         public bool IsUpsert
@@ -77,10 +77,10 @@ namespace MongoDB.Driver.Core.Operations
             get { return _replacement; }
         }
 
-        public bool ReturnOriginal
+        public ReturnDocument ReturnDocument
         {
-            get { return _returnOriginal; }
-            set { _returnOriginal = value; }
+            get { return _returnDocument; }
+            set { _returnDocument = value; }
         }
 
         public BsonDocument Sort
@@ -95,10 +95,10 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "findAndModify", CollectionNamespace.CollectionName },
-                { "query", _criteria },
+                { "query", _filter },
                 { "sort", _sort, _sort != null },
                 { "update", _replacement },
-                { "new", !_returnOriginal },
+                { "new", _returnDocument == ReturnDocument.After },
                 { "fields", _projection, _projection != null },
                 { "upsert", _isUpsert },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }

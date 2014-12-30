@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -44,6 +45,7 @@ namespace MongoDB.Driver
         private GuidRepresentation _guidRepresentation;
         private bool _ipv6;
         private bool? _journal;
+        private TimeSpan _localThreshold;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
@@ -51,7 +53,6 @@ namespace MongoDB.Driver
         private string _password;
         private ReadPreference _readPreference;
         private string _replicaSetName;
-        private TimeSpan _secondaryAcceptableLatency;
         private IEnumerable<MongoServerAddress> _servers;
         private TimeSpan _socketTimeout;
         private string _username;
@@ -86,7 +87,7 @@ namespace MongoDB.Driver
             _password = null;
             _readPreference = null;
             _replicaSetName = null;
-            _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
+            _localThreshold = MongoDefaults.LocalThreshold;
             _servers = new[] { new MongoServerAddress("localhost", 27017) };
             _socketTimeout = MongoDefaults.SocketTimeout;
             _username = null;
@@ -240,6 +241,22 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the local threshold.
+        /// </summary>
+        public TimeSpan LocalThreshold
+        {
+            get { return _localThreshold; }
+            set
+            {
+                if (value < TimeSpan.Zero)
+                {
+                    throw new ArgumentOutOfRangeException("value", "LocalThreshold must be greater than or equal to zero.");
+                }
+                _localThreshold = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the max connection idle time.
         /// </summary>
         public TimeSpan MaxConnectionIdleTime
@@ -338,23 +355,6 @@ namespace MongoDB.Driver
         {
             get { return _replicaSetName; }
             set { _replicaSetName = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the acceptable latency for considering a replica set member for inclusion in load balancing
-        /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
-        /// </summary>
-        public TimeSpan SecondaryAcceptableLatency
-        {
-            get { return _secondaryAcceptableLatency; }
-            set
-            {
-                if (value < TimeSpan.Zero)
-                {
-                    throw new ArgumentOutOfRangeException("value", "SecondaryAcceptableLatency must be greater than or equal to zero.");
-                }
-                _secondaryAcceptableLatency = value;
-            }
         }
 
         /// <summary>
@@ -559,13 +559,13 @@ namespace MongoDB.Driver
             {
                 if (_readPreference == null)
                 {
-                    throw new ConfigurationException("ReadPreferenceMode is required when using tag sets.");
+                    throw new MongoConfigurationException("ReadPreferenceMode is required when using tag sets.");
                 }
-                _readPreference = _readPreference.WithTagSets(connectionString.ReadPreferenceTags);
+                _readPreference = _readPreference.With(tagSets: Optional.Create<IEnumerable<TagSet>>(connectionString.ReadPreferenceTags));
             }
 
             _replicaSetName = connectionString.ReplicaSet;
-            _secondaryAcceptableLatency = connectionString.SecondaryAcceptableLatency.GetValueOrDefault(MongoDefaults.SecondaryAcceptableLatency);
+            _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
             _servers = connectionString.Hosts.Select(endPoint =>
             {
                 DnsEndPoint dnsEndPoint;
@@ -738,9 +738,9 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("minPoolSize={0};", _minConnectionPoolSize);
             }
-            if (_secondaryAcceptableLatency != MongoDefaults.SecondaryAcceptableLatency)
+            if (_localThreshold != MongoDefaults.LocalThreshold)
             {
-                query.AppendFormat("secondaryAcceptableLatency={0};", FormatTimeSpan(_secondaryAcceptableLatency));
+                query.AppendFormat("localThreshold={0};", FormatTimeSpan(_localThreshold));
             }
             if (_socketTimeout != MongoDefaults.SocketTimeout)
             {

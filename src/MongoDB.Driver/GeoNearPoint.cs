@@ -157,7 +157,7 @@ namespace MongoDB.Driver
                 var document = new BsonDocument();
                 using (var writer = new BsonDocumentWriter(document, BsonDocumentWriterSettings.Defaults))
                 {
-                    var context = BsonSerializationContext.CreateRoot<GeoJsonPointSerializer<TCoordinates>>(writer);
+                    var context = BsonSerializationContext.CreateRoot(writer);
                     new GeoJsonPointSerializer<TCoordinates>().Serialize(context, _value);
                 }
                 return document;

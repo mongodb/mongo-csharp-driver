@@ -33,7 +33,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The combined timestamp/increment value.</param>
         public BsonTimestamp(long value)
-            : base(BsonType.Timestamp)
         {
             _value = value;
         }
@@ -44,7 +43,6 @@ namespace MongoDB.Bson
         /// <param name="timestamp">The timestamp.</param>
         /// <param name="increment">The increment.</param>
         public BsonTimestamp(int timestamp, int increment)
-            : base(BsonType.Timestamp)
         {
             _value = ((long)timestamp << 32) + increment;
         }
@@ -74,6 +72,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Timestamp; }
+        }
+
         /// <summary>
         /// Gets the value of this BsonTimestamp.
         /// </summary>

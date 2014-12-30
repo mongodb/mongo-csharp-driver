@@ -55,52 +55,52 @@ namespace MongoDB.Driver.Core.Events
         }
 
         // methods
-        public void ServerBeforeClosing(ServerId serverId)
+        public void ServerBeforeClosing(ServerBeforeClosingEvent @event)
         {
-            _first.ServerBeforeClosing(serverId);
-            _second.ServerBeforeClosing(serverId);
+            _first.ServerBeforeClosing(@event);
+            _second.ServerBeforeClosing(@event);
         }
 
-        public void ServerAfterClosing(ServerId serverId)
+        public void ServerAfterClosing(ServerAfterClosingEvent @event)
         {
-            _first.ServerAfterClosing(serverId);
-            _second.ServerAfterClosing(serverId);
+            _first.ServerAfterClosing(@event);
+            _second.ServerAfterClosing(@event);
         }
 
-        public void ServerBeforeOpening(ServerId serverId, ServerSettings settings)
+        public void ServerBeforeOpening(ServerBeforeOpeningEvent @event)
         {
-            _first.ServerBeforeOpening(serverId, settings);
-            _second.ServerBeforeOpening(serverId, settings);
+            _first.ServerBeforeOpening(@event);
+            _second.ServerBeforeOpening(@event);
         }
 
-        public void ServerAfterOpening(ServerId serverId, ServerSettings settings, TimeSpan elapsed)
+        public void ServerAfterOpening(ServerAfterOpeningEvent @event)
         {
-            _first.ServerAfterOpening(serverId, settings, elapsed);
-            _second.ServerAfterOpening(serverId, settings, elapsed);
+            _first.ServerAfterOpening(@event);
+            _second.ServerAfterOpening(@event);
         }
 
-        public void ServerBeforeHeartbeating(ConnectionId connectionId)
+        public void ServerBeforeHeartbeating(ServerBeforeHeartbeatingEvent @event)
         {
-            _first.ServerBeforeHeartbeating(connectionId);
-            _second.ServerBeforeHeartbeating(connectionId);
+            _first.ServerBeforeHeartbeating(@event);
+            _second.ServerBeforeHeartbeating(@event);
         }
 
-        public void ServerAfterHeartbeating(ConnectionId connectionId, TimeSpan elapsed)
+        public void ServerAfterHeartbeating(ServerAfterHeartbeatingEvent @event)
         {
-            _first.ServerAfterHeartbeating(connectionId, elapsed);
-            _second.ServerAfterHeartbeating(connectionId, elapsed);
+            _first.ServerAfterHeartbeating(@event);
+            _second.ServerAfterHeartbeating(@event);
         }
 
-        public void ServerErrorHeartbeating(ConnectionId connectionId, Exception exception)
+        public void ServerErrorHeartbeating(ServerErrorHeartbeatingEvent @event)
         {
-            _first.ServerErrorHeartbeating(connectionId, exception);
-            _second.ServerErrorHeartbeating(connectionId, exception);
+            _first.ServerErrorHeartbeating(@event);
+            _second.ServerErrorHeartbeating(@event);
         }
 
-        public void ServerAfterDescriptionChanged(ServerDescription oldDescription, ServerDescription newDescription)
+        public void ServerAfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event)
         {
-            _first.ServerAfterDescriptionChanged(oldDescription, newDescription);
-            _second.ServerAfterDescriptionChanged(oldDescription, newDescription);
+            _first.ServerAfterDescriptionChanged(@event);
+            _second.ServerAfterDescriptionChanged(@event);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Tests
 
         private class CSerializer : ClassSerializerBase<C>
         {
-            public override void Serialize(BsonSerializationContext context, C value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, C value)
             {
                 var bsonWriter = context.Writer;
                 bsonWriter.WriteStartDocument();

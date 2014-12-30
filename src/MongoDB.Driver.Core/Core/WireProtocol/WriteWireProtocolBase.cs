@@ -61,14 +61,9 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // methods
-        private QueryMessage CreateGetLastErrorMessage()
+        private BsonDocument CreateGetLastErrorCommand()
         {
-            if (!_writeConcern.IsAcknowledged)
-            {
-                return null;
-            }
-
-            var command = new BsonDocument 
+            return new BsonDocument 
             {
                 { "getLastError", 1 },
                 { "w", () => _writeConcern.W.ToBsonValue(), _writeConcern.W != null },
@@ -76,11 +71,14 @@ namespace MongoDB.Driver.Core.WireProtocol
                 { "fsync", () => _writeConcern.FSync.Value, _writeConcern.FSync.HasValue },
                 { "j", () => _writeConcern.Journal.Value, _writeConcern.Journal.HasValue }
             };
+        }
 
+        private QueryMessage CreateGetLastErrorMessage(BsonDocument getLastErrorCommand)
+        {
             return new QueryMessage(
                RequestMessage.GetNextRequestId(),
                _collectionNamespace.DatabaseNamespace.CommandCollection,
-               command,
+               getLastErrorCommand,
                null,
                NoOpElementNameValidator.Instance,
                0,
@@ -97,13 +95,17 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         public async Task<WriteConcernResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
-            var writeMessage = CreateWriteMessage(connection);
-            var getLastErrorMessage = CreateGetLastErrorMessage();
-
             var messages = new List<RequestMessage>();
+
+            var writeMessage = CreateWriteMessage(connection);
             messages.Add(writeMessage);
-            if (getLastErrorMessage != null)
+
+            BsonDocument getLastErrorCommand = null;
+            QueryMessage getLastErrorMessage = null;
+            if (_writeConcern.IsAcknowledged)
             {
+                getLastErrorCommand = CreateGetLastErrorCommand();
+                getLastErrorMessage = CreateGetLastErrorMessage(getLastErrorCommand);
                 messages.Add(getLastErrorMessage);
             }
 
@@ -111,7 +113,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             if (getLastErrorMessage != null && getLastErrorMessage.WasSent)
             {
                 var reply = await connection.ReceiveMessageAsync<BsonDocument>(getLastErrorMessage.RequestId, BsonDocumentSerializer.Instance, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                return ProcessReply(reply);
+                return ProcessReply(connection.ConnectionId, getLastErrorCommand, reply);
             }
             else
             {
@@ -119,25 +121,32 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private WriteConcernResult ProcessReply(ReplyMessage<BsonDocument> reply)
+        private WriteConcernResult ProcessReply(ConnectionId connectionId, BsonDocument getLastErrorCommand, ReplyMessage<BsonDocument> reply)
         {
             if (reply.NumberReturned == 0)
             {
-                throw new WriteProtocolException("GetLastError reply had no documents.");
+                throw new MongoCommandException(connectionId, "GetLastError reply had no documents.", getLastErrorCommand);
             }
             if (reply.NumberReturned > 1)
             {
-                throw new WriteProtocolException("GetLastError reply had more than one document.");
+                throw new MongoCommandException(connectionId, "GetLastError reply had more than one document.", getLastErrorCommand);
             }
             if (reply.QueryFailure)
             {
-                throw new WriteProtocolException("GetLastError reply had QueryFailure flag set.", reply.QueryFailureDocument);
+                throw new MongoCommandException(connectionId, "GetLastError reply had QueryFailure flag set.", getLastErrorCommand, reply.QueryFailureDocument);
             }
 
             var response = reply.Documents.Single();
+
+            var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, response, "err");
+            if (notPrimaryOrNodeIsRecoveringException != null)
+            {
+                throw notPrimaryOrNodeIsRecoveringException;
+            }
+
             var writeConcernResult = new WriteConcernResult(response);
 
-            var mappedException = ExceptionMapper.Map(writeConcernResult);
+            var mappedException = ExceptionMapper.Map(connectionId, writeConcernResult);
             if (mappedException != null)
             {
                 throw mappedException;

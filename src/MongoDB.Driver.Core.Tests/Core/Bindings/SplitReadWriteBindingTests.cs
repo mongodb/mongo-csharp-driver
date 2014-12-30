@@ -53,45 +53,45 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void GetReadConnectionSourceAsync_should_throw_if_disposed()
+        public void GetReadChannelSourceAsync_should_throw_if_disposed()
         {
             var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
             subject.Dispose();
 
-            Action act = () => subject.GetReadConnectionSourceAsync(CancellationToken.None);
+            Action act = () => subject.GetReadChannelSourceAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetReadConnectionSourceAsync_should_get_the_connection_source_from_the_read_binding()
+        public void GetReadChannelSourceAsync_should_get_the_connection_source_from_the_read_binding()
         {
             var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
 
-            subject.GetReadConnectionSourceAsync(CancellationToken.None);
+            subject.GetReadChannelSourceAsync(CancellationToken.None);
 
-            _readBinding.Received().GetReadConnectionSourceAsync(CancellationToken.None);
+            _readBinding.Received().GetReadChannelSourceAsync(CancellationToken.None);
         }
 
         [Test]
-        public void GetWriteConnectionSourceAsync_should_throw_if_disposed()
+        public void GetWriteChannelSourceAsync_should_throw_if_disposed()
         {
             var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
             subject.Dispose();
 
-            Action act = () => subject.GetWriteConnectionSourceAsync(CancellationToken.None);
+            Action act = () => subject.GetWriteChannelSourceAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetWriteConnectionSourceAsync_should_get_the_connection_source_from_the_write_binding()
+        public void GetWriteChannelSourceAsync_should_get_the_connection_source_from_the_write_binding()
         {
             var subject = new SplitReadWriteBinding(_readBinding, _writeBinding);
 
-            subject.GetWriteConnectionSourceAsync(CancellationToken.None);
+            subject.GetWriteChannelSourceAsync(CancellationToken.None);
 
-            _writeBinding.Received().GetWriteConnectionSourceAsync(CancellationToken.None);
+            _writeBinding.Received().GetWriteChannelSourceAsync(CancellationToken.None);
         }
 
         [Test]

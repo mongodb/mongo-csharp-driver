@@ -33,17 +33,18 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        protected override GeoJsonPolygonCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context)
+        protected override GeoJsonPolygonCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             var holes = new List<GeoJsonLinearRingCoordinates<TCoordinates>>();
 
             bsonReader.ReadStartArray();
-            var exterior = context.DeserializeWithChildContext(_linearRingCoordinatesSerializer);
+            var exterior = _linearRingCoordinatesSerializer.Deserialize(context);
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var hole = context.DeserializeWithChildContext(_linearRingCoordinatesSerializer);
+                var hole = _linearRingCoordinatesSerializer.Deserialize(context);
                 holes.Add(hole);
             }
             bsonReader.ReadEndArray();
@@ -55,16 +56,17 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJsonPolygonCoordinates<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, GeoJsonPolygonCoordinates<TCoordinates> value)
         {
             var bsonWriter = context.Writer;
 
             bsonWriter.WriteStartArray();
-            context.SerializeWithChildContext(_linearRingCoordinatesSerializer, value.Exterior);
+            _linearRingCoordinatesSerializer.Serialize(context, value.Exterior);
             foreach (var hole in value.Holes)
             {
-                context.SerializeWithChildContext(_linearRingCoordinatesSerializer, hole);
+                _linearRingCoordinatesSerializer.Serialize(context, hole);
             }
             bsonWriter.WriteEndArray();
         }

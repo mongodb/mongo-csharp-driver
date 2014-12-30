@@ -27,6 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly Type _interfaceType;
         private readonly IDiscriminatorConvention _discriminatorConvention;
+        private readonly IBsonSerializer<object> _objectSerializer;
 
         // constructors
         /// <summary>
@@ -53,6 +54,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _interfaceType = typeof(TInterface);
             _discriminatorConvention = discriminatorConvention;
+            _objectSerializer = new ObjectSerializer(_discriminatorConvention);
         }
 
         // public methods
@@ -60,11 +62,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>
         /// A document.
         /// </returns>
         /// <exception cref="System.FormatException"></exception>
-        public override TInterface Deserialize(BsonDeserializationContext context)
+        public override TInterface Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -83,7 +86,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
 
                 var serializer = BsonSerializer.LookupSerializer(actualType);
-                return (TInterface)serializer.Deserialize(context);
+                return (TInterface)serializer.Deserialize(context, args);
             }
         }
 
@@ -91,8 +94,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The document.</param>
-        public override void Serialize(BsonSerializationContext context, TInterface value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TInterface value)
         {
             var bsonWriter = context.Writer;
 
@@ -102,7 +106,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                context.SerializeWithChildContext(ObjectSerializer.Instance, value);
+                args.NominalType = typeof(object);
+                _objectSerializer.Serialize(context, args, value);
             }
         }
     }

@@ -61,12 +61,14 @@ namespace MongoDB.Driver
         [Test]
         public async Task CreateCollectionAsync_should_execute_the_CreateCollectionOperation()
         {
+            var storageEngine = new BsonDocument("awesome", true);
             var options = new CreateCollectionOptions
             {
                 AutoIndexId = false,
                 Capped = true,
                 MaxDocuments = 10,
                 MaxSize = 11,
+                StorageEngine = storageEngine,
                 UsePowerOf2Sizes = false
             };
             await _subject.CreateCollectionAsync("bar", options, CancellationToken.None);
@@ -80,6 +82,7 @@ namespace MongoDB.Driver
             op.Capped.Should().Be(options.Capped);
             op.MaxDocuments.Should().Be(options.MaxDocuments);
             op.MaxSize.Should().Be(options.MaxSize);
+            op.StorageEngine.Should().Be(storageEngine);
             op.UsePowerOf2Sizes.Should().Be(options.UsePowerOf2Sizes);
         }
 

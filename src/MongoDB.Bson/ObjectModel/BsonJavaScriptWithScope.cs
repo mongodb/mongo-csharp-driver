@@ -33,7 +33,7 @@ namespace MongoDB.Bson
         /// <param name="code">The JavaScript code.</param>
         /// <param name="scope">A scope (a set of variables with values).</param>
         public BsonJavaScriptWithScope(string code, BsonDocument scope)
-            : base(code, BsonType.JavaScriptWithScope)
+            : base(code)
         {
             if (scope == null)
             {
@@ -67,6 +67,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.JavaScriptWithScope; }
+        }
+
         /// <summary>
         /// Gets the scope (a set of variables with values).
         /// </summary>

@@ -710,7 +710,7 @@ namespace MongoDB.Bson.IO
             if (size > _maxDocumentSizeStack.Peek())
             {
                 var message = string.Format("Size {0} is larger than MaxDocumentSize {1}.", size, _maxDocumentSizeStack.Peek());
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
 
             var currentPosition = _streamWriter.Position;
@@ -733,17 +733,16 @@ namespace MongoDB.Bson.IO
 
         private void WriteNameHelper()
         {
-            string name;
             if (_context.ContextType == ContextType.Array)
             {
-                name = (_context.Index++).ToString();
+                var index = _context.Index++;
+                var nameBytes = ArrayElementNameAccelerator.Default.GetElementNameBytes(index);
+                _streamWriter.WriteCString(nameBytes);
             }
             else
             {
-                name = Name;
+                _streamWriter.WriteCString(Name);
             }
-
-            _streamWriter.WriteCString(name);
         }
     }
 }

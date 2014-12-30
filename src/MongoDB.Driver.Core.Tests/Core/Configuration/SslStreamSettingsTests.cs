@@ -14,11 +14,10 @@
 */
 
 using System;
-using System.Net.Sockets;
+using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
-using MongoDB.Driver.Core.Configuration;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -26,25 +25,176 @@ namespace MongoDB.Driver.Core.Configuration
     [TestFixture]
     public class SslStreamSettingsTests
     {
+        private static readonly SslStreamSettings __defaults = new SslStreamSettings();
+
         [Test]
-        public void Constructor_initializes_instance()
+        public void constructor_should_initialize_instance()
         {
             var subject = new SslStreamSettings();
+
+            subject.CheckCertificateRevocation.Should().BeTrue();
             subject.ClientCertificates.Should().BeEmpty();
-            subject.CheckCertificateRevocation.Should().Be(true);
             subject.ClientCertificateSelectionCallback.Should().BeNull();
             subject.EnabledSslProtocols.Should().Be(SslProtocols.Default);
             subject.ServerCertificateValidationCallback.Should().BeNull();
         }
 
         [Test]
-        public void With_returns_a_new_instance()
+        public void constructor_should_throw_when_clientCertificates_is_null()
         {
-            var subject1 = new SslStreamSettings();
-            var subject2 = subject1.With(checkCertificateRevocation: false);
-            subject2.Should().NotBeSameAs(subject1);
-            subject1.CheckCertificateRevocation.Should().BeTrue();
-            subject2.CheckCertificateRevocation.Should().BeFalse();
+            Action action = () => new SslStreamSettings(clientCertificates: null);
+
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("clientCertificates");
+        }
+
+        [Test]
+        public void constructor_with_checkCertificateRevocation_should_initialize_instance()
+        {
+            var checkCertificateRevocation = !__defaults.CheckCertificateRevocation;
+
+            var subject = new SslStreamSettings(checkCertificateRevocation: checkCertificateRevocation);
+
+            subject.CheckCertificateRevocation.Should().Be(checkCertificateRevocation);
+            subject.ClientCertificates.Should().Equal(__defaults.ClientCertificates);
+            subject.ClientCertificateSelectionCallback.Should().Be(__defaults.ClientCertificateSelectionCallback);
+            subject.EnabledSslProtocols.Should().Be(__defaults.EnabledSslProtocols);
+            subject.ServerCertificateValidationCallback.Should().Be(__defaults.ServerCertificateValidationCallback);
+        }
+
+        [Test]
+        public void constructor_with_clientCertificates_should_initialize_instance()
+        {
+            var clientCertificates = new[] { new X509Certificate() };
+
+            var subject = new SslStreamSettings(clientCertificates: clientCertificates);
+
+            subject.CheckCertificateRevocation.Should().Be(__defaults.CheckCertificateRevocation);
+            subject.ClientCertificates.Should().Equal(clientCertificates);
+            subject.ClientCertificateSelectionCallback.Should().Be(__defaults.ClientCertificateSelectionCallback);
+            subject.EnabledSslProtocols.Should().Be(__defaults.EnabledSslProtocols);
+            subject.ServerCertificateValidationCallback.Should().Be(__defaults.ServerCertificateValidationCallback);
+        }
+
+        [Test]
+        public void constructor_with_clientCertificateSelectionCallback_should_initialize_instance()
+        {
+            LocalCertificateSelectionCallback clientCertificateSelectionCallback = (s, t, l, r, a) => null;
+
+            var subject = new SslStreamSettings(clientCertificateSelectionCallback: clientCertificateSelectionCallback);
+
+            subject.CheckCertificateRevocation.Should().Be(__defaults.CheckCertificateRevocation);
+            subject.ClientCertificates.Should().Equal(__defaults.ClientCertificates);
+            subject.ClientCertificateSelectionCallback.Should().Be(clientCertificateSelectionCallback);
+            subject.EnabledSslProtocols.Should().Be(__defaults.EnabledSslProtocols);
+            subject.ServerCertificateValidationCallback.Should().Be(__defaults.ServerCertificateValidationCallback);
+        }
+
+        [Test]
+        public void constructor_with_enabledProtocols_should_initialize_instance()
+        {
+            var enabledProtocols = SslProtocols.Tls12;
+
+            var subject = new SslStreamSettings(enabledProtocols: enabledProtocols);
+
+            subject.CheckCertificateRevocation.Should().Be(__defaults.CheckCertificateRevocation);
+            subject.ClientCertificates.Should().Equal(__defaults.ClientCertificates);
+            subject.ClientCertificateSelectionCallback.Should().Be(__defaults.ClientCertificateSelectionCallback);
+            subject.EnabledSslProtocols.Should().Be(enabledProtocols);
+            subject.ServerCertificateValidationCallback.Should().Be(__defaults.ServerCertificateValidationCallback);
+        }
+
+        [Test]
+        public void constructor_with_serverCertificateValidationCallback_should_initialize_instance()
+        {
+            RemoteCertificateValidationCallback serverCertificateValidationCallback = (s, ce, ch, e) => false;
+
+            var subject = new SslStreamSettings(serverCertificateValidationCallback: serverCertificateValidationCallback);
+
+            subject.CheckCertificateRevocation.Should().Be(__defaults.CheckCertificateRevocation);
+            subject.ClientCertificates.Should().Equal(__defaults.ClientCertificates);
+            subject.ClientCertificateSelectionCallback.Should().Be(__defaults.ClientCertificateSelectionCallback);
+            subject.EnabledSslProtocols.Should().Be(__defaults.EnabledSslProtocols);
+            subject.ServerCertificateValidationCallback.Should().Be(serverCertificateValidationCallback);
+        }
+
+        [Test]
+        public void With_checkCertificateRevocation_should_return_expected_result()
+        {
+            var oldCheckCertificateRevocation = false;
+            var newCheckCertificateRevocation = true;
+            var subject = new SslStreamSettings(checkCertificateRevocation: oldCheckCertificateRevocation);
+
+            var result = subject.With(checkCertificateRevocation: newCheckCertificateRevocation);
+
+            result.CheckCertificateRevocation.Should().Be(newCheckCertificateRevocation);
+            result.ClientCertificates.Should().Equal(subject.ClientCertificates);
+            result.ClientCertificateSelectionCallback.Should().Be(subject.ClientCertificateSelectionCallback);
+            result.EnabledSslProtocols.Should().Be(subject.EnabledSslProtocols);
+            result.ServerCertificateValidationCallback.Should().Be(subject.ServerCertificateValidationCallback);
+        }
+
+        [Test]
+        public void With_clientCertificates_should_return_expected_result()
+        {
+            var oldClientCertificates = new[] { new X509Certificate() };
+            var newClientCertificates = new[] { new X509Certificate() };
+            var subject = new SslStreamSettings(clientCertificates: oldClientCertificates);
+
+            var result = subject.With(clientCertificates: newClientCertificates);
+
+            result.CheckCertificateRevocation.Should().Be(subject.CheckCertificateRevocation);
+            result.ClientCertificates.Should().Equal(newClientCertificates);
+            result.ClientCertificateSelectionCallback.Should().Be(subject.ClientCertificateSelectionCallback);
+            result.EnabledSslProtocols.Should().Be(subject.EnabledSslProtocols);
+            result.ServerCertificateValidationCallback.Should().Be(subject.ServerCertificateValidationCallback);
+        }
+
+        [Test]
+        public void With_clientCertificateSelectionCallback_should_return_expected_result()
+        {
+            LocalCertificateSelectionCallback oldClientCertificateSelectionCallback = (s, t, l, r, a) => null;
+            LocalCertificateSelectionCallback newClientCertificateSelectionCallback = (s, t, l, r, a) => null;
+            var subject = new SslStreamSettings(clientCertificateSelectionCallback: oldClientCertificateSelectionCallback);
+
+            var result = subject.With(clientCertificateSelectionCallback: newClientCertificateSelectionCallback);
+
+            result.CheckCertificateRevocation.Should().Be(subject.CheckCertificateRevocation);
+            result.ClientCertificates.Should().Equal(subject.ClientCertificates);
+            result.ClientCertificateSelectionCallback.Should().Be(newClientCertificateSelectionCallback);
+            result.EnabledSslProtocols.Should().Be(subject.EnabledSslProtocols);
+            result.ServerCertificateValidationCallback.Should().Be(subject.ServerCertificateValidationCallback);
+        }
+
+        [Test]
+        public void With_enabledProtocols_should_return_expected_result()
+        {
+            var oldEnabledProtocols = SslProtocols.Default;
+            var newEnabledProtocols = SslProtocols.Tls12;
+            var subject = new SslStreamSettings(enabledProtocols: oldEnabledProtocols);
+
+            var result = subject.With(enabledProtocols: newEnabledProtocols);
+
+            result.CheckCertificateRevocation.Should().Be(subject.CheckCertificateRevocation);
+            result.ClientCertificates.Should().Equal(subject.ClientCertificates);
+            result.ClientCertificateSelectionCallback.Should().Be(subject.ClientCertificateSelectionCallback);
+            result.EnabledSslProtocols.Should().Be(newEnabledProtocols);
+            result.ServerCertificateValidationCallback.Should().Be(subject.ServerCertificateValidationCallback);
+        }
+
+        [Test]
+        public void With_serverCertificateValidationCallback_should_return_expected_result()
+        {
+            RemoteCertificateValidationCallback oldServerCertificateValidationCallback = (s, ce, ch, e) => false;
+            RemoteCertificateValidationCallback newServerCertificateValidationCallback = (s, ce, ch, e) => false;
+            var subject = new SslStreamSettings(serverCertificateValidationCallback: oldServerCertificateValidationCallback);
+
+            var result = subject.With(serverCertificateValidationCallback: newServerCertificateValidationCallback);
+
+            result.CheckCertificateRevocation.Should().Be(subject.CheckCertificateRevocation);
+            result.ClientCertificates.Should().Equal(subject.ClientCertificates);
+            result.ClientCertificateSelectionCallback.Should().Be(subject.ClientCertificateSelectionCallback);
+            result.EnabledSslProtocols.Should().Be(subject.EnabledSslProtocols);
+            result.ServerCertificateValidationCallback.Should().Be(newServerCertificateValidationCallback);
         }
     }
 }

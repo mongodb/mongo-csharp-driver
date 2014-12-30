@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -61,7 +62,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestDWithExtraFields()
         {
             var json = "{ _id : 1, X : 2, Y : 3, Z : 4 }";
-            Assert.Throws<FileFormatException>(() => BsonSerializer.Deserialize<D>(json));
+            Assert.Throws<FormatException>(() => BsonSerializer.Deserialize<D>(json));
         }
 
         [Test]

@@ -70,7 +70,7 @@ namespace MongoDB.Bson.IO
                     else
                     {
                         buffer.UnRead(c);
-                        throw new FileFormatException(FormatMessage("Invalid JSON input", buffer, buffer.Position));
+                        throw new FormatException(FormatMessage("Invalid JSON input", buffer, buffer.Position));
                     }
             }
         }
@@ -349,7 +349,7 @@ namespace MongoDB.Bson.IO
                             }
                         }
                     case NumberState.Invalid:
-                        throw new FileFormatException(FormatMessage("Invalid JSON number", buffer, start));
+                        throw new FormatException(FormatMessage("Invalid JSON number", buffer, start));
                 }
             }
         }
@@ -413,7 +413,7 @@ namespace MongoDB.Bson.IO
                         var regex = new BsonRegularExpression(lexeme);
                         return new RegularExpressionJsonToken(lexeme, regex);
                     case RegularExpressionState.Invalid:
-                        throw new FileFormatException(FormatMessage("Invalid JSON regular expression", buffer, start));
+                        throw new FormatException(FormatMessage("Invalid JSON regular expression", buffer, start));
                 }
             }
         }
@@ -457,7 +457,7 @@ namespace MongoDB.Bson.IO
                                 if (c != -1)
                                 {
                                     var message = string.Format("Invalid escape sequence in JSON string '\\{0}'.", (char)c);
-                                    throw new FileFormatException(message);
+                                    throw new FormatException(message);
                                 }
                                 break;
                         }
@@ -476,7 +476,7 @@ namespace MongoDB.Bson.IO
                 }
                 if (c == -1)
                 {
-                    throw new FileFormatException(FormatMessage("End of file in JSON string.", buffer, start));
+                    throw new FormatException(FormatMessage("End of file in JSON string.", buffer, start));
                 }
             }
         }

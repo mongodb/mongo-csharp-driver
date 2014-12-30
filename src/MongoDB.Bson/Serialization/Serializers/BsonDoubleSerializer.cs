@@ -47,8 +47,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override BsonDouble DeserializeValue(BsonDeserializationContext context)
+        protected override BsonDouble DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             return new BsonDouble(bsonReader.ReadDouble());
@@ -58,8 +59,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, BsonDouble value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, BsonDouble value)
         {
             var bsonWriter = context.Writer;
             bsonWriter.WriteDouble(value.Value);

@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -30,11 +31,13 @@ namespace MongoDB.Driver
     public class MongoClientSettings : IEquatable<MongoClientSettings>
     {
         // private fields
+        private Action<ClusterBuilder> _clusterConfigurator;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
         private GuidRepresentation _guidRepresentation;
         private bool _ipv6;
+        private TimeSpan _localThreshold;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
@@ -43,7 +46,6 @@ namespace MongoDB.Driver
         private UTF8Encoding _readEncoding;
         private ReadPreference _readPreference;
         private string _replicaSetName;
-        private TimeSpan _secondaryAcceptableLatency;
         private List<MongoServerAddress> _servers;
         private TimeSpan _socketTimeout;
         private SslSettings _sslSettings;
@@ -70,6 +72,7 @@ namespace MongoDB.Driver
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _ipv6 = false;
+            _localThreshold = MongoDefaults.LocalThreshold;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
@@ -78,7 +81,6 @@ namespace MongoDB.Driver
             _readEncoding = null;
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
-            _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _socketTimeout = MongoDefaults.SocketTimeout;
             _sslSettings = null;
@@ -91,6 +93,19 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets the cluster configurator.
+        /// </summary>
+        public Action<ClusterBuilder> ClusterConfigurator
+        {
+            get { return _clusterConfigurator; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _clusterConfigurator = value;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the connection mode.
         /// </summary>
@@ -165,6 +180,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _ipv6 = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the local threshold.
+        /// </summary>
+        public TimeSpan LocalThreshold
+        {
+            get { return _localThreshold; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _localThreshold = value;
             }
         }
 
@@ -273,20 +301,6 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _replicaSetName = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the acceptable latency for considering a replica set member for inclusion in load balancing
-        /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
-        /// </summary>
-        public TimeSpan SecondaryAcceptableLatency
-        {
-            get { return _secondaryAcceptableLatency; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _secondaryAcceptableLatency = value;
             }
         }
 
@@ -500,7 +514,7 @@ namespace MongoDB.Driver
             clientSettings.ReadEncoding = null; // ReadEncoding must be provided in code
             clientSettings.ReadPreference = (url.ReadPreference == null) ? ReadPreference.Primary : url.ReadPreference;
             clientSettings.ReplicaSetName = url.ReplicaSetName;
-            clientSettings.SecondaryAcceptableLatency = url.SecondaryAcceptableLatency;
+            clientSettings.LocalThreshold = url.LocalThreshold;
             clientSettings.Servers = new List<MongoServerAddress>(url.Servers);
             clientSettings.SocketTimeout = url.SocketTimeout;
             clientSettings.SslSettings = null; // SSL settings must be provided in code
@@ -521,6 +535,7 @@ namespace MongoDB.Driver
         public MongoClientSettings Clone()
         {
             var clone = new MongoClientSettings();
+            clone._clusterConfigurator = _clusterConfigurator;
             clone._connectionMode = _connectionMode;
             clone._connectTimeout = _connectTimeout;
             clone._credentials = _credentials;
@@ -534,7 +549,7 @@ namespace MongoDB.Driver
             clone._readEncoding = _readEncoding;
             clone._readPreference = _readPreference;
             clone._replicaSetName = _replicaSetName;
-            clone._secondaryAcceptableLatency = _secondaryAcceptableLatency;
+            clone._localThreshold = _localThreshold;
             clone._servers = new List<MongoServerAddress>(_servers);
             clone._socketTimeout = _socketTimeout;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
@@ -571,6 +586,7 @@ namespace MongoDB.Driver
             if (object.ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
             var rhs = (MongoClientSettings)obj;
             return
+                object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                 _connectionMode == rhs._connectionMode &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials == rhs._credentials &&
@@ -584,7 +600,7 @@ namespace MongoDB.Driver
                 object.Equals(_readEncoding, rhs._readEncoding) &&
                 _readPreference == rhs._readPreference &&
                 _replicaSetName == rhs._replicaSetName &&
-                _secondaryAcceptableLatency == rhs._secondaryAcceptableLatency &&
+                _localThreshold == rhs._localThreshold &&
                 _servers.SequenceEqual(rhs._servers) &&
                 _socketTimeout == rhs._socketTimeout &&
                 _sslSettings == rhs._sslSettings &&
@@ -639,6 +655,7 @@ namespace MongoDB.Driver
             }
 
             return new Hasher()
+                .Hash(_clusterConfigurator)
                 .Hash(_connectionMode)
                 .Hash(_connectTimeout)
                 .Hash(_credentials)
@@ -652,7 +669,7 @@ namespace MongoDB.Driver
                 .Hash(_readEncoding)
                 .Hash(_readPreference)
                 .Hash(_replicaSetName)
-                .Hash(_secondaryAcceptableLatency)
+                .Hash(_localThreshold)
                 .HashElements(_servers)
                 .Hash(_socketTimeout)
                 .Hash(_sslSettings)
@@ -693,7 +710,7 @@ namespace MongoDB.Driver
             }
             sb.AppendFormat("ReadPreference={0};", _readPreference);
             sb.AppendFormat("ReplicaSetName={0};", _replicaSetName);
-            sb.AppendFormat("SecondaryAcceptableLatency={0};", _secondaryAcceptableLatency);
+            sb.AppendFormat("LocalThreshold={0};", _localThreshold);
             sb.AppendFormat("Servers={0};", string.Join(",", _servers.Select(s => s.ToString()).ToArray()));
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
             if (_sslSettings != null)

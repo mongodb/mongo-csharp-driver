@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -24,7 +25,7 @@ namespace MongoDB.Driver.Core.Clusters
     /// <summary>
     /// Represents the config of a replica set (as reported by one of the members of the replica set).
     /// </summary>
-    public class ReplicaSetConfig
+    public sealed class ReplicaSetConfig : IEquatable<ReplicaSetConfig>
     {
         #region static
         // static properties
@@ -77,18 +78,31 @@ namespace MongoDB.Driver.Core.Clusters
         // members
         public override bool Equals(object obj)
         {
-            if (obj == null || obj.GetType() != typeof(ReplicaSetConfig)) { return false; }
-            var rhs = (ReplicaSetConfig)obj;
+            return Equals(obj as ReplicaSetConfig);
+        }
+
+        public bool Equals(ReplicaSetConfig other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
             return
-                _members.SequenceEqual(rhs._members) &&
-                _name.Equals(rhs._name) &&
-                _primary.Equals(rhs._primary) &&
-                _version.Equals(rhs._version);
+                _members.SequenceEqual(other._members) &&
+                object.Equals(_name, other._name) &&
+                object.Equals(_primary, other._primary) &&
+                _version.Equals(other._version);
         }
 
         public override int GetHashCode()
         {
-            return new Hasher().HashElements(_members).Hash(_name).Hash(_primary).Hash(_version).GetHashCode();
+            return new Hasher()
+                .HashElements(_members)
+                .Hash(_name)
+                .Hash(_primary)
+                .Hash(_version)
+                .GetHashCode();
         }
     }
 }

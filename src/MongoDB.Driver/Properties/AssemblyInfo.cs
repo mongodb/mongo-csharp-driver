@@ -31,4 +31,3 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 [assembly: InternalsVisibleTo("MongoDB.Driver.Tests")]
-[assembly: InternalsVisibleTo("MongoDB.Driver.FunctionalTests")]

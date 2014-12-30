@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp103
             var database = Configuration.TestDatabase;
             var collection = Configuration.TestCollection;
             collection.RemoveAll();
-            using (database.RequestStart())
+            using (server.RequestStart())
             {
                 for (int i = 0; i < 1; i++)
                 {

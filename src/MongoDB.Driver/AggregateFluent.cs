@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -25,35 +24,32 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Fluent interface for aggregate.
+    /// Implementation of IAggregateFluent
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class AggregateFluent<TDocument, TResult> : IAsyncCursorSource<TResult>
+    public class AggregateFluent<TDocument, TResult> : IOrderedAggregateFluent<TDocument, TResult>
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
         private readonly AggregateOptions _options;
-        private readonly List<object> _pipeline;
+        private readonly IList<object> _pipeline;
         private readonly IBsonSerializer<TResult> _resultSerializer;
-        private readonly Func<object, BsonDocument> _toBsonDocument;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateFluent{TDocument, TResult}" /> class.
+        /// Initializes a new instance of the <see cref="AggregateFluent{TDocument, TResult}"/> class.
         /// </summary>
         /// <param name="collection">The collection.</param>
-        /// <param name="toBsonDocument">To bson document.</param>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="options">The options.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        public AggregateFluent(IMongoCollection<TDocument> collection, Func<object, BsonDocument> toBsonDocument, List<object> pipeline, AggregateOptions options, IBsonSerializer<TResult> resultSerializer)
+        public AggregateFluent(IMongoCollection<TDocument> collection, IEnumerable<object> pipeline, AggregateOptions options, IBsonSerializer<TResult> resultSerializer)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
-            _toBsonDocument = Ensure.IsNotNull(toBsonDocument, "toBsonDocument");
-            _pipeline = Ensure.IsNotNull(pipeline, "pipeline");
+            _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
             _options = Ensure.IsNotNull(options, "options");
-            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            _resultSerializer = resultSerializer;
         }
 
         // properties
@@ -91,11 +87,11 @@ namespace MongoDB.Driver
 
         // methods
         /// <summary>
-        /// Appends the specified stage.
+        /// Appends the stage.
         /// </summary>
         /// <param name="stage">The stage.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> AppendStage(object stage)
+        public IAggregateFluent<TDocument, TResult> AppendStage(object stage)
         {
             _pipeline.Add(stage);
             return this;
@@ -106,19 +102,34 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="geoNear">The geo near.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> GeoNear(object geoNear)
+        public IAggregateFluent<TDocument, TResult> GeoNear(object geoNear)
         {
-            return AppendStage(new BsonDocument("$geoNear", _toBsonDocument(geoNear)));
+            return AppendStage(new BsonDocument("$geoNear", ConvertToBsonDocument(geoNear)));
         }
 
         /// <summary>
         /// Groups the specified group.
         /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="group">The group.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Group(object group)
+        public IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group)
         {
-            return AppendStage(new BsonDocument("$group", _toBsonDocument(group)));
+            return Group<TNewResult>(group, null);
+        }
+
+        /// <summary>
+        /// Groups the specified group.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="group">The group.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <returns></returns>
+        public IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group, IBsonSerializer<TNewResult> resultSerializer)
+        {
+            AppendStage(new BsonDocument("$group", ConvertToBsonDocument(group)));
+
+            return CloneWithNewResultType<TNewResult>(resultSerializer);
         }
 
         /// <summary>
@@ -126,29 +137,31 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="limit">The limit.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Limit(int limit)
+        public IAggregateFluent<TDocument, TResult> Limit(int limit)
         {
             return AppendStage(new BsonDocument("$limit", limit));
         }
 
         /// <summary>
-        /// Matches the specified match.
+        /// Matches the specified filter.
         /// </summary>
-        /// <param name="match">The match.</param>
+        /// <param name="filter">The filter.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Match(object match)
+        public IAggregateFluent<TDocument, TResult> Match(object filter)
         {
-            return AppendStage(new BsonDocument("$match", _toBsonDocument(match)));
+            return AppendStage(new BsonDocument("$match", ConvertFilterToBsonDocument(filter)));
         }
 
         /// <summary>
-        /// Outs the specified collection name.
+        /// Outs the asynchronous.
         /// </summary>
         /// <param name="collectionName">Name of the collection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Out(string collectionName)
+        public Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken)
         {
-            return AppendStage(new BsonDocument("$out", collectionName));
+            AppendStage(new BsonDocument("$out", collectionName));
+            return ToCursorAsync(cancellationToken);
         }
 
         /// <summary>
@@ -157,7 +170,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="project">The project.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project)
+        public IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project)
         {
             return Project<TNewResult>(project, null);
         }
@@ -169,9 +182,9 @@ namespace MongoDB.Driver
         /// <param name="project">The project.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project, IBsonSerializer<TNewResult> resultSerializer)
+        public IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project, IBsonSerializer<TNewResult> resultSerializer)
         {
-            AppendStage(new BsonDocument("$project", _toBsonDocument(project)));
+            AppendStage(new BsonDocument("$project", ConvertToBsonDocument(project)));
 
             return CloneWithNewResultType<TNewResult>(resultSerializer);
         }
@@ -181,9 +194,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="redact">The redact.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Redact(object redact)
+        public IAggregateFluent<TDocument, TResult> Redact(object redact)
         {
-            return AppendStage(new BsonDocument("$redact", _toBsonDocument(redact)));
+            return AppendStage(new BsonDocument("$redact", ConvertToBsonDocument(redact)));
         }
 
         /// <summary>
@@ -191,7 +204,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="skip">The skip.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Skip(int skip)
+        public IAggregateFluent<TDocument, TResult> Skip(int skip)
         {
             return AppendStage(new BsonDocument("$skip", skip));
         }
@@ -201,9 +214,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sort">The sort.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TResult> Sort(object sort)
+        public IAggregateFluent<TDocument, TResult> Sort(object sort)
         {
-            return AppendStage(new BsonDocument("$sort", _toBsonDocument(sort)));
+            return AppendStage(new BsonDocument("$sort", ConvertToBsonDocument(sort)));
         }
 
         /// <summary>
@@ -212,7 +225,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName)
+        public IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName)
         {
             return Unwind<TNewResult>(fieldName, null);
         }
@@ -224,7 +237,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <returns></returns>
-        public AggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer)
+        public IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer)
         {
             AppendStage(new BsonDocument("$unwind", fieldName));
             return CloneWithNewResultType<TNewResult>(resultSerializer);
@@ -248,117 +261,19 @@ namespace MongoDB.Driver
             return _collection.AggregateAsync(_pipeline, options, cancellationToken);
         }
 
-        private AggregateFluent<TDocument, TNewResult> CloneWithNewResultType<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
+        private IAggregateFluent<TDocument, TNewResult> CloneWithNewResultType<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
         {
-            return new AggregateFluent<TDocument, TNewResult>(_collection, _toBsonDocument, _pipeline, _options, resultSerializer);
-        }
-    }
-
-    /// <summary>
-    /// Extension methods for <see cref="AggregateFluent{TDocument, TResult}"/>
-    /// </summary>
-    public static class AggregateFluentExtensionMethods
-    {
-        /// <summary>
-        /// Firsts the asynchronous.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
-        public async static Task<TResult> FirstAsync<TDocument, TResult>(this AggregateFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(source, "source");
-
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken))
-                {
-                    return cursor.Current.First();
-                }
-                else
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
-            }
+            return new AggregateFluent<TDocument, TNewResult>(_collection, _pipeline, _options, resultSerializer);
         }
 
-        /// <summary>
-        /// Firsts the or default asynchronous.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this AggregateFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        private BsonDocument ConvertToBsonDocument(object document)
         {
-            Ensure.IsNotNull(source, "source");
-
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken))
-                {
-                    return cursor.Current.FirstOrDefault();
-                }
-                else
-                {
-                    return default(TResult);
-                }
-            }
+            return BsonDocumentHelper.ToBsonDocument(_collection.Settings.SerializerRegistry, document);
         }
 
-        /// <summary>
-        /// Singles the asynchronous.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
-        public async static Task<TResult> SingleAsync<TDocument, TResult>(this AggregateFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        private BsonDocument ConvertFilterToBsonDocument(object filter)
         {
-            Ensure.IsNotNull(source, "source");
-
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken))
-                {
-                    return cursor.Current.Single();
-                }
-                else
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Singles the or default asynchronous.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this AggregateFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(source, "source");
-
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken))
-                {
-                    return cursor.Current.SingleOrDefault();
-                }
-                else
-                {
-                    return default(TResult);
-                }
-            }
+            return BsonDocumentHelper.FilterToBsonDocument<TResult>(_collection.Settings.SerializerRegistry, filter);
         }
     }
 }

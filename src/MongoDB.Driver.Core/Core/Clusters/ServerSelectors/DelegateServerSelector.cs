@@ -33,5 +33,10 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
             return _selector(cluster, servers);
         }
+
+        public override string ToString()
+        {
+            return "DelegateServerSelector";
+        }
     }
 }

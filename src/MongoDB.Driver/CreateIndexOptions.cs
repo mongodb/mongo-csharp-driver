@@ -34,6 +34,7 @@ namespace MongoDB.Driver
         private string _name;
         private bool? _sparse;
         private int? _sphereIndexVersion;
+        private object _storageEngine;
         private int? _textIndexVersion;
         private bool? _unique;
         private int? _version;
@@ -140,6 +141,15 @@ namespace MongoDB.Driver
         {
             get { return _sphereIndexVersion; }
             set { _sphereIndexVersion = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the storage engine options.
+        /// </summary>
+        public object StorageEngine
+        {
+            get { return _storageEngine; }
+            set { _storageEngine = value; }
         }
 
         /// <summary>

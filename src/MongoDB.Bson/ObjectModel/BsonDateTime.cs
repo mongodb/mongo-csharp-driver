@@ -33,7 +33,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">A DateTime.</param>
         public BsonDateTime(DateTime value)
-            : base(BsonType.DateTime)
         {
             _millisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(value);
         }
@@ -43,12 +42,19 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="millisecondsSinceEpoch">Milliseconds since Unix Epoch.</param>
         public BsonDateTime(long millisecondsSinceEpoch)
-            : base(BsonType.DateTime)
         {
             _millisecondsSinceEpoch = millisecondsSinceEpoch;
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.DateTime; }
+        }
+
         /// <summary>
         /// Gets whether this BsonDateTime is a valid .NET DateTime.
         /// </summary>

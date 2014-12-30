@@ -33,12 +33,19 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value.</param>
         public BsonInt64(long value)
-            : base(BsonType.Int64)
         {
             _value = value;
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Int64; }
+        }
+
         /// <summary>
         /// Gets the BsonInt64 as a long.
         /// </summary>

@@ -42,8 +42,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override TBsonValue Deserialize(BsonDeserializationContext context)
+        public override TBsonValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -55,7 +56,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             // handle BSON null for backward compatibility with existing data (new data would have _csharpnull)
-            if (bsonType == BsonType.Null && (context.NominalType != typeof(BsonValue) && context.NominalType != typeof(BsonNull)))
+            if (bsonType == BsonType.Null && (args.NominalType != typeof(BsonValue) && args.NominalType != typeof(BsonNull)))
             {
                 bsonReader.ReadNull();
                 return null;
@@ -68,8 +69,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, TBsonValue value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TBsonValue value)
         {
             if (value == null)
             {
@@ -85,7 +87,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // private methods
-        private bool IsCSharpNullRepresentation(BsonReader bsonReader)
+        private bool IsCSharpNullRepresentation(IBsonReader bsonReader)
         {
             var bookmark = bsonReader.GetBookmark();
             bsonReader.ReadStartDocument();

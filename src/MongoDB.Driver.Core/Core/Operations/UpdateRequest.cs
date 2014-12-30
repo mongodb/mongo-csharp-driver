@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Operations
     public sealed class UpdateRequest : WriteRequest
     {
         // fields
-        private readonly BsonDocument _criteria;
+        private readonly BsonDocument _filter;
         private bool _isMulti;
         private bool _isUpsert;
         private readonly BsonDocument _update;
@@ -35,23 +35,23 @@ namespace MongoDB.Driver.Core.Operations
         /// Initializes a new instance of the <see cref="UpdateRequest" /> class.
         /// </summary>
         /// <param name="updateType">The type.</param>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
-        public UpdateRequest(UpdateType updateType, BsonDocument criteria, BsonDocument update)
+        public UpdateRequest(UpdateType updateType, BsonDocument filter, BsonDocument update)
             : base(WriteRequestType.Update)
         {
             _updateType = updateType;
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _filter = Ensure.IsNotNull(filter, "filter");
             _update = Ensure.IsNotNull(update, "update");
         }
 
         // properties
         /// <summary>
-        /// Gets or sets the criteria.
+        /// Gets or sets the filter.
         /// </summary>
-        public BsonDocument Criteria
+        public BsonDocument Filter
         {
-            get { return _criteria; }
+            get { return _filter; }
         }
 
         /// <summary>

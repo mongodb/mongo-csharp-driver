@@ -95,11 +95,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
 
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
                 var command = CreateCommand();
                 var operation = new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                var result = await operation.ExecuteAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
 
                 var cursors = new List<AsyncCursor<TDocument>>();
 
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
                             var bsonDocument = (BsonDocument)v;
                             using (var reader = new BsonDocumentReader(bsonDocument))
                             {
-                                var context = BsonDeserializationContext.CreateRoot<TDocument>(reader);
+                                var context = BsonDeserializationContext.CreateRoot(reader);
                                 var document = _serializer.Deserialize(context);
                                 return document;
                             }
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
                         .ToList();
 
                     var cursor = new AsyncCursor<TDocument>(
-                        connectionSource.Fork(),
+                        channelSource.Fork(),
                         _collectionNamespace,
                         command,
                         firstBatch,

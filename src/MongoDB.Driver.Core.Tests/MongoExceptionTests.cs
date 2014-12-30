@@ -14,39 +14,51 @@
 */
 
 using System;
-using MongoDB.Driver.Core.Clusters;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
 using NUnit.Framework;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
 
 namespace MongoDB.Driver
 {
     [TestFixture]
     public class MongoExceptionTests
     {
+        private Exception _innerException = new Exception("inner");
+        private string _message = "message";
+
         [Test]
-        public void Constructor_should_work()
+        public void constructor_should_initialize_subject()
         {
-            var innerException = new Exception("inner");
-            var exception = new MongoException("message", innerException);
-            exception.Message.Should().Be("message");
-            exception.InnerException.Message.Should().Be("inner");
+            var subject = new MongoException(_message);
+
+            subject.Message.Should().BeSameAs(_message);
+            subject.InnerException.Should().BeNull();
+        }
+
+        [Test]
+        public void constructor_with_innerException_should_initialize_subject()
+        {
+            var subject = new MongoException(_message, _innerException);
+
+            subject.Message.Should().BeSameAs(_message);
+            subject.InnerException.Should().BeSameAs(_innerException);
         }
 
         [Test]
         public void Serialization_should_work()
         {
-            var innerException = new Exception("inner");
-            var exception = new MongoException("message", innerException);
+            var subject = new MongoException(_message, _innerException);
+
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
-                formatter.Serialize(stream, exception);
+                formatter.Serialize(stream, subject);
                 stream.Position = 0;
                 var rehydrated = (MongoException)formatter.Deserialize(stream);
-                rehydrated.Message.Should().Be("message");
-                rehydrated.InnerException.Message.Should().Be("inner");
+
+                rehydrated.Message.Should().Be(subject.Message);
+                rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
             }
         }
     }

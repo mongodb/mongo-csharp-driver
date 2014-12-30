@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
 {
@@ -22,15 +23,15 @@ namespace MongoDB.Driver
     /// Thrown when a duplicate key is inserted into a collection.
     /// </summary>
     [Serializable]
-    public class MongoDuplicateKeyException : WriteConcernException
+    public class MongoDuplicateKeyException : MongoWriteConcernException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoDuplicateKeyException"/> class.
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="commandResult">The command result.</param>
-        public MongoDuplicateKeyException(string message, WriteConcernResult commandResult)
-            : base(message, commandResult)
+        public MongoDuplicateKeyException(ConnectionId connectionId, string message, WriteConcernResult commandResult)
+            : base(connectionId, message, commandResult)
         {
         }
         
@@ -42,12 +43,6 @@ namespace MongoDB.Driver
         public MongoDuplicateKeyException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-        }
-
-        // methods
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
         }
     }
 }

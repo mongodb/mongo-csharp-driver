@@ -45,5 +45,10 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 x.Type == ServerType.ShardRouter ||
                 x.Type == ServerType.Standalone);
         }
+
+        public override string ToString()
+        {
+            return "WritableServerSelector";
+        }
     }
 }

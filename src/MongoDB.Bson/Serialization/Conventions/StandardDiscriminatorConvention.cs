@@ -83,7 +83,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="bsonReader">The reader.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <returns>The actual type.</returns>
-        public Type GetActualType(BsonReader bsonReader, Type nominalType)
+        public Type GetActualType(IBsonReader bsonReader, Type nominalType)
         {
             // the BsonReader is sitting at the value whose actual type needs to be found
             var bsonType = bsonReader.GetCurrentBsonType();
@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                     var actualType = nominalType;
                     if (bsonReader.FindElement(_elementName))
                     {
-                        var context = BsonDeserializationContext.CreateRoot<BsonValue>(bsonReader);
+                        var context = BsonDeserializationContext.CreateRoot(bsonReader);
                         var discriminator = BsonValueSerializer.Instance.Deserialize(context);
                         if (discriminator.IsBsonArray)
                         {

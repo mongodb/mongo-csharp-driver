@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -64,8 +64,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override TItem[,] DeserializeValue(BsonDeserializationContext context)
+        protected override TItem[,] DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             EnsureBsonTypeEquals(bsonReader, BsonType.Array);
@@ -78,7 +79,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var innerList = new List<TItem>();
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
-                    innerList.Add(context.DeserializeWithChildContext(_itemSerializer));
+                    innerList.Add(_itemSerializer.Deserialize(context));
                 }
                 bsonReader.ReadEndArray();
                 outerList.Add(innerList);
@@ -95,7 +96,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 if (innerList.Count != length2)
                 {
                     var message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", i, innerList.Count, length2);
-                    throw new FileFormatException(message);
+                    throw new FormatException(message);
                 }
                 for (int j = 0; j < length2; j++)
                 {
@@ -110,8 +111,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, TItem[,] value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TItem[,] value)
         {
             var bsonWriter = context.Writer;
 
@@ -124,7 +126,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 bsonWriter.WriteStartArray();
                 for (int j = 0; j < length2; j++)
                 {
-                    context.SerializeWithChildContext(_itemSerializer, value[i, j]);
+                    _itemSerializer.Serialize(context, value[i, j]);
                 }
                 bsonWriter.WriteEndArray();
             }

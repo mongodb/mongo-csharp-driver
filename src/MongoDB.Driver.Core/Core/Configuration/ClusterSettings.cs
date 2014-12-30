@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -29,32 +30,35 @@ namespace MongoDB.Driver.Core.Configuration
     {
         #region static
         // static fields
-        private readonly IReadOnlyList<EndPoint> __defaultEndPoints = new EndPoint[] { new DnsEndPoint("localhost", 27017) };
+        private static readonly IReadOnlyList<EndPoint> __defaultEndPoints = new EndPoint[] { new DnsEndPoint("localhost", 27017) };
         #endregion
 
         // fields
         private readonly ClusterConnectionMode _connectionMode;
         private readonly IReadOnlyList<EndPoint> _endPoints;
+        private readonly int _maxServerSelectionWaitQueueSize;
         private readonly string _replicaSetName;
         private readonly TimeSpan _serverSelectionTimeout;
+        private readonly IServerSelector _preServerSelector;
+        private readonly IServerSelector _postServerSelector;
 
         // constructors
-        public ClusterSettings()
+        public ClusterSettings(
+            Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
+            Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
+            Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
+            Optional<string> replicaSetName = default(Optional<string>),
+            Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
+            Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
+            Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>))
         {
-            _endPoints = __defaultEndPoints;
-            _serverSelectionTimeout = TimeSpan.FromSeconds(30);
-        }
-
-        internal ClusterSettings(
-            ClusterConnectionMode connectionMode,
-            IReadOnlyList<EndPoint> endPoints,
-            string replicaSetName,
-            TimeSpan serverSelectionTimeout)
-        {
-            _connectionMode = connectionMode;
-            _endPoints = endPoints;
-            _replicaSetName = replicaSetName;
-            _serverSelectionTimeout = serverSelectionTimeout;
+            _connectionMode = connectionMode.WithDefault(ClusterConnectionMode.Automatic);
+            _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), "endPoints").ToList();
+            _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), "maxServerSelectionWaitQueueSize");
+            _replicaSetName = replicaSetName.WithDefault(null);
+            _serverSelectionTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), "serverSelectionTimeout");
+            _preServerSelector = preServerSelector.WithDefault(null);
+            _postServerSelector = postServerSelector.WithDefault(null);
         }
 
         // properties
@@ -68,6 +72,11 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _endPoints; }
         }
 
+        public int MaxServerSelectionWaitQueueSize
+        {
+            get { return _maxServerSelectionWaitQueueSize; }
+        }
+
         public string ReplicaSetName
         {
             get { return _replicaSetName; }
@@ -78,55 +87,34 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _serverSelectionTimeout; }
         }
 
+        public IServerSelector PreServerSelector
+        {
+            get { return _preServerSelector; }
+        }
+
+        public IServerSelector PostServerSelector
+        {
+            get { return _postServerSelector; }
+        }
+
         // methods
-        public ClusterSettings WithConnectionMode(ClusterConnectionMode value)
+        public ClusterSettings With(
+            Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
+            Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
+            Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
+            Optional<string> replicaSetName = default(Optional<string>),
+            Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
+            Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
+            Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>))
         {
-            return (_connectionMode == value) ? this : new Builder(this) { _connectionMode = value }.Build();
-        }
-
-        public ClusterSettings WithEndPoints(IEnumerable<EndPoint> value)
-        {
-            var list = value.ToList();
-            return EndPointHelper.SequenceEquals(_endPoints, list) ? this : new Builder(this) { _endPoints = list }.Build();
-        }
-
-        public ClusterSettings WithReplicaSetName(string value)
-        {
-            return object.Equals(_replicaSetName, value) ? this : new Builder(this) { _replicaSetName = value }.Build();
-        }
-
-        public ClusterSettings WithServerSelectionTimeout(TimeSpan value)
-        {
-            return (_serverSelectionTimeout == value) ? this : new Builder(this) { _serverSelectionTimeout = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public ClusterConnectionMode _connectionMode;
-            public IReadOnlyList<EndPoint> _endPoints;
-            public string _replicaSetName;
-            public TimeSpan _serverSelectionTimeout;
-
-            // constructors
-            public Builder(ClusterSettings other)
-            {
-                _connectionMode = other._connectionMode;
-                _endPoints = other._endPoints;
-                _replicaSetName = other._replicaSetName;
-                _serverSelectionTimeout = other._serverSelectionTimeout;
-            }
-
-            // methods
-            public ClusterSettings Build()
-            {
-                return new ClusterSettings(
-                    _connectionMode,
-                    _endPoints,
-                    _replicaSetName,
-                    _serverSelectionTimeout);
-            }
+            return new ClusterSettings(
+                connectionMode: connectionMode.WithDefault(_connectionMode),
+                endPoints: Optional.Create(endPoints.WithDefault(_endPoints)),
+                maxServerSelectionWaitQueueSize: maxServerSelectionWaitQueueSize.WithDefault(_maxServerSelectionWaitQueueSize),
+                replicaSetName: replicaSetName.WithDefault(_replicaSetName),
+                serverSelectionTimeout: serverSelectionTimeout.WithDefault(_serverSelectionTimeout),
+                preServerSelector: Optional.Create(preServerSelector.WithDefault(_preServerSelector)),
+                postServerSelector: Optional.Create(postServerSelector.WithDefault(_postServerSelector)));
         }
     }
 }

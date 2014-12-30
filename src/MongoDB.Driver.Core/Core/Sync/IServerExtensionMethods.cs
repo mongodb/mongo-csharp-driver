@@ -15,6 +15,7 @@
 
 using System;
 using System.Threading;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -24,10 +25,10 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
     public static class IServerExtensionMethods
     {
         // static methods
-        public static IConnectionHandle GetConnection(this IServer server, CancellationToken cancellationToken = default(CancellationToken))
+        public static IChannelHandle GetChannel(this IServer server, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(server, "server");
-            return server.GetConnectionAsync(cancellationToken).GetAwaiter().GetResult();
+            return server.GetChannelAsync(cancellationToken).GetAwaiter().GetResult();
         }
     }
 }

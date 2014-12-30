@@ -79,8 +79,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override sbyte Deserialize(BsonDeserializationContext context)
+        public override sbyte Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             sbyte value;
@@ -93,7 +94,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var bytes = bsonReader.ReadBytes();
                     if (bytes.Length != 1)
                     {
-                        throw new FileFormatException("Binary data for SByte must be exactly one byte long.");
+                        throw new FormatException("Binary data for SByte must be exactly one byte long.");
                     }
                     value = (sbyte)bytes[0];
                     break;
@@ -126,7 +127,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (lostData)
             {
                 var message = string.Format("Data loss occurred when trying to convert from {0} to SByte.", bsonType);
-                throw new FileFormatException(message);
+                throw new FormatException(message);
             }
 
             return value;
@@ -136,8 +137,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, sbyte value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, sbyte value)
         {
             var bsonWriter = context.Writer;
 

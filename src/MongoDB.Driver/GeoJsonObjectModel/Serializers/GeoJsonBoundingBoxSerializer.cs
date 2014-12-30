@@ -36,12 +36,13 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        protected override GeoJsonBoundingBox<TCoordinates> DeserializeValue(BsonDeserializationContext context)
+        protected override GeoJsonBoundingBox<TCoordinates> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
-            var flattenedArray = BsonArraySerializer.Instance.Deserialize(context.CreateChild(typeof(BsonArray)));
+            var flattenedArray = BsonArraySerializer.Instance.Deserialize(context);
             if ((flattenedArray.Count % 2) != 0)
             {
                 throw new FormatException("Bounding box array does not have an even number of values.");
@@ -57,12 +58,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
 
             using (var documentReader = new BsonDocumentReader(document))
             {
-                var documentContext = BsonDeserializationContext.CreateRoot(documentReader, typeof(BsonDocument));
+                var documentContext = BsonDeserializationContext.CreateRoot(documentReader);
                 documentReader.ReadStartDocument();
                 documentReader.ReadName("min");
-                var min = documentContext.DeserializeWithChildContext(_coordinatesSerializer);
+                var min = _coordinatesSerializer.Deserialize(documentContext);
                 documentReader.ReadName("max");
-                var max = documentContext.DeserializeWithChildContext(_coordinatesSerializer);
+                var max = _coordinatesSerializer.Deserialize(documentContext);
                 documentReader.ReadEndDocument();
 
                 return new GeoJsonBoundingBox<TCoordinates>(min, max);
@@ -73,8 +74,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJsonBoundingBox<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, GeoJsonBoundingBox<TCoordinates> value)
         {
             var bsonWriter = context.Writer;
 
@@ -82,12 +84,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             var document = new BsonDocument();
             using (var documentWriter = new BsonDocumentWriter(document))
             {
-                var documentContext = BsonSerializationContext.CreateRoot(documentWriter, typeof(BsonDocument));
+                var documentContext = BsonSerializationContext.CreateRoot(documentWriter);
                 documentWriter.WriteStartDocument();
                 documentWriter.WriteName("min");
-                documentContext.SerializeWithChildContext(_coordinatesSerializer, value.Min);
+                _coordinatesSerializer.Serialize(documentContext, value.Min);
                 documentWriter.WriteName("max");
-                documentContext.SerializeWithChildContext(_coordinatesSerializer, value.Max);
+                _coordinatesSerializer.Serialize(documentContext, value.Max);
                 documentWriter.WriteEndDocument();
             }
 
@@ -95,7 +97,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             flattenedArray.AddRange(document["min"].AsBsonArray);
             flattenedArray.AddRange(document["max"].AsBsonArray);
 
-            context.SerializeWithChildContext(BsonArraySerializer.Instance, flattenedArray);
+            BsonArraySerializer.Instance.Serialize(context, flattenedArray);
         }
     }
 }

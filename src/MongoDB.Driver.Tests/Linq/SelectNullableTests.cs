@@ -54,16 +54,9 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        [Platform(Exclude = "Mono", Reason = "Does not pass on Mono 3.2.5. Excluding for now.")]
         public void TestWhereEEqualsA()
         {
-            if(TestEnvironment.IsMono)
-            {
-                // This doesn't pass on Mono 3.2.5. Not sure why, but
-                // we are rewriting most of our linq provider, so 
-                // it's not essential to fix this yet.
-                return;
-            }
-
             var query = from c in _collection.AsQueryable<C>()
                         where c.E == E.A
                         select c;

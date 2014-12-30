@@ -13,37 +13,35 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.SyncExtensionMethods
 {
     public static class IReadBindingExtensionMethods
     {
         // static methods
-        public static IConnectionSourceHandle GetReadConnectionSource(this IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
+        public static IChannelSourceHandle GetReadChannelSource(this IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return binding.GetReadConnectionSourceAsync(cancellationToken).GetAwaiter().GetResult();
+            return binding.GetReadChannelSourceAsync(cancellationToken).GetAwaiter().GetResult();
         }
     }
 
     public static class IWriteBindingExtensionMethods
     {
         // static methods
-        public static IConnectionSourceHandle GetWriteConnectionSource(this IWriteBinding binding, CancellationToken cancellationToken = default(CancellationToken))
+        public static IChannelSourceHandle GetWriteChannelSource(this IWriteBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return binding.GetWriteConnectionSourceAsync(cancellationToken).GetAwaiter().GetResult();
+            return binding.GetWriteChannelSourceAsync(cancellationToken).GetAwaiter().GetResult();
         }
     }
 
-    public static class IConnectionSourceExtensionMethods
+    public static class IChannelSourceExtensionMethods
     {
         // static methods
-        public static IConnectionHandle GetConnection(this IConnectionSource connectionSource, CancellationToken cancellationToken = default(CancellationToken))
+        public static IChannelHandle GetChannel(this IChannelSource channelSource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return connectionSource.GetConnectionAsync(cancellationToken).GetAwaiter().GetResult();
+            return channelSource.GetChannelAsync(cancellationToken).GetAwaiter().GetResult();
         }
     }
 }

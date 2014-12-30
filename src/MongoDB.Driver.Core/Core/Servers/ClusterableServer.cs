@@ -20,8 +20,10 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Async;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -39,6 +41,11 @@ namespace MongoDB.Driver.Core.Servers
     /// </summary>
     internal sealed class ClusterableServer : IClusterableServer
     {
+        #region static
+        // static fields
+        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(10);
+        #endregion
+
         // fields
         private readonly ExponentiallyWeightedMovingAverage _averageRoundTripTimeCalculator = new ExponentiallyWeightedMovingAverage(0.2);
         private readonly ServerDescription _baseDescription;
@@ -48,7 +55,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly CancellationTokenSource _heartbeatCancellationTokenSource = new CancellationTokenSource();
         private readonly IConnectionFactory _heartbeatConnectionFactory;
         private IConnection _heartbeatConnection;
-        private InterruptibleDelay _heartbeatDelay;
+        private HeartbeatDelay _heartbeatDelay;
         private readonly IServerListener _listener;
         private readonly ServerId _serverId;
         private readonly ServerSettings _settings;
@@ -58,13 +65,13 @@ namespace MongoDB.Driver.Core.Servers
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // constructors
-        public ClusterableServer(ServerSettings settings, ClusterId clusterId, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory hearbeatConnectionFactory, IServerListener listener)
+        public ClusterableServer(ServerSettings settings, ClusterId clusterId, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
         {
             _settings = Ensure.IsNotNull(settings, "settings"); ;
             Ensure.IsNotNull(clusterId, "clusterId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
-            _heartbeatConnectionFactory = Ensure.IsNotNull(hearbeatConnectionFactory, "hearbeatConnectionFactory");
+            _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
             _listener = listener;
 
             _serverId = new ServerId(clusterId, endPoint);
@@ -99,7 +106,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 if (_listener != null)
                 {
-                    _listener.ServerBeforeOpening(_serverId, _settings);
+                    _listener.ServerBeforeOpening(new ServerBeforeOpeningEvent(_serverId, _settings));
                 }
 
                 var stopwatch = Stopwatch.StartNew();
@@ -109,9 +116,13 @@ namespace MongoDB.Driver.Core.Servers
                     HeartbeatAsync,
                     ct =>
                     {
-                        var newDelay = new InterruptibleDelay(metronome.GetNextTickDelay(), ct);
-                        Interlocked.Exchange(ref _heartbeatDelay, newDelay);
-                        return newDelay.Task;
+                        var newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), __minHeartbeatInterval);
+                        var oldHeartbeatDelay = Interlocked.Exchange(ref _heartbeatDelay, newHeartbeatDelay);
+                        if (oldHeartbeatDelay != null)
+                        {
+                            oldHeartbeatDelay.Dispose();
+                        }
+                        return newHeartbeatDelay.Task;
                     },
                     _heartbeatCancellationTokenSource.Token)
                     .HandleUnobservedException(ex => { }); // TODO: do we need to do anything here?
@@ -119,7 +130,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 if (_listener != null)
                 {
-                    _listener.ServerAfterOpening(_serverId, _settings, stopwatch.Elapsed);
+                    _listener.ServerAfterOpening(new ServerAfterOpeningEvent(_serverId, _settings, stopwatch.Elapsed));
                 }
             }
         }
@@ -127,11 +138,9 @@ namespace MongoDB.Driver.Core.Servers
         public void Invalidate()
         {
             ThrowIfNotOpen();
-            var delay = Interlocked.CompareExchange(ref _heartbeatDelay, null, null);
-            if (delay != null)
-            {
-                delay.Interrupt();
-            }
+            _connectionPool.Clear();
+            OnDescriptionChanged(_baseDescription);
+            RequestHeartbeat();
         }
 
         public void Dispose()
@@ -148,9 +157,10 @@ namespace MongoDB.Driver.Core.Servers
                 {
                     if (_listener != null)
                     {
-                        _listener.ServerBeforeClosing(_serverId);
+                        _listener.ServerBeforeClosing(new ServerBeforeClosingEvent(_serverId));
                     }
 
+                    var stopwatch = Stopwatch.StartNew();
                     _heartbeatCancellationTokenSource.Cancel();
                     _heartbeatCancellationTokenSource.Dispose();
                     _connectionPool.Dispose();
@@ -159,15 +169,16 @@ namespace MongoDB.Driver.Core.Servers
                         _heartbeatConnection.Dispose();
                     }
 
+                    stopwatch.Stop();
                     if (_listener != null)
                     {
-                        _listener.ServerAfterClosing(_serverId);
+                        _listener.ServerAfterClosing(new ServerAfterClosingEvent(_serverId, stopwatch.Elapsed));
                     }
                 }
             }
         }
 
-        public async Task<IConnectionHandle> GetConnectionAsync(CancellationToken cancellationToken)
+        public async Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {
             ThrowIfNotOpen();
 
@@ -180,7 +191,7 @@ namespace MongoDB.Driver.Core.Servers
                 // collective to complete opening the connection than the throw
                 // it away.
                 await connection.OpenAsync(CancellationToken.None).ConfigureAwait(false);
-                return new ServerConnection(this, connection);
+                return new ServerChannel(this, connection);
             }
             catch
             {
@@ -263,7 +274,7 @@ namespace MongoDB.Driver.Core.Servers
             cancellationToken.ThrowIfCancellationRequested();
             if (_listener != null)
             {
-                _listener.ServerBeforeHeartbeating(connection.ConnectionId);
+                _listener.ServerBeforeHeartbeating(new ServerBeforeHeartbeatingEvent(connection.ConnectionId));
             }
 
             try
@@ -290,7 +301,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 if (_listener != null)
                 {
-                    _listener.ServerAfterHeartbeating(connection.ConnectionId, stopwatch.Elapsed);
+                    _listener.ServerAfterHeartbeating(new ServerAfterHeartbeatingEvent(connection.ConnectionId, stopwatch.Elapsed));
                 }
 
                 return new HeartbeatInfo
@@ -304,7 +315,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 if (_listener != null)
                 {
-                    _listener.ServerErrorHeartbeating(connection.ConnectionId, ex);
+                    _listener.ServerErrorHeartbeating(new ServerErrorHeartbeatingEvent(connection.ConnectionId, ex));
                 }
                 throw;
             }
@@ -323,7 +334,7 @@ namespace MongoDB.Driver.Core.Servers
 
             if (_listener != null)
             {
-                _listener.ServerAfterDescriptionChanged(oldDescription, newDescription);
+                _listener.ServerAfterDescriptionChanged(new ServerAfterDescriptionChangedEvent(oldDescription, newDescription));
             }
 
             var handler = DescriptionChanged;
@@ -334,7 +345,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private void HandleConnectionException(IConnection connection, Exception ex)
+        private void HandleChannelException(IConnection connection, Exception ex)
         {
             if (_state.Value != State.Open)
             {
@@ -357,7 +368,24 @@ namespace MongoDB.Driver.Core.Servers
                 return;
             }
 
-            Invalidate();
+            if (ex.GetType() == typeof(MongoNotPrimaryException) || ex.GetType() == typeof(MongoNodeIsRecoveringException))
+            {
+                Invalidate();
+            }
+            else
+            {
+                RequestHeartbeat();
+            }
+        }
+
+        public void RequestHeartbeat()
+        {
+            ThrowIfNotOpen();
+            var heartbeatDelay = Interlocked.CompareExchange(ref _heartbeatDelay, null, null);
+            if (heartbeatDelay != null)
+            {
+                heartbeatDelay.RequestHeartbeat();
+            }
         }
 
         private void ThrowIfDisposed()
@@ -392,60 +420,228 @@ namespace MongoDB.Driver.Core.Servers
             public BuildInfoResult BuildInfoResult;
         }
 
-        private sealed class ServerConnection : ConnectionWrapper, IConnectionHandle
+        private sealed class ServerChannel : IChannelHandle
         {
+            // fields
+            private readonly IConnectionHandle _connection;
+            private bool _disposed;
             private readonly ClusterableServer _server;
-            private readonly IConnectionHandle _wrappedHandle;
 
-            public ServerConnection(ClusterableServer server, IConnectionHandle wrapped)
-                : base(wrapped)
+            // constructors
+            public ServerChannel(ClusterableServer server, IConnectionHandle connection)
             {
-                _wrappedHandle = wrapped;
                 _server = server;
+                _connection = connection;
             }
 
-            public override async Task OpenAsync(CancellationToken cancellationToken)
+            // properties
+            public ConnectionDescription ConnectionDescription
+            {
+                get { return _connection.Description; }
+            }
+
+            // methods
+            public Task<TResult> CommandAsync<TResult>(
+                DatabaseNamespace databaseNamespace,
+                BsonDocument command,
+                IElementNameValidator commandValidator,
+                bool slaveOk,
+                IBsonSerializer<TResult> resultSerializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
+                var protocol = new CommandWireProtocol<TResult>(
+                    databaseNamespace,
+                    command,
+                    commandValidator,
+                    slaveOk,
+                    resultSerializer,
+                    messageEncoderSettings);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public void Dispose()
+            {
+                if (!_disposed)
+                {
+                    _connection.Dispose();
+                    _disposed = true;
+                }
+            }
+
+            public Task<WriteConcernResult> DeleteAsync(
+                CollectionNamespace collectionNamespace,
+                BsonDocument query,
+                bool isMulti,
+                MessageEncoderSettings messageEncoderSettings,
+                WriteConcern writeConcern, 
+                CancellationToken cancellationToken)
+            {
+                var protocol = new DeleteWireProtocol(
+                    collectionNamespace,
+                    query,
+                    isMulti,
+                    messageEncoderSettings,
+                    writeConcern);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task<CursorBatch<TDocument>> GetMoreAsync<TDocument>(
+                CollectionNamespace collectionNamespace,
+                BsonDocument query,
+                long cursorId,
+                int batchSize,
+                IBsonSerializer<TDocument> serializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
+                var protocol = new GetMoreWireProtocol<TDocument>(
+                    collectionNamespace,
+                    query,
+                    cursorId,
+                    batchSize,
+                    serializer,
+                    messageEncoderSettings);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task<WriteConcernResult> InsertAsync<TDocument>(
+                CollectionNamespace collectionNamespace,
+                WriteConcern writeConcern,
+                IBsonSerializer<TDocument> serializer,
+                MessageEncoderSettings messageEncoderSettings,
+                BatchableSource<TDocument> documentSource,
+                int? maxBatchCount,
+                int? maxMessageSize,
+                bool continueOnError,
+                Func<bool> shouldSendGetLastError,
+                CancellationToken cancellationToken)
+            {
+                var protocol = new InsertWireProtocol<TDocument>(
+                    collectionNamespace,
+                    writeConcern,
+                    serializer,
+                    messageEncoderSettings,
+                    documentSource,
+                    maxBatchCount,
+                    maxMessageSize,
+                    continueOnError,
+                    shouldSendGetLastError);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task KillCursorsAsync(
+                IEnumerable<long> cursorIds,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
+                var protocol = new KillCursorsWireProtocol(
+                    cursorIds,
+                    messageEncoderSettings);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
+                CollectionNamespace collectionNamespace,
+                BsonDocument query,
+                BsonDocument fields,
+                IElementNameValidator queryValidator,
+                int skip,
+                int batchSize,
+                bool slaveOk,
+                bool partialOk,
+                bool noCursorTimeout,
+                bool tailableCursor,
+                bool awaitData,
+                IBsonSerializer<TDocument> serializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
+                var protocol = new QueryWireProtocol<TDocument>(
+                    collectionNamespace,
+                    query,
+                    fields,
+                    queryValidator,
+                    skip,
+                    batchSize,
+                    slaveOk,
+                    partialOk,
+                    noCursorTimeout,
+                    tailableCursor,
+                    awaitData,
+                    serializer,
+                    messageEncoderSettings);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            public Task<WriteConcernResult> UpdateAsync(
+                CollectionNamespace collectionNamespace,
+                MessageEncoderSettings messageEncoderSettings,
+                WriteConcern writeConcern,
+                BsonDocument query,
+                BsonDocument update,
+                IElementNameValidator updateValidator,
+                bool isMulti,
+                bool isUpsert,
+                CancellationToken cancellationToken)
+            {
+                var protocol = new UpdateWireProtocol(
+                    collectionNamespace,
+                    messageEncoderSettings,
+                    writeConcern,
+                    query,
+                    update,
+                    updateValidator,
+                    isMulti,
+                    isUpsert);
+
+                return ExecuteProtocolAsync(protocol, cancellationToken);
+            }
+
+            private async Task ExecuteProtocolAsync(IWireProtocol protocol, CancellationToken cancellationToken)
             {
                 try
                 {
-                    await base.OpenAsync(cancellationToken).ConfigureAwait(false);
+                    await protocol.ExecuteAsync(_connection, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    _server.HandleConnectionException(this, ex);
+                    _server.HandleChannelException(_connection, ex);
                     throw;
                 }
             }
 
-            public override async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            private async Task<TResult> ExecuteProtocolAsync<TResult>(IWireProtocol<TResult> protocol, CancellationToken cancellationToken)
             {
                 try
                 {
-                    return await base.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    return await protocol.ExecuteAsync(_connection, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    _server.HandleConnectionException(this, ex);
+                    _server.HandleChannelException(_connection, ex);
                     throw;
                 }
             }
 
-            public override async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public IChannelHandle Fork()
             {
-                try
-                {
-                    await base.SendMessagesAsync(messages, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    _server.HandleConnectionException(this, ex);
-                    throw;
-                }
+                ThrowIfDisposed();
+                return new ServerChannel(_server, _connection.Fork());
             }
 
-            public IConnectionHandle Fork()
+            private void ThrowIfDisposed()
             {
-                return new ServerConnection(_server, _wrappedHandle.Fork());
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(GetType().Name);
+                }
             }
         }
     }

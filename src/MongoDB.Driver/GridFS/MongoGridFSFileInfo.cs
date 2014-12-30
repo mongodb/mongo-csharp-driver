@@ -447,7 +447,7 @@ namespace MongoDB.Driver.GridFS
 
             // bind to one of the nodes using the ReadPreference
             var server = gridFS.Server;
-            using (server.RequestStart(null, gridFS.Settings.ReadPreference))
+            using (server.RequestStart(gridFS.Settings.ReadPreference))
             {
                 return server.RequestServerInstance;
             }
@@ -491,7 +491,7 @@ namespace MongoDB.Driver.GridFS
         public MongoGridFSFileInfo CopyTo(string destFileName, MongoGridFSCreateOptions createOptions)
         {
             EnsureServerInstanceIsPrimary();
-            using (_server.RequestStart(null, _serverInstance))
+            using (_server.RequestStart(_serverInstance))
             {
                 // note: we are aware that the data is making a round trip from and back to the server
                 // but we choose not to use a script to copy the data locally on the server
@@ -527,7 +527,7 @@ namespace MongoDB.Driver.GridFS
         public void Delete()
         {
             EnsureServerInstanceIsPrimary();
-            using (_server.RequestStart(null, _serverInstance))
+            using (_server.RequestStart(_serverInstance))
             {
                 var gridFS = new MongoGridFS(_server, _databaseName, _settings);
                 gridFS.EnsureIndexes();
@@ -602,7 +602,7 @@ namespace MongoDB.Driver.GridFS
         public void MoveTo(string destFileName)
         {
             EnsureServerInstanceIsPrimary();
-            using (_server.RequestStart(null, _serverInstance))
+            using (_server.RequestStart(_serverInstance))
             {
                 var gridFS = new MongoGridFS(_server, _databaseName, _settings);
                 var database = gridFS.GetDatabase(ReadPreference.Primary);
@@ -667,7 +667,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public void Refresh()
         {
-            using (_server.RequestStart(null, _serverInstance))
+            using (_server.RequestStart(_serverInstance))
             {
                 var gridFS = new MongoGridFS(_server, _databaseName, _settings);
                 var database = gridFS.GetDatabase();
@@ -808,9 +808,9 @@ namespace MongoDB.Driver.GridFS
         }
 
         // public methods
-        public override MongoGridFSFileInfo Deserialize(BsonDeserializationContext context)
+        public override MongoGridFSFileInfo Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var fileInfo = context.DeserializeWithChildContext(BsonDocumentSerializer.Instance);
+            var fileInfo = BsonDocumentSerializer.Instance.Deserialize(context);
             return new MongoGridFSFileInfo(
                 _server,
                 _serverInstance,

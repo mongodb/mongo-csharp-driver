@@ -25,25 +25,25 @@ namespace MongoDB.Driver.Core.Operations
     [TestFixture]
     public class FindOneAndDeleteOperationTests : OperationTestBase
     {
-        private BsonDocument _criteria;
+        private BsonDocument _filter;
 
         public override void TestFixtureSetUp()
         {
             base.TestFixtureSetUp();
 
-            _criteria = new BsonDocument("x", 1);
+            _filter = new BsonDocument("x", 1);
         }
 
         [Test]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
-            Action act = () => new FindOneAndDeleteOperation<BsonDocument>(null, _criteria, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            Action act = () => new FindOneAndDeleteOperation<BsonDocument>(null, _filter, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void Constructor_should_throw_when_criteria_is_null()
+        public void Constructor_should_throw_when_filter_is_null()
         {
             Action act = () => new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Constructor_should_throw_when_result_serializer_is_null()
         {
-            Action act = () => new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _criteria, null, _messageEncoderSettings);
+            Action act = () => new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _filter, null, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
-            Action act = () => new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _criteria, BsonDocumentSerializer.Instance, null);
+            Action act = () => new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _filter, BsonDocumentSerializer.Instance, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -69,10 +69,10 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Constructor_should_initialize_object()
         {
-            var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _criteria, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _filter, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             subject.CollectionNamespace.Should().Be(_collectionNamespace);
-            subject.Criteria.Should().Be(_criteria);
+            subject.Filter.Should().Be(_filter);
             subject.ResultSerializer.Should().NotBeNull();
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var projectionDoc = projection == null ? (BsonDocument)null : BsonDocument.Parse(projection);
             var sortDoc = sort == null ? (BsonDocument)null : BsonDocument.Parse(sort);
-            var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _criteria, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _filter, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 MaxTime = maxTimeMS.HasValue ? TimeSpan.FromMilliseconds(maxTimeMS.Value) : (TimeSpan?)null,
                 Projection = projectionDoc,
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "findAndModify", _collectionNamespace.CollectionName },
-                { "query", _criteria },
+                { "query", _filter },
                 { "sort", sortDoc, sortDoc != null },
                 { "remove", true },
                 { "fields", projectionDoc, projectionDoc != null },

@@ -27,7 +27,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON array that is deserialized lazily.
     /// </summary>
-    [Serializable]
     [BsonSerializer(typeof(LazyBsonArraySerializer))]
     public class LazyBsonArray : MaterializedOnDemandBsonArray
     {
@@ -174,7 +173,7 @@ namespace MongoDB.Bson
             using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
-                var context = BsonDeserializationContext.CreateRoot<LazyBsonArray>(bsonReader);
+                var context = BsonDeserializationContext.CreateRoot(bsonReader);
 
                 bsonReader.ReadStartDocument();
                 BsonType bsonType;
@@ -186,7 +185,7 @@ namespace MongoDB.Bson
                     {
                         case BsonType.Array: value = DeserializeLazyBsonArray(bsonReader); break;
                         case BsonType.Document: value = DeserializeLazyBsonDocument(bsonReader); break;
-                        default: value = context.DeserializeWithChildContext(BsonValueSerializer.Instance); break;
+                        default: value = BsonValueSerializer.Instance.Deserialize(context); break;
                     }
                     values.Add(value);
                 }

@@ -71,8 +71,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonDeserializationContext context)
+        public override object Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -104,7 +105,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return bsonDateTime.ToUniversalTime();
 
                 case BsonType.Document:
-                    return DeserializeDiscriminatedValue(context);
+                    return DeserializeDiscriminatedValue(context, args);
 
                 case BsonType.Double:
                     return bsonReader.ReadDouble();
@@ -135,8 +136,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, object value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value)
         {
             var bsonWriter = context.Writer;
 
@@ -209,13 +211,13 @@ namespace MongoDB.Bson.Serialization.Serializers
                         }
                     }
 
-                    SerializeDiscriminatedValue(context, value, actualType);
+                    SerializeDiscriminatedValue(context, args, value, actualType);
                 }
             }
         }
 
         // private methods
-        private object DeserializeDiscriminatedValue(BsonDeserializationContext context)
+        private object DeserializeDiscriminatedValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -228,7 +230,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     case BsonType.Document:
                         if (context.DynamicDocumentSerializer != null)
                         {
-                            return context.DynamicDocumentSerializer.Deserialize(context);
+                            return context.DynamicDocumentSerializer.Deserialize(context, args);
                         }
                         break;
                 }
@@ -243,15 +245,15 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var polymorphicSerializer = serializer as IBsonPolymorphicSerializer;
                 if (polymorphicSerializer != null && polymorphicSerializer.IsDiscriminatorCompatibleWithObjectSerializer)
                 {
-                    return serializer.Deserialize(context);
+                    return serializer.Deserialize(context, args);
                 }
                 else
                 {
                     bsonReader.ReadStartDocument();
-                    bsonReader.ReadName("_t");
+                    bsonReader.ReadName(_discriminatorConvention.ElementName);
                     bsonReader.SkipValue();
                     bsonReader.ReadName("_v");
-                    var value = context.DeserializeWithChildContext(serializer);
+                    var value = serializer.Deserialize(context);
                     bsonReader.ReadEndDocument();
 
                     return value;
@@ -259,20 +261,21 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
-        private void SerializeDiscriminatedValue(BsonSerializationContext context, object value, Type actualType)
+        private void SerializeDiscriminatedValue(BsonSerializationContext context, BsonSerializationArgs args, object value, Type actualType)
         {
             var serializer = BsonSerializer.LookupSerializer(actualType);
 
             var polymorphicSerializer = serializer as IBsonPolymorphicSerializer;
             if (polymorphicSerializer != null && polymorphicSerializer.IsDiscriminatorCompatibleWithObjectSerializer)
             {
-                serializer.Serialize(context, value);
+                serializer.Serialize(context, args, value);
             }
             else
             {
                 if (context.IsDynamicType != null && context.IsDynamicType(value.GetType()))
                 {
-                    context.SerializeWithChildContext(serializer, value);
+                    args.NominalType = actualType;
+                    serializer.Serialize(context, args, value);
                 }
                 else
                 {
@@ -280,10 +283,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var discriminator = _discriminatorConvention.GetDiscriminator(typeof(object), actualType);
 
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteName("_t");
-                    context.SerializeWithChildContext(BsonValueSerializer.Instance, discriminator);
+                    bsonWriter.WriteName(_discriminatorConvention.ElementName);
+                    BsonValueSerializer.Instance.Serialize(context, discriminator);
                     bsonWriter.WriteName("_v");
-                    context.SerializeWithChildContext(serializer, value);
+                    serializer.Serialize(context, value);
                     bsonWriter.WriteEndDocument();
                 }
             }

@@ -21,7 +21,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -44,6 +43,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 "buildInfo",
                 "collStats",
+                "configureFailPoint",
                 "connectionStatus",
                 "count",
                 "cursorInfo",
@@ -69,6 +69,7 @@ namespace MongoDB.Driver.Core.Operations
                 "serverStatus",
                 "setParameter",
                 "text",
+                "usersInfo",
                 "whatsmyuri"
             };
 
@@ -177,9 +178,9 @@ namespace MongoDB.Driver.Core.Operations
                 _ensureIsReadCommandAction(Command);
             }
 
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteCommandAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
             }
         }
     }

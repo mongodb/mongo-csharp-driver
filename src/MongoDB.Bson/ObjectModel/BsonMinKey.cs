@@ -29,7 +29,6 @@ namespace MongoDB.Bson
         // constructors
         // private so only the singleton instance can be created
         private BsonMinKey()
-            : base(BsonType.MinKey)
         {
         }
 
@@ -62,6 +61,15 @@ namespace MongoDB.Bson
         /// Gets the singleton instance of BsonMinKey.
         /// </summary>
         public static BsonMinKey Value { get { return __value; } }
+
+        // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.MinKey; }
+        }
 
         // public methods
         /// <summary>

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         #endregion
 
         // fields
-        private BsonDocument _criteria;
+        private BsonDocument _filter;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
 
@@ -48,10 +48,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
-        public BsonDocument Criteria
+        public BsonDocument Filter
         {
-            get { return _criteria; }
-            set { _criteria = value; }
+            get { return _filter; }
+            set { _filter = value; }
         }
 
         public DatabaseNamespace DatabaseNamespace
@@ -69,51 +69,51 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, "binding");
 
-            using (var connectionSource = await binding.GetReadConnectionSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (connectionSource.ServerDescription.Version >= __versionSupportingListCollectionsCommand)
+                if (channelSource.ServerDescription.Version >= __versionSupportingListCollectionsCommand)
                 {
-                    return await ExecuteUsingCommandAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteUsingCommandAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    return await ExecuteUsingQueryAsync(connectionSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteUsingQueryAsync(channelSource, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var command = new BsonDocument
             {
                 { "listCollections", 1 },
-                { "filter", _criteria, _criteria != null }
+                { "filter", _filter, _filter != null }
             };
             var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var response = await operation.ExecuteAsync(connectionSource, readPreference, cancellationToken).ConfigureAwait(false);
+            var response = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
             return response["collections"].AsBsonArray.Select(value => (BsonDocument)value).ToList();
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IConnectionSourceHandle connectionSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
-            // if the criteria includes a comparison to the "name" we must convert the value to a full namespace
-            var criteria = _criteria;
-            if (criteria != null && criteria.Contains("name"))
+            // if the filter includes a comparison to the "name" we must convert the value to a full namespace
+            var filter = _filter;
+            if (filter != null && filter.Contains("name"))
             {
-                var value = criteria["name"];
+                var value = filter["name"];
                 if (!value.IsString)
                 {
-                    throw new NotSupportedException("Name criteria must be a plain string when connected to a server version less than 2.8.");
+                    throw new NotSupportedException("Name filter must be a plain string when connected to a server version less than 2.8.");
                 }
-                criteria = (BsonDocument)criteria.Clone(); // shallow clone
-                criteria["name"] = _databaseNamespace.DatabaseName + "." + value;
+                filter = (BsonDocument)filter.Clone(); // shallow clone
+                filter["name"] = _databaseNamespace.DatabaseName + "." + value;
             }
 
             var operation = new FindOperation<BsonDocument>(_databaseNamespace.SystemNamespacesCollection, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
-                Criteria = criteria
+                Filter = filter
             };
-            var cursor = await operation.ExecuteAsync(connectionSource, readPreference, cancellationToken).ConfigureAwait(false);
+            var cursor = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
 
             var collections = new List<BsonDocument>();
             var prefix = _databaseNamespace + ".";

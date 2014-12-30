@@ -47,8 +47,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override BsonArray DeserializeValue(BsonDeserializationContext context)
+        protected override BsonArray DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -56,7 +57,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var array = new BsonArray();
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var item = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
+                var item = BsonValueSerializer.Instance.Deserialize(context);
                 array.Add(item);
             }
             bsonReader.ReadEndArray();
@@ -83,15 +84,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, BsonArray value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, BsonArray value)
         {
             var bsonWriter = context.Writer;
 
             bsonWriter.WriteStartArray();
             for (int i = 0; i < value.Count; i++)
             {
-                context.SerializeWithChildContext(BsonValueSerializer.Instance, value[i]);
+                BsonValueSerializer.Instance.Serialize(context, value[i]);
             }
             bsonWriter.WriteEndArray();
         }

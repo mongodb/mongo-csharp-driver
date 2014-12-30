@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
             {
-                Criteria = new BsonDocument("x", 1),
+                Filter = new BsonDocument("x", 1),
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
             {
-                Criteria = BsonDocument.Parse("{ _id : { $gt : 2 } }"),
+                Filter = BsonDocument.Parse("{ _id : { $gt : 2 } }"),
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 

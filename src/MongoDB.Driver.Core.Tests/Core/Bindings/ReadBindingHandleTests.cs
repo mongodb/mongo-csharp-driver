@@ -42,24 +42,24 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void GetReadConnectionSourceAsync_should_throw_if_disposed()
+        public void GetReadChannelSourceAsync_should_throw_if_disposed()
         {
             var subject = new ReadBindingHandle(_readBinding);
             subject.Dispose();
 
-            Action act = () => subject.GetReadConnectionSourceAsync(CancellationToken.None);
+            Action act = () => subject.GetReadChannelSourceAsync(CancellationToken.None);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
 
         [Test]
-        public void GetReadConnectionSourceAsync_should_delegate_to_reference()
+        public void GetReadChannelSourceAsync_should_delegate_to_reference()
         {
             var subject = new ReadBindingHandle(_readBinding);
 
-            subject.GetReadConnectionSourceAsync(CancellationToken.None);
+            subject.GetReadChannelSourceAsync(CancellationToken.None);
 
-            _readBinding.Received().GetReadConnectionSourceAsync(CancellationToken.None);
+            _readBinding.Received().GetReadChannelSourceAsync(CancellationToken.None);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void Disposing_of_handle_after_fork_should_not_dispose_of_connectionSource()
+        public void Disposing_of_handle_after_fork_should_not_dispose_of_channelSource()
         {
             var subject = new ReadBindingHandle(_readBinding);
 
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Test]
-        public void Disposing_of_fork_before_disposing_of_subject_hould_not_dispose_of_connectionSource()
+        public void Disposing_of_fork_before_disposing_of_subject_hould_not_dispose_of_channelSource()
         {
             var subject = new ReadBindingHandle(_readBinding);
 

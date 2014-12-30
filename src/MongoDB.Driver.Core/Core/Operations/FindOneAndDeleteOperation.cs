@@ -30,22 +30,22 @@ namespace MongoDB.Driver.Core.Operations
     public class FindOneAndDeleteOperation<TResult> : FindAndModifyOperationBase<TResult>
     {
         // fields
-        private readonly BsonDocument _criteria;
+        private readonly BsonDocument _filter;
         private TimeSpan? _maxTime;
         private BsonDocument _projection;
         private BsonDocument _sort;
 
         // constructors
-        public FindOneAndDeleteOperation(CollectionNamespace collectionNamespace, BsonDocument criteria, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+        public FindOneAndDeleteOperation(CollectionNamespace collectionNamespace, BsonDocument filter, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(collectionNamespace, resultSerializer, messageEncoderSettings)
         {
-            _criteria = Ensure.IsNotNull(criteria, "criteria");
+            _filter = Ensure.IsNotNull(filter, "filter");
         }
 
         // properties
-        public BsonDocument Criteria
+        public BsonDocument Filter
         {
-            get { return _criteria; }
+            get { return _filter; }
         }
 
         public TimeSpan? MaxTime
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "findAndModify", CollectionNamespace.CollectionName },
-                { "query", _criteria },
+                { "query", _filter },
                 { "sort", _sort, _sort != null },
                 { "remove", true },
                 { "fields", _projection, _projection != null },

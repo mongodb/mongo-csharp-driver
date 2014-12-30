@@ -75,6 +75,16 @@ namespace MongoDB.Driver.Builders
         {
             return new CollectionOptionsBuilder().SetMaxSize(value);
         }
+
+        /// <summary>
+        /// Sets the storage engine options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public static CollectionOptionsBuilder SetStorageEngineOptions(BsonDocument value)
+        {
+            return new CollectionOptionsBuilder().SetStorageEngineOptions(value);
+        }
     }
 
     /// <summary>
@@ -142,6 +152,17 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the storage engine options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public CollectionOptionsBuilder SetStorageEngineOptions(BsonDocument value)
+        {
+            _document["storageEngine"] = value;
+            return this;
+        }
+
+        /// <summary>
         /// Returns the result of the builder as a BsonDocument.
         /// </summary>
         /// <returns>A BsonDocument.</returns>
@@ -153,9 +174,9 @@ namespace MongoDB.Driver.Builders
         // nested classes
         new internal class Serializer : SerializerBase<CollectionOptionsBuilder>
         {
-            public override void Serialize(BsonSerializationContext context, CollectionOptionsBuilder value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, CollectionOptionsBuilder value)
             {
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._document);
+                BsonDocumentSerializer.Instance.Serialize(context, value._document);
             }
         }
     }

@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -119,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private BulkWriteOperationException CreateBulkWriteException(IEnumerable<WriteRequest> remainingRequests)
+        private MongoBulkWriteOperationException CreateBulkWriteException(ConnectionId connectionId, IEnumerable<WriteRequest> remainingRequests)
         {
             var remainingRequestsList = remainingRequests.ToList();
             var result = CreateBulkWriteResult(remainingRequestsList.Count);
@@ -127,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
             var writeConcernError = CombineWriteConcernErrors();
             var unprocessedRequests = CombineUnprocessedRequests(remainingRequestsList);
 
-            return new BulkWriteOperationException(result, writeErrors, writeConcernError, unprocessedRequests);
+            return new MongoBulkWriteOperationException(connectionId, result, writeErrors, writeConcernError, unprocessedRequests);
         }
 
         private BulkWriteOperationResult CreateBulkWriteResult(int remainingRequestsCount)
@@ -158,11 +159,11 @@ namespace MongoDB.Driver.Core.Operations
                 upserts);
         }
 
-        public BulkWriteOperationResult CreateResultOrThrowIfHasErrors(IReadOnlyList<WriteRequest> remainingRequests)
+        public BulkWriteOperationResult CreateResultOrThrowIfHasErrors(ConnectionId connectionId, IReadOnlyList<WriteRequest> remainingRequests)
         {
             if (_batchResults.Any(r => r.HasWriteErrors || r.HasWriteConcernError))
             {
-                throw CreateBulkWriteException(remainingRequests);
+                throw CreateBulkWriteException(connectionId, remainingRequests);
             }
 
             return CreateBulkWriteResult(0);

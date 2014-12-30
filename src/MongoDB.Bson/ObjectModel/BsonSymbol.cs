@@ -29,7 +29,6 @@ namespace MongoDB.Bson
         // constructors
         // internal because only BsonSymbolTable should call this constructor
         internal BsonSymbol(string name)
-            : base(BsonType.Symbol)
         {
             if (name == null)
             {
@@ -39,6 +38,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.Symbol; }
+        }
+
         /// <summary>
         /// Gets the name of the symbol.
         /// </summary>

@@ -46,14 +46,14 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateCommand_should_create_the_correct_command()
         {
-            var criteria = new BsonDocument("x", 1);
+            var filter = new BsonDocument("x", 1);
             var hint = "funny";
             var limit = 10;
             var skip = 30;
             var maxTime = TimeSpan.FromSeconds(20);
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                Criteria = criteria,
+                Filter = filter,
                 Hint = hint,
                 Limit = limit,
                 MaxTime = maxTime,
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "count", _collectionNamespace.CollectionName },
-                { "query", criteria },
+                { "query", filter },
                 { "limit", limit },
                 { "skip", skip },
                 { "hint", hint },
@@ -91,10 +91,10 @@ namespace MongoDB.Driver.Core.Operations
 
         [Test]
         [RequiresServer("EnsureTestData")]
-        public async Task ExecuteAsync_should_return_expected_result_when_criteria_is_provided()
+        public async Task ExecuteAsync_should_return_expected_result_when_filter_is_provided()
         {
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
-            subject.Criteria = BsonDocument.Parse("{ _id : { $gt : 1 } }");
+            subject.Filter = BsonDocument.Parse("{ _id : { $gt : 1 } }");
 
             long result;
             using (var binding = SuiteConfiguration.GetReadBinding())

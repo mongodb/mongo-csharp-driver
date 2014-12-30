@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
@@ -284,9 +285,28 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the ConnectionId of the connection reserved by the current RequestStart scope (null if not in the scope of a RequestStart).
+        /// </summary>
+        internal virtual ConnectionId RequestConnectionId
+        {
+            get
+            {
+                var request = __threadStaticRequest;
+                if (request != null)
+                {
+                    return request.ConnectionId;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the server instance of the connection reserved by the current RequestStart scope (null if not in the scope of a RequestStart).
         /// </summary>
-        public virtual MongoServerInstance RequestServerInstance
+        internal virtual MongoServerInstance RequestServerInstance
         {
             get
             {
@@ -305,7 +325,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the RequestStart nesting level for the current thread.
         /// </summary>
-        public virtual int RequestNestingLevel
+        internal virtual int RequestNestingLevel
         {
             get
             {
@@ -679,7 +699,7 @@ namespace MongoDB.Driver
         /// Lets the server know that this thread is done with a series of related operations. Instead of calling this method it is better
         /// to put the return value of RequestStart in a using statement.
         /// </summary>
-        public virtual void RequestDone()
+        internal virtual void RequestDone()
         {
             var request = __threadStaticRequest;
             if (request != null)
@@ -701,11 +721,10 @@ namespace MongoDB.Driver
         /// on the same connection. The return value of this method implements IDisposable and can be placed in a
         /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
         /// </summary>
-        /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart(MongoDatabase initialDatabase)
+        internal virtual IDisposable RequestStart()
         {
-            return RequestStart(initialDatabase, ReadPreference.Primary);
+            return RequestStart(ReadPreference.Primary);
         }
 
         /// <summary>
@@ -713,10 +732,9 @@ namespace MongoDB.Driver
         /// on the same connection. The return value of this method implements IDisposable and can be placed in a
         /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
         /// </summary>
-        /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart(MongoDatabase initialDatabase, ReadPreference readPreference)
+        internal virtual IDisposable RequestStart(ReadPreference readPreference)
         {
             var serverSelector = new ReadPreferenceServerSelector(readPreference);
             return RequestStart(serverSelector, readPreference);
@@ -727,10 +745,9 @@ namespace MongoDB.Driver
         /// on the same connection. The return value of this method implements IDisposable and can be placed in a
         /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
         /// </summary>
-        /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
         /// <param name="serverInstance">The server instance this request should be tied to.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart(MongoDatabase initialDatabase, MongoServerInstance serverInstance)
+        internal virtual IDisposable RequestStart(MongoServerInstance serverInstance)
         {
             var endPoint = serverInstance.EndPoint;
             var serverSelector = new EndPointServerSelector(endPoint);
@@ -836,23 +853,25 @@ namespace MongoDB.Driver
                 return new RequestStartResult(this);
             }
 
-            IReadBindingHandle connectionBinding;
+            IReadBindingHandle channelBinding;
+            ConnectionId connectionId;
             var server = _cluster.SelectServer(serverSelector);
-            using (var connection = server.GetConnection())
+            using (var channel = server.GetChannel())
             {
                 if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
                 {
-                    connectionBinding = new ReadWriteBindingHandle(new ConnectionReadWriteBinding(server, connection.Fork()));
+                    channelBinding = new ReadWriteBindingHandle(new ChannelReadWriteBinding(server, channel.Fork()));
                 }
                 else
                 {
-                    connectionBinding = new ReadBindingHandle(new ConnectionReadBinding(server, connection.Fork(), readPreference));
+                    channelBinding = new ReadBindingHandle(new ChannelReadBinding(server, channel.Fork(), readPreference));
                 }
+                connectionId = channel.ConnectionDescription.ConnectionId;
             }
 
             var serverDescription = server.Description;
             var serverInstance = _serverInstances.Single(i => EndPointHelper.Equals(i.EndPoint, serverDescription.EndPoint));
-            __threadStaticRequest = new Request(serverDescription, serverInstance, connectionBinding);
+            __threadStaticRequest = new Request(serverDescription, serverInstance, channelBinding, connectionId);
 
             return new RequestStartResult(this);
         }
@@ -918,16 +937,18 @@ namespace MongoDB.Driver
         {
             // private fields
             private readonly IReadBindingHandle _binding;
+            private readonly ConnectionId _connectionId;
             private int _nestingLevel;
             private readonly ServerDescription _serverDescription;
             private readonly MongoServerInstance _serverInstance;
 
             // constructors
-            public Request(ServerDescription serverDescription, MongoServerInstance serverInstance, IReadBindingHandle binding)
+            public Request(ServerDescription serverDescription, MongoServerInstance serverInstance, IReadBindingHandle binding, ConnectionId connectionId)
             {
                 _serverDescription = serverDescription;
                 _serverInstance = serverInstance;
                 _binding = binding;
+                _connectionId = connectionId;
                 _nestingLevel = 1;
             }
 
@@ -935,6 +956,11 @@ namespace MongoDB.Driver
             public IReadBindingHandle Binding
             {
                 get { return _binding; }
+            }
+
+            public ConnectionId ConnectionId
+            {
+                get { return _connectionId; }
             }
 
             public MongoServerInstance ServerInstance

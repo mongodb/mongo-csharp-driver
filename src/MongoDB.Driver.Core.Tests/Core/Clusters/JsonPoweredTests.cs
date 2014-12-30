@@ -178,10 +178,10 @@ namespace MongoDB.Driver.Core.Clusters
         private ICluster BuildCluster(BsonDocument definition)
         {
             var connectionString = new ConnectionString((string)definition["uri"]);
-            var settings = new ClusterSettings()
-                .WithEndPoints(connectionString.Hosts)
-                .WithConnectionMode(connectionString.Connect)
-                .WithReplicaSetName(connectionString.ReplicaSet);
+            var settings = new ClusterSettings(
+                endPoints: Optional.Create<IEnumerable<EndPoint>>(connectionString.Hosts),
+                connectionMode: connectionString.Connect,
+                replicaSetName: connectionString.ReplicaSet);
 
             _serverFactory = new MockClusterableServerFactory();
             _clusterListener = Substitute.For<IClusterListener>();

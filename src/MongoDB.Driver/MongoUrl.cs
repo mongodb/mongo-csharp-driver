@@ -76,7 +76,7 @@ namespace MongoDB.Driver
         private readonly string _password;
         private readonly ReadPreference _readPreference;
         private readonly string _replicaSetName;
-        private readonly TimeSpan _secondaryAcceptableLatency;
+        private readonly TimeSpan _localThreshold;
         private readonly IEnumerable<MongoServerAddress> _servers;
         private readonly TimeSpan _socketTimeout;
         private readonly string _username;
@@ -107,6 +107,7 @@ namespace MongoDB.Driver
             _guidRepresentation = builder.GuidRepresentation;
             _ipv6 = builder.IPv6;
             _journal = builder.Journal;
+            _localThreshold = builder.LocalThreshold;
             _maxConnectionIdleTime = builder.MaxConnectionIdleTime;
             _maxConnectionLifeTime = builder.MaxConnectionLifeTime;
             _maxConnectionPoolSize = builder.MaxConnectionPoolSize;
@@ -114,7 +115,6 @@ namespace MongoDB.Driver
             _password = builder.Password;
             _readPreference = builder.ReadPreference;
             _replicaSetName = builder.ReplicaSetName;
-            _secondaryAcceptableLatency = builder.SecondaryAcceptableLatency;
             _servers = builder.Servers;
             _socketTimeout = builder.SocketTimeout;
             _username = builder.Username;
@@ -228,6 +228,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the local threshold.
+        /// </summary>
+        public TimeSpan LocalThreshold
+        {
+            get { return _localThreshold; }
+        }
+
+        /// <summary>
         /// Gets the max connection idle time.
         /// </summary>
         public TimeSpan MaxConnectionIdleTime
@@ -281,15 +289,6 @@ namespace MongoDB.Driver
         public string ReplicaSetName
         {
             get { return _replicaSetName; }
-        }
-
-        /// <summary>
-        /// Gets the acceptable latency for considering a replica set member for inclusion in load balancing
-        /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
-        /// </summary>
-        public TimeSpan SecondaryAcceptableLatency
-        {
-            get { return _secondaryAcceptableLatency; }
         }
 
         /// <summary>

@@ -110,6 +110,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the storage engine options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetStorageEngineOptions(BsonDocument value)
+        {
+            return new IndexOptionsBuilder().SetStorageEngineOptions(value);
+        }
+
+        /// <summary>
         /// Sets the default language for the text index.
         /// </summary>
         /// <param name="language">The default language.</param>
@@ -263,6 +273,17 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the storage engine options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetStorageEngineOptions(BsonDocument value)
+        {
+            _document["storageEngine"] = value;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the default language for the text index.
         /// </summary>
         /// <param name="language">The default language.</param>
@@ -338,9 +359,9 @@ namespace MongoDB.Driver.Builders
         // nested classes
         new internal class Serializer : SerializerBase<IndexOptionsBuilder>
         {
-            public override void Serialize(BsonSerializationContext context, IndexOptionsBuilder value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IndexOptionsBuilder value)
             {
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._document);
+                BsonDocumentSerializer.Instance.Serialize(context, value._document);
             }
         }
     }
@@ -431,6 +452,16 @@ namespace MongoDB.Driver.Builders
         public static IndexOptionsBuilder<TDocument> SetSparse(bool value)
         {
             return new IndexOptionsBuilder<TDocument>().SetSparse(value);
+        }
+
+        /// <summary>
+        /// Sets the storage engine options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetStorageEngineOptions(BsonDocument value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetStorageEngineOptions(value);
         }
 
         /// <summary>
@@ -592,6 +623,17 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the storage engine options.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetStorageEngineOptions(BsonDocument value)
+        {
+            _indexOptionsBuilder.SetStorageEngineOptions(value);
+            return this;
+        }
+
+        /// <summary>
         /// Sets the default language for the text index.
         /// </summary>
         /// <param name="language">The default language.</param>
@@ -668,9 +710,9 @@ namespace MongoDB.Driver.Builders
         // nested classes
         new internal class Serializer : SerializerBase<IndexOptionsBuilder<TDocument>>
         {
-            public override void Serialize(BsonSerializationContext context, IndexOptionsBuilder<TDocument> value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IndexOptionsBuilder<TDocument> value)
             {
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._indexOptionsBuilder.ToBsonDocument());
+                BsonDocumentSerializer.Instance.Serialize(context, value._indexOptionsBuilder.ToBsonDocument());
             }
         }
     }

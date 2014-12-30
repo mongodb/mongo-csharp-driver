@@ -36,58 +36,58 @@ namespace MongoDB.Driver.Core.Events
             _second = Ensure.IsNotNull(second, "second");
         }
 
-        public void ClusterBeforeClosing(ClusterId clusterId)
+        public void ClusterBeforeClosing(ClusterBeforeClosingEvent @event)
         {
-            _first.ClusterBeforeClosing(clusterId);
-            _second.ClusterBeforeClosing(clusterId);
+            _first.ClusterBeforeClosing(@event);
+            _second.ClusterBeforeClosing(@event);
         }
 
-        public void ClusterAfterClosing(ClusterId clusterId, TimeSpan elapsed)
+        public void ClusterAfterClosing(ClusterAfterClosingEvent @event)
         {
-            _first.ClusterAfterClosing(clusterId, elapsed);
-            _second.ClusterAfterClosing(clusterId, elapsed);
+            _first.ClusterAfterClosing(@event);
+            _second.ClusterAfterClosing(@event);
         }
 
-        public void ClusterBeforeOpening(ClusterId clusterId, ClusterSettings settings)
+        public void ClusterBeforeOpening(ClusterBeforeOpeningEvent @event)
         {
-            _first.ClusterBeforeOpening(clusterId, settings);
-            _second.ClusterBeforeOpening(clusterId, settings);
+            _first.ClusterBeforeOpening(@event);
+            _second.ClusterBeforeOpening(@event);
         }
 
-        public void ClusterAfterOpening(ClusterId clusterId, ClusterSettings settings, TimeSpan elapsed)
+        public void ClusterAfterOpening(ClusterAfterOpeningEvent @event)
         {
-            _first.ClusterAfterOpening(clusterId, settings, elapsed);
-            _second.ClusterAfterOpening(clusterId, settings, elapsed);
+            _first.ClusterAfterOpening(@event);
+            _second.ClusterAfterOpening(@event);
         }
 
-        public void ClusterBeforeAddingServer(ClusterId clusterId, EndPoint endPoint)
+        public void ClusterBeforeAddingServer(ClusterBeforeAddingServerEvent @event)
         {
-            _first.ClusterBeforeAddingServer(clusterId, endPoint);
-            _second.ClusterBeforeAddingServer(clusterId, endPoint);
+            _first.ClusterBeforeAddingServer(@event);
+            _second.ClusterBeforeAddingServer(@event);
         }
 
-        public void ClusterAfterAddingServer(ServerId serverId, TimeSpan elapsed)
+        public void ClusterAfterAddingServer(ClusterAfterAddingServerEvent @event)
         {
-            _first.ClusterAfterAddingServer(serverId, elapsed);
-            _second.ClusterAfterAddingServer(serverId, elapsed);
+            _first.ClusterAfterAddingServer(@event);
+            _second.ClusterAfterAddingServer(@event);
         }
 
-        public void ClusterBeforeRemovingServer(ServerId serverId, string reason)
+        public void ClusterBeforeRemovingServer(ClusterBeforeRemovingServerEvent @event)
         {
-            _first.ClusterBeforeRemovingServer(serverId, reason);
-            _second.ClusterBeforeRemovingServer(serverId, reason);
+            _first.ClusterBeforeRemovingServer(@event);
+            _second.ClusterBeforeRemovingServer(@event);
         }
 
-        public void ClusterAfterRemovingServer(ServerId serverId, string reason, TimeSpan elapsed)
+        public void ClusterAfterRemovingServer(ClusterAfterRemovingServerEvent @event)
         {
-            _first.ClusterAfterRemovingServer(serverId, reason, elapsed);
-            _second.ClusterAfterRemovingServer(serverId, reason, elapsed);
+            _first.ClusterAfterRemovingServer(@event);
+            _second.ClusterAfterRemovingServer(@event);
         }
 
-        public void ClusterDescriptionChanged(ClusterDescription oldClusterDescription, ClusterDescription newClusterDescription)
+        public void ClusterAfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event)
         {
-            _first.ClusterDescriptionChanged(oldClusterDescription, newClusterDescription);
-            _second.ClusterDescriptionChanged(oldClusterDescription, newClusterDescription);
+            _first.ClusterAfterDescriptionChanged(@event);
+            _second.ClusterAfterDescriptionChanged(@event);
         }
     }
 }

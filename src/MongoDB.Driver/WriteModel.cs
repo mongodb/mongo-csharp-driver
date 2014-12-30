@@ -22,6 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Base class for a write model.
     /// </summary>
+    [Serializable]
     public abstract class WriteModel<T>
     {
         // static methods
@@ -49,13 +50,13 @@ namespace MongoDB.Driver
 
         private static WriteModel<T> ConvertDeleteRequest(DeleteRequest request)
         {
-            var criteria = Unwrap(request.Criteria);
+            var filter = Unwrap(request.Filter);
             if(request.Limit == 1)
             {
-                return new DeleteOneModel<T>(criteria);
+                return new DeleteOneModel<T>(filter);
             }
 
-            return new DeleteManyModel<T>(criteria);
+            return new DeleteManyModel<T>(filter);
         }
 
         private static WriteModel<T> ConvertInsertRequest(InsertRequest request)
@@ -66,11 +67,11 @@ namespace MongoDB.Driver
 
         private static WriteModel<T> ConvertUpdateRequest(UpdateRequest request)
         {
-            var criteria = Unwrap(request.Criteria);
+            var filter = Unwrap(request.Filter);
             var update = Unwrap(request.Update);
             if(request.IsMulti)
             {
-                return new UpdateManyModel<T>(criteria, update)
+                return new UpdateManyModel<T>(filter, update)
                 {
                     IsUpsert = request.IsUpsert
                 };
@@ -79,7 +80,7 @@ namespace MongoDB.Driver
             var firstElement = request.Update.GetElement(0).Name;
             if(firstElement.StartsWith("$"))
             {
-                return new UpdateOneModel<T>(criteria, update)
+                return new UpdateOneModel<T>(filter, update)
                 {
                     IsUpsert = request.IsUpsert
                 };
@@ -92,7 +93,7 @@ namespace MongoDB.Driver
         {
             var document = (T)Unwrap(request.Update);
 
-            return new ReplaceOneModel<T>(Unwrap(request.Criteria), document)
+            return new ReplaceOneModel<T>(Unwrap(request.Filter), document)
             {
                 IsUpsert = request.IsUpsert
             };

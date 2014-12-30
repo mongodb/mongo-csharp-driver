@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -103,9 +104,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<WriteConcernResult> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
+        public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(connection, "connection");
+            Ensure.IsNotNull(channel, "channel");
 
             var requests = _documentSource.GetRemainingItems().Select(d =>
             {
@@ -127,12 +128,12 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BulkWriteOperationResult bulkWriteResult;
-            BulkWriteOperationException bulkWriteException = null;
+            MongoBulkWriteOperationException bulkWriteException = null;
             try
             {
-                bulkWriteResult = await operation.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                bulkWriteResult = await operation.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
             }
-            catch (BulkWriteOperationException ex)
+            catch (MongoBulkWriteOperationException ex)
             {
                 bulkWriteResult = ex.Result;
                 bulkWriteException = ex;
@@ -141,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
             var converter = new BulkWriteOperationResultConverter();
             if (bulkWriteException != null)
             {
-                throw converter.ToWriteConcernException(bulkWriteException);
+                throw converter.ToWriteConcernException(channel.ConnectionDescription.ConnectionId, bulkWriteException);
             }
             else
             {

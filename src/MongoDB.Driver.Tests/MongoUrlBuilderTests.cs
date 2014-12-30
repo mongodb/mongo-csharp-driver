@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests
                 Password = "password",
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
-                SecondaryAcceptableLatency = TimeSpan.FromSeconds(6),
+                LocalThreshold = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
                 SocketTimeout = TimeSpan.FromSeconds(7),
                 Username = "username",
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Tests
                 "maxLifeTime=3s",
                 "maxPoolSize=4",
                 "minPoolSize=5",
-                "secondaryAcceptableLatency=6s",
+                "localThreshold=6s",
                 "socketTimeout=7s",
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual("password", builder.Password);
                 Assert.AreEqual(readPreference, builder.ReadPreference);
                 Assert.AreEqual("name", builder.ReplicaSetName);
-                Assert.AreEqual(TimeSpan.FromSeconds(6), builder.SecondaryAcceptableLatency);
+                Assert.AreEqual(TimeSpan.FromSeconds(6), builder.LocalThreshold);
                 Assert.AreEqual(new MongoServerAddress("host", 27017), builder.Server);
                 Assert.AreEqual(TimeSpan.FromSeconds(7), builder.SocketTimeout);
                 Assert.AreEqual("username", builder.Username);
@@ -298,7 +298,7 @@ namespace MongoDB.Driver.Tests
                 Assert.AreEqual(null, builder.Password);
                 Assert.AreEqual(null, builder.ReadPreference);
                 Assert.AreEqual(null, builder.ReplicaSetName);
-                Assert.AreEqual(MongoDefaults.SecondaryAcceptableLatency, builder.SecondaryAcceptableLatency);
+                Assert.AreEqual(MongoDefaults.LocalThreshold, builder.LocalThreshold);
                 Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
                 Assert.AreEqual(null, builder.Username);
                 Assert.AreEqual(false, builder.UseSsl);
@@ -343,11 +343,11 @@ namespace MongoDB.Driver.Tests
         [TestCase(true, true, "mongodb://localhost/?w=1")]
         [TestCase(true, true, "mongodb://localhost/?w=2")]
         [TestCase(true, true, "mongodb://localhost/?w=mode")]
-        public void TestGetWriteConcern_Enabled(bool enabledDefault, bool enabled, string connectionString)
+        public void TestGetWriteConcern_IsAcknowledged(bool acknowledgedDefault, bool acknowledged, string connectionString)
         {
             var builder = new MongoUrlBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(enabledDefault);
-            Assert.AreEqual(enabled, writeConcern.Enabled);
+            var writeConcern = builder.GetWriteConcern(acknowledgedDefault);
+            Assert.AreEqual(acknowledged, writeConcern.IsAcknowledged);
         }
 
         [Test]
@@ -387,12 +387,12 @@ namespace MongoDB.Driver.Tests
         [TestCase(true, true, 1, "mongodb://localhost/?w=1")]
         [TestCase(true, true, 2, "mongodb://localhost/?w=2")]
         [TestCase(true, true, "mode", "mongodb://localhost/?w=mode")]
-        public void TestGetWriteConcern_W(bool enabledDefault, bool enabled, object wobj, string connectionString)
+        public void TestGetWriteConcern_W(bool acknowledgedDefault, bool acknowledged, object wobj, string connectionString)
         {
             var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobj) : new WriteConcern.WMode((string)wobj);
             var builder = new MongoUrlBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(enabledDefault);
-            Assert.AreEqual(enabled, writeConcern.Enabled);
+            var writeConcern = builder.GetWriteConcern(acknowledgedDefault);
+            Assert.AreEqual(acknowledged, writeConcern.IsAcknowledged);
             Assert.AreEqual(w, writeConcern.W);
         }
 
@@ -594,7 +594,7 @@ namespace MongoDB.Driver.Tests
         {
             var connectionString = "mongodb://localhost/?readPreferenceTags=dc:ny,rack:1";
 
-            Assert.Throws<ConfigurationException>(() => new MongoUrlBuilder(connectionString));
+            Assert.Throws<MongoConfigurationException>(() => new MongoUrlBuilder(connectionString));
         }
 
         [Test]
@@ -688,32 +688,32 @@ namespace MongoDB.Driver.Tests
 
         [Test]
         [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(500, "mongodb://localhost/?secondaryAcceptableLatency{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(30000, "mongodb://localhost/?secondaryAcceptableLatency{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(1800000, "mongodb://localhost/?secondaryAcceptableLatency{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "mongodb://localhost/?secondaryAcceptableLatency{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "mongodb://localhost/?secondaryAcceptableLatency{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
-        public void TestSecondaryAcceptableLatency(int? ms, string formatString, string[] values)
+        [TestCase(500, "mongodb://localhost/?localThreshold{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [TestCase(30000, "mongodb://localhost/?localThreshold{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [TestCase(1800000, "mongodb://localhost/?localThreshold{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [TestCase(3600000, "mongodb://localhost/?localThreshold{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [TestCase(3723000, "mongodb://localhost/?localThreshold{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        public void TestLocalThreshold(int? ms, string formatString, string[] values)
         {
-            var secondaryAcceptableLatency = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
+            var localThreshold = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
             var built = new MongoUrlBuilder { Server = _localhost };
-            if (secondaryAcceptableLatency != null) { built.SecondaryAcceptableLatency = secondaryAcceptableLatency.Value; }
+            if (localThreshold != null) { built.LocalThreshold = localThreshold.Value; }
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(secondaryAcceptableLatency ?? MongoDefaults.SecondaryAcceptableLatency, builder.SecondaryAcceptableLatency);
+                Assert.AreEqual(localThreshold ?? MongoDefaults.LocalThreshold, builder.LocalThreshold);
                 Assert.AreEqual(canonicalConnectionString, builder.ToString());
             }
         }
 
         [Test]
-        public void TestSecondaryAcceptableLatency_Range()
+        public void TestLocalThreshold_Range()
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
-            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.SecondaryAcceptableLatency = TimeSpan.FromSeconds(-1); });
-            builder.SecondaryAcceptableLatency = TimeSpan.Zero;
-            builder.SecondaryAcceptableLatency = TimeSpan.FromSeconds(1);
+            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.LocalThreshold = TimeSpan.FromSeconds(-1); });
+            builder.LocalThreshold = TimeSpan.Zero;
+            builder.LocalThreshold = TimeSpan.FromSeconds(1);
         }
 
         [Test]
@@ -778,7 +778,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestSlaveOk_AfterReadPreference()
         {
-            Assert.Throws<ConfigurationException>(() => new MongoUrlBuilder("mongodb://localhost/?readPreference=primary&slaveOk=true"));
+            Assert.Throws<MongoConfigurationException>(() => new MongoUrlBuilder("mongodb://localhost/?readPreference=primary&slaveOk=true"));
         }
 
         [Test]
@@ -856,15 +856,15 @@ namespace MongoDB.Driver.Tests
         [TestCase(true, true, 1, "mongodb://localhost/?w=1")]
         [TestCase(true, true, 2, "mongodb://localhost/?w=2")]
         [TestCase(true, true, "mode", "mongodb://localhost/?w=mode")]
-        public void TestW(bool enabledDefault, bool enabled, object wobj, string connectionString)
+        public void TestW(bool acknowledgedDefault, bool acknowledged, object wobj, string connectionString)
         {
             var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobj) : new WriteConcern.WMode((string)wobj);
             var built = new MongoUrlBuilder { Server = _localhost, W = w };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                var writeConcern = builder.GetWriteConcern(enabledDefault);
-                Assert.AreEqual(enabled, writeConcern.Enabled);
+                var writeConcern = builder.GetWriteConcern(acknowledgedDefault);
+                Assert.AreEqual(acknowledged, writeConcern.IsAcknowledged);
                 Assert.AreEqual(w, writeConcern.W);
                 Assert.AreEqual(connectionString, builder.ToString());
             }

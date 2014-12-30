@@ -32,22 +32,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="code">The JavaScript code.</param>
         public BsonJavaScript(string code)
-            : base(BsonType.JavaScript)
-        {
-            if (code == null)
-            {
-                throw new ArgumentNullException("code");
-            }
-            _code = code;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonJavaScript class (only called by BsonJavaScriptWithScope).
-        /// </summary>
-        /// <param name="code">The JavaScript code.</param>
-        /// <param name="bsonType">The BsonType (must be JavaScriptWithScope).</param>
-        protected BsonJavaScript(string code, BsonType bsonType)
-            : base(bsonType)
         {
             if (code == null)
             {
@@ -57,6 +41,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.JavaScript; }
+        }
+
         /// <summary>
         /// Gets the JavaScript code.
         /// </summary>

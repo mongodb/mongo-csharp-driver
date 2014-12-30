@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System.IO;
+using System;
 using System.Net;
 using System.Net.Sockets;
 
@@ -37,8 +37,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override IPAddress DeserializeValue(BsonDeserializationContext context)
+        protected override IPAddress DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             EnsureBsonTypeEquals(bsonReader, BsonType.String);
@@ -51,15 +52,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             var message = string.Format("Invalid IPAddress value '{0}'.", stringValue);
-            throw new FileFormatException(message);
+            throw new FormatException(message);
         }
 
         /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, IPAddress value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, IPAddress value)
         {
             var bsonWriter = context.Writer;
 

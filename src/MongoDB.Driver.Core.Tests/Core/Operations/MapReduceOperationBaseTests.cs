@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
             var expectedResult = new BsonDocument
             {
-                { "mapReduce", "collectionName" },
+                { "mapreduce", "collectionName" },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var expectedResult = new BsonDocument
             {
-                { "mapReduce", "collectionName" },
+                { "mapreduce", "collectionName" },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var expectedResult = new BsonDocument
             {
-                { "mapReduce", "collectionName" },
+                { "mapreduce", "collectionName" },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var expectedResult = new BsonDocument
             {
-                { "mapReduce", "collectionName" },
+                { "mapreduce", "collectionName" },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
@@ -198,7 +198,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var expectedResult = new BsonDocument
             {
-                { "mapReduce", "collectionName" },
+                { "mapreduce", "collectionName" },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var expectedResult = new BsonDocument
             {
-                { "mapReduce", "collectionName" },
+                { "mapreduce", "collectionName" },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var expectedResult = new BsonDocument
             {
-                { "mapReduce", "collectionName" },
+                { "mapreduce", "collectionName" },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
@@ -267,7 +267,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var expectedResult = new BsonDocument
             {
-                { "mapReduce", "collectionName" },
+                { "mapreduce", "collectionName" },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },

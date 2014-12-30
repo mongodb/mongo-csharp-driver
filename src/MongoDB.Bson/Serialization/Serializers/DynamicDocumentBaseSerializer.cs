@@ -13,9 +13,11 @@
 * limitations under the License.
 */
 
+using System;
 using System.Dynamic;
 using System.IO;
 using System.Linq.Expressions;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -39,8 +41,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override T Deserialize(BsonDeserializationContext context)
+        public override T Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -49,12 +52,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Document:
+                    var dynamicContext = context.With(ConfigureDeserializationContext);
                     bsonReader.ReadStartDocument();
                     var document = CreateDocument();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var name = bsonReader.ReadName();
-                        var value = context.DeserializeWithChildContext(_objectSerializer, ConfigureDeserializationContext);
+                        var value = _objectSerializer.Deserialize(dynamicContext);
                         SetValueForMember(document, name, value);
                     }
                     bsonReader.ReadEndDocument();
@@ -62,7 +66,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 default:
                     message = string.Format("Cannot deserialize a '{0}' from BsonType '{1}'.", BsonUtils.GetFriendlyTypeName(typeof(T)), bsonType);
-                    throw new FileFormatException(message);
+                    throw new FormatException(message);
             }
         }
 
@@ -70,13 +74,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, T value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, T value)
         {
             var bsonWriter = context.Writer;
 
             var metaObject = value.GetMetaObject(Expression.Constant(value));
             var memberNames = metaObject.GetDynamicMemberNames();
+            var dynamicContext = context.With(ConfigureSerializationContext);
 
             bsonWriter.WriteStartDocument();
             foreach (var memberName in memberNames)
@@ -85,7 +91,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 if (TryGetValueForMember(value, memberName, out memberValue))
                 {
                     bsonWriter.WriteName(memberName);
-                    context.SerializeWithChildContext<object>(_objectSerializer, memberValue, ConfigureSerializationContext);
+                    _objectSerializer.Serialize(dynamicContext, memberValue);
                 }
             }
             bsonWriter.WriteEndDocument();

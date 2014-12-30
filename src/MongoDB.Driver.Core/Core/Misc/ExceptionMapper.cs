@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Misc
 {
@@ -29,7 +30,7 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         /// <param name="response">The response.</param>
         /// <returns>The custom exception (or null if the response could not be mapped to a custom exception).</returns>
-        public static Exception Map(BsonDocument response)
+        public static Exception Map(ConnectionId connectionId, BsonDocument response)
         {
             BsonValue code;
             if (response.TryGetValue("code", out code) && code.IsNumeric)
@@ -40,7 +41,7 @@ namespace MongoDB.Driver.Core.Misc
                     case 13475:
                     case 16986:
                     case 16712:
-                        return new ExecutionTimeoutException("Operation exceeded time limit.");
+                        return new MongoExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.");
                 }
             }
 
@@ -51,7 +52,7 @@ namespace MongoDB.Driver.Core.Misc
                 if (errmsg.AsString.Contains("exceeded time limit") ||
                     errmsg.AsString.Contains("execution terminated"))
                 {
-                    return new ExecutionTimeoutException("Operation exceeded time limit.");
+                    return new MongoExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.");
                 }
             }
 
@@ -65,7 +66,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>
         /// The custom exception (or null if the writeConcernResult was not mapped to an exception).
         /// </returns>
-        public static Exception Map(WriteConcernResult writeConcernResult)
+        public static Exception Map(ConnectionId connectionId, WriteConcernResult writeConcernResult)
         {
             var code = GetCode(writeConcernResult.Response);
             if (code.HasValue)
@@ -78,7 +79,7 @@ namespace MongoDB.Driver.Core.Misc
                         var errorMessage = string.Format(
                             "WriteConcern detected an error '{0}'. (Response was {1}).",
                             writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
-                        return new MongoDuplicateKeyException(errorMessage, writeConcernResult);
+                        return new MongoDuplicateKeyException(connectionId, errorMessage, writeConcernResult);
                 }
             }
 
@@ -89,7 +90,7 @@ namespace MongoDB.Driver.Core.Misc
                 var errorMessage = string.Format(
                     "WriteConcern detected an error '{0}'. (Response was {1}).",
                     writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
-                return new WriteConcernException(errorMessage, writeConcernResult);
+                return new MongoWriteConcernException(connectionId, errorMessage, writeConcernResult);
             }
 
             if (writeConcernResult.HasLastErrorMessage)
@@ -98,7 +99,33 @@ namespace MongoDB.Driver.Core.Misc
                     "WriteConcern detected an error '{0}'. (Response was {1}).",
                     writeConcernResult.LastErrorMessage,
                     writeConcernResult.Response.ToJson());
-                return new WriteConcernException(errorMessage, writeConcernResult);
+                return new MongoWriteConcernException(connectionId, errorMessage, writeConcernResult);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Maps the server response to a MongoNotPrimaryException or MongoNodeIsRecoveringException (if appropriate).
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="response">The server response.</param>
+        /// <param name="errorMessageFieldName">Name of the error message field.</param>
+        /// <returns>The exception, or null if no exception necessary.</returns>
+        public static Exception MapNotPrimaryOrNodeIsRecovering(ConnectionId connectionId, BsonDocument response, string errorMessageFieldName)
+        {
+            BsonValue errorMessageBsonValue;
+            if (response.TryGetValue(errorMessageFieldName, out errorMessageBsonValue) && errorMessageBsonValue.IsString)
+            {
+                var errorMessage = errorMessageBsonValue.ToString();
+                if (errorMessage.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new MongoNotPrimaryException(connectionId, response);
+                }
+                if (errorMessage.StartsWith("node is recovering", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new MongoNodeIsRecoveringException(connectionId, response);
+                }
             }
 
             return null;

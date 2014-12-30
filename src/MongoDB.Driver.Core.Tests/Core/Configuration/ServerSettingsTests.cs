@@ -14,9 +14,7 @@
 */
 
 using System;
-using System.Net.Sockets;
 using FluentAssertions;
-using MongoDB.Driver.Core.Configuration;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -24,50 +22,79 @@ namespace MongoDB.Driver.Core.Configuration
     [TestFixture]
     public class ServerSettingsTests
     {
+        private static readonly ServerSettings __defaults = new ServerSettings();
+
         [Test]
-        public void Constructor_initializes_instance()
+        public void constructor_should_initialize_instance()
         {
             var subject = new ServerSettings();
+
             subject.HeartbeatInterval.Should().Be(TimeSpan.FromSeconds(10));
             subject.HeartbeatTimeout.Should().Be(TimeSpan.FromSeconds(10));
         }
 
         [Test]
-        public void WithHeartbeatInterval_returns_new_instance_if_value_is_not_equal()
+        public void constructor_should_throw_when_heartbeatInterval_is_negative()
+        {
+            Action action = () => new ServerSettings(heartbeatInterval: TimeSpan.FromSeconds(-1));
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("heartbeatInterval");
+        }
+
+        [Test]
+        public void constructor_should_throw_when_heartbeatTimeout_is_negative()
+        {
+            Action action = () => new ServerSettings(heartbeatTimeout: TimeSpan.FromSeconds(-1));
+
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("heartbeatTimeout");
+        }
+
+        [Test]
+        public void constructor_with_heartbeatInterval_should_initialize_instance()
+        {
+            var heartbeatInterval = TimeSpan.FromSeconds(123);
+
+            var subject = new ServerSettings(heartbeatInterval: heartbeatInterval);
+
+            subject.HeartbeatInterval.Should().Be(heartbeatInterval);
+            subject.HeartbeatTimeout.Should().Be(__defaults.HeartbeatTimeout);
+        }
+
+        [Test]
+        public void constructor_with_heartbeatTimeout_should_initialize_instance()
+        {
+            var heartbeatTimeout = TimeSpan.FromSeconds(123);
+
+            var subject = new ServerSettings(heartbeatTimeout: heartbeatTimeout);
+
+            subject.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);
+            subject.HeartbeatTimeout.Should().Be(heartbeatTimeout);
+        }
+
+        [Test]
+        public void With_heartbeatInterval_should_return_expected_result()
         {
             var oldHeartbeatInterval = TimeSpan.FromSeconds(1);
             var newHeartbeatInterval = TimeSpan.FromSeconds(2);
-            var subject1 = new ServerSettings().WithHeartbeatInterval(oldHeartbeatInterval);
-            var subject2 = subject1.WithHeartbeatInterval(newHeartbeatInterval);
-            subject2.Should().NotBeSameAs(subject1);
-            subject2.HeartbeatInterval.Should().Be(newHeartbeatInterval);
+            var subject = new ServerSettings(heartbeatInterval: oldHeartbeatInterval);
+
+            var result = subject.With(heartbeatInterval: newHeartbeatInterval);
+
+            result.HeartbeatInterval.Should().Be(newHeartbeatInterval);
+            result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
         }
 
         [Test]
-        public void WithHeartbeatInterval_returns_same_instance_if_value_is_equal()
-        {
-            var subject1 = new ServerSettings();
-            var subject2 = subject1.WithHeartbeatInterval(subject1.HeartbeatInterval);
-            subject2.Should().BeSameAs(subject1);
-        }
-
-        [Test]
-        public void WithHeartbeatTimeout_returns_new_instance_if_value_is_not_equal()
+        public void With_heartbeatTimeout_should_return_expected_result()
         {
             var oldHeartbeatTimeout = TimeSpan.FromSeconds(1);
             var newHeartbeatTimeout = TimeSpan.FromSeconds(2);
-            var subject1 = new ServerSettings().WithHeartbeatTimeout(oldHeartbeatTimeout);
-            var subject2 = subject1.WithHeartbeatTimeout(newHeartbeatTimeout);
-            subject2.Should().NotBeSameAs(subject1);
-            subject2.HeartbeatTimeout.Should().Be(newHeartbeatTimeout);
-        }
+            var subject = new ServerSettings(heartbeatTimeout: oldHeartbeatTimeout);
 
-        [Test]
-        public void WithHeartbeatTimeout_returns_same_instance_if_value_is_equal()
-        {
-            var subject1 = new ServerSettings();
-            var subject2 = subject1.WithHeartbeatTimeout(subject1.HeartbeatTimeout);
-            subject2.Should().BeSameAs(subject1);
+            var result = subject.With(heartbeatTimeout: newHeartbeatTimeout);
+
+            result.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);
+            result.HeartbeatTimeout.Should().Be(newHeartbeatTimeout);
         }
     }
 }

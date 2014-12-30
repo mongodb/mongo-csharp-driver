@@ -36,7 +36,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value.</param>
         public BsonString(string value)
-            : base(BsonType.String)
         {
             if (value == null)
             {
@@ -55,6 +54,14 @@ namespace MongoDB.Bson
         }
 
         // public properties
+        /// <summary>
+        /// Gets the BsonType of this BsonValue.
+        /// </summary>
+        public override BsonType BsonType
+        {
+            get { return BsonType.String; }
+        }
+
         /// <summary>
         /// Gets the BsonString as a string.
         /// </summary>

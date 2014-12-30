@@ -44,5 +44,10 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                     return new[] { list[index] };
             }
         }
+
+        public override string ToString()
+        {
+            return "RandomServerSelector";
+        }
     }
 }

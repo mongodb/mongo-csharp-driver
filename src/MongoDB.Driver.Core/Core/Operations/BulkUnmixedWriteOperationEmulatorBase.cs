@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -87,19 +89,15 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        protected abstract IWireProtocol<WriteConcernResult> CreateProtocol(IConnectionHandle connection, WriteRequest request);
-
-        protected virtual async Task<BulkWriteBatchResult> EmulateSingleRequestAsync(IConnectionHandle connection, WriteRequest request, int originalIndex, CancellationToken cancellationToken)
+        protected virtual async Task<BulkWriteBatchResult> EmulateSingleRequestAsync(IChannelHandle channel, WriteRequest request, int originalIndex, CancellationToken cancellationToken)
         {
-            var protocol = CreateProtocol(connection, request);
-
             WriteConcernResult writeConcernResult = null;
-            WriteConcernException writeConcernException = null;
+            MongoWriteConcernException writeConcernException = null;
             try
             {
-                writeConcernResult = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                writeConcernResult = await ExecuteProtocolAsync(channel, request, cancellationToken).ConfigureAwait(false);
             }
-            catch (WriteConcernException ex)
+            catch (MongoWriteConcernException ex)
             {
                 writeConcernResult = ex.WriteConcernResult;
                 writeConcernException = ex;
@@ -113,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
                 indexMap);
         }
 
-        public async Task<BulkWriteOperationResult> ExecuteAsync(IConnectionHandle connection, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
             var batchResults = new List<BulkWriteBatchResult>();
             var remainingRequests = new List<WriteRequest>();
@@ -128,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
                     continue;
                 }
 
-                var batchResult = await EmulateSingleRequestAsync(connection, request, originalIndex, cancellationToken).ConfigureAwait(false);
+                var batchResult = await EmulateSingleRequestAsync(channel, request, originalIndex, cancellationToken).ConfigureAwait(false);
                 batchResults.Add(batchResult);
 
                 hasWriteErrors |= batchResult.HasWriteErrors;
@@ -136,7 +134,9 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             var combiner = new BulkWriteBatchResultCombiner(batchResults, _writeConcern.IsAcknowledged);
-            return combiner.CreateResultOrThrowIfHasErrors(remainingRequests);
+            return combiner.CreateResultOrThrowIfHasErrors(channel.ConnectionDescription.ConnectionId, remainingRequests);
         }
+
+        protected abstract Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, WriteRequest request, CancellationToken cancellationToken);
     }
 }

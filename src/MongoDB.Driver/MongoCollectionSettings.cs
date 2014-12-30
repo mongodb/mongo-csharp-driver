@@ -131,7 +131,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IBsonSerializerRegistry SerializerRegistry
         {
-            get { return GlobalBsonSerializerRegistry.Instance; }
+            get { return BsonSerializer.SerializerRegistry; }
         }
 
         /// <summary>

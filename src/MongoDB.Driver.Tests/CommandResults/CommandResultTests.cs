@@ -23,13 +23,11 @@ namespace MongoDB.Driver.Tests.CommandResults
     [TestFixture]
     public class CommandResultTests
     {
-        private MongoServer _server;
         private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = Configuration.TestServer;
             _database = Configuration.TestDatabase;
         }
 
@@ -148,26 +146,7 @@ namespace MongoDB.Driver.Tests.CommandResults
         [Test]
         public void TestInvalidCommand()
         {
-            try
-            {
-                _database.RunCommand("invalid");
-            }
-            catch (Exception ex)
-            {
-                // when connected to mongod a MongoCommandException is thrown
-                // but when connected to mongos a MongoQueryException is thrown
-                // this should be considered a server bug that they don't report the error in the same way
-
-                var primary = _server.Primary;
-                if (primary.InstanceType == MongoServerInstanceType.ShardRouter && primary.BuildInfo.Version < new Version(2, 4, 0))
-                {
-                    Assert.IsInstanceOf<MongoQueryException>(ex);
-                }
-                else
-                {
-                    Assert.IsInstanceOf<MongoCommandException>(ex);
-                }
-            }
+            Assert.Throws<MongoCommandException>(() => _database.RunCommand("invalid"));
         }
     }
 }
