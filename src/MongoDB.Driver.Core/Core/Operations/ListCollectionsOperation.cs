@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class ListCollectionsOperation : IReadOperation<IReadOnlyList<BsonDocument>>
+    public class ListCollectionsOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
         #region static
         // static fields
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<IReadOnlyList<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
 
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IAsyncCursor<BsonDocument>> ExecuteUsingCommandAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var command = new BsonDocument
             {
@@ -91,10 +91,22 @@ namespace MongoDB.Driver.Core.Operations
             };
             var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             var response = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
-            return response["collections"].AsBsonArray.Select(value => (BsonDocument)value).ToList();
+            var cursorDocument = response["cursor"].AsBsonDocument;
+            var cursor = new AsyncCursor<BsonDocument>(
+                channelSource.Fork(),
+                CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
+                command,
+                cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),
+                cursorDocument["id"].ToInt64(),
+                0,
+                0,
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings);
+
+            return cursor;
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IAsyncCursor<BsonDocument>> ExecuteUsingQueryAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             // if the filter includes a comparison to the "name" we must convert the value to a full namespace
             var filter = _filter;
@@ -115,28 +127,25 @@ namespace MongoDB.Driver.Core.Operations
             };
             var cursor = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
 
-            var collections = new List<BsonDocument>();
-            var prefix = _databaseNamespace + ".";
+            return new ProjectingAsyncCursor<BsonDocument, BsonDocument>(cursor, NormalizeQueryResponse);
+        }
 
-            while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+        private IEnumerable<BsonDocument> NormalizeQueryResponse(IEnumerable<BsonDocument> collections)
+        {
+            var prefix = _databaseNamespace + ".";
+            foreach (var collection in collections)
             {
-                var batch = cursor.Current;
-                foreach (var collection in batch)
+                var name = (string)collection["name"];
+                if (name.StartsWith(prefix))
                 {
-                    var name = (string)collection["name"];
-                    if (name.StartsWith(prefix))
+                    var collectionName = name.Substring(prefix.Length);
+                    if (!collectionName.Contains('$'))
                     {
-                        var collectionName = name.Substring(prefix.Length);
-                        if (!collectionName.Contains('$'))
-                        {
-                            collection["name"] = collectionName; // replace the full namespace with just the collection name
-                            collections.Add(collection);
-                        }
+                        collection["name"] = collectionName; // replace the full namespace with just the collection name
+                        yield return collection;
                     }
                 }
             }
-
-            return collections;
         }
     }
 }

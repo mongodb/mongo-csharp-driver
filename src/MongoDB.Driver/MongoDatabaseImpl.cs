@@ -100,7 +100,8 @@ namespace MongoDB.Driver
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings);
-            var collections = await ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
+            var cursor = await ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
+            var collections = await cursor.ToListAsync().ConfigureAwait(false);
             return collections.Select(c => c["name"].AsString).ToList();
         }
 

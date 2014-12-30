@@ -101,11 +101,12 @@ namespace MongoDB.Driver
         [Test]
         public async Task GetCollectionNames_should_execute_the_ListCollectionsOperation()
         {
-            _operationExecutor.EnqueueResult<IReadOnlyList<BsonDocument>>(new BsonDocument[0]);
+            var result = Substitute.For<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult<IAsyncCursor<BsonDocument>>(result);
 
             await _subject.GetCollectionNamesAsync(CancellationToken.None);
 
-            var call = _operationExecutor.GetReadCall<IReadOnlyList<BsonDocument>>();
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             call.Operation.Should().BeOfType<ListCollectionsOperation>();
             var op = (ListCollectionsOperation)call.Operation;
             op.DatabaseNamespace.DatabaseName.Should().Be("foo");

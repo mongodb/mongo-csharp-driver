@@ -528,8 +528,9 @@ namespace MongoDB.Driver
         public virtual IEnumerable<string> GetCollectionNames()
         {
             var operation = new ListCollectionsOperation(_namespace, GetMessageEncoderSettings());
-            var result = ExecuteReadOperation(operation, ReadPreference.Primary);
-            return result.Select(c => c["name"].AsString).OrderBy(n => n).ToList();
+            var cursor = ExecuteReadOperation(operation, ReadPreference.Primary);
+            var list = cursor.ToListAsync().GetAwaiter().GetResult();
+            return list.Select(c => c["name"].AsString).OrderBy(n => n).ToList();
         }
 
         /// <summary>

@@ -79,9 +79,10 @@ namespace MongoDB.Driver.Core.Operations
             var expectedNames = new[] { "regular", "capped" };
 
             var result = await ExecuteOperationAsync(subject);
+            var list = await result.ToListAsync();
 
-            result.Count.Should().BeGreaterThan(0);
-            result.Select(c => c["name"].AsString).Where(n => n != "system.indexes").Should().BeEquivalentTo(expectedNames);
+            list.Count.Should().BeGreaterThan(0);
+            list.Select(c => c["name"].AsString).Where(n => n != "system.indexes").Should().BeEquivalentTo(expectedNames);
         }
 
         [TestCase("{ name : \"regular\" }", "regular")]
@@ -96,9 +97,10 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             var result = await ExecuteOperationAsync(subject);
+            var list = await result.ToListAsync();
 
-            result.Should().HaveCount(1);
-            result[0]["name"].AsString.Should().Be(expectedName);
+            list.Should().HaveCount(1);
+            list[0]["name"].AsString.Should().Be(expectedName);
         }
 
         [Test]
@@ -109,8 +111,9 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new ListCollectionsOperation(databaseNamespace, _messageEncoderSettings);
 
             var result = await ExecuteOperationAsync(subject);
+            var list = await result.ToListAsync();
 
-            result.Should().HaveCount(0);
+            list.Should().HaveCount(0);
         }
 
         [Test]
