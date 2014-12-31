@@ -18,7 +18,7 @@ using System.Security;
 
 [assembly: AssemblyCompany("MongoDB Inc.")]
 [assembly: AssemblyCopyright("Copyright © 2010-2014 MongoDB Inc.")]
-[assembly: AssemblyVersion("99.0.1.10")]
+[assembly: AssemblyVersion("99.0.1.11")]
 [assembly: AssemblyInformationalVersion("unofficial")]
-[assembly: AssemblyFileVersion("99.0.1.10")]
+[assembly: AssemblyFileVersion("99.0.1.11")]
 [assembly: AssemblyConfiguration("Debug")]
