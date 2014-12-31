@@ -74,38 +74,37 @@ namespace MongoDB.Driver
         private readonly TimeSpan? _wTimeout;
 
         // constructors
-        public WriteConcern()
-        {
-        }
-
-        public WriteConcern(int w)
-            : this(w, null, null, null)
-        {
-        }
-
-        public WriteConcern(string mode)
-            : this(mode, null, null, null)
+        public WriteConcern(
+            int w,
+            Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
+            Optional<bool?> fsync = default(Optional<bool?>),
+            Optional<bool?> journal = default(Optional<bool?>))
+            : this(new Optional<WValue>(Ensure.IsGreaterThanOrEqualToZero(w, "w")), wTimeout, fsync, journal)
         {
         }
 
         public WriteConcern(
-            WValue w,
-            TimeSpan? wTimeout,
-            bool? fsync,
-            bool? journal)
+            string mode,
+            Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
+            Optional<bool?> fsync = default(Optional<bool?>),
+            Optional<bool?> journal = default(Optional<bool?>))
+            : this(new Optional<WValue>(Ensure.IsNotNullOrEmpty(mode, "mode")), wTimeout, fsync, journal)
         {
-            _w = w;
-            _wTimeout = wTimeout;
-            _fsync = fsync;
-            _journal = journal;
+        }
+
+        public WriteConcern(
+            Optional<WValue> w = default(Optional<WValue>),
+            Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
+            Optional<bool?> fsync = default(Optional<bool?>),
+            Optional<bool?> journal = default(Optional<bool?>))
+        {
+            _w = w.WithDefault(null);
+            _wTimeout = Ensure.IsNullOrGreaterThanZero(wTimeout.WithDefault(null), "wTimeout");
+            _fsync = fsync.WithDefault(null);
+            _journal = journal.WithDefault(null);
         }
 
         // properties
-        public bool Enabled
-        {
-            get { return IsAcknowledged; }
-        }
-
         public bool? FSync
         {
             get { return _fsync; }
@@ -144,17 +143,17 @@ namespace MongoDB.Driver
             return Equals(obj as WriteConcern);
         }
 
-        public bool Equals(WriteConcern rhs)
+        public bool Equals(WriteConcern other)
         {
-            if (rhs == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return _fsync == rhs._fsync &&
-                _journal == rhs._journal &&
-                object.Equals(_w, rhs._w) &&
-                _wTimeout == rhs._wTimeout;
+            return _fsync == other._fsync &&
+                _journal == other._journal &&
+                object.Equals(_w, other._w) &&
+                _wTimeout == other._wTimeout;
         }
 
         public override int GetHashCode()
@@ -215,48 +214,44 @@ namespace MongoDB.Driver
             }
         }
 
-        public WriteConcern WithFSync(bool? value)
+        public WriteConcern With(
+            int w,
+            Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
+            Optional<bool?> fsync = default(Optional<bool?>),
+            Optional<bool?> journal = default(Optional<bool?>))
         {
-            return (_fsync == value) ? this : new Builder(this) { _fsync = value }.Build();
+            return With(new WCount(w), wTimeout, fsync, journal);
         }
 
-        public WriteConcern WithJournal(bool? value)
+        public WriteConcern With(
+            string mode,
+            Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
+            Optional<bool?> fsync = default(Optional<bool?>),
+            Optional<bool?> journal = default(Optional<bool?>))
         {
-            return (_journal == value) ? this : new Builder(this) { _journal = value }.Build();
+            return With(new WMode(mode), wTimeout, fsync, journal);
         }
 
-        public WriteConcern WithW(WValue value)
+        public WriteConcern With(
+            Optional<WValue> w = default(Optional<WValue>),
+            Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
+            Optional<bool?> fsync = default(Optional<bool?>),
+            Optional<bool?> journal = default(Optional<bool?>))
         {
-            return (object.Equals(_w, value)) ? this : new Builder(this) { _w = value }.Build();
-        }
-
-        public WriteConcern WithWTimeout(TimeSpan? value)
-        {
-            return (_wTimeout == value) ? this : new Builder(this) { _wTimeout = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            public bool? _fsync;
-            public bool? _journal;
-            public WValue _w;
-            public TimeSpan? _wTimeout;
-
-            // constructors
-            public Builder(WriteConcern other)
+            if (w.Replaces(_w) ||
+                wTimeout.Replaces(_wTimeout) ||
+                fsync.Replaces(_fsync) ||
+                journal.Replaces(_journal))
             {
-                _fsync = other.FSync;
-                _journal = other.Journal;
-                _w = other.W;
-                _wTimeout = other.WTimeout;
+                return new WriteConcern(
+                    w: w.WithDefault(_w),
+                    wTimeout: wTimeout.WithDefault(_wTimeout),
+                    fsync: fsync.WithDefault(_fsync),
+                    journal: journal.WithDefault(_journal));
             }
-
-            // methods
-            public WriteConcern Build()
+            else
             {
-                return new WriteConcern(_w, _wTimeout, _fsync, _journal);
+                return this;
             }
         }
 
@@ -359,10 +354,13 @@ namespace MongoDB.Driver
         public sealed class WMode : WValue, IEquatable<WMode>
         {
             #region static
+            // static fields
+            private static readonly WMode __majority = new WMode("majority");
+
             // static properties
             public static WMode Majority
             {
-                get { return new WMode("majority"); }
+                get { return __majority; }
             }
             #endregion
 

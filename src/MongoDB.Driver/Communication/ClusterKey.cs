@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Communication
         #endregion
 
         // fields
+        private readonly Action<ClusterBuilder> _clusterConfigurator;
         private readonly ConnectionMode _connectionMode;
         private readonly TimeSpan _connectTimeout;
         private readonly IReadOnlyList<MongoCredential> _credentials;
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.Communication
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
         private readonly bool _ipv6;
+        private readonly TimeSpan _localThreshold;
         private readonly TimeSpan _maxConnectionIdleTime;
         private readonly TimeSpan _maxConnectionLifeTime;
         private readonly int _maxConnectionPoolSize;
@@ -69,12 +71,14 @@ namespace MongoDB.Driver.Communication
         // constructors
         public ClusterKey(MongoClientSettings clientSettings)
         {
+            _clusterConfigurator = clientSettings.ClusterConfigurator;
             _connectionMode = clientSettings.ConnectionMode;
             _connectTimeout = clientSettings.ConnectTimeout;
             _credentials = clientSettings.Credentials.ToList();
             _heartbeatInterval = __defaultHeartbeatInterval; // TODO: add HeartbeatInterval to MongoClientSettings?
             _heartbeatTimeout = __defaultHeartbeatTimeout; // TODO: add HeartbeatTimeout to MongoClientSettings?
             _ipv6 = clientSettings.IPv6;
+            _localThreshold = clientSettings.LocalThreshold;
             _maxConnectionIdleTime = clientSettings.MaxConnectionIdleTime;
             _maxConnectionLifeTime = clientSettings.MaxConnectionLifeTime;
             _maxConnectionPoolSize = clientSettings.MaxConnectionPoolSize;
@@ -94,12 +98,14 @@ namespace MongoDB.Driver.Communication
 
         public ClusterKey(MongoServerSettings serverSettings)
         {
+            _clusterConfigurator = serverSettings.ClusterConfigurator;
             _connectionMode = serverSettings.ConnectionMode;
             _connectTimeout = serverSettings.ConnectTimeout;
             _credentials = serverSettings.Credentials.ToList();
             _heartbeatInterval = __defaultHeartbeatInterval; // TODO: add HeartbeatInterval to MongoServerSettings?
             _heartbeatTimeout = __defaultHeartbeatTimeout; // TODO: add HeartbeatTimeout to MongoServerSettings?
             _ipv6 = serverSettings.IPv6;
+            _localThreshold = serverSettings.LocalThreshold;
             _maxConnectionIdleTime = serverSettings.MaxConnectionIdleTime;
             _maxConnectionLifeTime = serverSettings.MaxConnectionLifeTime;
             _maxConnectionPoolSize = serverSettings.MaxConnectionPoolSize;
@@ -118,12 +124,14 @@ namespace MongoDB.Driver.Communication
         }
 
         // properties
+        public Action<ClusterBuilder> ClusterConfigurator { get { return _clusterConfigurator; } }
         public ConnectionMode ConnectionMode { get { return _connectionMode; } }
         public TimeSpan ConnectTimeout { get { return _connectTimeout; } }
         public IReadOnlyList<MongoCredential> Credentials { get { return _credentials; } }
         public TimeSpan HeartbeatInterval { get { return _heartbeatInterval; } }
         public TimeSpan HeartbeatTimeout { get { return _heartbeatTimeout; } }
         public bool IPv6 { get { return _ipv6; } }
+        public TimeSpan LocalThreshold { get { return _localThreshold; } }
         public TimeSpan MaxConnectionIdleTime { get { return _maxConnectionIdleTime; } }
         public TimeSpan MaxConnectionLifeTime { get { return _maxConnectionLifeTime; } }
         public int MaxConnectionPoolSize { get { return _maxConnectionPoolSize; } }
@@ -158,12 +166,14 @@ namespace MongoDB.Driver.Communication
             var rhs = (ClusterKey)obj;
             return
                 _hashCode == rhs._hashCode && // fail fast
+                object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                 _connectionMode == rhs._connectionMode &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials.SequenceEqual(rhs._credentials) &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
+                _localThreshold == rhs._localThreshold &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&

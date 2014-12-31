@@ -191,19 +191,19 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void CreateCommand_should_return_expected_result_when_StorageOptions_is_set(
+        public void CreateCommand_should_return_expected_result_when_StorageEngine_is_set(
             [Values(null, "{ awesome: true }")]
-            string storageOptions)
+            string storageEngine)
         {
-            var storageOptionsDoc = storageOptions == null ? null : BsonDocument.Parse(storageOptions);
+            var storageEngineDoc = storageEngine == null ? null : BsonDocument.Parse(storageEngine);
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                StorageOptions = storageOptionsDoc
+                StorageEngine = storageEngineDoc
             };
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "storageOptions", storageOptionsDoc, storageOptions != null }
+                { "storageEngine", storageEngineDoc, storageEngine != null }
             };
 
             var result = subject.CreateCommand();
@@ -266,8 +266,10 @@ namespace MongoDB.Driver.Core.Operations
                 result["ok"].ToBoolean().Should().BeTrue();
 
                 var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-                var indexes = await listIndexesOperation.ExecuteAsync(binding, CancellationToken.None);
-                indexes.Count().Should().Be(autoIndexId ? 1 : 0);
+                var cursor = await listIndexesOperation.ExecuteAsync(binding, CancellationToken.None);
+                var indexes = await cursor.ToListAsync();
+
+                indexes.Count.Should().Be(autoIndexId ? 1 : 0);
             }
         }
 

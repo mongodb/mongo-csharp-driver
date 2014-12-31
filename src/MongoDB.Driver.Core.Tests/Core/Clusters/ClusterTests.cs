@@ -42,7 +42,8 @@ namespace MongoDB.Driver.Core.Clusters
         [SetUp]
         public void Setup()
         {
-            _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2));
+            _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2),
+                postServerSelector: new LatencyLimitingServerSelector(TimeSpan.FromMinutes(2)));
             _serverFactory = Substitute.For<IClusterableServerFactory>();
             _clusterListener = Substitute.For<IClusterListener>();
         }
@@ -245,6 +246,38 @@ namespace MongoDB.Driver.Core.Clusters
             subject.SetServerDescriptions(ServerDescriptionHelper.Connected(subject.Description.ClusterId, averageRoundTripTime: TimeSpan.FromMilliseconds(13)));
 
             count.Should().Be(3);
+        }
+
+        [Test]
+        public async Task SelectServerAsync_should_apply_both_pre_and_post_server_selectors()
+        {
+            _serverFactory.CreateServer(null, null).ReturnsForAnyArgs(ci =>
+            {
+                var endPoint = ci.Arg<EndPoint>();
+                var server = Substitute.For<IClusterableServer>();
+                server.EndPoint.Returns(endPoint);
+                return server;
+            });
+
+            var preSelector = new DelegateServerSelector((cd, sds) => sds.Where(x => ((DnsEndPoint)x.EndPoint).Port != 27017));
+            var middleSelector = new DelegateServerSelector((cd, sds) => sds.Where(x => ((DnsEndPoint)x.EndPoint).Port != 27018));
+            var postSelector = new DelegateServerSelector((cd, sds) => sds.Where(x => ((DnsEndPoint)x.EndPoint).Port != 27019));
+
+            var settings = new ClusterSettings(
+                preServerSelector: preSelector,
+                postServerSelector: postSelector);
+
+            var subject = new StubCluster(settings, _serverFactory, _clusterListener);
+            subject.Initialize();
+
+            subject.SetServerDescriptions(
+                ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27017)),
+                ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27018)),
+                ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27019)),
+                ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27020)));
+
+            var selected = await subject.SelectServerAsync(middleSelector, CancellationToken.None);
+            ((DnsEndPoint)selected.EndPoint).Port.Should().Be(27020);
         }
 
         private StubCluster CreateSubject(ClusterConnectionMode connectionMode = ClusterConnectionMode.Automatic)

@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Async
@@ -40,20 +41,25 @@ namespace MongoDB.Driver.Core.Async
             }
         }
 
-        public Task<T> DequeueAsync()
+        public async Task<T> DequeueAsync(CancellationToken cancellationToken)
         {
+            TaskCompletionSource<T> awaiter;
             lock (_lock)
             {
                 if (_queue.Count > 0)
                 {
-                    return Task.FromResult(_queue.Dequeue());
+                    return _queue.Dequeue();
                 }
                 else
                 {
-                    var awaiter = new TaskCompletionSource<T>();
+                    awaiter = new TaskCompletionSource<T>();
                     _awaiters.Enqueue(awaiter);
-                    return awaiter.Task;
                 }
+            }
+
+            using (cancellationToken.Register(() => awaiter.TrySetCanceled(), useSynchronizationContext: false))
+            {
+                return await awaiter.Task.ConfigureAwait(false);
             }
         }
 

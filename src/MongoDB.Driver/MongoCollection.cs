@@ -1044,8 +1044,9 @@ namespace MongoDB.Driver
         public virtual GetIndexesResult GetIndexes()
         {
             var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings());
-            var indexes = ExecuteReadOperation(operation).ToArray();
-            return new GetIndexesResult(indexes);
+            var cursor = ExecuteReadOperation(operation);
+            var list = cursor.ToListAsync().GetAwaiter().GetResult();
+            return new GetIndexesResult(list.ToArray());
         }
 
         /// <summary>
@@ -1263,7 +1264,7 @@ namespace MongoDB.Driver
         public virtual bool IndexExistsByName(string indexName)
         {
             var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings());
-            var indexes = ExecuteReadOperation(operation).ToArray();
+            var indexes = ExecuteReadOperation(operation).ToListAsync().GetAwaiter().GetResult();
             return indexes.Any(index => index["name"].AsString == indexName);
         }
 
@@ -1893,8 +1894,9 @@ namespace MongoDB.Driver
             var writerSettings = new BsonDocumentWriterSettings { GuidRepresentation = _settings.GuidRepresentation };
             using (var bsonWriter = new BsonDocumentWriter(bsonDocument, writerSettings))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter, nominalType);
-                serializer.Serialize(context, document);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var args = new BsonSerializationArgs { NominalType = nominalType };
+                serializer.Serialize(context, args, document);
             }
 
             BsonValue idBsonValue;

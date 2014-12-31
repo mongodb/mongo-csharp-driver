@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Wrappers
         // nested classes
         new internal class Serializer : SerializerBase<GroupByWrapper>
         {
-            public override void Serialize(BsonSerializationContext context, GroupByWrapper value)
+            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GroupByWrapper value)
             {
                 value.SerializeWrappedObject(context);
             }

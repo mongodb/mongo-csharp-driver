@@ -186,8 +186,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override DateTime Deserialize(BsonDeserializationContext context)
+        public override DateTime Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             DateTime value;
@@ -207,7 +208,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         switch (flag)
                         {
                             case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
-                            case Flags.Ticks: value = new DateTime(context.DeserializeWithChildContext(_int64Serializer), DateTimeKind.Utc); break;
+                            case Flags.Ticks: value = new DateTime(_int64Serializer.Deserialize(context), DateTimeKind.Utc); break;
                         }
                     });
                     break;
@@ -260,8 +261,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, DateTime value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, DateTime value)
         {
             var bsonWriter = context.Writer;
 

@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Async
                 }
             }
 
-            using (cancellationToken.Register(() => awaiter.TrySetCanceled()))
+            using (cancellationToken.Register(() => awaiter.TrySetCanceled(), useSynchronizationContext: false))
             {
                 return await awaiter.Task.ConfigureAwait(false);
             }

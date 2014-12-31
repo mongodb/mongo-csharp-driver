@@ -30,6 +30,7 @@ namespace MongoDB.Driver
         private static bool __assignIdOnInsert = true;
         private static string __authenticationMechanism = null;
         private static TimeSpan __connectTimeout = TimeSpan.FromSeconds(30);
+        private static TimeSpan __localThreshold = TimeSpan.FromMilliseconds(15);
         private static TimeSpan __maxConnectionIdleTime = TimeSpan.FromMinutes(10);
         private static TimeSpan __maxConnectionLifeTime = TimeSpan.FromMinutes(30);
         private static int __maxBatchCount = 1000;
@@ -38,7 +39,6 @@ namespace MongoDB.Driver
         private static int __minConnectionPoolSize = 0;
         private static TimeSpan __operationTimeout = TimeSpan.FromSeconds(30);
         private static UTF8Encoding __readEncoding = Utf8Encodings.Strict;
-        private static TimeSpan __secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15);
         private static TimeSpan __socketTimeout = TimeSpan.Zero; // use operating system default (presumably infinite)
         private static int __tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
         private static int __tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
@@ -101,6 +101,15 @@ namespace MongoDB.Driver
         {
             get { return BsonDefaults.GuidRepresentation; }
             set { BsonDefaults.GuidRepresentation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the default local threshold.
+        /// </summary>
+        public static TimeSpan LocalThreshold
+        {
+            get { return __localThreshold; }
+            set { __localThreshold = value; }
         }
 
         /// <summary>
@@ -189,16 +198,6 @@ namespace MongoDB.Driver
                 }
                 __readEncoding = value;
             }
-        }
-
-        /// <summary>
-        /// Gets or sets the default acceptable latency for considering a replica set member for inclusion in load balancing
-        /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
-        /// </summary>
-        public static TimeSpan SecondaryAcceptableLatency
-        {
-            get { return __secondaryAcceptableLatency; }
-            set { __secondaryAcceptableLatency = value; }
         }
 
         /// <summary>

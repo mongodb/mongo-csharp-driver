@@ -51,6 +51,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Clusters\ReplicaSetConfigTests.cs" />
     <Compile Include="Core\Configuration\ClusterSettingsTests.cs" />
     <Compile Include="Core\Configuration\ConnectionPoolSettingsTests.cs" />
     <Compile Include="Core\Configuration\ConnectionSettingsTests.cs" />
@@ -123,7 +124,6 @@
     <Compile Include="Core\Misc\BatchableSourceTests.cs" />
     <Compile Include="Core\Misc\MetronomeTests.cs" />
     <Compile Include="Core\Async\AsyncQueueTests.cs" />
-    <Compile Include="Core\Async\AsyncBackgroundTaskTests.cs" />
     <Compile Include="Core\Authentication\ScramSha1AuthenticatorTests.cs" />
     <Compile Include="Core\Authentication\PlainAuthenticatorTests.cs" />
     <Compile Include="Core\Authentication\MongoDBCRAuthenticatorTests.cs" />

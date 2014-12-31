@@ -61,14 +61,14 @@ namespace MongoDB.Driver
         [Test]
         public async Task CreateCollectionAsync_should_execute_the_CreateCollectionOperation()
         {
-            var storageOptions = new BsonDocument("awesome", true);
+            var storageEngine = new BsonDocument("awesome", true);
             var options = new CreateCollectionOptions
             {
                 AutoIndexId = false,
                 Capped = true,
                 MaxDocuments = 10,
                 MaxSize = 11,
-                StorageOptions = storageOptions,
+                StorageEngine = storageEngine,
                 UsePowerOf2Sizes = false
             };
             await _subject.CreateCollectionAsync("bar", options, CancellationToken.None);
@@ -82,7 +82,7 @@ namespace MongoDB.Driver
             op.Capped.Should().Be(options.Capped);
             op.MaxDocuments.Should().Be(options.MaxDocuments);
             op.MaxSize.Should().Be(options.MaxSize);
-            op.StorageOptions.Should().Be(storageOptions);
+            op.StorageEngine.Should().Be(storageEngine);
             op.UsePowerOf2Sizes.Should().Be(options.UsePowerOf2Sizes);
         }
 
@@ -101,11 +101,12 @@ namespace MongoDB.Driver
         [Test]
         public async Task GetCollectionNames_should_execute_the_ListCollectionsOperation()
         {
-            _operationExecutor.EnqueueResult<IReadOnlyList<BsonDocument>>(new BsonDocument[0]);
+            var result = Substitute.For<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult<IAsyncCursor<BsonDocument>>(result);
 
             await _subject.GetCollectionNamesAsync(CancellationToken.None);
 
-            var call = _operationExecutor.GetReadCall<IReadOnlyList<BsonDocument>>();
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             call.Operation.Should().BeOfType<ListCollectionsOperation>();
             var op = (ListCollectionsOperation)call.Operation;
             op.DatabaseNamespace.DatabaseName.Should().Be("foo");

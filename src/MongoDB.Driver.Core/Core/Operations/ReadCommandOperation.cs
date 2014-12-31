@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 "buildInfo",
                 "collStats",
+                "configureFailPoint",
                 "connectionStatus",
                 "count",
                 "cursorInfo",

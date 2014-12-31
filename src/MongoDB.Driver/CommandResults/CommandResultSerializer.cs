@@ -31,10 +31,11 @@ namespace MongoDB.Driver
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        public override TCommandResult Deserialize(BsonDeserializationContext context)
+        public override TCommandResult Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var response = BsonDocumentSerializer.Instance.Deserialize(context.CreateChild(typeof(BsonDocument)));
+            var response = BsonDocumentSerializer.Instance.Deserialize(context);
             return (TCommandResult)Activator.CreateInstance(typeof(TCommandResult), new object[] { response });
         }
     }

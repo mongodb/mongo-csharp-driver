@@ -19,12 +19,15 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
@@ -135,7 +138,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
                 stopwatch.Stop();
 
-                if(_listener != null)
+                if (_listener != null)
                 {
                     _listener.ConnectionPoolAfterEnteringWaitQueue(new ConnectionPoolAfterEnteringWaitQueueEvent(_serverId, stopwatch.Elapsed));
                     _listener.ConnectionPoolBeforeCheckingOutAConnection(new ConnectionPoolBeforeCheckingOutAConnectionEvent(_serverId));
@@ -207,7 +210,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             PooledConnection connection = _connectionHolder.Acquire();
             if (connection == null)
             {
-                if(_listener != null)
+                if (_listener != null)
                 {
                     _listener.ConnectionPoolBeforeAddingAConnection(new ConnectionPoolBeforeAddingAConnectionEvent(_serverId));
                 }
@@ -220,7 +223,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            return new AcquiredConnection(this, connection);
+            var reference = new ReferenceCounted<PooledConnection>(connection, x => ReleaseConnection(x));
+            return new AcquiredConnection(this, reference);
         }
 
         public void Clear()
@@ -244,11 +248,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     _listener.ConnectionPoolBeforeOpening(new ConnectionPoolBeforeOpeningEvent(_serverId, _settings));
                 }
-                AsyncBackgroundTask.Start(
-                    ct => MaintainSizeAsync(ct),
-                    _settings.MaintenanceInterval,
-                    _maintenanceCancellationTokenSource.Token)
-                    .HandleUnobservedException(ex => { }); // TODO: do we need to handle any error here?
+
+                MaintainSize();
 
                 if (_listener != null)
                 {
@@ -278,19 +279,23 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private async Task<bool> MaintainSizeAsync(CancellationToken cancellationToken)
+        private async void MaintainSize()
         {
-            try
+            var maintenanceCancellationToken = _maintenanceCancellationTokenSource.Token;
+            while (!maintenanceCancellationToken.IsCancellationRequested)
             {
-                await PrunePoolAsync(cancellationToken).ConfigureAwait(false);
-                await EnsureMinSizeAsync(cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    await PrunePoolAsync(maintenanceCancellationToken).ConfigureAwait(false);
+                    await EnsureMinSizeAsync(maintenanceCancellationToken).ConfigureAwait(false);
+                    await Task.Delay(_settings.MaintenanceInterval, maintenanceCancellationToken);
+                }
+                catch
+                {
+                    // do nothing, this is called in the background and, quite frankly, should never
+                    // result in an error
+                }
             }
-            catch
-            {
-                // do nothing, this is called in the background
-            }
-
-            return true;
         }
 
         private async Task PrunePoolAsync(CancellationToken cancellationToken)
@@ -422,96 +427,145 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public const int Disposed = 2;
         }
 
-        private class PooledConnection : ConnectionWrapper
+        private sealed class PooledConnection : IConnection
         {
-            // fields
+            private readonly IConnection _connection;
             private readonly ExclusiveConnectionPool _connectionPool;
             private readonly int _generation;
-            private int _referenceCount;
 
-            // constructors
             public PooledConnection(ExclusiveConnectionPool connectionPool, IConnection connection)
-                : base(connection)
             {
                 _connectionPool = connectionPool;
-                _generation = _connectionPool.Generation;
+                _connection = connection;
+                _generation = connectionPool._generation;
             }
 
-            // properties
-            public override bool IsExpired
+            public ConnectionId ConnectionId
             {
-                get
-                {
-                    return base.IsExpired || _generation < _connectionPool.Generation;
-                }
+                get { return _connection.ConnectionId; }
             }
 
-            public int ReferenceCount
+            public ConnectionDescription Description
             {
-                get
-                {
-                    return Interlocked.CompareExchange(ref _referenceCount, 0, 0);
-                }
+                get { return _connection.Description; }
             }
 
-            // methods
-            public void DecrementReferenceCount()
+            public EndPoint EndPoint
             {
-                Interlocked.Decrement(ref _referenceCount);
+                get { return _connection.EndPoint; }
             }
 
-            public void IncrementReferenceCount()
+            public bool IsExpired
             {
-                Interlocked.Increment(ref _referenceCount);
+                get { return _generation < _connectionPool.Generation || _connection.IsExpired; }
+            }
+
+            public ConnectionSettings Settings
+            {
+                get { return _connection.Settings; }
+            }
+
+            public void Dispose()
+            {
+                _connection.Dispose();
+            }
+
+            public Task OpenAsync(CancellationToken cancellationToken)
+            {
+                return _connection.OpenAsync(cancellationToken);
+            }
+
+            public Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            {
+                return _connection.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, cancellationToken);
+            }
+
+            public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            {
+                return _connection.SendMessagesAsync(messages, messageEncoderSettings, cancellationToken);
             }
         }
 
-        private class AcquiredConnection : ConnectionWrapper, IConnectionHandle
+        private sealed class AcquiredConnection : IConnectionHandle
         {
             private ExclusiveConnectionPool _connectionPool;
-            private PooledConnection _pooledConnection;
+            private bool _disposed;
+            private ReferenceCounted<PooledConnection> _reference;
 
-            public AcquiredConnection(ExclusiveConnectionPool connectionPool, PooledConnection pooledConnection)
-                : base(pooledConnection)
+            public AcquiredConnection(ExclusiveConnectionPool connectionPool, ReferenceCounted<PooledConnection> reference)
             {
                 _connectionPool = connectionPool;
-                _pooledConnection = pooledConnection;
-                _pooledConnection.IncrementReferenceCount();
+                _reference = reference;
             }
 
-            public override bool IsExpired
+            public ConnectionId ConnectionId
+            {
+                get { return _reference.Instance.ConnectionId; }
+            }
+
+            public ConnectionDescription Description
+            {
+                get { return _reference.Instance.Description; }
+            }
+
+            public EndPoint EndPoint
+            {
+                get { return _reference.Instance.EndPoint; }
+            }
+
+            public bool IsExpired
             {
                 get
                 {
-                    ThrowIfDisposed();
-                    return base.IsExpired || _connectionPool._state.Value == State.Disposed;
+                    return _connectionPool._state.Value == State.Disposed || _reference.Instance.IsExpired;
                 }
             }
 
-            protected override void Dispose(bool disposing)
+            public ConnectionSettings Settings
             {
-                if (disposing)
+                get { return _reference.Instance.Settings; }
+            }
+
+            public void Dispose()
+            {
+                if (!_disposed)
                 {
-                    if (!Disposed)
-                    {
-                        _pooledConnection.DecrementReferenceCount();
-                        if (_pooledConnection.ReferenceCount == 0)
-                        {
-                            _connectionPool.ReleaseConnection(_pooledConnection);
-                        }
-                    }
-                    Disposed = true;
-                    _pooledConnection = null;
-                    _connectionPool = null;
+                    _reference.DecrementReferenceCount();
+                    _disposed = true;
                 }
-                // don't call base.Dispose here because we don't want the underlying 
-                // connection to get disposed...
             }
 
             public IConnectionHandle Fork()
             {
                 ThrowIfDisposed();
-                return new AcquiredConnection(_connectionPool, _pooledConnection);
+                _reference.IncrementReferenceCount();
+                return new AcquiredConnection(_connectionPool, _reference);
+            }
+
+            public Task OpenAsync(CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                return _reference.Instance.OpenAsync(cancellationToken);
+            }
+
+            public Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                return _reference.Instance.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, cancellationToken);
+            }
+
+            public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                return _reference.Instance.SendMessagesAsync(messages, messageEncoderSettings, cancellationToken);
+            }
+
+            private void ThrowIfDisposed()
+            {
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(GetType().Name);
+                }
             }
         }
 

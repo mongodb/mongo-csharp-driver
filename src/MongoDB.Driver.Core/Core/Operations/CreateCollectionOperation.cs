@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         private long? _maxDocuments;
         private long? _maxSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private BsonDocument _storageOptions;
+        private BsonDocument _storageEngine;
         private bool? _usePowerOf2Sizes;
 
         // constructors
@@ -80,10 +80,10 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
-        public BsonDocument StorageOptions
+        public BsonDocument StorageEngine
         {
-            get { return _storageOptions; }
-            set { _storageOptions = value; }
+            get { return _storageEngine; }
+            set { _storageEngine = value; }
         }
 
         public bool? UsePowerOf2Sizes
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "size", () => _maxSize.Value, _maxSize.HasValue },
                 { "max", () => _maxDocuments.Value, _maxDocuments.HasValue },
                 { "flags", () => _usePowerOf2Sizes.Value ? 1 : 0, _usePowerOf2Sizes.HasValue},
-                { "storageOptions", () => _storageOptions, _storageOptions != null }
+                { "storageEngine", () => _storageEngine, _storageEngine != null }
             };
         }
 

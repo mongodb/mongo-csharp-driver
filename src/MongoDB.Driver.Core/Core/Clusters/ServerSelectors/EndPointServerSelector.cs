@@ -40,5 +40,10 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
             return servers.Where(server => EndPointHelper.Equals(server.EndPoint, _endPoint));
         }
+
+        public override string ToString()
+        {
+            return string.Format("EndPointServerSelector{{ EndPoint = {0} }}", EndPointHelper.ToString(_endPoint));
+        }
     }
 }

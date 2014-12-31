@@ -32,12 +32,14 @@ namespace MongoDB.Driver
         {
             "collStats",
             "dbStats",
+            "configureFailPoint",
             "count",
             "distinct",
             "geoNear",
             "geoSearch",
             "geoWalk",
             "group",
+            "isMaster",
             "parallelCollectionScan",
             "text"
         };

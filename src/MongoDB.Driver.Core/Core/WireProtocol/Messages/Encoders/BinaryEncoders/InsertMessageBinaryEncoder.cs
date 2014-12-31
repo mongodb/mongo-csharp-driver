@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             try
             {
                 var streamWriter = binaryWriter.StreamWriter;
-                var context = BsonSerializationContext.CreateRoot<TDocument>(binaryWriter);
+                var context = BsonSerializationContext.CreateRoot(binaryWriter);
                 _serializer.Serialize(context, document);
                 state.BatchCount++;
                 state.MessageSize = (int)streamWriter.Position - state.MessageStartPosition;
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var documents = new List<TDocument>();
             while (streamReader.Position < startPosition + messageSize)
             {
-                var context = BsonDeserializationContext.CreateRoot<TDocument>(binaryReader);
+                var context = BsonDeserializationContext.CreateRoot(binaryReader);
                 var document = _serializer.Deserialize(context);
                 documents.Add(document);
             }

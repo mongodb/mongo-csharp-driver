@@ -108,12 +108,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 var stopwatch = Stopwatch.StartNew();
-                AsyncBackgroundTask.Start(
-                    MonitorServersAsync,
-                    TimeSpan.Zero,
-                    _monitorServersCancellationTokenSource.Token)
-                    .HandleUnobservedException(ex => { }); // TODO: do we need to handle any error here?
-
+                MonitorServers();
                 // We lock here even though AddServer locks. Monitors
                 // are re-entrant such that this won't cause problems,
                 // but could prevent issues of conflicting reports
@@ -144,30 +139,28 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 servers = _servers.ToList();
             }
-           
+
             foreach (var server in servers)
             {
                 server.RequestHeartbeat();
             }
         }
 
-        private async Task<bool> MonitorServersAsync(CancellationToken cancellationToken)
+        private async void MonitorServers()
         {
-            if (cancellationToken.IsCancellationRequested)
+            var monitorServersCancellationToken = _monitorServersCancellationTokenSource.Token;
+            while (!monitorServersCancellationToken.IsCancellationRequested)
             {
-                return false;
+                try
+                {
+                    var eventArgs = await _serverDescriptionChangedQueue.DequeueAsync(monitorServersCancellationToken).ConfigureAwait(false); // TODO: add timeout and cancellationToken to DequeueAsync
+                    ProcessServerDescriptionChanged(eventArgs);
+                }
+                catch
+                {
+                    // TODO: log this somewhere...
+                }
             }
-            try
-            {
-                var eventArgs = await _serverDescriptionChangedQueue.DequeueAsync().ConfigureAwait(false); // TODO: add timeout and cancellationToken to DequeueAsync
-                ProcessServerDescriptionChanged(eventArgs);
-            }
-            catch
-            {
-                // TODO: log this somewhere...
-            }
-
-            return true;
         }
 
         private void ServerDescriptionChangedHandler(object sender, ServerDescriptionChangedEventArgs args)

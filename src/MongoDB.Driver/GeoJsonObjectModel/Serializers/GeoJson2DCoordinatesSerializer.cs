@@ -31,14 +31,15 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        protected override GeoJson2DCoordinates DeserializeValue(BsonDeserializationContext context)
+        protected override GeoJson2DCoordinates DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
             bsonReader.ReadStartArray();
-            var x = context.DeserializeWithChildContext(__doubleSerializer);
-            var y = context.DeserializeWithChildContext(__doubleSerializer);
+            var x = __doubleSerializer.Deserialize(context);
+            var y = __doubleSerializer.Deserialize(context);
             bsonReader.ReadEndArray();
 
             return new GeoJson2DCoordinates(x, y);
@@ -48,8 +49,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJson2DCoordinates value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, GeoJson2DCoordinates value)
         {
             var bsonWriter = context.Writer;
 

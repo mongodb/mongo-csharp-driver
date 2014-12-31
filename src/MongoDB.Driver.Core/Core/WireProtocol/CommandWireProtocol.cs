@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     var encoder = (ReplyMessageBinaryEncoder<TCommandResult>)encoderFactory.GetReplyMessageEncoder<TCommandResult>(_resultSerializer);
                     using (var reader = encoder.CreateBinaryReader())
                     {
-                        var context = BsonDeserializationContext.CreateRoot<TCommandResult>(reader);
+                        var context = BsonDeserializationContext.CreateRoot(reader);
                         return _resultSerializer.Deserialize(context);
                     }
                 }

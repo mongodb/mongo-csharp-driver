@@ -12,6 +12,9 @@ TestResults
 # CodeReview
 codereview.rc
 
+# GhostDoc artifacts
+CSharpDriver.sln.GhostDoc.xml
+
 # MonoDevelop artifacts
 *.pidb
 *.userprefs

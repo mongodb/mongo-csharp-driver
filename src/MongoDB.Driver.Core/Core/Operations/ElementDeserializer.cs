@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public override TValue Deserialize(BsonDeserializationContext context)
+        public override TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             TValue value = default(TValue);
 
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
                 var elementName = reader.ReadName();
                 if (elementName == _elementName && (reader.CurrentBsonType != BsonType.Null || _deserializeNull))
                 {
-                    value = context.DeserializeWithChildContext<TValue>(_valueSerializer);
+                    value = _valueSerializer.Deserialize(context);
                 }
                 else
                 {

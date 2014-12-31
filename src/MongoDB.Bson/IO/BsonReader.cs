@@ -261,17 +261,17 @@ namespace MongoDB.Bson.IO
             // overridden in BsonBinaryReader to read the raw bytes from the stream
             // for all other streams, deserialize the array and reserialize it using a BsonBinaryWriter to get the raw bytes
 
-            var deserializationContext = BsonDeserializationContext.CreateRoot<BsonArray>(this);
+            var deserializationContext = BsonDeserializationContext.CreateRoot(this);
             var array = BsonArraySerializer.Instance.Deserialize(deserializationContext);
 
             using (var memoryStream = new MemoryStream())
             using (var bsonWriter = new BsonBinaryWriter(memoryStream, BsonBinaryWriterSettings.Defaults))
             {
-                var serializationContext = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
+                var serializationContext = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
                 var startPosition = memoryStream.Position + 3; // just past BsonType, "x" and null byte
                 bsonWriter.WriteName("x");
-                serializationContext.SerializeWithChildContext(BsonArraySerializer.Instance, array);
+                BsonArraySerializer.Instance.Serialize(serializationContext, array);
                 var endPosition = memoryStream.Position;
                 bsonWriter.WriteEndDocument();
 
@@ -289,7 +289,7 @@ namespace MongoDB.Bson.IO
             // overridden in BsonBinaryReader to read the raw bytes from the stream
             // for all other streams, deserialize the document and use ToBson to get the raw bytes
 
-            var deserializationContext = BsonDeserializationContext.CreateRoot<BsonDocument>(this);
+            var deserializationContext = BsonDeserializationContext.CreateRoot(this);
             var document = BsonDocumentSerializer.Instance.Deserialize(deserializationContext);
             var bytes = document.ToBson();
             return new ByteArrayBuffer(bytes, 0, bytes.Length, true);

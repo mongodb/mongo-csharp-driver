@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var fullCollectionName = streamReader.ReadCString();
             var skip = streamReader.ReadInt32();
             var batchSize = streamReader.ReadInt32();
-            var context = BsonDeserializationContext.CreateRoot<BsonDocument>(binaryReader);
+            var context = BsonDeserializationContext.CreateRoot(binaryReader);
             var query = BsonDocumentSerializer.Instance.Deserialize(context);
             BsonDocument fields = null;
             if (streamReader.Position < startPosition + messageSize)
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             if (fields != null)
             {
-                var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
+                var context = BsonSerializationContext.CreateRoot(binaryWriter);
                 BsonDocumentSerializer.Instance.Serialize(context, fields);
             }
         }
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             binaryWriter.PushElementNameValidator(queryValidator);
             try
             {
-                var context = BsonSerializationContext.CreateRoot<BsonDocument>(binaryWriter);
+                var context = BsonSerializationContext.CreateRoot(binaryWriter);
                 BsonDocumentSerializer.Instance.Serialize(context, query ?? new BsonDocument());
             }
             finally

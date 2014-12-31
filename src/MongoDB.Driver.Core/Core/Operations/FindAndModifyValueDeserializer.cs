@@ -30,9 +30,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public override TResult Deserialize(BsonDeserializationContext context)
+        public override TResult Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            return context.DeserializeWithChildContext<TResult>(_resultSerializer);
+            return _resultSerializer.Deserialize(context);
         }
     }
 }

@@ -27,8 +27,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override TValue Deserialize(BsonDeserializationContext context)
+        public override TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             if (bsonReader.GetCurrentBsonType() == BsonType.Null)
@@ -38,7 +39,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return DeserializeValue(context);
+                return DeserializeValue(context, args);
             }
         }
 
@@ -46,8 +47,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, TValue value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TValue value)
         {
             if (value == null)
             {
@@ -56,7 +58,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                SerializeValue(context, value);
+                SerializeValue(context, args, value);
             }
         }
 
@@ -65,8 +67,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a class.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected virtual TValue DeserializeValue(BsonDeserializationContext context)
+        protected virtual TValue DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             throw CreateCannotBeDeserializedException();
         }
@@ -75,8 +78,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value of type {TValue}.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected virtual void SerializeValue(BsonSerializationContext context, TValue value)
+        protected virtual void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TValue value)
         {
             throw CreateCannotBeSerializedException();
         }

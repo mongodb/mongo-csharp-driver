@@ -45,5 +45,10 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             }
             return selectedServers;
         }
+
+        public override string ToString()
+        {
+            return string.Format("CompositeServerSelector{{ Selectors = {0} }}", string.Join(", ", _selectors.Select(x => x.ToString())));
+        }
     }
 }

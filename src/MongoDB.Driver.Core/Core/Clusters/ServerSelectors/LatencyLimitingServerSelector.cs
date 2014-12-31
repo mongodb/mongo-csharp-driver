@@ -61,5 +61,10 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                     return list.Where(s => s.AverageRoundTripTime <= maxAverageRoundTripTime);
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("LatencyLimitingServerSelector{{ AllowedLatencyRange = {0} }}", _allowedLatencyRange);
+        }
     }
 }

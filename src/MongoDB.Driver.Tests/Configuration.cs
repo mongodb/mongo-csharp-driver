@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace MongoDB.Driver.Tests
 {
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Tests
 
             var mongoUrl = new MongoUrl(connectionString);
             var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
-            if (!clientSettings.WriteConcern.Enabled)
+            if (!clientSettings.WriteConcern.IsAcknowledged)
             {
                 clientSettings.WriteConcern = WriteConcern.Acknowledged; // ensure WriteConcern is enabled regardless of what the URL says
             }
@@ -110,6 +109,54 @@ namespace MongoDB.Driver.Tests
         public static MongoCollection<T> GetTestCollection<T>()
         {
             return __testDatabase.GetCollection<T>(__testCollection.Name);
+        }
+
+        public static void StartReplication(MongoServerInstance secondary)
+        {
+            using (__testServer.RequestStart(secondary))
+            {
+                var adminDatabaseSettings = new MongoDatabaseSettings { ReadPreference = ReadPreference.Secondary };
+                var adminDatabase = __testServer.GetDatabase("admin", adminDatabaseSettings);
+                var command = new CommandDocument
+                {
+                    { "configureFailPoint", "rsSyncApplyStop"},
+                    { "mode", "off" }
+                };
+                adminDatabase.RunCommand(command);
+            }
+        }
+
+        public static IDisposable StopReplication(MongoServerInstance secondary)
+        {
+            using (__testServer.RequestStart(secondary))
+            {
+                var adminDatabaseSettings = new MongoDatabaseSettings { ReadPreference = ReadPreference.Secondary };
+                var adminDatabase = __testServer.GetDatabase("admin", adminDatabaseSettings);
+                var command = new CommandDocument
+                {
+                    { "configureFailPoint", "rsSyncApplyStop"},
+                    { "mode", "alwaysOn" }
+                };
+                adminDatabase.RunCommand(command);
+
+                return new ReplicationRestarter(secondary);
+            }
+        }
+
+        // nested types
+        private class ReplicationRestarter : IDisposable
+        {
+            MongoServerInstance _secondary;
+
+            public ReplicationRestarter(MongoServerInstance secondary)
+            {
+                _secondary = secondary;
+            }
+
+            public void Dispose()
+            {
+                Configuration.StartReplication(_secondary);
+            }
         }
     }
 }

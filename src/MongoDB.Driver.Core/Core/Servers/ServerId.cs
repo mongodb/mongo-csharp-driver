@@ -29,18 +29,27 @@ namespace MongoDB.Driver.Core.Servers
         // fields
         private readonly ClusterId _clusterId;
         private readonly EndPoint _endPoint;
+        private readonly int _hashCode;
 
         // constructors
         public ServerId(ClusterId clusterId, EndPoint endPoint)
         {
             _clusterId = Ensure.IsNotNull(clusterId, "clusterId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
+            _hashCode = new Hasher()
+                .Hash(_clusterId)
+                .Hash(_endPoint)
+                .GetHashCode();
         }
 
         private ServerId(SerializationInfo info, StreamingContext context)
         {
             _clusterId = (ClusterId)info.GetValue("_clusterId", typeof(ClusterId));
             _endPoint = EndPointHelper.FromObjectData((List<object>)info.GetValue("_endPoint", typeof(List<object>)));
+            _hashCode = new Hasher()
+                .Hash(_clusterId)
+                .Hash(_endPoint)
+                .GetHashCode();
         }
 
         // properties
@@ -73,10 +82,7 @@ namespace MongoDB.Driver.Core.Servers
 
         public override int GetHashCode()
         {
-            return new Hasher()
-                .Hash(_clusterId)
-                .Hash(_endPoint)
-                .GetHashCode();
+            return _hashCode;
         }
 
         public override string ToString()

@@ -50,8 +50,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override BsonDocument DeserializeValue(BsonDeserializationContext context)
+        protected override BsonDocument DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
@@ -60,7 +61,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
                 var name = bsonReader.ReadName();
-                var value = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
+                var value = BsonValueSerializer.Instance.Deserialize(context);
                 document.Add(name, value);
             }
             bsonReader.ReadEndDocument();
@@ -128,20 +129,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        protected override void SerializeValue(BsonSerializationContext context, BsonDocument value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, BsonDocument value)
         {
             var bsonWriter = context.Writer;
             bsonWriter.WriteStartDocument();
 
             var alreadySerializedIndex = -1;
-            if (context.SerializeIdFirst)
+            if (args.SerializeIdFirst)
             {
                 var idIndex = value.IndexOfName("_id");
                 if (idIndex != -1)
                 {
                     bsonWriter.WriteName("_id");
-                    context.SerializeWithChildContext(BsonValueSerializer.Instance, value[idIndex]);
+                    BsonValueSerializer.Instance.Serialize(context, value[idIndex]);
                     alreadySerializedIndex = idIndex;
                 }
             }
@@ -156,7 +158,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 var element = value.GetElement(index);
                 bsonWriter.WriteName(element.Name);
-                context.SerializeWithChildContext(BsonValueSerializer.Instance, element.Value);
+                BsonValueSerializer.Instance.Serialize(context, element.Value);
             }
 
             bsonWriter.WriteEndDocument();

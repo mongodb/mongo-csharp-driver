@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections;
-using System.IO;
 using System.Text;
 using MongoDB.Bson.IO;
 
@@ -91,8 +90,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        protected override BitArray DeserializeValue(BsonDeserializationContext context)
+        protected override BitArray DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             BitArray bitArray;
@@ -110,7 +110,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         switch (flag)
                         {
-                            case Flags.Length: length = context.DeserializeWithChildContext(_int32Serializer); break;
+                            case Flags.Length: length = _int32Serializer.Deserialize(context); break;
                             case Flags.Bytes: bytes = bsonReader.ReadBytes(); break;
                         }
                     });
@@ -147,8 +147,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, BitArray value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, BitArray value)
         {
             var bsonWriter = context.Writer;
 

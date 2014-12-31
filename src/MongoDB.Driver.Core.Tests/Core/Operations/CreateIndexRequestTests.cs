@@ -297,16 +297,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void CreateCommand_should_return_expected_result_when_StorageOptions_has_value()
+        public void CreateCommand_should_return_expected_result_when_StorageEngine_has_value()
         {
             var keys = new BsonDocument("x", 1);
             var subject = new CreateIndexRequest(keys);
-            subject.StorageOptions = new BsonDocument("awesome", true);
+            subject.StorageEngine = new BsonDocument("awesome", true);
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
                 { "name", "x_1" },
-                { "storageOptions", new BsonDocument("awesome", true) }
+                { "storageEngine", new BsonDocument("awesome", true) }
             };
 
             var result = subject.CreateIndexDocument();

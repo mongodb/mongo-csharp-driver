@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests
                 "mongodb://user1:password1@somehost/?" +
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
-                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;secondaryAcceptableLatency=128;socketTimeout=129;" +
+                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
                 "ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoUrlBuilder(connectionString);
@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Tests
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
-            clone.SecondaryAcceptableLatency = new TimeSpan(1, 2, 3);
+            clone.LocalThreshold = new TimeSpan(1, 2, 3);
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Tests
                 "mongodb://user1:password1@somehost/?authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
-                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;secondaryAcceptableLatency=128;socketTimeout=129;" +
+                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
                 "ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoUrlBuilder(connectionString);
@@ -257,7 +257,7 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(url.MinConnectionPoolSize, settings.MinConnectionPoolSize);
             Assert.AreEqual(url.ReadPreference, settings.ReadPreference);
             Assert.AreEqual(url.ReplicaSetName, settings.ReplicaSetName);
-            Assert.AreEqual(url.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
+            Assert.AreEqual(url.LocalThreshold, settings.LocalThreshold);
             Assert.IsTrue(url.Servers.SequenceEqual(settings.Servers));
             Assert.AreEqual(url.SocketTimeout, settings.SocketTimeout);
             Assert.AreEqual(null, settings.SslSettings);
@@ -431,18 +431,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestSecondaryAcceptableLatency()
+        public void TestLocalThreshold()
         {
             var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
+            Assert.AreEqual(MongoDefaults.LocalThreshold, settings.LocalThreshold);
 
-            var secondaryAcceptableLatency = new TimeSpan(1, 2, 3);
-            settings.SecondaryAcceptableLatency = secondaryAcceptableLatency;
-            Assert.AreEqual(secondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
+            var localThreshold = new TimeSpan(1, 2, 3);
+            settings.LocalThreshold = localThreshold;
+            Assert.AreEqual(localThreshold, settings.LocalThreshold);
 
             settings.Freeze();
-            Assert.AreEqual(secondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
-            Assert.Throws<InvalidOperationException>(() => { settings.SecondaryAcceptableLatency = secondaryAcceptableLatency; });
+            Assert.AreEqual(localThreshold, settings.LocalThreshold);
+            Assert.Throws<InvalidOperationException>(() => { settings.LocalThreshold = localThreshold; });
         }
 
         [Test]

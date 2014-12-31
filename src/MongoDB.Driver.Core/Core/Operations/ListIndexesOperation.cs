@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class ListIndexesOperation : IReadOperation<IReadOnlyList<BsonDocument>>
+    public class ListIndexesOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
         #region static
         // static fields
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public async Task<IReadOnlyList<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
 
@@ -75,30 +75,40 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingCommandAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IAsyncCursor<BsonDocument>> ExecuteUsingCommandAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
             var command = new BsonDocument("listIndexes", _collectionNamespace.CollectionName);
             var operation = new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            BsonDocument result;
             try
             {
-                result = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
+                var response = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
+                var cursorDocument = response["cursor"].AsBsonDocument;
+                var cursor = new AsyncCursor<BsonDocument>(
+                    channelSource.Fork(),
+                    CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
+                    command,
+                    cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),
+                    cursorDocument["id"].ToInt64(),
+                    0,
+                    0,
+                    BsonDocumentSerializer.Instance,
+                    _messageEncoderSettings);
+
+                return cursor;
             }
             catch (MongoCommandException ex)
             {
                 if (ex.Code == 26)
                 {
-                    return new List<BsonDocument>();
+                    return new SingleBatchAsyncCursor<BsonDocument>(new List<BsonDocument>());
                 }
                 throw;
             }
-
-            return result["indexes"].AsBsonArray.Cast<BsonDocument>().ToList();
         }
 
-        private async Task<IReadOnlyList<BsonDocument>> ExecuteUsingQueryAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
+        private async Task<IAsyncCursor<BsonDocument>> ExecuteUsingQueryAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
             var indexes = new List<BsonDocument>();
 
@@ -109,17 +119,7 @@ namespace MongoDB.Driver.Core.Operations
                 Filter = filter
             };
 
-            var cursor = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
-            while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-            {
-                var batch = cursor.Current;
-                foreach (var index in batch)
-                {
-                    indexes.Add(index);
-                }
-            }
-
-            return indexes;
+            return await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
         }
     }
 }

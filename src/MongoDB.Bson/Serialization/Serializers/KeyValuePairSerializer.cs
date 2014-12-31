@@ -129,8 +129,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>An object.</returns>
-        public override KeyValuePair<TKey, TValue> Deserialize(BsonDeserializationContext context)
+        public override KeyValuePair<TKey, TValue> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             var bsonType = bsonReader.GetCurrentBsonType();
@@ -149,8 +150,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, KeyValuePair<TKey, TValue> value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, KeyValuePair<TKey, TValue> value)
         {
             switch (_representation)
             {
@@ -176,8 +178,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonReader = context.Reader;
             bsonReader.ReadStartArray();
-            var key = context.DeserializeWithChildContext(_keySerializer);
-            var value = context.DeserializeWithChildContext(_valueSerializer);
+            var key = _keySerializer.Deserialize(context);
+            var value = _valueSerializer.Deserialize(context);
             bsonReader.ReadEndArray();
             return new KeyValuePair<TKey, TValue>(key, value);
         }
@@ -190,8 +192,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 switch (flag)
                 {
-                    case Flags.Key: key = context.DeserializeWithChildContext(_keySerializer); break;
-                    case Flags.Value: value = context.DeserializeWithChildContext(_valueSerializer); break;
+                    case Flags.Key: key = _keySerializer.Deserialize(context); break;
+                    case Flags.Value: value = _valueSerializer.Deserialize(context); break;
                 }
             });
             return new KeyValuePair<TKey, TValue>(key, value);
@@ -201,8 +203,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
             bsonWriter.WriteStartArray();
-            context.SerializeWithChildContext(_keySerializer, value.Key);
-            context.SerializeWithChildContext(_valueSerializer, value.Value);
+            _keySerializer.Serialize(context, value.Key);
+            _valueSerializer.Serialize(context, value.Value);
             bsonWriter.WriteEndArray();
         }
 
@@ -211,9 +213,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonWriter = context.Writer;
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteName("k");
-            context.SerializeWithChildContext(_keySerializer, value.Key);
+            _keySerializer.Serialize(context, value.Key);
             bsonWriter.WriteName("v");
-            context.SerializeWithChildContext(_valueSerializer, value.Value);
+            _valueSerializer.Serialize(context, value.Value);
             bsonWriter.WriteEndDocument();
         }
     }

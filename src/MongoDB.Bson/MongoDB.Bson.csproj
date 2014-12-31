@@ -137,9 +137,11 @@
     <Compile Include="Serialization\Attributes\IBsonCreatorMapAttribute.cs" />
     <Compile Include="Serialization\BsonClassMapSerializationProvider.cs" />
     <Compile Include="Serialization\BsonCreatorMap.cs" />
+    <Compile Include="Serialization\BsonDeserializationArgs.cs" />
     <Compile Include="Serialization\BsonDeserializationContext.cs" />
     <Compile Include="Serialization\BsonDocumentBackedClass.cs" />
     <Compile Include="Serialization\BsonObjectModelSerializationProvider.cs" />
+    <Compile Include="Serialization\BsonSerializationArgs.cs" />
     <Compile Include="Serialization\BsonSerializationContext.cs" />
     <Compile Include="Serialization\CollectionsSerializationProvider.cs" />
     <Compile Include="Serialization\Conventions\AttributeConventionPack.cs" />
@@ -209,6 +211,7 @@
     <Compile Include="Serialization\Serializers\BsonArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBinaryDataSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBooleanSerializer.cs" />
+    <Compile Include="Serialization\IBsonSerializerExtensions.cs" />
     <Compile Include="Serialization\Serializers\SerializerHelper.cs" />
     <Compile Include="Serialization\Serializers\DiscriminatedWrapperSerializer.cs" />
     <Compile Include="Serialization\Serializers\SerializerBase.cs" />

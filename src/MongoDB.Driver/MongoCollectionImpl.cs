@@ -194,7 +194,7 @@ namespace MongoDB.Driver
                 Min = options.Min,
                 Sparse = options.Sparse,
                 SphereIndexVersion = options.SphereIndexVersion,
-                StorageOptions = ConvertToBsonDocument(options.StorageOptions),
+                StorageEngine = ConvertToBsonDocument(options.StorageEngine),
                 TextIndexVersion = options.TextIndexVersion,
                 Unique = options.Unique,
                 Version = options.Version,
@@ -399,7 +399,7 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task<IReadOnlyList<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IAsyncCursor<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var op = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
             return ExecuteReadOperation(op, cancellationToken);

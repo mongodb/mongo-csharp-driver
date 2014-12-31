@@ -833,7 +833,7 @@ namespace MongoDB.Driver
                 var newEndPoints = endPoints.Where(endPoint => !_serverInstances.Any(i => i.EndPoint.Equals(endPoint))).ToList();
                 if (newEndPoints.Count > 0)
                 {
-                    _serverInstances.AddRange(endPoints.Select(endPoint => new MongoServerInstance(_settings, ToMongoServerAddress(endPoint), _cluster, endPoint)));
+                    _serverInstances.AddRange(newEndPoints.Select(endPoint => new MongoServerInstance(_settings, ToMongoServerAddress(endPoint), _cluster, endPoint)));
                     _serverInstances.Sort(ServerInstanceAddressComparer.Instance);
                 }
             }

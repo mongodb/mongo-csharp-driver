@@ -33,8 +33,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        protected override GeoJsonMultiPolygonCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context)
+        protected override GeoJsonMultiPolygonCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
             var polygons = new List<GeoJsonPolygonCoordinates<TCoordinates>>();
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             bsonReader.ReadStartArray();
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var polygon = _polygonCoordinatesSerializer.Deserialize(context.CreateChild(_polygonCoordinatesSerializer.ValueType));
+                var polygon = _polygonCoordinatesSerializer.Deserialize(context);
                 polygons.Add(polygon);
             }
             bsonReader.ReadEndArray();
@@ -54,15 +55,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJsonMultiPolygonCoordinates<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, GeoJsonMultiPolygonCoordinates<TCoordinates> value)
         {
             var bsonWriter = context.Writer;
 
             bsonWriter.WriteStartArray();
             foreach (var polygon in value.Polygons)
             {
-                context.SerializeWithChildContext(_polygonCoordinatesSerializer, polygon);
+                _polygonCoordinatesSerializer.Serialize(context, polygon);
             }
             bsonWriter.WriteEndArray();
         }

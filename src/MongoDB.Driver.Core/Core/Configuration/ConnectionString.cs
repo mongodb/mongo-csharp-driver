@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Core.Configuration
         private IReadOnlyList<EndPoint> _hosts;
         private bool? _ipv6;
         private bool? _journal;
+        private TimeSpan? _localThreshold;
         private TimeSpan? _maxIdleTime;
         private TimeSpan? _maxLifeTime;
         private int? _maxPoolSize;
@@ -58,7 +59,6 @@ namespace MongoDB.Driver.Core.Configuration
         private ReadPreferenceMode? _readPreference;
         private IReadOnlyList<TagSet> _readPreferenceTags;
         private string _replicaSet;
-        private TimeSpan? _secondaryAcceptableLatency;
         private TimeSpan? _socketTimeout;
         private bool? _ssl;
         private bool? _sslVerifyCertificate;
@@ -183,6 +183,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets the local threshold.
+        /// </summary>
+        public TimeSpan? LocalThreshold
+        {
+            get { return _localThreshold; }
+        }
+
+        /// <summary>
         /// Gets the max idle time.
         /// </summary>
         public TimeSpan? MaxIdleTime
@@ -244,14 +252,6 @@ namespace MongoDB.Driver.Core.Configuration
         public IReadOnlyList<TagSet> ReadPreferenceTags
         {
             get { return _readPreferenceTags; }
-        }
-
-        /// <summary>
-        /// Gets the secondary acceptable latency.
-        /// </summary>
-        public TimeSpan? SecondaryAcceptableLatency
-        {
-            get { return _secondaryAcceptableLatency; }
         }
 
         /// <summary>
@@ -524,9 +524,11 @@ namespace MongoDB.Driver.Core.Configuration
                         }
                     }
                     break;
+                case "localthreshold":
+                case "localthresholdms":
                 case "secondaryacceptablelatency":
                 case "secondaryacceptablelatencyms":
-                    _secondaryAcceptableLatency = ParseTimeSpan(name, value);
+                    _localThreshold = ParseTimeSpan(name, value);
                     break;
                 case "slaveok":
                     if (_readPreference != null)

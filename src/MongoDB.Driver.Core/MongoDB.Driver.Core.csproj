@@ -42,7 +42,6 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Core\Misc\Hasher.cs</Link>
     </Compile>
-    <Compile Include="Core\Async\AsyncBackgroundTask.cs" />
     <Compile Include="Core\Async\AsyncDropbox.cs" />
     <Compile Include="Core\Authentication\DefaultAuthenticator.cs" />
     <Compile Include="Core\Authentication\GssapiAuthenticator.cs" />
@@ -190,10 +189,8 @@
     <Compile Include="Core\Clusters\ClusterType.cs" />
     <Compile Include="Core\ConnectionPools\ExclusiveConnectionPool.cs" />
     <Compile Include="Core\ConnectionPools\ExclusiveConnectionPoolFactory.cs" />
-    <Compile Include="Core\Connections\ConnectionHandle.cs" />
     <Compile Include="Core\Connections\ConnectionId.cs" />
     <Compile Include="Core\Connections\IConnectionInitializer.cs" />
-    <Compile Include="Core\Connections\ReferenceCountedConnection.cs" />
     <Compile Include="Core\Clusters\ClusterDescriptionChangedEventArgs.cs" />
     <Compile Include="Core\Events\ClusterListenerPair.cs" />
     <Compile Include="Core\Events\ConnectionListenerPair.cs" />
@@ -227,6 +224,7 @@
     <Compile Include="MongoWaitQueueFullException.cs" />
     <Compile Include="MongoNodeIsRecoveringException.cs" />
     <Compile Include="MongoNotPrimaryException.cs" />
+    <Compile Include="ProjectingAsyncCursor.cs" />
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReadPreferenceMode.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfig.cs" />
@@ -237,6 +235,7 @@
     <Compile Include="Core\Clusters\ServerSelectors\RandomServerSelector.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\ReadPreferenceServerSelector.cs" />
     <Compile Include="Core\Clusters\SingleServerCluster.cs" />
+    <Compile Include="SingleBatchAsyncCursor.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="TagSet.cs" />
     <Compile Include="Core\Configuration\ConnectionPoolSettings.cs" />
@@ -248,7 +247,6 @@
     <Compile Include="Core\Connections\ConnectionExtensionMethods.cs" />
     <Compile Include="Core\Connections\ConnectionInitializer.cs" />
     <Compile Include="Core\Configuration\ConnectionSettings.cs" />
-    <Compile Include="Core\Connections\ConnectionWrapper.cs" />
     <Compile Include="Core\Connections\IConnection.cs" />
     <Compile Include="Core\Connections\IConnectionFactory.cs" />
     <Compile Include="Core\Connections\IStreamFactory.cs" />

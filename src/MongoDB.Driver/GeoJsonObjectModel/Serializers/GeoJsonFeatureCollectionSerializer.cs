@@ -54,10 +54,11 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="args">The deserialization args.</param>
         /// <returns>The value.</returns>
-        protected override GeoJsonFeatureCollection<TCoordinates> DeserializeValue(BsonDeserializationContext context)
+        protected override GeoJsonFeatureCollection<TCoordinates> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var args = new GeoJsonObjectArgs<TCoordinates>();
+            var geoJsonObjectArgs = new GeoJsonObjectArgs<TCoordinates>();
             List<GeoJsonFeature<TCoordinates>> features = null;
 
             _helper.DeserializeMembers(context, (elementName, flag) =>
@@ -65,19 +66,20 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
                 switch (flag)
                 {
                     case Flags.Features: features = DeserializeFeatures(context); break;
-                    default: _helper.DeserializeBaseMember(context, elementName, flag, args); break;
+                    default: _helper.DeserializeBaseMember(context, elementName, flag, geoJsonObjectArgs); break;
                 }
             });
 
-            return new GeoJsonFeatureCollection<TCoordinates>(args, features);
+            return new GeoJsonFeatureCollection<TCoordinates>(geoJsonObjectArgs, features);
         }
 
         /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
+        /// <param name="args">The serialization args.</param>
         /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJsonFeatureCollection<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, GeoJsonFeatureCollection<TCoordinates> value)
         {
             _helper.SerializeMembers(context, value, SerializeDerivedMembers);
         }
@@ -91,7 +93,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             var features = new List<GeoJsonFeature<TCoordinates>>();
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var feature = context.DeserializeWithChildContext(_featureSerializer);
+                var feature = _featureSerializer.Deserialize(context);
                 features.Add(feature);
             }
             bsonReader.ReadEndArray();
@@ -112,7 +114,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             bsonWriter.WriteStartArray();
             foreach (var feature in features)
             {
-                context.SerializeWithChildContext(_featureSerializer, feature);
+                _featureSerializer.Serialize(context, feature);
             }
             bsonWriter.WriteEndArray();
         }
