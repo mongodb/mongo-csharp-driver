@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadTimeout.Should().Be(null);
             subject.ReceiveBufferSize.Should().Be(64 * 1024);
             subject.SendBufferSize.Should().Be(64 * 1024);
+            subject.SocketConfigurator.Should().BeNull();
             subject.WriteTimeout.Should().Be(null);
         }
 
@@ -95,6 +96,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadTimeout.Should().Be(__defaults.ReadTimeout);
             subject.ReceiveBufferSize.Should().Be(__defaults.ReceiveBufferSize);
             subject.SendBufferSize.Should().Be(__defaults.SendBufferSize);
+            subject.SocketConfigurator.Should().Be(__defaults.SocketConfigurator);
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
@@ -110,6 +112,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadTimeout.Should().Be(__defaults.ReadTimeout);
             subject.ReceiveBufferSize.Should().Be(__defaults.ReceiveBufferSize);
             subject.SendBufferSize.Should().Be(__defaults.SendBufferSize);
+            subject.SocketConfigurator.Should().Be(__defaults.SocketConfigurator);
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
@@ -125,6 +128,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadTimeout.Should().Be(readTimeout);
             subject.ReceiveBufferSize.Should().Be(__defaults.ReceiveBufferSize);
             subject.SendBufferSize.Should().Be(__defaults.SendBufferSize);
+            subject.SocketConfigurator.Should().Be(__defaults.SocketConfigurator);
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
@@ -140,6 +144,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadTimeout.Should().Be(subject.ReadTimeout);
             subject.ReceiveBufferSize.Should().Be(receiveBufferSize);
             subject.SendBufferSize.Should().Be(__defaults.SendBufferSize);
+            subject.SocketConfigurator.Should().Be(__defaults.SocketConfigurator);
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
@@ -155,6 +160,23 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadTimeout.Should().Be(subject.ReadTimeout);
             subject.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
             subject.SendBufferSize.Should().Be(sendBufferSize);
+            subject.SocketConfigurator.Should().Be(__defaults.SocketConfigurator);
+            subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
+        }
+
+        [Test]
+        public void constructor_with_socketConfigurator_should_initialize_instance()
+        {
+            Action<Socket> socketConfigurator = s => { };
+
+            var subject = new TcpStreamSettings(socketConfigurator: socketConfigurator);
+
+            subject.AddressFamily.Should().Be(__defaults.AddressFamily);
+            subject.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            subject.ReadTimeout.Should().Be(subject.ReadTimeout);
+            subject.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
+            subject.SendBufferSize.Should().Be(subject.SendBufferSize);
+            subject.SocketConfigurator.Should().Be(socketConfigurator);
             subject.WriteTimeout.Should().Be(__defaults.WriteTimeout);
         }
 
@@ -170,6 +192,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadTimeout.Should().Be(subject.ReadTimeout);
             subject.ReceiveBufferSize.Should().Be(__defaults.ReceiveBufferSize);
             subject.SendBufferSize.Should().Be(__defaults.SendBufferSize);
+            subject.SocketConfigurator.Should().Be(__defaults.SocketConfigurator);
             subject.WriteTimeout.Should().Be(writeTimeout);
         }
 
@@ -187,6 +210,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ReadTimeout.Should().Be(subject.ReadTimeout);
             result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
             result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.SocketConfigurator.Should().Be(subject.SocketConfigurator);
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
@@ -204,6 +228,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ReadTimeout.Should().Be(subject.ReadTimeout);
             result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
             result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.SocketConfigurator.Should().Be(subject.SocketConfigurator);
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
@@ -221,6 +246,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ReadTimeout.Should().Be(newOldTimeout);
             result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
             result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.SocketConfigurator.Should().Be(subject.SocketConfigurator);
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
@@ -238,6 +264,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ReadTimeout.Should().Be(subject.ReadTimeout);
             result.ReceiveBufferSize.Should().Be(newReceiveBufferSize);
             result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.SocketConfigurator.Should().Be(subject.SocketConfigurator);
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
@@ -255,6 +282,25 @@ namespace MongoDB.Driver.Core.Configuration
             result.ReadTimeout.Should().Be(subject.ReadTimeout);
             result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
             result.SendBufferSize.Should().Be(newSendBufferSize);
+            result.SocketConfigurator.Should().Be(subject.SocketConfigurator);
+            result.WriteTimeout.Should().Be(subject.WriteTimeout);
+        }
+
+        [Test]
+        public void With_socketConfigurator_should_return_expected_result()
+        {
+            Action<Socket> oldSocketConfigurator = null;
+            Action<Socket> newSocketConfigurator = s => { };
+            var subject = new TcpStreamSettings(socketConfigurator: oldSocketConfigurator);
+
+            var result = subject.With(socketConfigurator: newSocketConfigurator);
+
+            result.AddressFamily.Should().Be(subject.AddressFamily);
+            result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            result.ReadTimeout.Should().Be(subject.ReadTimeout);
+            result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
+            result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.SocketConfigurator.Should().Be(newSocketConfigurator);
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
@@ -272,6 +318,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ReadTimeout.Should().Be(subject.ReadTimeout);
             result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
             result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.SocketConfigurator.Should().Be(subject.SocketConfigurator);
             result.WriteTimeout.Should().Be(newWriteTimeout);
         }
     }
