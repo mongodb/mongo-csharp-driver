@@ -2942,34 +2942,6 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestTextSearch()
-        {
-            if (_primary.Supports(FeatureId.TextSearchCommand))
-            {
-                if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
-                {
-                    using (_server.RequestStart(null, _primary))
-                    {
-                        _collection.Drop();
-                        _collection.Insert(new BsonDocument("x", "The quick brown fox"));
-                        _collection.Insert(new BsonDocument("x", "jumped over the fence"));
-                        _collection.CreateIndex(IndexKeys.Text("x"));
-
-                        var textSearchCommand = new CommandDocument
-                    {
-                        { "text", _collection.Name },
-                        { "search", "fox" }
-                    };
-                        var commandResult = _database.RunCommand(textSearchCommand);
-                        var response = commandResult.Response;
-                        Assert.AreEqual(1, response["stats"]["n"].ToInt32());
-                        Assert.AreEqual("The quick brown fox", response["results"][0]["obj"]["x"].AsString);
-                    }
-                }
-            }
-        }
-
-        [Test]
         [RequiresServer(StorageEngines = "mmapv1")]
         public void TestTotalDataSize()
         {
