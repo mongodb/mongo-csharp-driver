@@ -48,6 +48,9 @@ namespace MongoDB.Driver.Core.Servers
     /// </summary>
     public interface IClusterableServer : IServer, IDisposable
     {
+        // properties
+        bool IsInitialized { get; }
+
         // methods
         void Initialize();
         void Invalidate();

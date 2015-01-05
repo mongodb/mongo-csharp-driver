@@ -142,7 +142,10 @@ namespace MongoDB.Driver.Core.Clusters
 
             foreach (var server in servers)
             {
-                server.RequestHeartbeat();
+                if (server.IsInitialized)
+                {
+                    server.RequestHeartbeat();
+                }
             }
         }
 

@@ -104,6 +104,11 @@ namespace MongoDB.Driver.Core.Servers
             get { return _endPoint; }
         }
 
+        public bool IsInitialized
+        {
+            get { return _state.Value != State.Initial; }
+        }
+
         public ServerId ServerId
         {
             get { return _serverId; }
