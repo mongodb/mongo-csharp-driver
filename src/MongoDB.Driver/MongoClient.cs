@@ -84,7 +84,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the cluster.
         /// </summary>
-        internal ICluster Cluster
+        public ICluster Cluster
         {
             get { return _cluster; }
         }
@@ -130,7 +130,6 @@ namespace MongoDB.Driver
         public IMongoDatabase GetDatabase(string name)
         {
             var settings = new MongoDatabaseSettings();
-            settings.ApplyDefaultValues(_settings);
             return GetDatabase(name, settings);
         }
 
@@ -142,6 +141,9 @@ namespace MongoDB.Driver
         /// <returns>An implementation of a database.</returns>
         public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings)
         {
+            settings = settings.Clone();
+            settings.ApplyDefaultValues(_settings);
+
             return new MongoDatabaseImpl(new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
         }
 

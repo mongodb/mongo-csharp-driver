@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         public MongoDatabaseImpl(DatabaseNamespace databaseNamespace, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
-            _settings = Ensure.IsNotNull(settings, "settings");
+            _settings = Ensure.IsNotNull(settings, "settings").Freeze();
             _cluster = Ensure.IsNotNull(cluster, "cluster");
             _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
         }
@@ -92,7 +92,9 @@ namespace MongoDB.Driver
             Ensure.IsNotNullOrEmpty(name, "name");
             Ensure.IsNotNull(settings, "settings");
 
+            settings = settings.Clone();
             settings.ApplyDefaultValues(_settings);
+
             return new MongoCollectionImpl<TDocument>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
