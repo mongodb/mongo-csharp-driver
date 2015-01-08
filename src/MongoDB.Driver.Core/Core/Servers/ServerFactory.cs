@@ -29,14 +29,16 @@ namespace MongoDB.Driver.Core.Servers
     public class ServerFactory : IClusterableServerFactory
     {
         // fields
+        private readonly ClusterConnectionMode _clusterConnectionMode;
         private readonly IConnectionPoolFactory _connectionPoolFactory;
         private readonly IConnectionFactory _heartbeatConnectionFactory;
         private readonly IServerListener _listener;
         private readonly ServerSettings _settings;
 
         // constructors
-        public ServerFactory(ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
+        public ServerFactory(ClusterConnectionMode clusterConnectionMode, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
         {
+            _clusterConnectionMode = clusterConnectionMode;
             _settings = Ensure.IsNotNull(settings, "settings");
             _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
             _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
@@ -46,7 +48,7 @@ namespace MongoDB.Driver.Core.Servers
         // methods
         public IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint)
         {
-            return new ClusterableServer(_settings, clusterId, endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            return new ClusterableServer(clusterId, _clusterConnectionMode, _settings, endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
         }
     }
 }

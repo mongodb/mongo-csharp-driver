@@ -71,6 +71,7 @@ namespace MongoDB.Driver.Core.Configuration
                 _connectionPoolListener);
 
             var serverFactory = new ServerFactory(
+                _clusterSettings.ConnectionMode,
                 _serverSettings,
                 connectionPoolFactory,
                 connectionFactory,

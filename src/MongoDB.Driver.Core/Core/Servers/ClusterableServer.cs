@@ -59,6 +59,7 @@ namespace MongoDB.Driver.Core.Servers
         // fields
         private readonly ExponentiallyWeightedMovingAverage _averageRoundTripTimeCalculator = new ExponentiallyWeightedMovingAverage(0.2);
         private readonly ServerDescription _baseDescription;
+        private readonly ClusterConnectionMode _clusterConnectionMode;
         private IConnectionPool _connectionPool;
         private ServerDescription _currentDescription;
         private readonly EndPoint _endPoint;
@@ -75,10 +76,11 @@ namespace MongoDB.Driver.Core.Servers
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // constructors
-        public ClusterableServer(ServerSettings settings, ClusterId clusterId, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
+        public ClusterableServer(ClusterId clusterId, ClusterConnectionMode clusterConnectionMode, ServerSettings settings, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
         {
-            _settings = Ensure.IsNotNull(settings, "settings"); ;
             Ensure.IsNotNull(clusterId, "clusterId");
+            _clusterConnectionMode = clusterConnectionMode;
+            _settings = Ensure.IsNotNull(settings, "settings"); ;
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
             _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
@@ -475,6 +477,7 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
+                slaveOk = GetEffectiveSlaveOk(slaveOk);
                 var protocol = new CommandWireProtocol<TResult>(
                     databaseNamespace,
                     command,
@@ -587,6 +590,7 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
+                slaveOk = GetEffectiveSlaveOk(slaveOk);
                 var protocol = new QueryWireProtocol<TDocument>(
                     collectionNamespace,
                     query,
@@ -659,6 +663,16 @@ namespace MongoDB.Driver.Core.Servers
             {
                 ThrowIfDisposed();
                 return new ServerChannel(_server, _connection.Fork());
+            }
+
+            private bool GetEffectiveSlaveOk(bool slaveOk)
+            {
+                if (_server._clusterConnectionMode == ClusterConnectionMode.Direct && _server.Description.Type != ServerType.ShardRouter)
+                {
+                    return true;
+                }
+
+                return slaveOk;
             }
 
             private void ThrowIfDisposed()
