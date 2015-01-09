@@ -126,23 +126,26 @@ namespace MongoDB.Driver
 
         public Task<T> RunCommandAsync<T>(object command, CancellationToken cancellationToken)
         {
+            return RunCommandAsync<T>(command, ReadPreference.Primary, cancellationToken);
+        }
+
+        public Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference, CancellationToken cancellationToken)
+        {
             Ensure.IsNotNull(command, "command");
 
             var commandDocument = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, command);
-
-            var isReadCommand = CanCommandBeSentToSecondary.Delegate(commandDocument);
             var serializer = _settings.SerializerRegistry.GetSerializer<T>();
             var messageEncoderSettings = GetMessageEncoderSettings();
 
-            if (isReadCommand)
-            {
-                var operation = new ReadCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
-                return ExecuteReadOperation<T>(operation, cancellationToken);
-            }
-            else
+            if (readPreference == ReadPreference.Primary)
             {
                 var operation = new WriteCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
                 return ExecuteWriteOperation<T>(operation, cancellationToken);
+            }
+            else
+            {
+                var operation = new ReadCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
+                return ExecuteReadOperation<T>(operation, readPreference, cancellationToken);
             }
         }
 

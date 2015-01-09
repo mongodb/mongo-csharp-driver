@@ -117,7 +117,7 @@ namespace MongoDB.Driver
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
-                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperation(findOperation, ct))).ConfigureAwait(false);
+                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperation(findOperation, ReadPreference.Primary, ct))).ConfigureAwait(false);
             }
             else
             {
@@ -402,7 +402,7 @@ namespace MongoDB.Driver
         public Task<IAsyncCursor<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var op = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            return ExecuteReadOperation(op, cancellationToken);
+            return ExecuteReadOperation(op, ReadPreference.Primary, cancellationToken);
         }
 
         public async Task InsertOneAsync(TDocument document, CancellationToken cancellationToken)
@@ -578,9 +578,14 @@ namespace MongoDB.Driver
             return BsonDocumentHelper.FilterToBsonDocument<TDocument>(_settings.SerializerRegistry, filter);
         }
 
-        private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
+        private Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
-            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
+            return ExecuteReadOperation(operation, _settings.ReadPreference, cancellationToken);
+        }
+
+        private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken)
+        {
+            using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
