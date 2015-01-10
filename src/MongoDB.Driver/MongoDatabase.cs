@@ -599,7 +599,7 @@ namespace MongoDB.Driver
         public virtual DatabaseStatsResult GetStats()
         {
             var command = new CommandDocument("dbstats", 1);
-            return RunCommandAs<DatabaseStatsResult>(command, _settings.ReadPreference);
+            return RunCommandAs<DatabaseStatsResult>(command, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -736,7 +736,7 @@ namespace MongoDB.Driver
         public virtual TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command)
             where TCommandResult : CommandResult
         {
-            return RunCommandAs<TCommandResult>(command, _settings.ReadPreference);
+            return RunCommandAs<TCommandResult>(command, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -847,42 +847,17 @@ namespace MongoDB.Driver
             where TCommandResult : CommandResult
         {
             var commandDocument = command.ToBsonDocument();
-            var isReadCommand = CanCommandBeSentToSecondary.Delegate(commandDocument);
-
-            if (readPreference != ReadPreference.Primary)
-            {
-                var timeoutAt = DateTime.UtcNow + _server.Settings.ConnectTimeout;
-                var cluster = _server.Cluster;
-
-                var clusterType = cluster.Description.Type;
-                while (clusterType == ClusterType.Unknown)
-                {
-                    // TODO: find a way to block until the cluster description changes
-                    if (DateTime.UtcNow >= timeoutAt)
-                    {
-                        throw new TimeoutException();
-                    }
-                    Thread.Sleep(TimeSpan.FromMilliseconds(20));
-                    clusterType = cluster.Description.Type;
-                }
-
-                if (clusterType == ClusterType.ReplicaSet && !isReadCommand)
-                {
-                    readPreference = ReadPreference.Primary;
-                }
-            }
-
             var messageEncoderSettings = GetMessageEncoderSettings();
 
-            if (isReadCommand)
-            {
-                var operation = new ReadCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
-                return ExecuteReadOperation(operation, readPreference);
-            }
-            else
+            if (readPreference == ReadPreference.Primary)
             {
                 var operation = new WriteCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
                 return ExecuteWriteOperation(operation);
+            }
+            else
+            {
+                var operation = new ReadCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
+                return ExecuteReadOperation(operation, readPreference);
             }
         }
 

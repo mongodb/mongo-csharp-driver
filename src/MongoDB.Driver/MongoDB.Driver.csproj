@@ -158,7 +158,6 @@
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
-    <Compile Include="CanCommandBeSentToSecondary.cs" />
     <Compile Include="CommandResults\CollectionStatsResult.cs" />
     <Compile Include="CommandResults\CommandResult.cs" />
     <Compile Include="CommandResults\CommandResultSerializer.cs" />
