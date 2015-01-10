@@ -743,6 +743,22 @@ namespace MongoDB.Driver
         /// Runs a command on this database and returns the result as a TCommandResult.
         /// </summary>
         /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
+        /// <param name="command">The command object.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A TCommandResult</returns>
+        public TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command,
+            ReadPreference readPreference)
+            where TCommandResult : CommandResult
+        {
+            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
+            return RunCommandAs<TCommandResult>(command, resultSerializer, readPreference);
+        }
+
+        /// <summary>
+        /// Runs a command on this database and returns the result as a TCommandResult.
+        /// </summary>
+        /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
         /// <param name="commandName">The name of the command.</param>
         /// <returns>A TCommandResult</returns>
         public virtual TCommandResult RunCommandAs<TCommandResult>(string commandName)
@@ -859,15 +875,6 @@ namespace MongoDB.Driver
                 var operation = new ReadCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
                 return ExecuteReadOperation(operation, readPreference);
             }
-        }
-
-        internal TCommandResult RunCommandAs<TCommandResult>(
-            IMongoCommand command,
-            ReadPreference readPreference)
-            where TCommandResult : CommandResult
-        {
-            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
-            return RunCommandAs<TCommandResult>(command, resultSerializer, readPreference);
         }
 
 #pragma warning disable 618
