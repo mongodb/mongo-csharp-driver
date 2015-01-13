@@ -133,8 +133,10 @@ namespace MongoDB.Driver.Core.Configuration
         {
             if (connectionString.Password != null)
             {
+                var defaultSource = GetDefaultSource(connectionString);
+
                 var credential = new UsernamePasswordCredential(
-                        connectionString.AuthSource ?? connectionString.DatabaseName ?? "admin",
+                        connectionString.AuthSource ?? connectionString.DatabaseName ?? defaultSource,
                         connectionString.Username,
                         connectionString.Password);
 
@@ -172,6 +174,16 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             throw new NotSupportedException("Unable to create an authenticator.");
+        }
+
+        private static string GetDefaultSource(ConnectionString connectionString)
+        {
+            if (connectionString.AuthMechanism != null && connectionString.AuthMechanism.Equals("GSSAPI", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "$external";
+            }
+
+            return "admin";
         }
 
         public static ClusterBuilder UsePerformanceCounters(this ClusterBuilder configuration, string applicationName, bool install = false)
