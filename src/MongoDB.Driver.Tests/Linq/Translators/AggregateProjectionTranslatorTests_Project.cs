@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Linq
                         }
                 },
                 Id = 10,
-                J = new DateTime(2012, 12, 1, 13, 14, 15, 16),
+                J = new DateTime(2012, 12, 1, 13, 14, 15, 16, DateTimeKind.Utc),
                 K = true
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
@@ -136,6 +136,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.4.0")]
         public async Task Should_translate_concat()
         {
             var result = await Project(x => new { Result = x.A + x.B });
@@ -146,6 +147,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.4.0")]
         public async Task Should_translate_concat_flattened()
         {
             var result = await Project(x => new { Result = x.A + " " + x.B });
@@ -252,7 +254,7 @@ namespace MongoDB.Driver.Core.Linq
 
             result.Projection.Should().Be("{ Result: { \"$hour\": \"$J\" }, _id: 0 }");
 
-            result.Value.Result.Should().Be(19);
+            result.Value.Result.Should().Be(13);
         }
 
         [Test]
@@ -276,6 +278,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.4.0")]
         public async Task Should_translate_millisecond()
         {
             var result = await Project(x => new { Result = x.J.Millisecond });
