@@ -88,6 +88,33 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Merges the new BsonSerializationInfo by taking its properties and concatenating its ElementName.
+        /// </summary>
+        /// <param name="newSerializationInfo">The new info.</param>
+        /// <returns>A new BsonSerializationInfo.</returns>
+        public BsonSerializationInfo Merge(BsonSerializationInfo newSerializationInfo)
+        {
+            string elementName = null;
+            if (_elementName != null && newSerializationInfo._elementName != null)
+            {
+                elementName = _elementName + "." + newSerializationInfo._elementName;
+            }
+            else if (_elementName != null)
+            {
+                elementName = _elementName;
+            }
+            else if (newSerializationInfo._elementName != null)
+            {
+                elementName = newSerializationInfo._elementName;
+            }
+
+            return new BsonSerializationInfo(
+                elementName,
+                newSerializationInfo._serializer,
+                newSerializationInfo._nominalType);
+        }
+
+        /// <summary>
         /// Serializes the value.
         /// </summary>
         /// <param name="value">The value.</param>
@@ -129,6 +156,19 @@ namespace MongoDB.Bson.Serialization
 
                 return tempDocument[0].AsBsonArray;
             }
+        }
+
+        /// <summary>
+        /// Creates a new BsonSerializationInfo object using the elementName provided and copying all other attributes.
+        /// </summary>
+        /// <param name="elementName">Name of the element.</param>
+        /// <returns>A new BsonSerializationInfo.</returns>
+        public BsonSerializationInfo WithNewName(string elementName)
+        {
+            return new BsonSerializationInfo(
+                elementName,
+                _serializer,
+                _nominalType);
         }
     }
 }

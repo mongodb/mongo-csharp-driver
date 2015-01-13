@@ -111,6 +111,11 @@
     <Compile Include="IAggregateFluentExtensionsTests.cs" />
     <Compile Include="IFindFluentExtensionsTests.cs" />
     <Compile Include="IMongoCollectionExtensionsTests.cs" />
+    <Compile Include="Linq\Translators\AggregateProjectionTranslatorTests_Group.cs" />
+    <Compile Include="Linq\Translators\AggregateProjectionTranslatorTests_Project.cs" />
+    <Compile Include="Linq\Translators\FindProjectionTranslatorTests.cs" />
+    <Compile Include="Linq\Translators\ProjectedObjectDeserializerTests.cs" />
+    <Compile Include="Linq\Translators\ProjectedObjectTests.cs" />
     <Compile Include="MongoWriteExceptionTests.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="WriteModelTests.cs" />

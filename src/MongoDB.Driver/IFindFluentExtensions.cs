@@ -19,9 +19,11 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq.Translators;
 using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
@@ -45,6 +47,26 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(projection, "projection");
 
             return source.Projection<BsonDocument>(projection, BsonDocumentSerializer.Instance);
+        }
+
+        /// <summary>
+        /// Projections the specified source.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
+        /// <returns></returns>
+        public static IFindFluent<TDocument, TNewResult> Projection<TDocument, TResult, TNewResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TDocument, TNewResult>> projection)
+        {
+            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(projection, "projection");
+
+            var parameterSerializer = source.Collection.Settings.SerializerRegistry.GetSerializer<TDocument>();
+            var projectionInfo = FindProjectionTranslator.Translate<TDocument, TNewResult>(projection, parameterSerializer);
+
+            return source.Projection<TNewResult>(projectionInfo.Projection, projectionInfo.Serializer);
         }
 
         /// <summary>

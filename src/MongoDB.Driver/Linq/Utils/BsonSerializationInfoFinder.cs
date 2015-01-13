@@ -47,9 +47,8 @@ namespace MongoDB.Driver.Linq.Utils
         /// <returns>BsonSerializationInfo for the expression.</returns>
         public static BsonSerializationInfo GetSerializationInfo(Expression node, Dictionary<Expression, BsonSerializationInfo> serializationInfoCache)
         {
-            var finder = new BsonSerializationInfoFinder(serializationInfoCache);
-            var serializationInfo = finder.Visit(node);
-            if (serializationInfo == null)
+            BsonSerializationInfo serializationInfo;
+            if (!TryGetSerializationInfo(node, serializationInfoCache, out serializationInfo))
             {
                 string message = string.Format("Unable to determine the serialization information for the expression: {0}.",
                     ExpressionFormatter.ToString(node));
@@ -57,6 +56,20 @@ namespace MongoDB.Driver.Linq.Utils
             }
 
             return serializationInfo;
+        }
+
+        /// <summary>
+        /// Tries the get serialization information.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <param name="serializationInfoCache">The serialization information cache.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns></returns>
+        public static bool TryGetSerializationInfo(Expression node, Dictionary<Expression, BsonSerializationInfo> serializationInfoCache, out BsonSerializationInfo serializationInfo)
+        {
+            var finder = new BsonSerializationInfoFinder(serializationInfoCache);
+            serializationInfo = finder.Visit(node);
+            return serializationInfo != null;
         }
 
         // protected methods

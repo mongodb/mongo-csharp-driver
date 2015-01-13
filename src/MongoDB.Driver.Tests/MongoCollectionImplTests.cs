@@ -70,7 +70,13 @@ namespace MongoDB.Driver
         [Test]
         public async Task Aggregate_should_execute_the_AggregateOperation_when_out_is_not_specified()
         {
-            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
+            var pipeline = new object[] 
+            { 
+                BsonDocument.Parse("{ $match: { x: 2 } }"),
+                BsonDocument.Parse("{ $project : { Age : \"$age\", Name : { $concat : [\"$firstName\", \" \", \"$lastName\"] }, _id : 0 } }"),
+                BsonDocument.Parse("{ $group : { _id : \"$Age\", Name : { \"$first\" : \"$Name\" } } }"),
+                BsonDocument.Parse("{ $project : { _id: 1 } }")
+            };
 
             var fluent = _subject.Aggregate(new AggregateOptions
                 {
@@ -79,7 +85,10 @@ namespace MongoDB.Driver
                     MaxTime = TimeSpan.FromSeconds(3),
                     UseCursor = false
                 })
-                .Match("{x: 2}");
+                .Match("{x: 2}")
+                .Project(x => new { Age = x["age"], Name = (string)x["firstName"] + " " + (string)x["lastName"] })
+                .Group(x => x.Age, g => new { _id = g.Key, Name = g.First().Name })
+                .Project("{ _id: 1 }");
 
             var options = fluent.Options;
 
@@ -98,7 +107,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.UseCursor.Should().Be(options.UseCursor);
 
-            operation.Pipeline.Should().ContainInOrder(pipeline);
+            operation.Pipeline.Should().Equal(pipeline);
         }
 
         [Test]

@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq.Translators;
 using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
@@ -47,6 +48,29 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(group, "group");
 
             return source.Group<BsonDocument>(group, BsonDocumentSerializer.Instance);
+        }
+
+        /// <summary>
+        /// Groups the specified source.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="idProjector">The identifier projector.</param>
+        /// <param name="groupProjector">The group projector.</param>
+        /// <returns></returns>
+        public static IAggregateFluent<TDocument, TNewResult> Group<TDocument, TResult, TKey, TNewResult>(this IAggregateFluent<TDocument, TResult> source, Expression<Func<TResult, TKey>> idProjector, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> groupProjector)
+        {
+            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(idProjector, "idProjector");
+            Ensure.IsNotNull(groupProjector, "groupProjector");
+
+            var serializer = source.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            var projectionInfo = AggregateProjectionTranslator.TranslateGroup<TKey, TResult, TNewResult>(idProjector, groupProjector, serializer, source.Collection.Settings.SerializerRegistry);
+
+            return source.Group<TNewResult>(projectionInfo.Projection, projectionInfo.Serializer);
         }
 
         /// <summary>
@@ -79,6 +103,26 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(project, "project");
 
             return source.Project<BsonDocument>(project, BsonDocumentSerializer.Instance);
+        }
+
+        /// <summary>
+        /// Projects the specified source.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="projector">The projector.</param>
+        /// <returns></returns>
+        public static IAggregateFluent<TDocument, TNewResult> Project<TDocument, TResult, TNewResult>(this IAggregateFluent<TDocument, TResult> source, Expression<Func<TResult, TNewResult>> projector)
+        {
+            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(projector, "projector");
+
+            var serializer = source.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            var projectionInfo = AggregateProjectionTranslator.TranslateProject(projector, serializer, source.Collection.Settings.SerializerRegistry);
+
+            return source.Project<TNewResult>(projectionInfo.Projection, projectionInfo.Serializer);
         }
 
         /// <summary>
