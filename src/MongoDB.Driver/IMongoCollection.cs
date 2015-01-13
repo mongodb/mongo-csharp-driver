@@ -246,5 +246,19 @@ namespace MongoDB.Driver
         /// The result of the update operation.
         /// </returns>
         Task<UpdateResult> UpdateOneAsync(object filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Withes the read preference.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns></returns>
+        IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference);
+
+        /// <summary>
+        /// Withes the write concern.
+        /// </summary>
+        /// <param name="writeConcern">The write concern.</param>
+        /// <returns></returns>
+        IMongoCollection<TDocument> WithWriteConcern(WriteConcern writeConcern);
     }
 }

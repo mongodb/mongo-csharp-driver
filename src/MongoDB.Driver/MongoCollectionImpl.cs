@@ -486,6 +486,20 @@ namespace MongoDB.Driver
             }
         }
 
+        public IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoCollectionImpl<TDocument>(_collectionNamespace, newSettings, _cluster, _operationExecutor);
+        }
+
+        public IMongoCollection<TDocument> WithWriteConcern(WriteConcern writeConcern)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.WriteConcern = writeConcern;
+            return new MongoCollectionImpl<TDocument>(_collectionNamespace, newSettings, _cluster, _operationExecutor);
+        }
+
         private void AssignId(TDocument document)
         {
             var idProvider = _serializer as IBsonIdProvider;

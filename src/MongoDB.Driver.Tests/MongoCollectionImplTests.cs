@@ -975,6 +975,20 @@ namespace MongoDB.Driver
             act.ShouldThrow<MongoWriteException>();
         }
 
+        [Test]
+        public void WithReadPreference_should_return_a_new_collection_with_the_read_preference_changed()
+        {
+            var newSubject = _subject.WithReadPreference(ReadPreference.Nearest);
+            newSubject.Settings.ReadPreference.Should().Be(ReadPreference.Nearest);
+        }
+
+        [Test]
+        public void WithWriteConcern_should_return_a_new_collection_with_the_write_concern_changed()
+        {
+            var newSubject = _subject.WithWriteConcern(WriteConcern.WMajority);
+            newSubject.Settings.WriteConcern.Should().Be(WriteConcern.WMajority);
+        }
+
         private static void VerifySingleWrite<TRequest>(TRequest expectedRequest, MockOperationExecutor.WriteCall<BulkWriteOperationResult> call)
         {
             call.Operation.Should().BeOfType<BulkMixedWriteOperation>();
