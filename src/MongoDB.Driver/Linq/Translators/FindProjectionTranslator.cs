@@ -224,7 +224,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                if (node.Object == null || node.Object.Type != typeof(ProjectedObject) && node.Method.Name == "GetValue")
+                if (node.Object == null || node.Object.Type != typeof(ProjectedObject) || node.Method.Name != "GetValue")
                 {
                     return base.VisitMethodCall(node);
                 }
