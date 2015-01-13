@@ -212,6 +212,17 @@ namespace MongoDB.Driver
         Task InsertOneAsync(TDocument document, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Inserts many documents.
+        /// </summary>
+        /// <param name="documents">The documents.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the insert operation.
+        /// </returns>
+        Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken)); 
+
+        /// <summary>
         /// Replaces a single document.
         /// </summary>
         /// <param name="filter">The filter.</param>

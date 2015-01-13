@@ -420,6 +420,15 @@ namespace MongoDB.Driver
             }
         }
 
+        public Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(documents, "documents");
+
+            var models = documents.Select(x => new InsertOneModel<TDocument>(x));
+            BulkWriteOptions bulkWriteOptions = options == null ? null : new BulkWriteOptions { IsOrdered = options.IsOrdered };
+            return BulkWriteAsync(models, bulkWriteOptions, cancellationToken);
+        }
+
         public async Task<ReplaceOneResult> ReplaceOneAsync(object filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
