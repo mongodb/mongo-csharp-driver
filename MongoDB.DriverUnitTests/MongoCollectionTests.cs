@@ -2942,17 +2942,21 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(VersionLessThan = "2.8.0")]
         public void TestTotalDataSize()
         {
+#pragma warning disable 618
             var dataSize = _collection.GetTotalDataSize();
+#pragma warning restore
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(VersionLessThan = "2.8.0")]
         public void TestTotalStorageSize()
         {
+#pragma warning disable 618
             var dataSize = _collection.GetTotalStorageSize();
+#pragma warning restore
         }
 
         [Test]

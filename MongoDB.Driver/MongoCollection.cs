@@ -1148,6 +1148,7 @@ namespace MongoDB.Driver
         /// Gets the total data size for this collection (data + indexes).
         /// </summary>
         /// <returns>The total data size.</returns>
+        [Obsolete("This method will be removed in the next version of the driver.")]
         public virtual long GetTotalDataSize()
         {
             var totalSize = GetStats().DataSize;
@@ -1164,6 +1165,7 @@ namespace MongoDB.Driver
         /// Gets the total storage size for this collection (data + indexes + overhead).
         /// </summary>
         /// <returns>The total storage size.</returns>
+        [Obsolete("This method will be removed in the next version of the driver.")]
         public virtual long GetTotalStorageSize()
         {
             var totalSize = GetStats().StorageSize;

@@ -195,7 +195,7 @@ namespace MongoDB.DriverUnitTests
 
             if (VersionLessThan != null)
             {
-                var version = new Version(MinimumVersion);
+                var version = new Version(VersionLessThan);
 
                 if (Configuration.TestServer.BuildInfo.Version >= version)
                 {
