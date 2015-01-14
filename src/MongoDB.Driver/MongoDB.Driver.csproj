@@ -75,6 +75,7 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="BulkWriteError.cs" />
     <Compile Include="IAggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="AggregateEnumerable.cs" />
@@ -148,7 +149,6 @@
     <Compile Include="ReplaceOneResult.cs" />
     <Compile Include="UpdateResult.cs" />
     <Compile Include="WriteConcernError.cs" />
-    <Compile Include="BulkWriteError.cs" />
     <Compile Include="BulkWriteResult.cs" />
     <Compile Include="BulkWriteUpsert.cs" />
     <Compile Include="MongoBulkWriteException.cs" />
@@ -367,8 +367,8 @@
     <Compile Include="RemoveFlags.cs" />
     <Compile Include="UpdateFlags.cs" />
     <Compile Include="ExternalEvidence.cs" />
-    <Compile Include="WriteError.cs" />
     <Compile Include="MongoWriteException.cs" />
+    <Compile Include="WriteError.cs" />
     <Compile Include="WriteModel.cs" />
     <Compile Include="WriteModelType.cs" />
     <Compile Include="XYPoint.cs" />

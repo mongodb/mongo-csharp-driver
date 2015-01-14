@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests
             var upserts = new BulkWriteUpsert[0];
             _bulkWriteResult = new BulkWriteResult<BsonDocument>.Acknowledged(1, 1, 0, 0, 0, processedRequests, upserts);
             _writeConcernError = new WriteConcernError(11, "funny", new BsonDocument("c", 1));
-            _writeErrors = new[] { new BulkWriteError(10, 1, "blah", new BsonDocument("a", 1)) };
+            _writeErrors = new[] { new BulkWriteError(10, ServerErrorCategory.Uncategorized, 1, "blah", new BsonDocument("a", 1)) };
             _unprocessedRequests = new[] { new InsertOneModel<BsonDocument>(new BsonDocument("a", 1)) };
         }
 

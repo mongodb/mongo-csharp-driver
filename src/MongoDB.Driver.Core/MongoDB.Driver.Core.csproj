@@ -127,6 +127,7 @@
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="Core\Misc\StringBuilderExtensionMethods.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperation.cs" />
+    <Compile Include="ServerErrorCategory.cs" />
     <Compile Include="Core\Operations\MongoBulkWriteOperationException.cs" />
     <Compile Include="Core\Operations\CreateIndexRequest.cs" />
     <Compile Include="Core\Operations\CursorType.cs" />

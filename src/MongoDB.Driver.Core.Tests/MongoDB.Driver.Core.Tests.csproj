@@ -59,6 +59,7 @@
     <Compile Include="Core\Operations\AggregateOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests.cs" />
+    <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexesOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexRequestTests.cs" />

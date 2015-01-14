@@ -30,19 +30,29 @@ namespace MongoDB.Driver
     public class WriteError
     {
         // private fields
+        private readonly ServerErrorCategory _category;
         private readonly int _code;
         private readonly BsonDocument _details;
         private readonly string _message;
 
         // constructors
-        internal WriteError(int code, string message, BsonDocument details)
+        internal WriteError(ServerErrorCategory category, int code, string message, BsonDocument details)
         {
+            _category = category;
             _code = code;
             _details = details;
             _message = message;
         }
 
         // public properties
+        /// <summary>
+        /// Gets the category.
+        /// </summary>
+        public ServerErrorCategory Category
+        {
+            get { return _category; }
+        }
+
         /// <summary>
         /// Gets the error code.
         /// </summary>
@@ -77,4 +87,3 @@ namespace MongoDB.Driver
         }
     }
 }
-
