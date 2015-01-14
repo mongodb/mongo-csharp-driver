@@ -1077,38 +1077,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the total data size for this collection (data + indexes).
-        /// </summary>
-        /// <returns>The total data size.</returns>
-        public virtual long GetTotalDataSize()
-        {
-            var totalSize = GetStats().DataSize;
-            foreach (var index in GetIndexes())
-            {
-                var indexCollectionName = string.Format("{0}.${1}", _collectionNamespace.CollectionName, index.Name);
-                var indexCollection = _database.GetCollection(indexCollectionName);
-                totalSize += indexCollection.GetStats().DataSize;
-            }
-            return totalSize;
-        }
-
-        /// <summary>
-        /// Gets the total storage size for this collection (data + indexes + overhead).
-        /// </summary>
-        /// <returns>The total storage size.</returns>
-        public virtual long GetTotalStorageSize()
-        {
-            var totalSize = GetStats().StorageSize;
-            foreach (var index in GetIndexes())
-            {
-                var indexCollectionName = string.Format("{0}.${1}", _collectionNamespace.CollectionName, index.Name);
-                var indexCollection = _database.GetCollection(indexCollectionName);
-                totalSize += indexCollection.GetStats().StorageSize;
-            }
-            return totalSize;
-        }
-
-        /// <summary>
         /// Runs the group command on this collection.
         /// </summary>
         /// <param name="args">The args.</param>

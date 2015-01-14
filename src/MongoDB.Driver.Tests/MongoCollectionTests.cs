@@ -2895,22 +2895,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
-        public void TestTotalDataSize()
-        {
-            _collection.Insert(new BsonDocument("x", 1));
-            _collection.GetTotalDataSize();
-        }
-
-        [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
-        public void TestTotalStorageSize()
-        {
-            _collection.Insert(new BsonDocument("x", 1));
-            _collection.GetTotalStorageSize();
-        }
-
-        [Test]
         public void TestUpdate()
         {
             _collection.Drop();
