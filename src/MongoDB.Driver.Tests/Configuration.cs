@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Tests
                     { "configureFailPoint", "rsSyncApplyStop"},
                     { "mode", "off" }
                 };
-                adminDatabase.RunCommand(command);
+                adminDatabase.RunCommandAs<CommandResult>(command, ReadPreference.Secondary);
             }
         }
 
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Tests
                     { "configureFailPoint", "rsSyncApplyStop"},
                     { "mode", "alwaysOn" }
                 };
-                adminDatabase.RunCommand(command);
+                adminDatabase.RunCommandAs<CommandResult>(command, ReadPreference.Secondary);
 
                 return new ReplicationRestarter(secondary);
             }
