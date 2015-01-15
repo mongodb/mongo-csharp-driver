@@ -170,7 +170,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Modifies a sort stage by appending an ascending field specification to it.
+        /// Modifies the current sort stage by appending an ascending field specification to it.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
@@ -196,7 +196,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Modifies a sort stage by appending a descending field specification to it.
+        /// Modifies the current sort stage by appending a descending field specification to it.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>

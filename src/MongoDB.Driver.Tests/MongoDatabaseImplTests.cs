@@ -135,7 +135,7 @@ namespace MongoDB.Driver
         public async Task RunCommand_should_default_to_ReadPreference_primary()
         {
             var cmd = new BsonDocument("count", "foo");
-            await _subject.RunCommandAsync<BsonDocument>(cmd, CancellationToken.None);
+            await _subject.RunCommandAsync<BsonDocument>(cmd);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -169,7 +169,7 @@ namespace MongoDB.Driver
         public async Task RunCommand_should_run_a_non_read_command()
         {
             var cmd = new BsonDocument("shutdown", 1);
-            await _subject.RunCommandAsync<BsonDocument>(cmd, CancellationToken.None);
+            await _subject.RunCommandAsync<BsonDocument>(cmd);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -182,7 +182,7 @@ namespace MongoDB.Driver
         [Test]
         public async Task RunCommand_should_run_a_json_command()
         {
-            await _subject.RunCommandAsync<BsonDocument>("{count: \"foo\"}", CancellationToken.None);
+            await _subject.RunCommandAsync<BsonDocument>("{count: \"foo\"}");
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -196,7 +196,7 @@ namespace MongoDB.Driver
         public async Task RunCommand_should_run_a_serialized_command()
         {
             var cmd = new CountCommand { Collection = "foo" };
-            await _subject.RunCommandAsync<BsonDocument>(cmd, CancellationToken.None);
+            await _subject.RunCommandAsync<BsonDocument>(cmd);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 

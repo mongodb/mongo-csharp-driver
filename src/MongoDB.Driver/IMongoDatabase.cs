@@ -94,46 +94,11 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="T">The result type of the command.</typeparam>
         /// <param name="command">The command.</param>
+        /// <param name="readPreference">The read preference.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the command.
         /// </returns>
-        Task<T> RunCommandAsync<T>(object command, CancellationToken cancellationToken = default(CancellationToken));
-    }
-
-    /// <summary>
-    /// Extension methods for <see cref="IMongoDatabase"/>.
-    /// </summary>
-    public static class IMongoDatabaseExtensions
-    {
-        /// <summary>
-        /// Runs a command.
-        /// </summary>
-        /// <typeparam name="T">The result type of the command.</typeparam>
-        /// <param name="database">The database.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the command.
-        /// </returns>
-        public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, string command, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return database.RunCommandAsync<T>(command, cancellationToken);
-        }
-
-        /// <summary>
-        /// Runs a command.
-        /// </summary>
-        /// <typeparam name="T">The result type of the command.</typeparam>
-        /// <param name="database">The database.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the command.
-        /// </returns>
-        public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, BsonDocument command, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return database.RunCommandAsync<T>(command, cancellationToken);
-        }
+        Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

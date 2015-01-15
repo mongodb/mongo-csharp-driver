@@ -124,14 +124,10 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task<T> RunCommandAsync<T>(object command, CancellationToken cancellationToken)
-        {
-            return RunCommandAsync<T>(command, ReadPreference.Primary, cancellationToken);
-        }
-
-        public Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference, CancellationToken cancellationToken)
+        public Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(command, "command");
+            readPreference = readPreference ?? ReadPreference.Primary;
 
             var commandDocument = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, command);
             var serializer = _settings.SerializerRegistry.GetSerializer<T>();

@@ -52,7 +52,7 @@ namespace MongoDB.Driver
         IMongoDatabase GetDatabase(string name);
 
         /// <summary>
-        /// Gets thae database.
+        /// Gets a database.
         /// </summary>
         /// <param name="name">The name of the database.</param>
         /// <param name="settings">The database settings.</param>
