@@ -141,6 +141,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends an unwind stage to the pipeline.
         /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="fieldName">The name of the field to unwind.</param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName);

@@ -269,6 +269,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns the distinct values for a given field.
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="args">The args.</param>
         /// <returns>The distint values of the field.</returns>
         public IEnumerable<TValue> Distinct<TValue>(DistinctArgs args)

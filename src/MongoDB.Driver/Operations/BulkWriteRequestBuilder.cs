@@ -59,6 +59,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds a request to replace one matching documents to the bulk operation.
         /// </summary>
+        /// <param name="document">The document.</param>
         public void ReplaceOne(TDocument document)
         {
             if (document == null)
@@ -71,6 +72,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds a request to update all matching documents to the bulk operation.
         /// </summary>
+        /// <param name="update">The update.</param>
         public void Update(IMongoUpdate update)
         {
             if (update == null)
@@ -83,6 +85,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds a request to update one matching documents to the bulk operation.
         /// </summary>
+        /// <param name="update">The update.</param>
         public void UpdateOne(IMongoUpdate update)
         {
             if (update == null)

@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// An interface representing methods used to create, delete and modify indexes.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public interface IMongoIndexManager<TDocument>
     {
         /// <summary>

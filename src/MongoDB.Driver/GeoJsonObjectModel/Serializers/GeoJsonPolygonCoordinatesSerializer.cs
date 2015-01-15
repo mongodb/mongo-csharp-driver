@@ -23,6 +23,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJsonPolygonCoordinates value.
     /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public class GeoJsonPolygonCoordinatesSerializer<TCoordinates> : ClassSerializerBase<GeoJsonPolygonCoordinates<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
         // private fields

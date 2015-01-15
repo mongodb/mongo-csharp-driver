@@ -25,6 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for a findAndModify command to update an object.
     /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
     public class FindOneAndUpdateOptions<TResult>
     {
         // fields
