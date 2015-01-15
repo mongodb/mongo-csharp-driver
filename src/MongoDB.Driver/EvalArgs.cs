@@ -35,9 +35,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the arguments to the JavaScript code.
         /// </summary>
-        /// <value>
-        /// The arguments.
-        /// </value>
         public IEnumerable<BsonValue> Args
         {
             get { return _args; }
@@ -47,9 +44,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the JavaScript code.
         /// </summary>
-        /// <value>
-        /// The JavaScript code.
-        /// </value>
         public BsonJavaScript Code
         {
             get { return _code; }
@@ -57,11 +51,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether the server should take a global write lock when executing the JavaScript code.
+        /// Gets or sets a value indicating whether the server should take a global write lock when executing the JavaScript code.
         /// </summary>
-        /// <value>
-        /// Whether the server should take a global write lock when executing the JavaScript code.
-        /// </value>
         public bool? Lock
         {
             get { return _lock; }
@@ -71,9 +62,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }

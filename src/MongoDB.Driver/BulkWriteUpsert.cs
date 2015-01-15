@@ -45,11 +45,8 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets the identifier.
+        /// Gets the id.
         /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
         public BsonValue Id
         {
             get { return _id; }
@@ -58,9 +55,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the index.
         /// </summary>
-        /// <value>
-        /// The index.
-        /// </value>
         public int Index
         {
             get { return _index; }

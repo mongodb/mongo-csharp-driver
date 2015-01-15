@@ -65,9 +65,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the write concern error.
         /// </summary>
-        /// <value>
-        /// The write concern error.
-        /// </value>
         public WriteConcernError WriteConcernError
         {
             get { return _writeConcernError; }
@@ -76,9 +73,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the write errors.
         /// </summary>
-        /// <value>
-        /// The write errors.
-        /// </value>
         public IReadOnlyList<BulkWriteError> WriteErrors
         {
             get { return _writeErrors; }
@@ -101,12 +95,13 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a bulk write exception.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
-    public sealed class MongoBulkWriteException<T> : MongoBulkWriteException
+    public sealed class MongoBulkWriteException<TDocument> : MongoBulkWriteException
     {
         // private fields
-        private readonly BulkWriteResult<T> _result;
-        private readonly IReadOnlyList<WriteModel<T>> _unprocessedRequests;
+        private readonly BulkWriteResult<TDocument> _result;
+        private readonly IReadOnlyList<WriteModel<TDocument>> _unprocessedRequests;
 
         // constructors
         /// <summary>
@@ -119,10 +114,10 @@ namespace MongoDB.Driver
         /// <param name="unprocessedRequests">The unprocessed requests.</param>
         public MongoBulkWriteException(
             ConnectionId connectionId,
-            BulkWriteResult<T> result, 
+            BulkWriteResult<TDocument> result, 
             IEnumerable<BulkWriteError> writeErrors,
             WriteConcernError writeConcernError,
-            IEnumerable<WriteModel<T>> unprocessedRequests)
+            IEnumerable<WriteModel<TDocument>> unprocessedRequests)
             : base(connectionId, writeErrors, writeConcernError)
         {
             _result = result;
@@ -138,10 +133,10 @@ namespace MongoDB.Driver
         public MongoBulkWriteException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            if (typeof(T).IsSerializable)
+            if (typeof(TDocument).IsSerializable)
             {
-                _result = (BulkWriteResult<T>)info.GetValue("_result", typeof(BulkWriteResult<T>));
-                _unprocessedRequests = (IReadOnlyList<WriteModel<T>>)info.GetValue("_unprocessedRequests", typeof(IReadOnlyList<WriteModel<T>>));
+                _result = (BulkWriteResult<TDocument>)info.GetValue("_result", typeof(BulkWriteResult<TDocument>));
+                _unprocessedRequests = (IReadOnlyList<WriteModel<TDocument>>)info.GetValue("_unprocessedRequests", typeof(IReadOnlyList<WriteModel<TDocument>>));
             }
         }
 
@@ -149,7 +144,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the result of the bulk write operation.
         /// </summary>
-        public BulkWriteResult<T> Result
+        public BulkWriteResult<TDocument> Result
         {
             get { return _result; }
         }
@@ -157,11 +152,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the unprocessed requests.
         /// </summary>
-        /// <value>
-        /// The unprocessed requests.
-        /// </value>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public IReadOnlyList<WriteModel<T>> UnprocessedRequests
+        public IReadOnlyList<WriteModel<TDocument>> UnprocessedRequests
         {
             get { return _unprocessedRequests; }
         }
@@ -175,7 +166,7 @@ namespace MongoDB.Driver
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            if (typeof(T).IsSerializable)
+            if (typeof(TDocument).IsSerializable)
             {
                 info.AddValue("_result", _result);
                 info.AddValue("_unprocessedRequests", _unprocessedRequests);
@@ -183,17 +174,17 @@ namespace MongoDB.Driver
         }
 
         // internal static methods
-        internal static MongoBulkWriteException<T> FromCore(MongoBulkWriteOperationException ex)
+        internal static MongoBulkWriteException<TDocument> FromCore(MongoBulkWriteOperationException ex)
         {
-            return new MongoBulkWriteException<T>(
+            return new MongoBulkWriteException<TDocument>(
                 ex.ConnectionId,
-                BulkWriteResult<T>.FromCore(ex.Result),
+                BulkWriteResult<TDocument>.FromCore(ex.Result),
                 ex.WriteErrors.Select(e => BulkWriteError.FromCore(e)),
                 WriteConcernError.FromCore(ex.WriteConcernError),
-                ex.UnprocessedRequests.Select(r => WriteModel<T>.FromCore(r)));
+                ex.UnprocessedRequests.Select(r => WriteModel<TDocument>.FromCore(r)));
         }
 
-        internal static MongoBulkWriteException<T> FromCore(MongoBulkWriteOperationException ex, IReadOnlyList<WriteModel<T>> requests)
+        internal static MongoBulkWriteException<TDocument> FromCore(MongoBulkWriteOperationException ex, IReadOnlyList<WriteModel<TDocument>> requests)
         {
             var processedRequests = ex.Result.ProcessedRequests
                 .Select(r => new { CorrelationId = r.CorrelationId.Value, Request = requests[r.CorrelationId.Value] })
@@ -205,9 +196,9 @@ namespace MongoDB.Driver
                 .OrderBy(x => x.CorrelationId)
                 .Select(x => x.Request);
 
-            return new MongoBulkWriteException<T>(
+            return new MongoBulkWriteException<TDocument>(
                 ex.ConnectionId,
-                BulkWriteResult<T>.FromCore(ex.Result, processedRequests),
+                BulkWriteResult<TDocument>.FromCore(ex.Result, processedRequests),
                 ex.WriteErrors.Select(e => BulkWriteError.FromCore(e)),
                 WriteConcernError.FromCore(ex.WriteConcernError),
                 unprocessedRequests);

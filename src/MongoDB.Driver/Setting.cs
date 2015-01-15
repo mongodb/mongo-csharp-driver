@@ -38,7 +38,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether the setting has been set.
+        /// Gets a value indicating whether the setting has been set.
         /// </summary>
         public bool HasBeenSet
         {

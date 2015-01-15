@@ -1239,6 +1239,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a fluent builder for an ordered bulk operation.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
         /// <returns>A fluent bulk operation builder.</returns>
         public virtual BulkWriteOperation<TDocument> InitializeOrderedBulkOperationAs<TDocument>()
         {
@@ -1248,6 +1249,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a fluent builder for an unordered bulk operation.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
         /// <returns>A fluent bulk operation builder.</returns>
         public virtual BulkWriteOperation<TDocument> InitializeUnorderedBulkOperationAs<TDocument>()
         {

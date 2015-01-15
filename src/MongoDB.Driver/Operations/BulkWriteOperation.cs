@@ -28,6 +28,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a fluent builder for a bulk operation.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteOperation<TDocument>
     {
         // private fields

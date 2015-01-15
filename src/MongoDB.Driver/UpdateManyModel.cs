@@ -26,8 +26,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for updating many documents.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
-    public sealed class UpdateManyModel<T> : WriteModel<T>
+    public sealed class UpdateManyModel<TDocument> : WriteModel<TDocument>
     {
         // fields
         private readonly object _filter;
@@ -36,7 +37,7 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateManyModel{T}"/> class.
+        /// Initializes a new instance of the <see cref="UpdateManyModel{TDocument}"/> class.
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
@@ -48,7 +49,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets the document.
+        /// Gets the filter.
         /// </summary>
         public object Filter
         {
@@ -56,7 +57,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// When true, creates a new document if no document matches the query. The default is false.
+        /// Gets or sets a value indicating whether to insert the document if it doesn't already exist.
         /// </summary>
         public bool IsUpsert
         {
@@ -72,9 +73,7 @@ namespace MongoDB.Driver
             get { return _update; }
         }
 
-        /// <summary>
-        /// Gets the type of the model.
-        /// </summary>
+        /// <inheritdoc/>
         public override WriteModelType ModelType
         {
             get { return WriteModelType.UpdateMany; }

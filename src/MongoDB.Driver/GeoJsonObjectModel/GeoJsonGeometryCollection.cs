@@ -47,8 +47,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// </summary>
         /// <param name="args">The additional args.</param>
         /// <param name="geometries">The geometries.</param>
-        /// <exception cref="System.ArgumentNullException">geometries</exception>
-        /// <exception cref="System.ArgumentException">One of the geometries is null.;geometries</exception>
         public GeoJsonGeometryCollection(GeoJsonObjectArgs<TCoordinates> args, IEnumerable<GeoJsonGeometry<TCoordinates>> geometries)
             : base(args)
         {
@@ -70,9 +68,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the geometries.
         /// </summary>
-        /// <value>
-        /// The geometries.
-        /// </value>
         public ReadOnlyCollection<GeoJsonGeometry<TCoordinates>> Geometries
         {
             get { return _geometries; }
@@ -81,9 +76,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the type of the GeoJson object.
         /// </summary>
-        /// <value>
-        /// The type of the GeoJson object.
-        /// </value>
         public override GeoJsonObjectType Type
         {
             get { return GeoJsonObjectType.GeometryCollection; }

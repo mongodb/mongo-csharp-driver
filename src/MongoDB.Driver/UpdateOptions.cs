@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Operations;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Model for updating a single document.
+    /// Options for updating a single document.
     /// </summary>
     public sealed class UpdateOptions
     {
@@ -33,7 +33,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// When true, creates a new document if no document matches the query. The default is false.
+        /// Gets or sets a value indicating whether to insert the document if it doesn't already exist.
         /// </summary>
         public bool IsUpsert
         {

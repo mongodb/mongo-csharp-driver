@@ -37,8 +37,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// Initializes a new instance of the <see cref="GeoJsonMultiLineStringCoordinates{TCoordinates}"/> class.
         /// </summary>
         /// <param name="lineStrings">The line strings.</param>
-        /// <exception cref="System.ArgumentNullException">lineStrings</exception>
-        /// <exception cref="System.ArgumentException">One of the lineStrings is null.;lineStrings</exception>
         public GeoJsonMultiLineStringCoordinates(IEnumerable<GeoJsonLineStringCoordinates<TCoordinates>> lineStrings)
         {
             if (lineStrings == null)
@@ -59,9 +57,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the LineStrings.
         /// </summary>
-        /// <value>
-        /// The LineStrings.
-        /// </value>
         public ReadOnlyCollection<GeoJsonLineStringCoordinates<TCoordinates>> LineStrings
         {
             get { return _lineStrings; }

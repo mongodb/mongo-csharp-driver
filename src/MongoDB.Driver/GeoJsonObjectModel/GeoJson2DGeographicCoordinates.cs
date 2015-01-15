@@ -43,9 +43,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the coordinate values.
         /// </summary>
-        /// <value>
-        /// The coordinate values.
-        /// </value>
         public override ReadOnlyCollection<double> Values
         {
             get { return _values; }
@@ -54,9 +51,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the longitude.
         /// </summary>
-        /// <value>
-        /// The longitude.
-        /// </value>
         public double Longitude
         {
             get { return _values[0]; }
@@ -65,9 +59,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the latitude.
         /// </summary>
-        /// <value>
-        /// The latitude.
-        /// </value>
         public double Latitude
         {
             get { return _values[1]; }

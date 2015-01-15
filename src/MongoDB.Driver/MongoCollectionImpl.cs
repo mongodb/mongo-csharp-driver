@@ -277,7 +277,7 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public FindFluent<TDocument, TDocument> Find(object filter)
+        public IFindFluent<TDocument, TDocument> Find(object filter)
         {
             var options = new FindOptions<TDocument>();
             return new FindFluent<TDocument, TDocument>(this, filter, options);

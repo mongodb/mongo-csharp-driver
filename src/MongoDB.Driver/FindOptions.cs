@@ -39,12 +39,8 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets or sets a value indicating whether to allow partial results 
-        /// in a sharded system in the case where 1 or more shards is down.
+        /// Gets or sets a value indicating whether to allow partial results when some shards are unavailable.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if to allow partial results; otherwise, <c>false</c>.
-        /// </value>
         public bool AllowPartialResults
         {
             get { return _allowPartialResults; }
@@ -52,11 +48,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the size of the batch.
+        /// Gets or sets the size of a batch.
         /// </summary>
-        /// <value>
-        /// The size of the batch.
-        /// </value>
         public int? BatchSize
         {
             get { return _batchSize; }
@@ -75,9 +68,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the type of the cursor.
         /// </summary>
-        /// <value>
-        /// The type of the cursor.
-        /// </value>
         public CursorType CursorType
         {
             get { return _cursorType; }
@@ -85,7 +75,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the limit.
+        /// Gets or sets how many documents to return.
         /// </summary>
         public int? Limit
         {
@@ -112,11 +102,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether [no cursor timeout].
+        /// Gets or sets a value indicating whether the cursor should not timeout.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if [no cursor timeout]; otherwise, <c>false</c>.
-        /// </value>
         public bool NoCursorTimeout
         {
             get { return _noCursorTimeout; }
@@ -142,7 +129,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the skip.
+        /// Gets or sets how many documents to skip before returning the rest.
         /// </summary>
         public int? Skip
         {

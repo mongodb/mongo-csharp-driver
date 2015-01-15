@@ -46,9 +46,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the values.
         /// </summary>
-        /// <value>
-        /// The values.
-        /// </value>
         public IEnumerable<TValue> Values
         {
             get { return _values; }

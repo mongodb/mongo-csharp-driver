@@ -370,7 +370,6 @@ namespace MongoDB.Driver.Builders
     /// A builder for the options used when creating an index.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    [BsonSerializer()]
     public static class IndexOptions<TDocument>
     {
         // public static properties

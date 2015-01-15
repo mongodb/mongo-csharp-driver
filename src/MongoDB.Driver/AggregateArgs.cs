@@ -51,9 +51,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets a value indicating whether disk use is allowed.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if disk use is allowed; otherwise, <c>false</c>.
-        /// </value>
         public bool? AllowDiskUse
         {
             get { return _allowDiskUse; }
@@ -63,10 +60,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the size of a batch when using a cursor.
         /// </summary>
-        /// <value>
-        /// The size of a batch.
-        /// </value>
-        /// <exception cref="System.ArgumentException">BatchSize cannot be negative.;value</exception>
         public int? BatchSize
         {
             get { return _batchSize; }
@@ -83,9 +76,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time the server should spend on the aggregation command.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -95,10 +85,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the output mode.
         /// </summary>
-        /// <value>
-        /// The output mode.
-        /// </value>
-        /// <exception cref="System.ArgumentException"></exception>
         public AggregateOutputMode OutputMode
         {
             get { return _outputMode; }
@@ -108,9 +94,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the pipeline.
         /// </summary>
-        /// <value>
-        /// The pipeline.
-        /// </value>
         public IEnumerable<BsonDocument> Pipeline
         {
             get { return _pipeline; }

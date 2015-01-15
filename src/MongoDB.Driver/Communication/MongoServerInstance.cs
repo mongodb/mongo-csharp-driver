@@ -119,7 +119,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether this server instance is an arbiter instance.
+        /// Gets a value indicating whether this server instance is an arbiter instance.
         /// </summary>
         public bool IsArbiter
         {
@@ -131,7 +131,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether this server instance is a passive instance.
+        /// Gets a value indicating whether this server instance is a passive instance.
         /// </summary>
         public bool IsPassive
         {
@@ -143,7 +143,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether this server instance is a primary.
+        /// Gets a value indicating whether this server instance is a primary.
         /// </summary>
         public bool IsPrimary
         {
@@ -155,7 +155,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether this server instance is a secondary.
+        /// Gets a value indicating whether this server instance is a secondary.
         /// </summary>
         public bool IsSecondary
         {
@@ -193,9 +193,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the maximum size of a wire document. Normally slightly larger than MaxDocumentSize.
         /// </summary>
-        /// <value>
-        /// The  maximum size of a wire document.
-        /// </value>
         public int MaxWireDocumentSize
         {
             get
@@ -208,9 +205,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the maximum batch count for write operations.
         /// </summary>
-        /// <value>
-        /// The maximum batch count.
-        /// </value>
         public int MaxBatchCount
         {
             get

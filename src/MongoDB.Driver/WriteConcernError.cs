@@ -41,9 +41,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the error code.
         /// </summary>
-        /// <value>
-        /// The error code.
-        /// </value>
         public int Code
         {
             get { return _code; }
@@ -52,9 +49,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the error information.
         /// </summary>
-        /// <value>
-        /// The error information.
-        /// </value>
         public BsonDocument Details
         {
             get { return _details; }
@@ -63,9 +57,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the error message.
         /// </summary>
-        /// <value>
-        /// The error message.
-        /// </value>
         public string Message
         {
             get { return _message; }

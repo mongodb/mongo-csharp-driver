@@ -179,9 +179,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the cluster.
         /// </summary>
-        /// <value>
-        /// The cluster.
-        /// </value>
         internal ICluster Cluster
         {
             get { return _cluster; }

@@ -39,11 +39,8 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets or sets a value indicating whether the requests are run in order.
+        /// Gets or sets a value indicating whether the requests are fulfilled in order.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if [is ordered]; otherwise, <c>false</c>.
-        /// </value>
         public bool IsOrdered
         {
             get { return _isOrdered; }

@@ -32,9 +32,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the size of the batch.
         /// </summary>
-        /// <value>
-        /// The size of the batch.
-        /// </value>
         public int? BatchSize
         {
             get { return _batchSize; }
@@ -44,9 +41,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the desired number of cursors.
         /// </summary>
-        /// <value>
-        /// The desired number of cursors.
-        /// </value>
         public int NumberOfCursors
         {
             get { return _numberOfCursors; }
@@ -56,9 +50,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the read preference.
         /// </summary>
-        /// <value>
-        /// The read preference.
-        /// </value>
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
@@ -68,9 +59,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the serializer.
         /// </summary>
-        /// <value>
-        /// The serializer.
-        /// </value>
         public IBsonSerializer Serializer
         {
             get { return _serializer; }
@@ -87,9 +75,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the serializer.
         /// </summary>
-        /// <value>
-        /// The serializer.
-        /// </value>
         public new IBsonSerializer<TDocument> Serializer
         {
             get { return (IBsonSerializer<TDocument>)base.Serializer; }

@@ -22,8 +22,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Base class for a write model.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
-    public abstract class WriteModel<T>
+    public abstract class WriteModel<TDocument>
     {
         // static methods
         // These static methods are only called from the Legacy
@@ -33,7 +34,7 @@ namespace MongoDB.Driver
         // way. In addition, we know that there will always 
         // be one level of BsonDocumentWrapper for everything, even
         // when the type is already a BsonDocument :(.
-        internal static WriteModel<T> FromCore(WriteRequest request)
+        internal static WriteModel<TDocument> FromCore(WriteRequest request)
         {
             switch (request.RequestType)
             {
@@ -48,30 +49,30 @@ namespace MongoDB.Driver
             }
         }
 
-        private static WriteModel<T> ConvertDeleteRequest(DeleteRequest request)
+        private static WriteModel<TDocument> ConvertDeleteRequest(DeleteRequest request)
         {
             var filter = Unwrap(request.Filter);
             if(request.Limit == 1)
             {
-                return new DeleteOneModel<T>(filter);
+                return new DeleteOneModel<TDocument>(filter);
             }
 
-            return new DeleteManyModel<T>(filter);
+            return new DeleteManyModel<TDocument>(filter);
         }
 
-        private static WriteModel<T> ConvertInsertRequest(InsertRequest request)
+        private static WriteModel<TDocument> ConvertInsertRequest(InsertRequest request)
         {
-            var document = (T)Unwrap(request.Document);
-            return new InsertOneModel<T>(document);
+            var document = (TDocument)Unwrap(request.Document);
+            return new InsertOneModel<TDocument>(document);
         }
 
-        private static WriteModel<T> ConvertUpdateRequest(UpdateRequest request)
+        private static WriteModel<TDocument> ConvertUpdateRequest(UpdateRequest request)
         {
             var filter = Unwrap(request.Filter);
             var update = Unwrap(request.Update);
             if(request.IsMulti)
             {
-                return new UpdateManyModel<T>(filter, update)
+                return new UpdateManyModel<TDocument>(filter, update)
                 {
                     IsUpsert = request.IsUpsert
                 };
@@ -80,7 +81,7 @@ namespace MongoDB.Driver
             var firstElement = request.Update.GetElement(0).Name;
             if(firstElement.StartsWith("$"))
             {
-                return new UpdateOneModel<T>(filter, update)
+                return new UpdateOneModel<TDocument>(filter, update)
                 {
                     IsUpsert = request.IsUpsert
                 };
@@ -89,11 +90,11 @@ namespace MongoDB.Driver
             return ConvertToReplaceOne(request);
         }
 
-        private static WriteModel<T> ConvertToReplaceOne(UpdateRequest request)
+        private static WriteModel<TDocument> ConvertToReplaceOne(UpdateRequest request)
         {
-            var document = (T)Unwrap(request.Update);
+            var document = (TDocument)Unwrap(request.Update);
 
-            return new ReplaceOneModel<T>(Unwrap(request.Filter), document)
+            return new ReplaceOneModel<TDocument>(Unwrap(request.Filter), document)
             {
                 IsUpsert = request.IsUpsert
             };

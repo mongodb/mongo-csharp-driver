@@ -48,12 +48,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// </summary>
         /// <param name="exterior">The exterior.</param>
         /// <param name="holes">The holes.</param>
-        /// <exception cref="System.ArgumentNullException">
-        /// exterior
-        /// or
-        /// holes
-        /// </exception>
-        /// <exception cref="System.ArgumentException">One of the holes is null.;holes</exception>
         public GeoJsonPolygonCoordinates(GeoJsonLinearRingCoordinates<TCoordinates> exterior, IEnumerable<GeoJsonLinearRingCoordinates<TCoordinates>> holes)
         {
             if (exterior == null)
@@ -79,9 +73,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the exterior.
         /// </summary>
-        /// <value>
-        /// The exterior.
-        /// </value>
         public GeoJsonLinearRingCoordinates<TCoordinates> Exterior
         {
             get { return _exterior; }
@@ -90,9 +81,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the holes.
         /// </summary>
-        /// <value>
-        /// The holes.
-        /// </value>
         public ReadOnlyCollection<GeoJsonLinearRingCoordinates<TCoordinates>> Holes
         {
             get { return _holes; }

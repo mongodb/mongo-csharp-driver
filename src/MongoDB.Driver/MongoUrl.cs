@@ -212,7 +212,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether to use IPv6.
+        /// Gets a value indicating whether to use IPv6.
         /// </summary>
         public bool IPv6
         {
@@ -332,7 +332,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether to use SSL.
+        /// Gets a value indicating whether to use SSL.
         /// </summary>
         public bool UseSsl
         {
@@ -340,7 +340,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether to verify an SSL certificate.
+        /// Gets a value indicating whether to verify an SSL certificate.
         /// </summary>
         public bool VerifySslCertificate
         {

@@ -30,7 +30,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets or sets the automatic index identifier.
+        /// Gets or sets a value indicating whether to automatically create an index on the _id.
         /// </summary>
         public bool? AutoIndexId
         {
@@ -39,7 +39,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the capped.
+        /// Gets or sets a value indicating whether the collection is capped.
         /// </summary>
         public bool? Capped
         {
@@ -48,7 +48,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the maximum documents.
+        /// Gets or sets the maximum number of documents (used with capped collections).
         /// </summary>
         public long? MaxDocuments
         {
@@ -57,7 +57,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the maximum size.
+        /// Gets or sets the maximum size of the collection (used with capped collections).
         /// </summary>
         public long? MaxSize
         {
@@ -75,7 +75,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the use power of2 sizes.
+        /// Gets or sets a value indicating whether to use power of 2 sizes.
         /// </summary>
         public bool? UsePowerOf2Sizes
         {

@@ -25,19 +25,19 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for inserting a single document.
     /// </summary>
-    /// <typeparam name="T">The type of the document.</typeparam>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
-    public sealed class InsertOneModel<T> : WriteModel<T>
+    public sealed class InsertOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields
-        private readonly T _document;
+        private readonly TDocument _document;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="InsertOneModel{T}"/> class.
+        /// Initializes a new instance of the <see cref="InsertOneModel{TDocument}"/> class.
         /// </summary>
         /// <param name="document">The document.</param>
-        public InsertOneModel(T document)
+        public InsertOneModel(TDocument document)
         {
             _document = document;
         }
@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the document.
         /// </summary>
-        public T Document
+        public TDocument Document
         {
             get { return _document; }
         }

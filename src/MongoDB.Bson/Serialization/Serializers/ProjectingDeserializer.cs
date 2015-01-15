@@ -35,11 +35,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Func<TFrom, TTo> _projector;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProjectingDeserializer{TFrom, TTo}"/> class.
-        /// </summary>
-        /// <param name="fromSerializer">From serializer.</param>
-        /// <param name="projector">The projector.</param>
         public ProjectingDeserializer(IBsonSerializer<TFrom> fromSerializer, Func<TFrom, TTo> projector)
         {
             _fromSerializer = fromSerializer;

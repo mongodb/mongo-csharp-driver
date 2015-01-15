@@ -62,9 +62,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the geometry.
         /// </summary>
-        /// <value>
-        /// The geometry.
-        /// </value>
         public GeoJsonGeometry<TCoordinates> Geometry
         {
             get { return _geometry; }
@@ -73,9 +70,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the id.
         /// </summary>
-        /// <value>
-        /// The id.
-        /// </value>
         public BsonValue Id
         {
             get { return _id; }
@@ -84,9 +78,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the properties.
         /// </summary>
-        /// <value>
-        /// The properties.
-        /// </value>
         public BsonDocument Properties
         {
             get { return _properties; }
@@ -95,9 +86,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the type of the GeoJson object.
         /// </summary>
-        /// <value>
-        /// The type of the GeoJson object.
-        /// </value>
         public override GeoJsonObjectType Type
         {
             get { return GeoJsonObjectType.Feature; }

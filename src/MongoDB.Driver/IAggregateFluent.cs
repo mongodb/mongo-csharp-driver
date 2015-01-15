@@ -48,110 +48,110 @@ namespace MongoDB.Driver
         IBsonSerializer<TResult> ResultSerializer { get; }
 
         /// <summary>
-        /// Appends the stage.
+        /// Appends a stage to the pipeline.
         /// </summary>
         /// <param name="stage">The stage.</param>
-        /// <returns></returns>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TResult> AppendStage(object stage);
 
         /// <summary>
-        /// Geoes the near.
+        /// Appends a geoNear stage to the pipeline.
         /// </summary>
-        /// <param name="geoNear">The geo near.</param>
-        /// <returns></returns>
+        /// <param name="geoNear">The geo near options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TResult> GeoNear(object geoNear);
 
         /// <summary>
-        /// Groups the specified group.
+        /// Appends a group stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="group">The group.</param>
-        /// <returns></returns>
+        /// <param name="group">The group expressions.</param>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group);
 
         /// <summary>
-        /// Groups the specified group.
+        /// Appends a group stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="group">The group.</param>
+        /// <param name="group">The group expressions.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        /// <returns></returns>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group, IBsonSerializer<TNewResult> resultSerializer);
 
         /// <summary>
-        /// Limits the specified limit.
+        /// Appends a limit stage to the pipeline.
         /// </summary>
         /// <param name="limit">The limit.</param>
-        /// <returns></returns>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TResult> Limit(int limit);
 
         /// <summary>
-        /// Matches the specified filter.
+        /// Appends a match stage to the pipeline.
         /// </summary>
         /// <param name="filter">The filter.</param>
-        /// <returns></returns>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TResult> Match(object filter);
 
         /// <summary>
-        /// Outs the specified collection name.
+        /// Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
         /// </summary>
         /// <param name="collectionName">Name of the collection.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>The fluent aggregate interface.</returns>
         Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Projects the specified project.
+        /// Appends a project stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="project">The project.</param>
-        /// <returns></returns>
+        /// <param name="project">The project specifications.</param>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project);
 
         /// <summary>
-        /// Projects the specified project.
+        /// Appends a project stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="project">The project.</param>
+        /// <param name="project">The project specifications.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        /// <returns></returns>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project, IBsonSerializer<TNewResult> resultSerializer);
 
         /// <summary>
-        /// Redacts the specified redact.
+        /// Appends a redact stage to the pipeline.
         /// </summary>
-        /// <param name="redact">The redact.</param>
-        /// <returns></returns>
+        /// <param name="redact">The redact expression.</param>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TResult> Redact(object redact);
 
         /// <summary>
-        /// Skips the specified skip.
+        /// Appends a skip stage to the pipeline.
         /// </summary>
-        /// <param name="skip">The skip.</param>
-        /// <returns></returns>
+        /// <param name="skip">The number of documents to skip.</param>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TResult> Skip(int skip);
 
         /// <summary>
-        /// Sorts the specified sort.
+        /// Appends a sort stage to the pipeline.
         /// </summary>
-        /// <param name="sort">The sort.</param>
-        /// <returns></returns>
+        /// <param name="sort">The sort specification.</param>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TResult> Sort(object sort);
 
         /// <summary>
-        /// Unwinds the specified field name.
+        /// Appends an unwind stage to the pipeline.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <returns></returns>
+        /// <param name="fieldName">The name of the field to unwind.</param>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName);
 
         /// <summary>
-        /// Unwinds the specified field name.
+        /// Appends an unwind stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="fieldName">The name of the field to unwind.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        /// <returns></returns>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer);
     }
 
@@ -162,6 +162,5 @@ namespace MongoDB.Driver
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public interface IOrderedAggregateFluent<TDocument, TResult> : IAggregateFluent<TDocument, TResult>
     {
-
     }
 }

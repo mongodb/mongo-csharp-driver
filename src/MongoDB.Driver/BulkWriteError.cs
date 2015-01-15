@@ -43,9 +43,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the index of the request that had an error.
         /// </summary>
-        /// <value>
-        /// The index.
-        /// </value>
         public int Index
         {
             get { return _index; }

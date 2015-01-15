@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="projection">The projection.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         public static IFindFluent<TDocument, BsonDocument> Projection<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, object projection)
         {
             Ensure.IsNotNull(source, "source");
@@ -57,7 +57,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="projection">The projection.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         public static IFindFluent<TDocument, TNewResult> Projection<TDocument, TResult, TNewResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TDocument, TNewResult>> projection)
         {
             Ensure.IsNotNull(source, "source");
@@ -76,7 +76,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="field">The field.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         public static IOrderedFindFluent<TDocument, TResult> SortBy<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TResult, object>> field)
         {
             Ensure.IsNotNull(source, "source");
@@ -98,7 +98,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="field">The field.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         public static IOrderedFindFluent<TDocument, TResult> SortByDescending<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TResult, object>> field)
         {
             Ensure.IsNotNull(source, "source");
@@ -120,7 +120,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="field">The field.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         public static IOrderedFindFluent<TDocument, TResult> ThenBy<TDocument, TResult>(this IOrderedFindFluent<TDocument, TResult> source, Expression<Func<TResult, object>> field)
         {
             Ensure.IsNotNull(source, "source");
@@ -146,7 +146,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="field">The field.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         public static IOrderedFindFluent<TDocument, TResult> ThenByDescending<TDocument, TResult>(this IOrderedFindFluent<TDocument, TResult> source, Expression<Func<TResult, object>> field)
         {
             Ensure.IsNotNull(source, "source");
@@ -172,8 +172,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
+        /// <returns>The fluent find interface.</returns>
         public async static Task<TResult> FirstAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
@@ -198,7 +197,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
@@ -223,8 +222,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
+        /// <returns>The fluent find interface.</returns>
         public async static Task<TResult> SingleAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
@@ -249,7 +247,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");

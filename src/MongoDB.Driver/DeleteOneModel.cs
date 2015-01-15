@@ -44,7 +44,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets the document.
+        /// Gets the filter.
         /// </summary>
         public object Filter
         {

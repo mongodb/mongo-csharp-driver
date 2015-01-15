@@ -32,9 +32,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the coordinate values.
         /// </summary>
-        /// <value>
-        /// The coordinate values.
-        /// </value>
         public abstract ReadOnlyCollection<double> Values { get; }
 
         // public operators

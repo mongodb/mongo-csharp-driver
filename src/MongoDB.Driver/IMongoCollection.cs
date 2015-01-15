@@ -20,13 +20,13 @@ using System.Threading.Tasks;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Logical representation of a collection in MongoDB.
+    /// Represents a collection in MongoDB.
     /// </summary>
-    /// <typeparam name="TDocument">The document type.</typeparam>
+    /// <typeparam name="TDocument">The type of the documents stored in the collection.</typeparam>
     public interface IMongoCollection<TDocument>
     {
         /// <summary>
-        /// Gets the name of the collection.
+        /// Gets the namespace of the collection.
         /// </summary>
         CollectionNamespace CollectionNamespace { get; }
 
@@ -41,23 +41,24 @@ namespace MongoDB.Driver
         MongoCollectionSettings Settings { get; }
 
         /// <summary>
-        /// Begins an aggregation pipeline.
+        /// Begins a fluent aggregation interface.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="options">The options.</param>
+        /// <returns>A fluent aggregate interface.</returns>
         IAggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options = null);
 
         /// <summary>
-        /// Runs an aggregation pipeline asynchronously.
+        /// Runs an aggregation pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="pipeline">The pipeline.</param>
-        /// <param name="options">The model.</param>
+        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>A cursor.</returns>
         Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Performs multiple write operations at the same time.
+        /// Performs multiple write operations.
         /// </summary>
         /// <param name="requests">The requests.</param>
         /// <param name="options">The options.</param>
@@ -72,7 +73,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        /// The number of documents in the collection
+        /// The number of documents in the collection.
         /// </returns>
         Task<long> CountAsync(object filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -100,7 +101,7 @@ namespace MongoDB.Driver
         /// Gets the distinct values for a specified field.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="fieldName">The name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -113,11 +114,11 @@ namespace MongoDB.Driver
         /// Begins a fluent find interface.
         /// </summary>
         /// <param name="filter">The filter.</param>
-        /// <returns>A fluent interface.</returns>
-        FindFluent<TDocument, TDocument> Find(object filter);
+        /// <returns>A fluent find interface.</returns>
+        IFindFluent<TDocument, TDocument> Find(object filter);
 
         /// <summary>
-        /// Finds the documents matching the model.
+        /// Finds the documents matching the filter.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="filter">The filter.</param>
@@ -159,7 +160,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        /// The result of the operation.
+        /// The replaced document if one was replaced.
         /// </returns>
         Task<TDocument> FindOneAndReplaceAsync(object filter, TDocument replacement, FindOneAndReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -172,7 +173,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        /// The result of the operation.
+        /// The replaced document if one was replaced.
         /// </returns>
         Task<TResult> FindOneAndReplaceAsync<TResult>(object filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -181,10 +182,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
-        /// <param name="options">The model.</param>
+        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        /// The result of the operation.
+        /// The udpated document if one was udpated.
         /// </returns>
         Task<TDocument> FindOneAndUpdateAsync(object filter, object update, FindOneAndUpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -194,10 +195,10 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
-        /// <param name="options">The model.</param>
+        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        /// The result of the operation.
+        /// The udpated document if one was udpated.
         /// </returns>
         Task<TResult> FindOneAndUpdateAsync<TResult>(object filter, object update, FindOneAndUpdateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -259,17 +260,17 @@ namespace MongoDB.Driver
         Task<UpdateResult> UpdateOneAsync(object filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Withes the read preference.
+        /// Returns a new collection with a different read preference.
         /// </summary>
         /// <param name="readPreference">The read preference.</param>
-        /// <returns></returns>
+        /// <returns>A new collection.</returns>
         IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference);
 
         /// <summary>
-        /// Withes the write concern.
+        /// Returns a new collection with a different write concern.
         /// </summary>
         /// <param name="writeConcern">The write concern.</param>
-        /// <returns></returns>
+        /// <returns>A new collection.</returns>
         IMongoCollection<TDocument> WithWriteConcern(WriteConcern writeConcern);
     }
 }

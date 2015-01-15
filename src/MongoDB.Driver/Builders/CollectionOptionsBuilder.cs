@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Builders
         /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
-        /// <returns></returns>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static CollectionOptionsBuilder SetStorageEngineOptions(BsonDocument value)
         {
             return new CollectionOptionsBuilder().SetStorageEngineOptions(value);

@@ -21,32 +21,32 @@ using System.Text;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Type of a write request.
+    /// The type of a write model.
     /// </summary>
     public enum WriteModelType
     {
         /// <summary>
-        /// A request to insert a single document.
+        /// A model to insert a single document.
         /// </summary>
         InsertOne,
         /// <summary>
-        /// A request to delete a single document.
+        /// A model to delete a single document.
         /// </summary>
         DeleteOne,
         /// <summary>
-        /// A request to delete multiple documents.
+        /// A model to delete multiple documents.
         /// </summary>
         DeleteMany,
         /// <summary>
-        /// A request to replace a single document.
+        /// A model to replace a single document.
         /// </summary>
         ReplaceOne,
         /// <summary>
-        /// A request to update a single document.
+        /// A model to update a single document.
         /// </summary>
         UpdateOne,
         /// <summary>
-        /// A request to update many documents.
+        /// A model to update many documents.
         /// </summary>
         UpdateMany
     }

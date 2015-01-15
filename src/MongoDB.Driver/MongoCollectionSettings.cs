@@ -50,7 +50,7 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets or sets whether the driver should assign Id values when missing.
+        /// Gets or sets a value indicating whether the driver should assign Id values when missing.
         /// </summary>
         public bool AssignIdOnInsert
         {
@@ -76,7 +76,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether the settings have been frozen to prevent further changes.
+        /// Gets a value indicating whether the settings have been frozen to prevent further changes.
         /// </summary>
         public bool IsFrozen
         {

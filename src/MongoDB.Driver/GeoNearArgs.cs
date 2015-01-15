@@ -37,9 +37,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the distance multiplier.
         /// </summary>
-        /// <value>
-        /// The distance multiplier.
-        /// </value>
         public double? DistanceMultiplier
         {
             get { return _distanceMultiplier; }
@@ -47,11 +44,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether to include locations in the results.
+        /// Gets or sets a value indicating whether to include locations in the results.
         /// </summary>
-        /// <value>
-        /// Whether to include locations in the results.
-        /// </value>
         public bool? IncludeLocs
         {
             get { return _includeLocs; }
@@ -61,9 +55,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the limit.
         /// </summary>
-        /// <value>
-        /// The limit.
-        /// </value>
         public int? Limit
         {
             get { return _limit; }
@@ -73,9 +64,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max distance.
         /// </summary>
-        /// <value>
-        /// The max distance.
-        /// </value>
         public double? MaxDistance
         {
             get { return _maxDistance; }
@@ -85,9 +73,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -97,9 +82,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the location near which to search.
         /// </summary>
-        /// <value>
-        /// The location near which to search.
-        /// </value>
         public GeoNearPoint Near
         {
             get { return _near; }
@@ -109,9 +91,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public IMongoQuery Query
         {
             get { return _query; }
@@ -119,11 +98,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether the search is on a spherical surface.
+        /// Gets or sets a value indicating whether the search is on a spherical surface.
         /// </summary>
-        /// <value>
-        /// Whether the search is on a spherical surface.
-        /// </value>
         public bool? Spherical
         {
             get { return _spherical; }
@@ -131,11 +107,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether to only return a document once even if matches multiple times.
+        /// Gets or sets a value indicating whether to only return a document once even if matches multiple times.
         /// </summary>
-        /// <value>
-        /// Whether to only return a document once even if matches multiple times.
-        /// </value>
         public bool? UniqueDocs
         {
             get { return _uniqueDocs; }
