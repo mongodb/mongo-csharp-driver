@@ -485,7 +485,7 @@ namespace MongoDB.Driver
         /// Sets the maximum time the server should spend on this query.
         /// </summary>
         /// <param name="maxTime">The max time.</param>
-        /// <returns></returns>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetMaxTime(TimeSpan maxTime)
         {
             if (_isFrozen) { ThrowFrozen(); }
@@ -713,30 +713,6 @@ namespace MongoDB.Driver
         {
             IsFrozen = true;
 
-            var readPreference = ReadPreference;
-            if (readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && Collection.Name == "$cmd")
-            {
-                var timeoutAt = DateTime.UtcNow + Server.Settings.ConnectTimeout;
-                var cluster = Server.Cluster;
-
-                var clusterType = cluster.Description.Type;
-                while (clusterType == ClusterType.Unknown)
-                {
-                    // TODO: find a way to block until the cluster description changes
-                    if (DateTime.UtcNow >= timeoutAt)
-                    {
-                        throw new TimeoutException();
-                    }
-                    Thread.Sleep(TimeSpan.FromMilliseconds(20));
-                    clusterType = cluster.Description.Type;
-                }
-
-                if (clusterType == ClusterType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(Query.ToBsonDocument()))
-                {
-                    readPreference = ReadPreference.Primary;
-                }
-            }
-
             var queryDocument = Query == null ? new BsonDocument() : Query.ToBsonDocument();
             var messageEncoderSettings = Collection.GetMessageEncoderSettings();
 
@@ -774,7 +750,7 @@ namespace MongoDB.Driver
                 Skip = Skip
             };
 
-            using (var binding = Server.GetReadBinding(readPreference))
+            using (var binding = Server.GetReadBinding(ReadPreference))
             {
                 var cursor = operation.Execute(binding);
                 return new AsyncCursorEnumeratorAdapter<TDocument>(cursor).GetEnumerator();
@@ -876,7 +852,7 @@ namespace MongoDB.Driver
         /// Sets the maximum time the server should spend on this query.
         /// </summary>
         /// <param name="maxTime">The max time.</param>
-        /// <returns></returns>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
         public new virtual MongoCursor<TDocument> SetMaxTime(TimeSpan maxTime)
         {
             return (MongoCursor<TDocument>)base.SetMaxTime(maxTime);

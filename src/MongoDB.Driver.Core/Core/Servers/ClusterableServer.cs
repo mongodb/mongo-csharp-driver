@@ -16,7 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -44,11 +46,20 @@ namespace MongoDB.Driver.Core.Servers
         #region static
         // static fields
         private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(10);
+        private static readonly List<Type> __invalidatingExceptions = new List<Type>
+        {
+            typeof(MongoNotPrimaryException),
+            typeof(MongoConnectionException),
+            typeof(SocketException),
+            typeof(EndOfStreamException),
+            typeof(IOException),
+        };
         #endregion
 
         // fields
         private readonly ExponentiallyWeightedMovingAverage _averageRoundTripTimeCalculator = new ExponentiallyWeightedMovingAverage(0.2);
         private readonly ServerDescription _baseDescription;
+        private readonly ClusterConnectionMode _clusterConnectionMode;
         private IConnectionPool _connectionPool;
         private ServerDescription _currentDescription;
         private readonly EndPoint _endPoint;
@@ -65,10 +76,11 @@ namespace MongoDB.Driver.Core.Servers
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // constructors
-        public ClusterableServer(ServerSettings settings, ClusterId clusterId, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
+        public ClusterableServer(ClusterId clusterId, ClusterConnectionMode clusterConnectionMode, ServerSettings settings, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
         {
-            _settings = Ensure.IsNotNull(settings, "settings"); ;
             Ensure.IsNotNull(clusterId, "clusterId");
+            _clusterConnectionMode = clusterConnectionMode;
+            _settings = Ensure.IsNotNull(settings, "settings"); ;
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
             _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
@@ -94,6 +106,11 @@ namespace MongoDB.Driver.Core.Servers
             get { return _endPoint; }
         }
 
+        public bool IsInitialized
+        {
+            get { return _state.Value != State.Initial; }
+        }
+
         public ServerId ServerId
         {
             get { return _serverId; }
@@ -111,21 +128,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 var stopwatch = Stopwatch.StartNew();
                 _connectionPool.Initialize();
-                var metronome = new Metronome(_settings.HeartbeatInterval);
-                AsyncBackgroundTask.Start(
-                    HeartbeatAsync,
-                    ct =>
-                    {
-                        var newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), __minHeartbeatInterval);
-                        var oldHeartbeatDelay = Interlocked.Exchange(ref _heartbeatDelay, newHeartbeatDelay);
-                        if (oldHeartbeatDelay != null)
-                        {
-                            oldHeartbeatDelay.Dispose();
-                        }
-                        return newHeartbeatDelay.Task;
-                    },
-                    _heartbeatCancellationTokenSource.Token)
-                    .HandleUnobservedException(ex => { }); // TODO: do we need to do anything here?
+                MonitorServer();
                 stopwatch.Stop();
 
                 if (_listener != null)
@@ -197,6 +200,30 @@ namespace MongoDB.Driver.Core.Servers
             {
                 connection.Dispose();
                 throw;
+            }
+        }
+
+        private async void MonitorServer()
+        {
+            var metronome = new Metronome(_settings.HeartbeatInterval);
+            var heartbeatCancellationToken = _heartbeatCancellationTokenSource.Token;
+            while (!heartbeatCancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await HeartbeatAsync(heartbeatCancellationToken);
+                    var newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), __minHeartbeatInterval);
+                    var oldHeartbeatDelay = Interlocked.Exchange(ref _heartbeatDelay, newHeartbeatDelay);
+                    if (oldHeartbeatDelay != null)
+                    {
+                        oldHeartbeatDelay.Dispose();
+                    }
+                    await newHeartbeatDelay.Task;
+                }
+                catch
+                {
+                    // ignore these exceptions
+                }
             }
         }
 
@@ -368,7 +395,7 @@ namespace MongoDB.Driver.Core.Servers
                 return;
             }
 
-            if (ex.GetType() == typeof(MongoNotPrimaryException) || ex.GetType() == typeof(MongoNodeIsRecoveringException))
+            if (__invalidatingExceptions.Contains(ex.GetType()))
             {
                 Invalidate();
             }
@@ -450,6 +477,7 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
+                slaveOk = GetEffectiveSlaveOk(slaveOk);
                 var protocol = new CommandWireProtocol<TResult>(
                     databaseNamespace,
                     command,
@@ -475,7 +503,7 @@ namespace MongoDB.Driver.Core.Servers
                 BsonDocument query,
                 bool isMulti,
                 MessageEncoderSettings messageEncoderSettings,
-                WriteConcern writeConcern, 
+                WriteConcern writeConcern,
                 CancellationToken cancellationToken)
             {
                 var protocol = new DeleteWireProtocol(
@@ -562,6 +590,7 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
+                slaveOk = GetEffectiveSlaveOk(slaveOk);
                 var protocol = new QueryWireProtocol<TDocument>(
                     collectionNamespace,
                     query,
@@ -634,6 +663,16 @@ namespace MongoDB.Driver.Core.Servers
             {
                 ThrowIfDisposed();
                 return new ServerChannel(_server, _connection.Fork());
+            }
+
+            private bool GetEffectiveSlaveOk(bool slaveOk)
+            {
+                if (_server._clusterConnectionMode == ClusterConnectionMode.Direct && _server.Description.Type != ServerType.ShardRouter)
+                {
+                    return true;
+                }
+
+                return slaveOk;
             }
 
             private void ThrowIfDisposed()

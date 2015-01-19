@@ -269,6 +269,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns the distinct values for a given field.
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="args">The args.</param>
         /// <returns>The distint values of the field.</returns>
         public IEnumerable<TValue> Distinct<TValue>(DistinctArgs args)
@@ -1044,8 +1045,9 @@ namespace MongoDB.Driver
         public virtual GetIndexesResult GetIndexes()
         {
             var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings());
-            var indexes = ExecuteReadOperation(operation).ToArray();
-            return new GetIndexesResult(indexes);
+            var cursor = ExecuteReadOperation(operation, ReadPreference.Primary);
+            var list = cursor.ToListAsync().GetAwaiter().GetResult();
+            return new GetIndexesResult(list.ToArray());
         }
 
         /// <summary>
@@ -1072,39 +1074,7 @@ namespace MongoDB.Driver
                 { "scale", () => args.Scale.Value, args.Scale.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            return _database.RunCommandAs<CollectionStatsResult>(command, _settings.ReadPreference);
-        }
-
-        /// <summary>
-        /// Gets the total data size for this collection (data + indexes).
-        /// </summary>
-        /// <returns>The total data size.</returns>
-        public virtual long GetTotalDataSize()
-        {
-            var totalSize = GetStats().DataSize;
-            foreach (var index in GetIndexes())
-            {
-                var indexCollectionName = string.Format("{0}.${1}", _collectionNamespace.CollectionName, index.Name);
-                var indexCollection = _database.GetCollection(indexCollectionName);
-                totalSize += indexCollection.GetStats().DataSize;
-            }
-            return totalSize;
-        }
-
-        /// <summary>
-        /// Gets the total storage size for this collection (data + indexes + overhead).
-        /// </summary>
-        /// <returns>The total storage size.</returns>
-        public virtual long GetTotalStorageSize()
-        {
-            var totalSize = GetStats().StorageSize;
-            foreach (var index in GetIndexes())
-            {
-                var indexCollectionName = string.Format("{0}.${1}", _collectionNamespace.CollectionName, index.Name);
-                var indexCollection = _database.GetCollection(indexCollectionName);
-                totalSize += indexCollection.GetStats().StorageSize;
-            }
-            return totalSize;
+            return _database.RunCommandAs<CollectionStatsResult>(command, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -1263,13 +1233,14 @@ namespace MongoDB.Driver
         public virtual bool IndexExistsByName(string indexName)
         {
             var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings());
-            var indexes = ExecuteReadOperation(operation).ToArray();
+            var indexes = ExecuteReadOperation(operation, ReadPreference.Primary).ToListAsync().GetAwaiter().GetResult();
             return indexes.Any(index => index["name"].AsString == indexName);
         }
 
         /// <summary>
         /// Creates a fluent builder for an ordered bulk operation.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
         /// <returns>A fluent bulk operation builder.</returns>
         public virtual BulkWriteOperation<TDocument> InitializeOrderedBulkOperationAs<TDocument>()
         {
@@ -1279,6 +1250,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a fluent builder for an unordered bulk operation.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
         /// <returns>A fluent bulk operation builder.</returns>
         public virtual BulkWriteOperation<TDocument> InitializeUnorderedBulkOperationAs<TDocument>()
         {

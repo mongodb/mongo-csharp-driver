@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a fluent builder for a write request (either a remove or an update).
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteRequestBuilder<TDocument>
     {
         // private fields
@@ -58,6 +59,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds a request to replace one matching documents to the bulk operation.
         /// </summary>
+        /// <param name="document">The document.</param>
         public void ReplaceOne(TDocument document)
         {
             if (document == null)
@@ -70,6 +72,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds a request to update all matching documents to the bulk operation.
         /// </summary>
+        /// <param name="update">The update.</param>
         public void Update(IMongoUpdate update)
         {
             if (update == null)
@@ -82,6 +85,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds a request to update one matching documents to the bulk operation.
         /// </summary>
+        /// <param name="update">The update.</param>
         public void UpdateOne(IMongoUpdate update)
         {
             if (update == null)
@@ -94,7 +98,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Specifies that the request being built should be an upsert.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A bulk update request builder.</returns>
         public BulkUpdateRequestBuilder<TDocument> Upsert()
         {
             return new BulkUpdateRequestBuilder<TDocument>(_addRequest, _query, true);

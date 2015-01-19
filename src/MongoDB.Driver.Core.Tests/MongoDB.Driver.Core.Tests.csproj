@@ -59,6 +59,7 @@
     <Compile Include="Core\Operations\AggregateOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests.cs" />
+    <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexesOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexRequestTests.cs" />
@@ -124,7 +125,6 @@
     <Compile Include="Core\Misc\BatchableSourceTests.cs" />
     <Compile Include="Core\Misc\MetronomeTests.cs" />
     <Compile Include="Core\Async\AsyncQueueTests.cs" />
-    <Compile Include="Core\Async\AsyncBackgroundTaskTests.cs" />
     <Compile Include="Core\Authentication\ScramSha1AuthenticatorTests.cs" />
     <Compile Include="Core\Authentication\PlainAuthenticatorTests.cs" />
     <Compile Include="Core\Authentication\MongoDBCRAuthenticatorTests.cs" />

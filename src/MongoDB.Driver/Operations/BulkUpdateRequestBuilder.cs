@@ -22,6 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a fluent builder for one update request.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkUpdateRequestBuilder<TDocument>
     {
         // private fields

@@ -20,6 +20,15 @@ namespace MongoDB.Driver.Linq.Utils
 {
     internal static class TypeHelper
     {
+        internal static object GetDefault(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
+        }
+
         internal static Type GetElementType(Type seqType)
         {
             Type ienum = FindIEnumerable(seqType);

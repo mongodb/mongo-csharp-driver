@@ -42,7 +42,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets or sets the background.
+        /// Gets or sets a value indicating whether to create the index in the background.
         /// </summary>
         public bool? Background
         {
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the bits.
+        /// Gets or sets the precision, in bits, used with geohash indexes.
         /// </summary>
         public int? Bits
         {
@@ -60,11 +60,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the size of the bucket.
+        /// Gets or sets the size of a geohash bucket.
         /// </summary>
-        /// <value>
-        /// The size of the bucket.
-        /// </value>
         public double? BucketSize
         {
             get { return _bucketSize; }
@@ -81,7 +78,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the expire after.
+        /// Gets or sets when documents expire (used with TTL indexes).
         /// </summary>
         public TimeSpan? ExpireAfter
         {
@@ -99,7 +96,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the maximum.
+        /// Gets or sets the max value for 2d indexes.
         /// </summary>
         public double? Max
         {
@@ -108,7 +105,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the minimum.
+        /// Gets or sets the min value for 2d indexes.
         /// </summary>
         public double? Min
         {
@@ -117,7 +114,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the name.
+        /// Gets or sets the index name.
         /// </summary>
         public string Name
         {
@@ -126,7 +123,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the sparse.
+        /// Gets or sets a value indicating whether the index is a sparse index.
         /// </summary>
         public bool? Sparse
         {
@@ -135,7 +132,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the sphere index version.
+        /// Gets or sets the index version for 2dsphere indexes.
         /// </summary>
         public int? SphereIndexVersion
         {
@@ -153,7 +150,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the text index version.
+        /// Gets or sets the index version for text indexes.
         /// </summary>
         public int? TextIndexVersion
         {
@@ -162,7 +159,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the unique.
+        /// Gets or sets a value indicating whether the index is a unique index.
         /// </summary>
         public bool? Unique
         {
@@ -171,7 +168,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the version.
+        /// Gets or sets the version of the index.
         /// </summary>
         public int? Version
         {
@@ -180,7 +177,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the weights.
+        /// Gets or sets the weights for text indexes.
         /// </summary>
         public object Weights
         {

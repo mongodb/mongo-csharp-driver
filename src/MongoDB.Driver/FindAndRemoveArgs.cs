@@ -32,9 +32,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the fields specification.
         /// </summary>
-        /// <value>
-        /// The fields specification.
-        /// </value>
         public IMongoFields Fields
         {
             get { return _fields; }
@@ -44,9 +41,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -56,9 +50,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public IMongoQuery Query
         {
             get { return _query; }
@@ -69,9 +60,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort specification.
         /// </summary>
-        /// <value>
-        /// The sort specification.
-        /// </value>
         public IMongoSortBy SortBy
         {
             get { return _sort; }

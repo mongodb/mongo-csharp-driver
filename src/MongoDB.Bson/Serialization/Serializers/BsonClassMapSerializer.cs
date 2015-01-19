@@ -76,11 +76,6 @@ namespace MongoDB.Bson.Serialization
                 throw new BsonSerializationException(message);
             }
 
-            if (_classMap.IsAnonymous)
-            {
-                throw new InvalidOperationException("An anonymous class cannot be deserialized.");
-            }
-
             if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
             {
                 bsonReader.ReadNull();

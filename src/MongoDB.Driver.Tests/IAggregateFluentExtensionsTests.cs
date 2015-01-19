@@ -39,6 +39,17 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Group_should_generate_the_correct_document_using_expressions()
+        {
+            var subject = CreateSubject()
+                .Group(x => x.Age, g =>  new { Name = g.Select(x => x.FirstName + " " + x.LastName).First() });
+
+            var expectedProject = BsonDocument.Parse("{$group: {_id: '$Age', Name: {'$first': { '$concat': ['$FirstName', ' ', '$LastName']}}}}");
+
+            Assert.AreEqual(expectedProject, subject.Pipeline.Last());
+        }
+
+        [Test]
         public void Match_should_generate_the_correct_match()
         {
             var subject = CreateSubject()
@@ -50,12 +61,23 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void Project_should_generate_the_correct_group_when_a_result_type_is_not_specified()
+        public void Project_should_generate_the_correct_document_when_a_result_type_is_not_specified()
         {
             var subject = CreateSubject()
                 .Project(new { Awesome = "$Tags" });
 
             var expectedProject = BsonDocument.Parse("{$project: {Awesome: '$Tags'}}");
+
+            Assert.AreEqual(expectedProject, subject.Pipeline.Last());
+        }
+
+        [Test]
+        public void Project_should_generate_the_correct_document_using_expressions()
+        {
+            var subject = CreateSubject()
+                .Project(x => new { Name = x.FirstName + " " + x.LastName });
+
+            var expectedProject = BsonDocument.Parse("{$project: {Name: {'$concat': ['$FirstName', ' ', '$LastName']}, _id: 0}}");
 
             Assert.AreEqual(expectedProject, subject.Pipeline.Last());
         }

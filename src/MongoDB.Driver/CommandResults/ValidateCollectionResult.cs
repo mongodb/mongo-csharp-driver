@@ -208,7 +208,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether the collection is valid.
+        /// Gets a value indicating whether the collection is valid.
         /// </summary>
         public bool IsValid
         {

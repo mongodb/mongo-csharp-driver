@@ -41,12 +41,6 @@ namespace MongoDB.Driver.Communication
         private static readonly ClusterRegistry __instance = new ClusterRegistry();
 
         // static properties
-        /// <summary>
-        /// Gets the instance.
-        /// </summary>
-        /// <value>
-        /// The instance.
-        /// </value>
         public static ClusterRegistry Instance
         {
             get { return __instance; }
@@ -164,22 +158,12 @@ namespace MongoDB.Driver.Communication
             }
         }
 
-        /// <summary>
-        /// Gets an existing cluster or creates a new one.
-        /// </summary>
-        /// <param name="clientSettings">The client settings.</param>
-        /// <returns></returns>
         public ICluster GetOrCreateCluster(MongoClientSettings clientSettings)
         {
             var clusterKey = new ClusterKey(clientSettings);
             return GetOrCreateCluster(clusterKey);
         }
 
-        /// <summary>
-        /// Gets an existing cluster or creates a new one.
-        /// </summary>
-        /// <param name="serverSettings">The server settings.</param>
-        /// <returns></returns>
         public ICluster GetOrCreateCluster(MongoServerSettings serverSettings)
         {
             var clusterKey = new ClusterKey(serverSettings);

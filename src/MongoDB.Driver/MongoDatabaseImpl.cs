@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         public MongoDatabaseImpl(DatabaseNamespace databaseNamespace, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
-            _settings = Ensure.IsNotNull(settings, "settings");
+            _settings = Ensure.IsNotNull(settings, "settings").Freeze();
             _cluster = Ensure.IsNotNull(cluster, "cluster");
             _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
         }
@@ -92,7 +92,9 @@ namespace MongoDB.Driver
             Ensure.IsNotNullOrEmpty(name, "name");
             Ensure.IsNotNull(settings, "settings");
 
+            settings = settings.Clone();
             settings.ApplyDefaultValues(_settings);
+
             return new MongoCollectionImpl<TDocument>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
@@ -100,7 +102,8 @@ namespace MongoDB.Driver
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings);
-            var collections = await ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
+            var cursor = await ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
+            var collections = await cursor.ToListAsync().ConfigureAwait(false);
             return collections.Select(c => c["name"].AsString).ToList();
         }
 
@@ -121,25 +124,24 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task<T> RunCommandAsync<T>(object command, CancellationToken cancellationToken)
+        public Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(command, "command");
+            readPreference = readPreference ?? ReadPreference.Primary;
 
             var commandDocument = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, command);
-
-            var isReadCommand = CanCommandBeSentToSecondary.Delegate(commandDocument);
             var serializer = _settings.SerializerRegistry.GetSerializer<T>();
             var messageEncoderSettings = GetMessageEncoderSettings();
 
-            if (isReadCommand)
-            {
-                var operation = new ReadCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
-                return ExecuteReadOperation<T>(operation, cancellationToken);
-            }
-            else
+            if (readPreference == ReadPreference.Primary)
             {
                 var operation = new WriteCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
                 return ExecuteWriteOperation<T>(operation, cancellationToken);
+            }
+            else
+            {
+                var operation = new ReadCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
+                return ExecuteReadOperation<T>(operation, readPreference, cancellationToken);
             }
         }
 

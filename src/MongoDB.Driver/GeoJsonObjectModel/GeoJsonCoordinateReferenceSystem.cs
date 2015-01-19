@@ -28,9 +28,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the type of the GeoJson coordinate reference system.
         /// </summary>
-        /// <value>
-        /// The type of the GeoJson coordinate reference system.
-        /// </value>
         public abstract string Type { get; }
     }
 }

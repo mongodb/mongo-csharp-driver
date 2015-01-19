@@ -45,6 +45,24 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        public ServerErrorCategory Category
+        {
+            get
+            {
+                switch(_code)
+                {
+                    case 50:
+                        return ServerErrorCategory.ExecutionTimeout;
+                    case 11000:
+                    case 11001:
+                    case 12582:
+                        return ServerErrorCategory.DuplicateKey;
+                    default:
+                        return ServerErrorCategory.Uncategorized;
+                }
+            }
+        }
+
         /// <summary>
         /// Gets the error code.
         /// </summary>

@@ -259,7 +259,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Gets whether the GridFS file exists.
+        /// Gets a value indicating whether the GridFS file exists.
         /// </summary>
         public bool Exists
         {

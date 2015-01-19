@@ -45,7 +45,7 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets or sets whether to check for certificate revocation.
+        /// Gets or sets a value indicating whether to check for certificate revocation.
         /// </summary>
         public bool CheckCertificateRevocation
         {

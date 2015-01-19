@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly ServerId _serverId;
         private readonly int _localValue;
         private readonly int? _serverValue;
+        private readonly int _hashCode;
 
         // constructors
         public ConnectionId(ServerId serverId)
@@ -48,6 +49,10 @@ namespace MongoDB.Driver.Core.Connections
         {
             _serverId = Ensure.IsNotNull(serverId, "serverId");
             _localValue = Ensure.IsGreaterThanOrEqualToZero(localValue, "localValue");
+            _hashCode = new Hasher()
+                .Hash(_serverId)
+                .Hash(_localValue)
+                .GetHashCode();
         }
 
         private ConnectionId(ServerId serverId, int localValue, int serverValue)
@@ -92,10 +97,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public override int GetHashCode()
         {
-            return new Hasher()
-                .Hash(_serverId)
-                .Hash(_localValue)
-                .GetHashCode();
+            return _hashCode;
         }
 
         public bool StructurallyEquals(ConnectionId other)

@@ -173,7 +173,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether the settings have been frozen to prevent further changes.
+        /// Gets a value indicating whether the settings have been frozen to prevent further changes.
         /// </summary>
         public bool IsFrozen
         {
@@ -181,7 +181,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether to use IPv6.
+        /// Gets or sets a value indicating whether to use IPv6.
         /// </summary>
         public bool IPv6
         {
@@ -375,7 +375,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether to use SSL.
+        /// Gets or sets a value indicating whether to use SSL.
         /// </summary>
         public bool UseSsl
         {
@@ -388,7 +388,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether to verify an SSL certificate.
+        /// Gets or sets a value indicating whether to verify an SSL certificate.
         /// </summary>
         public bool VerifySslCertificate
         {

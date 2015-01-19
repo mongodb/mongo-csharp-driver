@@ -22,12 +22,12 @@ using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Logical representation of database in MongoDB.
+    /// Representats a database in MongoDB.
     /// </summary>
     public interface IMongoDatabase
     {
         /// <summary>
-        /// Gets the name of the database.
+        /// Gets the namespace of the database.
         /// </summary>
         DatabaseNamespace DatabaseNamespace { get; }
 
@@ -48,24 +48,24 @@ namespace MongoDB.Driver
         /// <summary>
         /// Drops the collection with the specified name.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="name">The name of the collection to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
         Task DropCollectionAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Gets the collection.
+        /// Gets a collection.
         /// </summary>
         /// <typeparam name="TDocument">The document type.</typeparam>
-        /// <param name="name">The name.</param>
+        /// <param name="name">The name of the collection.</param>
         /// <returns>An implementation of a collection.</returns>
         IMongoCollection<TDocument> GetCollection<TDocument>(string name);
 
         /// <summary>
-        /// Gets the collection.
+        /// Gets a collection.
         /// </summary>
         /// <typeparam name="TDocument">The document type.</typeparam>
-        /// <param name="name">The name.</param>
+        /// <param name="name">The name of the collection.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>An implementation of a collection.</returns>
         IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings);
@@ -90,50 +90,15 @@ namespace MongoDB.Driver
         Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Runs the command.
+        /// Runs a command.
         /// </summary>
         /// <typeparam name="T">The result type of the command.</typeparam>
         /// <param name="command">The command.</param>
+        /// <param name="readPreference">The read preference.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the command.
         /// </returns>
-        Task<T> RunCommandAsync<T>(object command, CancellationToken cancellationToken = default(CancellationToken));
-    }
-
-    /// <summary>
-    /// Extensions for <see cref="IMongoDatabase"/>.
-    /// </summary>
-    public static class IMongoDatabaseExtensions
-    {
-        /// <summary>
-        /// Runs the command.
-        /// </summary>
-        /// <typeparam name="T">The result type of the command.</typeparam>
-        /// <param name="database">The database.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the command.
-        /// </returns>
-        public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, string command, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return database.RunCommandAsync<T>(command, cancellationToken);
-        }
-
-        /// <summary>
-        /// Runs the command.
-        /// </summary>
-        /// <typeparam name="T">The result type of the command.</typeparam>
-        /// <param name="database">The database.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the command.
-        /// </returns>
-        public static Task<T> RunCommandAsync<T>(this IMongoDatabase database, BsonDocument command, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return database.RunCommandAsync<T>(command, cancellationToken);
-        }
+        Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

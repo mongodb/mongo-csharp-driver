@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MongoDB.Driver.Core.TestConsoleApplication")]
+[assembly: AssemblyTitle("MongoDB.Driver.TestConsoleApplication")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MongoDB.Driver.Core.TestConsoleApplication")]
+[assembly: AssemblyProduct("MongoDB.Driver.TestConsoleApplication")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("85bdd018-c0e8-4f96-8db9-e5add27bd50d")]
+[assembly: Guid("882261eb-4593-493c-bfee-f4f87cebca34")]
 
 // Version information for an assembly consists of the following four values:
 //

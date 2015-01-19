@@ -26,15 +26,16 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for deleting many documents.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
-    public sealed class DeleteManyModel<T> : WriteModel<T>
+    public sealed class DeleteManyModel<TDocument> : WriteModel<TDocument>
     {
         // fields
         private readonly object _filter;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteManyModel{T}"/> class.
+        /// Initializes a new instance of the <see cref="DeleteManyModel{TDocument}"/> class.
         /// </summary>
         /// <param name="filter">The filter.</param>
         public DeleteManyModel(object filter)
@@ -44,7 +45,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets the document.
+        /// Gets the filter.
         /// </summary>
         public object Filter
         {

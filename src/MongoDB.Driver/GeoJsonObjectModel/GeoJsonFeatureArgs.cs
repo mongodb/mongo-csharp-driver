@@ -26,17 +26,11 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets or sets the id.
         /// </summary>
-        /// <value>
-        /// The id.
-        /// </value>
         public BsonValue Id { get; set; }
 
         /// <summary>
         /// Gets or sets the properties.
         /// </summary>
-        /// <value>
-        /// The properties.
-        /// </value>
         public BsonDocument Properties { get; set; }
     }
 }

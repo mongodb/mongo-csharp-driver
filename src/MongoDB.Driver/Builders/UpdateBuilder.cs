@@ -565,6 +565,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1529,6 +1530,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1542,6 +1544,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1555,6 +1558,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="args">The args.</param>
         /// <param name="values">The values to add to the end of the array.</param>
@@ -1570,6 +1574,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="args">The args.</param>
         /// <param name="values">The values to add to the end of the array.</param>
@@ -2595,7 +2600,6 @@ namespace MongoDB.Driver.Builders
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">memberExpression</exception>
         public UpdateBuilder<TDocument> Max<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
         {
             if (memberExpression == null)
@@ -2775,7 +2779,7 @@ namespace MongoDB.Driver.Builders
             }
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            _serializationInfoHelper.GetItemSerializationInfo("Pull", serializationInfo);
+            _serializationInfoHelper.GetItemSerializationInfo("Pull", serializationInfo); // TODO: there must be a better way to do whatever this line is doing
             var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper);
             var elementQuery = elementQueryBuilderFunction(elementQueryBuilder);
             _updateBuilder = _updateBuilder.Pull(serializationInfo.ElementName, elementQuery);
@@ -2862,6 +2866,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="memberExpression">The name of the array element.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -2878,7 +2883,6 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The options.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        /// <exception cref="System.ArgumentNullException">memberExpression</exception>
         public UpdateBuilder<TDocument> PushEach<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, PushEachOptions options, IEnumerable<TValue> values)
         {
             if (memberExpression == null)
@@ -2905,7 +2909,6 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The options.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        /// <exception cref="System.ArgumentNullException">memberExpression</exception>
         public UpdateBuilder<TDocument> PushEach<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Action<PushEachOptionsBuilder<TValue>> options, IEnumerable<TValue> values)
         {
             if (memberExpression == null)

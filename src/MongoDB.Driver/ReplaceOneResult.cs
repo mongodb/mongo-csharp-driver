@@ -83,7 +83,7 @@ namespace MongoDB.Driver
 
         // nested classes
         /// <summary>
-        /// Result from an acknowledged write concern.
+        /// The result of an acknowledged update operation.
         /// </summary>
         public class Acknowledged : ReplaceOneResult
         {
@@ -96,7 +96,7 @@ namespace MongoDB.Driver
             /// </summary>
             /// <param name="matchedCount">The matched count.</param>
             /// <param name="modifiedCount">The modified count.</param>
-            /// <param name="upsertedId">The upserted identifier.</param>
+            /// <param name="upsertedId">The upserted id.</param>
             public Acknowledged(long matchedCount, long? modifiedCount, BsonValue upsertedId)
             {
                 _matchedCount = matchedCount;
@@ -104,36 +104,25 @@ namespace MongoDB.Driver
                 _upsertedId = upsertedId;
             }
 
-            /// <summary>
-            /// Gets a value indicating whether the result is acknowleded.
-            /// </summary>
+            /// <inheritdoc/>
             public override bool IsAcknowledged
             {
                 get { return true; }
             }
 
-            /// <summary>
-            /// Gets a value indicating whether the modified count is available.
-            /// </summary>
-            /// <remarks>
-            /// The modified count is only available when all servers have been upgraded to 2.6 or above.
-            /// </remarks>
+            /// <inheritdoc/>
             public override bool IsModifiedCountAvailable
             {
                 get { return _modifiedCount.HasValue; }
             }
 
-            /// <summary>
-            /// Gets the matched count. If IsAcknowledged is false, this will throw an exception.
-            /// </summary>
+            /// <inheritdoc/>
             public override long MatchedCount
             {
                 get { return _matchedCount; }
             }
 
-            /// <summary>
-            /// Gets the modified count. If IsAcknowledged is false, this will throw an exception.
-            /// </summary>
+            /// <inheritdoc/>
             public override long ModifiedCount
             {
                 get
@@ -146,9 +135,7 @@ namespace MongoDB.Driver
                 }
             }
 
-            /// <summary>
-            /// Gets the upserted id, if one exists. If IsAcknowledged is false, this will throw an exception.
-            /// </summary>
+            /// <inheritdoc/>
             public override BsonValue UpsertedId
             {
                 get { return _upsertedId; }
@@ -156,7 +143,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Result from an unacknowledged write concern.
+        /// The result of an unacknowledged update operation.
         /// </summary>
         public class Unacknowledged : ReplaceOneResult
         {
@@ -174,47 +161,31 @@ namespace MongoDB.Driver
             {
             }
 
-            /// <summary>
-            /// Gets a value indicating whether the result is acknowleded.
-            /// </summary>
+            /// <inheritdoc/>
             public override bool IsAcknowledged
             {
                 get { return false; }
             }
 
-            /// <summary>
-            /// Gets a value indicating whether the modified count is available.
-            /// </summary>
-            /// <remarks>
-            /// The modified count is only available when all servers have been upgraded to 2.6 or above.
-            /// </remarks>
+            /// <inheritdoc/>
             public override bool IsModifiedCountAvailable
             {
                 get { return false; }
             }
 
-            /// <summary>
-            /// Gets the matched count. If IsAcknowledged is false, this will throw an exception.
-            /// </summary>
-            /// <exception cref="System.NotSupportedException">Only acknowledged writes support the MatchedCount property.</exception>
+            /// <inheritdoc/>
             public override long MatchedCount
             {
                 get { throw new NotSupportedException("Only acknowledged writes support the MatchedCount property."); }
             }
 
-            /// <summary>
-            /// Gets the modified count. If IsAcknowledged is false, this will throw an exception.
-            /// </summary>
-            /// <exception cref="System.NotSupportedException">Only acknowledged writes support the ModifiedCount property.</exception>
+            /// <inheritdoc/>
             public override long ModifiedCount
             {
                 get { throw new NotSupportedException("Only acknowledged writes support the ModifiedCount property."); }
             }
 
-            /// <summary>
-            /// Gets the upserted id, if one exists. If IsAcknowledged is false, this will throw an exception.
-            /// </summary>
-            /// <exception cref="System.NotSupportedException">Only acknowledged writes support the UpsertedId property.</exception>
+            /// <inheritdoc/>
             public override BsonValue UpsertedId
             {
                 get { throw new NotSupportedException("Only acknowledged writes support the UpsertedId property."); }

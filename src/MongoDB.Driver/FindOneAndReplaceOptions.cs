@@ -47,11 +47,8 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets or sets a value indicating whether [is upsert].
+        /// Gets or sets a value indicating whether to insert the document if it doesn't already exist.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if [is upsert]; otherwise, <c>false</c>.
-        /// </value>
         public bool IsUpsert
         {
             get { return _isUpsert; }
@@ -86,7 +83,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the return document.
+        /// Gets or sets which version of the document to return.
         /// </summary>
         public ReturnDocument ReturnDocument
         {

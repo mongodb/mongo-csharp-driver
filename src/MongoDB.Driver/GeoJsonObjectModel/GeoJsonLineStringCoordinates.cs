@@ -37,12 +37,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// Initializes a new instance of the <see cref="GeoJsonLineStringCoordinates{TCoordinates}"/> class.
         /// </summary>
         /// <param name="positions">The positions.</param>
-        /// <exception cref="System.ArgumentNullException">positions</exception>
-        /// <exception cref="System.ArgumentException">
-        /// One of the positions is null.;positions
-        /// or
-        /// At least two positions are required.;positions
-        /// </exception>
         public GeoJsonLineStringCoordinates(IEnumerable<TCoordinates> positions)
         {
             if (positions == null)
@@ -67,9 +61,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the positions.
         /// </summary>
-        /// <value>
-        /// The positions.
-        /// </value>
         public ReadOnlyCollection<TCoordinates> Positions
         {
             get { return _positions; }

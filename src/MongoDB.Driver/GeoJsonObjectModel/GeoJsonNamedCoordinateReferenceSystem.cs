@@ -41,9 +41,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the name.
         /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
         public string Name
         {
             get { return _name; }
@@ -52,9 +49,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the type of the GeoJson coordinate reference system.
         /// </summary>
-        /// <value>
-        /// The type of the GeoJson coordinate reference system.
-        /// </value>
         public override string Type
         {
             get { return "name"; }

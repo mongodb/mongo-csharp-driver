@@ -26,21 +26,22 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for replacing a single document.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
-    public sealed class ReplaceOneModel<T> : WriteModel<T>
+    public sealed class ReplaceOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields
         private readonly object _filter;
         private bool _isUpsert;
-        private readonly T _replacement;
+        private readonly TDocument _replacement;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReplaceOneModel{T}"/> class.
+        /// Initializes a new instance of the <see cref="ReplaceOneModel{TDocument}"/> class.
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
-        public ReplaceOneModel(object filter, T replacement)
+        public ReplaceOneModel(object filter, TDocument replacement)
         {
             _filter = Ensure.IsNotNull(filter, "filter");
             _replacement = replacement;
@@ -48,7 +49,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets the document.
+        /// Gets the filter.
         /// </summary>
         public object Filter
         {
@@ -56,7 +57,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// When true, creates a new document if no document matches the query. The default is false.
+        /// Gets or sets a value indicating whether to insert the document if it doesn't already exist.
         /// </summary>
         public bool IsUpsert
         {
@@ -65,9 +66,9 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the update.
+        /// Gets the replacement.
         /// </summary>
-        public T Replacement
+        public TDocument Replacement
         {
             get { return _replacement; }
         }

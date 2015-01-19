@@ -40,9 +40,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the X value.
         /// </summary>
-        /// <value>
-        /// The X value.
-        /// </value>
         public double X
         {
             get { return _x; }
@@ -51,9 +48,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the Y value.
         /// </summary>
-        /// <value>
-        /// The Y value.
-        /// </value>
         public double Y
         {
             get { return _y; }

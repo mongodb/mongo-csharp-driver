@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan? _readTimeout;
         private readonly int _receiveBufferSize;
         private readonly int _sendBufferSize;
+        private readonly Action<Socket> _socketConfigurator;
         private readonly TimeSpan? _writeTimeout;
 
         // constructors
@@ -40,6 +41,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
             Optional<int> receiveBufferSize = default(Optional<int>),
             Optional<int> sendBufferSize = default(Optional<int>),
+            Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
         {
             _addressFamily = addressFamily.WithDefault(AddressFamily.InterNetwork);
@@ -47,6 +49,7 @@ namespace MongoDB.Driver.Core.Configuration
             _readTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(readTimeout.WithDefault(null), "readTimeout");
             _receiveBufferSize = Ensure.IsGreaterThanZero(receiveBufferSize.WithDefault(64 * 1024), "receiveBufferSize");
             _sendBufferSize = Ensure.IsGreaterThanZero(sendBufferSize.WithDefault(64 * 1024), "sendBufferSize");
+            _socketConfigurator = socketConfigurator.WithDefault(null);
             _writeTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(writeTimeout.WithDefault(null), "writeTimeout");
         }
 
@@ -76,6 +79,11 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _sendBufferSize; }
         }
 
+        public Action<Socket> SocketConfigurator
+        {
+            get { return _socketConfigurator; }
+        }
+
         public TimeSpan? WriteTimeout
         {
             get { return _writeTimeout; }
@@ -88,6 +96,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
             Optional<int> receiveBufferSize = default(Optional<int>),
             Optional<int> sendBufferSize = default(Optional<int>),
+            Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
         {
             return new TcpStreamSettings(
@@ -96,6 +105,7 @@ namespace MongoDB.Driver.Core.Configuration
                 readTimeout: readTimeout.WithDefault(_readTimeout),
                 receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
                 sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
+                socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
                 writeTimeout: writeTimeout.WithDefault(_writeTimeout));
         }
     }

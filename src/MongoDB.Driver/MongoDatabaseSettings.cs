@@ -62,7 +62,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether the settings have been frozen to prevent further changes.
+        /// Gets a value indicating whether the settings have been frozen to prevent further changes.
         /// </summary>
         public bool IsFrozen
         {

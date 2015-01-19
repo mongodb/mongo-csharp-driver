@@ -163,7 +163,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Gets whether the settings are frozen.
+        /// Gets a value indicating whether the settings are frozen.
         /// </summary>
         public bool IsFrozen
         {
@@ -218,7 +218,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Gets or sets whether to udpate the MD5 hash on the server when a file is uploaded or modified.
+        /// Gets or sets a value indicating whether to udpate the MD5 hash on the server when a file is uploaded or modified.
         /// </summary>
         public bool UpdateMD5
         {
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Gets or sets whether to verify the MD5 hash when a file is uploaded or downloaded.
+        /// Gets or sets a value indicating whether to verify the MD5 hash when a file is uploaded or downloaded.
         /// </summary>
         public bool VerifyMD5
         {

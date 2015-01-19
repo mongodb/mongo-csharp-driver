@@ -26,25 +26,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets or sets the bounding box.
         /// </summary>
-        /// <value>
-        /// The bounding box.
-        /// </value>
         public GeoJsonBoundingBox<TCoordinates> BoundingBox { get; set; }
 
         /// <summary>
         /// Gets or sets the coordinate reference system.
         /// </summary>
-        /// <value>
-        /// The coordinate reference system.
-        /// </value>
         public GeoJsonCoordinateReferenceSystem CoordinateReferenceSystem { get; set; }
 
         /// <summary>
         /// Gets or sets the extra members.
         /// </summary>
-        /// <value>
-        /// The extra members.
-        /// </value>
         public BsonDocument ExtraMembers { get; set; }
     }
 }

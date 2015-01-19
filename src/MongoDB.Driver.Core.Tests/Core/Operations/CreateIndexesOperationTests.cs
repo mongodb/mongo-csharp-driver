@@ -96,7 +96,8 @@ namespace MongoDB.Driver.Core.Operations
             result["ok"].ToBoolean().Should().BeTrue();
 
             var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var indexes = (await ExecuteOperationAsync(listIndexesOperation)).ToList();
+            var cursor = await ExecuteOperationAsync(listIndexesOperation);
+            var indexes = await cursor.ToListAsync();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["background"].ToBoolean().Should().BeTrue();
         }
@@ -113,7 +114,8 @@ namespace MongoDB.Driver.Core.Operations
             result["ok"].ToBoolean().Should().BeTrue();
 
             var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var indexes = await ExecuteOperationAsync(listIndexesOperation);
+            var cursor = await ExecuteOperationAsync(listIndexesOperation);
+            var indexes = await cursor.ToListAsync();
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1" });
         }
 
@@ -133,7 +135,8 @@ namespace MongoDB.Driver.Core.Operations
             result["ok"].ToBoolean().Should().BeTrue();
 
             var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var indexes = await ExecuteOperationAsync(listIndexesOperation);
+            var cursor = await ExecuteOperationAsync(listIndexesOperation);
+            var indexes = await cursor.ToListAsync();
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1", "y_1" });
         }
 
@@ -149,7 +152,8 @@ namespace MongoDB.Driver.Core.Operations
             result["ok"].ToBoolean().Should().BeTrue();
 
             var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var indexes = (await ExecuteOperationAsync(listIndexesOperation)).ToList();
+            var cursor = await ExecuteOperationAsync(listIndexesOperation);
+            var indexes = await cursor.ToListAsync();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["sparse"].ToBoolean().Should().BeTrue();
         }
@@ -167,7 +171,8 @@ namespace MongoDB.Driver.Core.Operations
             result["ok"].ToBoolean().Should().BeTrue();
 
             var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var indexes = (await ExecuteOperationAsync(listIndexesOperation)).ToList();
+            var cursor = await ExecuteOperationAsync(listIndexesOperation);
+            var indexes = await cursor.ToListAsync();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["expireAfterSeconds"].ToDouble().Should().Be(expireAfterSeconds);
         }
@@ -184,7 +189,8 @@ namespace MongoDB.Driver.Core.Operations
             result["ok"].ToBoolean().Should().BeTrue();
 
             var listIndexesOperation = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            var indexes = (await ExecuteOperationAsync(listIndexesOperation)).ToList();
+            var cursor = await ExecuteOperationAsync(listIndexesOperation);
+            var indexes = await cursor.ToListAsync();
             var index = indexes.Single(i => i["name"].AsString == "x_1");
             index["unique"].ToBoolean().Should().BeTrue();
         }

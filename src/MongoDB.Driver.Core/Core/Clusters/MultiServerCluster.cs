@@ -108,12 +108,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 var stopwatch = Stopwatch.StartNew();
-                AsyncBackgroundTask.Start(
-                    MonitorServersAsync,
-                    TimeSpan.Zero,
-                    _monitorServersCancellationTokenSource.Token)
-                    .HandleUnobservedException(ex => { }); // TODO: do we need to handle any error here?
-
+                MonitorServers();
                 // We lock here even though AddServer locks. Monitors
                 // are re-entrant such that this won't cause problems,
                 // but could prevent issues of conflicting reports
@@ -137,6 +132,31 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
+        private bool IsServerValidForCluster(ClusterType clusterType, ClusterConnectionMode connectionMode, ServerType serverType)
+        {
+            switch (clusterType)
+            {
+                case ClusterType.ReplicaSet:
+                    return serverType.IsReplicaSetMember();
+
+                case ClusterType.Sharded:
+                    return serverType == ServerType.ShardRouter;
+
+                case ClusterType.Unknown:
+                    switch (connectionMode)
+                    {
+                        case ClusterConnectionMode.Automatic:
+                            return serverType.IsReplicaSetMember() || serverType == ServerType.ShardRouter;
+
+                        default:
+                            throw new MongoInternalException("Unexpected connection mode.");
+                    }
+
+                default:
+                    throw new MongoInternalException("Unexpected cluster type.");
+            }
+        }
+
         protected override void RequestHeartbeat()
         {
             List<IClusterableServer> servers;
@@ -144,30 +164,31 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 servers = _servers.ToList();
             }
-           
+
             foreach (var server in servers)
             {
-                server.RequestHeartbeat();
+                if (server.IsInitialized)
+                {
+                    server.RequestHeartbeat();
+                }
             }
         }
 
-        private async Task<bool> MonitorServersAsync(CancellationToken cancellationToken)
+        private async void MonitorServers()
         {
-            if (cancellationToken.IsCancellationRequested)
+            var monitorServersCancellationToken = _monitorServersCancellationTokenSource.Token;
+            while (!monitorServersCancellationToken.IsCancellationRequested)
             {
-                return false;
+                try
+                {
+                    var eventArgs = await _serverDescriptionChangedQueue.DequeueAsync(monitorServersCancellationToken).ConfigureAwait(false); // TODO: add timeout and cancellationToken to DequeueAsync
+                    ProcessServerDescriptionChanged(eventArgs);
+                }
+                catch
+                {
+                    // TODO: log this somewhere...
+                }
             }
-            try
-            {
-                var eventArgs = await _serverDescriptionChangedQueue.DequeueAsync().ConfigureAwait(false); // TODO: add timeout and cancellationToken to DequeueAsync
-                ProcessServerDescriptionChanged(eventArgs);
-            }
-            catch
-            {
-                // TODO: log this somewhere...
-            }
-
-            return true;
         }
 
         private void ServerDescriptionChangedHandler(object sender, ServerDescriptionChangedEventArgs args)
@@ -177,45 +198,44 @@ namespace MongoDB.Driver.Core.Clusters
 
         private void ProcessServerDescriptionChanged(ServerDescriptionChangedEventArgs args)
         {
-            var currentClusterDescription = Description;
-            var currentServerDescription = args.OldServerDescription;
             var newServerDescription = args.NewServerDescription;
+            var newClusterDescription = Description;
 
-            var currentServer = _servers.SingleOrDefault(x => EndPointHelper.Equals(x.EndPoint, newServerDescription.EndPoint));
-            if (currentServer == null)
+            if (!_servers.Any(x => EndPointHelper.Equals(x.EndPoint, newServerDescription.EndPoint)))
             {
                 return;
             }
 
-            ClusterDescription newClusterDescription;
             if (newServerDescription.State == ServerState.Disconnected)
             {
-                newClusterDescription = currentClusterDescription.WithServerDescription(args.NewServerDescription);
-            }
-            else if (newServerDescription.Type == ServerType.Standalone)
-            {
-                newClusterDescription = currentClusterDescription.WithoutServerDescription(args.NewServerDescription.EndPoint);
+                newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
             }
             else
             {
-                if (currentClusterDescription.Type == ClusterType.Unknown)
+                if (IsServerValidForCluster(newClusterDescription.Type, Settings.ConnectionMode, newServerDescription.Type))
                 {
-                    currentClusterDescription = currentClusterDescription.WithType(args.NewServerDescription.Type.ToClusterType());
-                }
+                    if (newClusterDescription.Type == ClusterType.Unknown)
+                    {
+                        newClusterDescription = newClusterDescription.WithType(newServerDescription.Type.ToClusterType());
+                    }
 
-                switch (currentClusterDescription.Type)
+                    switch (newClusterDescription.Type)
+                    {
+                        case ClusterType.ReplicaSet:
+                            newClusterDescription = ProcessReplicaSetChange(newClusterDescription, args);
+                            break;
+
+                        case ClusterType.Sharded:
+                            newClusterDescription = ProcessShardedChange(newClusterDescription, args);
+                            break;
+
+                        default:
+                            throw new MongoInternalException("Unexpected cluster type.");
+                    }
+                }
+                else
                 {
-                    case ClusterType.ReplicaSet:
-                        newClusterDescription = ProcessReplicaSetChange(currentClusterDescription, args);
-                        break;
-                    case ClusterType.Sharded:
-                        newClusterDescription = ProcessShardedChange(currentClusterDescription, args);
-                        break;
-                    case ClusterType.Standalone:
-                        throw new MongoInternalException("MultiServerCluster does not support a standalone state.");
-                    default:
-                        newClusterDescription = currentClusterDescription.WithServerDescription(newServerDescription);
-                        break;
+                    newClusterDescription = newClusterDescription.WithoutServerDescription(newServerDescription.EndPoint);
                 }
             }
 

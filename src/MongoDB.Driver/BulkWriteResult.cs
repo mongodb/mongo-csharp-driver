@@ -45,25 +45,16 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the number of documents that were deleted.
         /// </summary>
-        /// <value>
-        /// The number of document that were deleted.
-        /// </value>
         public abstract long DeletedCount { get; }
 
         /// <summary>
         /// Gets the number of documents that were inserted.
         /// </summary>
-        /// <value>
-        /// The number of document that were inserted.
-        /// </value>
         public abstract long InsertedCount { get; }
 
         /// <summary>
         /// Gets a value indicating whether the bulk write operation was acknowledged.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the bulk write operation was acknowledged; otherwise, <c>false</c>.
-        /// </value>
         public abstract bool IsAcknowledged { get; }
 
         /// <summary>
@@ -72,34 +63,21 @@ namespace MongoDB.Driver
         /// <remarks>
         /// The modified count is only available when all servers have been upgraded to 2.6 or above.
         /// </remarks>
-        /// <value>
-        /// <c>true</c> if the modified count is available; otherwise, <c>false</c>.
-        /// </value>
         public abstract bool IsModifiedCountAvailable { get; }
 
         /// <summary>
         /// Gets the number of documents that were matched.
         /// </summary>
-        /// <value>
-        /// The number of document that were matched.
-        /// </value>
         public abstract long MatchedCount { get; }
 
         /// <summary>
         /// Gets the number of documents that were actually modified during an update.
         /// </summary>
-        /// <value>
-        /// The number of document that were actually modified during an update.
-        /// </value>
-        /// 
         public abstract long ModifiedCount { get; }
 
         /// <summary>
         /// Gets the request count.
         /// </summary>
-        /// <value>
-        /// The request count.
-        /// </value>
         public int RequestCount
         {
             get { return _requestCount; }
@@ -108,20 +86,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a list with information about each request that resulted in an upsert.
         /// </summary>
-        /// <value>
-        /// The list with information about each request that resulted in an upsert.
-        /// </value>
         public abstract IReadOnlyList<BulkWriteUpsert> Upserts { get; }
     }
 
     /// <summary>
     /// Represents the result of a bulk write operation.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
-    public abstract class BulkWriteResult<T> : BulkWriteResult
+    public abstract class BulkWriteResult<TDocument> : BulkWriteResult
     {
         // private fields
-        private readonly IReadOnlyList<WriteModel<T>> _processedRequests;
+        private readonly IReadOnlyList<WriteModel<TDocument>> _processedRequests;
 
         // constructors
         /// <summary>
@@ -131,7 +107,7 @@ namespace MongoDB.Driver
         /// <param name="processedRequests">The processed requests.</param>
         protected BulkWriteResult(
             int requestCount,
-            IEnumerable<WriteModel<T>> processedRequests)
+            IEnumerable<WriteModel<TDocument>> processedRequests)
             : base(requestCount)
         {
             _processedRequests = processedRequests.ToList();
@@ -141,16 +117,13 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the processed requests.
         /// </summary>
-        /// <value>
-        /// The processed requests.
-        /// </value>
-        public IReadOnlyList<WriteModel<T>> ProcessedRequests
+        public IReadOnlyList<WriteModel<TDocument>> ProcessedRequests
         {
             get { return _processedRequests; }
         }
 
         // internal static methods
-        internal static BulkWriteResult<T> FromCore(Core.Operations.BulkWriteOperationResult result)
+        internal static BulkWriteResult<TDocument> FromCore(Core.Operations.BulkWriteOperationResult result)
         {
             if (result.IsAcknowledged)
             {
@@ -160,16 +133,16 @@ namespace MongoDB.Driver
                     result.DeletedCount,
                     result.InsertedCount,
                     result.IsModifiedCountAvailable ? (long?)result.ModifiedCount : null,
-                    result.ProcessedRequests.Select(r => WriteModel<T>.FromCore(r)),
+                    result.ProcessedRequests.Select(r => WriteModel<TDocument>.FromCore(r)),
                     result.Upserts.Select(u => BulkWriteUpsert.FromCore(u)));
             }
 
             return new Unacknowledged(
                 result.RequestCount,
-                result.ProcessedRequests.Select(r => WriteModel<T>.FromCore(r)));
+                result.ProcessedRequests.Select(r => WriteModel<TDocument>.FromCore(r)));
         }
 
-        internal static BulkWriteResult<T> FromCore(Core.Operations.BulkWriteOperationResult result, IEnumerable<WriteModel<T>> requests)
+        internal static BulkWriteResult<TDocument> FromCore(Core.Operations.BulkWriteOperationResult result, IEnumerable<WriteModel<TDocument>> requests)
         {
             if (result.IsAcknowledged)
             {
@@ -193,7 +166,7 @@ namespace MongoDB.Driver
         /// Result from an acknowledged write concern.
         /// </summary>
         [Serializable]
-        public class Acknowledged : BulkWriteResult<T>
+        public class Acknowledged : BulkWriteResult<TDocument>
         {
             // private fields
             private readonly long _deletedCount;
@@ -219,7 +192,7 @@ namespace MongoDB.Driver
                 long deletedCount,
                 long insertedCount,
                 long? modifiedCount,
-                IEnumerable<WriteModel<T>> processedRequests,
+                IEnumerable<WriteModel<TDocument>> processedRequests,
                 IEnumerable<BulkWriteUpsert> upserts)
                 : base(requestCount, processedRequests)
             {
@@ -231,71 +204,37 @@ namespace MongoDB.Driver
             }
 
             // public properties
-            /// <summary>
-            /// Gets the number of documents that were deleted.
-            /// </summary>
-            /// <value>
-            /// The number of document that were deleted.
-            /// </value>
+            /// <inheritdoc/>
             public override long DeletedCount
             {
                 get { return _deletedCount; }
             }
 
-            /// <summary>
-            /// Gets the number of documents that were inserted.
-            /// </summary>
-            /// <value>
-            /// The number of document that were inserted.
-            /// </value>
+            /// <inheritdoc/>
             public override long InsertedCount
             {
                 get { return _insertedCount; }
             }
 
-            /// <summary>
-            /// Gets a value indicating whether the bulk write operation was acknowledged.
-            /// </summary>
-            /// <value>
-            /// <c>true</c> if the bulk write operation was acknowledged; otherwise, <c>false</c>.
-            /// </value>
+            /// <inheritdoc/>
             public override bool IsAcknowledged
             {
                 get { return true; }
             }
 
-            /// <summary>
-            /// Gets a value indicating whether the modified count is available.
-            /// </summary>
-            /// <value>
-            /// <c>true</c> if the modified count is available; otherwise, <c>false</c>.
-            /// </value>
-            /// <remarks>
-            /// The modified count is only available when all servers have been upgraded to 2.6 or above.
-            /// </remarks>
+            /// <inheritdoc/>
             public override bool IsModifiedCountAvailable
             {
                 get { return _modifiedCount.HasValue; }
             }
 
-            /// <summary>
-            /// Gets the number of documents that were matched.
-            /// </summary>
-            /// <value>
-            /// The number of document that were matched.
-            /// </value>
+            /// <inheritdoc/>
             public override long MatchedCount
             {
                 get { return _matchedCount; }
             }
 
-            /// <summary>
-            /// Gets the number of documents that were actually modified during an update.
-            /// </summary>
-            /// <value>
-            /// The number of document that were actually modified during an update.
-            /// </value>
-            /// <exception cref="System.NotSupportedException">ModifiedCount is not available.</exception>
+            /// <inheritdoc/>
             public override long ModifiedCount
             {
                 get
@@ -308,12 +247,7 @@ namespace MongoDB.Driver
                 }
             }
 
-            /// <summary>
-            /// Gets a list with information about each request that resulted in an upsert.
-            /// </summary>
-            /// <value>
-            /// The list with information about each request that resulted in an upsert.
-            /// </value>
+            /// <inheritdoc/>
             public override IReadOnlyList<BulkWriteUpsert> Upserts
             {
                 get { return _upserts; }
@@ -324,7 +258,7 @@ namespace MongoDB.Driver
         /// Result from an unacknowledged write concern.
         /// </summary>
         [Serializable]
-        public class Unacknowledged : BulkWriteResult<T>
+        public class Unacknowledged : BulkWriteResult<TDocument>
         {
             // constructors
             /// <summary>
@@ -334,89 +268,49 @@ namespace MongoDB.Driver
             /// <param name="processedRequests">The processed requests.</param>
             public Unacknowledged(
                 int requestCount,
-                IEnumerable<WriteModel<T>> processedRequests)
+                IEnumerable<WriteModel<TDocument>> processedRequests)
                 : base(requestCount, processedRequests)
             {
             }
 
             // public properties
-            /// <summary>
-            /// Gets the number of documents that were deleted.
-            /// </summary>
-            /// <value>
-            /// The number of document that were deleted.
-            /// </value>
-            /// <exception cref="System.NotSupportedException">Only acknowledged writes support the DeletedCount property.</exception>
+            /// <inheritdoc/>
             public override long DeletedCount
             {
                 get { throw new NotSupportedException("Only acknowledged writes support the DeletedCount property."); }
             }
 
-            /// <summary>
-            /// Gets the number of documents that were inserted.
-            /// </summary>
-            /// <value>
-            /// The number of document that were inserted.
-            /// </value>
-            /// <exception cref="System.NotSupportedException">Only acknowledged writes support the InsertedCount property.</exception>
+            /// <inheritdoc/>
             public override long InsertedCount
             {
                 get { throw new NotSupportedException("Only acknowledged writes support the InsertedCount property."); }
             }
 
-            /// <summary>
-            /// Gets a value indicating whether the bulk write operation was acknowledged.
-            /// </summary>
-            /// <value>
-            /// <c>true</c> if the bulk write operation was acknowledged; otherwise, <c>false</c>.
-            /// </value>
+            /// <inheritdoc/>
             public override bool IsAcknowledged
             {
                 get { return false; }
             }
 
-            /// <summary>
-            /// Gets a value indicating whether the modified count is available.
-            /// </summary>
-            /// <value>
-            /// <c>true</c> if the modified count is available; otherwise, <c>false</c>.
-            /// </value>
-            /// <exception cref="System.NotSupportedException">Only acknowledged writes support the IsModifiedCountAvailable property.</exception>
-            /// <remarks>
-            /// The modified count is only available when all servers have been upgraded to 2.6 or above.
-            /// </remarks>
+            /// <inheritdoc/>
             public override bool IsModifiedCountAvailable
             {
                 get { throw new NotSupportedException("Only acknowledged writes support the IsModifiedCountAvailable property."); }
             }
 
-            /// <summary>
-            /// Gets the matched count.
-            /// </summary>
+            /// <inheritdoc/>
             public override long MatchedCount
             {
                 get { throw new NotSupportedException("Only acknowledged writes support the MatchedCount property."); }
             }
 
-            /// <summary>
-            /// Gets the number of documents that were actually modified during an update.
-            /// </summary>
-            /// <value>
-            /// The number of document that were actually modified during an update.
-            /// </value>
-            /// <exception cref="System.NotSupportedException">Only acknowledged writes support the ModifiedCount property.</exception>
+            /// <inheritdoc/>
             public override long ModifiedCount
             {
                 get { throw new NotSupportedException("Only acknowledged writes support the ModifiedCount property."); }
             }
 
-            /// <summary>
-            /// Gets a list with information about each request that resulted in an upsert.
-            /// </summary>
-            /// <value>
-            /// The list with information about each request that resulted in an upsert.
-            /// </value>
-            /// <exception cref="System.NotSupportedException">Only acknowledged writes support the Upserts property.</exception>
+            /// <inheritdoc/>
             public override IReadOnlyList<BulkWriteUpsert> Upserts
             {
                 get { throw new NotSupportedException("Only acknowledged writes support the Upserts property."); }

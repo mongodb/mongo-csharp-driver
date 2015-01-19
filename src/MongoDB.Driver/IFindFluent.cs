@@ -44,66 +44,66 @@ namespace MongoDB.Driver
         FindOptions<TResult> Options { get; }
 
         /// <summary>
-        /// Allows partial results from shards.
+        /// Whether to allow partial results when some shards are unavailable.
         /// </summary>
-        /// <param name="allowPartialResults">if set to <c>true</c> [allow partial results].</param>
-        /// <returns></returns>
+        /// <param name="allowPartialResults">Whether to allow partial results.</param>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> AllowPartialResults(bool allowPartialResults);
 
         /// <summary>
         /// Batches the size.
         /// </summary>
         /// <param name="size">The size.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> BatchSize(int? size);
 
         /// <summary>
         /// Comments the specified comment.
         /// </summary>
         /// <param name="comment">The comment.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> Comment(string comment);
 
         /// <summary>
         /// Counts the asynchronous.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Sets the cursor type.
         /// </summary>
         /// <param name="cursorType">Type of the cursor.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> CursorType(CursorType cursorType);
 
         /// <summary>
         /// Limits the specified limit.
         /// </summary>
         /// <param name="limit">The limit.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> Limit(int? limit);
 
         /// <summary>
         /// Maximums the time.
         /// </summary>
         /// <param name="maxTime">The maximum time.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> MaxTime(TimeSpan? maxTime);
 
         /// <summary>
         /// Modifierses the specified modifiers.
         /// </summary>
         /// <param name="modifiers">The modifiers.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> Modifiers(BsonDocument modifiers);
 
         /// <summary>
         /// Noes the cursor timeout.
         /// </summary>
         /// <param name="noCursorTimeout">if set to <c>true</c> [no cursor timeout].</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> NoCursorTimeout(bool noCursorTimeout);
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="projection">The projection.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection);
 
         /// <summary>
@@ -120,21 +120,21 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="projection">The projection.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer);
 
         /// <summary>
         /// Skips the specified skip.
         /// </summary>
         /// <param name="skip">The skip.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> Skip(int? skip);
 
         /// <summary>
         /// Sorts the specified sort.
         /// </summary>
         /// <param name="sort">The sort.</param>
-        /// <returns></returns>
+        /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> Sort(object sort);
     }
 

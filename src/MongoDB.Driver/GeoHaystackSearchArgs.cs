@@ -37,9 +37,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the name of the additional field.
         /// </summary>
-        /// <value>
-        /// The name of the additional field.
-        /// </value>
         public string AdditionalFieldName
         {
             get { return _additionalFieldName; }
@@ -49,9 +46,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the additional field value.
         /// </summary>
-        /// <value>
-        /// The additional field value.
-        /// </value>
         public BsonValue AdditionalFieldValue
         {
             get { return _additionalFieldValue; }
@@ -61,9 +55,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the limit.
         /// </summary>
-        /// <value>
-        /// The limit.
-        /// </value>
         public int? Limit
         {
             get { return _limit; }
@@ -73,9 +64,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max distance.
         /// </summary>
-        /// <value>
-        /// The max distance.
-        /// </value>
         public double? MaxDistance
         {
             get { return _maxDistance; }
@@ -85,9 +73,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -97,9 +82,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the location near which to search.
         /// </summary>
-        /// <value>
-        /// The location near which to search.
-        /// </value>
         public XYPoint Near
         {
             get { return _near; }

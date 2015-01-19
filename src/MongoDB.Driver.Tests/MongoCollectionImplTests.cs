@@ -70,7 +70,13 @@ namespace MongoDB.Driver
         [Test]
         public async Task Aggregate_should_execute_the_AggregateOperation_when_out_is_not_specified()
         {
-            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
+            var pipeline = new object[] 
+            { 
+                BsonDocument.Parse("{ $match: { x: 2 } }"),
+                BsonDocument.Parse("{ $project : { Age : \"$age\", Name : { $concat : [\"$firstName\", \" \", \"$lastName\"] }, _id : 0 } }"),
+                BsonDocument.Parse("{ $group : { _id : \"$Age\", Name : { \"$first\" : \"$Name\" } } }"),
+                BsonDocument.Parse("{ $project : { _id: 1 } }")
+            };
 
             var fluent = _subject.Aggregate(new AggregateOptions
                 {
@@ -79,7 +85,10 @@ namespace MongoDB.Driver
                     MaxTime = TimeSpan.FromSeconds(3),
                     UseCursor = false
                 })
-                .Match("{x: 2}");
+                .Match("{x: 2}")
+                .Project(x => new { Age = x["age"], Name = (string)x["firstName"] + " " + (string)x["lastName"] })
+                .Group(x => x.Age, g => new { _id = g.Key, Name = g.First().Name })
+                .Project("{ _id: 1 }");
 
             var options = fluent.Options;
 
@@ -98,7 +107,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.UseCursor.Should().Be(options.UseCursor);
 
-            operation.Pipeline.Should().ContainInOrder(pipeline);
+            operation.Pipeline.Should().Equal(pipeline);
         }
 
         [Test]
@@ -761,7 +770,7 @@ namespace MongoDB.Driver
         {
             await _subject.GetIndexesAsync(CancellationToken.None);
 
-            var call = _operationExecutor.GetReadCall<IReadOnlyList<BsonDocument>>();
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
             call.Operation.Should().BeOfType<ListIndexesOperation>();
             var operation = (ListIndexesOperation)call.Operation;
@@ -811,6 +820,32 @@ namespace MongoDB.Driver
                     CancellationToken.None).GetAwaiter().GetResult();
 
             act.ShouldThrow<MongoWriteException>();
+        }
+
+        [Test]
+        public async Task InsertManyAsync_should_execute_the_BulkMixedOperation()
+        {
+            var documents = new[] 
+            { 
+                BsonDocument.Parse("{_id:1,a:1}"),
+                BsonDocument.Parse("{_id:2,a:2}")
+            };
+            var expectedRequests = new[] 
+            {
+                new InsertRequest(documents[0]) { CorrelationId = 0 },
+                new InsertRequest(documents[1]) { CorrelationId = 1 }
+            };
+
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(2, expectedRequests);
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            await _subject.InsertManyAsync(
+                documents,
+                null,
+                CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            VerifyWrites(expectedRequests, true, call);
         }
 
         [Test]
@@ -975,17 +1010,41 @@ namespace MongoDB.Driver
             act.ShouldThrow<MongoWriteException>();
         }
 
-        private static void VerifySingleWrite<TRequest>(TRequest expectedRequest, MockOperationExecutor.WriteCall<BulkWriteOperationResult> call)
+        [Test]
+        public void WithReadPreference_should_return_a_new_collection_with_the_read_preference_changed()
+        {
+            var newSubject = _subject.WithReadPreference(ReadPreference.Nearest);
+            newSubject.Settings.ReadPreference.Should().Be(ReadPreference.Nearest);
+        }
+
+        [Test]
+        public void WithWriteConcern_should_return_a_new_collection_with_the_write_concern_changed()
+        {
+            var newSubject = _subject.WithWriteConcern(WriteConcern.WMajority);
+            newSubject.Settings.WriteConcern.Should().Be(WriteConcern.WMajority);
+        }
+
+        private static void VerifyWrites(WriteRequest[] expectedRequests, bool isOrdered, MockOperationExecutor.WriteCall<BulkWriteOperationResult> call)
         {
             call.Operation.Should().BeOfType<BulkMixedWriteOperation>();
             var operation = (BulkMixedWriteOperation)call.Operation;
 
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.IsOrdered.Should().BeTrue();
-            operation.Requests.Count().Should().Be(1);
-            operation.Requests.Single().Should().BeOfType<TRequest>();
+            operation.IsOrdered.Should().Be(isOrdered);
+            
+            var actualRequests = operation.Requests.ToList();
+            actualRequests.Count.Should().Be(expectedRequests.Length);
 
-            operation.Requests.Single().ShouldBeEquivalentTo(expectedRequest);
+            for(int i = 0; i < expectedRequests.Length; i++)
+            {
+                expectedRequests[i].ShouldBeEquivalentTo(actualRequests[i]);
+            }
+        }
+
+        private static void VerifySingleWrite<TRequest>(TRequest expectedRequest, MockOperationExecutor.WriteCall<BulkWriteOperationResult> call)
+            where TRequest : WriteRequest
+        {
+            VerifyWrites(new[] { expectedRequest }, true, call);
         }
     }
 }

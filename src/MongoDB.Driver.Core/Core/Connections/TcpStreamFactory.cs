@@ -57,6 +57,12 @@ namespace MongoDB.Driver.Core.Connections
             socket.ReceiveBufferSize = _settings.ReceiveBufferSize;
             socket.SendBufferSize = _settings.SendBufferSize;
 
+            var socketConfigurator = _settings.SocketConfigurator;
+            if (socketConfigurator != null)
+            {
+                socketConfigurator(socket);
+            }
+
             var stream = new NetworkStream(socket, true);
 
             if (_settings.ReadTimeout.HasValue)

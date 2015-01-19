@@ -38,9 +38,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the fields.
         /// </summary>
-        /// <value>
-        /// The fields.
-        /// </value>
         public IMongoFields Fields
         {
             get { return _fields; }
@@ -50,9 +47,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the hint.
         /// </summary>
-        /// <value>
-        /// The hint.
-        /// </value>
         public BsonDocument Hint
         {
             get { return _hint; }
@@ -62,9 +56,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -74,9 +65,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public IMongoQuery Query
         {
             get { return _query; }
@@ -86,9 +74,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the read preference.
         /// </summary>
-        /// <value>
-        /// The read preference.
-        /// </value>
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
@@ -98,9 +83,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the serializer.
         /// </summary>
-        /// <value>
-        /// The serializer.
-        /// </value>
         public IBsonSerializer Serializer
         {
             get { return _serializer; }
@@ -110,9 +92,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the skip.
         /// </summary>
-        /// <value>
-        /// The skip.
-        /// </value>
         public int? Skip
         {
             get { return _skip; }
@@ -122,9 +101,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort order.
         /// </summary>
-        /// <value>
-        /// The sort order.
-        /// </value>
         public IMongoSortBy SortBy
         {
             get { return _sortBy; }

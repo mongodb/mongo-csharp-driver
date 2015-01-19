@@ -71,8 +71,11 @@ namespace MongoDB.Driver.Core.Servers
                     return ClusterType.Sharded;
                 case ServerType.Standalone:
                     return ClusterType.Standalone;
-                default:
+                case ServerType.Unknown:
                     return ClusterType.Unknown;
+                default:
+                    var message = string.Format("Invalid server type: {0}.", serverType);
+                    throw new ArgumentException(message, "serverType");
             }
         }
     }

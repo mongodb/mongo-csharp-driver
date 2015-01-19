@@ -50,9 +50,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the fields specification.
         /// </summary>
-        /// <value>
-        /// The fields specification.
-        /// </value>
         public IMongoFields Fields
         {
             get { return _fields; }
@@ -62,9 +59,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -74,9 +68,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public IMongoQuery Query
         {
             get { return _query; }
@@ -87,9 +78,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort specification.
         /// </summary>
-        /// <value>
-        /// The sort specification.
-        /// </value>
         public IMongoSortBy SortBy
         {
             get { return _sort; }
@@ -99,9 +87,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the update specification.
         /// </summary>
-        /// <value>
-        /// The update specification.
-        /// </value>
         public IMongoUpdate Update
         {
             get { return _update; }
@@ -111,9 +96,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets a value indicating whether FindAndModify should upsert.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if FindAndModify should upsert; otherwise, <c>false</c>.
-        /// </value>
         public bool Upsert
         {
             get { return _upsert; }
@@ -123,9 +105,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the version of the document returned.
         /// </summary>
-        /// <value>
-        /// The version of the document returned.
-        /// </value>
         public FindAndModifyDocumentVersion? VersionReturned
         {
             get { return _versionReturned; }

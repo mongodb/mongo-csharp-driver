@@ -44,7 +44,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// </summary>
         /// <param name="args">The additional args.</param>
         /// <param name="coordinates">The coordinates.</param>
-        /// <exception cref="System.ArgumentNullException">coordinates</exception>
         public GeoJsonMultiLineString(GeoJsonObjectArgs<TCoordinates> args, GeoJsonMultiLineStringCoordinates<TCoordinates> coordinates)
             : base(args)
         {
@@ -60,9 +59,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the coordinates.
         /// </summary>
-        /// <value>
-        /// The coordinates.
-        /// </value>
         public GeoJsonMultiLineStringCoordinates<TCoordinates> Coordinates
         {
             get { return _coordinates; }
@@ -71,9 +67,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the type of the GeoJson object.
         /// </summary>
-        /// <value>
-        /// The type of the GeoJson object.
-        /// </value>
         public override GeoJsonObjectType Type
         {
             get { return GeoJsonObjectType.MultiLineString; }

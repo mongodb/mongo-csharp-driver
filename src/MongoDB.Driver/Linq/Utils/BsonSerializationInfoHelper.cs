@@ -46,6 +46,18 @@ namespace MongoDB.Driver.Linq.Utils
         }
 
         /// <summary>
+        /// Tries the get serialization information.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns></returns>
+        public bool TryGetSerializationInfo(Expression node, out BsonSerializationInfo serializationInfo)
+        {
+            var evaluatedNode = PartialEvaluator.Evaluate(node);
+            return BsonSerializationInfoFinder.TryGetSerializationInfo(node, _serializationInfoCache, out serializationInfo);
+        }
+
+        /// <summary>
         /// Gets the item serialization info.
         /// </summary>
         /// <param name="methodName">Name of the method.</param>
@@ -53,22 +65,40 @@ namespace MongoDB.Driver.Linq.Utils
         /// <returns>The item BsonSerializationInfo for the expression.</returns>
         public BsonSerializationInfo GetItemSerializationInfo(string methodName, BsonSerializationInfo serializationInfo)
         {
+            BsonSerializationInfo itemSerializationInfo;
+            if (!TryGetItemSerializationInfo(serializationInfo, out itemSerializationInfo))
+            {
+                string message = string.Format("{0} requires that the serializer specified for {1} support items by implementing {2} and returning a non-null result. {3} is the current serializer.",
+                    methodName,
+                    serializationInfo.ElementName,
+                    typeof(IBsonArraySerializer),
+                    serializationInfo.Serializer.GetType());
+                throw new NotSupportedException(message);
+            }
+
+            return itemSerializationInfo;
+        }
+
+        /// <summary>
+        /// Tries the get item serialization information.
+        /// </summary>
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <param name="itemSerializationInfo">The item serialization information.</param>
+        /// <returns></returns>
+        public bool TryGetItemSerializationInfo(BsonSerializationInfo serializationInfo, out BsonSerializationInfo itemSerializationInfo)
+        {
+            itemSerializationInfo = null;
             var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
             if (arraySerializer != null)
             {
-                var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
+                itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
                 if (itemSerializationInfo != null)
                 {
-                    return itemSerializationInfo;
+                    return true;
                 }
             }
 
-            string message = string.Format("{0} requires that the serializer specified for {1} support items by implementing {2} and returning a non-null result. {3} is the current serializer.",
-                methodName,
-                serializationInfo.ElementName,
-                typeof(IBsonArraySerializer),
-                serializationInfo.Serializer.GetType());
-            throw new NotSupportedException(message);
+            return false;
         }
 
         /// <summary>
@@ -82,6 +112,16 @@ namespace MongoDB.Driver.Linq.Utils
                 null,
                 serializer,
                 node.Type);
+        }
+
+        /// <summary>
+        /// Registers the expression serialization information.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
+        public void RegisterExpressionSerializationInfo(Expression node, BsonSerializationInfo serializationInfo)
+        {
+            _serializationInfoCache[node] = serializationInfo;
         }
 
         /// <summary>

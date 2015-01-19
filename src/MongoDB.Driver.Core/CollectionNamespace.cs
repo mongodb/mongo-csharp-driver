@@ -57,6 +57,7 @@ namespace MongoDB.Driver
         // fields
         private readonly string _collectionName;
         private readonly DatabaseNamespace _databaseNamespace;
+        private readonly string _fullName;
 
         // constructors
         public CollectionNamespace(string databaseName, string collectionName)
@@ -68,6 +69,7 @@ namespace MongoDB.Driver
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _collectionName = Ensure.That(collectionName, IsValid, "collectionName", "Collection names must be non-empty and not contain the null character.");
+            _fullName = _databaseNamespace.DatabaseName + "." + _collectionName;
         }
 
         // properties
@@ -83,7 +85,7 @@ namespace MongoDB.Driver
 
         public string FullName
         {
-            get { return _databaseNamespace.DatabaseName + "." + _collectionName; }
+            get { return _fullName; }
         }
 
         // methods

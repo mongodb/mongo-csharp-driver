@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver
 {
@@ -26,6 +27,11 @@ namespace MongoDB.Driver
     public interface IMongoClient
     {
         /// <summary>
+        /// Gets the cluster.
+        /// </summary>
+        ICluster Cluster { get; }
+
+        /// <summary>
         /// Gets the settings.
         /// </summary>
         MongoClientSettings Settings { get; }
@@ -33,23 +39,23 @@ namespace MongoDB.Driver
         /// <summary>
         /// Drops the database with the specified name.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="name">The name of the database to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
         Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Gets the database.
+        /// Gets a database.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="name">The name of the database.</param>
         /// <returns>An implementation of a database.</returns>
         IMongoDatabase GetDatabase(string name);
 
         /// <summary>
-        /// Gets the database.
+        /// Gets a database.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="settings">The settings.</param>
+        /// <param name="name">The name of the database.</param>
+        /// <param name="settings">The database settings.</param>
         /// <returns>An implementation of a database.</returns>
         IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings);
 
@@ -57,7 +63,7 @@ namespace MongoDB.Driver
         /// Gets the database names.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A list of the database on the server.</returns>
+        /// <returns>A list of the databases on the server.</returns>
         Task<IReadOnlyList<string>> GetDatabaseNamesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

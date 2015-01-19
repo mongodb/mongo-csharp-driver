@@ -33,8 +33,8 @@ namespace MongoDB.Driver
         private readonly int _index;
 
         // constructors
-        internal BulkWriteError(int index, int code, string message, BsonDocument details)
-            : base(code, message, details)
+        internal BulkWriteError(int index, ServerErrorCategory category, int code, string message, BsonDocument details)
+            : base(category, code, message, details)
         {
             _index = index;
         }
@@ -43,9 +43,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the index of the request that had an error.
         /// </summary>
-        /// <value>
-        /// The index.
-        /// </value>
         public int Index
         {
             get { return _index; }
@@ -54,15 +51,14 @@ namespace MongoDB.Driver
         // internal static methods
         internal static BulkWriteError FromCore(Core.Operations.BulkWriteOperationError error)
         {
-            return new BulkWriteError(error.Index, error.Code, error.Message, error.Details);
+            return new BulkWriteError(error.Index, error.Category, error.Code, error.Message, error.Details);
         }
 
         // internal methods
         internal BulkWriteError WithMappedIndex(IndexMap indexMap)
         {
             var mappedIndex = indexMap.Map(_index);
-            return (_index == mappedIndex) ? this : new BulkWriteError(mappedIndex, Code, Message, Details);
+            return (_index == mappedIndex) ? this : new BulkWriteError(mappedIndex, Category, Code, Message, Details);
         }
     }
 }
-

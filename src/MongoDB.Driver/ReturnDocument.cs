@@ -18,16 +18,16 @@ using System;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// The document to return when executing a FindAndModify command.
+    /// Which version of the document to return when executing a FindAndModify command.
     /// </summary>
     public enum ReturnDocument
     {
         /// <summary>
-        /// Returns the document before the modification.
+        /// Return the document before the modification.
         /// </summary>
         Before,
         /// <summary>
-        /// Returns the document after the modification.
+        /// Return the document after the modification.
         /// </summary>
         After
     }

@@ -29,11 +29,8 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets or sets whether to do a more thorough scan of the data.
+        /// Gets or sets a value indicating whether to do a more thorough scan of the data.
         /// </summary>
-        /// <value>
-        /// Whether to do a more thorough scan of the data.
-        /// </value>
         public bool? Full
         {
             get { return _full; }
@@ -43,9 +40,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -53,11 +47,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether to scan the data.
+        /// Gets or sets a value indicating whether to scan the data.
         /// </summary>
-        /// <value>
-        /// Whether to scan the data.
-        /// </value>
         public bool? ScanData
         {
             get { return _scanData; }

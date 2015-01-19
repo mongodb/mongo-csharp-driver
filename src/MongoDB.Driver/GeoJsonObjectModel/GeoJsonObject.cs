@@ -50,9 +50,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the bounding box.
         /// </summary>
-        /// <value>
-        /// The bounding box.
-        /// </value>
         public GeoJsonBoundingBox<TCoordinates> BoundingBox
         {
             get { return _boundingBox; }
@@ -61,9 +58,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the coordinate reference system.
         /// </summary>
-        /// <value>
-        /// The coordinate reference system.
-        /// </value>
         public GeoJsonCoordinateReferenceSystem CoordinateReferenceSystem
         {
             get { return _coordinateReferenceSystem; }
@@ -72,9 +66,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the extra members.
         /// </summary>
-        /// <value>
-        /// The extra members.
-        /// </value>
         public BsonDocument ExtraMembers
         {
             get { return _extraMembers; }
@@ -83,9 +74,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the type of the GeoJson object.
         /// </summary>
-        /// <value>
-        /// The type of the GeoJson object.
-        /// </value>
         public abstract GeoJsonObjectType Type { get; }
     }
 }

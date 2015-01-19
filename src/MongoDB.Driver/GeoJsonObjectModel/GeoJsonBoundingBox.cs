@@ -36,11 +36,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// </summary>
         /// <param name="min">The min.</param>
         /// <param name="max">The max.</param>
-        /// <exception cref="System.ArgumentNullException">
-        /// min
-        /// or
-        /// max
-        /// </exception>
         public GeoJsonBoundingBox(TCoordinates min, TCoordinates max)
         {
             if (min == null)
@@ -60,9 +55,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the max.
         /// </summary>
-        /// <value>
-        /// The max.
-        /// </value>
         public TCoordinates Max
         {
             get { return _max; }
@@ -71,9 +63,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the min.
         /// </summary>
-        /// <value>
-        /// The min.
-        /// </value>
         public TCoordinates Min
         {
             get { return _min; }

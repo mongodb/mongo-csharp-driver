@@ -8,7 +8,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Options for running an aggregation pipeline.
+    /// Options for an aggregate operation.
     /// </summary>
     public abstract class AggregateOptionsBase
     {
@@ -20,7 +20,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets or sets the allow disk use.
+        /// Gets or sets a value indicating whether to allow disk use.
         /// </summary>
         public bool? AllowDiskUse
         {
@@ -29,11 +29,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the size of the batch.
+        /// Gets or sets the size of a batch.
         /// </summary>
-        /// <value>
-        /// The size of the batch.
-        /// </value>
         public int? BatchSize
         {
             get { return _batchSize; }
@@ -50,7 +47,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the use cursor.
+        /// Gets or sets a value indicating whether to use a cursor.
         /// </summary>
         public bool? UseCursor
         {
@@ -60,13 +57,13 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// Options for running an aggregation pipeline.
+    /// Options for an aggregate operation.
     /// </summary>
     public class AggregateOptions : AggregateOptionsBase
     { }
 
     /// <summary>
-    /// Options for running an aggregation pipeline.
+    /// Options for an aggregate operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public class AggregateOptions<TResult> : AggregateOptionsBase

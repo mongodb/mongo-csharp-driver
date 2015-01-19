@@ -61,7 +61,6 @@ namespace MongoDB.Driver.Core.Servers
                 {
                     _timer.Change(earlyHeartbeatDelay, Timeout.InfiniteTimeSpan);
                 }
-
             }
         }
 

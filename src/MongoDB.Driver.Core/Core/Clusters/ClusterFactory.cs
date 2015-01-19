@@ -50,21 +50,22 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     connectionMode = ClusterConnectionMode.ReplicaSet;
                 }
-                else if (_settings.EndPoints.Count == 1)
-                {
-                    connectionMode = ClusterConnectionMode.Direct;
-                }
             }
 
             var settings = _settings.With(connectionMode: connectionMode);
 
             switch (connectionMode)
             {
+                case ClusterConnectionMode.Automatic:
+                    return settings.EndPoints.Count == 1 ? (ICluster)CreateSingleServerCluster(settings) : CreateMultiServerCluster(settings);
                 case ClusterConnectionMode.Direct:
                 case ClusterConnectionMode.Standalone:
                     return CreateSingleServerCluster(settings);
-                default:
+                case ClusterConnectionMode.ReplicaSet:
+                case ClusterConnectionMode.Sharded:
                     return CreateMultiServerCluster(settings);
+                default:
+                    throw new MongoInternalException(string.Format("Invalid connection mode: {0}.", connectionMode));
             }
         }
 

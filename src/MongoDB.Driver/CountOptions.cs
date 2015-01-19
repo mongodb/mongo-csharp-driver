@@ -18,7 +18,7 @@ using System;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Options for the count command.
+    /// Options for a count operation.
     /// </summary>
     public sealed class CountOptions
     {
