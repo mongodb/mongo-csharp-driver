@@ -21,9 +21,19 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Clusters
 {
+    /// <summary>
+    /// Represents the state of a cluster.
+    /// </summary>
     public enum ClusterState
     {
+        /// <summary>
+        /// The cluster is disconnected.
+        /// </summary>
         Disconnected,
+
+        /// <summary>
+        /// The cluster is connected.
+        /// </summary>
         Connected
     }
 }

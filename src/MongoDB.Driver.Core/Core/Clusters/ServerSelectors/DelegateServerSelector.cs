@@ -20,20 +20,32 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
+    /// <summary>
+    /// Represents a server selector that wraps a delegate.
+    /// </summary>
     public class DelegateServerSelector : IServerSelector
     {
+        // fields
         private readonly Func<ClusterDescription, IEnumerable<ServerDescription>, IEnumerable<ServerDescription>> _selector;
 
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DelegateServerSelector"/> class.
+        /// </summary>
+        /// <param name="selector">The selector.</param>
         public DelegateServerSelector(Func<ClusterDescription, IEnumerable<ServerDescription>, IEnumerable<ServerDescription>> selector)
         {
             _selector = Ensure.IsNotNull(selector, "selector");
         }
 
+        // methods
+        /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
             return _selector(cluster, servers);
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return "DelegateServerSelector";

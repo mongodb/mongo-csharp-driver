@@ -33,15 +33,48 @@ namespace MongoDB.Driver.Core.Clusters
     public interface ICluster : IDisposable
     {
         // events
+        /// <summary>
+        /// Occurs when the cluster description has changed.
+        /// </summary>
         event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
+        /// <summary>
+        /// Gets the cluster identifier.
+        /// </summary>
+        /// <value>
+        /// The cluster identifier.
+        /// </value>
         ClusterId ClusterId { get; }
+
+        /// <summary>
+        /// Gets the cluster description.
+        /// </summary>
+        /// <value>
+        /// The cluster description.
+        /// </value>
         ClusterDescription Description { get; }
+
+        /// <summary>
+        /// Gets the cluster settings.
+        /// </summary>
+        /// <value>
+        /// The cluster settings.
+        /// </value>
         ClusterSettings Settings { get; }
 
         // methods
+        /// <summary>
+        /// Initializes the cluster.
+        /// </summary>
         void Initialize();
+
+        /// <summary>
+        /// Selects a server from the cluster.
+        /// </summary>
+        /// <param name="selector">The server selector.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task representing the operation. The result of the Task is the selected server.</returns>
         Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken);
     }
 }

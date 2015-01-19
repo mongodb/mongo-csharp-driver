@@ -31,17 +31,25 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         private readonly TimeSpan _allowedLatencyRange;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LatencyLimitingServerSelector"/> class.
+        /// </summary>
         public LatencyLimitingServerSelector()
             : this(TimeSpan.FromMilliseconds(15))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LatencyLimitingServerSelector"/> class.
+        /// </summary>
+        /// <param name="allowedLatencyRange">The allowed latency range.</param>
         public LatencyLimitingServerSelector(TimeSpan allowedLatencyRange)
         {
             _allowedLatencyRange = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(allowedLatencyRange, "allowedLatencyRange");
         }
 
         // methods
+        /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
             if (_allowedLatencyRange == Timeout.InfiniteTimeSpan)
@@ -62,6 +70,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return string.Format("LatencyLimitingServerSelector{{ AllowedLatencyRange = {0} }}", _allowedLatencyRange);

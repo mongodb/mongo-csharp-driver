@@ -18,6 +18,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters
 {
+    /// <summary>
+    /// Represents a cluster identifier.
+    /// </summary>
     [Serializable]
     public sealed class ClusterId : IEquatable<ClusterId>
     {
@@ -25,23 +28,37 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly int _value;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterId"/> class.
+        /// </summary>
         public ClusterId()
             : this(IdGenerator<ClusterId>.GetNextId())
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterId"/> class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public ClusterId(int value)
         {
             _value = value;
         }
 
         // properties
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
         public int Value
         {
             get { return _value; }
         }
 
         // methods
+        /// <inheritdoc/>
         public bool Equals(ClusterId other)
         {
             if (other == null)
@@ -51,16 +68,19 @@ namespace MongoDB.Driver.Core.Clusters
             return _value == other._value;
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as ClusterId);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return _value.GetHashCode();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return _value.ToString();

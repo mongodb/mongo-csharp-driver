@@ -30,17 +30,23 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         private readonly EndPoint _endPoint;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EndPointServerSelector"/> class.
+        /// </summary>
+        /// <param name="endPoint">The end point.</param>
         public EndPointServerSelector(EndPoint endPoint)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }
 
         // methods
+        /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
             return servers.Where(server => EndPointHelper.Equals(server.EndPoint, _endPoint));
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return string.Format("EndPointServerSelector{{ EndPoint = {0} }}", EndPointHelper.ToString(_endPoint));

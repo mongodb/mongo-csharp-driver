@@ -32,6 +32,12 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ClusterSettings _settings;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterFactory"/> class.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <param name="serverFactory">The server factory.</param>
+        /// <param name="listener">The listener.</param>
         public ClusterFactory(ClusterSettings settings, IClusterableServerFactory serverFactory, IClusterListener listener)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
@@ -40,6 +46,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // methods
+        /// <inheritdoc/>
         public ICluster CreateCluster()
         {
             var connectionMode = _settings.ConnectionMode;
