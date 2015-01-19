@@ -27,9 +27,18 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Authentication
 {
+    /// <summary>
+    /// A MONGODB-CR authenticator.
+    /// </summary>
     public sealed class MongoDBCRAuthenticator : IAuthenticator
     {
         // static properties
+        /// <summary>
+        /// Gets the name of the mechanism.
+        /// </summary>
+        /// <value>
+        /// The name of the mechanism.
+        /// </value>
         public static string MechanismName
         {
             get { return "MONGODB-CR"; }
@@ -39,18 +48,24 @@ namespace MongoDB.Driver.Core.Authentication
         private readonly UsernamePasswordCredential _credential;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoDBCRAuthenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
         public MongoDBCRAuthenticator(UsernamePasswordCredential credential)
         {
             _credential = Ensure.IsNotNull(credential, "credential");
         }
 
         // properties
+        /// <inheritdoc/>
         public string Name
         {
             get { return MechanismName; }
         }
 
         // methods
+        /// <inheritdoc/>
         public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");

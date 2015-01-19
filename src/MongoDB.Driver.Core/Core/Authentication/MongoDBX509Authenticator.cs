@@ -23,9 +23,18 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Authentication
 {
+    /// <summary>
+    /// A MongoDB-X509 authenticator.
+    /// </summary>
     public sealed class MongoDBX509Authenticator : IAuthenticator
     {
         // static properties
+        /// <summary>
+        /// Gets the name of the mechanism.
+        /// </summary>
+        /// <value>
+        /// The name of the mechanism.
+        /// </value>
         public static string MechanismName
         {
             get { return "MONGODB-X509"; }
@@ -35,18 +44,24 @@ namespace MongoDB.Driver.Core.Authentication
         private readonly string _username;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoDBX509Authenticator"/> class.
+        /// </summary>
+        /// <param name="username">The username.</param>
         public MongoDBX509Authenticator(string username)
         {
             _username = Ensure.IsNotNullOrEmpty(username, "username");
         }
 
         // properties
+        /// <inheritdoc/>
         public string Name
         {
             get { return MechanismName; }
         }
 
         // methods
+        /// <inheritdoc/>
         public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");

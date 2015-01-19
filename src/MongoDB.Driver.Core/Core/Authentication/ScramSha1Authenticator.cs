@@ -9,9 +9,18 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
+    /// <summary>
+    /// A SCRAM-SHA1 SASL authenticator.
+    /// </summary>
     public sealed class ScramSha1Authenticator : SaslAuthenticator
     {
         // static properties
+        /// <summary>
+        /// Gets the name of the mechanism.
+        /// </summary>
+        /// <value>
+        /// The name of the mechanism.
+        /// </value>
         public static string MechanismName
         {
             get { return "SCRAM-SHA-1"; }
@@ -21,6 +30,10 @@ namespace MongoDB.Driver.Core.Authentication
         private readonly string _databaseName;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScramSha1Authenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
         public ScramSha1Authenticator(UsernamePasswordCredential credential)
             : this(credential, new RNGCryptoServiceProviderRandomStringGenerator())
         {
@@ -33,6 +46,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // properties
+        /// <inheritdoc/>
         public override string DatabaseName
         {
             get { return _databaseName; }
