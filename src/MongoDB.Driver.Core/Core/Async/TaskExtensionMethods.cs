@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Async
 {
-    public static class TaskExtensionMethods
+    internal static class TaskExtensionMethods
     {
         // static methods
         public static void HandleUnobservedException(this Task task, Action<Exception> onError)
