@@ -20,33 +20,80 @@ using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+    /// <summary>
+    /// Represents a binding that determines which channel source gets used for read operations.
+    /// </summary>
     public interface IReadBinding : IDisposable
     {
+        /// <summary>
+        /// Gets the read preference.
+        /// </summary>
+        /// <value>
+        /// The read preference.
+        /// </value>
         ReadPreference ReadPreference { get; }
+
+        /// <summary>
+        /// Gets a channel source for read operations.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel source.</returns>
         Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken);
     }
 
+    /// <summary>
+    /// Represents a binding that determines which channel source gets used for write operations.
+    /// </summary>
     public interface IWriteBinding : IDisposable
     {
+        /// <summary>
+        /// Gets a channel source for write operations.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel source.</returns>
         Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken);
     }
 
+    /// <summary>
+    /// Represents a binding that can be used for both read and write operations.
+    /// </summary>
     public interface IReadWriteBinding : IReadBinding, IWriteBinding
     {
     }
 
+    /// <summary>
+    /// Represents a handle to a read binding.
+    /// </summary>
     public interface IReadBindingHandle : IReadBinding
     {
+        /// <summary>
+        /// Returns a new handle to the underlying read binding.
+        /// </summary>
+        /// <returns>A read binding handle.</returns>
         IReadBindingHandle Fork();
     }
 
+    /// <summary>
+    /// Represents a handle to a write binding.
+    /// </summary>
     public interface IWriteBindingHandle : IWriteBinding
     {
+        /// <summary>
+        /// Returns a new handle to the underlying write binding.
+        /// </summary>
+        /// <returns>A write binding handle.</returns>
         IWriteBindingHandle Fork();
     }
 
+    /// <summary>
+    /// Represents a handle to a read-write binding.
+    /// </summary>
     public interface IReadWriteBindingHandle : IReadWriteBinding, IReadBindingHandle, IWriteBindingHandle
     {
+        /// <summary>
+        /// Returns a new handle to the underlying read-write binding.
+        /// </summary>
+        /// <returns>A read-write binding handle.</returns>
         new IReadWriteBindingHandle Fork();
     }
 }

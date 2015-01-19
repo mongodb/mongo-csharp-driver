@@ -9,6 +9,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+    /// <summary>
+    /// Represents a handle to a read binding.
+    /// </summary>
     public sealed class ReadBindingHandle : IReadBindingHandle
     {
         // fields
@@ -16,6 +19,10 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly ReferenceCounted<IReadBinding> _reference;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadBindingHandle"/> class.
+        /// </summary>
+        /// <param name="readBinding">The read binding.</param>
         public ReadBindingHandle(IReadBinding readBinding)
             : this(new ReferenceCounted<IReadBinding>(readBinding))
         {
@@ -27,18 +34,21 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
+        /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
             get { return _reference.Instance.ReadPreference; }
         }
 
         // methods
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetReadChannelSourceAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)
@@ -49,6 +59,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        /// <inheritdoc/>
         public IReadBindingHandle Fork()
         {
             ThrowIfDisposed();

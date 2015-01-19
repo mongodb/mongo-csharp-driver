@@ -22,6 +22,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+    /// <summary>
+    /// Represents a write binding to a writable server.
+    /// </summary>
     public sealed class WritableServerBinding : IReadWriteBinding
     {
         // fields
@@ -29,18 +32,24 @@ namespace MongoDB.Driver.Core.Bindings
         private bool _disposed;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WritableServerBinding"/> class.
+        /// </summary>
+        /// <param name="cluster">The cluster.</param>
         public WritableServerBinding(ICluster cluster)
         {
             _cluster = Ensure.IsNotNull(cluster, "cluster");
         }
 
         // properties
+        /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
             get { return ReadPreference.Primary; }
         }
 
         // methods
+        /// <inheritdoc/>
         private async Task<IChannelSourceHandle> GetChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -48,16 +57,19 @@ namespace MongoDB.Driver.Core.Bindings
             return new ChannelSourceHandle(new ServerChannelSource(server));
         }
 
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             return GetChannelSourceAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
             return GetChannelSourceAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)

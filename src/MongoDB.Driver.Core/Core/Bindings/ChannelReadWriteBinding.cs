@@ -23,6 +23,9 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+    /// <summary>
+    /// Represents a read-write binding that is bound to a channel.
+    /// </summary>
     public sealed class ChannelReadWriteBinding : IReadWriteBinding
     {
         // fields
@@ -31,6 +34,11 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly IServer _server;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelReadWriteBinding"/> class.
+        /// </summary>
+        /// <param name="server">The server.</param>
+        /// <param name="channel">The channel.</param>
         public ChannelReadWriteBinding(IServer server, IChannelHandle channel)
         {
             _server = Ensure.IsNotNull(server, "server");
@@ -38,12 +46,14 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
+        /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
             get { return ReadPreference.Primary; }
         }
 
         // methods
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)
@@ -60,11 +70,13 @@ namespace MongoDB.Driver.Core.Bindings
             return Task.FromResult<IChannelSourceHandle>(new ChannelSourceHandle(new ChannelChannelSource(_server, _channel.Fork())));
         }
 
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             return GetChannelSourceAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
             return GetChannelSourceAsync(cancellationToken);

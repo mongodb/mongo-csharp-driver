@@ -9,6 +9,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+    /// <summary>
+    /// Represents a handle to a read-write binding.
+    /// </summary>
     public sealed class ReadWriteBindingHandle : IReadWriteBindingHandle
     {
         // fields
@@ -16,6 +19,10 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly ReferenceCounted<IReadWriteBinding> _reference;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadWriteBindingHandle"/> class.
+        /// </summary>
+        /// <param name="writeBinding">The write binding.</param>
         public ReadWriteBindingHandle(IReadWriteBinding writeBinding)
             : this(new ReferenceCounted<IReadWriteBinding>(writeBinding))
         {
@@ -27,24 +34,28 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
+        /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
             get { return _reference.Instance.ReadPreference; }
         }
 
         // methods
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetReadChannelSourceAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _reference.Instance.GetWriteChannelSourceAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)
@@ -55,6 +66,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        /// <inheritdoc/>
         public IReadWriteBindingHandle Fork()
         {
             ThrowIfDisposed();
