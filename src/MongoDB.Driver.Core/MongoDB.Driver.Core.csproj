@@ -246,7 +246,7 @@
     <Compile Include="Core\Connections\BinaryConnection.cs" />
     <Compile Include="Core\Connections\BinaryConnectionFactory.cs" />
     <Compile Include="Core\Connections\ConnectionDescription.cs" />
-    <Compile Include="Core\Connections\ConnectionExtensionMethods.cs" />
+    <Compile Include="Core\Connections\ConnectionExtensions.cs" />
     <Compile Include="Core\Connections\ConnectionInitializer.cs" />
     <Compile Include="Core\Configuration\ConnectionSettings.cs" />
     <Compile Include="Core\Connections\IConnection.cs" />

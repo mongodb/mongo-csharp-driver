@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public class SslStreamFactory : IStreamFactory
+    internal class SslStreamFactory : IStreamFactory
     {
         // fields
         private readonly SslStreamSettings _settings;

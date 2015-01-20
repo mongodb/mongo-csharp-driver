@@ -27,28 +27,53 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
 {
+    /// <summary>
+    /// Represents the result of an isMaster command.
+    /// </summary>
     public sealed class IsMasterResult : IEquatable<IsMasterResult>
     {
         // fields
         private readonly BsonDocument _wrapped;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IsMasterResult"/> class.
+        /// </summary>
+        /// <param name="wrapped">The wrapped result document.</param>
         public IsMasterResult(BsonDocument wrapped)
         {
             _wrapped = Ensure.IsNotNull(wrapped, "wrapped");
         }
 
         // properties
+        /// <summary>
+        /// Gets a value indicating whether this instance is an arbiter.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is an arbiter; otherwise, <c>false</c>.
+        /// </value>
         public bool IsArbiter
         {
             get { return ServerType == ServerType.ReplicaSetArbiter; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is a replica set member.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is a replica set member; otherwise, <c>false</c>.
+        /// </value>
         public bool IsReplicaSetMember
         {
             get { return ServerType.IsReplicaSetMember(); }
         }
 
+        /// <summary>
+        /// Gets the maximum batch count.
+        /// </summary>
+        /// <value>
+        /// The maximum batch count.
+        /// </value>
         public int MaxBatchCount
         {
             get
@@ -63,6 +88,12 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        /// <summary>
+        /// Gets the maximum size of a document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a document.
+        /// </value>
         public int MaxDocumentSize
         {
             get
@@ -77,6 +108,12 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        /// <summary>
+        /// Gets the maximum size of a message.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a message.
+        /// </value>
         public int MaxMessageSize
         {
             get
@@ -91,6 +128,12 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        /// <summary>
+        /// Gets the type of the server.
+        /// </summary>
+        /// <value>
+        /// The type of the server.
+        /// </value>
         public ServerType ServerType
         {
             get
@@ -136,6 +179,12 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        /// <summary>
+        /// Gets the replica set tags.
+        /// </summary>
+        /// <value>
+        /// The replica set tags.
+        /// </value>
         public TagSet Tags
         {
             get
@@ -150,22 +199,41 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        /// <summary>
+        /// Gets the maximum wire version.
+        /// </summary>
+        /// <value>
+        /// The maximum wire version.
+        /// </value>
         public int MaxWireVersion
         {
             get { return _wrapped.GetValue("maxWireVersion", 0).ToInt32(); }
         }
 
+        /// <summary>
+        /// Gets the minimum wire version.
+        /// </summary>
+        /// <value>
+        /// The minimum wire version.
+        /// </value>
         public int MinWireVersion
         {
             get { return _wrapped.GetValue("minWireVersion", 0).ToInt32(); }
         }
 
+        /// <summary>
+        /// Gets the wrapped result document.
+        /// </summary>
+        /// <value>
+        /// The wrapped result document.
+        /// </value>
         public BsonDocument Wrapped
         {
             get { return _wrapped; }
         }
 
         // methods
+        /// <inheritdoc/>
         public bool Equals(IsMasterResult other)
         {
             if (other == null)
@@ -176,11 +244,13 @@ namespace MongoDB.Driver.Core.Connections
             return _wrapped.Equals(other._wrapped);
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as IsMasterResult);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return _wrapped.GetHashCode();
@@ -216,6 +286,10 @@ namespace MongoDB.Driver.Core.Connections
             return null;
         }
 
+        /// <summary>
+        /// Gets the replica set configuration.
+        /// </summary>
+        /// <returns>The replica set configuration.</returns>
         public ReplicaSetConfig GetReplicaSetConfig()
         {
             if (!IsReplicaSetMember)
