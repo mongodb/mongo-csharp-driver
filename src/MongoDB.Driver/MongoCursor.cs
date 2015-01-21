@@ -25,8 +25,7 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.Sync;
-using MongoDB.Driver.Core.SyncExtensionMethods;
+using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {

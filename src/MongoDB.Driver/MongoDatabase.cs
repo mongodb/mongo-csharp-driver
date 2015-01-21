@@ -24,10 +24,10 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Operations;
+using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {

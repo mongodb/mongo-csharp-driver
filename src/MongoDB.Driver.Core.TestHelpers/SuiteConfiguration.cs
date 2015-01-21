@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
@@ -182,7 +181,7 @@ namespace MongoDB.Driver
             {
                 var command = new BsonDocument("serverStatus", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.Execute(binding);
+                var response = operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
                 BsonValue storageEngine;
                 if (response.TryGetValue("storageEngine", out storageEngine) && storageEngine.AsBsonDocument.Contains("name"))
                 {
@@ -272,7 +271,7 @@ namespace MongoDB.Driver
 
             using (var binding = GetReadWriteBinding())
             {
-                operation.Execute(binding);
+                operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
             }
         }
 

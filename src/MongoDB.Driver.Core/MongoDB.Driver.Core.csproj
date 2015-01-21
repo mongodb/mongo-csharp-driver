@@ -154,7 +154,6 @@
     <Compile Include="Core\Operations\PingOperation.cs" />
     <Compile Include="Core\Operations\QueryHelper.cs" />
     <Compile Include="Core\Operations\UpdateType.cs" />
-    <Compile Include="Core\Sync\AsyncCursorEnumeratorAdapter.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\MessageBinaryEncoderBase.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\MessageJsonEncoderBase.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\MessageEncoderSettings.cs" />
@@ -342,10 +341,6 @@
     <Compile Include="Core\Configuration\ServerSettings.cs" />
     <Compile Include="Core\Servers\ServerState.cs" />
     <Compile Include="Core\Servers\ServerType.cs" />
-    <Compile Include="Core\Sync\IBindingExtensionMethods.cs" />
-    <Compile Include="Core\Sync\IClusterExtensionMethods.cs" />
-    <Compile Include="Core\Sync\IOperationExtensionMethods.cs" />
-    <Compile Include="Core\Sync\IServerExtensionMethods.cs" />
     <Compile Include="Core\WireProtocol\CommandWireProtocol.cs" />
     <Compile Include="Core\WireProtocol\CursorBatch.cs" />
     <Compile Include="Core\WireProtocol\DeleteWireProtocol.cs" />

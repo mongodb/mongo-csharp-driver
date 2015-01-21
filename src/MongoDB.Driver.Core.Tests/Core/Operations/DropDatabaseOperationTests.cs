@@ -19,7 +19,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
@@ -124,7 +123,7 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, "test");
             var requests = new[] { new InsertRequest(new BsonDocument()) };
             var insertOperation = new BulkInsertOperation(collectionNamespace, requests, _messageEncoderSettings);
-            insertOperation.Execute(binding);
+            insertOperation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
         }
     }
 }
