@@ -169,7 +169,6 @@
     <Compile Include="Core\Misc\IndexMap.cs" />
     <Compile Include="Core\Misc\Metronome.cs" />
     <Compile Include="Core\Async\AsyncQueue.cs" />
-    <Compile Include="Core\Async\TaskExtensionMethods.cs" />
     <Compile Include="Core\Authentication\AuthenticationHelper.cs" />
     <Compile Include="Core\Authentication\MongoDBX509Authenticator.cs" />
     <Compile Include="Core\Authentication\PlainAuthenticator.cs" />

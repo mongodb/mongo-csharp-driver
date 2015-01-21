@@ -137,6 +137,7 @@
     <Compile Include="ReplaceOneModel.cs" />
     <Compile Include="CursorType.cs" />
     <Compile Include="ReturnDocument.cs" />
+    <Compile Include="Support\TaskExtensions.cs" />
     <Compile Include="UpdateOptions.cs" />
     <Compile Include="UpdateOneModel.cs" />
     <Compile Include="UpdateManyModel.cs" />

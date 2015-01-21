@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2010-2014 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,25 +14,17 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.Async
+namespace MongoDB.Driver.Support
 {
     internal static class TaskExtensionMethods
     {
         // static methods
-        public static void HandleUnobservedException(this Task task, Action<Exception> onError)
-        {
-            task.ContinueWith(t =>
-            {
-                if (t.IsFaulted)
-                {
-                    onError(t.Exception);
-                }
-            });
-        }
-
         public static async Task WithTimeout(this Task task, TimeSpan timeout)
         {
             var source = new CancellationTokenSource();
@@ -46,18 +38,6 @@ namespace MongoDB.Driver.Core.Async
             {
                 throw new TimeoutException();
             }
-        }
-
-        public static TaskCompletionSource<T> WithTimeout<T>(this TaskCompletionSource<T> source, TimeSpan timeout)
-        {
-            if (timeout != TimeSpan.Zero && timeout != Timeout.InfiniteTimeSpan)
-            {
-                Task.Delay(timeout).ContinueWith(completedTask =>
-                {
-                    source.TrySetException(new TimeoutException());
-                });
-            }
-            return source;
         }
     }
 }
