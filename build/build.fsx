@@ -157,6 +157,8 @@ Target "Docs" (fun _ ->
 
     !! (docsDir @@ "**/**.*")
         |> CreateZip docsDir docsArtifactZipFile "" DefaultZipLevel false
+
+    DeleteDir docsDir
 )
 
 Target "Zip" (fun _ ->
