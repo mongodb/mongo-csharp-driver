@@ -212,7 +212,7 @@
     <Compile Include="Core\Events\IClusterListener.cs" />
     <Compile Include="Core\Events\IConnectionListener.cs" />
     <Compile Include="Core\Configuration\ClusterBuilder.cs" />
-    <Compile Include="Core\Configuration\ClusterBuilderExtensionMethods.cs" />
+    <Compile Include="Core\Configuration\ClusterBuilderExtensions.cs" />
     <Compile Include="Core\Operations\WriteRequestType.cs" />
     <Compile Include="Core\Servers\ServerDescriptionChangedEventArgs.cs" />
     <Compile Include="Core\Clusters\ICluster.cs" />

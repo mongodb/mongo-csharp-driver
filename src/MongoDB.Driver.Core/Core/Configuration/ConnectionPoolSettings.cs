@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
-    /// Represents settings for a pool of connections.
+    /// Represents settings for a connection pool.
     /// </summary>
     public class ConnectionPoolSettings
     {
@@ -31,6 +31,14 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan _waitQueueTimeout;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolSettings"/> class.
+        /// </summary>
+        /// <param name="maintenanceInterval">The maintenance interval.</param>
+        /// <param name="maxConnections">The maximum number of connections.</param>
+        /// <param name="minConnections">The minimum number of connections.</param>
+        /// <param name="waitQueueSize">Size of the wait queue.</param>
+        /// <param name="waitQueueTimeout">The wait queue timeout.</param>
         public ConnectionPoolSettings(
             Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
             Optional<int> maxConnections = default(Optional<int>),
@@ -46,32 +54,71 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // properties
+        /// <summary>
+        /// Gets the maintenance interval.
+        /// </summary>
+        /// <value>
+        /// The maintenance interval.
+        /// </value>
         public TimeSpan MaintenanceInterval
         {
             get { return _maintenanceInterval; }
         }
 
+        /// <summary>
+        /// Gets the maximum number of connections.
+        /// </summary>
+        /// <value>
+        /// The maximum number of connections.
+        /// </value>
         public int MaxConnections
         {
             get { return _maxConnections; }
         }
 
+        /// <summary>
+        /// Gets the minimum number of connections.
+        /// </summary>
+        /// <value>
+        /// The minimum number of connections.
+        /// </value>
         public int MinConnections
         {
             get { return _minConnections; }
         }
 
+        /// <summary>
+        /// Gets the size of the wait queue.
+        /// </summary>
+        /// <value>
+        /// The size of the wait queue.
+        /// </value>
         public int WaitQueueSize
         {
             get { return _waitQueueSize; }
         }
 
+        /// <summary>
+        /// Gets the wait queue timeout.
+        /// </summary>
+        /// <value>
+        /// The wait queue timeout.
+        /// </value>
         public TimeSpan WaitQueueTimeout
         {
             get { return _waitQueueTimeout; }
         }
 
         // methods
+        /// <summary>
+        /// Returns a new ConnectionPoolSettings instance with some settings changed.
+        /// </summary>
+        /// <param name="maintenanceInterval">The maintenance interval.</param>
+        /// <param name="maxConnections">The maximum connections.</param>
+        /// <param name="minConnections">The minimum connections.</param>
+        /// <param name="waitQueueSize">Size of the wait queue.</param>
+        /// <param name="waitQueueTimeout">The wait queue timeout.</param>
+        /// <returns>A new ConnectionPoolSettings instance.</returns>
         public ConnectionPoolSettings With (
             Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
             Optional<int> maxConnections = default(Optional<int>),
