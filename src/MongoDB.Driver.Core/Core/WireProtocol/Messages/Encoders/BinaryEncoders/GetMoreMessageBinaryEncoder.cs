@@ -21,15 +21,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
+    /// <summary>
+    /// Represents a binary encoder for a GetMore message.
+    /// </summary>
     public class GetMoreMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<GetMoreMessage>
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetMoreMessageBinaryEncoder"/> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public GetMoreMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
         }
 
         // methods
+        /// <inheritdoc/>
         public GetMoreMessage ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
@@ -51,6 +60,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 batchSize);
         }
 
+        /// <inheritdoc/>
         public void WriteMessage(GetMoreMessage message)
         {
             Ensure.IsNotNull(message, "message");

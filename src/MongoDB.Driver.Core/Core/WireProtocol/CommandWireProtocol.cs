@@ -28,7 +28,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    public class CommandWireProtocol : CommandWireProtocol<BsonDocument>
+    internal class CommandWireProtocol : CommandWireProtocol<BsonDocument>
     {
         // constructors
         public CommandWireProtocol(
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
     }
 
-    public class CommandWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
+    internal class CommandWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
     {
         // fields
         private readonly BsonDocument _command;

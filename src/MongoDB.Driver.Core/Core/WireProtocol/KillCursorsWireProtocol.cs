@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    public class KillCursorsWireProtocol : IWireProtocol
+    internal class KillCursorsWireProtocol : IWireProtocol
     {
         // fields
         private readonly IReadOnlyList<long> _cursorIds;

@@ -23,9 +23,17 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
+    /// <summary>
+    /// Represents a binary encoder for a Query message.
+    /// </summary>
     public class QueryMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<QueryMessage>
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueryMessageBinaryEncoder"/> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public QueryMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
@@ -58,6 +66,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return flags;
         }
 
+        /// <inheritdoc/>
         public QueryMessage ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
@@ -101,6 +110,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 awaitData);
         }
 
+        /// <inheritdoc/>
         public void WriteMessage(QueryMessage message)
         {
             Ensure.IsNotNull(message, "message");

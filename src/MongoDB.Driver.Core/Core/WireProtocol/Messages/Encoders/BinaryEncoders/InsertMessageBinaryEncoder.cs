@@ -23,12 +23,21 @@ using MongoDB.Driver.Core.Operations.ElementNameValidators;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
+    /// <summary>
+    /// Represents a binary encoder for an Insert message.
+    /// </summary>
     public class InsertMessageBinaryEncoder<TDocument> : MessageBinaryEncoderBase, IMessageEncoder<InsertMessage<TDocument>>
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InsertMessageBinaryEncoder{TDocument}"/> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
+        /// <param name="serializer">The serializer.</param>
         public InsertMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
             : base(stream, encoderSettings)
         {
@@ -78,6 +87,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return flags;
         }
 
+        /// <inheritdoc/>
         public InsertMessage<TDocument> ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
@@ -157,6 +167,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
+        /// <inheritdoc/>
         public void WriteMessage(InsertMessage<TDocument> message)
         {
             Ensure.IsNotNull(message, "message");

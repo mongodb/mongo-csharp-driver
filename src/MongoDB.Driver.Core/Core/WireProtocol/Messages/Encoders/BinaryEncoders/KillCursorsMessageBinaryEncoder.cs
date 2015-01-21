@@ -21,15 +21,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
+    /// <summary>
+    /// Represents a binary encoder for a KillCursors message.
+    /// </summary>
     public class KillCursorsMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<KillCursorsMessage>
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KillCursorsMessageBinaryEncoder"/> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public KillCursorsMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
         }
 
         // methods
+        /// <inheritdoc/>
         public KillCursorsMessage ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
@@ -52,6 +61,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 cursorIds);
         }
 
+        /// <inheritdoc/>
         public void WriteMessage(KillCursorsMessage message)
         {
             Ensure.IsNotNull(message, "message");

@@ -27,12 +27,21 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
+    /// <summary>
+    /// Represents a binary encoder for a Reply message.
+    /// </summary>
     public class ReplyMessageBinaryEncoder<TDocument> : MessageBinaryEncoderBase, IMessageEncoder<ReplyMessage<TDocument>>
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReplyMessageBinaryEncoder{TDocument}"/> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
+        /// <param name="serializer">The serializer.</param>
         public ReplyMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
             : base(stream, encoderSettings)
         {
@@ -40,6 +49,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // methods
+        /// <inheritdoc/>
         public ReplyMessage<TDocument> ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
@@ -93,6 +103,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 startingFrom);
         }
 
+        /// <inheritdoc/>
         public void WriteMessage(ReplyMessage<TDocument> message)
         {
             Ensure.IsNotNull(message, "message");

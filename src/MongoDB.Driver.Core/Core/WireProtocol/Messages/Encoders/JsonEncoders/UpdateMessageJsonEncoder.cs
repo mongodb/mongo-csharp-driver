@@ -27,16 +27,26 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
+    /// <summary>
+    /// Represents a JSON encoder for an Update message.
+    /// </summary>
     public class UpdateMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder<UpdateMessage>
     {
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UpdateMessageJsonEncoder"/> class.
+        /// </summary>
+        /// <param name="textReader">The text reader.</param>
+        /// <param name="textWriter">The text writer.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public UpdateMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : base(textReader, textWriter, encoderSettings)
         {
         }
 
         // methods
+        /// <inheritdoc/>
         public UpdateMessage ReadMessage()
         {
             var jsonReader = CreateJsonReader();
@@ -67,6 +77,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 isUpsert);
         }
 
+        /// <inheritdoc/>
         public void WriteMessage(UpdateMessage message)
         {
             Ensure.IsNotNull(message, "message");

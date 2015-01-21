@@ -24,12 +24,22 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
+    /// <summary>
+    /// Represents a JSON encoder for an Insert message.
+    /// </summary>
     public class InsertMessageJsonEncoder<TDocument> : MessageJsonEncoderBase, IMessageEncoder<InsertMessage<TDocument>>
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InsertMessageJsonEncoder{TDocument}"/> class.
+        /// </summary>
+        /// <param name="textReader">The text reader.</param>
+        /// <param name="textWriter">The text writer.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
+        /// <param name="serializer">The serializer.</param>
         public InsertMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
             : base(textReader, textWriter, encoderSettings)
         {
@@ -37,6 +47,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // methods
+        /// <inheritdoc/>
         public InsertMessage<TDocument> ReadMessage()
         {
             var jsonReader = CreateJsonReader();
@@ -84,6 +95,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 continueOnError);
         }
 
+        /// <inheritdoc/>
         public void WriteMessage(InsertMessage<TDocument> message)
         {
             Ensure.IsNotNull(message, "message");

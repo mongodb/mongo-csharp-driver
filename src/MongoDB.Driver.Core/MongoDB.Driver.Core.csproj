@@ -371,7 +371,6 @@
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\UpdateMessageJsonEncoder.cs" />
     <Compile Include="Core\WireProtocol\Messages\GetMoreMessage.cs" />
     <Compile Include="Core\WireProtocol\Messages\InsertMessage.cs" />
-    <Compile Include="Core\WireProtocol\Messages\IReplyMessageDocumentDecoder.cs" />
     <Compile Include="Core\WireProtocol\Messages\KillCursorsMessage.cs" />
     <Compile Include="Core\WireProtocol\Messages\MongoDBMessage.cs" />
     <Compile Include="Core\WireProtocol\Messages\QueryMessage.cs" />

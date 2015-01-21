@@ -27,12 +27,46 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     /// </summary>
     public interface IMessageEncoderFactory
     {
+        /// <summary>
+        /// Gets an encoder for a Delete message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
         IMessageEncoder<DeleteMessage> GetDeleteMessageEncoder();
+
+        /// <summary>
+        /// Gets an encoder for a GetMore message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
         IMessageEncoder<GetMoreMessage> GetGetMoreMessageEncoder();
+
+        /// <summary>
+        /// Gets an encoder for an Insert message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
         IMessageEncoder<InsertMessage<TDocument>> GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
+
+        /// <summary>
+        /// Gets an encoder for a KillCursors message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
         IMessageEncoder<KillCursorsMessage> GetKillCursorsMessageEncoder();
+
+        /// <summary>
+        /// Gets an encoder for a Query message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
         IMessageEncoder<QueryMessage> GetQueryMessageEncoder();
+
+        /// <summary>
+        /// Gets an encoder for a Reply message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
         IMessageEncoder<ReplyMessage<TDocument>> GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
+
+        /// <summary>
+        /// Gets an encoder for an Update message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
         IMessageEncoder<UpdateMessage> GetUpdateMessageEncoder();
     }
 }

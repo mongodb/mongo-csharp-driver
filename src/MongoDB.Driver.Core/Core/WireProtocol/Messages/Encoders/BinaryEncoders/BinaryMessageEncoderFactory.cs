@@ -20,6 +20,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
+    /// <summary>
+    /// Represents a factory for binary message encoders.
+    /// </summary>
     public class BinaryMessageEncoderFactory : IMessageEncoderFactory
     {
         // fields
@@ -27,6 +30,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private readonly Stream _stream;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BinaryMessageEncoderFactory"/> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public BinaryMessageEncoderFactory(Stream stream, MessageEncoderSettings encoderSettings)
         {
             _stream = Ensure.IsNotNull(stream, "stream");
@@ -34,36 +42,43 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // methods
+        /// <inheritdoc/>
         public IMessageEncoder<DeleteMessage> GetDeleteMessageEncoder()
         {
             return new DeleteMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
+        /// <inheritdoc/>
         public IMessageEncoder<GetMoreMessage> GetGetMoreMessageEncoder()
         {
             return new GetMoreMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
+        /// <inheritdoc/>
         public IMessageEncoder<InsertMessage<TDocument>> GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new InsertMessageBinaryEncoder<TDocument>(_stream, _encoderSettings, serializer);
         }
 
+        /// <inheritdoc/>
         public IMessageEncoder<KillCursorsMessage> GetKillCursorsMessageEncoder()
         {
             return new KillCursorsMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
+        /// <inheritdoc/>
         public IMessageEncoder<QueryMessage> GetQueryMessageEncoder()
         {
             return new QueryMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
+        /// <inheritdoc/>
         public IMessageEncoder<ReplyMessage<TDocument>> GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new ReplyMessageBinaryEncoder<TDocument>(_stream, _encoderSettings, serializer);
         }
 
+        /// <inheritdoc/>
         public IMessageEncoder<UpdateMessage> GetUpdateMessageEncoder()
         {
             return new UpdateMessageBinaryEncoder(_stream, _encoderSettings);

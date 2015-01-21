@@ -25,6 +25,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
+    /// <summary>
+    /// Represents a base class for binary message encoders.
+    /// </summary>
     public abstract class MessageBinaryEncoderBase
     {
         // fields
@@ -32,6 +35,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private readonly Stream _stream;
 
         // constructor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessageBinaryEncoderBase"/> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         protected MessageBinaryEncoderBase(Stream stream, MessageEncoderSettings encoderSettings)
         {
             _stream = Ensure.IsNotNull(stream, "stream");
@@ -39,7 +47,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // methods
-        public BsonBinaryReader CreateBinaryReader()
+        internal BsonBinaryReader CreateBinaryReader()
         {
             var readerSettings = new BsonBinaryReaderSettings();
             if (_encoderSettings != null)
@@ -53,7 +61,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return new BsonBinaryReader(_stream, readerSettings);
         }
 
-        public BsonBinaryWriter CreateBinaryWriter()
+        internal BsonBinaryWriter CreateBinaryWriter()
         {
             var writerSettings = new BsonBinaryWriterSettings();
             if (_encoderSettings != null)

@@ -27,12 +27,22 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
+    /// <summary>
+    /// Represents a JSON encoder for a Reply message.
+    /// </summary>
     public class ReplyMessageJsonEncoder<TDocument> : MessageJsonEncoderBase, IMessageEncoder<ReplyMessage<TDocument>>
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReplyMessageJsonEncoder{TDocument}"/> class.
+        /// </summary>
+        /// <param name="textReader">The text reader.</param>
+        /// <param name="textWriter">The text writer.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
+        /// <param name="serializer">The serializer.</param>
         public ReplyMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
             : base(textReader, textWriter, encoderSettings)
         {
@@ -40,6 +50,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // methods
+        /// <inheritdoc/>
         public ReplyMessage<TDocument> ReadMessage()
         {
             var jsonReader = CreateJsonReader();
@@ -97,6 +108,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 startingFrom);
         }
 
+        /// <inheritdoc/>
         public void WriteMessage(ReplyMessage<TDocument> message)
         {
             Ensure.IsNotNull(message, "message");

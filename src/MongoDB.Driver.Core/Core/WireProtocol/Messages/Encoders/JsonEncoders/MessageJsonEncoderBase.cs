@@ -21,6 +21,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
+    /// <summary>
+    /// Represents a base class for JSON message encoders.
+    /// </summary>
     public abstract class MessageJsonEncoderBase
     {
         // fields
@@ -29,6 +32,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private readonly TextWriter _textWriter;
 
         // constructor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessageJsonEncoderBase"/> class.
+        /// </summary>
+        /// <param name="textReader">The text reader.</param>
+        /// <param name="textWriter">The text writer.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         protected MessageJsonEncoderBase(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
         {
             Ensure.That(textReader != null || textWriter != null, "textReader and textWriter cannot both be null.");
@@ -38,6 +47,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // methods
+        /// <summary>
+        /// Creates a JsonReader.
+        /// </summary>
+        /// <returns>A JsonReader.</returns>
         protected JsonReader CreateJsonReader()
         {
             if (_textReader == null)
@@ -53,6 +66,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             return new JsonReader(_textReader, readerSettings);
         }
 
+        /// <summary>
+        /// Creates a JsonWriter.
+        /// </summary>
+        /// <returns>A JsonWriter.</returns>
         protected JsonWriter CreateJsonWriter()
         {
             if (_textWriter == null)

@@ -27,15 +27,25 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
+    /// <summary>
+    /// Represents a JSON encoder for a KillCursors message.
+    /// </summary>
     public class KillCursorsMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder<KillCursorsMessage>
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KillCursorsMessageJsonEncoder"/> class.
+        /// </summary>
+        /// <param name="textReader">The text reader.</param>
+        /// <param name="textWriter">The text writer.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public KillCursorsMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : base(textReader, textWriter, encoderSettings)
         {
         }
 
         // methods
+        /// <inheritdoc/>
         public KillCursorsMessage ReadMessage()
         {
             var jsonReader = CreateJsonReader();
@@ -56,6 +66,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 cursorIds);
         }
 
+        /// <inheritdoc/>
         public void WriteMessage(KillCursorsMessage message)
         {
             Ensure.IsNotNull(message, "message");

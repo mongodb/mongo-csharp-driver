@@ -27,6 +27,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     public interface IEncodableMessage
     {
         // methods
+        /// <summary>
+        /// Gets an encoder for the message from an encoder factory.
+        /// </summary>
+        /// <param name="encoderFactory">The encoder factory.</param>
+        /// <returns>A message encoder.</returns>
         IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory);
     }
 
@@ -36,6 +41,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     public interface IEncodableMessage<TMessage> : IEncodableMessage where TMessage : MongoDBMessage
     {
         // methods 
+        /// <summary>
+        /// Gets an encoder for the message from an encoder factory.
+        /// </summary>
+        /// <param name="encoderFactory">The encoder factory.</param>
+        /// <returns>A message encoder.</returns>
         new IMessageEncoder<TMessage> GetEncoder(IMessageEncoderFactory encoderFactory);
     }
 }

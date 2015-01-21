@@ -18,6 +18,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
+    /// <summary>
+    /// Represents a GetMore message.
+    /// </summary>
     public class GetMoreMessage : RequestMessage, IEncodableMessage<GetMoreMessage>
     {
         // fields
@@ -26,6 +29,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly long _cursorId;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetMoreMessage"/> class.
+        /// </summary>
+        /// <param name="requestId">The request identifier.</param>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="cursorId">The cursor identifier.</param>
+        /// <param name="batchSize">The size of a batch.</param>
         public GetMoreMessage(
             int requestId,
             CollectionNamespace collectionNamespace,
@@ -39,27 +49,47 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
+        /// <summary>
+        /// Gets the size of a batch.
+        /// </summary>
+        /// <value>
+        /// The size of a batch.
+        /// </value>
         public int BatchSize
         {
             get { return _batchSize; }
         }
 
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets the cursor identifier.
+        /// </summary>
+        /// <value>
+        /// The cursor identifier.
+        /// </value>
         public long CursorId
         {
             get { return _cursorId; }
         }
 
         // methods
+        /// <inheritdoc/>
         public new IMessageEncoder<GetMoreMessage> GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetGetMoreMessageEncoder();
         }
 
+        /// <inheritdoc/>
         protected override IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory)
         {
             return GetEncoder(encoderFactory);

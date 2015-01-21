@@ -21,6 +21,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
+    /// <summary>
+    /// Represents an Update message.
+    /// </summary>
     public class UpdateMessage : RequestMessage
     {
         // fields
@@ -32,6 +35,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly IElementNameValidator _updateValidator;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UpdateMessage"/> class.
+        /// </summary>
+        /// <param name="requestId">The request identifier.</param>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="updateValidator">The update validator.</param>
+        /// <param name="isMulti">if set to <c>true</c> all matching documents should be updated.</param>
+        /// <param name="isUpsert">if set to <c>true</c> a document should be inserted if no matching document is found.</param>
         public UpdateMessage(
             int requestId,
             CollectionNamespace collectionNamespace,
@@ -51,42 +64,80 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether all matching documents should be updated.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if all matching documents should be updated; otherwise, <c>false</c>.
+        /// </value>
         public bool IsMulti
         {
             get { return _isMulti; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether a document should be inserted if no matching document is found.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if a document should be inserted if no matching document is found; otherwise, <c>false</c>.
+        /// </value>
         public bool IsUpsert
         {
             get { return _isUpsert; }
         }
 
+        /// <summary>
+        /// Gets the query.
+        /// </summary>
+        /// <value>
+        /// The query.
+        /// </value>
         public BsonDocument Query
         {
             get { return _query; }
         }
 
+        /// <summary>
+        /// Gets the update.
+        /// </summary>
+        /// <value>
+        /// The update.
+        /// </value>
         public BsonDocument Update
         {
             get { return _update; }
         }
 
+        /// <summary>
+        /// Gets the update validator.
+        /// </summary>
+        /// <value>
+        /// The update validator.
+        /// </value>
         public IElementNameValidator UpdateValidator
         {
             get { return _updateValidator; }
         }
 
         // methods
+        /// <inheritdoc/>
         public new IMessageEncoder<UpdateMessage> GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetUpdateMessageEncoder();
         }
 
+        /// <inheritdoc/>
         protected override IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory)
         {
             return GetEncoder(encoderFactory);

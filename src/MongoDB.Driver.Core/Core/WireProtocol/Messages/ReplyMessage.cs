@@ -27,10 +27,17 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
+    /// <summary>
+    /// Represents the non-generic base class for a Reply message.
+    /// </summary>
     public abstract class ReplyMessage : MongoDBMessage
     {
     }
 
+    /// <summary>
+    /// Represents a Reply message.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public class ReplyMessage<TDocument> : ReplyMessage
     {
         // fields
@@ -47,6 +54,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly int _startingFrom;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReplyMessage{TDocument}"/> class.
+        /// </summary>
+        /// <param name="awaitCapable">if set to <c>true</c> the server is await capable.</param>
+        /// <param name="cursorId">The cursor identifier.</param>
+        /// <param name="cursorNotFound">if set to <c>true</c> the cursor was not found.</param>
+        /// <param name="documents">The documents.</param>
+        /// <param name="numberReturned">The number of documents returned.</param>
+        /// <param name="queryFailure">if set to <c>true</c> the query failed.</param>
+        /// <param name="queryFailureDocument">The query failure document.</param>
+        /// <param name="requestId">The request identifier.</param>
+        /// <param name="responseTo">The identifier of the message this is a response to.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="startingFrom">The position of the first document in this batch in the overall result.</param>
         public ReplyMessage(
             bool awaitCapable,
             long cursorId,
@@ -82,67 +103,135 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
+        /// <summary>
+        /// Gets a value indicating whether the server is await capable.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the server is await capable; otherwise, <c>false</c>.
+        /// </value>
         public bool AwaitCapable
         {
             get { return _awaitCapable; }
         }
 
+        /// <summary>
+        /// Gets the cursor identifier.
+        /// </summary>
+        /// <value>
+        /// The cursor identifier.
+        /// </value>
         public long CursorId
         {
             get { return _cursorId; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the cursor was not found.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the cursor was not found; otherwise, <c>false</c>.
+        /// </value>
         public bool CursorNotFound
         {
             get { return _cursorNotFound; }
         }
 
+        /// <summary>
+        /// Gets the documents.
+        /// </summary>
+        /// <value>
+        /// The documents.
+        /// </value>
         public List<TDocument> Documents
         {
             get { return _documents; }
         }
 
+        /// <summary>
+        /// Gets the number of documents returned.
+        /// </summary>
+        /// <value>
+        /// The number of documents returned.
+        /// </value>
         public int NumberReturned
         {
             get { return _numberReturned; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the query failed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the query failed; otherwise, <c>false</c>.
+        /// </value>
         public bool QueryFailure
         {
             get { return _queryFailure; }
         }
 
+        /// <summary>
+        /// Gets the query failure document.
+        /// </summary>
+        /// <value>
+        /// The query failure document (or null if QueryFailure is false).
+        /// </value>
         public BsonDocument QueryFailureDocument
         {
             get { return _queryFailureDocument; }
         }
 
+        /// <summary>
+        /// Gets the request identifier.
+        /// </summary>
+        /// <value>
+        /// The request identifier.
+        /// </value>
         public int RequestId
         {
             get { return _requestId; }
         }
 
+        /// <summary>
+        /// Gets the identifier of the message this is a response to.
+        /// </summary>
+        /// <value>
+        /// The identifier of the message this is a response to.
+        /// </value>
         public int ResponseTo
         {
             get { return _responseTo; }
         }
 
+        /// <summary>
+        /// Gets the serializer.
+        /// </summary>
+        /// <value>
+        /// The serializer.
+        /// </value>
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
         }
 
+        /// <summary>
+        /// Gets the position of the first document in this batch in the overall result.
+        /// </summary>
+        /// <value>
+        /// The position of the first document in this batch in the overall result.
+        /// </value>
         public int StartingFrom
         {
             get { return _startingFrom; }
         }
 
         // methods
+        /// <inheritdoc/>
         public new IMessageEncoder<ReplyMessage<TDocument>> GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetReplyMessageEncoder<TDocument>(_serializer);
         }
 
+        /// <inheritdoc/>
         protected override IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory)
         {
             return GetEncoder(encoderFactory);
