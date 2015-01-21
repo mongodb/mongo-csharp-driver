@@ -23,6 +23,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents a Trie-based name decoder that also provides a value.
     /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
     public class TrieNameDecoder<TValue> : INameDecoder
     {
         // private fields

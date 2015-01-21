@@ -27,6 +27,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents a serializer for a class map.
     /// </summary>
+    /// <typeparam name="TClass">The type of the class.</typeparam>
     public class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer
     {
         // private fields
@@ -65,7 +66,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public override TClass Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
@@ -103,7 +104,7 @@ namespace MongoDB.Bson.Serialization
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public TClass DeserializeClass(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;

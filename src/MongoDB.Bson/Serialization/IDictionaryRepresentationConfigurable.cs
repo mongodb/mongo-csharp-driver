@@ -41,6 +41,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents a serializer that has a DictionaryRepresentation property.
     /// </summary>
+    /// <typeparam name="TSerializer">The type of the serializer.</typeparam>
     public interface IDictionaryRepresentationConfigurable<TSerializer> : IDictionaryRepresentationConfigurable where TSerializer : IBsonSerializer
     {
         /// <summary>

@@ -21,6 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for enumerable values.
     /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
     public abstract class EnumerableInterfaceImplementerSerializerBase<TValue> : EnumerableSerializerBase<TValue>, IBsonArraySerializer where TValue : class, IEnumerable
     {
         // constructors

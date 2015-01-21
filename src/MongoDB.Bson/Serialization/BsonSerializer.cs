@@ -92,7 +92,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="document">The BsonDocument.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>A TNominalType.</returns>
+        /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(BsonDocument document, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = new BsonDocumentReader(document))
@@ -107,7 +107,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>A TNominalType.</returns>
+        /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(IBsonReader bsonReader, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             var serializer = LookupSerializer<TNominalType>();
@@ -121,7 +121,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="bytes">The BSON byte array.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>A TNominalType.</returns>
+        /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(byte[] bytes, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var memoryStream = new BsonMemoryStream(bytes))
@@ -136,7 +136,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="stream">The BSON Stream.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>A TNominalType.</returns>
+        /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(Stream stream, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = new BsonBinaryReader(stream))
@@ -151,7 +151,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="json">The JSON string.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>A TNominalType.</returns>
+        /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(string json, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = new JsonReader(json))
@@ -166,7 +166,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="textReader">The JSON TextReader.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>A TNominalType.</returns>
+        /// <returns>A deserialized value.</returns>
         public static TNominalType Deserialize<TNominalType>(TextReader textReader, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = new JsonReader(textReader))
@@ -181,7 +181,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="document">The BsonDocument.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>A TNominalType.</returns>
+        /// <returns>A deserialized value.</returns>
         public static object Deserialize(BsonDocument document, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = new BsonDocumentReader(document))
@@ -196,7 +196,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public static object Deserialize(IBsonReader bsonReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             var serializer = LookupSerializer(nominalType);
@@ -210,7 +210,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="bytes">The BSON byte array.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public static object Deserialize(byte[] bytes, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var memoryStream = new BsonMemoryStream(bytes))
@@ -225,7 +225,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="stream">The BSON Stream.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public static object Deserialize(Stream stream, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = new BsonBinaryReader(stream))
@@ -240,7 +240,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="json">The JSON string.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public static object Deserialize(string json, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = new JsonReader(json))
@@ -255,7 +255,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="textReader">The JSON TextReader.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public static object Deserialize(TextReader textReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = new JsonReader(textReader))

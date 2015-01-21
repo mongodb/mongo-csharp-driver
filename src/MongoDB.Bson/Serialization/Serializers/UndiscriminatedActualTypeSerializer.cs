@@ -27,6 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for interfaces and base classes that delegates to the actual type interface without writing a discriminator.
     /// </summary>
+    /// <typeparam name="TValue">Type type of the value.</typeparam>
     public class UndiscriminatedActualTypeSerializer<TValue> : SerializerBase<TValue>
     {
         // private static fields

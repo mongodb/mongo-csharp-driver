@@ -44,7 +44,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public override TClass Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var backingDocument = BsonDocumentSerializer.Instance.Deserialize(context);

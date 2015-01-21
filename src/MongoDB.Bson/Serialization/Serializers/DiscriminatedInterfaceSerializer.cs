@@ -22,6 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Interfaces.
     /// </summary>
+    /// <typeparam name="TInterface">The type of the interface.</typeparam>
     public class DiscriminatedInterfaceSerializer<TInterface> : SerializerBase<TInterface> // where TInterface is an interface
     {
         // private fields
@@ -63,9 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>
-        /// A document.
-        /// </returns>
+        /// <returns>A deserialized value.</returns>
         /// <exception cref="System.FormatException"></exception>
         public override TInterface Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {

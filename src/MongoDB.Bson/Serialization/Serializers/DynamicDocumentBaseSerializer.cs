@@ -24,6 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Base serializer for dynamic types.
     /// </summary>
+    /// <typeparam name="T">The dynamic type.</typeparam>
     public abstract class DynamicDocumentBaseSerializer<T> : SerializerBase<T> where T : IDynamicMetaObjectProvider
     {
         // private static fields
@@ -42,7 +43,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public override T Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
