@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var cursor = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
 
-            return new ProjectingAsyncCursor<BsonDocument, BsonDocument>(cursor, NormalizeQueryResponse);
+            return new BatchTransformingAsyncCursor<BsonDocument, BsonDocument>(cursor, NormalizeQueryResponse);
         }
 
         private IEnumerable<BsonDocument> NormalizeQueryResponse(IEnumerable<BsonDocument> collections)
