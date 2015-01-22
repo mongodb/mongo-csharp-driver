@@ -48,10 +48,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 
         // methods
         /// <summary>
-        /// Creates a JsonReader.
+        /// Creates a JsonReader for this encoder.
         /// </summary>
         /// <returns>A JsonReader.</returns>
-        protected JsonReader CreateJsonReader()
+        public JsonReader CreateJsonReader()
         {
             if (_textReader == null)
             {
@@ -67,10 +67,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         /// <summary>
-        /// Creates a JsonWriter.
+        /// Creates a JsonWriter for this encoder.
         /// </summary>
         /// <returns>A JsonWriter.</returns>
-        protected JsonWriter CreateJsonWriter()
+        public JsonWriter CreateJsonWriter()
         {
             if (_textWriter == null)
             {

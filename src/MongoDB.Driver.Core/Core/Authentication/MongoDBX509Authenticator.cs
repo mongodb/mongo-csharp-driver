@@ -17,6 +17,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -75,7 +76,12 @@ namespace MongoDB.Driver.Core.Authentication
                     { "mechanism", Name },
                     { "user", _username }
                 };
-                var protocol = new CommandWireProtocol(new DatabaseNamespace("$external"), command, true, null);
+                var protocol = new CommandWireProtocol<BsonDocument>(
+                    new DatabaseNamespace("$external"),
+                    command,
+                    true,
+                    BsonDocumentSerializer.Instance,
+                    null);
                 await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoCommandException ex)

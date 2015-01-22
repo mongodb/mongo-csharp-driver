@@ -28,29 +28,6 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    internal class CommandWireProtocol : CommandWireProtocol<BsonDocument>
-    {
-        // constructors
-        public CommandWireProtocol(
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
-            bool slaveOk,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(databaseNamespace, command, NoOpElementNameValidator.Instance, slaveOk, messageEncoderSettings)
-        {
-        }
-
-        public CommandWireProtocol(
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
-            IElementNameValidator commandValidator,
-            bool slaveOk,
-            MessageEncoderSettings messageEncoderSettings)
-            : base(databaseNamespace, command, commandValidator, slaveOk, BsonDocumentSerializer.Instance, messageEncoderSettings)
-        {
-        }
-    }
-
     internal class CommandWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
     {
         // fields

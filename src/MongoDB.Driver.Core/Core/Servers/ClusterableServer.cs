@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -306,10 +307,11 @@ namespace MongoDB.Driver.Core.Servers
 
             try
             {
-                var isMasterCommand = new CommandWireProtocol(
+                var isMasterCommand = new CommandWireProtocol<BsonDocument>(
                     DatabaseNamespace.Admin,
                     new BsonDocument("isMaster", 1),
                     true,
+                    BsonDocumentSerializer.Instance,
                     null);
 
                 var stopwatch = Stopwatch.StartNew();
@@ -317,10 +319,11 @@ namespace MongoDB.Driver.Core.Servers
                 stopwatch.Stop();
                 var isMasterResult = new IsMasterResult(isMasterResultDocument);
 
-                var buildInfoCommand = new CommandWireProtocol(
+                var buildInfoCommand = new CommandWireProtocol<BsonDocument>(
                     DatabaseNamespace.Admin,
                     new BsonDocument("buildInfo", 1),
                     true,
+                    BsonDocumentSerializer.Instance,
                     null);
 
                 var buildInfoResultRocument = await buildInfoCommand.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);

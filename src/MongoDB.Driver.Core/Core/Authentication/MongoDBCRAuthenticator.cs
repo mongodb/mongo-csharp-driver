@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -86,7 +87,12 @@ namespace MongoDB.Driver.Core.Authentication
         private async Task<string> GetNonceAsync(IConnection connection, CancellationToken cancellationToken)
         {
             var command = new BsonDocument("getnonce", 1);
-            var protocol = new CommandWireProtocol(new DatabaseNamespace(_credential.Source), command, true, null);
+            var protocol = new CommandWireProtocol<BsonDocument>(
+                new DatabaseNamespace(_credential.Source),
+                command,
+                true,
+                BsonDocumentSerializer.Instance,
+                null);
             var document = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             return (string)document["nonce"];
         }
@@ -100,7 +106,12 @@ namespace MongoDB.Driver.Core.Authentication
                 { "nonce", nonce },
                 { "key", CreateKey(_credential.Username, _credential.Password, nonce) }
             };
-            var protocol = new CommandWireProtocol(new DatabaseNamespace(_credential.Source), command, true, null);
+            var protocol = new CommandWireProtocol<BsonDocument>(
+                new DatabaseNamespace(_credential.Source),
+                command,
+                true,
+                BsonDocumentSerializer.Instance,
+                null);
             await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
         }
 

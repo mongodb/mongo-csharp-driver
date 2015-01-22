@@ -17,6 +17,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -33,11 +34,21 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsNotNull(connection, "connection");
 
             var isMasterCommand = new BsonDocument("isMaster", 1);
-            var isMasterProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, isMasterCommand, true, null);
+            var isMasterProtocol = new CommandWireProtocol<BsonDocument>(
+                DatabaseNamespace.Admin,
+                isMasterCommand,
+                true,
+                BsonDocumentSerializer.Instance,
+                null);
             var isMasterResult = new IsMasterResult(await isMasterProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
 
             var buildInfoCommand = new BsonDocument("buildInfo", 1);
-            var buildInfoProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, buildInfoCommand, true, null);
+            var buildInfoProtocol = new CommandWireProtocol<BsonDocument>(
+                DatabaseNamespace.Admin,
+                buildInfoCommand,
+                true,
+                BsonDocumentSerializer.Instance,
+               null);
             var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
 
             var connectionId = connection.ConnectionId;
@@ -48,7 +59,12 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var getLastErrorCommand = new BsonDocument("getLastError", 1);
-                var getLastErrorProtocol = new CommandWireProtocol(DatabaseNamespace.Admin, getLastErrorCommand, true, null);
+                var getLastErrorProtocol = new CommandWireProtocol<BsonDocument>(
+                    DatabaseNamespace.Admin,
+                    getLastErrorCommand,
+                    true,
+                    BsonDocumentSerializer.Instance,
+                    null);
                 var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
 
                 BsonValue connectionIdBsonValue;

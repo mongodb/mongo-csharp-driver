@@ -47,7 +47,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // methods
-        internal BsonBinaryReader CreateBinaryReader()
+        /// <summary>
+        /// Creates a binary reader for this encoder.
+        /// </summary>
+        /// <returns>A binary reader.</returns>
+        public BsonBinaryReader CreateBinaryReader()
         {
             var readerSettings = new BsonBinaryReaderSettings();
             if (_encoderSettings != null)
@@ -61,7 +65,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return new BsonBinaryReader(_stream, readerSettings);
         }
 
-        internal BsonBinaryWriter CreateBinaryWriter()
+        /// <summary>
+        /// Creates a binary writer for this encoder.
+        /// </summary>
+        /// <returns>A binary writer.</returns>
+        public BsonBinaryWriter CreateBinaryWriter()
         {
             var writerSettings = new BsonBinaryWriterSettings();
             if (_encoderSettings != null)

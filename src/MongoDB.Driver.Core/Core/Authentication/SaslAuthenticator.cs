@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
@@ -65,7 +66,12 @@ namespace MongoDB.Driver.Core.Authentication
                     BsonDocument result;
                     try
                     {
-                        var protocol = new CommandWireProtocol(new DatabaseNamespace(DatabaseName), command, true, null);
+                        var protocol = new CommandWireProtocol<BsonDocument>(
+                            new DatabaseNamespace(DatabaseName),
+                            command,
+                            true,
+                            BsonDocumentSerializer.Instance,
+                            null);
                         result = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                     }
                     catch(MongoCommandException ex)
