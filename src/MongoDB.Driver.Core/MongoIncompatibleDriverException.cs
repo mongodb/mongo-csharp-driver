@@ -19,6 +19,9 @@ using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a MongoDB incompatible driver exception.
+    /// </summary>
     [Serializable]
     public class MongoIncompatibleDriverException : MongoClientException
     {
@@ -33,11 +36,20 @@ namespace MongoDB.Driver
         #endregion
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoIncompatibleDriverException"/> class.
+        /// </summary>
+        /// <param name="clusterDescription">The cluster description.</param>
         public MongoIncompatibleDriverException(ClusterDescription clusterDescription)
             : base(FormatMessage(clusterDescription), null)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoIncompatibleDriverException"/> class.
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         protected MongoIncompatibleDriverException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

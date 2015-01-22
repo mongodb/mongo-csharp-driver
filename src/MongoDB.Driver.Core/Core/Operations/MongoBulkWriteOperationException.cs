@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
+        /// Initializes a new instance of the <see cref="MongoBulkWriteOperationException" /> class.
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
@@ -114,6 +114,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
+        /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

@@ -21,12 +21,15 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a MongoDB connection pool wait queue full exception.
+    /// </summary>
     [Serializable]
     public class MongoWaitQueueFullException : MongoClientException
     {
         #region static
         // static methods
-        public static MongoWaitQueueFullException ForConnectionPool(EndPoint endPoint)
+        internal static MongoWaitQueueFullException ForConnectionPool(EndPoint endPoint)
         {
             var message = string.Format(
                 "The wait queue for acquiring a connection to server {0} is full.",
@@ -34,7 +37,7 @@ namespace MongoDB.Driver
             return new MongoWaitQueueFullException(message);
         }
 
-        public static MongoWaitQueueFullException ForServerSelection()
+        internal static MongoWaitQueueFullException ForServerSelection()
         {
             var message = "The wait queue for server selection is full.";
             return new MongoWaitQueueFullException(message);
@@ -42,11 +45,20 @@ namespace MongoDB.Driver
         #endregion
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoWaitQueueFullException"/> class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public MongoWaitQueueFullException(string message)
             : base(message, null)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoWaitQueueFullException"/> class.
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         protected MongoWaitQueueFullException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

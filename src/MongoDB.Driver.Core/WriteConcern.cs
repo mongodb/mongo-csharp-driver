@@ -24,6 +24,9 @@ using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a write concern.
+    /// </summary>
     public sealed class WriteConcern : IEquatable<WriteConcern>, IConvertibleToBsonDocument
     {
         #region static
@@ -36,31 +39,67 @@ namespace MongoDB.Driver
         private static readonly WriteConcern __wMajority = new WriteConcern("majority");
 
         // static properties
+        /// <summary>
+        /// Gets an instance of WriteConcern that represents an acknowledged write concern.
+        /// </summary>
+        /// <value>
+        /// An instance of WriteConcern that represents an acknowledged write concern.
+        /// </value>
         public static WriteConcern Acknowledged
         {
             get { return __acknowledged; }
         }
 
+        /// <summary>
+        /// Gets an instance of WriteConcern that represents an unacknowledged write concern.
+        /// </summary>
+        /// <value>
+        /// An instance of WriteConcern that represents an unacknowledged write concern.
+        /// </value>
         public static WriteConcern Unacknowledged
         {
             get { return __unacknowledged; }
         }
 
+        /// <summary>
+        /// Gets an instance of WriteConcern that represents a W1 write concern.
+        /// </summary>
+        /// <value>
+        /// An instance of WriteConcern that represents a W1 write concern.
+        /// </value>
         public static WriteConcern W1
         {
             get { return __w1; }
         }
 
+        /// <summary>
+        /// Gets an instance of WriteConcern that represents a W2 write concern.
+        /// </summary>
+        /// <value>
+        /// An instance of WriteConcern that represents a W2 write concern.
+        /// </value>
         public static WriteConcern W2
         {
             get { return __w2; }
         }
 
+        /// <summary>
+        /// Gets an instance of WriteConcern that represents a W3 write concern.
+        /// </summary>
+        /// <value>
+        /// An instance of WriteConcern that represents a W3 write concern.
+        /// </value>
         public static WriteConcern W3
         {
             get { return __w3; }
         }
 
+        /// <summary>
+        /// Gets an instance of WriteConcern that represents a majority write concern.
+        /// </summary>
+        /// <value>
+        /// An instance of WriteConcern that represents a majority write concern.
+        /// </value>
         public static WriteConcern WMajority
         {
             get { return __wMajority; }
@@ -74,6 +113,13 @@ namespace MongoDB.Driver
         private readonly TimeSpan? _wTimeout;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WriteConcern"/> class.
+        /// </summary>
+        /// <param name="w">The w value.</param>
+        /// <param name="wTimeout">The wtimeout value.</param>
+        /// <param name="fsync">The fsync value .</param>
+        /// <param name="journal">The journal value.</param>
         public WriteConcern(
             int w,
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
@@ -83,6 +129,13 @@ namespace MongoDB.Driver
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WriteConcern"/> class.
+        /// </summary>
+        /// <param name="mode">The mode.</param>
+        /// <param name="wTimeout">The wtimeout value.</param>
+        /// <param name="fsync">The fsync value .</param>
+        /// <param name="journal">The journal value.</param>
         public WriteConcern(
             string mode,
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
@@ -92,6 +145,13 @@ namespace MongoDB.Driver
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WriteConcern"/> class.
+        /// </summary>
+        /// <param name="w">The w value.</param>
+        /// <param name="wTimeout">The wtimeout value.</param>
+        /// <param name="fsync">The fsync value .</param>
+        /// <param name="journal">The journal value.</param>
         public WriteConcern(
             Optional<WValue> w = default(Optional<WValue>),
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
@@ -105,11 +165,23 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets the fsync value.
+        /// </summary>
+        /// <value>
+        /// The fsync value.
+        /// </value>
         public bool? FSync
         {
             get { return _fsync; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is an acknowledged write concern.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is an acknowledged write concern; otherwise, <c>false</c>.
+        /// </value>
         public bool IsAcknowledged
         {
             get
@@ -122,27 +194,47 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Gets the journal value.
+        /// </summary>
+        /// <value>
+        /// The journal value.
+        /// </value>
         public bool? Journal
         {
             get { return _journal; }
         }
 
+        /// <summary>
+        /// Gets the w value.
+        /// </summary>
+        /// <value>
+        /// The w value.
+        /// </value>
         public WValue W
         {
             get { return _w; }
         }
 
+        /// <summary>
+        /// Gets the wtimeout value.
+        /// </summary>
+        /// <value>
+        /// The wtimeout value.
+        /// </value>
         public TimeSpan? WTimeout
         {
             get { return _wTimeout; }
         }
 
         // methods
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as WriteConcern);
         }
 
+        /// <inheritdoc/>
         public bool Equals(WriteConcern other)
         {
             if (other == null)
@@ -156,6 +248,7 @@ namespace MongoDB.Driver
                 _wTimeout == other._wTimeout;
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return new Hasher()
@@ -166,6 +259,12 @@ namespace MongoDB.Driver
                 .GetHashCode();
         }
 
+        /// <summary>
+        /// Converts this write concern to a BsonDocument suitable to be sent to the server.
+        /// </summary>
+        /// <returns>
+        /// A BsonDocument.
+        /// </returns>
         public BsonDocument ToBsonDocument()
         {
             return new BsonDocument
@@ -177,6 +276,7 @@ namespace MongoDB.Driver
             };
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var parts = new List<string>();
@@ -214,6 +314,14 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Returns a new instance of WriteConcern with some values changed.
+        /// </summary>
+        /// <param name="w">The w value.</param>
+        /// <param name="wTimeout">The wtimeout value.</param>
+        /// <param name="fsync">The fsync value.</param>
+        /// <param name="journal">The journal value.</param>
+        /// <returns>A WriteConcern.</returns>
         public WriteConcern With(
             int w,
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
@@ -223,6 +331,14 @@ namespace MongoDB.Driver
             return With(new WCount(w), wTimeout, fsync, journal);
         }
 
+        /// <summary>
+        /// Returns a new instance of WriteConcern with some values changed.
+        /// </summary>
+        /// <param name="mode">The mode.</param>
+        /// <param name="wTimeout">The wtimeout value.</param>
+        /// <param name="fsync">The fsync value.</param>
+        /// <param name="journal">The journal value.</param>
+        /// <returns>A WriteConcern.</returns>
         public WriteConcern With(
             string mode,
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
@@ -232,6 +348,14 @@ namespace MongoDB.Driver
             return With(new WMode(mode), wTimeout, fsync, journal);
         }
 
+        /// <summary>
+        /// Returns a new instance of WriteConcern with some values changed.
+        /// </summary>
+        /// <param name="w">The w value.</param>
+        /// <param name="wTimeout">The wtimeout value.</param>
+        /// <param name="fsync">The fsync value.</param>
+        /// <param name="journal">The journal value.</param>
+        /// <returns>A WriteConcern.</returns>
         public WriteConcern With(
             Optional<WValue> w = default(Optional<WValue>),
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
@@ -255,10 +379,18 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Represents the base class for w values.
+        /// </summary>
         public abstract class WValue : IEquatable<WValue>
         {
             #region static
             // static methods
+            /// <summary>
+            /// Parses the specified value.
+            /// </summary>
+            /// <param name="value">The value.</param>
+            /// <returns>A WValue.</returns>
             public static WValue Parse(string value)
             {
                 int n;
@@ -273,16 +405,37 @@ namespace MongoDB.Driver
             }
 
             // static operators
+            /// <summary>
+            /// Performs an implicit conversion from <see cref="System.Int32"/> to <see cref="WValue"/>.
+            /// </summary>
+            /// <param name="value">The value.</param>
+            /// <returns>
+            /// The result of the conversion.
+            /// </returns>
             public static implicit operator WValue(int value)
             {
                 return new WCount(value);
             }
 
+            /// <summary>
+            /// Performs an implicit conversion from <see cref="System.Nullable{System.Int32}"/> to <see cref="WValue"/>.
+            /// </summary>
+            /// <param name="value">The value.</param>
+            /// <returns>
+            /// The result of the conversion.
+            /// </returns>
             public static implicit operator WValue(int? value)
             {
                 return value.HasValue ? new WCount(value.Value) : null;
             }
 
+            /// <summary>
+            /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="WValue"/>.
+            /// </summary>
+            /// <param name="value">The value.</param>
+            /// <returns>
+            /// The result of the conversion.
+            /// </returns>
             public static implicit operator WValue(string value)
             {
                 return (value == null) ? null : new WMode(value);
@@ -295,37 +448,57 @@ namespace MongoDB.Driver
             }
 
             // methods
+            /// <inheritdoc/>
             public bool Equals(WValue rhs)
             {
                 return Equals((object)rhs);
             }
 
+            /// <summary>
+            /// Converts this WValue to a BsonValue suitable to be included in a BsonDocument representing a write concern.
+            /// </summary>
+            /// <returns></returns>
             public abstract BsonValue ToBsonValue();
         }
 
+        /// <summary>
+        /// Represents a numeric WValue.
+        /// </summary>
         public sealed class WCount : WValue, IEquatable<WCount>
         {
             // fields
             private readonly int _value;
 
             // constructors
+            /// <summary>
+            /// Initializes a new instance of the <see cref="WCount"/> class.
+            /// </summary>
+            /// <param name="w">The w value.</param>
             public WCount(int w)
             {
                 _value = Ensure.IsGreaterThanOrEqualToZero(w, "w");
             }
 
             // properties
+            /// <summary>
+            /// Gets the value.
+            /// </summary>
+            /// <value>
+            /// The value.
+            /// </value>
             public int Value
             {
                 get { return _value; }
             }
 
             // methods
+            /// <inheritdoc/>
             public override bool Equals(object obj)
             {
                 return Equals(obj as WCount);
             }
 
+            /// <inheritdoc/>
             public bool Equals(WCount rhs)
             {
                 if (rhs == null)
@@ -335,22 +508,28 @@ namespace MongoDB.Driver
                 return _value == rhs._value;
             }
 
+            /// <inheritdoc/>
             public override int GetHashCode()
             {
                 return _value.GetHashCode();
             }
 
+            /// <inheritdoc/>
             public override BsonValue ToBsonValue()
             {
                 return new BsonInt32(_value);
             }
 
+            /// <inheritdoc/>
             public override string ToString()
             {
                 return _value.ToString();
             }
         }
 
+        /// <summary>
+        /// Represents a mode string WValue.
+        /// </summary>
         public sealed class WMode : WValue, IEquatable<WMode>
         {
             #region static
@@ -358,6 +537,12 @@ namespace MongoDB.Driver
             private static readonly WMode __majority = new WMode("majority");
 
             // static properties
+            /// <summary>
+            /// Gets an instance of WValue that represents the majority mode.
+            /// </summary>
+            /// <value>
+            /// An instance of WValue that represents the majority mode.
+            /// </value>
             public static WMode Majority
             {
                 get { return __majority; }
@@ -368,23 +553,35 @@ namespace MongoDB.Driver
             private readonly string _value;
 
             // constructors
+            /// <summary>
+            /// Initializes a new instance of the <see cref="WMode"/> class.
+            /// </summary>
+            /// <param name="mode">The mode.</param>
             public WMode(string mode)
             {
                 _value = Ensure.IsNotNullOrEmpty(mode, "mode");
             }
 
             // properties
+            /// <summary>
+            /// Gets the value.
+            /// </summary>
+            /// <value>
+            /// The value.
+            /// </value>
             public string Value
             {
                 get { return _value; }
             }
 
             // methods
+            /// <inheritdoc/>
             public override bool Equals(object obj)
             {
                 return Equals(obj as WMode);
             }
 
+            /// <inheritdoc/>
             public bool Equals(WMode rhs)
             {
                 if (rhs == null)
@@ -394,16 +591,19 @@ namespace MongoDB.Driver
                 return _value == rhs._value;
             }
 
+            /// <inheritdoc/>
             public override int GetHashCode()
             {
                 return _value.GetHashCode();
             }
 
+            /// <inheritdoc/>
             public override BsonValue ToBsonValue()
             {
                 return new BsonString(_value);
             }
 
+            /// <inheritdoc/>
             public override string ToString()
             {
                 return _value;

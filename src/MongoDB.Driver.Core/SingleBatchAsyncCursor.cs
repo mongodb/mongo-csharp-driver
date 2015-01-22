@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    public sealed class SingleBatchAsyncCursor<T> : IAsyncCursor<T>
+    internal sealed class SingleBatchAsyncCursor<T> : IAsyncCursor<T>
     {
         private bool _disposed;
         private bool _moved;

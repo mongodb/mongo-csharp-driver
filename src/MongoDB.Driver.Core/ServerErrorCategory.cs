@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// A category for an error from the server.
+    /// Represents the category for an error from the server.
     /// </summary>
     public enum ServerErrorCategory
     {
@@ -30,10 +30,12 @@ namespace MongoDB.Driver
         /// An error without a category.
         /// </summary>
         Uncategorized,
+
         /// <summary>
         /// A duplicate key error.
         /// </summary>
         DuplicateKey,
+
         /// <summary>
         /// An execution timeout error.
         /// </summary>

@@ -36,26 +36,56 @@ namespace MongoDB.Driver
         private static readonly ReadPreference __secondaryPreferred = new ReadPreference(ReadPreferenceMode.SecondaryPreferred);
 
         // static properties
+        /// <summary>
+        /// Gets an instance of ReadPreference that represents a Nearest read preference.
+        /// </summary>
+        /// <value>
+        /// An instance of ReadPreference that represents a Nearest read preference.
+        /// </value>
         public static ReadPreference Nearest
         {
             get { return __nearest; }
         }
 
+        /// <summary>
+        /// Gets an instance of ReadPreference that represents a Primary read preference.
+        /// </summary>
+        /// <value>
+        /// An instance of ReadPreference that represents a Primary read preference.
+        /// </value>
         public static ReadPreference Primary
         {
             get { return __primary; }
         }
 
+        /// <summary>
+        /// Gets an instance of ReadPreference that represents a PrimaryPreferred read preference.
+        /// </summary>
+        /// <value>
+        /// An instance of ReadPreference that represents a PrimaryPreferred read preference.
+        /// </value>
         public static ReadPreference PrimaryPreferred
         {
             get { return __primaryPreferred; }
         }
 
+        /// <summary>
+        /// Gets an instance of ReadPreference that represents a Secondary read preference.
+        /// </summary>
+        /// <value>
+        /// An instance of ReadPreference that represents a Secondary read preference.
+        /// </value>
         public static ReadPreference Secondary
         {
             get { return __secondary; }
         }
 
+        /// <summary>
+        /// Gets an instance of ReadPreference that represents a SecondaryPreferred read preference.
+        /// </summary>
+        /// <value>
+        /// An instance of ReadPreference that represents a SecondaryPreferred read preference.
+        /// </value>
         public static ReadPreference SecondaryPreferred
         {
             get { return __secondaryPreferred; }
@@ -67,6 +97,11 @@ namespace MongoDB.Driver
         private readonly IReadOnlyList<TagSet> _tagSets;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadPreference"/> class.
+        /// </summary>
+        /// <param name="mode">The read preference mode.</param>
+        /// <param name="tagSets">The tag sets.</param>
         public ReadPreference(
             Optional<ReadPreferenceMode> mode = default(Optional<ReadPreferenceMode>), 
             Optional<IEnumerable<TagSet>> tagSets = default(Optional<IEnumerable<TagSet>>))
@@ -81,17 +116,30 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets the read preference mode.
+        /// </summary>
+        /// <value>
+        /// The read preference mode.
+        /// </value>
         public ReadPreferenceMode ReadPreferenceMode
         {
             get { return _mode; }
         }
 
+        /// <summary>
+        /// Gets the tag sets.
+        /// </summary>
+        /// <value>
+        /// The tag sets.
+        /// </value>
         public IReadOnlyList<TagSet> TagSets
         {
             get { return _tagSets; }
         }
 
         // methods
+        /// <inheritdoc/>
         public bool Equals(ReadPreference other)
         {
             if (other == null)
@@ -104,11 +152,13 @@ namespace MongoDB.Driver
                 _tagSets.SequenceEqual(other.TagSets);
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as ReadPreference);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return new Hasher()
@@ -117,11 +167,18 @@ namespace MongoDB.Driver
                 .GetHashCode();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return string.Format("{{ Mode = {0}, TagSets = {1} }}", _mode, _tagSets);
         }
 
+        /// <summary>
+        /// Returns a new instance of ReadPreference with some values changed.
+        /// </summary>
+        /// <param name="mode">The read preference mode.</param>
+        /// <param name="tagSets">The tag sets.</param>
+        /// <returns></returns>
         public ReadPreference With(
             Optional<ReadPreferenceMode> mode = default(Optional<ReadPreferenceMode>), 
             Optional<IEnumerable<TagSet>> tagSets = default(Optional<IEnumerable<TagSet>>))

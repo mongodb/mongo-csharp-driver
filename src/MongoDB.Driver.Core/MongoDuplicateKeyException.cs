@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Connections;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Thrown when a duplicate key is inserted into a collection.
+    /// Represents a MongoDB duplicate key exception.
     /// </summary>
     [Serializable]
     public class MongoDuplicateKeyException : MongoWriteConcernException
@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         }
         
         /// <summary>
-        /// Initializes a new instance of the WriteConcernException class (this overload supports deserialization).
+        /// Initializes a new instance of the <see cref="MongoDuplicateKeyException"/> class.
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>

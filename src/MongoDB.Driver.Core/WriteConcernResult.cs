@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents the results of an operation performed with WriteConcern enabled.
+    /// Represents the results of an operation performed with an acknowledged WriteConcern.
     /// </summary>
     [Serializable]
     public class WriteConcernResult

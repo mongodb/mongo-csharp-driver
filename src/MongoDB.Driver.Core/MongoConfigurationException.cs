@@ -22,20 +22,37 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a MongoDB configuration exception.
+    /// </summary>
     [Serializable]
     public class MongoConfigurationException : MongoClientException
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoConfigurationException"/> class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public MongoConfigurationException(string message)
             : base(message)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoConfigurationException"/> class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public MongoConfigurationException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoConfigurationException"/> class.
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         protected MongoConfigurationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

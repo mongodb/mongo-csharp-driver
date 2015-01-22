@@ -21,6 +21,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a MongoDB cursor not found exception.
+    /// </summary>
     [Serializable]
     public class MongoCursorNotFoundException : MongoQueryException
     {
@@ -40,12 +43,23 @@ namespace MongoDB.Driver
         private readonly long _cursorId;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoCursorNotFoundException"/> class.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="cursorId">The cursor identifier.</param>
+        /// <param name="query">The query.</param>
         public MongoCursorNotFoundException(ConnectionId connectionId, long cursorId, BsonDocument query)
             : base(connectionId, FormatMessage(connectionId, cursorId), query, null)
         {
             _cursorId = cursorId;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoCursorNotFoundException"/> class.
+        /// </summary>
+        /// <param name="info">The information.</param>
+        /// <param name="context">The context.</param>
         protected MongoCursorNotFoundException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -53,12 +67,19 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets the cursor identifier.
+        /// </summary>
+        /// <value>
+        /// The cursor identifier.
+        /// </value>
         public long CursorId
         {
             get { return _cursorId; }
         }
 
         // methods
+        /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
