@@ -36,6 +36,14 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerSettings _settings;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerFactory"/> class.
+        /// </summary>
+        /// <param name="clusterConnectionMode">The cluster connection mode.</param>
+        /// <param name="settings">The settings.</param>
+        /// <param name="connectionPoolFactory">The connection pool factory.</param>
+        /// <param name="heartbeatConnectionFactory">The heartbeat connection factory.</param>
+        /// <param name="listener">The listener.</param>
         public ServerFactory(ClusterConnectionMode clusterConnectionMode, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
         {
             _clusterConnectionMode = clusterConnectionMode;
@@ -46,6 +54,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // methods
+        /// <inheritdoc/>
         public IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint)
         {
             return new ClusterableServer(clusterId, _clusterConnectionMode, _settings, endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);

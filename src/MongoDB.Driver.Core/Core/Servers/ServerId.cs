@@ -23,6 +23,9 @@ using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Servers
 {
+    /// <summary>
+    /// Represents a server identifier.
+    /// </summary>
     [Serializable]
     public sealed class ServerId : IEquatable<ServerId>, ISerializable
     {
@@ -32,6 +35,11 @@ namespace MongoDB.Driver.Core.Servers
         private readonly int _hashCode;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerId"/> class.
+        /// </summary>
+        /// <param name="clusterId">The cluster identifier.</param>
+        /// <param name="endPoint">The end point.</param>
         public ServerId(ClusterId clusterId, EndPoint endPoint)
         {
             _clusterId = Ensure.IsNotNull(clusterId, "clusterId");
@@ -53,17 +61,30 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // properties
+        /// <summary>
+        /// Gets the cluster identifier.
+        /// </summary>
+        /// <value>
+        /// The cluster identifier.
+        /// </value>
         public ClusterId ClusterId
         {
             get { return _clusterId; }
         }
 
+        /// <summary>
+        /// Gets the end point.
+        /// </summary>
+        /// <value>
+        /// The end point.
+        /// </value>
         public EndPoint EndPoint
         {
             get { return _endPoint; }
         }
 
         // methods
+        /// <inheritdoc/>
         public bool Equals(ServerId other)
         {
             if (other == null)
@@ -75,16 +96,19 @@ namespace MongoDB.Driver.Core.Servers
                 EndPointHelper.Equals(_endPoint, other._endPoint);
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as ServerId);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return _hashCode;
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return string.Format("{{ ClusterId : {0}, EndPoint : \"{1}\" }}", _clusterId, _endPoint);
@@ -96,6 +120,5 @@ namespace MongoDB.Driver.Core.Servers
             info.AddValue("_clusterId", _clusterId);
             info.AddValue("_endPoint", EndPointHelper.GetObjectData(_endPoint));
         }
-
     }
 }
