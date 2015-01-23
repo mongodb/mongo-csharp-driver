@@ -25,6 +25,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents an update operation using the update opcode.
+    /// </summary>
     public class UpdateOpcodeOperation : IWriteOperation<WriteConcernResult>
     {
         // fields
@@ -35,6 +38,12 @@ namespace MongoDB.Driver.Core.Operations
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UpdateOpcodeOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="request">The request.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public UpdateOpcodeOperation(
             CollectionNamespace collectionNamespace,
             UpdateRequest request,
@@ -46,27 +55,57 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum size of a document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a document.
+        /// </value>
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
             set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets the request.
+        /// </summary>
+        /// <value>
+        /// The request.
+        /// </value>
         public UpdateRequest Request
         {
             get { return _request; }
         }
 
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        /// <value>
+        /// The write concern.
+        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -107,6 +146,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        /// <inheritdoc/>
         public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

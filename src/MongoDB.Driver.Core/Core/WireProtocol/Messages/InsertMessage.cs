@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         /// <summary>
-        /// Gets a value indicating whether to continue on error.
+        /// Gets a value indicating whether the server should continue on error.
         /// </summary>
         /// <value>
         ///   <c>true</c> if the server should continue on error; otherwise, <c>false</c>.

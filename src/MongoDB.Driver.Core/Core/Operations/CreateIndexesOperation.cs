@@ -150,7 +150,11 @@ namespace MongoDB.Driver.Core.Operations
                 var document = createIndexRequest.CreateIndexDocument();
                 document.InsertAt(0, new BsonElement("ns", _collectionNamespace.FullName));
                 var documentSource = new BatchableSource<BsonDocument>(new[] { document });
-                var operation = new InsertOpcodeOperation(systemIndexesCollection, documentSource, _messageEncoderSettings);
+                var operation = new InsertOpcodeOperation<BsonDocument>(
+                    systemIndexesCollection,
+                    documentSource,
+                    BsonDocumentSerializer.Instance,
+                    _messageEncoderSettings);
                 await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
             }
 

@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class UpdateOpcodeOperationEmulator
+    internal class UpdateOpcodeOperationEmulator
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;

@@ -24,6 +24,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a delete operation using the delete opcode.
+    /// </summary>
     public class DeleteOpcodeOperation : IWriteOperation<WriteConcernResult>
     {
         // fields
@@ -33,6 +36,12 @@ namespace MongoDB.Driver.Core.Operations
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeleteOpcodeOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="request">The request.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DeleteOpcodeOperation(
             CollectionNamespace collectionNamespace,
             DeleteRequest request,
@@ -44,21 +53,45 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets the request.
+        /// </summary>
+        /// <value>
+        /// The request.
+        /// </value>
         public DeleteRequest Request
         {
             get { return _request; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        /// <value>
+        /// The write concern.
+        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -95,6 +128,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        /// <inheritdoc/>
         public async Task<WriteConcernResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

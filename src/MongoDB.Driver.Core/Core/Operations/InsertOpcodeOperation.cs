@@ -28,18 +28,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class InsertOpcodeOperation : InsertOpcodeOperation<BsonDocument>
-    {
-        // constructors
-        public InsertOpcodeOperation(
-            CollectionNamespace collectionNamespace,
-            BatchableSource<BsonDocument> documentSource,
-            MessageEncoderSettings messageEncoderSettings)
-            : base(collectionNamespace, documentSource, BsonDocumentSerializer.Instance, messageEncoderSettings)
-        {
-        }
-    }
-
+    /// <summary>
+    /// Represents an insert operation using the insert opcode.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public class InsertOpcodeOperation<TDocument> : IWriteOperation<IEnumerable<WriteConcernResult>>
     {
         // fields
@@ -54,6 +46,13 @@ namespace MongoDB.Driver.Core.Operations
         private WriteConcern _writeConcern;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InsertOpcodeOperation{TDocument}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="documentSource">The document source.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public InsertOpcodeOperation(CollectionNamespace collectionNamespace, BatchableSource<TDocument> documentSource, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
@@ -64,50 +63,104 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the server should continue on error.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the server should continue on error; otherwise, <c>false</c>.
+        /// </value>
         public bool ContinueOnError
         {
             get { return _continueOnError; }
             set { _continueOnError = value; }
         }
 
+        /// <summary>
+        /// Gets the document source.
+        /// </summary>
+        /// <value>
+        /// The document source.
+        /// </value>
         public BatchableSource<TDocument> DocumentSource
         {
             get { return _documentSource; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum number of documents in a batch.
+        /// </summary>
+        /// <value>
+        /// The maximum number of documents in a batch.
+        /// </value>
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
             set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum size of a document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a document.
+        /// </value>
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
             set { _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum size of a message.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a message.
+        /// </value>
         public int? MaxMessageSize
         {
             get { return _maxMessageSize; }
             set { _maxMessageSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets the serializer.
+        /// </summary>
+        /// <value>
+        /// The serializer.
+        /// </value>
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
         }
 
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        /// <value>
+        /// The write concern.
+        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -161,6 +214,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<WriteConcernResult>> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
