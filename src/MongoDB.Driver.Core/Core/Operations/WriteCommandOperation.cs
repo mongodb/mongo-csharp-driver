@@ -31,12 +31,20 @@ namespace MongoDB.Driver.Core.Operations
     public class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WriteCommandOperation{TCommandResult}"/> class.
+        /// </summary>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
         {
         }
 
         // methods
+        /// <inheritdoc/>
         public async Task<TCommandResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, "binding");
