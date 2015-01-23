@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// <summary>
     /// Represents a binary encoder for an Insert message.
     /// </summary>
-    public class InsertMessageBinaryEncoder<TDocument> : MessageBinaryEncoderBase, IMessageEncoder<InsertMessage<TDocument>>
+    public class InsertMessageBinaryEncoder<TDocument> : MessageBinaryEncoderBase, IMessageEncoder
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;

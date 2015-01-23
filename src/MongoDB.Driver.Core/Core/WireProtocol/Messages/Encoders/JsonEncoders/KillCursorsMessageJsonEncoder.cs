@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// <summary>
     /// Represents a JSON encoder for a KillCursors message.
     /// </summary>
-    public class KillCursorsMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder<KillCursorsMessage>
+    public class KillCursorsMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
         // constructors
         /// <summary>

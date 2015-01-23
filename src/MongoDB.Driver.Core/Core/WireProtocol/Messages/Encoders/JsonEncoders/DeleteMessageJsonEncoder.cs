@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// <summary>
     /// Represents a JSON encoder for a Delete message.
     /// </summary>
-    public class DeleteMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder<DeleteMessage>
+    public class DeleteMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
         // constructors
         /// <summary>

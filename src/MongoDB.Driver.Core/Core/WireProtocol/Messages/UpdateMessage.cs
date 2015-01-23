@@ -132,15 +132,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         // methods
         /// <inheritdoc/>
-        public new IMessageEncoder<UpdateMessage> GetEncoder(IMessageEncoderFactory encoderFactory)
+        public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetUpdateMessageEncoder();
-        }
-
-        /// <inheritdoc/>
-        protected override IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory)
-        {
-            return GetEncoder(encoderFactory);
         }
     }
 }

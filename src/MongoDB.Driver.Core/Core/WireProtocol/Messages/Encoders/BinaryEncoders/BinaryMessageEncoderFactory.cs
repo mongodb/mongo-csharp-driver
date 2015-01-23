@@ -43,43 +43,43 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         // methods
         /// <inheritdoc/>
-        public IMessageEncoder<DeleteMessage> GetDeleteMessageEncoder()
+        public IMessageEncoder GetDeleteMessageEncoder()
         {
             return new DeleteMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
         /// <inheritdoc/>
-        public IMessageEncoder<GetMoreMessage> GetGetMoreMessageEncoder()
+        public IMessageEncoder GetGetMoreMessageEncoder()
         {
             return new GetMoreMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
         /// <inheritdoc/>
-        public IMessageEncoder<InsertMessage<TDocument>> GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
+        public IMessageEncoder GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new InsertMessageBinaryEncoder<TDocument>(_stream, _encoderSettings, serializer);
         }
 
         /// <inheritdoc/>
-        public IMessageEncoder<KillCursorsMessage> GetKillCursorsMessageEncoder()
+        public IMessageEncoder GetKillCursorsMessageEncoder()
         {
             return new KillCursorsMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
         /// <inheritdoc/>
-        public IMessageEncoder<QueryMessage> GetQueryMessageEncoder()
+        public IMessageEncoder GetQueryMessageEncoder()
         {
             return new QueryMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
         /// <inheritdoc/>
-        public IMessageEncoder<ReplyMessage<TDocument>> GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
+        public IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new ReplyMessageBinaryEncoder<TDocument>(_stream, _encoderSettings, serializer);
         }
 
         /// <inheritdoc/>
-        public IMessageEncoder<UpdateMessage> GetUpdateMessageEncoder()
+        public IMessageEncoder GetUpdateMessageEncoder()
         {
             return new UpdateMessageBinaryEncoder(_stream, _encoderSettings);
         }

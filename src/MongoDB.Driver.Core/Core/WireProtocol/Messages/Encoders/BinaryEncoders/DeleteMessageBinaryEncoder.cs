@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// <summary>
     /// Represents a binary encoder for a Delete message.
     /// </summary>
-    public class DeleteMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<DeleteMessage>
+    public class DeleteMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors
         /// <summary>

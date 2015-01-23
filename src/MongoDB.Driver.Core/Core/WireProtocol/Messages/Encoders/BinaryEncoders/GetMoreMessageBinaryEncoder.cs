@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// <summary>
     /// Represents a binary encoder for a GetMore message.
     /// </summary>
-    public class GetMoreMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<GetMoreMessage>
+    public class GetMoreMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors
         /// <summary>

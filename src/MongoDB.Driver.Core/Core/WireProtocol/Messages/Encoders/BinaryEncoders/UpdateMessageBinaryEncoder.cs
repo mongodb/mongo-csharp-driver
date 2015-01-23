@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// <summary>
     /// Represents a binary encoder for an Update message.
     /// </summary>
-    public class UpdateMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<UpdateMessage>
+    public class UpdateMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors
         /// <summary>

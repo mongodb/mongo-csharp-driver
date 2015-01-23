@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// <summary>
     /// Represents a JSON encoder for a GetMore message.
     /// </summary>
-    public class GetMoreMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder<GetMoreMessage>
+    public class GetMoreMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
         // constructors
         /// <summary>

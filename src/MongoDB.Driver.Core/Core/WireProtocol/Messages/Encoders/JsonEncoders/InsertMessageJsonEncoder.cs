@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// <summary>
     /// Represents a JSON encoder for an Insert message.
     /// </summary>
-    public class InsertMessageJsonEncoder<TDocument> : MessageJsonEncoderBase, IMessageEncoder<InsertMessage<TDocument>>
+    public class InsertMessageJsonEncoder<TDocument> : MessageJsonEncoderBase, IMessageEncoder
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;

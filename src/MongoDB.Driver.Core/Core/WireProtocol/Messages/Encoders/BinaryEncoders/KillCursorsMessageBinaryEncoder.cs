@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// <summary>
     /// Represents a binary encoder for a KillCursors message.
     /// </summary>
-    public class KillCursorsMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<KillCursorsMessage>
+    public class KillCursorsMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors
         /// <summary>

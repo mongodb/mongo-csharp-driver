@@ -29,16 +29,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     {
         // methods        
         /// <inheritdoc/>
-        public IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
-        {
-            return GetNonGenericEncoder(encoderFactory);
-        }
-
-        /// <summary>
-        /// Gets an encoder for this message from an encoder factory.
-        /// </summary>
-        /// <param name="encoderFactory">The encoder factory.</param>
-        /// <returns>A message encoder.</returns>
-        protected abstract IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory);
+        public abstract IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory);
     }
 }

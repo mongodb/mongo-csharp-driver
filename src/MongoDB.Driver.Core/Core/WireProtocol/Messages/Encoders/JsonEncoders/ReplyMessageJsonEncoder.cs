@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// <summary>
     /// Represents a JSON encoder for a Reply message.
     /// </summary>
-    public class ReplyMessageJsonEncoder<TDocument> : MessageJsonEncoderBase, IMessageEncoder<ReplyMessage<TDocument>>
+    public class ReplyMessageJsonEncoder<TDocument> : MessageJsonEncoderBase, IMessageEncoder
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;

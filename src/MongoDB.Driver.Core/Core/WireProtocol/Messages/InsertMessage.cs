@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// Represents an Insert message.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class InsertMessage<TDocument> : RequestMessage, IEncodableMessage<InsertMessage<TDocument>>
+    public class InsertMessage<TDocument> : RequestMessage
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
@@ -132,15 +132,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         // methods
         /// <inheritdoc/>
-        public new IMessageEncoder<InsertMessage<TDocument>> GetEncoder(IMessageEncoderFactory encoderFactory)
+        public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetInsertMessageEncoder<TDocument>(_serializer);
-        }
-
-        /// <inheritdoc/>
-        protected override IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory)
-        {
-            return GetEncoder(encoderFactory);
         }
     }
 }

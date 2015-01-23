@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents a GetMore message.
     /// </summary>
-    public class GetMoreMessage : RequestMessage, IEncodableMessage<GetMoreMessage>
+    public class GetMoreMessage : RequestMessage
     {
         // fields
         private readonly int _batchSize;
@@ -84,15 +84,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         // methods
         /// <inheritdoc/>
-        public new IMessageEncoder<GetMoreMessage> GetEncoder(IMessageEncoderFactory encoderFactory)
+        public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetGetMoreMessageEncoder();
-        }
-
-        /// <inheritdoc/>
-        protected override IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory)
-        {
-            return GetEncoder(encoderFactory);
         }
     }
 }

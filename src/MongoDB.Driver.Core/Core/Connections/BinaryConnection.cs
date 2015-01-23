@@ -281,7 +281,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var encoderFactory = new BinaryMessageEncoderFactory(stream, messageEncoderSettings);
                     var encoder = encoderFactory.GetReplyMessageEncoder<TDocument>(serializer);
-                    reply = encoder.ReadMessage();
+                    reply = (ReplyMessage<TDocument>)encoder.ReadMessage();
                 }
                 stopwatch.Stop();
 

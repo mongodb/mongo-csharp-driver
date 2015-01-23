@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// <summary>
     /// Represents a JSON encoder for a Query message.
     /// </summary>
-    public class QueryMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder<QueryMessage>
+    public class QueryMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
         // constructors
         /// <summary>

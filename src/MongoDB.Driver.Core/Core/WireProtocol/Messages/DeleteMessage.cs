@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents a Delete message.
     /// </summary>
-    public class DeleteMessage : RequestMessage, IEncodableMessage<DeleteMessage>
+    public class DeleteMessage : RequestMessage
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
@@ -86,15 +86,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         // methods
         /// <inheritdoc/>
-        public new IMessageEncoder<DeleteMessage> GetEncoder(IMessageEncoderFactory encoderFactory)
+        public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetDeleteMessageEncoder();
-        }
-
-        /// <inheritdoc/>
-        protected override IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory)
-        {
-            return GetEncoder(encoderFactory);
         }
     }
 }
