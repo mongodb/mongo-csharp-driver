@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     public enum CursorType
     {
         /// <summary>
-        /// A non-tailable cursor. This is sufficient for a vast majority of uses.
+        /// A non-tailable cursor. This is sufficient for most uses.
         /// </summary>
         NonTailable = 0,
         /// <summary>

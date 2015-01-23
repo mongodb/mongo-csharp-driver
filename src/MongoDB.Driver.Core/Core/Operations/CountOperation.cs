@@ -24,6 +24,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a count operation.
+    /// </summary>
     public class CountOperation : IReadOperation<long>
     {
         // fields
@@ -36,6 +39,11 @@ namespace MongoDB.Driver.Core.Operations
         private long? _skip;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CountOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public CountOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
@@ -43,23 +51,47 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the filter.
+        /// </summary>
+        /// <value>
+        /// The filter.
+        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
             set { _filter = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the index hint.
+        /// </summary>
+        /// <value>
+        /// The index hint.
+        /// </value>
         public BsonValue Hint
         {
             get { return _hint; }
             set { _hint = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a limit on the number of matching documents to count.
+        /// </summary>
+        /// <value>
+        /// A limit on the number of matching documents to count.
+        /// </value>
         public long? Limit
         {
             get { return _limit; }
@@ -78,11 +110,23 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets or sets the number of documents to skip before counting the remaining matching documents.
+        /// </summary>
+        /// <value>
+        /// The number of documents to skip before counting the remaining matching documents.
+        /// </value>
         public long? Skip
         {
             get { return _skip; }
@@ -90,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -103,6 +147,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        /// <inheritdoc/>
         public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
@@ -112,6 +157,11 @@ namespace MongoDB.Driver.Core.Operations
             return document["n"].ToInt64();
         }
 
+        /// <summary>
+        /// Returns an explain operation for this count operation.
+        /// </summary>
+        /// <param name="verbosity">The verbosity.</param>
+        /// <returns>An explain operation.</returns>
         public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)
         {
             return new ExplainOperation(

@@ -26,6 +26,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a distinct operation.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
     public class DistinctOperation<TValue> : IReadOperation<IAsyncCursor<TValue>>
     {
         // fields
@@ -37,6 +41,13 @@ namespace MongoDB.Driver.Core.Operations
         private IBsonSerializer<TValue> _valueSerializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistinctOperation{TValue}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="valueSerializer">The value serializer.</param>
+        /// <param name="fieldName">The name of the field.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DistinctOperation(CollectionNamespace collectionNamespace, IBsonSerializer<TValue> valueSerializer, string fieldName, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
@@ -46,22 +57,38 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets or sets the filter.
+        /// </summary>
+        /// <value>
+        /// The filter.
+        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
             set { _filter = value; }
         }
 
+        /// <summary>
+        /// Gets the name of the field.
+        /// </summary>
+        /// <value>
+        /// The name of the field.
+        /// </value>
         public string FieldName
         {
             get { return _fieldName; }
-            set { _fieldName = Ensure.IsNotNullOrEmpty(value, "value"); }
         }
 
         /// <summary>
@@ -76,14 +103,30 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
+        }
+
+        /// <summary>
+        /// Gets the value serializer.
+        /// </summary>
+        /// <value>
+        /// The value serializer.
+        /// </value>
+        public IBsonSerializer<TValue> ValueSerializer
+        {
+            get { return _valueSerializer; }
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -94,6 +137,7 @@ namespace MongoDB.Driver.Core.Operations
            };
         }
 
+        /// <inheritdoc/>
         public async Task<IAsyncCursor<TValue>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
