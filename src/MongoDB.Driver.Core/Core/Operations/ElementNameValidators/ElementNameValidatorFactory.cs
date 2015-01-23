@@ -17,8 +17,16 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Core.Operations.ElementNameValidators
 {
+    /// <summary>
+    /// Represents a factory for element name validators based on the update type.
+    /// </summary>
     public static class ElementNameValidatorFactory
     {
+        /// <summary>
+        /// Returns an element name validator for the update type.
+        /// </summary>
+        /// <param name="updateType">Type of the update.</param>
+        /// <returns>An element name validator.</returns>
         public static IElementNameValidator ForUpdateType(UpdateType updateType)
         {
             switch (updateType)

@@ -19,6 +19,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations.ElementNameValidators
 {
+    /// <summary>
+    /// Represents an element name validator that checks that element names are valid for MongoDB collections.
+    /// </summary>
     public class CollectionElementNameValidator : IElementNameValidator
     {
         // private static fields
@@ -26,17 +29,25 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
         private static readonly CollectionElementNameValidator __instance = new CollectionElementNameValidator();
 
         // public static fields
+        /// <summary>
+        /// Gets a pre-created instance of a CollectionElementNameValidator.
+        /// </summary>
+        /// <value>
+        /// The pre-created instance.
+        /// </value>
         public static CollectionElementNameValidator Instance
         {
             get { return __instance; }
         }
 
         // methods
+        /// <inheritdoc/>
         public IElementNameValidator GetValidatorForChildContent(string elementName)
         {
             return this;
         }
 
+        /// <inheritdoc/>
         public bool IsValidElementName(string elementName)
         {
             Ensure.IsNotNull(elementName, "elementName");
