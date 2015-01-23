@@ -94,6 +94,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _keyFunction; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum time the server should spend on this operation.
+        /// </summary>
+        /// <value>
+        /// The maximum time the server should spend on this operation.
+        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }

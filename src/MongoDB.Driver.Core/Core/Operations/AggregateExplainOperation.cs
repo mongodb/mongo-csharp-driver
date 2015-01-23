@@ -26,6 +26,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents an aggregate explain operations.
+    /// </summary>
     public class AggregateExplainOperation : IReadOperation<BsonDocument>
     {
         // fields
@@ -36,6 +39,12 @@ namespace MongoDB.Driver.Core.Operations
         private IReadOnlyList<BsonDocument> _pipeline;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AggregateExplainOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public AggregateExplainOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
@@ -44,28 +53,58 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether the server is allowed to use the disk.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether the server is allowed to use the disk.
+        /// </value>
         public bool? AllowDiskUse
         {
             get { return _allowDiskUse; }
             set { _allowDiskUse = value; }
         }
 
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum time the server should spend on this operation.
+        /// </summary>
+        /// <value>
+        /// The maximum time the server should spend on this operation.
+        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = value; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets the pipeline.
+        /// </summary>
+        /// <value>
+        /// The pipeline.
+        /// </value>
         public IReadOnlyList<BsonDocument> Pipeline
         {
             get { return _pipeline; }
@@ -84,6 +123,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        /// <inheritdoc/>
         public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             var command = CreateCommand();
