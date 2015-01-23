@@ -87,10 +87,10 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         /// <summary>
-        /// Gets the maximum batch count.
+        /// Gets the maximum number of documents in a batch.
         /// </summary>
         /// <value>
-        /// The maximum batch count.
+        /// The maximum number of documents in a batch.
         /// </value>
         public int MaxBatchCount
         {

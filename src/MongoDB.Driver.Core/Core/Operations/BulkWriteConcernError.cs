@@ -34,6 +34,12 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _message;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BulkWriteConcernError"/> class.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="details">The details.</param>
         public BulkWriteConcernError(int code, string message, BsonDocument details)
         {
             _code = code;
@@ -54,10 +60,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets the error information.
+        /// Gets the error details.
         /// </summary>
         /// <value>
-        /// The error information.
+        /// The error details.
         /// </value>
         public BsonDocument Details
         {

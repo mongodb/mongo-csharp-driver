@@ -69,12 +69,24 @@ namespace MongoDB.Driver.Core.Operations
             get { return _documentSource; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum number of documents in a batch.
+        /// </summary>
+        /// <value>
+        /// The maximum number of documents in a batch.
+        /// </value>
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
             set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum size of a document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a document.
+        /// </value>
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }

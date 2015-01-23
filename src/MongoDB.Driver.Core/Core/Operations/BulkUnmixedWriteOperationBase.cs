@@ -60,12 +60,24 @@ namespace MongoDB.Driver.Core.Operations
 
         protected abstract string CommandName { get; }
 
+        /// <summary>
+        /// Gets or sets the maximum number of documents in a batch.
+        /// </summary>
+        /// <value>
+        /// The maximum number of documents in a batch.
+        /// </value>
         public int? MaxBatchCount
         {
             get { return _maxBatchCount; }
             set { _maxBatchCount = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum length of a batch.
+        /// </summary>
+        /// <value>
+        /// The maximum length of a batch.
+        /// </value>
         public int? MaxBatchLength
         {
             get { return _maxBatchLength; }
@@ -78,6 +90,12 @@ namespace MongoDB.Driver.Core.Operations
             set { _messageEncoderSettings = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the writes must be performed in order.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the writes must be performed in order; otherwise, <c>false</c>.
+        /// </value>
         public bool IsOrdered
         {
             get { return _isOrdered; }

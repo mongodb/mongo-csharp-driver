@@ -49,6 +49,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum size of a document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a document.
+        /// </value>
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }
