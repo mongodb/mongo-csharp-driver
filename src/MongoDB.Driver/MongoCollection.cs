@@ -283,7 +283,7 @@ namespace MongoDB.Driver
                 MaxTime = args.MaxTime,
             };
 
-            return ExecuteReadOperation(operation);
+            return ExecuteReadOperation(operation).ToListAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>

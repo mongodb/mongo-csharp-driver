@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DistinctOperation<TValue> : IReadOperation<IReadOnlyList<TValue>>
+    public class DistinctOperation<TValue> : IReadOperation<IAsyncCursor<TValue>>
     {
         // fields
         private CollectionNamespace _collectionNamespace;
@@ -88,22 +88,15 @@ namespace MongoDB.Driver.Core.Operations
            };
         }
 
-        public async Task<IReadOnlyList<TValue>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TValue>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var valueArraySerializer = new ArraySerializer<TValue>(_valueSerializer);
             var resultSerializer = new ElementDeserializer<TValue[]>("values", valueArraySerializer);
             var operation = new ReadCommandOperation<TValue[]>(_collectionNamespace.DatabaseNamespace, command, resultSerializer, _messageEncoderSettings);
-            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-        }
-
-        public async Task<BsonDocument> ExecuteCommandAsync(IReadBinding binding, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(binding, "binding");
-            var command = CreateCommand();
-            var operation = new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            var values = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return new SingleBatchAsyncCursor<TValue>(values);
         }
     }
 }

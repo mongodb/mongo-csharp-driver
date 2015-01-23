@@ -100,7 +100,8 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
-            var result = await ExecuteOperationAsync(subject);
+            var cursor = await ExecuteOperationAsync(subject);
+            var result = await cursor.ToListAsync();
 
             result.Should().HaveCount(2);
             result.Should().OnlyHaveUniqueItems();

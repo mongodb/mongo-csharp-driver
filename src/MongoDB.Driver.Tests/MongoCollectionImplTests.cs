@@ -498,7 +498,7 @@ namespace MongoDB.Driver
 
             await _subject.DistinctAsync("a.b", filter, options, CancellationToken.None);
 
-            var call = _operationExecutor.GetReadCall<IReadOnlyList<int>>();
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<int>>();
 
             call.Operation.Should().BeOfType<DistinctOperation<int>>();
             var operation = (DistinctOperation<int>)call.Operation;
