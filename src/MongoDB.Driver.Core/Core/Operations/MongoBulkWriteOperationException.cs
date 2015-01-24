@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Connections;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a bulk write exception.
+    /// Represents a bulk write operation exception.
     /// </summary>
     [Serializable]
     public class MongoBulkWriteOperationException : MongoServerException
