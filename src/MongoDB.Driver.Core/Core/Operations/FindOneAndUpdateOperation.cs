@@ -28,6 +28,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a find one and update operation.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
     public class FindOneAndUpdateOperation<TResult> : FindAndModifyOperationBase<TResult>
     {
         // fields
@@ -40,6 +44,14 @@ namespace MongoDB.Driver.Core.Operations
         private readonly BsonDocument _update;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FindOneAndUpdateOperation{TResult}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public FindOneAndUpdateOperation(CollectionNamespace collectionNamespace, BsonDocument filter, BsonDocument update, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(collectionNamespace, resultSerializer, messageEncoderSettings)
         {
@@ -49,11 +61,23 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the filter.
+        /// </summary>
+        /// <value>
+        /// The filter.
+        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether a document should be inserted if no matching document is found.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if a document should be inserted if no matching document is found; otherwise, <c>false</c>.
+        /// </value>
         public bool IsUpsert
         {
             get { return _isUpsert; }
@@ -72,31 +96,55 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the projection.
+        /// </summary>
+        /// <value>
+        /// The projection.
+        /// </value>
         public BsonDocument Projection
         {
             get { return _projection; }
             set { _projection = value; }
         }
 
+        /// <summary>
+        /// Gets or sets which version of the modified document to return.
+        /// </summary>
+        /// <value>
+        /// Which version of the modified document to return.
+        /// </value>
         public ReturnDocument ReturnDocument
         {
             get { return _returnDocument; }
             set { _returnDocument = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the sort specification.
+        /// </summary>
+        /// <value>
+        /// The sort specification.
+        /// </value>
         public BsonDocument Sort
         {
             get { return _sort; }
             set { _sort = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the update specification.
+        /// </summary>
+        /// <value>
+        /// The update specification.
+        /// </value>
         public BsonDocument Update
         {
             get { return _update; }
         }
 
         // methods
-        public override BsonDocument CreateCommand()
+        internal override BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -111,6 +159,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        /// <inheritdoc/>
         protected override IElementNameValidator GetCommandValidator()
         {
             return Validator.Instance;

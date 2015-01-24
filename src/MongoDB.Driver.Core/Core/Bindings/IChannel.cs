@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="skip">The number of documents to skip.</param>
         /// <param name="batchSize">The size of a batch.</param>
         /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the query message sent to the server.</param>
-        /// <param name="partialOk">if set to <c>true</c> the server will return partial results if any shards are unavailable.</param>
+        /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
         /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
         /// <param name="awaitData">if set to <c>true</c> the server should await awhile before returning an empty batch for a tailable cursor.</param>

@@ -27,6 +27,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a find one and delete operation.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
     public class FindOneAndDeleteOperation<TResult> : FindAndModifyOperationBase<TResult>
     {
         // fields
@@ -36,6 +40,13 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _sort;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FindOneAndDeleteOperation{TResult}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public FindOneAndDeleteOperation(CollectionNamespace collectionNamespace, BsonDocument filter, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(collectionNamespace, resultSerializer, messageEncoderSettings)
         {
@@ -43,6 +54,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the filter.
+        /// </summary>
+        /// <value>
+        /// The filter.
+        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
@@ -60,12 +77,24 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the projection.
+        /// </summary>
+        /// <value>
+        /// The projection.
+        /// </value>
         public BsonDocument Projection
         {
             get { return _projection; }
             set { _projection = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the sort specification.
+        /// </summary>
+        /// <value>
+        /// The sort specification.
+        /// </value>
         public BsonDocument Sort
         {
             get { return _sort; }
@@ -73,7 +102,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public override BsonDocument CreateCommand()
+        internal override BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -86,7 +115,8 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        protected override Bson.IO.IElementNameValidator GetCommandValidator()
+        /// <inheritdoc/>
+        protected override IElementNameValidator GetCommandValidator()
         {
             return NoOpElementNameValidator.Instance;
         }

@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
         /// Returns the document before the modification.
         /// </summary>
         Before = 0,
+
         /// <summary>
         /// Returns the document after the modification.
         /// </summary>

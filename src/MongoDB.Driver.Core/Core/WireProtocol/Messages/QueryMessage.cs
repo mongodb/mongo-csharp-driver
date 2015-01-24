@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <param name="skip">The number of documents to skip.</param>
         /// <param name="batchSize">The size of a batch.</param>
         /// <param name="slaveOk">if set to <c>true</c> it is OK if the server is not the primary.</param>
-        /// <param name="partialOk">if set to <c>true</c> partial results are OK when some shards are unavailable.</param>
+        /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server should not timeout the cursor.</param>
         /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
         /// <param name="awaitData">if set to <c>true</c> the server should await data (used with tailable cursors).</param>
@@ -143,10 +143,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         /// <summary>
-        /// Gets a value indicating whether partial results are OK when some shards are unavailable.
+        /// Gets a value indicating whether the server is allowed to return partial results if any shards are unavailable.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if partial results are OK when some shards are unavailable; otherwise, <c>false</c>.
+        ///   <c>true</c> if the server is allowed to return partial results if any shards are unavailable; otherwise, <c>false</c>.
         /// </value>
         public bool PartialOk
         {
