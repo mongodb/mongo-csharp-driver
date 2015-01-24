@@ -19,9 +19,17 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents helper methods for index names.
+    /// </summary>
     public static class IndexNameHelper
     {
         // static methods
+        /// <summary>
+        /// Gets the name of the index derived from the keys specification.
+        /// </summary>
+        /// <param name="keys">The keys specification.</param>
+        /// <returns>The name of the index.</returns>
         public static string GetIndexName(BsonDocument keys)
         {
             Ensure.IsNotNull(keys, "keys");
@@ -58,6 +66,11 @@ namespace MongoDB.Driver.Core.Operations
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Gets the name of the index derived from the key names.
+        /// </summary>
+        /// <param name="keyNames">The key names.</param>
+        /// <returns>The name of the index.</returns>
         public static string GetIndexName(string[] keyNames)
         {
             Ensure.IsNotNull(keyNames, "keyNames");

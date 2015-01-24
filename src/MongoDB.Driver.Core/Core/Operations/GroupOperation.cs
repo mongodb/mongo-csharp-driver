@@ -27,6 +27,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a group operation.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
     public class GroupOperation<TResult> : IReadOperation<IEnumerable<TResult>>
     {
         // fields
@@ -42,6 +46,15 @@ namespace MongoDB.Driver.Core.Operations
         private IBsonSerializer<TResult> _resultSerializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GroupOperation{TResult}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="initial">The initial aggregation result for each group.</param>
+        /// <param name="reduceFunction">The reduce function.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public GroupOperation(CollectionNamespace collectionNamespace, BsonDocument key, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument filter, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
@@ -52,6 +65,15 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = messageEncoderSettings;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GroupOperation{TResult}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="keyFunction">The key function.</param>
+        /// <param name="initial">The initial aggregation result for each group.</param>
+        /// <param name="reduceFunction">The reduce function.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public GroupOperation(CollectionNamespace collectionNamespace, BsonJavaScript keyFunction, BsonDocument initial, BsonJavaScript reduceFunction, BsonDocument filter, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
@@ -63,32 +85,68 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets the filter.
+        /// </summary>
+        /// <value>
+        /// The filter.
+        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
         }
 
+        /// <summary>
+        /// Gets or sets the finalize function.
+        /// </summary>
+        /// <value>
+        /// The finalize function.
+        /// </value>
         public BsonJavaScript FinalizeFunction
         {
             get { return _finalizeFunction; }
             set { _finalizeFunction = value; }
         }
 
+        /// <summary>
+        /// Gets the initial aggregation result for each group.
+        /// </summary>
+        /// <value>
+        /// The initial aggregation result for each group.
+        /// </value>
         public BsonDocument Initial
         {
             get { return _initial; }
         }
 
+        /// <summary>
+        /// Gets the key.
+        /// </summary>
+        /// <value>
+        /// The key.
+        /// </value>
         public BsonDocument Key
         {
             get { return _key; }
         }
 
+        /// <summary>
+        /// Gets the key function.
+        /// </summary>
+        /// <value>
+        /// The key function.
+        /// </value>
         public BsonJavaScript KeyFunction
         {
             get { return _keyFunction; }
@@ -106,16 +164,34 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = value; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets the reduce function.
+        /// </summary>
+        /// <value>
+        /// The reduce function.
+        /// </value>
         public BsonJavaScript ReduceFunction
         {
             get { return _reduceFunction; }
         }
 
+        /// <summary>
+        /// Gets or sets the result serializer.
+        /// </summary>
+        /// <value>
+        /// The result serializer.
+        /// </value>
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer; }
@@ -123,7 +199,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -142,6 +218,7 @@ namespace MongoDB.Driver.Core.Operations
            };
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

@@ -26,29 +26,43 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a list database names operation.
+    /// </summary>
     public class ListDatabaseNamesOperation : IReadOperation<IReadOnlyList<string>>
     {
         // fields
         private MessageEncoderSettings _messageEncoderSettings;
         
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ListDatabaseNamesOperation"/> class.
+        /// </summary>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ListDatabaseNamesOperation(MessageEncoderSettings messageEncoderSettings)
         {
             _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument { { "listDatabases", 1 } };
         }
 
+        /// <inheritdoc/>
         public async Task<IReadOnlyList<string>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

@@ -23,6 +23,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a base class for map reduce operations.
+    /// </summary>
     public abstract class MapReduceOperationBase
     {
         // fields
@@ -40,6 +43,14 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _verbose;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MapReduceOperationBase"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="mapFunction">The map function.</param>
+        /// <param name="reduceFunction">The reduce function.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         protected MapReduceOperationBase(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
@@ -50,29 +61,63 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the finalize function.
+        /// </summary>
+        /// <value>
+        /// The finalize function.
+        /// </value>
         public BsonJavaScript FinalizeFunction
         {
             get { return _finalizeFunction; }
             set { _finalizeFunction = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether objects emitted by the map function remain as JavaScript objects.
+        /// </summary>
+        /// <value>
+        /// <remarks>
+        /// Setting this value to true can result in faster execution, but requires more memory on the server, and if
+        /// there are too many emitted objects the map reduce operation may fail.
+        /// </remarks>
+        ///   <c>true</c> if objects emitted by the map function remain as JavaScript objects; otherwise, <c>false</c>.
+        /// </value>
         public bool? JavaScriptMode
         {
             get { return _javaScriptMode; }
             set { _javaScriptMode = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum number of documents to pass to the map function.
+        /// </summary>
+        /// <value>
+        /// The maximum number of documents to pass to the map function.
+        /// </value>
         public long? Limit
         {
             get { return _limit; }
             set { _limit = value; }
         }
 
+        /// <summary>
+        /// Gets the map function.
+        /// </summary>
+        /// <value>
+        /// The map function.
+        /// </value>
         public BsonJavaScript MapFunction
         {
             get { return _mapFunction; }
@@ -90,33 +135,72 @@ namespace MongoDB.Driver.Core.Operations
             set { _maxTime = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets the query.
+        /// </summary>
+        /// <value>
+        /// The query.
+        /// </value>
         public BsonDocument Query
         {
             get { return _query; }
         }
 
+        /// <summary>
+        /// Gets the reduce function.
+        /// </summary>
+        /// <value>
+        /// The reduce function.
+        /// </value>
         public BsonJavaScript ReduceFunction
         {
             get { return _reduceFunction; }
         }
 
+        /// <summary>
+        /// Gets or sets the scope document.
+        /// </summary>
+        /// <remarks>
+        /// The scode document defines global variables that are accessible from the map, reduce and finalize functions.
+        /// </remarks>
+        /// <value>
+        /// The scope document.
+        /// </value>
         public BsonDocument Scope
         {
             get { return _scope; }
             set { _scope = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the sort specification.
+        /// </summary>
+        /// <value>
+        /// The sort specification.
+        /// </value>
         public BsonDocument Sort
         {
             get { return _sort; }
             set { _sort = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to include extra information, such as timing, in the result.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if extra information, such as timing, should be included in the result; otherwise, <c>false</c>.
+        /// </value>
         public bool? Verbose
         {
             get { return _verbose; }
@@ -124,7 +208,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -144,6 +228,10 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        /// <summary>
+        /// Creates the output options.
+        /// </summary>
+        /// <returns>The output options.</returns>
         protected abstract BsonDocument CreateOutputOptions();
     }
 }

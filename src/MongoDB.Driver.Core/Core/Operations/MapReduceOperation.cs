@@ -26,12 +26,25 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a map reduce operation.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
     public class MapReduceOperation<TResult> : MapReduceOperationBase, IReadOperation<TResult>
     {
         // fields
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MapReduceOperation{TResult}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="mapFunction">The map function.</param>
+        /// <param name="reduceFunction">The reduce function.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public MapReduceOperation(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(
                 collectionNamespace,
@@ -44,17 +57,25 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the result serializer.
+        /// </summary>
+        /// <value>
+        /// The result serializer.
+        /// </value>
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer;}
         }
 
         // methods
+        /// <inheritdoc/>
         protected override BsonDocument CreateOutputOptions()
         {
             return new BsonDocument("inline", 1);
         }
 
+        /// <inheritdoc/>
         public Task<TResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
