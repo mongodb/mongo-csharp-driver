@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Misc
     /// <summary>
     /// A mapper from error responses to custom exceptions.
     /// </summary>
-    public static class ExceptionMapper
+    internal static class ExceptionMapper
     {
         /// <summary>
         /// Maps the specified response to a custom exception (if possible).

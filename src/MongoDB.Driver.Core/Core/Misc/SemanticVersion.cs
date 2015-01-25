@@ -19,6 +19,9 @@ using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Misc
 {
+    /// <summary>
+    /// Represents a semantic version number.
+    /// </summary>
     public class SemanticVersion : IEquatable<SemanticVersion>, IComparable<SemanticVersion>
     {
         // fields
@@ -28,11 +31,24 @@ namespace MongoDB.Driver.Core.Misc
         private readonly string _preRelease;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SemanticVersion"/> class.
+        /// </summary>
+        /// <param name="major">The major version.</param>
+        /// <param name="minor">The minor version.</param>
+        /// <param name="patch">The patch version.</param>
         public SemanticVersion(int major, int minor, int patch)
             : this(major, minor, patch, null)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SemanticVersion"/> class.
+        /// </summary>
+        /// <param name="major">The major version.</param>
+        /// <param name="minor">The minor version.</param>
+        /// <param name="patch">The patch version.</param>
+        /// <param name="preRelease">The pre release version.</param>
         public SemanticVersion(int major, int minor, int patch, string preRelease)
         {
             _major = Ensure.IsGreaterThanOrEqualToZero(major, "major");
@@ -42,27 +58,52 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         // properties
+        /// <summary>
+        /// Gets the major version.
+        /// </summary>
+        /// <value>
+        /// The major version.
+        /// </value>
         public int Major
         {
             get { return _major; }
         }
 
+        /// <summary>
+        /// Gets the minor version.
+        /// </summary>
+        /// <value>
+        /// The minor version.
+        /// </value>
         public int Minor
         {
             get { return _minor; }
         }
 
+        /// <summary>
+        /// Gets the patch version.
+        /// </summary>
+        /// <value>
+        /// The patch version.
+        /// </value>
         public int Patch
         {
             get { return _patch; }
         }
 
+        /// <summary>
+        /// Gets the pre release version.
+        /// </summary>
+        /// <value>
+        /// The pre release version.
+        /// </value>
         public string PreRelease
         {
             get { return _preRelease; }
         }
 
         // methods
+        /// <inheritdoc/>
         public int CompareTo(SemanticVersion other)
         {
             if (other == null)
@@ -104,21 +145,25 @@ namespace MongoDB.Driver.Core.Misc
             return _preRelease.CompareTo(other._preRelease);
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as SemanticVersion);
         }
 
+        /// <inheritdoc/>
         public bool Equals(SemanticVersion other)
         {
             return CompareTo(other) == 0;
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return ToString().GetHashCode();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             if (_preRelease == null)
@@ -131,24 +176,35 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static SemanticVersion Parse(string s)
+        /// <summary>
+        /// Parses a string representation of a semantic version.
+        /// </summary>
+        /// <param name="value">The string value to parse.</param>
+        /// <returns>A semantic version.</returns>
+        public static SemanticVersion Parse(string value)
         {
-            SemanticVersion value;
-            if (TryParse(s, out value))
+            SemanticVersion result;
+            if (TryParse(value, out result))
             {
-                return value;
+                return result;
             }
 
             throw new FormatException(string.Format(
-                "Invalid SemanticVersion string: '{0}'.", s));
+                "Invalid SemanticVersion string: '{0}'.", value));
         }
 
-        public static bool TryParse(string s, out SemanticVersion value)
+        /// <summary>
+        /// Tries to parse a string representation of a semantic version.
+        /// </summary>
+        /// <param name="value">The string value to parse.</param>
+        /// <param name="result">The result.</param>
+        /// <returns>True if the string representation was parsed successfully; otherwise false.</returns>
+        public static bool TryParse(string value, out SemanticVersion result)
         {
-            if (!string.IsNullOrEmpty(s))
+            if (!string.IsNullOrEmpty(value))
             {
                 var pattern = @"(?<major>\d+)\.(?<minor>\d+)(\.(?<patch>\d+)(-(?<preRelease>.+))?)?";
-                var match = Regex.Match((string)s, pattern);
+                var match = Regex.Match((string)value, pattern);
                 if (match.Success)
                 {
                     var major = int.Parse(match.Groups["major"].Value);
@@ -156,35 +212,59 @@ namespace MongoDB.Driver.Core.Misc
                     var patch = int.Parse(match.Groups["patch"].Value);
                     var preRelease = match.Groups["preRelease"].Success ? match.Groups["preRelease"].Value : null;
 
-                    value = new SemanticVersion(major, minor, patch, preRelease);
+                    result = new SemanticVersion(major, minor, patch, preRelease);
                     return true;
                 }
             }
 
-            value = null;
+            result = null;
             return false;
         }
 
-        public static bool operator ==(SemanticVersion lhs, SemanticVersion rhs)
+        /// <summary>
+        /// Determines whether two specified semantic versions have the same value.
+        /// </summary>
+        /// <param name="a">The first semantic version to compare, or null.</param>
+        /// <param name="b">The second semantic version to compare, or null.</param>
+        /// <returns>
+        /// True if the value of a is the same as the value of b; otherwise false.
+        /// </returns>
+        public static bool operator ==(SemanticVersion a, SemanticVersion b)
         {
-            if (object.ReferenceEquals(lhs, null))
+            if (object.ReferenceEquals(a, null))
             {
-                return object.ReferenceEquals(rhs, null);
+                return object.ReferenceEquals(b, null);
             }
 
-            return lhs.CompareTo(rhs) == 0;
+            return a.CompareTo(b) == 0;
         }
 
-        public static bool operator !=(SemanticVersion lhs, SemanticVersion rhs)
+        /// <summary>
+        /// Determines whether two specified semantic versions have different values.
+        /// </summary>
+        /// <param name="a">The first semantic version to compare, or null.</param>
+        /// <param name="b">The second semantic version to compare, or null.</param>
+        /// <returns>
+        /// True if the value of a is different from the value of b; otherwise false.
+        /// </returns>
+        public static bool operator !=(SemanticVersion a, SemanticVersion b)
         {
-            return !(lhs == rhs);
+            return !(a == b);
         }
 
-        public static bool operator >(SemanticVersion lhs, SemanticVersion rhs)
+        /// <summary>
+        /// Determines whether the first specified SemanticVersion is greater than the second specified SemanticVersion.
+        /// </summary>
+        /// <param name="a">The first semantic version to compare, or null.</param>
+        /// <param name="b">The second semantic version to compare, or null.</param>
+        /// <returns>
+        /// True if the value of a is greater than b; otherwise false.
+        /// </returns>
+        public static bool operator >(SemanticVersion a, SemanticVersion b)
         {
-            if (lhs == null)
+            if (a == null)
             {
-                if (rhs == null)
+                if (b == null)
                 {
                     return true;
                 }
@@ -192,22 +272,46 @@ namespace MongoDB.Driver.Core.Misc
                 return false;
             }
 
-            return lhs.CompareTo(rhs) > 0;
+            return a.CompareTo(b) > 0;
         }
 
-        public static bool operator >=(SemanticVersion lhs, SemanticVersion rhs)
+        /// <summary>
+        /// Determines whether the first specified SemanticVersion is greater than or equal to the second specified SemanticVersion.
+        /// </summary>
+        /// <param name="a">The first semantic version to compare, or null.</param>
+        /// <param name="b">The second semantic version to compare, or null.</param>
+        /// <returns>
+        /// True if the value of a is greater than or equal to b; otherwise false.
+        /// </returns>
+        public static bool operator >=(SemanticVersion a, SemanticVersion b)
         {
-            return !(lhs < rhs);
+            return !(a < b);
         }
 
-        public static bool operator <(SemanticVersion lhs, SemanticVersion rhs)
+        /// <summary>
+        /// Determines whether the first specified SemanticVersion is less than the second specified SemanticVersion.
+        /// </summary>
+        /// <param name="a">The first semantic version to compare, or null.</param>
+        /// <param name="b">The second semantic version to compare, or null.</param>
+        /// <returns>
+        /// True if the value of a is less than b; otherwise false.
+        /// </returns>
+        public static bool operator <(SemanticVersion a, SemanticVersion b)
         {
-            return rhs > lhs;
+            return b > a;
         }
 
-        public static bool operator <=(SemanticVersion lhs, SemanticVersion rhs)
+        /// <summary>
+        /// Determines whether the first specified SemanticVersion is less than or equal to the second specified SemanticVersion.
+        /// </summary>
+        /// <param name="a">The first semantic version to compare, or null.</param>
+        /// <param name="b">The second semantic version to compare, or null.</param>
+        /// <returns>
+        /// True if the value of a is less than or equal to b; otherwise false.
+        /// </returns>
+        public static bool operator <=(SemanticVersion a, SemanticVersion b)
         {
-            return !(rhs < lhs);
+            return !(b < a);
         }
     }
 }

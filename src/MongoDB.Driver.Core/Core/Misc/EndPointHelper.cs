@@ -23,28 +23,54 @@ using System.Text.RegularExpressions;
 
 namespace MongoDB.Driver.Core.Misc
 {
+    /// <summary>
+    /// Represents helper methods for EndPoints.
+    /// </summary>
     public static class EndPointHelper
     {
         // static fields
         private static IEqualityComparer<EndPoint> __endPointEqualityComparer = new EndPointEqualityComparerImpl();
 
         // static properties
+        /// <summary>
+        /// Gets an end point equality comparer.
+        /// </summary>
+        /// <value>
+        /// An end point equality comparer.
+        /// </value>
         public static IEqualityComparer<EndPoint> EndPointEqualityComparer
         {
             get { return __endPointEqualityComparer; }
         }
 
         // static methods
+        /// <summary>
+        /// Determines whether a list of end points contains a specific end point.
+        /// </summary>
+        /// <param name="endPoints">The list of end points.</param>
+        /// <param name="endPoint">The specific end point to search for.</param>
+        /// <returns>True if the list of end points contains the specific end point.</returns>
         public static bool Contains(IEnumerable<EndPoint> endPoints, EndPoint endPoint)
         {
             return endPoints.Contains(endPoint, __endPointEqualityComparer);
         }
 
+        /// <summary>
+        /// Compares two end points.
+        /// </summary>
+        /// <param name="a">The first end point.</param>
+        /// <param name="b">The second end point.</param>
+        /// <returns>True if both end points are equal, or if both are null.</returns>
         public static bool Equals(EndPoint a, EndPoint b)
         {
             return __endPointEqualityComparer.Equals(a, b);
         }
 
+        /// <summary>
+        /// Creates an end point from object data saved during serialization.
+        /// </summary>
+        /// <param name="info">The object data.</param>
+        /// <returns>An end point.</returns>
         public static EndPoint FromObjectData(List<object> info)
         {
             if (info == null)
@@ -61,6 +87,11 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
+        /// <summary>
+        /// Gets the object data required to serialize an end point.
+        /// </summary>
+        /// <param name="value">The end point.</param>
+        /// <returns>The object data.</returns>
         public static List<object> GetObjectData(EndPoint value)
         {
             var dnsEndPoint = value as DnsEndPoint;
@@ -89,11 +120,22 @@ namespace MongoDB.Driver.Core.Misc
             return null;
         }
 
+        /// <summary>
+        /// Compares two sequences of end points.
+        /// </summary>
+        /// <param name="a">The first sequence of end points.</param>
+        /// <param name="b">The second sequence of end points.</param>
+        /// <returns>True if both sequences contain the same end points in the same order, or if both sequences are null.</returns>
         public static bool SequenceEquals(IEnumerable<EndPoint> a, IEnumerable<EndPoint> b)
         {
             return a.SequenceEqual(b, __endPointEqualityComparer);
         }
 
+        /// <summary>
+        /// Parses the string representation of an end point.
+        /// </summary>
+        /// <param name="value">The value to parse.</param>
+        /// <returns>An end point.</returns>
         public static EndPoint Parse(string value)
         {
             Ensure.IsNotNull(value, "value");
@@ -108,6 +150,7 @@ namespace MongoDB.Driver.Core.Misc
             return endPoint;
         }
 
+        /// <inheritdoc/>
         public static string ToString(EndPoint endPoint)
         {
             var dnsEndPoint = endPoint as DnsEndPoint;
@@ -119,9 +162,15 @@ namespace MongoDB.Driver.Core.Misc
             return endPoint.ToString();
         }
 
-        public static bool TryParse(string value, out EndPoint endPoint)
+        /// <summary>
+        /// Tries to parse the string representation of an end point.
+        /// </summary>
+        /// <param name="value">The value to parse.</param>
+        /// <param name="result">The result.</param>
+        /// <returns>True if the string representation was parsed successfully.</returns>
+        public static bool TryParse(string value, out EndPoint result)
         {
-            endPoint = null;
+            result = null;
 
             if (value != null)
             {
@@ -136,7 +185,7 @@ namespace MongoDB.Driver.Core.Misc
                     IPAddress address;
                     if (IPAddress.TryParse(addressString, out address))
                     {
-                        endPoint = new IPEndPoint(address, port);
+                        result = new IPEndPoint(address, port);
                         return true;
                     }
 
@@ -153,13 +202,13 @@ namespace MongoDB.Driver.Core.Misc
                     IPAddress address;
                     if (IPAddress.TryParse(host, out address))
                     {
-                        endPoint = new IPEndPoint(address, port);
+                        result = new IPEndPoint(address, port);
                         return true;
                     }
 
                     try
                     {
-                        endPoint = new DnsEndPoint(host, port);
+                        result = new DnsEndPoint(host, port);
                         return true;
                     }
                     catch (ArgumentException)
