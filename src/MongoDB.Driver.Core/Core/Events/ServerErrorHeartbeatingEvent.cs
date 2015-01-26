@@ -20,22 +20,43 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ServerErrorHeartbeating event.
+    /// </summary>
     public struct ServerErrorHeartbeatingEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly Exception _exception;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerErrorHeartbeatingEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="exception">The exception.</param>
         public ServerErrorHeartbeatingEvent(ConnectionId connectionId, Exception exception)
         {
             _connectionId = connectionId;
             _exception = exception;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the exception.
+        /// </summary>
+        /// <value>
+        /// The exception.
+        /// </value>
         public Exception Exception
         {
             get { return _exception; }

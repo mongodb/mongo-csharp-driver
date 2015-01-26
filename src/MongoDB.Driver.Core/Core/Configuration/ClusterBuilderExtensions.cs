@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             if (install)
             {
-                PerformanceCounterListener.Install();
+                PerformanceCounterListener.InstallPerformanceCounters();
             }
 
             return builder.AddListener(new PerformanceCounterListener(applicationName));

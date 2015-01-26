@@ -20,25 +20,46 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionPoolAfterCheckingOutAConnection event.
+    /// </summary>
     public struct ConnectionPoolAfterCheckingOutAConnectionEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly TimeSpan _elapsed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolAfterCheckingOutAConnectionEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="elapsed">The elapsed time.</param>
         public ConnectionPoolAfterCheckingOutAConnectionEvent(ConnectionId connectionId, TimeSpan elapsed)
         {
             _connectionId = connectionId;
             _elapsed = elapsed;
         }
 
-        public TimeSpan Elapsed
-        {
-            get { return _elapsed; }
-        }
-
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
+        }
+
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
+        public TimeSpan Elapsed
+        {
+            get { return _elapsed; }
         }
     }
 }

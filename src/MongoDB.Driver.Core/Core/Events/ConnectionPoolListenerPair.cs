@@ -21,9 +21,19 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
-    internal class ConnectionPoolListenerPair : IConnectionPoolListener
+    /// <preliminary/>
+    /// <summary>
+    /// Represents a pair of connection pool listeners. All events will be forwarded to both listeners.
+    /// </summary>
+    public class ConnectionPoolListenerPair : IConnectionPoolListener
     {
         // static
+        /// <summary>
+        /// Combines two connection pool listeners.
+        /// </summary>
+        /// <param name="first">The first connection pool listener, or null.</param>
+        /// <param name="second">The second connection pool listener, or null.</param>
+        /// <returns>A combined connection pool listener.</returns>
         public static IConnectionPoolListener Create(IConnectionPoolListener first, IConnectionPoolListener second)
         {
             if (first == null)
@@ -44,6 +54,11 @@ namespace MongoDB.Driver.Core.Events
         private readonly IConnectionPoolListener _second;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolListenerPair"/> class.
+        /// </summary>
+        /// <param name="first">The first connection pool.</param>
+        /// <param name="second">The second connection pool.</param>
         public ConnectionPoolListenerPair(IConnectionPoolListener first, IConnectionPoolListener second)
         {
             _first = Ensure.IsNotNull(first, "first");
@@ -51,96 +66,112 @@ namespace MongoDB.Driver.Core.Events
         }
 
         // methods
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
             _first.ConnectionPoolBeforeClosing(@event);
             _second.ConnectionPoolBeforeClosing(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
             _first.ConnectionPoolAfterClosing(@event);
             _second.ConnectionPoolAfterClosing(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
             _first.ConnectionPoolBeforeOpening(@event);
             _second.ConnectionPoolBeforeOpening(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
             _first.ConnectionPoolAfterOpening(@event);
             _second.ConnectionPoolAfterOpening(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
             _first.ConnectionPoolBeforeAddingAConnection(@event);
             _second.ConnectionPoolBeforeAddingAConnection(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
             _first.ConnectionPoolAfterAddingAConnection(@event);
             _second.ConnectionPoolAfterAddingAConnection(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
             _first.ConnectionPoolBeforeRemovingAConnection(@event);
             _second.ConnectionPoolBeforeRemovingAConnection(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
             _first.ConnectionPoolAfterRemovingAConnection(@event);
             _second.ConnectionPoolAfterRemovingAConnection(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
         {
             _first.ConnectionPoolBeforeEnteringWaitQueue(@event);
             _second.ConnectionPoolBeforeEnteringWaitQueue(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
         {
             _first.ConnectionPoolAfterEnteringWaitQueue(@event);
             _second.ConnectionPoolAfterEnteringWaitQueue(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
         {
             _first.ConnectionPoolErrorEnteringWaitQueue(@event);
             _second.ConnectionPoolErrorEnteringWaitQueue(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
             _first.ConnectionPoolBeforeCheckingOutAConnection(@event);
             _second.ConnectionPoolBeforeCheckingOutAConnection(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
             _first.ConnectionPoolAfterCheckingOutAConnection(@event);
             _second.ConnectionPoolAfterCheckingOutAConnection(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
             _first.ConnectionPoolErrorCheckingOutAConnection(@event);
             _second.ConnectionPoolErrorCheckingOutAConnection(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
             _first.ConnectionPoolBeforeCheckingInAConnection(@event);
             _second.ConnectionPoolBeforeCheckingInAConnection(@event);
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
             _first.ConnectionPoolAfterCheckingInAConnection(@event);

@@ -17,15 +17,29 @@ using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ClusterBeforeClosing event.
+    /// </summary>
     public struct ClusterBeforeClosingEvent
     {
         private readonly ClusterId _clusterId;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterBeforeClosingEvent"/> struct.
+        /// </summary>
+        /// <param name="clusterId">The cluster identifier.</param>
         public ClusterBeforeClosingEvent(ClusterId clusterId)
         {
             _clusterId = clusterId;
         }
 
+        /// <summary>
+        /// Gets the cluster identifier.
+        /// </summary>
+        /// <value>
+        /// The cluster identifier.
+        /// </value>
         public ClusterId ClusterId
         {
             get { return _clusterId; }

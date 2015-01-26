@@ -18,22 +18,43 @@ using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ClusterAfterDescriptionChanged event.
+    /// </summary>
     public struct ClusterAfterDescriptionChangedEvent
     {
         private readonly ClusterDescription _oldDescription;
         private readonly ClusterDescription _newDescription;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterAfterDescriptionChangedEvent"/> struct.
+        /// </summary>
+        /// <param name="oldDescription">The old description.</param>
+        /// <param name="newDescription">The new description.</param>
         public ClusterAfterDescriptionChangedEvent(ClusterDescription oldDescription, ClusterDescription newDescription)
         {
             _oldDescription = oldDescription;
             _newDescription = newDescription;
         }
 
+        /// <summary>
+        /// Gets the old description.
+        /// </summary>
+        /// <value>
+        /// The old description.
+        /// </value>
         public ClusterDescription OldDescription
         {
             get { return _oldDescription; }
         }
 
+        /// <summary>
+        /// Gets the new description.
+        /// </summary>
+        /// <value>
+        /// The new description.
+        /// </value>
         public ClusterDescription NewDescription
         {
             get { return _newDescription; }

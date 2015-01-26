@@ -19,12 +19,22 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ServerAfterOpening event.
+    /// </summary>
     public struct ServerAfterOpeningEvent
     {
         private readonly ServerId _serverId;
         private readonly ServerSettings _serverSettings;
         private readonly TimeSpan _elapsed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerAfterOpeningEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="serverSettings">The server settings.</param>
+        /// <param name="elapsed">The elapsed time.</param>
         public ServerAfterOpeningEvent(ServerId serverId, ServerSettings serverSettings, TimeSpan elapsed)
         {
             _serverId = serverId;
@@ -32,16 +42,34 @@ namespace MongoDB.Driver.Core.Events
             _elapsed = elapsed;
         }
 
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
         public TimeSpan Elapsed
         {
             get { return _elapsed; }
         }
 
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }
         }
 
+        /// <summary>
+        /// Gets the server settings.
+        /// </summary>
+        /// <value>
+        /// The server settings.
+        /// </value>
         public ServerSettings ServerSettings
         {
             get { return _serverSettings; }

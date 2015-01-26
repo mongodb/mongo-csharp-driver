@@ -21,12 +21,22 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ClusterAfterRemovingServer event.
+    /// </summary>
     public struct ClusterAfterRemovingServerEvent
     {
         private readonly ServerId _serverId;
         private readonly string _reason;
         private readonly TimeSpan _elapsed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterAfterRemovingServerEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="reason">The reason.</param>
+        /// <param name="elapsed">The elapsed time.</param>
         public ClusterAfterRemovingServerEvent(ServerId serverId, string reason, TimeSpan elapsed)
         {
             _serverId = serverId;
@@ -34,16 +44,34 @@ namespace MongoDB.Driver.Core.Events
             _elapsed = elapsed;
         }
 
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
         public TimeSpan Elapsed
         {
             get { return _elapsed; }
         }
 
+        /// <summary>
+        /// Gets the reason the server was removed.
+        /// </summary>
+        /// <value>
+        /// The reason the server was removed.
+        /// </value>
         public string Reason
         {
             get { return _reason; }
         }
 
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }

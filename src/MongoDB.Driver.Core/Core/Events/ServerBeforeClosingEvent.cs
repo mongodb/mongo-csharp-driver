@@ -17,15 +17,29 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ServerBeforeClosing event.
+    /// </summary>
     public struct ServerBeforeClosingEvent
     {
         private readonly ServerId _serverId;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerBeforeClosingEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
         public ServerBeforeClosingEvent(ServerId serverId)
         {
             _serverId = serverId;
         }
 
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }

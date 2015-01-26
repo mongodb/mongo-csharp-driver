@@ -19,22 +19,43 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ServerBeforeOpening event.
+    /// </summary>
     public struct ServerBeforeOpeningEvent
     {
         private readonly ServerId _serverId;
         private readonly ServerSettings _serverSettings;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerBeforeOpeningEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="serverSettings">The server settings.</param>
         public ServerBeforeOpeningEvent(ServerId serverId, ServerSettings serverSettings)
         {
             _serverId = serverId;
             _serverSettings = serverSettings;
         }
 
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }
         }
 
+        /// <summary>
+        /// Gets the server settings.
+        /// </summary>
+        /// <value>
+        /// The server settings.
+        /// </value>
         public ServerSettings ServerSettings
         {
             get { return _serverSettings; }

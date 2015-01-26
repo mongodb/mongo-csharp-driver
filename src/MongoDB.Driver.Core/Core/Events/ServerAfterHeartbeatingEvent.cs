@@ -20,22 +20,43 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ServerAfterHeartbeating event.
+    /// </summary>
     public struct ServerAfterHeartbeatingEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly TimeSpan _elapsed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerAfterHeartbeatingEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="elapsed">The elapsed time.</param>
         public ServerAfterHeartbeatingEvent(ConnectionId connectionId, TimeSpan elapsed)
         {
             _connectionId = connectionId;
             _elapsed = elapsed;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
         public TimeSpan Elapsed
         {
             get { return _elapsed; }

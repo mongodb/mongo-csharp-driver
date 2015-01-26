@@ -25,10 +25,17 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Events.Diagnostics
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents an event listener that records certain events to Windows performance counters.
+    /// </summary>
     public class PerformanceCounterListener : IConnectionPoolListener, IConnectionListener
     {
         //static 
-        public static void Install()
+        /// <summary>
+        /// Installs the performance counters.
+        /// </summary>
+        public static void InstallPerformanceCounters()
         {
             PerformanceCounterPackage.Install();
         }
@@ -41,6 +48,10 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         private readonly ConcurrentDictionary<ServerId, ConnectionPoolPerformanceRecorder> _connectionPoolRecorders;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PerformanceCounterListener"/> class.
+        /// </summary>
+        /// <param name="applicationName">The name of the application.</param>
         public PerformanceCounterListener(string applicationName)
         {
             _applicationName = applicationName;
@@ -52,6 +63,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         // methods
         // Connection Pool
+        /// <inheritdoc/>
         public void ConnectionPoolAfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
@@ -61,6 +73,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
             var serverPackage = GetServerPackage(@event.ServerId.EndPoint);
@@ -71,6 +84,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
@@ -80,6 +94,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
@@ -89,6 +104,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
@@ -98,6 +114,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
@@ -108,6 +125,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolAfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
             ConnectionPoolPerformanceRecorder recorder;
@@ -117,43 +135,53 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionPoolBeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
         }
 
         // Connection
+        /// <inheritdoc/>
         public void ConnectionAfterClosing(ConnectionAfterClosingEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
@@ -163,6 +191,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event)
         {
             var serverPackage = GetServerPackage(@event.ConnectionId.ServerId.EndPoint);
@@ -173,6 +202,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
         {
             ConnectionPerformanceRecorder recorder;
@@ -182,6 +212,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
@@ -191,34 +222,42 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             }
         }
 
+        /// <inheritdoc/>
         public void ConnectionFailed(ConnectionFailedEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event)
         {
         }
-        
+
+        /// <inheritdoc/>
         public void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
         }

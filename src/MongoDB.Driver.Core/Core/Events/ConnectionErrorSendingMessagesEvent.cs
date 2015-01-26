@@ -21,12 +21,22 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a  ConnectionErrorSendingMessages event.
+    /// </summary>
     public struct ConnectionErrorSendingMessagesEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly Exception _exception;
         private readonly IReadOnlyList<RequestMessage> _messages;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionErrorSendingMessagesEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="messages">The messages.</param>
+        /// <param name="exception">The exception.</param>
         public ConnectionErrorSendingMessagesEvent(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, Exception exception)
         {
             _connectionId = connectionId;
@@ -34,16 +44,34 @@ namespace MongoDB.Driver.Core.Events
             _exception = exception;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the exception.
+        /// </summary>
+        /// <value>
+        /// The exception.
+        /// </value>
         public Exception Exception
         {
             get { return _exception; }
         }
 
+        /// <summary>
+        /// Gets the messages.
+        /// </summary>
+        /// <value>
+        /// The messages.
+        /// </value>
         public IReadOnlyList<RequestMessage> Messages
         {
             get { return _messages; }

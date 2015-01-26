@@ -20,6 +20,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionAfterReceivingMessage event.
+    /// </summary>
     public struct ConnectionAfterReceivingMessageEvent<TDocument>
     {
         private readonly ConnectionId _connectionId;
@@ -27,6 +31,13 @@ namespace MongoDB.Driver.Core.Events
         private readonly int _length;
         private readonly ReplyMessage<TDocument> _replyMessage;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionAfterReceivingMessageEvent{TDocument}"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="replyMessage">The reply message.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="elapsed">The elapsed time.</param>
         public ConnectionAfterReceivingMessageEvent(ConnectionId connectionId, ReplyMessage<TDocument> replyMessage, int length, TimeSpan elapsed)
         {
             _connectionId = connectionId;
@@ -35,21 +46,45 @@ namespace MongoDB.Driver.Core.Events
             _elapsed = elapsed;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
         public TimeSpan Elapsed
         {
             get { return _elapsed; }
         }
 
+        /// <summary>
+        /// Gets the length.
+        /// </summary>
+        /// <value>
+        /// The length.
+        /// </value>
         public int Length
         {
             get { return _length; }
         }
 
+        /// <summary>
+        /// Gets the reply message.
+        /// </summary>
+        /// <value>
+        /// The reply message.
+        /// </value>
         public ReplyMessage<TDocument> ReplyMessage
         {
             get { return _replyMessage; }

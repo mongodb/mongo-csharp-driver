@@ -18,22 +18,43 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ServerAfterClosing event.
+    /// </summary>
     public struct ServerAfterClosingEvent
     {
         private readonly ServerId _serverId;
         private readonly TimeSpan _elapsed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerAfterClosingEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="elapsed">The elapsed time.</param>
         public ServerAfterClosingEvent(ServerId serverId, TimeSpan elapsed)
         {
             _serverId = serverId;
             _elapsed = elapsed;
         }
 
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
         public TimeSpan Elapsed
         {
             get { return _elapsed; }
         }
 
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }

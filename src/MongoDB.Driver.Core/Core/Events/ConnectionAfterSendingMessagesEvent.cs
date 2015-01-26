@@ -21,6 +21,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionAfterSendingMessages event.
+    /// </summary>
     public struct ConnectionAfterSendingMessagesEvent
     {
         private readonly ConnectionId _connectionId;
@@ -28,6 +32,13 @@ namespace MongoDB.Driver.Core.Events
         private readonly int _length;
         private readonly IReadOnlyList<RequestMessage> _messages;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionAfterSendingMessagesEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="messages">The messages.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="elapsed">The elapsed time.</param>
         public ConnectionAfterSendingMessagesEvent(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages, int length, TimeSpan elapsed)
         {
             _connectionId = connectionId;
@@ -36,21 +47,45 @@ namespace MongoDB.Driver.Core.Events
             _elapsed = elapsed;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
         public TimeSpan Elapsed
         {
             get { return _elapsed; }
         }
 
+        /// <summary>
+        /// Gets the length.
+        /// </summary>
+        /// <value>
+        /// The length.
+        /// </value>
         public int Length
         {
             get { return _length; }
         }
 
+        /// <summary>
+        /// Gets the messages.
+        /// </summary>
+        /// <value>
+        /// The messages.
+        /// </value>
         public IReadOnlyList<RequestMessage> Messages
         {
             get { return _messages; }

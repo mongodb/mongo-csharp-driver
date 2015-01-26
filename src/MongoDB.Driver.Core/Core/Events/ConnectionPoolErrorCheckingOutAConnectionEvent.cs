@@ -20,22 +20,43 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionPoolErrorCheckingOutAConnection event.
+    /// </summary>
     public struct ConnectionPoolErrorCheckingOutAConnectionEvent
     {
         private readonly ServerId _serverId;
         private readonly Exception _exception;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolErrorCheckingOutAConnectionEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="exception">The exception.</param>
         public ConnectionPoolErrorCheckingOutAConnectionEvent(ServerId serverId, Exception exception)
         {
             _serverId = serverId;
             _exception = exception;
         }
 
+        /// <summary>
+        /// Gets the exception.
+        /// </summary>
+        /// <value>
+        /// The exception.
+        /// </value>
         public Exception Exception
         {
             get { return _exception; }
         }
 
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }

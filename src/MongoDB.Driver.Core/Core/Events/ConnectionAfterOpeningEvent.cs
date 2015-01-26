@@ -19,12 +19,22 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionAfterOpening event.
+    /// </summary>
     public struct ConnectionAfterOpeningEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly ConnectionSettings _connectionSettings;
         private readonly TimeSpan _elapsed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionAfterOpeningEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="connectionSettings">The connection settings.</param>
+        /// <param name="elapsed">The elapsed time.</param>
         public ConnectionAfterOpeningEvent(ConnectionId connectionId, ConnectionSettings connectionSettings, TimeSpan elapsed)
         {
             _connectionId = connectionId;
@@ -32,16 +42,34 @@ namespace MongoDB.Driver.Core.Events
             _elapsed = elapsed;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the connection settings.
+        /// </summary>
+        /// <value>
+        /// The connection settings.
+        /// </value>
         public ConnectionSettings ConnectionSettings
         {
             get { return _connectionSettings; }
         }
 
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
         public TimeSpan Elapsed
         {
             get { return _elapsed; }

@@ -15,6 +15,14 @@
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents a listener to events.
+    /// </summary>
+    /// <remarks>
+    /// The actual events themselves are defined by the following interfaces: IClusterListener, 
+    /// IConnectionListener, IConnectionPoolListener and IServerListener.
+    /// </remarks>
     public interface IListener
     {
     }

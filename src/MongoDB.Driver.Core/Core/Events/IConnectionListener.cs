@@ -23,23 +23,82 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents a listener to connection events.
+    /// </summary>
     public interface IConnectionListener : IListener
     {
+        /// <summary>
+        /// An event that occurs when a connection has failed.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionFailed(ConnectionFailedEvent @event);
 
+        /// <summary>
+        /// An event that occurs before closing a connection. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event);
+
+        /// <summary>
+        /// An event that occurs after a connection has been closed. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionAfterClosing(ConnectionAfterClosingEvent @event);
-        
+
+        /// <summary>
+        /// An event that occurs before opening a connection. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event);
+
+        /// <summary>
+        /// An event that occurs after a connection has been opened. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event);
+
+        /// <summary>
+        /// An event that occurs when there is an error while opening a connection.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event);
 
+        /// <summary>
+        /// An event that occurs before receiving a message on a connection. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event);
+
+        /// <summary>
+        /// An event that occurs after a message has been received on a connection. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event);
+
+        /// <summary>
+        /// An event that occurs when there is an an error while receiving a message.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event);
-        
+
+        /// <summary>
+        /// An event that occurs before sending a set of messages. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event);
+
+        /// <summary>
+        /// An event that occurs after a set of message has been sent. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event);
+
+        /// <summary>
+        /// An event that occurs when there is an error while sending a set of messages.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event);
     }
 }
