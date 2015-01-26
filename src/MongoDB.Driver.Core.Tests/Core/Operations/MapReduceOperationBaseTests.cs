@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MapFunction.Should().BeSameAs(_mapFunction);
             subject.MaxTime.Should().NotHaveValue();
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-            subject.Query.Should().BeSameAs(_query);
+            subject.Filter.Should().BeSameAs(_query);
             subject.ReduceFunction.Should().BeSameAs(_reduceFunction);
             subject.Scope.Should().BeNull();
             subject.Sort.Should().BeNull();
@@ -86,11 +86,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void constructor_should_throw_when_query_is_null()
+        public void constructor_should_throw_when_filter_is_null()
         {
             Action action = () => new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, null, _messageEncoderSettings);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("query");
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filter");
         }
 
         [Test]
@@ -349,11 +349,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void Query_should_get_value()
+        public void Filter_should_get_value()
         {
             var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
 
-            var result = subject.Query;
+            var result = subject.Filter;
 
             result.Should().BeSameAs(_query);
         }

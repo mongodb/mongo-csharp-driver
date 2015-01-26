@@ -43,20 +43,20 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="outputCollectionNamespace">The output collection namespace.</param>
         /// <param name="mapFunction">The map function.</param>
         /// <param name="reduceFunction">The reduce function.</param>
-        /// <param name="query">The query.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public MapReduceOutputToCollectionOperation(
             CollectionNamespace collectionNamespace,
             CollectionNamespace outputCollectionNamespace,
             BsonJavaScript mapFunction,
             BsonJavaScript reduceFunction,
-            BsonDocument query,
+            BsonDocument filter,
             MessageEncoderSettings messageEncoderSettings)
             : base(
                 collectionNamespace,
                 mapFunction,
                 reduceFunction,
-                query,
+                filter,
                 messageEncoderSettings)
         {
             _outputCollectionNamespace = Ensure.IsNotNull(outputCollectionNamespace, "outputCollectionNamespace");

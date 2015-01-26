@@ -30,13 +30,13 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
+        private readonly BsonDocument _filter;
         private BsonJavaScript _finalizeFunction;
         private bool? _javaScriptMode;
         private long? _limit;
         private readonly BsonJavaScript _mapFunction;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
-        private readonly BsonDocument _query;
         private readonly BsonJavaScript _reduceFunction;
         private BsonDocument _scope;
         private BsonDocument _sort;
@@ -49,14 +49,14 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="mapFunction">The map function.</param>
         /// <param name="reduceFunction">The reduce function.</param>
-        /// <param name="query">The query.</param>
+        /// <param name="filter">The filter.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        protected MapReduceOperationBase(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument query, MessageEncoderSettings messageEncoderSettings)
+        protected MapReduceOperationBase(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument filter, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _mapFunction = Ensure.IsNotNull(mapFunction, "mapFunction");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _query = Ensure.IsNotNull(query, "query");
+            _filter = Ensure.IsNotNull(filter, "filter");
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
@@ -70,6 +70,17 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets the filter.
+        /// </summary>
+        /// <value>
+        /// The filter.
+        /// </value>
+        public BsonDocument Filter
+        {
+            get { return _filter; }
         }
 
         /// <summary>
@@ -147,17 +158,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets the query.
-        /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
-        public BsonDocument Query
-        {
-            get { return _query; }
-        }
-
-        /// <summary>
         /// Gets the reduce function.
         /// </summary>
         /// <value>
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out" , CreateOutputOptions() },
-                { "query", _query, _query != null },
+                { "query", _filter, _filter != null },
                 { "sort", _sort, _sort != null },
                 { "limit", () => _limit.Value, _limit.HasValue },
                 { "finalize", _finalizeFunction, _finalizeFunction != null },

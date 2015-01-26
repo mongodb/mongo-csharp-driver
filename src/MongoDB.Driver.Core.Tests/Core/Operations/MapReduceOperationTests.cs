@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.MapFunction.Should().BeSameAs(_mapFunction);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-            subject.Query.Should().BeSameAs(_query);
+            subject.Filter.Should().BeSameAs(_query);
             subject.ReduceFunction.Should().BeSameAs(_reduceFunction);
             subject.ResultSerializer.Should().BeSameAs(_resultSerializer);
         }
