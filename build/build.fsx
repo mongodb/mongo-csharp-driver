@@ -228,7 +228,8 @@ Target "NuGetPush" (fun _ ->
 
 FinalTarget "Teardown" (fun _ ->
     let cmd = sprintf "checkout %s" asmFile
-    Git.CommandHelper.fireAndForgetGitCommand baseDir cmd
+    let result = Git.CommandHelper.runSimpleGitCommand baseDir cmd
+    ()
 )
 
 
