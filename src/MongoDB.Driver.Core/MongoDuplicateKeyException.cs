@@ -26,8 +26,9 @@ namespace MongoDB.Driver
     public class MongoDuplicateKeyException : MongoWriteConcernException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MongoDuplicateKeyException"/> class.
+        /// Initializes a new instance of the <see cref="MongoDuplicateKeyException" /> class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
         /// <param name="commandResult">The command result.</param>
         public MongoDuplicateKeyException(ConnectionId connectionId, string message, WriteConcernResult commandResult)

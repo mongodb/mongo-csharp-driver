@@ -38,10 +38,11 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoBulkWriteOperationException" /> class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="result">The result.</param>
         /// <param name="writeErrors">The write errors.</param>
-        /// <param name="unprocessedRequests">The unprocessed requests.</param>
         /// <param name="writeConcernError">The write concern error.</param>
+        /// <param name="unprocessedRequests">The unprocessed requests.</param>
         public MongoBulkWriteOperationException(
             ConnectionId connectionId,
             BulkWriteOperationResult result,

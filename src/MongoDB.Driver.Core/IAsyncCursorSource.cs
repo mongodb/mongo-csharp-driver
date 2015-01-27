@@ -25,6 +25,11 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public interface IAsyncCursorSource<TDocument>
     {
+        /// <summary>
+        /// Executes the operation and returns a cursor to the results.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken);
     }
 

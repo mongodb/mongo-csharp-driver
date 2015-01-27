@@ -65,6 +65,7 @@ namespace MongoDB.Driver.Core.Bindings
             return Task.FromResult(_channelSource.Fork());
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)

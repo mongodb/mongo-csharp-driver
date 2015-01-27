@@ -27,6 +27,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents an async cursor.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the documents.</typeparam>
     public class AsyncCursor<TDocument> : IAsyncCursor<TDocument>
     {
         // fields
@@ -44,6 +48,18 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TDocument> _serializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncCursor{TDocument}"/> class.
+        /// </summary>
+        /// <param name="channelSource">The channel source.</param>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="firstBatch">The first batch.</param>
+        /// <param name="cursorId">The cursor identifier.</param>
+        /// <param name="batchSize">The size of a batch.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public AsyncCursor(
             IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
@@ -84,6 +100,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <inheritdoc/>
         public IEnumerable<TDocument> Current
         {
             get
@@ -114,12 +131,14 @@ namespace MongoDB.Driver.Core.Operations
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <inheritdoc/>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -173,6 +192,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        /// <inheritdoc/>
         public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();

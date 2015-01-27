@@ -418,7 +418,7 @@ namespace MongoDB.Driver
             }
 
             /// <summary>
-            /// Performs an implicit conversion from <see cref="System.Nullable{System.Int32}"/> to <see cref="WValue"/>.
+            /// Performs an implicit conversion from <see cref="T:System.Nullable{System.Int32}"/> to <see cref="WValue"/>.
             /// </summary>
             /// <param name="value">The value.</param>
             /// <returns>

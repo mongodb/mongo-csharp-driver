@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="T"/> to an <see cref="Optional{T}"/> with a value.
+        /// Performs an implicit conversion from <see typeparamref="T" /> to an <see cref="Optional{T}" /> with a value.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>

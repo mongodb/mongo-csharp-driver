@@ -28,8 +28,11 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Maps the specified response to a custom exception (if possible).
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="response">The response.</param>
-        /// <returns>The custom exception (or null if the response could not be mapped to a custom exception).</returns>
+        /// <returns>
+        /// The custom exception (or null if the response could not be mapped to a custom exception).
+        /// </returns>
         public static Exception Map(ConnectionId connectionId, BsonDocument response)
         {
             BsonValue code;
@@ -62,6 +65,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Maps the specified writeConcernResult to a custom exception (if necessary).
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="writeConcernResult">The write concern result.</param>
         /// <returns>
         /// The custom exception (or null if the writeConcernResult was not mapped to an exception).

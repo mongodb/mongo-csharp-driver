@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         /// <summary>
         /// Gets the connect timeout.
-        /// </summar>
+        /// </summary>
         public TimeSpan? ConnectTimeout
         {
             get { return _connectTimeout; }

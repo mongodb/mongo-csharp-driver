@@ -28,20 +28,70 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     public static class MessageEncoderSettingsName
     {
         // encoder settings used by the binary encoders
+        /// <summary>
+        /// The name of the FixOldBinarySubTypeOnInput setting.
+        /// </summary>
         public const string FixOldBinarySubTypeOnInput = "FixOldBinarySubTypeOnInput";
+
+        /// <summary>
+        /// The name of the FixOldBinarySubTypeOnOutput setting.
+        /// </summary>
         public const string FixOldBinarySubTypeOnOutput = "FixOldBinarySubTypeOnOutput";
+
+        /// <summary>
+        /// The name of the FixOldDateTimeMaxValueOnInput setting.
+        /// </summary>
         public const string FixOldDateTimeMaxValueOnInput = "FixOldDateTimeMaxValueOnInput";
+
+        /// <summary>
+        /// The name of the GuidRepresentation setting.
+        /// </summary>
         public const string GuidRepresentation = "GuidRepresentation";
+
+        /// <summary>
+        /// The name of the MaxDocumentSize setting.
+        /// </summary>
         public const string MaxDocumentSize = "MaxDocumentSize";
+
+        /// <summary>
+        /// The name of the MaxSerializationDepth setting.
+        /// </summary>
         public const string MaxSerializationDepth = "MaxSerializationDepth";
+
+        /// <summary>
+        /// The name of the ReadEncoding setting.
+        /// </summary>
         public const string ReadEncoding = "ReadEncoding";
+
+        /// <summary>
+        /// The name of the WriteEncoding setting.
+        /// </summary>
         public const string WriteEncoding = "WriteEncoding";
 
         // additional encoder settings used by the JSON encoders
+        /// <summary>
+        /// The name of the Indent setting.
+        /// </summary>
         public const string Indent = "Indent";
+
+        /// <summary>
+        /// The name of the IndentChars setting.
+        /// </summary>
         public const string IndentChars = "IndentChars";
+
+        /// <summary>
+        /// The name of the NewLineChars setting.
+        /// </summary>
         public const string NewLineChars = "NewLineChars";
+
+        /// <summary>
+        /// The name of the OutputMode setting.
+        /// </summary>
         public const string OutputMode = "OutputMode";
+
+        /// <summary>
+        /// The name of the ShellVersion setting.
+        /// </summary>
         public const string ShellVersion = "ShellVersion";
 
         // other encoders (if any) might use additional settings

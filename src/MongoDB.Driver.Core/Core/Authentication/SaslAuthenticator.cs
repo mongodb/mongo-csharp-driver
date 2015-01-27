@@ -271,6 +271,7 @@ namespace MongoDB.Driver.Core.Authentication
                 get { return true; }
             }
 
+            /// <inheritdoc/>
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
             {
                 throw new InvalidOperationException("Sasl conversation has completed.");

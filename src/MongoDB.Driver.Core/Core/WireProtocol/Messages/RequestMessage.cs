@@ -28,12 +28,22 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private static int __requestId;
 
         // static properties
+        /// <summary>
+        /// Gets the current global request identifier.
+        /// </summary>
+        /// <value>
+        /// The current global request identifier.
+        /// </value>
         public static int CurrentGlobalRequestId
         {
             get { return __requestId; }
         }
 
         // static methods
+        /// <summary>
+        /// Gets the next request identifier.
+        /// </summary>
+        /// <returns>The next request identifier.</returns>
         public static int GetNextRequestId()
         {
             return Interlocked.Increment(ref __requestId);
