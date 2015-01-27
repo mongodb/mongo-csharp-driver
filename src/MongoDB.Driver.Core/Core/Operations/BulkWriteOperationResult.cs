@@ -228,7 +228,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             // constructors
             /// <summary>
-            /// Initializes a new instance of the <see cref="Unacknowledged" /> class.
+            /// Initializes a new instance of the <see cref="BulkWriteOperationResult.Unacknowledged" /> class.
             /// </summary>
             /// <param name="requestCount">The request count.</param>
             /// <param name="processedRequests">The processed requests.</param>

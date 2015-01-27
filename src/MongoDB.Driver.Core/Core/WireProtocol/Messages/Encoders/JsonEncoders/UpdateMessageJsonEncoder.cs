@@ -46,7 +46,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // methods
-        /// <inheritdoc/>
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         public UpdateMessage ReadMessage()
         {
             var jsonReader = CreateJsonReader();
@@ -77,7 +80,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 isUpsert);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void WriteMessage(UpdateMessage message)
         {
             Ensure.IsNotNull(message, "message");

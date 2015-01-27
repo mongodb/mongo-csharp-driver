@@ -38,7 +38,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // methods
-        /// <inheritdoc/>
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         public GetMoreMessage ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
@@ -60,7 +63,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 batchSize);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void WriteMessage(GetMoreMessage message)
         {
             Ensure.IsNotNull(message, "message");

@@ -418,7 +418,7 @@ namespace MongoDB.Driver
             }
 
             /// <summary>
-            /// Performs an implicit conversion from <see cref="T:System.Nullable{System.Int32}"/> to <see cref="WValue"/>.
+            /// Performs an implicit conversion from Nullable{Int32} to <see cref="WValue"/>.
             /// </summary>
             /// <param name="value">The value.</param>
             /// <returns>
@@ -449,15 +449,15 @@ namespace MongoDB.Driver
 
             // methods
             /// <inheritdoc/>
-            public bool Equals(WValue rhs)
+            public bool Equals(WValue other)
             {
-                return Equals((object)rhs);
+                return Equals((object)other);
             }
 
             /// <summary>
             /// Converts this WValue to a BsonValue suitable to be included in a BsonDocument representing a write concern.
             /// </summary>
-            /// <returns></returns>
+            /// <returns>A BsonValue.</returns>
             public abstract BsonValue ToBsonValue();
         }
 
@@ -499,13 +499,13 @@ namespace MongoDB.Driver
             }
 
             /// <inheritdoc/>
-            public bool Equals(WCount rhs)
+            public bool Equals(WCount other)
             {
-                if (rhs == null)
+                if (other == null)
                 {
                     return false;
                 }
-                return _value == rhs._value;
+                return _value == other._value;
             }
 
             /// <inheritdoc/>
@@ -582,13 +582,13 @@ namespace MongoDB.Driver
             }
 
             /// <inheritdoc/>
-            public bool Equals(WMode rhs)
+            public bool Equals(WMode other)
             {
-                if (rhs == null)
+                if (other == null)
                 {
                     return false;
                 }
-                return _value == rhs._value;
+                return _value == other._value;
             }
 
             /// <inheritdoc/>

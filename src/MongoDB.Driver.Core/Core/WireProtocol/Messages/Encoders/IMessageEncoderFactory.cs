@@ -42,6 +42,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         /// <summary>
         /// Gets an encoder for an Insert message.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="serializer">The serializer.</param>
         /// <returns>An encoder.</returns>
         IMessageEncoder GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
 
@@ -60,6 +62,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         /// <summary>
         /// Gets an encoder for a Reply message.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="serializer">The serializer.</param>
         /// <returns>An encoder.</returns>
         IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
 

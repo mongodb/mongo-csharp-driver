@@ -38,7 +38,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // methods
-        /// <inheritdoc/>
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         public KillCursorsMessage ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
@@ -61,7 +64,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 cursorIds);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void WriteMessage(KillCursorsMessage message)
         {
             Ensure.IsNotNull(message, "message");

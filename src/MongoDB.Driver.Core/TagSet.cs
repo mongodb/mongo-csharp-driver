@@ -90,13 +90,13 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public bool Equals(TagSet rhs)
+        public bool Equals(TagSet other)
         {
-            if (rhs == null)
+            if (other == null)
             {
                 return false;
             }
-            return _tags.SequenceEqual(rhs._tags);
+            return _tags.SequenceEqual(other._tags);
         }
 
         /// <inheritdoc/>

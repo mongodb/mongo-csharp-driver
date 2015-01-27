@@ -62,25 +62,45 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // properties
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the cluster identifier.
+        /// </summary>
+        /// <value>
+        /// The cluster identifier.
+        /// </value>
         public ClusterId ClusterId
         {
             get { return _clusterId; }
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the servers.
+        /// </summary>
+        /// <value>
+        /// The servers.
+        /// </value>
         public IReadOnlyList<ServerDescription> Servers
         {
             get { return _servers; }
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the cluster state.
+        /// </summary>
+        /// <value>
+        /// The cluster state.
+        /// </value>
         public ClusterState State
         {
             get { return _servers.Any(x => x.State == ServerState.Connected) ? ClusterState.Connected : ClusterState.Disconnected; }
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the cluster type.
+        /// </summary>
+        /// <value>
+        /// The cluster type.
+        /// </value>
         public ClusterType Type
         {
             get { return _type; }

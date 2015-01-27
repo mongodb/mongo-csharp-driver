@@ -72,10 +72,11 @@ namespace MongoDB.Driver.Core.Events
         void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event);
 
         /// <summary>
-        /// An event that occurs after a message has been received on a connection. 
+        /// An event that occurs after a message has been received on a connection.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the message.</typeparam>
         /// <param name="event">The event.</param>
-        void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event);
+        void ConnectionAfterReceivingMessage<TDocument>(ConnectionAfterReceivingMessageEvent<TDocument> @event);
 
         /// <summary>
         /// An event that occurs when there is an an error while receiving a message.

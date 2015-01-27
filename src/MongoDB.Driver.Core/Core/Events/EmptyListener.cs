@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <inheritdoc/>
-        public virtual void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
+        public virtual void ConnectionAfterReceivingMessage<TDocument>(ConnectionAfterReceivingMessageEvent<TDocument> @event)
         {
         }
 

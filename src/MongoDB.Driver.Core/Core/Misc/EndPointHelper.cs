@@ -150,7 +150,13 @@ namespace MongoDB.Driver.Core.Misc
             return endPoint;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents the end point.
+        /// </summary>
+        /// <param name="endPoint">The end point.</param>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents the end point.
+        /// </returns>
         public static string ToString(EndPoint endPoint)
         {
             var dnsEndPoint = endPoint as DnsEndPoint;

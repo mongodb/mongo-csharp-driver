@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Represents information about a ConnectionAfterReceivingMessage event.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the documents.</typeparam>
     public struct ConnectionAfterReceivingMessageEvent<TDocument>
     {
         private readonly ConnectionId _connectionId;

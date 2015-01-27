@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// <summary>
     /// Represents a JSON encoder for a Reply message.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the documents.</typeparam>
     public class ReplyMessageJsonEncoder<TDocument> : MessageJsonEncoderBase, IMessageEncoder
     {
         // fields
@@ -50,7 +51,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // methods
-        /// <inheritdoc/>
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         public ReplyMessage<TDocument> ReadMessage()
         {
             var jsonReader = CreateJsonReader();
@@ -108,7 +112,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 startingFrom);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void WriteMessage(ReplyMessage<TDocument> message)
         {
             Ensure.IsNotNull(message, "message");

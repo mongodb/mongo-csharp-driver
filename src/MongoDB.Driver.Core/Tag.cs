@@ -75,13 +75,13 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public bool Equals(Tag rhs)
+        public bool Equals(Tag other)
         {
-            if (rhs == null)
+            if (other == null)
             {
                 return false;
             }
-            return _name == rhs._name && _value == rhs._value;
+            return _name == other._name && _value == other._value;
         }
 
         /// <inheritdoc/>

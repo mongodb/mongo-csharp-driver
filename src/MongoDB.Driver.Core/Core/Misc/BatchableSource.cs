@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Moves to the next item in the source.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if there are more items.</returns>
         public bool MoveNext()
         {
             ThrowIfNotBatchable();
@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Starts a new batch.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The overflow item of the previous batch if there is one; otherwise, null.</returns>
         public Overflow StartBatch()
         {
             ThrowIfNotBatchable();

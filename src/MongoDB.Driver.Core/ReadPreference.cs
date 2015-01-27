@@ -178,7 +178,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="mode">The read preference mode.</param>
         /// <param name="tagSets">The tag sets.</param>
-        /// <returns></returns>
+        /// <returns>A new instance of ReadPreference.</returns>
         public ReadPreference With(
             Optional<ReadPreferenceMode> mode = default(Optional<ReadPreferenceMode>), 
             Optional<IEnumerable<TagSet>> tagSets = default(Optional<IEnumerable<TagSet>>))
