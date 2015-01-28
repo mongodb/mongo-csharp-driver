@@ -76,10 +76,11 @@ namespace MongoDB.Driver.Linq.Translators
 
         private static Expression BindSerializationInfo(SerializationInfoBinder binder, LambdaExpression node, IBsonSerializer parameterSerializer)
         {
+            var evaluatedBody = PartialEvaluator.Evaluate(node.Body);
             var parameterSerializationInfo = new BsonSerializationInfo(null, parameterSerializer, parameterSerializer.ValueType);
             var parameterExpression = new DocumentExpression(node.Parameters[0], parameterSerializationInfo, false);
             binder.RegisterParameterReplacement(node.Parameters[0], parameterExpression);
-            return binder.Bind(node.Body);
+            return binder.Bind(evaluatedBody);
         }
 
         private class ProjectionBuilder
@@ -259,9 +260,14 @@ namespace MongoDB.Driver.Linq.Translators
                     }
                 }
 
-                if (node.Type == typeof(string))
+                if (node.Object != null && node.Object.Type == typeof(string))
                 {
                     return BuildStringMethodCall(node);
+                }
+
+                if (node.Object != null && node.Method.Name == "Equals" && node.Arguments.Count == 1)
+                {
+                    return new BsonDocument("$eq", new BsonArray(new[] { ResolveValue(node.Object), ResolveValue(node.Arguments[0]) }));
                 }
 
                 var message = string.Format("{0} is an unsupported method in a $project or $group pipeline operator.", node.Method.Name);
@@ -313,6 +319,27 @@ namespace MongoDB.Driver.Linq.Translators
                 var field = ResolveValue(node.Object);
                 switch (node.Method.Name)
                 {
+                    case "Equals":
+                        if (node.Arguments.Count == 2 && node.Arguments[1].NodeType == ExpressionType.Constant)
+                        {
+                            var comparisonType = (StringComparison)((ConstantExpression)node.Arguments[1]).Value;
+                            switch (comparisonType)
+                            {
+                                case StringComparison.OrdinalIgnoreCase:
+                                    return new BsonDocument("$eq",
+                                        new BsonArray(new BsonValue[] 
+                                        {
+                                            new BsonDocument("$strcasecmp", new BsonArray(new[] { field, ResolveValue(node.Arguments[0]) })),
+                                            0
+                                        }));
+                                case StringComparison.Ordinal:
+                                    break;
+                                default:
+                                    throw new NotSupportedException("Only Ordinal and OrdinalIgnoreCase are supported for string comparisons.");
+                            }
+                        }
+
+                        return new BsonDocument("$eq", new BsonArray(new[] { field, ResolveValue(node.Arguments[0]) }));
                     case "Substring":
                         if (node.Arguments.Count == 2)
                         {

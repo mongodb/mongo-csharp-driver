@@ -228,6 +228,16 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_equals_as_a_method_call()
+        {
+            var result = await Project(x => new { Result = x.C.E.F.Equals(5) });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [\"$C.E.F\", 5] }, _id: 0 }");
+
+            result.Value.Result.Should().BeFalse();
+        }
+
+        [Test]
         public async Task Should_translate_greater_than()
         {
             var result = await Project(x => new { Result = x.C.E.F > 5 });
@@ -396,6 +406,48 @@ namespace MongoDB.Driver.Core.Linq
             result.Projection.Should().Be("{ Result: { \"$second\": \"$J\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(15);
+        }
+
+        [Test]
+        public async Task Should_translate_string_equals()
+        {
+            var result = await Project(x => new { Result = x.B.Equals("Balloon") });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [\"$B\", \"Balloon\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Should_translate_string_equals_using_comparison()
+        {
+            var result = await Project(x => new { Result = x.B.Equals("Balloon", StringComparison.Ordinal) });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [\"$B\", \"Balloon\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Should_translate_string_case_insensitive_equals()
+        {
+            var result = await Project(x => new { Result = x.B.Equals("balloon", StringComparison.OrdinalIgnoreCase) });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [{ \"$strcasecmp\": [\"$B\", \"balloon\"] }, 0] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        [TestCase(StringComparison.CurrentCulture)]
+        [TestCase(StringComparison.CurrentCultureIgnoreCase)]
+        [TestCase(StringComparison.InvariantCulture)]
+        [TestCase(StringComparison.InvariantCultureIgnoreCase)]
+        public void Should_throw_for_a_not_supported_string_comparison_type(StringComparison comparison)
+        {
+            Func<Task> act = async () => await Project(x => new { Result = x.B.Equals("balloon", comparison) });
+
+            act.ShouldThrow<NotSupportedException>();
         }
 
         [Test]
