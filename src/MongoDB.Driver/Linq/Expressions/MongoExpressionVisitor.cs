@@ -27,6 +27,11 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public static bool IsLinqMethod(MethodCallExpression node, params string[] names)
         {
+            if(node == null)
+            {
+                return false;
+            }
+
             if (node.Method.DeclaringType != typeof(Enumerable) && node.Method.DeclaringType != typeof(Queryable))
             {
                 return false;

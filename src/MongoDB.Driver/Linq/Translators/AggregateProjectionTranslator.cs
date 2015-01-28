@@ -185,6 +185,8 @@ namespace MongoDB.Driver.Linq.Translators
                         return new BsonDocument("$max", ResolveValue(node.Argument));
                     case AggregationType.Min:
                         return new BsonDocument("$min", ResolveValue(node.Argument));
+                    case AggregationType.Push:
+                        return new BsonDocument("$push", ResolveValue(node.Argument));
                     case AggregationType.Sum:
                         return new BsonDocument("$sum", ResolveValue(node.Argument));
                 }
