@@ -57,9 +57,9 @@
 <NamespaceSummaryItem name="MongoDB.Driver.Core.Events" isDocumented="True">The MongoDB.Driver.Core.Events namespace contains classes related to events.</NamespaceSummaryItem>
 <NamespaceSummaryItem name="MongoDB.Driver.Core.Events.Diagnostics" isDocumented="True">The MongoDB.Driver.Core.Events.Diagnostics namespace contains classes related to diagnostics.</NamespaceSummaryItem>
 <NamespaceSummaryItem name="MongoDB.Driver.Core.Misc" isDocumented="True">The MongoDB.Driver.Core.Misc namespace contains miscellaneous classes.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="MongoDB.Driver.Core.Operations" isDocumented="False">The MongoDB.Driver.Core.Operations namespace contains classes related to operations.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Operations" isDocumented="True">The MongoDB.Driver.Core.Operations namespace contains classes related to operations.</NamespaceSummaryItem>
 <NamespaceSummaryItem name="MongoDB.Driver.Core.Operations.ElementNameValidators" isDocumented="True">The MongoDB.Driver.Core.Operations.ElementNameValidators namespace contains classes related to element name validators for operations.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="MongoDB.Driver.Core.Servers" isDocumented="False">The MongoDB.Driver.Core.Servers namespace contains classes related to servers.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Servers" isDocumented="True">The MongoDB.Driver.Core.Servers namespace contains classes related to servers.</NamespaceSummaryItem>
 <NamespaceSummaryItem name="MongoDB.Driver.Core.WireProtocol" isDocumented="True">The MongoDB.Driver.Core.WireProtocol namespace contains classes related to the wire protocol.</NamespaceSummaryItem>
 <NamespaceSummaryItem name="MongoDB.Driver.Core.WireProtocol.Messages" isDocumented="True">The MongoDB.Driver.Core.WireProtocol.Messages namespace contains classes related to wire protocol messages.</NamespaceSummaryItem>
 <NamespaceSummaryItem name="MongoDB.Driver.Core.WireProtocol.Messages.Encoders" isDocumented="True">The MongoDB.Driver.Core.WireProtoco.Messages.Encoders namespace contains classes related to message encoders.</NamespaceSummaryItem>

@@ -269,28 +269,28 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <inheritdoc/>
-        public bool Equals(ServerDescription rhs)
+        public bool Equals(ServerDescription other)
         {
-            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(ServerDescription))
+            if (object.ReferenceEquals(other, null) || other.GetType() != typeof(ServerDescription))
             {
                 return false;
             }
 
             return
-                _averageRoundTripTime == rhs._averageRoundTripTime &&
-                EndPointHelper.Equals(_endPoint, rhs._endPoint) &&
-                object.Equals(_heartbeatException, rhs._heartbeatException) &&
-                _maxBatchCount == rhs._maxBatchCount &&
-                _maxDocumentSize == rhs._maxDocumentSize &&
-                _maxMessageSize == rhs._maxMessageSize &&
-                _maxWireDocumentSize == rhs._maxWireDocumentSize &&
-                object.Equals(_replicaSetConfig, rhs._replicaSetConfig) &&
-                _serverId.Equals(rhs._serverId) &&
-                _state == rhs._state &&
-                object.Equals(_tags, rhs._tags) &&
-                _type == rhs._type &&
-                object.Equals(_version, rhs._version) &&
-                object.Equals(_wireVersionRange, rhs._wireVersionRange);
+                _averageRoundTripTime == other._averageRoundTripTime &&
+                EndPointHelper.Equals(_endPoint, other._endPoint) &&
+                object.Equals(_heartbeatException, other._heartbeatException) &&
+                _maxBatchCount == other._maxBatchCount &&
+                _maxDocumentSize == other._maxDocumentSize &&
+                _maxMessageSize == other._maxMessageSize &&
+                _maxWireDocumentSize == other._maxWireDocumentSize &&
+                object.Equals(_replicaSetConfig, other._replicaSetConfig) &&
+                _serverId.Equals(other._serverId) &&
+                _state == other._state &&
+                object.Equals(_tags, other._tags) &&
+                _type == other._type &&
+                object.Equals(_version, other._version) &&
+                object.Equals(_wireVersionRange, other._wireVersionRange);
         }
 
         /// <inheritdoc/>
@@ -346,7 +346,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="type">The server type.</param>
         /// <param name="version">The server version.</param>
         /// <param name="wireVersionRange">The wire version range.</param>
-        /// <returns></returns>
+        /// <returns>A new instance of ServerDescription.</returns>
         public ServerDescription With(
             Optional<TimeSpan> averageRoundTripTime = default(Optional<TimeSpan>),
             Optional<Exception> heartbeatException = default(Optional<Exception>),

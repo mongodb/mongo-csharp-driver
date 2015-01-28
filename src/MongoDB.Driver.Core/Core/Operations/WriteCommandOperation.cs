@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a write command operation.
     /// </summary>
+    /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
     public class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
         // constructors

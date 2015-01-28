@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the base class for a command operation.
     /// </summary>
+    /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
     public abstract class CommandOperationBase<TCommandResult>
     {
         // fields

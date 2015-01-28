@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a read command operation.
     /// </summary>
+    /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
     public class ReadCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IReadOperation<TCommandResult>
     {
         // constructors
