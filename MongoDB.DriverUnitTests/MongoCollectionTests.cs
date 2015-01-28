@@ -2013,7 +2013,12 @@ namespace MongoDB.DriverUnitTests
                 else
                 {
                     var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
-                    var inputStage = winningPlan["inputStage"]["inputStage"].AsBsonDocument; // not sure why there are two inputStages
+                    var inputStage = winningPlan["inputStage"].AsBsonDocument;
+                    // working around a server bug were sometimes the inputStage is nested inside the inputStage
+                    if (inputStage.Contains("inputStage"))
+                    {
+                        inputStage = inputStage["inputStage"].AsBsonDocument;
+                    }
                     var stage = inputStage["stage"].AsString;
                     var keyPattern = inputStage["keyPattern"].AsBsonDocument;
                     Assert.That(stage, Is.EqualTo("IXSCAN"));
