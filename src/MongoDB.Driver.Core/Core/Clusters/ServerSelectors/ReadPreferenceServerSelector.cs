@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 var matchingServers = new List<ServerDescription>();
                 foreach (var server in servers)
                 {
-                    if (server.Tags.ContainsAll(tagSet))
+                    if (server.Tags != null && server.Tags.ContainsAll(tagSet))
                     {
                         matchingServers.Add(server);
                     }
