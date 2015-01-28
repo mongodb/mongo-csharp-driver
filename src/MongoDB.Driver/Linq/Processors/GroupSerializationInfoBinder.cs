@@ -66,6 +66,24 @@ namespace MongoDB.Driver.Linq.Processors
             return newNode;
         }
 
+        protected override Expression VisitNew(NewExpression node)
+        {
+            var newNode = (NewExpression)base.VisitNew(node);
+            if (newNode.Type.IsGenericType 
+                && newNode.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
+                && newNode.Arguments.Count == 1
+                && newNode.Arguments[0] is AggregationExpression
+                && ((AggregationExpression)newNode.Arguments[0]).AggregationType == AggregationType.Push)
+            {
+                return new AggregationExpression(
+                    newNode.Type,
+                    AggregationType.AddToSet,
+                    ((AggregationExpression)newNode.Arguments[0]).Argument);
+            }
+
+            return newNode;
+        }
+
         private bool TryBindAggregationExpression(MethodCallExpression node, out Expression aggregationNode)
         {
             AggregationType aggregationType;
@@ -118,6 +136,7 @@ namespace MongoDB.Driver.Linq.Processors
                         return GetLambda(node.Arguments[1]).Body;
                     }
                     break;
+                case "Distinct":
                 case "ToArray":
                 case "ToList":
                     if (node.Arguments.Count == 1)
@@ -150,6 +169,9 @@ namespace MongoDB.Driver.Linq.Processors
                 case "LongCount":
                 case "Sum":
                     aggregationType = AggregationType.Sum;
+                    return true;
+                case "Distinct":
+                    aggregationType = AggregationType.AddToSet;
                     return true;
                 case "First":
                     aggregationType = AggregationType.First;

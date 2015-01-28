@@ -96,6 +96,26 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_addToSet()
+        {
+            var result = await Group(x => x.A, g => new { Result = new HashSet<int>(g.Select(x => x.C.E.F)) });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$addToSet\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().Equal(11);
+        }
+
+        [Test]
+        public async Task Should_translate_addToSet_using_Distinct()
+        {
+            var result = await Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Distinct() });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$addToSet\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().Equal(11);
+        }
+
+        [Test]
         public async Task Should_translate_average_with_embedded_projector()
         {
             var result = await Group(x => x.A, g => new { Result = g.Average(x => x.C.E.F) });

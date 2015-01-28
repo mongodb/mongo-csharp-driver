@@ -15,6 +15,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
@@ -175,6 +176,8 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 switch (node.AggregationType)
                 {
+                    case AggregationType.AddToSet:
+                        return new BsonDocument("$addToSet", ResolveValue(node.Argument));
                     case AggregationType.Average:
                         return new BsonDocument("$avg", ResolveValue(node.Argument));
                     case AggregationType.First:
