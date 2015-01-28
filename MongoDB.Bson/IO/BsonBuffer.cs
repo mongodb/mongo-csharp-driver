@@ -378,6 +378,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON string from the reader.
         /// </summary>
+        /// <param name="encoding">The encoding.</param>
         /// <returns>A String.</returns>
         public string ReadString(UTF8Encoding encoding)
         {
@@ -416,6 +417,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON CString from the reader (a null terminated string).
         /// </summary>
+        /// <param name="encoding">The encoding.</param>
         /// <returns>A string.</returns>
         public string ReadCString(UTF8Encoding encoding)
         {

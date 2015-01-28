@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Sets the storage options.
+        /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -272,7 +272,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Sets the storage options.
+        /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -456,7 +456,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Sets the storage options.
+        /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -623,7 +623,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Sets the storage options.
+        /// Sets the storage engine options.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>

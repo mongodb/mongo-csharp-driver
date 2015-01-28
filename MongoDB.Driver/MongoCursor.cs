@@ -519,7 +519,7 @@ namespace MongoDB.Driver
         /// Sets the maximum time the server should spend on this query.
         /// </summary>
         /// <param name="maxTime">The max time.</param>
-        /// <returns></returns>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetMaxTime(TimeSpan maxTime)
         {
             if (_isFrozen) { ThrowFrozen(); }
@@ -898,7 +898,7 @@ namespace MongoDB.Driver
         /// Sets the maximum time the server should spend on this query.
         /// </summary>
         /// <param name="maxTime">The max time.</param>
-        /// <returns></returns>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
         public new virtual MongoCursor<TDocument> SetMaxTime(TimeSpan maxTime)
         {
             return (MongoCursor<TDocument>)base.SetMaxTime(maxTime);

@@ -64,7 +64,7 @@ namespace MongoDB.Driver
         /// Creates a builder for a new write request (either a remove or an update).
         /// </summary>
         /// <param name="query">The query.</param>
-        /// <returns>A FluentWriteRequestBuilder.</returns>
+        /// <returns>A BulkWriteRequestBuilder.</returns>
         public BulkWriteRequestBuilder Find(IMongoQuery query)
         {
             if (query == null)

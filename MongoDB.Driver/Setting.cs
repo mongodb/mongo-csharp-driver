@@ -18,6 +18,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a setting that may or may not have been set.
     /// </summary>
+    /// <typeparam name="T">The type of the value.</typeparam>
     public struct Setting<T>
     {
         // private fields

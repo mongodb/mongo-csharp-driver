@@ -289,6 +289,7 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Creates or opens a GridFS file for writing UTF-8 encoded text.
         /// </summary>
+        /// <param name="remoteFileName">The remote file name.</param>
         /// <returns>A stream writer.</returns>
         public StreamWriter CreateText(string remoteFileName)
         {

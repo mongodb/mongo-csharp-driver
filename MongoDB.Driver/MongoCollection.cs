@@ -336,6 +336,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns the distinct values for a given field.
         /// </summary>
+        /// <typeparam name="TValue">The type of the values.</typeparam>
         /// <param name="args">The args.</param>
         /// <returns>The distint values of the field.</returns>
         public IEnumerable<TValue> Distinct<TValue>(DistinctArgs args)
@@ -389,7 +390,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns the distinct values for a given field.
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TValue">The type of the values.</typeparam>
         /// <param name="key">The key of the field.</param>
         /// <returns>The distint values of the field.</returns>
         public virtual IEnumerable<TValue> Distinct<TValue>(string key)
@@ -403,7 +404,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns the distinct values for a given field for documents that match a query.
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TValue">The type of the values.</typeparam>
         /// <param name="key">The key of the field.</param>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>The distint values of the field.</returns>

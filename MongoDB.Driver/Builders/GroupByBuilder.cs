@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Builders
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="GroupByBuilder&lt;TDocument&gt;"/> class.
+        /// Initializes a new instance of the <see cref="GroupByBuilder{TDocument}"/> class.
         /// </summary>
         public GroupByBuilder()
         {

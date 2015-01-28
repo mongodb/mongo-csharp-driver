@@ -25,6 +25,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJsonMultiLineStringCoordinates value.
     /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public class GeoJsonMultiLineStringCoordinatesSerializer<TCoordinates> : BsonBaseSerializer where TCoordinates : GeoJsonCoordinates
     {
         // private fields

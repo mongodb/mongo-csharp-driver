@@ -31,6 +31,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the EnumerableSerializerBase class.
         /// </summary>
+        /// <param name="defaultSerializationOptions">The default serialization options for this serializer.</param>
         public EnumerableSerializerBase(IBsonSerializationOptions defaultSerializationOptions)
             : base(defaultSerializationOptions)
         {
@@ -230,6 +231,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the EnumerableSerializer class.
         /// </summary>
+        /// <param name="defaultSerializationOptions">The default serialization options for this serializer.</param>
         public EnumerableSerializerBase(IBsonSerializationOptions defaultSerializationOptions)
             : base(defaultSerializationOptions)
         {

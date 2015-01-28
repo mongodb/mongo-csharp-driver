@@ -346,6 +346,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="point">The point.</param>
         /// <param name="maxDistance">The max distance.</param>
@@ -359,6 +360,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="point">The point.</param>
         /// <param name="maxDistance">The max distance.</param>
@@ -1533,14 +1535,14 @@ namespace MongoDB.Driver.Builders
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="QueryBuilder&lt;TDocument&gt;"/> class.
+        /// Initializes a new instance of the <see cref="QueryBuilder{TDocument}"/> class.
         /// </summary>
         public QueryBuilder()
             : this(new BsonSerializationInfoHelper())
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="QueryBuilder&lt;TDocument&gt;"/> class.
+        /// Initializes a new instance of the <see cref="QueryBuilder{TDocument}"/> class.
         /// </summary>
         /// <param name="serializationInfoHelper">The serialization info helper.</param>
         internal QueryBuilder(BsonSerializationInfoHelper serializationInfoHelper)

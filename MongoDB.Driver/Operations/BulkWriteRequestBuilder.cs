@@ -55,6 +55,8 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds a request to replace one matching documents to the bulk operation.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="document">The document.</param>
         public void ReplaceOne<TDocument>(TDocument document)
         {
             if (document == null)
@@ -67,6 +69,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds a request to update all matching documents to the bulk operation.
         /// </summary>
+        /// <param name="update">The update.</param>
         public void Update(IMongoUpdate update)
         {
             if (update == null)
@@ -79,6 +82,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Adds a request to update one matching documents to the bulk operation.
         /// </summary>
+        /// <param name="update">The update.</param>
         public void UpdateOne(IMongoUpdate update)
         {
             if (update == null)
@@ -91,7 +95,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Specifies that the request being built should be an upsert.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A BulkUpdateRequestBuilder.</returns>
         public BulkUpdateRequestBuilder Upsert()
         {
             return new BulkUpdateRequestBuilder(_addRequest, _query, true);

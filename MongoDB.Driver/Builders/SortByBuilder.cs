@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Builders
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="SortByBuilder&lt;TDocument&gt;"/> class.
+        /// Initializes a new instance of the <see cref="SortByBuilder{TDocument}"/> class.
         /// </summary>
         public SortByBuilder()
             : this(new BsonSerializationInfoHelper())
