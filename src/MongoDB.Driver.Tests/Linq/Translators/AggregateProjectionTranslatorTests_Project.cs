@@ -80,7 +80,8 @@ namespace MongoDB.Driver.Core.Linq
                 },
                 Id = 10,
                 J = new DateTime(2012, 12, 1, 13, 14, 15, 16, DateTimeKind.Utc),
-                K = true
+                K = true,
+                L = new HashSet<int>(new[] {  1, 3, 5 })
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
@@ -409,6 +410,108 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_set_difference()
+        {
+            var result = await Project(x => new { Result = x.C.E.I.Except(new[] { "it", "not in here" }) });
+
+            result.Projection.Should().Be("{ Result: { \"$setDifference\": [\"$C.E.I\", [\"it\", \"not in here\"] ] }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("icky");
+        }
+
+        [Test]
+        public async Task Should_translate_set_difference_reversed()
+        {
+            var result = await Project(x => new { Result = new[] { "it", "not in here" }.Except(x.C.E.I) });
+
+            result.Projection.Should().Be("{ Result: { \"$setDifference\": [[\"it\", \"not in here\"], \"$C.E.I\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("not in here");
+        }
+
+        [Test]
+        public async Task Should_translate_set_equals()
+        {
+            var result = await Project(x => new { Result = x.L.SetEquals(new [] { 1, 3, 5 }) });
+
+            result.Projection.Should().Be("{ Result: { \"$setEquals\": [\"$L\", [1, 3, 5]] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Should_translate_set_equals_reversed()
+        {
+            var set = new HashSet<int>(new[] { 1, 3, 5 });
+            var result = await Project(x => new { Result = set.SetEquals(x.L) });
+
+            result.Projection.Should().Be("{ Result: { \"$setEquals\": [[1, 3, 5], \"$L\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Should_translate_set_intersection()
+        {
+            var result = await Project(x => new { Result = x.C.E.I.Intersect(new[] { "it", "not in here" }) });
+
+            result.Projection.Should().Be("{ Result: { \"$setIntersection\": [\"$C.E.I\", [\"it\", \"not in here\"] ] }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("it");
+        }
+
+        [Test]
+        public async Task Should_translate_set_intersection_reversed()
+        {
+            var result = await Project(x => new { Result = new[] { "it", "not in here" }.Intersect(x.C.E.I) });
+
+            result.Projection.Should().Be("{ Result: { \"$setIntersection\": [[\"it\", \"not in here\"], \"$C.E.I\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("it");
+        }
+
+        [Test]
+        public async Task Should_translate_set_is_subset()
+        {
+            var result = await Project(x => new { Result = x.L.IsSubsetOf(new[] { 1, 3, 5 }) });
+
+            result.Projection.Should().Be("{ Result: { \"$setIsSubset\": [\"$L\", [1, 3, 5]] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Should_translate_set_is_subset_reversed()
+        {
+            var set = new HashSet<int>(new[] { 1, 3, 5 });
+            var result = await Project(x => new { Result = set.IsSubsetOf(x.L) });
+
+            result.Projection.Should().Be("{ Result: { \"$setIsSubset\": [[1, 3, 5], \"$L\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Should_translate_set_union()
+        {
+            var result = await Project(x => new { Result = x.C.E.I.Union(new[] { "it", "not in here" }) });
+
+            result.Projection.Should().Be("{ Result: { \"$setUnion\": [\"$C.E.I\", [\"it\", \"not in here\"] ] }, _id: 0 }");
+
+            result.Value.Result.Should().BeEquivalentTo("it", "icky", "not in here");
+        }
+
+        [Test]
+        public async Task Should_translate_set_union_reversed()
+        {
+            var result = await Project(x => new { Result = new[] { "it", "not in here" }.Union(x.C.E.I) });
+
+            result.Projection.Should().Be("{ Result: { \"$setUnion\": [[\"it\", \"not in here\"], \"$C.E.I\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeEquivalentTo("it", "icky", "not in here");
+        }
+
+        [Test]
         public async Task Should_translate_string_equals()
         {
             var result = await Project(x => new { Result = x.B.Equals("Balloon") });
@@ -588,6 +691,8 @@ namespace MongoDB.Driver.Core.Linq
             public DateTime J { get; set; }
 
             public bool K { get; set; }
+
+            public HashSet<int> L { get; set; }
         }
 
         public class C
