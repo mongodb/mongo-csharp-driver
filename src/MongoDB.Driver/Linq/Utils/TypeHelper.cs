@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoDB.Driver.Linq.Utils
 {
@@ -34,6 +35,21 @@ namespace MongoDB.Driver.Linq.Utils
             Type ienum = FindIEnumerable(seqType);
             if (ienum == null) { return seqType; }
             return ienum.GetGenericArguments()[0];
+        }
+
+        internal static bool ImplementsInterface(Type candidate, Type iface)
+        {
+            if(candidate.Equals(iface))
+            {
+                return true;
+            }
+
+            if(candidate.IsGenericType && candidate.GetGenericTypeDefinition().Equals(iface))
+            {
+                return true;
+            }
+
+            return candidate.GetInterfaces().Any(i => TypeHelper.ImplementsInterface(i, iface));
         }
 
         private static Type FindIEnumerable(Type seqType)

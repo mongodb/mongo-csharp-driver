@@ -23,6 +23,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver.Linq.Translators
 {
@@ -102,6 +103,8 @@ namespace MongoDB.Driver.Linq.Translators
                     case ExpressionType.And:
                     case ExpressionType.AndAlso:
                         return BuildOperation((BinaryExpression)node, "$and", true);
+                    case ExpressionType.ArrayLength:
+                        return new BsonDocument("$size", ResolveValue(((UnaryExpression)node).Operand));
                     case ExpressionType.Call:
                         return BuildMethodCall((MethodCallExpression)node);
                     case ExpressionType.Coalesce:
@@ -215,49 +218,23 @@ namespace MongoDB.Driver.Linq.Translators
                 return new BsonDocument("$cond", new BsonArray(new[] { condition, truePart, falsePart }));
             }
 
-            private BsonValue BuildDateTime(MemberExpression node)
-            {
-                var field = ResolveValue(node.Expression);
-                switch (node.Member.Name)
-                {
-                    case "Day":
-                        return new BsonDocument("$dayOfMonth", field);
-                    case "DayOfWeek":
-                        // The server's day of week values are 1 greater than
-                        // .NET's DayOfWeek enum values
-                        return new BsonDocument("$subtract", new BsonArray
-                        {
-                            new BsonDocument("$dayOfWeek", field),
-                            new BsonInt32(1)
-                        });
-                    case "DayOfYear":
-                        return new BsonDocument("$dayOfYear", field);
-                    case "Hour":
-                        return new BsonDocument("$hour", field);
-                    case "Millisecond":
-                        return new BsonDocument("$millisecond", field);
-                    case "Minute":
-                        return new BsonDocument("$minute", field);
-                    case "Month":
-                        return new BsonDocument("$month", field);
-                    case "Second":
-                        return new BsonDocument("$second", field);
-                    case "Year":
-                        return new BsonDocument("$year", field);
-                }
-
-                var message = string.Format("{0} is an unsupported DateTime member in an $project or $group pipeline operator.", node.Member.Name);
-                throw new NotSupportedException(message);
-            }
-
             private BsonValue BuildMemberAccess(MemberExpression node)
             {
-                if (node.Expression.Type == typeof(DateTime))
+                BsonValue result;
+                if (node.Expression.Type == typeof(DateTime)
+                    && TryBuildDateTimeMemberAccess(node, out result))
                 {
-                    return BuildDateTime(node);
+                    return result;
                 }
 
-                var message = string.Format("Members of {0} are not supported in a $project or $group pipeline operator.", node.Expression.Type);
+                if (node.Expression != null
+                    && TypeHelper.ImplementsInterface(node.Expression.Type, typeof(ICollection<>))
+                    && TryBuildICollectionMemberAccess(node, out result))
+                {
+                    return result;
+                }
+
+                var message = string.Format("Member {0} of type {1} are not supported in a $project or $group pipeline operator.", node.Member.Name, node.Member.DeclaringType);
                 throw new NotSupportedException(message);
             }
 
@@ -287,7 +264,7 @@ namespace MongoDB.Driver.Linq.Translators
                     return new BsonDocument("$eq", new BsonArray(new[] { ResolveValue(node.Object), ResolveValue(node.Arguments[0]) }));
                 }
 
-                var message = string.Format("{0} is an unsupported method in a $project or $group pipeline operator.", node.Method.Name);
+                var message = string.Format("{0} of type {1} is an unsupported method in a $project or $group pipeline operator.", node.Method.Name, node.Method.DeclaringType);
                 throw new NotSupportedException(message);
             }
 
@@ -342,6 +319,50 @@ namespace MongoDB.Driver.Linq.Translators
                 return BuildValue(node);
             }
 
+            private bool TryBuildDateTimeMemberAccess(MemberExpression node, out BsonValue result)
+            {
+                result = null;
+                var field = ResolveValue(node.Expression);
+                switch (node.Member.Name)
+                {
+                    case "Day":
+                        result = new BsonDocument("$dayOfMonth", field);
+                        return true;
+                    case "DayOfWeek":
+                        // The server's day of week values are 1 greater than
+                        // .NET's DayOfWeek enum values
+                        result = new BsonDocument("$subtract", new BsonArray
+                        {
+                            new BsonDocument("$dayOfWeek", field),
+                            new BsonInt32(1)
+                        });
+                        return true;
+                    case "DayOfYear":
+                        result = new BsonDocument("$dayOfYear", field);
+                        return true;
+                    case "Hour":
+                        result = new BsonDocument("$hour", field);
+                        return true;
+                    case "Millisecond":
+                        result = new BsonDocument("$millisecond", field);
+                        return true;
+                    case "Minute":
+                        result = new BsonDocument("$minute", field);
+                        return true;
+                    case "Month":
+                        result = new BsonDocument("$month", field);
+                        return true;
+                    case "Second":
+                        result = new BsonDocument("$second", field);
+                        return true;
+                    case "Year":
+                        result = new BsonDocument("$year", field);
+                        return true;
+                }
+
+                return false;
+            }
+
             private bool TryBuildHashSetMethodCall(MethodCallExpression node, out BsonValue result)
             {
                 result = null;
@@ -366,11 +387,32 @@ namespace MongoDB.Driver.Linq.Translators
                 return false;
             }
 
+            private bool TryBuildICollectionMemberAccess(MemberExpression node, out BsonValue result)
+            {
+                result = null;
+                switch(node.Member.Name)
+                {
+                    case "Count":
+                        result = new BsonDocument("$size", ResolveValue(node.Expression));
+                        return true;
+                }
+
+                return false;
+            }
+
             private bool TryBuildLinqMethodCall(MethodCallExpression node, out BsonValue result)
             {
                 result = null;
                 switch (node.Method.Name)
                 {
+                    case "Count":
+                    case "LongCount":
+                        if (node.Arguments.Count == 1)
+                        {
+                            result = new BsonDocument("$size", ResolveValue(node.Arguments[0]));
+                            return true;
+                        }
+                        break;
                     case "Except":
                         if (node.Arguments.Count == 2)
                         {

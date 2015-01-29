@@ -81,7 +81,8 @@ namespace MongoDB.Driver.Core.Linq
                 Id = 10,
                 J = new DateTime(2012, 12, 1, 13, 14, 15, 16, DateTimeKind.Utc),
                 K = true,
-                L = new HashSet<int>(new[] {  1, 3, 5 })
+                L = new HashSet<int>(new[] {  1, 3, 5 }),
+                M = new[] {  2, 4, 5 }
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
@@ -440,6 +441,46 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_size_from_an_array()
+        {
+            var result = await Project(x => new { Result = x.M.Length });
+
+            result.Projection.Should().Be("{ Result: { \"$size\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(3);
+        }
+
+        [Test]
+        public async Task Should_translate_size_from_Count_extension_method()
+        {
+            var result = await Project(x => new { Result = x.M.Count() });
+
+            result.Projection.Should().Be("{ Result: { \"$size\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(3);
+        }
+
+        [Test]
+        public async Task Should_translate_size_from_LongCount_extension_method()
+        {
+            var result = await Project(x => new { Result = x.M.LongCount() });
+
+            result.Projection.Should().Be("{ Result: { \"$size\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(3);
+        }
+
+        [Test]
+        public async Task Should_translate_size_from_Count_property_on_Generic_ICollection()
+        {
+            var result = await Project(x => new { Result = x.L.Count });
+
+            result.Projection.Should().Be("{ Result: { \"$size\": \"$L\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(3);
+        }
+
+        [Test]
         [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_difference()
         {
@@ -733,6 +774,8 @@ namespace MongoDB.Driver.Core.Linq
             public bool K { get; set; }
 
             public HashSet<int> L { get; set; }
+
+            public int[] M { get; set; }
         }
 
         public class C
