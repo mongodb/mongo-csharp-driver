@@ -410,6 +410,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_difference()
         {
             var result = await Project(x => new { Result = x.C.E.I.Except(new[] { "it", "not in here" }) });
@@ -420,6 +421,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_difference_reversed()
         {
             var result = await Project(x => new { Result = new[] { "it", "not in here" }.Except(x.C.E.I) });
@@ -430,6 +432,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_equals()
         {
             var result = await Project(x => new { Result = x.L.SetEquals(new [] { 1, 3, 5 }) });
@@ -440,6 +443,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_equals_reversed()
         {
             var set = new HashSet<int>(new[] { 1, 3, 5 });
@@ -451,6 +455,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_intersection()
         {
             var result = await Project(x => new { Result = x.C.E.I.Intersect(new[] { "it", "not in here" }) });
@@ -461,6 +466,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_intersection_reversed()
         {
             var result = await Project(x => new { Result = new[] { "it", "not in here" }.Intersect(x.C.E.I) });
@@ -471,6 +477,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_is_subset()
         {
             var result = await Project(x => new { Result = x.L.IsSubsetOf(new[] { 1, 3, 5 }) });
@@ -481,6 +488,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_is_subset_reversed()
         {
             var set = new HashSet<int>(new[] { 1, 3, 5 });
@@ -492,6 +500,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_union()
         {
             var result = await Project(x => new { Result = x.C.E.I.Union(new[] { "it", "not in here" }) });
@@ -502,6 +511,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_union_reversed()
         {
             var result = await Project(x => new { Result = new[] { "it", "not in here" }.Union(x.C.E.I) });
