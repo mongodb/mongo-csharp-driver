@@ -289,6 +289,26 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_map_with_value()
+        {
+            var result = await Project(x => new { Result = x.C.E.I.Select(i => i + "0") });
+
+            result.Projection.Should().Be("{ Result: { \"$map\": { input: \"$C.E.I\", as: \"i\", in: { \"$concat\": [\"$$i\", \"0\"] } } }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("it0", "icky0");
+        }
+
+        [Test]
+        public async Task Should_translate_map_with_document()
+        {
+            var result = await Project(x => new { Result = x.G.Select(g => g.D + "0") });
+
+            result.Projection.Should().Be("{ Result: { \"$map\": { input: \"$G\", as: \"g\", in: { \"$concat\": [\"$$g.D\", \"0\"] } } }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("Don't0", "Dolphin0");
+        }
+
+        [Test]
         [RequiresServer(MinimumVersion = "2.4.0")]
         public async Task Should_translate_millisecond()
         {

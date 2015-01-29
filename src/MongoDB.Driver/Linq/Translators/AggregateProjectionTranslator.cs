@@ -266,8 +266,8 @@ namespace MongoDB.Driver.Linq.Translators
                     return result;
                 }
 
-                if (node.Object != null 
-                    && node.Object.Type.IsGenericType 
+                if (node.Object != null
+                    && node.Object.Type.IsGenericType
                     && node.Object.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
                     && TryBuildHashSetMethodCall(node, out result))
                 {
@@ -389,8 +389,26 @@ namespace MongoDB.Driver.Linq.Translators
                         var sourceSerializationExpression = node.Arguments[0] as IBsonSerializationInfoExpression;
                         if (sourceSerializationExpression != null)
                         {
-                            var body = MongoExpressionVisitor.GetLambda(node.Arguments[1]).Body;
-                            result = ResolveValue(body);
+                            var lambda = MongoExpressionVisitor.GetLambda(node.Arguments[1]);
+                            if (lambda.Body is IBsonSerializationInfoExpression)
+                            {
+                                result = ResolveValue(lambda.Body);
+                                return true;
+                            }
+
+                            var inputValue = ResolveValue(node.Arguments[0]);
+                            var asValue = lambda.Parameters[0].Name;
+
+                            // HACK: need to add a leading $ sign to the replacement because of how we resolve values.
+                            var body = FieldNameReplacer.Replace(lambda.Body, sourceSerializationExpression.SerializationInfo.ElementName, "$" + asValue);
+                            var inValue = ResolveValue(body);
+
+                            result = new BsonDocument("$map", new BsonDocument
+                            {
+                                { "input", inputValue },
+                                { "as", asValue },
+                                { "in", inValue }
+                            });
                             return true;
                         }
                         break;
@@ -555,6 +573,56 @@ namespace MongoDB.Driver.Linq.Translators
 
                 var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(node.Type);
                 return (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
+            }
+        }
+
+        private class FieldNameReplacer : MongoExpressionVisitor
+        {
+            public static Expression Replace(Expression node, string oldName, string newName)
+            {
+                var replacer = new FieldNameReplacer(oldName, newName);
+                return replacer.Visit(node);
+            }
+
+            private readonly string _oldName;
+            private readonly string _newName;
+
+            private FieldNameReplacer(string oldName, string newName)
+            {
+                _oldName = oldName;
+                _newName = newName;
+            }
+
+            protected override Expression VisitDocument(DocumentExpression node)
+            {
+                if (node.SerializationInfo.ElementName.StartsWith(_oldName))
+                {
+                    return new DocumentExpression(
+                        node.Expression,
+                        node.SerializationInfo.WithNewName(GetReplacementName(node.SerializationInfo.ElementName)),
+                        node.IsProjected);
+                }
+
+                return base.VisitDocument(node);
+            }
+
+            protected override Expression VisitField(FieldExpression node)
+            {
+                if (node.SerializationInfo.ElementName.StartsWith(_oldName))
+                {
+                    return new FieldExpression(
+                        node.Expression,
+                        node.SerializationInfo.WithNewName(GetReplacementName(node.SerializationInfo.ElementName)),
+                        node.IsProjected);
+                }
+
+                return base.VisitField(node);
+            }
+
+            private string GetReplacementName(string elementName)
+            {
+                var suffix = elementName.Substring(_oldName.Length);
+                return _newName + suffix;
             }
         }
     }
