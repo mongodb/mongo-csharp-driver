@@ -255,19 +255,23 @@ namespace MongoDB.Driver.Linq.Translators
 
             private BsonValue BuildMethodCall(MethodCallExpression node)
             {
-                if (MongoExpressionVisitor.IsLinqMethod(node, "Select"))
+                BsonValue result;
+                if (MongoExpressionVisitor.IsLinqMethod(node) && TryBuildLinqMethodCall(node, out result))
                 {
-                    var serializationExpression = node.Arguments[0] as IBsonSerializationInfoExpression;
-                    if (serializationExpression != null)
-                    {
-                        var body = MongoExpressionVisitor.GetLambda(node.Arguments[1]).Body;
-                        return ResolveValue(body);
-                    }
+                    return result;
                 }
 
-                if (node.Object != null && node.Object.Type == typeof(string))
+                if (node.Object != null && node.Object.Type == typeof(string) && TryBuildStringMethodCall(node, out result))
                 {
-                    return BuildStringMethodCall(node);
+                    return result;
+                }
+
+                if (node.Object != null 
+                    && node.Object.Type.IsGenericType 
+                    && node.Object.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
+                    && TryBuildHashSetMethodCall(node, out result))
+                {
+                    return result;
                 }
 
                 if (node.Object != null && node.Method.Name == "Equals" && node.Arguments.Count == 1)
@@ -319,8 +323,96 @@ namespace MongoDB.Driver.Linq.Translators
                 return new BsonDocument(op, new BsonArray(new[] { left, right }));
             }
 
-            private BsonValue BuildStringMethodCall(MethodCallExpression node)
+            private BsonValue ResolveValue(Expression node)
             {
+                var serializationExpression = node as IBsonSerializationInfoExpression;
+                if (serializationExpression != null)
+                {
+                    return "$" + serializationExpression.SerializationInfo.ElementName;
+                }
+
+                return BuildValue(node);
+            }
+
+            private bool TryBuildHashSetMethodCall(MethodCallExpression node, out BsonValue result)
+            {
+                result = null;
+                switch (node.Method.Name)
+                {
+                    case "IsSubsetOf":
+                        result = new BsonDocument("$setIsSubset", new BsonArray(new[] 
+                        { 
+                            ResolveValue(node.Object), 
+                            ResolveValue(node.Arguments[0])
+                        }));
+                        return true;
+                    case "SetEquals":
+                        result = new BsonDocument("$setEquals", new BsonArray(new[] 
+                        { 
+                            ResolveValue(node.Object), 
+                            ResolveValue(node.Arguments[0])
+                        }));
+                        return true;
+                }
+
+                return false;
+            }
+
+            private bool TryBuildLinqMethodCall(MethodCallExpression node, out BsonValue result)
+            {
+                result = null;
+                switch (node.Method.Name)
+                {
+                    case "Except":
+                        if (node.Arguments.Count == 2)
+                        {
+                            result = new BsonDocument("$setDifference", new BsonArray(new[] 
+                            { 
+                                ResolveValue(node.Arguments[0]), 
+                                ResolveValue(node.Arguments[1]) 
+                            }));
+                            return true;
+                        }
+                        break;
+                    case "Intersect":
+                        if (node.Arguments.Count == 2)
+                        {
+                            result = new BsonDocument("$setIntersection", new BsonArray(new[] 
+                            { 
+                                ResolveValue(node.Arguments[0]), 
+                                ResolveValue(node.Arguments[1]) 
+                            }));
+                            return true;
+                        }
+                        break;
+                    case "Select":
+                        var sourceSerializationExpression = node.Arguments[0] as IBsonSerializationInfoExpression;
+                        if (sourceSerializationExpression != null)
+                        {
+                            var body = MongoExpressionVisitor.GetLambda(node.Arguments[1]).Body;
+                            result = ResolveValue(body);
+                            return true;
+                        }
+                        break;
+                    case "Union":
+                        if (node.Arguments.Count == 2)
+                        {
+                            result = new BsonDocument("$setUnion", new BsonArray(new[] 
+                            { 
+                                ResolveValue(node.Arguments[0]), 
+                                ResolveValue(node.Arguments[1])
+                            }));
+                            return true;
+                        }
+                        break;
+                }
+
+                return false;
+            }
+
+            private bool TryBuildStringMethodCall(MethodCallExpression node, out BsonValue result)
+            {
+                result = null;
                 var field = ResolveValue(node.Object);
                 switch (node.Method.Name)
                 {
@@ -331,57 +423,52 @@ namespace MongoDB.Driver.Linq.Translators
                             switch (comparisonType)
                             {
                                 case StringComparison.OrdinalIgnoreCase:
-                                    return new BsonDocument("$eq",
+                                    result = new BsonDocument("$eq",
                                         new BsonArray(new BsonValue[] 
                                         {
                                             new BsonDocument("$strcasecmp", new BsonArray(new[] { field, ResolveValue(node.Arguments[0]) })),
                                             0
                                         }));
+                                    return true;
                                 case StringComparison.Ordinal:
-                                    break;
+                                    result = new BsonDocument("$eq", new BsonArray(new[] { field, ResolveValue(node.Arguments[0]) }));
+                                    return true;
                                 default:
                                     throw new NotSupportedException("Only Ordinal and OrdinalIgnoreCase are supported for string comparisons.");
                             }
                         }
-
-                        return new BsonDocument("$eq", new BsonArray(new[] { field, ResolveValue(node.Arguments[0]) }));
+                        break;
                     case "Substring":
                         if (node.Arguments.Count == 2)
                         {
-                            var start = ResolveValue(node.Arguments[0]);
-                            var end = ResolveValue(node.Arguments[1]);
-                            return new BsonDocument("$substr", new BsonArray(new[] { field, start, end }));
+                            result = new BsonDocument("$substr", new BsonArray(new[] 
+                            { 
+                                field, 
+                                ResolveValue(node.Arguments[0]), 
+                                ResolveValue(node.Arguments[1])
+                            }));
+                            return true;
                         }
                         break;
                     case "ToLower":
                     case "ToLowerInvariant":
                         if (node.Arguments.Count == 0)
                         {
-                            return new BsonDocument("$toLower", field);
+                            result = new BsonDocument("$toLower", field);
+                            return true;
                         }
                         break;
                     case "ToUpper":
                     case "ToUpperInvariant":
                         if (node.Arguments.Count == 0)
                         {
-                            return new BsonDocument("$toUpper", field);
+                            result = new BsonDocument("$toUpper", field);
+                            return true;
                         }
                         break;
                 }
 
-                var message = string.Format("{0} is an unsupported String method in an $project or $group pipeline operator.", node.Method.Name);
-                throw new NotSupportedException(message);
-            }
-
-            private BsonValue ResolveValue(Expression node)
-            {
-                var serializationExpression = node as IBsonSerializationInfoExpression;
-                if (serializationExpression != null)
-                {
-                    return "$" + serializationExpression.SerializationInfo.ElementName;
-                }
-
-                return BuildValue(node);
+                return false;
             }
         }
 
