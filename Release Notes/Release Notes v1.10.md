@@ -1,7 +1,5 @@
-C#/.NET Driver Version 1.10-rc1 Release Notes (RELEASE CANDIDATE)
-=================================================================
-
-NOTE: This is a release candidate and should only be used for testing. It is not recommended for production use.
+C#/.NET Driver Version 1.10 Release Notes
+=========================================
 
 This is a minor release which is fully compatible with server version 3.0 and fully supports
 the new features introduced by server version 3.0.
