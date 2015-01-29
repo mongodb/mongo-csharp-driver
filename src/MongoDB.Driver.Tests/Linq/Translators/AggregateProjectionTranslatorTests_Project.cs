@@ -289,6 +289,16 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_literal_when_a_constant_strings_begins_with_a_dollar()
+        {
+            var result = await Project(x => new { Result = x.A == "$1" });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [\"$A\", { \"$literal\": \"$1\" }] }, _id: 0 }");
+
+            result.Value.Result.Should().BeFalse();
+        }
+
+        [Test]
         public async Task Should_translate_map_with_value()
         {
             var result = await Project(x => new { Result = x.C.E.I.Select(i => i + "0") });

@@ -109,7 +109,15 @@ namespace MongoDB.Driver.Linq.Translators
                     case ExpressionType.Conditional:
                         return BuildConditional((ConditionalExpression)node);
                     case ExpressionType.Constant:
-                        return BsonValue.Create(((ConstantExpression)node).Value);
+                        var value = BsonValue.Create(((ConstantExpression)node).Value);
+                        var stringValue = value as BsonString;
+                        if (stringValue != null && stringValue.Value.StartsWith("$"))
+                        {
+                            value = new BsonDocument("$literal", value);
+                        }
+                        // TODO: there may be other instances where we should use a literal...
+                        // but I can't think of any yet.
+                        return value;
                     case ExpressionType.Convert:
                     case ExpressionType.ConvertChecked:
                         return BuildValue(((UnaryExpression)node).Operand);
