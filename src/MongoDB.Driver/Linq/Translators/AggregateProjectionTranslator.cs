@@ -419,6 +419,20 @@ namespace MongoDB.Driver.Linq.Translators
                 result = null;
                 switch (node.Method.Name)
                 {
+                    case "All":
+                        if(TryBuildMap(node, out result))
+                        {
+                            result = new BsonDocument("$allElementsTrue", result);
+                            return true;
+                        }
+                        break;
+                    case "Any":
+                        if(TryBuildMap(node, out result))
+                        {
+                            result = new BsonDocument("$anyElementTrue", result);
+                            return true;
+                        }
+                        break;
                     case "Count":
                     case "LongCount":
                         if (node.Arguments.Count == 1)
@@ -450,29 +464,8 @@ namespace MongoDB.Driver.Linq.Translators
                         }
                         break;
                     case "Select":
-                        var sourceSerializationExpression = node.Arguments[0] as IBsonSerializationInfoExpression;
-                        if (sourceSerializationExpression != null)
+                        if(TryBuildMap(node, out result))
                         {
-                            var lambda = MongoExpressionVisitor.GetLambda(node.Arguments[1]);
-                            if (lambda.Body is IBsonSerializationInfoExpression)
-                            {
-                                result = ResolveValue(lambda.Body);
-                                return true;
-                            }
-
-                            var inputValue = ResolveValue(node.Arguments[0]);
-                            var asValue = lambda.Parameters[0].Name;
-
-                            // HACK: need to add a leading $ sign to the replacement because of how we resolve values.
-                            var body = FieldNameReplacer.Replace(lambda.Body, sourceSerializationExpression.SerializationInfo.ElementName, "$" + asValue);
-                            var inValue = ResolveValue(body);
-
-                            result = new BsonDocument("$map", new BsonDocument
-                            {
-                                { "input", inputValue },
-                                { "as", asValue },
-                                { "in", inValue }
-                            });
                             return true;
                         }
                         break;
@@ -487,6 +480,38 @@ namespace MongoDB.Driver.Linq.Translators
                             return true;
                         }
                         break;
+                }
+
+                return false;
+            }
+
+            private bool TryBuildMap(MethodCallExpression node, out BsonValue result)
+            {
+                result = null;
+                var sourceSerializationExpression = node.Arguments[0] as IBsonSerializationInfoExpression;
+                if (sourceSerializationExpression != null)
+                {
+                    var lambda = MongoExpressionVisitor.GetLambda(node.Arguments[1]);
+                    if (lambda.Body is IBsonSerializationInfoExpression)
+                    {
+                        result = ResolveValue(lambda.Body);
+                        return true;
+                    }
+
+                    var inputValue = ResolveValue(node.Arguments[0]);
+                    var asValue = lambda.Parameters[0].Name;
+
+                    // HACK: need to add a leading $ sign to the replacement because of how we resolve values.
+                    var body = FieldNameReplacer.Replace(lambda.Body, sourceSerializationExpression.SerializationInfo.ElementName, "$" + asValue);
+                    var inValue = ResolveValue(body);
+
+                    result = new BsonDocument("$map", new BsonDocument
+                            {
+                                { "input", inputValue },
+                                { "as", asValue },
+                                { "in", inValue }
+                            });
+                    return true;
                 }
 
                 return false;

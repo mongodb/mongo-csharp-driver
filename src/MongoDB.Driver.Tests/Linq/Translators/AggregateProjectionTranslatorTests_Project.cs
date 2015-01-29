@@ -108,6 +108,26 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_allElementsTrue()
+        {
+            var result = await Project(x => new { Result = x.G.All(g => g.E.F > 30) });
+
+            result.Projection.Should().Be("{ Result: { \"$allElementsTrue\" : { \"$map\": { input: \"$G\", as: \"g\", in: { \"$gt\": [\"$$g.E.F\", 30 ] } } } }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Should_translate_anyElementTrue()
+        {
+            var result = await Project(x => new { Result = x.G.Any(g => g.E.F > 40) });
+
+            result.Projection.Should().Be("{ Result: { \"$anyElementTrue\" : { \"$map\": { input: \"$G\", as: \"g\", in: { \"$gt\": [\"$$g.E.F\", 40 ] } } } }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
         public async Task Should_translate_and()
         {
             var result = await Project(x => new { Result = x.A == "yes" && x.B == "no" });
