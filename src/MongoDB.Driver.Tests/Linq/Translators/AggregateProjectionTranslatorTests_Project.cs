@@ -300,6 +300,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_literal_when_a_constant_strings_begins_with_a_dollar()
         {
             var result = await Project(x => new { Result = x.A == "$1" });
@@ -310,16 +311,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
-        public async Task Should_translate_map_with_value()
-        {
-            var result = await Project(x => new { Result = x.C.E.I.Select(i => i + "0") });
-
-            result.Projection.Should().Be("{ Result: { \"$map\": { input: \"$C.E.I\", as: \"i\", in: { \"$concat\": [\"$$i\", \"0\"] } } }, _id: 0 }");
-
-            result.Value.Result.Should().Equal("it0", "icky0");
-        }
-
-        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_map_with_document()
         {
             var result = await Project(x => new { Result = x.G.Select(g => g.D + "0") });
@@ -327,6 +319,17 @@ namespace MongoDB.Driver.Core.Linq
             result.Projection.Should().Be("{ Result: { \"$map\": { input: \"$G\", as: \"g\", in: { \"$concat\": [\"$$g.D\", \"0\"] } } }, _id: 0 }");
 
             result.Value.Result.Should().Equal("Don't0", "Dolphin0");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_map_with_value()
+        {
+            var result = await Project(x => new { Result = x.C.E.I.Select(i => i + "0") });
+
+            result.Projection.Should().Be("{ Result: { \"$map\": { input: \"$C.E.I\", as: \"i\", in: { \"$concat\": [\"$$i\", \"0\"] } } }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("it0", "icky0");
         }
 
         [Test]
@@ -451,6 +454,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_size_from_an_array()
         {
             var result = await Project(x => new { Result = x.M.Length });
@@ -461,6 +465,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_size_from_Count_extension_method()
         {
             var result = await Project(x => new { Result = x.M.Count() });
@@ -471,6 +476,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_size_from_LongCount_extension_method()
         {
             var result = await Project(x => new { Result = x.M.LongCount() });
@@ -481,6 +487,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_size_from_Count_property_on_Generic_ICollection()
         {
             var result = await Project(x => new { Result = x.L.Count });
