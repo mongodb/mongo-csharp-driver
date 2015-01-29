@@ -15,6 +15,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -228,10 +229,11 @@ namespace MongoDB.Driver.Linq.Translators
                 }
 
                 if (node.Expression != null
-                    && TypeHelper.ImplementsInterface(node.Expression.Type, typeof(ICollection<>))
-                    && TryBuildICollectionMemberAccess(node, out result))
+                    && (TypeHelper.ImplementsInterface(node.Expression.Type, typeof(ICollection<>))
+                        || TypeHelper.ImplementsInterface(node.Expression.Type, typeof(ICollection)))
+                    && node.Member.Name == "Count")
                 {
-                    return result;
+                    return new BsonDocument("$size", ResolveValue(node.Expression));
                 }
 
                 var message = string.Format("Member {0} of type {1} are not supported in a $project or $group pipeline operator.", node.Member.Name, node.Member.DeclaringType);
@@ -246,7 +248,9 @@ namespace MongoDB.Driver.Linq.Translators
                     return result;
                 }
 
-                if (node.Object != null && node.Object.Type == typeof(string) && TryBuildStringMethodCall(node, out result))
+                if (node.Object != null 
+                    && node.Object.Type == typeof(string) 
+                    && TryBuildStringMethodCall(node, out result))
                 {
                     return result;
                 }
@@ -259,7 +263,17 @@ namespace MongoDB.Driver.Linq.Translators
                     return result;
                 }
 
-                if (node.Object != null && node.Method.Name == "Equals" && node.Arguments.Count == 1)
+                if(node.Object != null
+                    && node.Method.Name == "CompareTo"
+                    && (TypeHelper.ImplementsInterface(node.Object.Type, typeof(IComparable<>)) 
+                        || TypeHelper.ImplementsInterface(node.Object.Type, typeof(IComparable))))
+                {
+                    return new BsonDocument("$cmp", new BsonArray(new[] { ResolveValue(node.Object), ResolveValue(node.Arguments[0]) }));
+                }
+
+                if (node.Object != null 
+                    && node.Method.Name == "Equals" 
+                    && node.Arguments.Count == 1)
                 {
                     return new BsonDocument("$eq", new BsonArray(new[] { ResolveValue(node.Object), ResolveValue(node.Arguments[0]) }));
                 }
@@ -381,19 +395,6 @@ namespace MongoDB.Driver.Linq.Translators
                             ResolveValue(node.Object), 
                             ResolveValue(node.Arguments[0])
                         }));
-                        return true;
-                }
-
-                return false;
-            }
-
-            private bool TryBuildICollectionMemberAccess(MemberExpression node, out BsonValue result)
-            {
-                result = null;
-                switch(node.Member.Name)
-                {
-                    case "Count":
-                        result = new BsonDocument("$size", ResolveValue(node.Expression));
                         return true;
                 }
 

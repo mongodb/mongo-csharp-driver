@@ -138,6 +138,16 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_compare()
+        {
+            var result = await Project(x => new { Result = x.A.CompareTo("Awesome") });
+
+            result.Projection.Should().Be("{ Result: { \"$cmp\": [\"$A\", \"Awesome\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(0);
+        }
+
+        [Test]
         [RequiresServer(MinimumVersion = "2.4.0")]
         public async Task Should_translate_concat()
         {
