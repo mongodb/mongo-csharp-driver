@@ -32,11 +32,11 @@ namespace MongoDB.Driver.Linq.Translators
         public static ProjectionInfo<TResult> Translate<TDocument, TResult>(Expression<Func<TDocument, TResult>> projector, IBsonSerializer<TDocument> parameterSerializer)
         {
             var parameterSerializationInfo = new BsonSerializationInfo(null, parameterSerializer, parameterSerializer.ValueType);
-            var parameterExpression = new DocumentExpression(projector.Parameters[0], parameterSerializationInfo, false);
+            var parameterExpression = new DocumentExpression(projector.Parameters[0], parameterSerializationInfo);
             var binder = new SerializationInfoBinder(BsonSerializer.SerializerRegistry);
             binder.RegisterParameterReplacement(projector.Parameters[0], parameterExpression);
             var boundExpression = binder.Bind(projector.Body);
-            var candidateFields = FieldExpressionGatherer.Gather(boundExpression, true);
+            var candidateFields = FieldExpressionGatherer.Gather(boundExpression);
 
             var fields = GetUniqueFieldsByHierarchy(candidateFields);
 
@@ -85,11 +85,8 @@ namespace MongoDB.Driver.Linq.Translators
 
         protected override Expression VisitField(FieldExpression node)
         {
-            if (node.IsProjected)
-            {
-                return Visit(node.Expression);
-            }
-            else if (!_fields.Any(x => x.SerializationInfo.ElementName == node.SerializationInfo.ElementName))
+            if (!_fields.Any(x => x.SerializationInfo.ElementName == node.SerializationInfo.ElementName 
+                && x.SerializationInfo.NominalType.Equals(node.SerializationInfo.NominalType)))
             {
                 return Visit(node.Expression);
             }

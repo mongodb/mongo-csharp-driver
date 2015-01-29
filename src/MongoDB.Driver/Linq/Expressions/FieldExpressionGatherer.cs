@@ -21,32 +21,23 @@ namespace MongoDB.Driver.Linq.Expressions
 {
     internal class FieldExpressionGatherer : MongoExpressionVisitor
     {
-        public static IReadOnlyList<FieldExpression> Gather(Expression node, bool includeProjectedFields)
+        public static IReadOnlyList<FieldExpression> Gather(Expression node)
         {
-            var gatherer = new FieldExpressionGatherer(includeProjectedFields);
+            var gatherer = new FieldExpressionGatherer();
             gatherer.Visit(node);
             return gatherer._fields;
         }
 
         private List<FieldExpression> _fields;
-        private bool _includeProjectedFields;
 
-        private FieldExpressionGatherer(bool includeProjectedFields)
+        private FieldExpressionGatherer()
         {
             _fields = new List<FieldExpression>();
-            _includeProjectedFields = includeProjectedFields;
         }
 
         protected override Expression VisitField(FieldExpression node)
         {
-            if (!_includeProjectedFields && node.IsProjected)
-            {
-                Visit(node.Expression);
-            }
-            else
-            {
-                _fields.Add(node);
-            }
+            _fields.Add(node);
             return node;
         }
 
@@ -60,7 +51,7 @@ namespace MongoDB.Driver.Linq.Expressions
             var source = node.Arguments[0] as FieldExpression;
             if (source != null)
             {
-                var fields = FieldExpressionGatherer.Gather(node.Arguments[1], _includeProjectedFields);
+                var fields = FieldExpressionGatherer.Gather(node.Arguments[1]);
                 if (fields.Any(x => x.SerializationInfo.ElementName.StartsWith(source.SerializationInfo.ElementName)))
                 {
                     _fields.AddRange(fields);

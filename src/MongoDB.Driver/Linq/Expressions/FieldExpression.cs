@@ -24,24 +24,17 @@ namespace MongoDB.Driver.Linq.Expressions
     internal class FieldExpression : MongoExpression, IBsonSerializationInfoExpression
     {
         private readonly Expression _expression;
-        private readonly bool _isProjected;
         private readonly BsonSerializationInfo _serializationInfo;
 
-        public FieldExpression(Expression expression, BsonSerializationInfo serializationInfo, bool isProjected)
+        public FieldExpression(Expression expression, BsonSerializationInfo serializationInfo)
         {
             _expression = expression;
             _serializationInfo = serializationInfo;
-            _isProjected = isProjected;
         }
 
         public Expression Expression
         {
             get { return _expression; }
-        }
-
-        public bool IsProjected
-        {
-            get { return _isProjected; }
         }
 
         public override MongoExpressionType MongoNodeType

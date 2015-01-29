@@ -59,6 +59,13 @@ namespace MongoDB.Driver.Linq.Translators
 
             var keyBinder = new SerializationInfoBinder(serializerRegistry);
             var boundKeyExpression = BindSerializationInfo(keyBinder, idProjector, parameterSerializer);
+            if(!(boundKeyExpression is IBsonSerializationInfoExpression))
+            {
+                var keySerializer = SerializerBuilder.Build(boundKeyExpression, serializerRegistry);
+                boundKeyExpression = new DocumentExpression(
+                    boundKeyExpression,
+                    new BsonSerializationInfo(null, keySerializer, typeof(TKey)));
+            }
 
             var groupBinder = new GroupSerializationInfoBinder(BsonSerializer.SerializerRegistry);
             groupBinder.RegisterMemberReplacement(typeof(IGrouping<TKey, TDocument>).GetProperty("Key"), boundKeyExpression);
@@ -81,7 +88,7 @@ namespace MongoDB.Driver.Linq.Translators
         {
             var evaluatedBody = PartialEvaluator.Evaluate(node.Body);
             var parameterSerializationInfo = new BsonSerializationInfo(null, parameterSerializer, parameterSerializer.ValueType);
-            var parameterExpression = new DocumentExpression(node.Parameters[0], parameterSerializationInfo, false);
+            var parameterExpression = new DocumentExpression(node.Parameters[0], parameterSerializationInfo);
             binder.RegisterParameterReplacement(node.Parameters[0], parameterExpression);
             return binder.Bind(evaluatedBody);
         }
@@ -324,10 +331,16 @@ namespace MongoDB.Driver.Linq.Translators
 
             private BsonValue ResolveValue(Expression node)
             {
-                var serializationExpression = node as IBsonSerializationInfoExpression;
-                if (serializationExpression != null)
+                var fieldExpression = node as FieldExpression;
+                if (fieldExpression != null)
                 {
-                    return "$" + serializationExpression.SerializationInfo.ElementName;
+                    return "$" + fieldExpression.SerializationInfo.ElementName;
+                }
+
+                var documentExpression = node as DocumentExpression;
+                if(documentExpression != null)
+                {
+                    return ResolveValue(documentExpression.Expression);
                 }
 
                 return BuildValue(node);
@@ -607,8 +620,7 @@ namespace MongoDB.Driver.Linq.Translators
                         var serializationInfo = new BsonSerializationInfo(parameterToProperty.Property.Name, serializer, parameterToProperty.Property.PropertyType);
                         field = new FieldExpression(
                             node.Arguments[parameterToProperty.Parameter.Position],
-                            serializationInfo,
-                            true);
+                            serializationInfo);
                     }
 
                     classMap.MapMember(parameterToProperty.Property)
@@ -650,8 +662,7 @@ namespace MongoDB.Driver.Linq.Translators
                 {
                     return new DocumentExpression(
                         node.Expression,
-                        node.SerializationInfo.WithNewName(GetReplacementName(node.SerializationInfo.ElementName)),
-                        node.IsProjected);
+                        node.SerializationInfo.WithNewName(GetReplacementName(node.SerializationInfo.ElementName)));
                 }
 
                 return base.VisitDocument(node);
@@ -663,8 +674,7 @@ namespace MongoDB.Driver.Linq.Translators
                 {
                     return new FieldExpression(
                         node.Expression,
-                        node.SerializationInfo.WithNewName(GetReplacementName(node.SerializationInfo.ElementName)),
-                        node.IsProjected);
+                        node.SerializationInfo.WithNewName(GetReplacementName(node.SerializationInfo.ElementName)));
                 }
 
                 return base.VisitField(node);
