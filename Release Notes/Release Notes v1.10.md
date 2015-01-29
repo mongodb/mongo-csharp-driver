@@ -3,8 +3,8 @@ C#/.NET Driver Version 1.10-rc1 Release Notes (RELEASE CANDIDATE)
 
 NOTE: This is a release candidate and should only be used for testing. It is not recommended for production use.
 
-This is a minor release which is fully compatible with server version 2.8 and fully supports
-the new features introduced by server version 2.8.
+This is a minor release which is fully compatible with server version 3.0 and fully supports
+the new features introduced by server version 3.0.
 
 It also fixes some issues reported since 1.9.2 was released.
 
@@ -28,7 +28,7 @@ The 1.x releases will be the last non-bug fix release supporting .NET 3.5.
 
 The issues fixed in 1.10 are:
 
-- Support for changes in server 2.8
+- Support for changes in server 3.0
 - Support SCRAM-SHA1 authentication
 - Deprecate classes, properties and methods that will be removed in version 2.0
 - other minor fixes (see JIRA tickets)
@@ -36,7 +36,7 @@ The issues fixed in 1.10 are:
 Note about SCRAM-SHA1 authenticaton
 -----------------------------------
 
-Starting with the MongoDB 2.8 release, the SCRAM-SHA1 authentication protocol is supported. By
+Starting with the MongoDB 3.0 release, the SCRAM-SHA1 authentication protocol is supported. By
 itself, this will not cause any compatibility issues. However, before updating the server's
 authentication schema such that the MONGODB-CR protocol is no longer available, you must
 replace any calls to:

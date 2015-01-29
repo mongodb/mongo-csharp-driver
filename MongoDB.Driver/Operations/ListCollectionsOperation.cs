@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Operations
                 var value = queryDocument["name"];
                 if (!value.IsString)
                 {
-                    throw new NotSupportedException("Name criteria must be a plain string when connected to a server version less than 2.8.");
+                    throw new NotSupportedException("Name criteria must be a plain string when connected to a server version less than 3.0.");
                 }
                 var clonedQueryDocument = new QueryDocument(queryDocument);
                 clonedQueryDocument["name"] = _databaseName + "." + value;
