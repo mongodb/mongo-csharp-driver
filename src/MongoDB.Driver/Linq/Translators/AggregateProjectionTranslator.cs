@@ -427,7 +427,16 @@ namespace MongoDB.Driver.Linq.Translators
                         }
                         break;
                     case "Any":
-                        if(TryBuildMap(node, out result))
+                        if(node.Arguments.Count == 1)
+                        {
+                            result = new BsonDocument("$gt", new BsonArray(new BsonValue[] 
+                            {
+                                new BsonDocument("$size", ResolveValue(node.Arguments[0])),
+                                0
+                            }));
+                            return true;
+                        }
+                        else if(TryBuildMap(node, out result))
                         {
                             result = new BsonDocument("$anyElementTrue", result);
                             return true;

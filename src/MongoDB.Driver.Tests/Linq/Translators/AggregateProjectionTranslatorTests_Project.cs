@@ -475,6 +475,17 @@ namespace MongoDB.Driver.Core.Linq
 
         [Test]
         [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_size_greater_than_zero_from_any()
+        {
+            var result = await Project(x => new { Result = x.M.Any() });
+
+            result.Projection.Should().Be("{ Result: { \"$gt\": [{ \"$size\": \"$M\" }, 0] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_size_from_an_array()
         {
             var result = await Project(x => new { Result = x.M.Length });
