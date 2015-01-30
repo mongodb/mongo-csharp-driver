@@ -76,7 +76,7 @@
     <Compile Include="Core\Operations\IndexNameHelperTests.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperationTests.cs" />
     <Compile Include="Core\Operations\ListCollectionsOperationTests.cs" />
-    <Compile Include="Core\Operations\ListDatabaseNamesOperationTests.cs" />
+    <Compile Include="Core\Operations\ListDatabasesOperationTests.cs" />
     <Compile Include="Core\Operations\ListIndexesOperationTests.cs" />
     <Compile Include="Core\Operations\MapReduceOperationBaseTests.cs" />
     <Compile Include="Core\Operations\MapReduceOperationTests.cs" />

@@ -72,9 +72,10 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<bool> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
-            var operation = new ListDatabaseNamesOperation(_messageEncoderSettings);
+            var operation = new ListDatabasesOperation(_messageEncoderSettings);
             var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return result.Contains(_databaseNamespace.DatabaseName);
+            var list = await result.ToListAsync();
+            return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
         }
     }
 }

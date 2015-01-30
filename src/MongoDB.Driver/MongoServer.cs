@@ -259,7 +259,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual string ReplicaSetName
         {
-            get 
+            get
             {
                 var replicaSetName = _cluster.Settings.ReplicaSetName;
                 if (replicaSetName != null)
@@ -605,8 +605,9 @@ namespace MongoDB.Driver
         public virtual IEnumerable<string> GetDatabaseNames()
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ListDatabaseNamesOperation(messageEncoderSettings);
-            return ExecuteReadOperation(operation).OrderBy(name => name);
+            var operation = new ListDatabasesOperation(messageEncoderSettings);
+            var list = ExecuteReadOperation(operation).ToListAsync().GetAwaiter().GetResult();
+            return list.Select(x => (string)x["name"]).OrderBy(name => name);
         }
 
         /// <summary>

@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver
@@ -60,10 +61,12 @@ namespace MongoDB.Driver
         IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings);
 
         /// <summary>
-        /// Gets the database names.
+        /// Lists the databases.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A list of the databases on the server.</returns>
-        Task<IReadOnlyList<string>> GetDatabaseNamesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// A list of the databases on the server.
+        /// </returns>
+        Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

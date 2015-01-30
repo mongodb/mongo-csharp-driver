@@ -27,19 +27,19 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a list database names operation.
+    /// Represents the listDatabases command.
     /// </summary>
-    public class ListDatabaseNamesOperation : IReadOperation<IReadOnlyList<string>>
+    public class ListDatabasesOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
         // fields
         private MessageEncoderSettings _messageEncoderSettings;
-        
+
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ListDatabaseNamesOperation"/> class.
+        /// Initializes a new instance of the <see cref="ListDatabasesOperation"/> class.
         /// </summary>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        public ListDatabaseNamesOperation(MessageEncoderSettings messageEncoderSettings)
+        public ListDatabasesOperation(MessageEncoderSettings messageEncoderSettings)
         {
             _messageEncoderSettings = messageEncoderSettings;
         }
@@ -63,14 +63,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<string>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
             var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             var response = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            var databases = response["databases"].AsBsonArray;
-            return databases.Select(database => database["name"].ToString()).ToList();
+            var databases = response["databases"].AsBsonArray.OfType<BsonDocument>();
+            return new SingleBatchAsyncCursor<BsonDocument>(databases.ToList());
         }
     }
 }

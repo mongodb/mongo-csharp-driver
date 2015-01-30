@@ -318,7 +318,7 @@
     <Compile Include="Core\Operations\GroupOperation.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperation.cs" />
     <Compile Include="Core\Operations\IOperation.cs" />
-    <Compile Include="Core\Operations\ListDatabaseNamesOperation.cs" />
+    <Compile Include="Core\Operations\ListDatabasesOperation.cs" />
     <Compile Include="Core\Operations\MapReduceOperation.cs" />
     <Compile Include="Core\Operations\MapReduceOperationBase.cs" />
     <Compile Include="Core\Operations\MapReduceOutputMode.cs" />

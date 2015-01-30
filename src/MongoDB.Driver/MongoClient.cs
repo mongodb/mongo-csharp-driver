@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Bindings;
@@ -128,12 +129,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<string>> GetDatabaseNamesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ListDatabaseNamesOperation(messageEncoderSettings);
+            var operation = new ListDatabasesOperation(messageEncoderSettings);
 
-            using(var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
+            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
