@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Linq.Translators
 
         protected override Expression VisitField(FieldExpression node)
         {
-            if (!_fields.Any(x => x.SerializationInfo.ElementName == node.SerializationInfo.ElementName 
+            if (!_fields.Any(x => x.SerializationInfo.ElementName == node.SerializationInfo.ElementName
                 && x.SerializationInfo.NominalType.Equals(node.SerializationInfo.NominalType)))
             {
                 return Visit(node.Expression);

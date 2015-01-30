@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             var keyBinder = new SerializationInfoBinder(serializerRegistry);
             var boundKeyExpression = BindSerializationInfo(keyBinder, idProjector, parameterSerializer);
-            if(!(boundKeyExpression is IBsonSerializationInfoExpression))
+            if (!(boundKeyExpression is IBsonSerializationInfoExpression))
             {
                 var keySerializer = SerializerBuilder.Build(boundKeyExpression, serializerRegistry);
                 boundKeyExpression = new DocumentExpression(
@@ -255,8 +255,8 @@ namespace MongoDB.Driver.Linq.Translators
                     return result;
                 }
 
-                if (node.Object != null 
-                    && node.Object.Type == typeof(string) 
+                if (node.Object != null
+                    && node.Object.Type == typeof(string)
                     && TryBuildStringMethodCall(node, out result))
                 {
                     return result;
@@ -270,16 +270,16 @@ namespace MongoDB.Driver.Linq.Translators
                     return result;
                 }
 
-                if(node.Object != null
+                if (node.Object != null
                     && node.Method.Name == "CompareTo"
-                    && (TypeHelper.ImplementsInterface(node.Object.Type, typeof(IComparable<>)) 
+                    && (TypeHelper.ImplementsInterface(node.Object.Type, typeof(IComparable<>))
                         || TypeHelper.ImplementsInterface(node.Object.Type, typeof(IComparable))))
                 {
                     return new BsonDocument("$cmp", new BsonArray(new[] { ResolveValue(node.Object), ResolveValue(node.Arguments[0]) }));
                 }
 
-                if (node.Object != null 
-                    && node.Method.Name == "Equals" 
+                if (node.Object != null
+                    && node.Method.Name == "Equals"
                     && node.Arguments.Count == 1)
                 {
                     return new BsonDocument("$eq", new BsonArray(new[] { ResolveValue(node.Object), ResolveValue(node.Arguments[0]) }));
@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Linq.Translators
                 }
 
                 var documentExpression = node as DocumentExpression;
-                if(documentExpression != null)
+                if (documentExpression != null)
                 {
                     return ResolveValue(documentExpression.Expression);
                 }
@@ -420,14 +420,14 @@ namespace MongoDB.Driver.Linq.Translators
                 switch (node.Method.Name)
                 {
                     case "All":
-                        if(TryBuildMap(node, out result))
+                        if (TryBuildMap(node, out result))
                         {
                             result = new BsonDocument("$allElementsTrue", result);
                             return true;
                         }
                         break;
                     case "Any":
-                        if(node.Arguments.Count == 1)
+                        if (node.Arguments.Count == 1)
                         {
                             result = new BsonDocument("$gt", new BsonArray(new BsonValue[] 
                             {
@@ -436,7 +436,7 @@ namespace MongoDB.Driver.Linq.Translators
                             }));
                             return true;
                         }
-                        else if(TryBuildMap(node, out result))
+                        else if (TryBuildMap(node, out result))
                         {
                             result = new BsonDocument("$anyElementTrue", result);
                             return true;
@@ -473,7 +473,7 @@ namespace MongoDB.Driver.Linq.Translators
                         }
                         break;
                     case "Select":
-                        if(TryBuildMap(node, out result))
+                        if (TryBuildMap(node, out result))
                         {
                             return true;
                         }

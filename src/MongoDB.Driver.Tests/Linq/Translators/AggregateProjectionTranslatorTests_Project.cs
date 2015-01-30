@@ -81,8 +81,8 @@ namespace MongoDB.Driver.Core.Linq
                 Id = 10,
                 J = new DateTime(2012, 12, 1, 13, 14, 15, 16, DateTimeKind.Utc),
                 K = true,
-                L = new HashSet<int>(new[] {  1, 3, 5 }),
-                M = new[] {  2, 4, 5 }
+                L = new HashSet<int>(new[] { 1, 3, 5 }),
+                M = new[] { 2, 4, 5 }
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
@@ -554,7 +554,7 @@ namespace MongoDB.Driver.Core.Linq
         [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_set_equals()
         {
-            var result = await Project(x => new { Result = x.L.SetEquals(new [] { 1, 3, 5 }) });
+            var result = await Project(x => new { Result = x.L.SetEquals(new[] { 1, 3, 5 }) });
 
             result.Projection.Should().Be("{ Result: { \"$setEquals\": [\"$L\", [1, 3, 5]] }, _id: 0 }");
 

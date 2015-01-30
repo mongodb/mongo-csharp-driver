@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Linq.Processors
         protected override Expression VisitNew(NewExpression node)
         {
             var newNode = (NewExpression)base.VisitNew(node);
-            if (newNode.Type.IsGenericType 
+            if (newNode.Type.IsGenericType
                 && newNode.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
                 && newNode.Arguments.Count == 1
                 && newNode.Arguments[0] is AggregationExpression
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Linq.Processors
                     }
                     break;
                 case "Select":
-                    if(node.Arguments.Count == 2)
+                    if (node.Arguments.Count == 2)
                     {
                         return GetLambda(node.Arguments[1]).Body;
                     }

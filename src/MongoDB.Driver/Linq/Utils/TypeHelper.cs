@@ -39,12 +39,12 @@ namespace MongoDB.Driver.Linq.Utils
 
         internal static bool ImplementsInterface(Type candidate, Type iface)
         {
-            if(candidate.Equals(iface))
+            if (candidate.Equals(iface))
             {
                 return true;
             }
 
-            if(candidate.IsGenericType && candidate.GetGenericTypeDefinition().Equals(iface))
+            if (candidate.IsGenericType && candidate.GetGenericTypeDefinition().Equals(iface))
             {
                 return true;
             }
