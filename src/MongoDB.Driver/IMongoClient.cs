@@ -61,12 +61,10 @@ namespace MongoDB.Driver
         IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings);
 
         /// <summary>
-        /// Lists the databases.
+        /// Lists the databases on the server.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A list of the databases on the server.
-        /// </returns>
+        /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

@@ -54,7 +54,7 @@ namespace MongoDB.Driver
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A cursor.</returns>
+        /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
@@ -105,9 +105,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The distinct values for the specified field.
-        /// </returns>
+        /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
@@ -124,9 +122,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The results of the query.
-        /// </returns>
+        /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
