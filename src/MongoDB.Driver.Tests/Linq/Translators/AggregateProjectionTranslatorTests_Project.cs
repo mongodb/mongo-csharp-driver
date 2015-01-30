@@ -108,6 +108,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_allElementsTrue()
         {
             var result = await Project(x => new { Result = x.G.All(g => g.E.F > 30) });
@@ -118,6 +119,7 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
         public async Task Should_translate_anyElementTrue()
         {
             var result = await Project(x => new { Result = x.G.Any(g => g.E.F > 40) });
