@@ -66,6 +66,6 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The list of index definitions.</returns>
-        Task<IAsyncCursor<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<BsonDocument>> ListIndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

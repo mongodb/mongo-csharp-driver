@@ -399,12 +399,6 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task<IAsyncCursor<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var op = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            return ExecuteReadOperation(op, ReadPreference.Primary, cancellationToken);
-        }
-
         public async Task InsertOneAsync(TDocument document, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull((object)document, "document");
@@ -427,6 +421,12 @@ namespace MongoDB.Driver
             var models = documents.Select(x => new InsertOneModel<TDocument>(x));
             BulkWriteOptions bulkWriteOptions = options == null ? null : new BulkWriteOptions { IsOrdered = options.IsOrdered };
             return BulkWriteAsync(models, bulkWriteOptions, cancellationToken);
+        }
+
+        public Task<IAsyncCursor<BsonDocument>> ListIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var op = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
+            return ExecuteReadOperation(op, ReadPreference.Primary, cancellationToken);
         }
 
         public async Task<ReplaceOneResult> ReplaceOneAsync(object filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken)
