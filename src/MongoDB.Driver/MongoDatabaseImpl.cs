@@ -98,13 +98,14 @@ namespace MongoDB.Driver
             return new MongoCollectionImpl<TDocument>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
-        public async Task<IReadOnlyList<string>> GetCollectionNamesAsync(CancellationToken cancellationToken)
+        public Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings);
-            var cursor = await ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
-            var collections = await cursor.ToListAsync().ConfigureAwait(false);
-            return collections.Select(c => c["name"].AsString).ToList();
+            var operation = new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
+            {
+                Filter = options == null ? null : BsonDocumentHelper.FilterToBsonDocument<BsonDocument>(_settings.SerializerRegistry, options.Filter)
+            };
+            return ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken);
         }
 
         public Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)

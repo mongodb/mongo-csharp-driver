@@ -110,6 +110,7 @@
     <Compile Include="Linq\Translators\ProjectedObject.cs" />
     <Compile Include="Linq\Translators\ProjectedObjectDeserializer.cs" />
     <Compile Include="Linq\Translators\ProjectionInfo.cs" />
+    <Compile Include="ListCollectionsOptions.cs" />
     <Compile Include="Operations\AddUserOperation.cs" />
     <Compile Include="Operations\AddUserUsingUserManagementCommandsOperation.cs" />
     <Compile Include="Operations\AddUserUsingSystemUsersCollectionOperation.cs" />
