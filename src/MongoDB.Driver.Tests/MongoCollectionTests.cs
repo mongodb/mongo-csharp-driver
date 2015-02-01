@@ -566,12 +566,12 @@ namespace MongoDB.Driver.Tests
             var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             Assert.IsFalse(collection.Exists());
-            var options = CollectionOptions.SetCapped(true).SetMaxSize(10000000);
+            var options = CollectionOptions.SetCapped(true).SetMaxSize(5000000000);
             _database.CreateCollection(collection.Name, options);
             Assert.IsTrue(collection.Exists());
             var stats = collection.GetStats();
             Assert.IsTrue(stats.IsCapped);
-            Assert.IsTrue(stats.StorageSize >= 10000000);
+            Assert.IsTrue(stats.StorageSize >= 5000000000);
             collection.Drop();
         }
 

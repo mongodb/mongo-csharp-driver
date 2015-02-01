@@ -208,7 +208,7 @@ namespace MongoDB.Driver
             bool? autoIndexId = null;
             bool? capped = null;
             int? maxDocuments = null;
-            int? maxSize = null;
+            long? maxSize = null;
             BsonDocument storageEngine = null;
             bool? usePowerOf2Sizes = null;
 
@@ -231,7 +231,7 @@ namespace MongoDB.Driver
                 }
                 if (optionsDocument.TryGetValue("size", out value))
                 {
-                    maxSize = value.ToInt32();
+                    maxSize = value.ToInt64();
                 }
                 if (optionsDocument.TryGetValue("storageEngine", out value))
                 {
