@@ -112,8 +112,9 @@ namespace MongoDB.Driver
         /// Begins a fluent find interface.
         /// </summary>
         /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
         /// <returns>A fluent find interface.</returns>
-        IFindFluent<TDocument, TDocument> Find(object filter);
+        IFindFluent<TDocument, TDocument> Find(object filter, FindOptions options = null);
 
         /// <summary>
         /// Finds the documents matching the filter.

@@ -78,8 +78,26 @@ namespace MongoDB.Driver
         // methods
         public IAggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options)
         {
-            options = options ?? new AggregateOptions();
-            return new AggregateFluent<TDocument, TDocument>(this, new List<object>(), options, _serializer);
+            AggregateOptions<TDocument> newOptions;
+            if (options == null)
+            {
+                newOptions = new AggregateOptions<TDocument>
+                {
+                    ResultSerializer = _serializer
+                };
+            }
+            else
+            {
+                newOptions = new AggregateOptions<TDocument>
+                {
+                    AllowDiskUse = options.AllowDiskUse,
+                    BatchSize = options.BatchSize,
+                    MaxTime = options.MaxTime,
+                    ResultSerializer = _serializer,
+                    UseCursor = options.UseCursor
+                };
+            }
+            return new AggregateFluent<TDocument, TDocument>(this, new List<object>(), newOptions);
         }
 
         public async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options, CancellationToken cancellationToken)
@@ -277,10 +295,31 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public IFindFluent<TDocument, TDocument> Find(object filter)
+        public IFindFluent<TDocument, TDocument> Find(object filter, FindOptions options)
         {
-            var options = new FindOptions<TDocument>();
-            return new FindFluent<TDocument, TDocument>(this, filter, options);
+            FindOptions<TDocument> genericOptions;
+            if (options == null)
+            {
+                genericOptions = new FindOptions<TDocument>
+                {
+                    ResultSerializer = _serializer
+                };
+            }
+            else
+            {
+                genericOptions = new FindOptions<TDocument>
+                {
+                    AllowPartialResults = options.AllowPartialResults,
+                    BatchSize = options.BatchSize,
+                    Comment = options.Comment,
+                    CursorType = options.CursorType,
+                    MaxTime = options.MaxTime,
+                    Modifiers = options.Modifiers,
+                    NoCursorTimeout = options.NoCursorTimeout,
+                    ResultSerializer = _serializer
+                };
+            }
+            return new FindFluent<TDocument, TDocument>(this, filter, genericOptions);
         }
 
         public Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options, CancellationToken cancellationToken)

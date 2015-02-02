@@ -585,19 +585,21 @@ namespace MongoDB.Driver
             Expression<Func<BsonDocument, bool>> filter = doc => doc["x"] == 1;
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var fluent = _subject.Find(filter)
+            var options = new FindOptions
+            {
+                AllowPartialResults = true,
+                BatchSize = 20,
+                Comment = "funny",
+                CursorType = CursorType.TailableAwait,
+                MaxTime = TimeSpan.FromSeconds(3),
+                Modifiers = BsonDocument.Parse("{$snapshot: true}"),
+                NoCursorTimeout = true
+            };
+            var fluent = _subject.Find(filter, options)
                 .Projection<BsonDocument>(projection)
                 .Sort(sort)
-                .AllowPartialResults(true)
-                .BatchSize(20)
-                .Comment("funny")
-                .CursorType(CursorType.TailableAwait)
                 .Limit(30)
-                .MaxTime(TimeSpan.FromSeconds(3))
-                .Modifiers(BsonDocument.Parse("{$snapshot: true}"))
-                .NoCursorTimeout(true)
                 .Skip(40);
-            var options = fluent.Options;
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
@@ -614,12 +616,12 @@ namespace MongoDB.Driver
             operation.Comment.Should().Be("funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(BsonDocument.Parse("{x:1}"));
-            operation.Limit.Should().Be(options.Limit);
+            operation.Limit.Should().Be(30);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
             operation.Projection.Should().Be(projection);
-            operation.Skip.Should().Be(options.Skip);
+            operation.Skip.Should().Be(40);
             operation.Sort.Should().Be(sort);
         }
 
@@ -629,19 +631,21 @@ namespace MongoDB.Driver
             var filter = BsonDocument.Parse("{x:1}");
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var fluent = _subject.Find(filter)
+            var options = new FindOptions
+            {
+                AllowPartialResults = true,
+                BatchSize = 20,
+                Comment = "funny",
+                CursorType = CursorType.TailableAwait,
+                MaxTime = TimeSpan.FromSeconds(3),
+                Modifiers = BsonDocument.Parse("{$snapshot: true}"),
+                NoCursorTimeout = true
+            };
+            var fluent = _subject.Find(filter, options)
                 .Projection<BsonDocument>(projection)
                 .Sort(sort)
-                .AllowPartialResults(true)
-                .BatchSize(20)
-                .Comment("funny")
-                .CursorType(CursorType.TailableAwait)
                 .Limit(30)
-                .MaxTime(TimeSpan.FromSeconds(3))
-                .Modifiers(BsonDocument.Parse("{$snapshot: true}"))
-                .NoCursorTimeout(true)
                 .Skip(40);
-            var options = fluent.Options;
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
@@ -658,12 +662,12 @@ namespace MongoDB.Driver
             operation.Comment.Should().Be("funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(filter);
-            operation.Limit.Should().Be(options.Limit);
+            operation.Limit.Should().Be(30);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
             operation.Projection.Should().Be(projection);
-            operation.Skip.Should().Be(options.Skip);
+            operation.Skip.Should().Be(40);
             operation.Sort.Should().Be(sort);
         }
 

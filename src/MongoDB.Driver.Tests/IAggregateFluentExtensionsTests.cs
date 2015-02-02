@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Tests
             var expectedUnwind = BsonDocument.Parse("{$unwind: '$Age'}");
 
             Assert.AreEqual(expectedUnwind, subject.Pipeline.Last());
-            Assert.AreSame(BsonDocumentSerializer.Instance, subject.ResultSerializer);
+            Assert.AreSame(BsonDocumentSerializer.Instance, subject.Options.ResultSerializer);
         }
 
         private IAggregateFluent<Person, Person> CreateSubject()
@@ -203,8 +203,8 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoCollectionSettings();
             var collection = Substitute.For<IMongoCollection<Person>>();
             collection.Settings.Returns(settings);
-            var options = new AggregateOptions();
-            var subject = new AggregateFluent<Person, Person>(collection, new List<object>(), options, settings.SerializerRegistry.GetSerializer<Person>());
+            var options = new AggregateOptions<Person>();
+            var subject = new AggregateFluent<Person, Person>(collection, new List<object>(), options);
 
             return subject;
         }
