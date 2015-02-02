@@ -543,7 +543,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void TestCreateCollectionSetCappedSetMaxDocuments()
         {
             var collection = _database.GetCollection("cappedcollection");
@@ -560,7 +560,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void TestCreateCollectionSetCappedSetMaxSize()
         {
             var collection = _database.GetCollection("cappedcollection");
@@ -576,7 +576,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void TestCreateCollectionSetUsePowerOf2Sizes(
             [Values(false, true)]
             bool usePowerOf2Sizes)
@@ -2792,7 +2792,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void TestGetStatsUsePowerOf2Sizes()
         {
             // SERVER-8409: only run this when talking to a non-mongos 2.2 server or >= 2.4.

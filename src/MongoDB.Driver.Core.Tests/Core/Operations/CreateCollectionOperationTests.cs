@@ -347,7 +347,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer("DropCollection", StorageEngines = "mmapv1")]
+        [RequiresServer("DropCollection", StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public async Task ExecuteAsync_should_create_collection_when_UsePowerOf2Sizes_is_set(
             [Values(false, true)]
             bool usePowerOf2Sizes)

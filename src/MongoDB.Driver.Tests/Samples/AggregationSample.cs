@@ -25,12 +25,12 @@ namespace MongoDB.Driver.Tests.Samples
     {
         private IMongoCollection<ZipEntry> _collection;
 
-        [SetUp]
-        public void SetUp()
+        [TestFixtureSetUp]
+        public void TestFixtureSetUp()
         {
             var client = Configuration.TestClient;
             var db = client.GetDatabase(Configuration.TestDatabase.Name);
-            db.DropCollectionAsync(Configuration.TestCollection.Name);
+            db.DropCollectionAsync(Configuration.TestCollection.Name).GetAwaiter().GetResult();
             _collection = db.GetCollection<ZipEntry>(Configuration.TestCollection.Name);
 
             // This is a subset of the data from the mongodb docs zip code aggregation examples
