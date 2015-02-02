@@ -11,7 +11,11 @@ let getComputedBuildNumber() =
     let m = System.Text.RegularExpressions.Regex.Match(result, @"-(\d+)-")
     m.Groups.[1].Value
 
-let buildNumber = getBuildParamOrDefault "buildNumber" (getComputedBuildNumber())
+let buildNumber = 
+  match getBuildParam "buildNumber" with
+  | "" -> getComputedBuildNumber()
+  | v -> v
+
 let version = baseVersion + "." + buildNumber
 let semVersion = 
     match preRelease with
