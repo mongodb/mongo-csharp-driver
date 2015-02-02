@@ -497,11 +497,7 @@ namespace MongoDB.Driver
                     Verbose = options.Verbose
                 };
 
-                var result = await ExecuteReadOperation(operation, cancellationToken);
-
-                // TODO: need to suck out result field...
-
-                return null;
+                return await ExecuteReadOperation(operation, cancellationToken);
             }
             else
             {
