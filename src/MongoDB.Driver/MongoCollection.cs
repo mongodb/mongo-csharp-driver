@@ -1010,7 +1010,7 @@ namespace MongoDB.Driver
         [Obsolete("Use the overload of GeoNearAs that has a GeoNearArgs parameter instead.")]
         public virtual GeoNearResult GeoNearAs(Type documentType, IMongoQuery query, double x, double y, int limit)
         {
-            return GeoNearAs(documentType, query, x, y, limit, GeoNearOptions.Null);
+            return GeoNearAs(documentType, query, x, y, limit, null);
         }
 
         /// <summary>
