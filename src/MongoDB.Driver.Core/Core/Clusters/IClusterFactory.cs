@@ -22,6 +22,10 @@ namespace MongoDB.Driver.Core.Clusters
     public interface IClusterFactory
     {
         // methods
+        /// <summary>
+        /// Creates a cluster.
+        /// </summary>
+        /// <returns>A cluster.</returns>
         ICluster CreateCluster();
     }
 }

@@ -42,32 +42,6 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // methods
-        private ClusterType DetermineClusterType(ServerDescription serverDescription)
-        {
-            switch (serverDescription.Type)
-            {
-                case ServerType.ReplicaSetArbiter:
-                case ServerType.ReplicaSetGhost:
-                case ServerType.ReplicaSetOther:
-                case ServerType.ReplicaSetPassive:
-                case ServerType.ReplicaSetPrimary:
-                case ServerType.ReplicaSetSecondary:
-                    return ClusterType.ReplicaSet;
-
-                case ServerType.ShardRouter:
-                    return ClusterType.Sharded;
-
-                case ServerType.Standalone:
-                    return ClusterType.Standalone;
-
-                case ServerType.Unknown:
-                    return ClusterType.Unknown;
-
-                default:
-                    throw new MongoException("Unexpected ServerTypes.");
-            }
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (_state.TryChange(State.Disposed))
@@ -121,6 +95,37 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
+        private bool IsServerValidForCluster(ClusterType clusterType, ClusterConnectionMode connectionMode, ServerType serverType)
+        {
+            switch (clusterType)
+            {
+                case ClusterType.ReplicaSet:
+                    return serverType.IsReplicaSetMember();
+
+                case ClusterType.Sharded:
+                    return serverType == ServerType.ShardRouter;
+
+                case ClusterType.Standalone:
+                    return serverType == ServerType.Standalone;
+
+                case ClusterType.Unknown:
+                    switch (connectionMode)
+                    {
+                        case ClusterConnectionMode.Automatic:
+                            return serverType == ServerType.Standalone || serverType == ServerType.ShardRouter;
+
+                        case ClusterConnectionMode.Direct:
+                            return true;
+
+                        default:
+                            throw new MongoInternalException("Unexpected connection mode.");
+                    }
+
+                default:
+                    throw new MongoInternalException("Unexpected cluster type.");
+            }
+        }
+
         protected override void RequestHeartbeat()
         {
             _server.RequestHeartbeat();
@@ -128,33 +133,27 @@ namespace MongoDB.Driver.Core.Clusters
 
         private void ServerDescriptionChanged(object sender, ServerDescriptionChangedEventArgs args)
         {
-            var oldClusterDescription = Description;
-            ClusterDescription newClusterDescription = oldClusterDescription;
-
             var newServerDescription = args.NewServerDescription;
+            var newClusterDescription = Description;
+
             if (newServerDescription.State == ServerState.Disconnected)
             {
-                newClusterDescription = Description
-                    .WithServerDescription(newServerDescription);
+                newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
             }
             else
             {
-                var determinedClusterType = DetermineClusterType(newServerDescription);
-                if (oldClusterDescription.Type == ClusterType.Unknown)
+                if (IsServerValidForCluster(newClusterDescription.Type, Settings.ConnectionMode, newServerDescription.Type))
                 {
-                    newClusterDescription = newClusterDescription
-                        .WithType(determinedClusterType)
-                        .WithServerDescription(newServerDescription);
-                }
-                else if (determinedClusterType != oldClusterDescription.Type)
-                {
-                    newClusterDescription = newClusterDescription
-                        .WithoutServerDescription(newServerDescription.EndPoint);
+                    if (newClusterDescription.Type == ClusterType.Unknown)
+                    {
+                        newClusterDescription = newClusterDescription.WithType(newServerDescription.Type.ToClusterType());
+                    }
+
+                    newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
                 }
                 else
                 {
-                    newClusterDescription = newClusterDescription
-                        .WithServerDescription(newServerDescription);
+                    newClusterDescription = newClusterDescription.WithoutServerDescription(newServerDescription.EndPoint);
                 }
             }
 

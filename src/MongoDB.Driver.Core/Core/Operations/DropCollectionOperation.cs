@@ -24,6 +24,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a drop collection operation.
+    /// </summary>
     public class DropCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
@@ -31,6 +34,11 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DropCollectionOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DropCollectionOperation(
             CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
@@ -40,22 +48,35 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument { { "drop", _collectionNamespace.CollectionName } };
         }
 
+        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

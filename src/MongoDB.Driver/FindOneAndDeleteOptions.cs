@@ -25,6 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for a findAndModify command to delete an object.
     /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
     public class FindOneAndDeleteOptions<TResult>
     {
         // fields

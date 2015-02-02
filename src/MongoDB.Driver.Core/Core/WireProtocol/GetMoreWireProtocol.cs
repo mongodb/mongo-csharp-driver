@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    public class GetMoreWireProtocol<TDocument> : IWireProtocol<CursorBatch<TDocument>>
+    internal class GetMoreWireProtocol<TDocument> : IWireProtocol<CursorBatch<TDocument>>
     {
         // fields
         private readonly int _batchSize;

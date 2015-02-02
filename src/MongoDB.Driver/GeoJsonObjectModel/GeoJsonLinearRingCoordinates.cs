@@ -33,11 +33,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// Initializes a new instance of the <see cref="GeoJsonLinearRingCoordinates{TCoordinates}"/> class.
         /// </summary>
         /// <param name="positions">The positions.</param>
-        /// <exception cref="System.ArgumentException">
-        /// A linear ring requires at least 4 positions.;positions
-        /// or
-        /// The first and last positions in a linear ring must be equal.;positions
-        /// </exception>
         public GeoJsonLinearRingCoordinates(IEnumerable<TCoordinates> positions)
             : base(positions)
         {

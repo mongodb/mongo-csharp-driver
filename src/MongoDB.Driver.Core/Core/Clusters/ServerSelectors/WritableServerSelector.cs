@@ -19,6 +19,9 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
+    /// <summary>
+    /// Represents a server selector that selects writable servers.
+    /// </summary>
     public class WritableServerSelector : IServerSelector
     {
         #region static
@@ -26,6 +29,12 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         private readonly static WritableServerSelector __instance = new WritableServerSelector();
 
         // static properties
+        /// <summary>
+        /// Gets a WritableServerSelector.
+        /// </summary>
+        /// <value>
+        /// A server selector.
+        /// </value>
         public static WritableServerSelector Instance
         {
             get { return __instance; }
@@ -38,6 +47,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         }
 
         // methods
+        /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<Servers.ServerDescription> servers)
         {
             return servers.Where(x =>
@@ -46,6 +56,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 x.Type == ServerType.Standalone);
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return "WritableServerSelector";

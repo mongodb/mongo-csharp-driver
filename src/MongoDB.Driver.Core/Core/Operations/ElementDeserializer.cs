@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a deserializer that deserializes the selected element and skips any others.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    public class ElementDeserializer<TValue> : SerializerBase<TValue>
+    internal class ElementDeserializer<TValue> : SerializerBase<TValue>
     {
         // private fields
         private readonly bool _deserializeNull;

@@ -30,6 +30,9 @@ using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Connections
 {
+    /// <summary>
+    /// Represents a connection identifier.
+    /// </summary>
     [Serializable]
     public sealed class ConnectionId : IEquatable<ConnectionId>
     {
@@ -40,11 +43,20 @@ namespace MongoDB.Driver.Core.Connections
         private readonly int _hashCode;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionId"/> class.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
         public ConnectionId(ServerId serverId)
             : this(serverId, IdGenerator<ConnectionId>.GetNextId())
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionId"/> class.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="localValue">The local value.</param>
         public ConnectionId(ServerId serverId, int localValue)
         {
             _serverId = Ensure.IsNotNull(serverId, "serverId");
@@ -62,22 +74,41 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // properties
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }
         }
 
+        /// <summary>
+        /// Gets the local value.
+        /// </summary>
+        /// <value>
+        /// The local value.
+        /// </value>
         public int LocalValue
         {
             get { return _localValue; }
         }
 
+        /// <summary>
+        /// Gets the server value.
+        /// </summary>
+        /// <value>
+        /// The server value.
+        /// </value>
         public int? ServerValue
         {
             get { return _serverValue; }
         }
 
         // methods
+        /// <inheritdoc/>
         public bool Equals(ConnectionId other)
         {
             if (other == null)
@@ -90,16 +121,23 @@ namespace MongoDB.Driver.Core.Connections
                 _localValue == other._localValue;
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as ConnectionId);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return _hashCode;
         }
 
+        /// <summary>
+        /// Compares all fields of two ConnectionId instances (Equals ignores the ServerValue).
+        /// </summary>
+        /// <param name="other">The other ConnectionId.</param>
+        /// <returns>True if both instances are equal.</returns>
         public bool StructurallyEquals(ConnectionId other)
         {
             if (other == null)
@@ -113,6 +151,7 @@ namespace MongoDB.Driver.Core.Connections
                 _serverValue == other._serverValue;
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             if (_serverValue == null)
@@ -125,6 +164,11 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        /// <summary>
+        /// Returns a new instance of ConnectionId with a new server value.
+        /// </summary>
+        /// <param name="serverValue">The server value.</param>
+        /// <returns>A ConnectionId.</returns>
         public ConnectionId WithServerValue(int serverValue)
         {
             return new ConnectionId(_serverId, _localValue, serverValue);

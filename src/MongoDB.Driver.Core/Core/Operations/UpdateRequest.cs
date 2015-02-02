@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateRequest" /> class.
         /// </summary>
-        /// <param name="updateType">The type.</param>
+        /// <param name="updateType">The update type.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
         public UpdateRequest(UpdateType updateType, BsonDocument filter, BsonDocument update)
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Operations
 
         // properties
         /// <summary>
-        /// Gets or sets the filter.
+        /// Gets the filter.
         /// </summary>
         public BsonDocument Filter
         {
@@ -55,10 +55,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this update request should affect multiple documents.
+        /// Gets or sets a value indicating whether this update should affect all matching documents.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this request should affect multiple documents; otherwise, <c>false</c>.
+        /// <c>true</c> if this update should affect all matching documents; otherwise, <c>false</c>.
         /// </value>
         public bool IsMulti
         {
@@ -67,10 +67,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this update request should insert the record if it doesn't already exist.
+        /// Gets or sets a value indicating whether a document should be inserted if no matching document is found.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this update request should insert the record if it doesn't already exis; otherwise, <c>false</c>.
+        ///   <c>true</c> if a document should be inserted if no matching document is found; otherwise, <c>false</c>.
         /// </value>
         public bool IsUpsert
         {
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets the update.
+        /// Gets the update specification.
         /// </summary>
         public BsonDocument Update
         {
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets the type.
+        /// Gets the update type.
         /// </summary>
         public UpdateType UpdateType
         {

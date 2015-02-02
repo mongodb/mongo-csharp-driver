@@ -20,9 +20,18 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
+    /// <summary>
+    /// A PLAIN SASL authenticator.
+    /// </summary>
     public sealed class PlainAuthenticator : SaslAuthenticator
     {
         // static properties
+        /// <summary>
+        /// Gets the name of the mechanism.
+        /// </summary>
+        /// <value>
+        /// The name of the mechanism.
+        /// </value>
         public static string MechanismName
         {
             get { return "PLAIN"; }
@@ -32,6 +41,10 @@ namespace MongoDB.Driver.Core.Authentication
         private readonly string _databaseName;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlainAuthenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
         public PlainAuthenticator(UsernamePasswordCredential credential)
             : base(new PlainMechanism(credential))
         {
@@ -39,6 +52,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // properties
+        /// <inheritdoc/>
         public override string DatabaseName
         {
             get { return _databaseName; }

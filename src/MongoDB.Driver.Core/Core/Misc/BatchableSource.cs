@@ -19,6 +19,10 @@ using System.Linq;
 
 namespace MongoDB.Driver.Core.Misc
 {
+    /// <summary>
+    /// Represents a source of items that can be broken into batches.
+    /// </summary>
+    /// <typeparam name="T">The type of the items.</typeparam>
     public sealed class BatchableSource<T>
     {
         #region static
@@ -33,11 +37,23 @@ namespace MongoDB.Driver.Core.Misc
         private Overflow _overflow;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BatchableSource{T}"/> class.
+        /// </summary>
+        /// <remarks>
+        /// Use this overload when you know the batch is small and won't have to be broken up into sub-batches. 
+        /// In that case using this overload is simpler than using an enumerator and using the other constructor.
+        /// </remarks>
+        /// <param name="batch">The single batch.</param>
         public BatchableSource(IEnumerable<T> batch)
         {
             _batch = Ensure.IsNotNull(batch, "batch").ToList();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BatchableSource{T}"/> class.
+        /// </summary>
+        /// <param name="enumerator">The enumerator that will provide the items for the batch.</param>
         public BatchableSource(IEnumerator<T> enumerator)
         {
             _enumerator = Ensure.IsNotNull(enumerator, "enumerator");
@@ -45,11 +61,23 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         // properties
+        /// <summary>
+        /// Gets the most recent batch.
+        /// </summary>
+        /// <value>
+        /// The most recent batch.
+        /// </value>
         public IReadOnlyList<T> Batch
         {
             get { return _batch; }
         }
 
+        /// <summary>
+        /// Gets the current item.
+        /// </summary>
+        /// <value>
+        /// The current item.
+        /// </value>
         public T Current
         {
             get
@@ -60,6 +88,12 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether there are more items.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if there are more items; otherwise, <c>false</c>.
+        /// </value>
         public bool HasMore
         {
             get
@@ -69,12 +103,19 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         // methods
+        /// <summary>
+        /// Clears the most recent batch.
+        /// </summary>
         public void ClearBatch()
         {
             ThrowIfNotBatchable();
             _batch = null;
         }
 
+        /// <summary>
+        /// Called when the last batch is complete.
+        /// </summary>
+        /// <param name="batch">The batch.</param>
         public void EndBatch(IReadOnlyList<T> batch)
         {
             ThrowIfNotBatchable();
@@ -83,6 +124,24 @@ namespace MongoDB.Driver.Core.Misc
             _hasMore = false;
         }
 
+        /// <summary>
+        /// Called when an intermediate batch is complete.
+        /// </summary>
+        /// <param name="batch">The batch.</param>
+        /// <param name="overflow">The overflow item.</param>
+        public void EndBatch(IReadOnlyList<T> batch, Overflow overflow)
+        {
+            ThrowIfNotBatchable();
+            ThrowIfHasBatch();
+            _batch = batch;
+            _overflow = overflow;
+            _hasMore = true;
+        }
+
+        /// <summary>
+        /// Gets all the remaining items that haven't been previously consumed.
+        /// </summary>
+        /// <returns>The remaining items.</returns>
         public IEnumerable<T> GetRemainingItems()
         {
             if (_overflow != null)
@@ -110,15 +169,10 @@ namespace MongoDB.Driver.Core.Misc
             _hasMore = false;
         }
 
-        public void EndBatch(IReadOnlyList<T> batch, Overflow overflow)
-        {
-            ThrowIfNotBatchable();
-            ThrowIfHasBatch();
-            _batch = batch;
-            _overflow = overflow;
-            _hasMore = true;
-        }
-
+        /// <summary>
+        /// Moves to the next item in the source.
+        /// </summary>
+        /// <returns>True if there are more items.</returns>
         public bool MoveNext()
         {
             ThrowIfNotBatchable();
@@ -126,6 +180,10 @@ namespace MongoDB.Driver.Core.Misc
             return _enumerator.MoveNext();
         }
 
+        /// <summary>
+        /// Starts a new batch.
+        /// </summary>
+        /// <returns>The overflow item of the previous batch if there is one; otherwise, null.</returns>
         public Overflow StartBatch()
         {
             ThrowIfNotBatchable();
@@ -152,9 +210,19 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         // nested types
+        /// <summary>
+        /// Represents an overflow item that did not fit in the most recent batch and will be become the first item in the next batch.
+        /// </summary>
         public class Overflow
         {
+            /// <summary>
+            /// The item.
+            /// </summary>
             public T Item;
+
+            /// <summary>
+            /// The state information, if any, that the consumer wishes to associate with the overflow item.
+            /// </summary>
             public object State;
         }
     }

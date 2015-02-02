@@ -20,12 +20,12 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    public interface IWireProtocol
+    internal interface IWireProtocol
     {
         Task ExecuteAsync(IConnection connection, CancellationToken cancellationToken = default(CancellationToken));
     }
 
-    public interface IWireProtocol<TResult>
+    internal interface IWireProtocol<TResult>
     {
         Task<TResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken = default(CancellationToken));
     }

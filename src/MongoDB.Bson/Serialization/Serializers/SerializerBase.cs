@@ -43,7 +43,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>The value.</returns>
+        /// <returns>A deserialized value.</returns>
         public virtual TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             throw CreateCannotBeDeserializedException();
@@ -64,6 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Creates an exception to throw when a type cannot be deserialized.
         /// </summary>
+        /// <returns>An exception.</returns>
         protected Exception CreateCannotBeDeserializedException()
         {
             var message = string.Format(
@@ -76,6 +77,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Creates an exception to throw when a type cannot be deserialized.
         /// </summary>
+        /// <returns>An exception.</returns>
         protected Exception CreateCannotBeSerializedException()
         {
             var message = string.Format(
@@ -89,6 +91,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Creates an exception to throw when a type cannot be deserialized from a BsonType.
         /// </summary>
         /// <param name="bsonType">The BSON type.</param>
+        /// <returns>An exception.</returns>
         protected Exception CreateCannotDeserializeFromBsonTypeException(BsonType bsonType)
         {
             var message = string.Format("Cannot deserialize a '{0}' from BsonType '{1}'.",

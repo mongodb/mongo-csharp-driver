@@ -43,9 +43,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the maximum number of matching documents to count.
         /// </summary>
-        /// <value>
-        /// The maximum number of matching documents to count.
-        /// </value>
         public long? Limit
         {
             get { return _limit; }
@@ -55,9 +52,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -67,9 +61,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public IMongoQuery Query
         {
             get { return _query; }
@@ -79,9 +70,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the read preference.
         /// </summary>
-        /// <value>
-        /// The read preference.
-        /// </value>
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
@@ -91,9 +79,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the number of matching documents to skip before starting to count matching documents.
         /// </summary>
-        /// <value>
-        /// The number of matching documents to skip before starting to count matching documents.
-        /// </value>
         public long? Skip
         {
             get { return _skip; }

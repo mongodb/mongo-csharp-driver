@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a command (there are also subclasses for various commands).
     /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
     [Serializable]
     [BsonSerializer(typeof(DistinctCommandResultSerializer<>))]
     public class DistinctCommandResult<TValue> : CommandResult
@@ -46,9 +47,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the values.
         /// </summary>
-        /// <value>
-        /// The values.
-        /// </value>
         public IEnumerable<TValue> Values
         {
             get { return _values; }

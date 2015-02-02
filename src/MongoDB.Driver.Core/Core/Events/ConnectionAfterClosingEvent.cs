@@ -17,15 +17,29 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionAfterClosing event.
+    /// </summary>
     public struct ConnectionAfterClosingEvent
     {
         private readonly ConnectionId _connectionId;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionAfterClosingEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         public ConnectionAfterClosingEvent(ConnectionId connectionId)
         {
             _connectionId = connectionId;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }

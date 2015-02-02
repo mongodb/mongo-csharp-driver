@@ -23,6 +23,9 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+    /// <summary>
+    /// Represents a read binding that is bound to a channel.
+    /// </summary>
     public sealed class ChannelReadBinding : IReadBinding
     {
         // fields
@@ -32,6 +35,12 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly IServer _server;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelReadBinding"/> class.
+        /// </summary>
+        /// <param name="server">The server.</param>
+        /// <param name="channel">The channel.</param>
+        /// <param name="readPreference">The read preference.</param>
         public ChannelReadBinding(IServer server, IChannelHandle channel, ReadPreference readPreference)
         {
             _server = Ensure.IsNotNull(server, "server");
@@ -39,13 +48,15 @@ namespace MongoDB.Driver.Core.Bindings
             _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
         }
 
-        // properties
+        // properties        
+        /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
         }
 
         // methods
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)
@@ -56,6 +67,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();

@@ -20,15 +20,29 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionPoolBeforeRemovingAConnection event.
+    /// </summary>
     public struct ConnectionPoolBeforeRemovingAConnectionEvent
     {
         private readonly ConnectionId _connectionId;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolBeforeRemovingAConnectionEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         public ConnectionPoolBeforeRemovingAConnectionEvent(ConnectionId connectionId)
         {
             _connectionId = connectionId;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }

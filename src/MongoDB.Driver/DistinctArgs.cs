@@ -33,9 +33,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the key.
         /// </summary>
-        /// <value>
-        /// The key.
-        /// </value>
         public string Key
         {
             get { return _key; }
@@ -45,9 +42,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -57,9 +51,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public IMongoQuery Query
         {
             get { return _query; }
@@ -69,9 +60,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the value serializer.
         /// </summary>
-        /// <value>
-        /// The value serializer.
-        /// </value>
         public IBsonSerializer ValueSerializer
         {
             get { return _valueSerializer; }

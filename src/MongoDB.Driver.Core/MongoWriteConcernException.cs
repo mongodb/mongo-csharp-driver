@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Operations;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents a write concern exception.
+    /// Represents a MongoDB write concern exception.
     /// </summary>
     [Serializable]
     public class MongoWriteConcernException : MongoCommandException
@@ -34,8 +34,9 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the WriteConcernException class.
+        /// Initializes a new instance of the <see cref="MongoWriteConcernException"/> class.
         /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
         /// <param name="writeConcernResult">The command result.</param>
         public MongoWriteConcernException(ConnectionId connectionId, string message, WriteConcernResult writeConcernResult)
@@ -45,7 +46,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Initializes a new instance of the WriteConcernException class (this overload supports deserialization).
+        /// Initializes a new instance of the <see cref="MongoWriteConcernException"/> class.
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
@@ -68,6 +69,7 @@ namespace MongoDB.Driver
         }
 
         // methods
+        /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

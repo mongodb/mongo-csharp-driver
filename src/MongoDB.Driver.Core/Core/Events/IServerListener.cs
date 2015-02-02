@@ -19,19 +19,59 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents a listener to server events.
+    /// </summary>
     public interface IServerListener : IListener
     {
         // methods
+        /// <summary>
+        /// An event that occurs before closing a server. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ServerBeforeClosing(ServerBeforeClosingEvent @event);
+
+        /// <summary>
+        /// An event that occurs after server has been closed. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ServerAfterClosing(ServerAfterClosingEvent @event);
 
+        /// <summary>
+        /// An event that occurs before opening a server. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ServerBeforeOpening(ServerBeforeOpeningEvent @event);
+
+        /// <summary>
+        /// An event that occurs after a server has been opened. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ServerAfterOpening(ServerAfterOpeningEvent @event);
 
+        /// <summary>
+        /// An event that occurs before sending a heartbeat to a server. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ServerBeforeHeartbeating(ServerBeforeHeartbeatingEvent @event);
+
+        /// <summary>
+        /// An event that occurs after a heartbeat has been sent to a server. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ServerAfterHeartbeating(ServerAfterHeartbeatingEvent @event);
+
+        /// <summary>
+        /// An event that occurs when there is an error while sending a heartbeat to a server.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ServerErrorHeartbeating(ServerErrorHeartbeatingEvent @event);
 
+        /// <summary>
+        /// An event that occurs after a server's description has changed. 
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ServerAfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event);
     }
 }

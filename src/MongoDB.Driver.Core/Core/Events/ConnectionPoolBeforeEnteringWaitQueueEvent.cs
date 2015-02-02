@@ -20,15 +20,29 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionPoolBeforeEnteringWaitQueue event.
+    /// </summary>
     public struct ConnectionPoolBeforeEnteringWaitQueueEvent
     {
         private readonly ServerId _serverId;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolBeforeEnteringWaitQueueEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
         public ConnectionPoolBeforeEnteringWaitQueueEvent(ServerId serverId)
         {
             _serverId = serverId;
         }
 
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }

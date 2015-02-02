@@ -31,15 +31,27 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan? _readTimeout;
         private readonly int _receiveBufferSize;
         private readonly int _sendBufferSize;
+        private readonly Action<Socket> _socketConfigurator;
         private readonly TimeSpan? _writeTimeout;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TcpStreamSettings"/> class.
+        /// </summary>
+        /// <param name="addressFamily">The address family.</param>
+        /// <param name="connectTimeout">The connect timeout.</param>
+        /// <param name="readTimeout">The read timeout.</param>
+        /// <param name="receiveBufferSize">Size of the receive buffer.</param>
+        /// <param name="sendBufferSize">Size of the send buffer.</param>
+        /// <param name="socketConfigurator">The socket configurator.</param>
+        /// <param name="writeTimeout">The write timeout.</param>
         public TcpStreamSettings(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
             Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
             Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
             Optional<int> receiveBufferSize = default(Optional<int>),
             Optional<int> sendBufferSize = default(Optional<int>),
+            Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
         {
             _addressFamily = addressFamily.WithDefault(AddressFamily.InterNetwork);
@@ -47,47 +59,107 @@ namespace MongoDB.Driver.Core.Configuration
             _readTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(readTimeout.WithDefault(null), "readTimeout");
             _receiveBufferSize = Ensure.IsGreaterThanZero(receiveBufferSize.WithDefault(64 * 1024), "receiveBufferSize");
             _sendBufferSize = Ensure.IsGreaterThanZero(sendBufferSize.WithDefault(64 * 1024), "sendBufferSize");
+            _socketConfigurator = socketConfigurator.WithDefault(null);
             _writeTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(writeTimeout.WithDefault(null), "writeTimeout");
         }
 
         // properties
+        /// <summary>
+        /// Gets the address family.
+        /// </summary>
+        /// <value>
+        /// The address family.
+        /// </value>
         public AddressFamily AddressFamily
         {
             get { return _addressFamily; }
         }
 
+        /// <summary>
+        /// Gets the connect timeout.
+        /// </summary>
+        /// <value>
+        /// The connect timeout.
+        /// </value>
         public TimeSpan ConnectTimeout
         {
             get { return _connectTimeout; }
         }
 
+        /// <summary>
+        /// Gets the read timeout.
+        /// </summary>
+        /// <value>
+        /// The read timeout.
+        /// </value>
         public TimeSpan? ReadTimeout
         {
             get { return _readTimeout; }
         }
 
+        /// <summary>
+        /// Gets the size of the receive buffer.
+        /// </summary>
+        /// <value>
+        /// The size of the receive buffer.
+        /// </value>
         public int ReceiveBufferSize
         {
             get { return _receiveBufferSize; }
         }
 
+        /// <summary>
+        /// Gets the size of the send buffer.
+        /// </summary>
+        /// <value>
+        /// The size of the send buffer.
+        /// </value>
         public int SendBufferSize
         {
             get { return _sendBufferSize; }
         }
 
+        /// <summary>
+        /// Gets the socket configurator.
+        /// </summary>
+        /// <value>
+        /// The socket configurator.
+        /// </value>
+        public Action<Socket> SocketConfigurator
+        {
+            get { return _socketConfigurator; }
+        }
+
+        /// <summary>
+        /// Gets the write timeout.
+        /// </summary>
+        /// <value>
+        /// The write timeout.
+        /// </value>
         public TimeSpan? WriteTimeout
         {
             get { return _writeTimeout; }
         }
 
         // methods
+        /// <summary>
+        /// Returns a new TcpStreamSettings instance with some settings changed.
+        /// </summary>
+        /// <param name="addressFamily">The address family.</param>
+        /// <param name="connectTimeout">The connect timeout.</param>
+        /// <param name="readTimeout">The read timeout.</param>
+        /// <param name="receiveBufferSize">Size of the receive buffer.</param>
+        /// <param name="sendBufferSize">Size of the send buffer.</param>
+        /// <param name="socketConfigurator">The socket configurator.</param>
+        /// <param name="writeTimeout">The write timeout.</param>
+        /// <returns>A new TcpStreamSettings instance.</returns>
         public TcpStreamSettings With(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
             Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
             Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
             Optional<int> receiveBufferSize = default(Optional<int>),
             Optional<int> sendBufferSize = default(Optional<int>),
+            Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
         {
             return new TcpStreamSettings(
@@ -96,6 +168,7 @@ namespace MongoDB.Driver.Core.Configuration
                 readTimeout: readTimeout.WithDefault(_readTimeout),
                 receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
                 sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
+                socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
                 writeTimeout: writeTimeout.WithDefault(_writeTimeout));
         }
     }

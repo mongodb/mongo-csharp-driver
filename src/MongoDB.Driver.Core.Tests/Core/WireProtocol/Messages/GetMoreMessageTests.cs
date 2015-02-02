@@ -58,13 +58,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [Test]
         public void GetEncoder_should_return_encoder()
         {
-            var mockEncoder = Substitute.For<IMessageEncoder<GetMoreMessage>>();
-            var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
-            mockEncoderFactory.GetGetMoreMessageEncoder().Returns(mockEncoder);
-
             var subject = new GetMoreMessage(_requestId, _collectionNamespace, _cursorId, _batchSize);
-            var encoder = subject.GetEncoder(mockEncoderFactory);
-            encoder.Should().BeSameAs(mockEncoder);
+            var stubEncoderFactory = Substitute.For<IMessageEncoderFactory>();
+            var stubEncoder = Substitute.For<IMessageEncoder>();
+            stubEncoderFactory.GetGetMoreMessageEncoder().Returns(stubEncoder);
+
+            var result = subject.GetEncoder(stubEncoderFactory);
+
+            result.Should().BeSameAs(stubEncoder);
         }
     }
 }

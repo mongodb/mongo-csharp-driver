@@ -311,11 +311,11 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Gets the slice.
+        /// Gets a slice.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <param name="length">The length.</param>
-        /// <returns></returns>
+        /// <returns>A slice.</returns>
         /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
         /// <exception cref="System.ArgumentException">
         /// Length is negative.;length

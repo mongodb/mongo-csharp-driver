@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Async
 {
-    public class AsyncQueue<T>
+    internal class AsyncQueue<T>
     {
         // fields
         private readonly object _lock = new object();

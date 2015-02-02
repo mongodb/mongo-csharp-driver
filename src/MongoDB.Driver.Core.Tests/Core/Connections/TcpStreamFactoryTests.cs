@@ -23,6 +23,8 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
+using System.Threading.Tasks;
+using System.Reflection;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -49,12 +51,46 @@ namespace MongoDB.Driver.Core.Connections
 
         [Test]
         [RequiresServer]
-        public void CreateStreamAsync_should_connect_to_a_running_server_and_return_a_non_null_stream()
+        public async Task CreateStreamAsync_should_call_the_socketConfigurator()
+        {
+            var socketConfiguratorWasCalled = false;
+            Action<Socket> socketConfigurator = s => socketConfiguratorWasCalled = true;
+            var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
+            var subject = new TcpStreamFactory(settings);
+            var endPoint = SuiteConfiguration.ConnectionString.Hosts[0];
+
+            var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
+
+            socketConfiguratorWasCalled.Should().BeTrue();
+        }
+
+        [Test]
+        [RequiresServer]
+        public async Task CreateStreamAsync_should_connect_to_a_running_server_and_return_a_non_null_stream()
         {
             var subject = new TcpStreamFactory();
+            var endPoint = SuiteConfiguration.ConnectionString.Hosts[0];
 
-            var stream = subject.CreateStreamAsync(new DnsEndPoint("localhost", 27017), CancellationToken.None);
+            var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
+
             stream.Should().NotBeNull();
+        }
+
+        [Test]
+        [RequiresServer]
+        public async Task SocketConfigurator_can_be_used_to_set_keepAlive()
+        {
+            Action<Socket> socketConfigurator = s => s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
+            var subject = new TcpStreamFactory(settings);
+            var endPoint = SuiteConfiguration.ConnectionString.Hosts[0];
+
+            var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
+
+            var socketProperty = typeof(NetworkStream).GetProperty("Socket", BindingFlags.NonPublic | BindingFlags.Instance);
+            var socket = (Socket)socketProperty.GetValue(stream);
+            var keepAlive = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive);
+            keepAlive.Should().Be(1);
         }
     }
 }

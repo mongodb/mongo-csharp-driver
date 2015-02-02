@@ -22,6 +22,9 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+    /// <summary>
+    /// Represents a channel source that is bound to a server.
+    /// </summary>
     public sealed class ServerChannelSource : IChannelSource
     {
         // fields
@@ -29,24 +32,31 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly IServer _server;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerChannelSource"/> class.
+        /// </summary>
+        /// <param name="server">The server.</param>
         public ServerChannelSource(IServer server)
         {
             _server = Ensure.IsNotNull(server, "server");
         }
 
         // properties
+        /// <inheritdoc/>
         public ServerDescription ServerDescription
         {
             get { return _server.Description; }
         }
 
         // methods
+        /// <inheritdoc/>
         public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _server.GetChannelAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)

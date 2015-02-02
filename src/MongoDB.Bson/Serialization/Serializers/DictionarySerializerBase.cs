@@ -23,6 +23,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for dictionaries.
     /// </summary>
+    /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
     public abstract class DictionarySerializerBase<TDictionary> : ClassSerializerBase<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary
     {
         // private constants
@@ -115,7 +116,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         protected override TDictionary DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
@@ -405,7 +406,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         protected override TDictionary DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;

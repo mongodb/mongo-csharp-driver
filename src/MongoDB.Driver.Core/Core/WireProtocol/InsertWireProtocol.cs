@@ -27,7 +27,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    public class InsertWireProtocol<TDocument> : WriteWireProtocolBase
+    internal class InsertWireProtocol<TDocument> : WriteWireProtocolBase
     {
         // fields
         private readonly bool _continueOnError;

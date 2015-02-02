@@ -20,7 +20,11 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    public class InsertMessage<TDocument> : RequestMessage, IEncodableMessage<InsertMessage<TDocument>>
+    /// <summary>
+    /// Represents an Insert message.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public class InsertMessage<TDocument> : RequestMessage
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
@@ -31,6 +35,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly IBsonSerializer<TDocument> _serializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InsertMessage{TDocument}"/> class.
+        /// </summary>
+        /// <param name="requestId">The request identifier.</param>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="documentSource">The document source.</param>
+        /// <param name="maxBatchCount">The maximum batch count.</param>
+        /// <param name="maxMessageSize">Maximum size of the message.</param>
+        /// <param name="continueOnError">if set to <c>true</c> the server should continue on error.</param>
         public InsertMessage(
             int requestId,
             CollectionNamespace collectionNamespace,
@@ -50,45 +64,77 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the server should continue on error.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the server should continue on error; otherwise, <c>false</c>.
+        /// </value>
         public bool ContinueOnError
         {
             get { return _continueOnError; }
         }
 
+        /// <summary>
+        /// Gets the document source.
+        /// </summary>
+        /// <value>
+        /// The document source.
+        /// </value>
         public BatchableSource<TDocument> DocumentSource
         {
             get { return _documentSource; }
         }
 
+        /// <summary>
+        /// Gets the maximum number of documents in a batch.
+        /// </summary>
+        /// <value>
+        /// The maximum number of documents in a batch.
+        /// </value>
         public int MaxBatchCount
         {
             get { return _maxBatchCount; }
         }
 
+        /// <summary>
+        /// Gets the maximum size of a message.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a message.
+        /// </value>
         public int MaxMessageSize
         {
             get { return _maxMessageSize; }
         }
 
+        /// <summary>
+        /// Gets the serializer.
+        /// </summary>
+        /// <value>
+        /// The serializer.
+        /// </value>
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
         }
 
         // methods
-        public new IMessageEncoder<InsertMessage<TDocument>> GetEncoder(IMessageEncoderFactory encoderFactory)
+        /// <inheritdoc/>
+        public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetInsertMessageEncoder<TDocument>(_serializer);
-        }
-
-        protected override IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory)
-        {
-            return GetEncoder(encoderFactory);
         }
     }
 }

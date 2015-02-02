@@ -23,20 +23,21 @@ namespace MongoDB.Driver
     /// <summary>
     /// An interface representing methods used to create, delete and modify indexes.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public interface IMongoIndexManager<TDocument>
     {
         /// <summary>
-        /// Gets the name of the collection.
+        /// Gets the namespace of the collection.
         /// </summary>
         CollectionNamespace CollectionNamespace { get; }
 
         /// <summary>
-        /// Gets the settings.
+        /// Gets the collection settings.
         /// </summary>
         MongoCollectionSettings Settings { get; }
 
         /// <summary>
-        /// Creates the indexes.
+        /// Creates an index.
         /// </summary>
         /// <param name="keys">The keys.</param>
         /// <param name="options">The options.</param>
@@ -45,26 +46,26 @@ namespace MongoDB.Driver
         Task CreateIndexAsync(object keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Drops the index asynchronous.
+        /// Drops an index.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="name">The name of the index to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
         Task DropIndexAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Drops the index asynchronous.
+        /// Drops an index.
         /// </summary>
-        /// <param name="keys">The keys.</param>
+        /// <param name="keys">The keys of the index to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
         Task DropIndexAsync(object keys, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Gets the indexes asynchronous.
+        /// Gets the indexes.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The list of index definitions.</returns>
-        Task<IAsyncCursor<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>A Task whose result is a cursor.</returns>
+        Task<IAsyncCursor<BsonDocument>> ListIndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

@@ -21,13 +21,14 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.SyncExtensionMethods;
+using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a fluent builder for a bulk operation.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteOperation<TDocument>
     {
         // private fields

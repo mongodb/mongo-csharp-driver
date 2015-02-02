@@ -30,9 +30,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -42,9 +39,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the scale.
         /// </summary>
-        /// <value>
-        /// The scale.
-        /// </value>
         public int? Scale
         {
             get { return _scale; }

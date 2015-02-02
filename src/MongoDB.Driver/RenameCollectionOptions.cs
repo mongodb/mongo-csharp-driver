@@ -25,7 +25,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets or sets the drop target.
+        /// Gets or sets a value indicating whether to drop the target collection first if it already exists.
         /// </summary>
         public bool? DropTarget
         {

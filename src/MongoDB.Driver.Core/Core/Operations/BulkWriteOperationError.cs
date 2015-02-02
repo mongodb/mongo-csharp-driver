@@ -36,6 +36,13 @@ namespace MongoDB.Driver.Core.Operations
         private readonly string _message;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BulkWriteOperationError"/> class.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        /// <param name="code">The code.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="details">The details.</param>
         public BulkWriteOperationError(int index, int code, string message, BsonDocument details)
         {
             _code = code;
@@ -45,6 +52,30 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the error category.
+        /// </summary>
+        /// <value>
+        /// The error category.
+        /// </value>
+        public ServerErrorCategory Category
+        {
+            get
+            {
+                switch(_code)
+                {
+                    case 50:
+                        return ServerErrorCategory.ExecutionTimeout;
+                    case 11000:
+                    case 11001:
+                    case 12582:
+                        return ServerErrorCategory.DuplicateKey;
+                    default:
+                        return ServerErrorCategory.Uncategorized;
+                }
+            }
+        }
+
         /// <summary>
         /// Gets the error code.
         /// </summary>
@@ -57,10 +88,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets the error information.
+        /// Gets the error details.
         /// </summary>
         /// <value>
-        /// The error information.
+        /// The error details.
         /// </value>
         public BsonDocument Details
         {

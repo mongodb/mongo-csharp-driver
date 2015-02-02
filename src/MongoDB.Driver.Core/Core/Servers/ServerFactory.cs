@@ -29,14 +29,24 @@ namespace MongoDB.Driver.Core.Servers
     public class ServerFactory : IClusterableServerFactory
     {
         // fields
+        private readonly ClusterConnectionMode _clusterConnectionMode;
         private readonly IConnectionPoolFactory _connectionPoolFactory;
         private readonly IConnectionFactory _heartbeatConnectionFactory;
         private readonly IServerListener _listener;
         private readonly ServerSettings _settings;
 
         // constructors
-        public ServerFactory(ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerFactory"/> class.
+        /// </summary>
+        /// <param name="clusterConnectionMode">The cluster connection mode.</param>
+        /// <param name="settings">The settings.</param>
+        /// <param name="connectionPoolFactory">The connection pool factory.</param>
+        /// <param name="heartbeatConnectionFactory">The heartbeat connection factory.</param>
+        /// <param name="listener">The listener.</param>
+        public ServerFactory(ClusterConnectionMode clusterConnectionMode, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
         {
+            _clusterConnectionMode = clusterConnectionMode;
             _settings = Ensure.IsNotNull(settings, "settings");
             _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
             _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
@@ -44,9 +54,10 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // methods
+        /// <inheritdoc/>
         public IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint)
         {
-            return new ClusterableServer(_settings, clusterId, endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            return new ClusterableServer(clusterId, _clusterConnectionMode, _settings, endPoint, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
         }
     }
 }

@@ -23,6 +23,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a base serializer for enumerable values.
     /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
     public abstract class EnumerableSerializerBase<TValue> : SerializerBase<TValue>, IBsonArraySerializer where TValue : class, IEnumerable
     {
         // private fields
@@ -69,7 +70,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public override TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
@@ -233,7 +234,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public override TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;

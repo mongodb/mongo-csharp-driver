@@ -23,7 +23,6 @@ using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Communication;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -31,8 +30,9 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Support;
+using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -179,9 +179,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the cluster.
         /// </summary>
-        /// <value>
-        /// The cluster.
-        /// </value>
         internal ICluster Cluster
         {
             get { return _cluster; }
@@ -262,7 +259,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual string ReplicaSetName
         {
-            get 
+            get
             {
                 var replicaSetName = _cluster.Settings.ReplicaSetName;
                 if (replicaSetName != null)
@@ -608,8 +605,9 @@ namespace MongoDB.Driver
         public virtual IEnumerable<string> GetDatabaseNames()
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ListDatabaseNamesOperation(messageEncoderSettings);
-            return ExecuteReadOperation(operation).OrderBy(name => name);
+            var operation = new ListDatabasesOperation(messageEncoderSettings);
+            var list = ExecuteReadOperation(operation).ToListAsync().GetAwaiter().GetResult();
+            return list.Select(x => (string)x["name"]).OrderBy(name => name);
         }
 
         /// <summary>

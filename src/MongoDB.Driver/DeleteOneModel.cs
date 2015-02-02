@@ -26,15 +26,16 @@ namespace MongoDB.Driver
     /// <summary>
     /// Model for deleting a single document.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
-    public sealed class DeleteOneModel<T> : WriteModel<T>
+    public sealed class DeleteOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields
         private readonly object _filter;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteOneModel{T}"/> class.
+        /// Initializes a new instance of the <see cref="DeleteOneModel{TDocument}"/> class.
         /// </summary>
         /// <param name="filter">The filter.</param>
         public DeleteOneModel(object filter)
@@ -44,7 +45,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets the document.
+        /// Gets the filter.
         /// </summary>
         public object Filter
         {

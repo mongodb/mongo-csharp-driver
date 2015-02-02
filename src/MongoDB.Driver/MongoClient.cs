@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Bindings;
@@ -26,9 +27,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
 {
-    /// <summary>
-    /// Represents a client to MongoDB.
-    /// </summary>
+    /// <inheritdoc/>
     public class MongoClient : IMongoClient
     {
         // private fields
@@ -81,17 +80,13 @@ namespace MongoDB.Driver
         }
 
         // public properties
-        /// <summary>
-        /// Gets the cluster.
-        /// </summary>
-        internal ICluster Cluster
+        /// <inheritdoc/>
+        public ICluster Cluster
         {
             get { return _cluster; }
         }
 
-        /// <summary>
-        /// Gets the client settings.
-        /// </summary>
+        /// <inheritdoc/>
         public MongoClientSettings Settings
         {
             get { return _settings; }
@@ -105,12 +100,7 @@ namespace MongoDB.Driver
         }
 
         // public methods
-        /// <summary>
-        /// Drops the database.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
@@ -122,40 +112,29 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <summary>
-        /// Gets the database.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns>An implementation of a database.</returns>
+        /// <inheritdoc/>
         public IMongoDatabase GetDatabase(string name)
         {
             var settings = new MongoDatabaseSettings();
-            settings.ApplyDefaultValues(_settings);
             return GetDatabase(name, settings);
         }
 
-        /// <summary>
-        /// Gets the database.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="settings">The settings.</param>
-        /// <returns>An implementation of a database.</returns>
+        /// <inheritdoc/>
         public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings)
         {
+            settings = settings.Clone();
+            settings.ApplyDefaultValues(_settings);
+
             return new MongoDatabaseImpl(new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
         }
 
-        /// <summary>
-        /// Gets the database names.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A list of the database on the server.</returns>
-        public async Task<IReadOnlyList<string>> GetDatabaseNamesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        /// <inheritdoc/>
+        public async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ListDatabaseNamesOperation(messageEncoderSettings);
+            var operation = new ListDatabasesOperation(messageEncoderSettings);
 
-            using(var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
+            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }

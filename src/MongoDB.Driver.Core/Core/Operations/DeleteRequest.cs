@@ -49,10 +49,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets the limit.
+        /// Gets or sets a limit on the number of documents that should be deleted.
         /// </summary>
+        /// <remarks>
+        /// The server only supports 0 or 1, and 0 means that all matching documents should be deleted.
+        /// </remarks>
         /// <value>
-        /// The limit.
+        /// A limit on the number of documents that should be deleted.
         /// </value>
         public int Limit
         {

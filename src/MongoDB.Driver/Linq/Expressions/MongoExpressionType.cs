@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿/* Copyright 2010-2014 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,17 +13,12 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Bson.Serialization;
-
-namespace MongoDB.Driver.Core.WireProtocol.Messages
+namespace MongoDB.Driver.Linq.Expressions
 {
-    public interface IReplyMessageDocumentDecoder
+    internal enum MongoExpressionType
     {
-        IEnumerable<TDocument> Decode<TDocument>(IBsonSerializer<TDocument> serializer);
+        Document,
+        Field,
+        Aggregation
     }
 }

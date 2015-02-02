@@ -19,14 +19,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Operations
 {
     [TestFixture]
-    public class ListDatabaseNamesOperationTests : OperationTestBase
+    public class ListDatabasesOperationTests : OperationTestBase
     {
         // setup methods
         public override void TestFixtureSetUp()
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void constructor_should_initialize_subject()
         {
-            var subject = new ListDatabaseNamesOperation(_messageEncoderSettings);
+            var subject = new ListDatabasesOperation(_messageEncoderSettings);
 
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateCommand_should_return_expected_result()
         {
-            var subject = new ListDatabaseNamesOperation(_messageEncoderSettings);
+            var subject = new ListDatabasesOperation(_messageEncoderSettings);
             var expectedResult = new BsonDocument
             {
                 { "listDatabases", 1 }
@@ -63,19 +62,20 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                var subject = new ListDatabaseNamesOperation(_messageEncoderSettings);
+                var subject = new ListDatabasesOperation(_messageEncoderSettings);
                 EnsureDatabaseExists(binding);
 
                 var result = await subject.ExecuteAsync(binding, CancellationToken.None);
+                var list = await result.ToListAsync();
 
-                result.Should().Contain(_databaseNamespace.DatabaseName);
+                list.Should().Contain(x => x["name"] == _databaseNamespace.DatabaseName);
             }
         }
 
         [Test]
         public void ExecuteAsync_should_throw_when_binding_is_null()
         {
-            var subject = new ListDatabaseNamesOperation(_messageEncoderSettings);
+            var subject = new ListDatabasesOperation(_messageEncoderSettings);
 
             Func<Task> action = () => subject.ExecuteAsync(null, CancellationToken.None);
 
@@ -85,10 +85,10 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void MessageEncoderSettings_get_should_return_expected_result()
         {
-            var subject = new ListDatabaseNamesOperation(_messageEncoderSettings);
+            var subject = new ListDatabasesOperation(_messageEncoderSettings);
 
             var result = subject.MessageEncoderSettings;
-            
+
             result.Should().BeSameAs(_messageEncoderSettings);
         }
 
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, "test");
             var requests = new[] { new InsertRequest(new BsonDocument()) };
             var insertOperation = new BulkInsertOperation(collectionNamespace, requests, _messageEncoderSettings);
-            insertOperation.Execute(binding);
+            insertOperation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
         }
     }
 }

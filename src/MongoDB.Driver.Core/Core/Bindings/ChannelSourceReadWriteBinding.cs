@@ -21,6 +21,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+    /// <summary>
+    /// Represents a read-write binding to a channel source.
+    /// </summary>
     public sealed class ChannelSourceReadWriteBinding : IReadWriteBinding
     {
         // fields
@@ -29,6 +32,11 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly ReadPreference _readPreference;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelSourceReadWriteBinding"/> class.
+        /// </summary>
+        /// <param name="channelSource">The channel source.</param>
+        /// <param name="readPreference">The read preference.</param>
         public ChannelSourceReadWriteBinding(IChannelSourceHandle channelSource, ReadPreference readPreference)
         {
             _channelSource = Ensure.IsNotNull(channelSource, "channelSource");
@@ -36,24 +44,28 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
+        /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
         }
 
         // methods
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return Task.FromResult(_channelSource.Fork());
         }
 
+        /// <inheritdoc/>
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return Task.FromResult(_channelSource.Fork());
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)
@@ -64,7 +76,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        public void ThrowIfDisposed()
+        private void ThrowIfDisposed()
         {
             if(_disposed)
             {

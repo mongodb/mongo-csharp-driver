@@ -18,18 +18,32 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a database namespace.
+    /// </summary>
     public sealed class DatabaseNamespace : IEquatable<DatabaseNamespace>
     {
         // static fields
         private static readonly DatabaseNamespace __admin = new DatabaseNamespace("admin");
 
         // static properties
+        /// <summary>
+        /// Gets the admin database namespace.
+        /// </summary>
+        /// <value>
+        /// The admin database namespace.
+        /// </value>
         public static DatabaseNamespace Admin
         {
             get { return __admin; }
         }
 
         // static methods
+        /// <summary>
+        /// Determines whether the specified database name is valid.
+        /// </summary>
+        /// <param name="name">The database name.</param>
+        /// <returns>True if the database name is valid.</returns>
         public static bool IsValid(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -45,6 +59,10 @@ namespace MongoDB.Driver
         private readonly string _databaseName;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatabaseNamespace"/> class.
+        /// </summary>
+        /// <param name="databaseName">The name of the database.</param>
         public DatabaseNamespace(string databaseName)
         {
             Ensure.IsNotNull(databaseName, "databaseName");
@@ -57,6 +75,12 @@ namespace MongoDB.Driver
             get { return new CollectionNamespace(this, "$cmd"); }
         }
 
+        /// <summary>
+        /// Gets the name of the database.
+        /// </summary>
+        /// <value>
+        /// The name of the database.
+        /// </value>
         public string DatabaseName
         {
             get { return _databaseName; }
@@ -73,6 +97,7 @@ namespace MongoDB.Driver
         }
 
         // methods
+        /// <inheritdoc/>
         public bool Equals(DatabaseNamespace other)
         {
             if(other == null)
@@ -83,16 +108,19 @@ namespace MongoDB.Driver
             return _databaseName == other._databaseName;
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as DatabaseNamespace);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return _databaseName.GetHashCode();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return _databaseName;

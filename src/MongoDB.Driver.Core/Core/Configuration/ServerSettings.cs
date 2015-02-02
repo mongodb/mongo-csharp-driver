@@ -29,6 +29,11 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan _heartbeatTimeout;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerSettings"/> class.
+        /// </summary>
+        /// <param name="heartbeatInterval">The heartbeat interval.</param>
+        /// <param name="heartbeatTimeout">The heartbeat timeout.</param>
         public ServerSettings(
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
             Optional<TimeSpan> heartbeatTimeout = default(Optional<TimeSpan>))
@@ -38,17 +43,35 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // properties
+        /// <summary>
+        /// Gets the heartbeat interval.
+        /// </summary>
+        /// <value>
+        /// The heartbeat interval.
+        /// </value>
         public TimeSpan HeartbeatInterval
         {
             get { return _heartbeatInterval; }
         }
 
+        /// <summary>
+        /// Gets the heartbeat timeout.
+        /// </summary>
+        /// <value>
+        /// The heartbeat timeout.
+        /// </value>
         public TimeSpan HeartbeatTimeout
         {
             get { return _heartbeatTimeout; }
         }
 
         // methods
+        /// <summary>
+        /// Returns a new ServerSettings instance with some settings changed.
+        /// </summary>
+        /// <param name="heartbeatInterval">The heartbeat interval.</param>
+        /// <param name="heartbeatTimeout">The heartbeat timeout.</param>
+        /// <returns>A new ServerSettings instance.</returns>
         public ServerSettings With(
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
             Optional<TimeSpan> heartbeatTimeout = default(Optional<TimeSpan>))

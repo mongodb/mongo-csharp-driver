@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Connections
     internal class BinaryConnection : IConnection
     {
         // fields
+        private readonly CancellationToken _backgroundTaskCancellationToken;
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource;
         private ConnectionId _connectionId;
         private readonly IConnectionInitializer _connectionInitializer;
@@ -68,6 +69,7 @@ namespace MongoDB.Driver.Core.Connections
             _listener = listener;
 
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
+            _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
 
             _connectionId = new ConnectionId(serverId);
             _inboundDropbox = new AsyncDropbox<int, IByteBuffer>();
@@ -231,17 +233,16 @@ namespace MongoDB.Driver.Core.Connections
 
         private async void ReceiveBackgroundTask()
         {
-            var backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
-            while (!backgroundTaskCancellationToken.IsCancellationRequested)
+            while (!_backgroundTaskCancellationToken.IsCancellationRequested)
             {
                 try
                 {
                     var messageSizeBytes = new byte[4];
-                    await _stream.FillBufferAsync(messageSizeBytes, 0, 4, backgroundTaskCancellationToken).ConfigureAwait(false);
+                    await _stream.FillBufferAsync(messageSizeBytes, 0, 4, _backgroundTaskCancellationToken).ConfigureAwait(false);
                     var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
                     var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, messageSize);
                     buffer.WriteBytes(0, messageSizeBytes, 0, 4);
-                    await _stream.FillBufferAsync(buffer, 4, messageSize - 4, backgroundTaskCancellationToken).ConfigureAwait(false);
+                    await _stream.FillBufferAsync(buffer, 4, messageSize - 4, _backgroundTaskCancellationToken).ConfigureAwait(false);
                     _lastUsedAtUtc = DateTime.UtcNow;
                     var responseToBytes = new byte[4];
                     buffer.ReadBytes(8, responseToBytes, 0, 4);
@@ -280,7 +281,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var encoderFactory = new BinaryMessageEncoderFactory(stream, messageEncoderSettings);
                     var encoder = encoderFactory.GetReplyMessageEncoder<TDocument>(serializer);
-                    reply = encoder.ReadMessage();
+                    reply = (ReplyMessage<TDocument>)encoder.ReadMessage();
                 }
                 stopwatch.Stop();
 
@@ -304,12 +305,11 @@ namespace MongoDB.Driver.Core.Connections
 
         private async void SendBackgroundTask()
         {
-            var backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
-            while (!backgroundTaskCancellationToken.IsCancellationRequested)
+            while (!_backgroundTaskCancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    var entry = await _outboundQueue.DequeueAsync(backgroundTaskCancellationToken).ConfigureAwait(false);
+                    var entry = await _outboundQueue.DequeueAsync(_backgroundTaskCancellationToken).ConfigureAwait(false);
 
                     // Before we might blow up the stream, let's see if we have been
                     // asked to cancel. No reason to do work on the stream if the user
@@ -325,7 +325,7 @@ namespace MongoDB.Driver.Core.Connections
                         // Don't use the entry's cancellation token because once we
                         // start writing the message, we don't want to stop arbitrarily
                         // and render the connection unusable at the whim of a user.
-                        await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, backgroundTaskCancellationToken).ConfigureAwait(false);
+                        await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, _backgroundTaskCancellationToken).ConfigureAwait(false);
                         _lastUsedAtUtc = DateTime.UtcNow;
                         entry.TaskCompletionSource.TrySetResult(true);
                     }

@@ -59,6 +59,7 @@
     <Compile Include="Core\Operations\AggregateOperationTests.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests.cs" />
+    <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
     <Compile Include="Core\Operations\CreateCollectionOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexesOperationTests.cs" />
     <Compile Include="Core\Operations\CreateIndexRequestTests.cs" />
@@ -75,7 +76,7 @@
     <Compile Include="Core\Operations\IndexNameHelperTests.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperationTests.cs" />
     <Compile Include="Core\Operations\ListCollectionsOperationTests.cs" />
-    <Compile Include="Core\Operations\ListDatabaseNamesOperationTests.cs" />
+    <Compile Include="Core\Operations\ListDatabasesOperationTests.cs" />
     <Compile Include="Core\Operations\ListIndexesOperationTests.cs" />
     <Compile Include="Core\Operations\MapReduceOperationBaseTests.cs" />
     <Compile Include="Core\Operations\MapReduceOperationTests.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Core\Clusters\ClusterIdTests.cs" />
     <Compile Include="Core\Clusters\ClusterTests.cs" />
     <Compile Include="Core\Operations\GroupOperationTests.cs" />
+    <Compile Include="BatchTransformingAsyncCursorTests.cs" />
     <Compile Include="ReadPreferenceTests.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\DelegateServerSelectorTests.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\CompositeServerSelectorTests.cs" />

@@ -36,9 +36,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the finalize function.
         /// </summary>
-        /// <value>
-        /// The finalize function.
-        /// </value>
         public BsonJavaScript FinalizeFunction
         {
             get { return _finalizeFunction; }
@@ -48,9 +45,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the initial value of the aggregation result document.
         /// </summary>
-        /// <value>
-        /// The initial value of the aggregation result document.
-        /// </value>
         public BsonDocument Initial
         {
             get { return _initial; }
@@ -60,9 +54,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the key fields.
         /// </summary>
-        /// <value>
-        /// The key fields.
-        /// </value>
         public IMongoGroupBy KeyFields
         {
             get { return _keyFields; }
@@ -72,9 +63,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the key function.
         /// </summary>
-        /// <value>
-        /// The key function.
-        /// </value>
         public BsonJavaScript KeyFunction
         {
             get { return _keyFunction; }
@@ -84,9 +72,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -96,9 +81,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public IMongoQuery Query
         {
             get { return _query; }
@@ -108,9 +90,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the reduce function.
         /// </summary>
-        /// <value>
-        /// The reduce function.
-        /// </value>
         public BsonJavaScript ReduceFunction
         {
             get { return _reduceFunction; }

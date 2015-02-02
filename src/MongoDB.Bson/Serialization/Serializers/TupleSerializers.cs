@@ -63,7 +63,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns></returns>
+        /// <returns>A deserialized value.</returns>
         protected override Tuple<T1> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
@@ -148,7 +148,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns></returns>
+        /// <returns>A deserialized value.</returns>
         protected override Tuple<T1, T2> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
@@ -250,7 +250,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns></returns>
+        /// <returns>A deserialized value.</returns>
         protected override Tuple<T1, T2, T3> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
@@ -369,7 +369,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns></returns>
+        /// <returns>A deserialized value.</returns>
         protected override Tuple<T1, T2, T3, T4> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
@@ -505,7 +505,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns></returns>
+        /// <returns>A deserialized value.</returns>
         protected override Tuple<T1, T2, T3, T4, T5> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
@@ -658,7 +658,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns></returns>
+        /// <returns>A deserialized value.</returns>
         protected override Tuple<T1, T2, T3, T4, T5, T6> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
@@ -828,7 +828,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns></returns>
+        /// <returns>A deserialized value.</returns>
         protected override Tuple<T1, T2, T3, T4, T5, T6, T7> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();
@@ -1015,7 +1015,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns></returns>
+        /// <returns>A deserialized value.</returns>
         protected override Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             context.Reader.ReadStartArray();

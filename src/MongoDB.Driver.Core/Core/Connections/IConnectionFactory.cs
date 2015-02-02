@@ -30,6 +30,12 @@ namespace MongoDB.Driver.Core.Connections
     public interface IConnectionFactory
     {
         // methods
+        /// <summary>
+        /// Creates the connection.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="endPoint">The end point.</param>
+        /// <returns>A connection.</returns>
         IConnection CreateConnection(ServerId serverId, EndPoint endPoint);
     }
 }

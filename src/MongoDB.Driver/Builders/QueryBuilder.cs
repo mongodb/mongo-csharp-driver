@@ -346,6 +346,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="point">The point.</param>
         /// <param name="maxDistance">The max distance.</param>
@@ -359,6 +360,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="point">The point.</param>
         /// <param name="maxDistance">The max distance.</param>
@@ -1613,7 +1615,7 @@ namespace MongoDB.Driver.Builders
             }
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            _serializationInfoHelper.GetItemSerializationInfo("ElemMatch", serializationInfo);
+            _serializationInfoHelper.GetItemSerializationInfo("ElemMatch", serializationInfo); // TODO: there must be a better way to do whatever this line is doing
             var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper);
             var elementQuery = elementQueryBuilderFunction(elementQueryBuilder);
             return Query.ElemMatch(serializationInfo.ElementName, elementQuery);

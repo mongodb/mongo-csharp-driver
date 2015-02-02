@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Gets or sets whether the output collection is sharded.
+        /// Gets or sets a value indicating whether the output collection is sharded.
         /// </summary>
         public bool Sharded
         {

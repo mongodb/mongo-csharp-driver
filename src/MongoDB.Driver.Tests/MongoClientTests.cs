@@ -71,15 +71,15 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public async Task ListDatabaseNamesAsync_should_invoke_the_correct_operation()
+        public async Task ListDatabasesAsync_should_invoke_the_correct_operation()
         {
             var operationExecutor = new MockOperationExecutor();
             var client = new MongoClient(operationExecutor);
-            await client.GetDatabaseNamesAsync();
+            await client.ListDatabasesAsync();
 
-            var call = operationExecutor.GetReadCall<IReadOnlyList<string>>();
+            var call = operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
-            call.Operation.Should().BeOfType<ListDatabaseNamesOperation>();
+            call.Operation.Should().BeOfType<ListDatabasesOperation>();
         }
     }
 }

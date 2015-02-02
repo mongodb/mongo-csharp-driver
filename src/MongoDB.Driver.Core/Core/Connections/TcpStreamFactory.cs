@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a factory for a binary stream over a TCP/IP connection.
     /// </summary>
-    public class TcpStreamFactory : IStreamFactory
+    internal class TcpStreamFactory : IStreamFactory
     {
         // fields
         private readonly TcpStreamSettings _settings;
@@ -56,6 +56,12 @@ namespace MongoDB.Driver.Core.Connections
             socket.NoDelay = true;
             socket.ReceiveBufferSize = _settings.ReceiveBufferSize;
             socket.SendBufferSize = _settings.SendBufferSize;
+
+            var socketConfigurator = _settings.SocketConfigurator;
+            if (socketConfigurator != null)
+            {
+                socketConfigurator(socket);
+            }
 
             var stream = new NetworkStream(socket, true);
 

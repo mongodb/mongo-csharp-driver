@@ -28,6 +28,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents an aggregate operation.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result values.</typeparam>
     public class AggregateOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>
     {
         // static fields
@@ -44,6 +48,13 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _useCursor;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AggregateOperation{TResult}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="resultSerializer">The result value serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public AggregateOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
@@ -53,44 +64,92 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether the server is allowed to use the disk.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether the server is allowed to use the disk.
+        /// </value>
         public bool? AllowDiskUse
         {
             get { return _allowDiskUse; }
             set { _allowDiskUse = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the size of a batch.
+        /// </summary>
+        /// <value>
+        /// The size of a batch.
+        /// </value>
         public int? BatchSize
         {
             get { return _batchSize; }
             set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum time the server should spend on this operation.
+        /// </summary>
+        /// <value>
+        /// The maximum time the server should spend on this operation.
+        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = value; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets the pipeline.
+        /// </summary>
+        /// <value>
+        /// The pipeline.
+        /// </value>
         public IReadOnlyList<BsonDocument> Pipeline
         {
             get { return _pipeline; }
         }
 
+        /// <summary>
+        /// Gets the result value serializer.
+        /// </summary>
+        /// <value>
+        /// The result value serializer.
+        /// </value>
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the server should use a cursor to return the results.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether the server should use a cursor to return the results.
+        /// </value>
         public bool? UseCursor
         {
             get { return _useCursor; }
@@ -98,6 +157,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
+        /// <inheritdoc/>
         public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
@@ -116,6 +176,11 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        /// <summary>
+        /// Returns an AggregateExplainOperation for this AggregateOperation.
+        /// </summary>
+        /// <param name="verbosity">The verbosity.</param>
+        /// <returns>An AggregateExplainOperation.</returns>
         public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)
         {
             return new AggregateExplainOperation(_collectionNamespace, _pipeline, _messageEncoderSettings)

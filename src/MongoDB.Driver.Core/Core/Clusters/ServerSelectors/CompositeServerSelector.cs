@@ -29,6 +29,10 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         private readonly IReadOnlyList<IServerSelector> _selectors;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CompositeServerSelector"/> class.
+        /// </summary>
+        /// <param name="selectors">The selectors.</param>
         public CompositeServerSelector(IEnumerable<IServerSelector> selectors)
         {
             Ensure.IsNotNull(selectors, "selectors");
@@ -36,6 +40,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         }
 
         // methods
+        /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
             var selectedServers = servers;
@@ -46,6 +51,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             return selectedServers;
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return string.Format("CompositeServerSelector{{ Selectors = {0} }}", string.Join(", ", _selectors.Select(x => x.ToString())));

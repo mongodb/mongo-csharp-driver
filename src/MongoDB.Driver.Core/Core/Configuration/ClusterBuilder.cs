@@ -23,6 +23,9 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Configuration
 {
+    /// <summary>
+    /// Represents a cluster builder.
+    /// </summary>
     public class ClusterBuilder
     {
         // fields
@@ -39,6 +42,9 @@ namespace MongoDB.Driver.Core.Configuration
         private TcpStreamSettings _tcpStreamSettings;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterBuilder"/> class.
+        /// </summary>
         public ClusterBuilder()
         {
             _clusterSettings = new ClusterSettings();
@@ -50,6 +56,10 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // methods
+        /// <summary>
+        /// Builds the cluster.
+        /// </summary>
+        /// <returns>A cluster.</returns>
         public ICluster BuildCluster()
         {
             IStreamFactory streamFactory = new TcpStreamFactory(_tcpStreamSettings);
@@ -71,6 +81,7 @@ namespace MongoDB.Driver.Core.Configuration
                 _connectionPoolListener);
 
             var serverFactory = new ServerFactory(
+                _clusterSettings.ConnectionMode,
                 _serverSettings,
                 connectionPoolFactory,
                 connectionFactory,
@@ -84,50 +95,85 @@ namespace MongoDB.Driver.Core.Configuration
             return clusterFactory.CreateCluster();
         }
 
-        public ClusterBuilder ConfigureCluster(Func<ClusterSettings, ClusterSettings> configure)
+        /// <summary>
+        /// Configures the cluster settings.
+        /// </summary>
+        /// <param name="configurator">The cluster settings configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureCluster(Func<ClusterSettings, ClusterSettings> configurator)
         {
-            Ensure.IsNotNull(configure, "configure");
+            Ensure.IsNotNull(configurator, "configurator");
 
-            _clusterSettings = configure(_clusterSettings);
+            _clusterSettings = configurator(_clusterSettings);
             return this;
         }
 
-        public ClusterBuilder ConfigureConnection(Func<ConnectionSettings, ConnectionSettings> configure)
+        /// <summary>
+        /// Configures the connection settings.
+        /// </summary>
+        /// <param name="configurator">The connection settings configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureConnection(Func<ConnectionSettings, ConnectionSettings> configurator)
         {
-            Ensure.IsNotNull(configure, "configure");
+            Ensure.IsNotNull(configurator, "configurator");
 
-            _connectionSettings = configure(_connectionSettings);
+            _connectionSettings = configurator(_connectionSettings);
             return this;
         }
 
-        public ClusterBuilder ConfigureConnectionPool(Func<ConnectionPoolSettings, ConnectionPoolSettings> configure)
+        /// <summary>
+        /// Configures the connection pool settings.
+        /// </summary>
+        /// <param name="configurator">The connection pool settings configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureConnectionPool(Func<ConnectionPoolSettings, ConnectionPoolSettings> configurator)
         {
-            Ensure.IsNotNull(configure, "configure");
+            Ensure.IsNotNull(configurator, "configurator");
 
-            _connectionPoolSettings = configure(_connectionPoolSettings);
+            _connectionPoolSettings = configurator(_connectionPoolSettings);
             return this;
         }
 
-        public ClusterBuilder ConfigureServer(Func<ServerSettings, ServerSettings> configure)
+        /// <summary>
+        /// Configures the server settings.
+        /// </summary>
+        /// <param name="configurator">The server settings configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureServer(Func<ServerSettings, ServerSettings> configurator)
         {
-            _serverSettings = configure(_serverSettings);
+            _serverSettings = configurator(_serverSettings);
             return this;
         }
 
-        public ClusterBuilder ConfigureSsl(Func<SslStreamSettings, SslStreamSettings> configure)
+        /// <summary>
+        /// Configures the SSL stream settings.
+        /// </summary>
+        /// <param name="configurator">The SSL stream settings configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureSsl(Func<SslStreamSettings, SslStreamSettings> configurator)
         {
-            _sslStreamSettings = configure(_sslStreamSettings ?? new SslStreamSettings());
+            _sslStreamSettings = configurator(_sslStreamSettings ?? new SslStreamSettings());
             return this;
         }
 
-        public ClusterBuilder ConfigureTcp(Func<TcpStreamSettings, TcpStreamSettings> configure)
+        /// <summary>
+        /// Configures the TCP stream settings.
+        /// </summary>
+        /// <param name="configurator">The TCP stream settings configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureTcp(Func<TcpStreamSettings, TcpStreamSettings> configurator)
         {
-            Ensure.IsNotNull(configure, "configure");
+            Ensure.IsNotNull(configurator, "configurator");
 
-            _tcpStreamSettings = configure(_tcpStreamSettings);
+            _tcpStreamSettings = configurator(_tcpStreamSettings);
             return this;
         }
 
+        /// <summary>
+        /// Registers a stream factory wrapper.
+        /// </summary>
+        /// <param name="wrapper">The stream factory wrapper.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder RegisterStreamFactory(Func<IStreamFactory, IStreamFactory> wrapper)
         {
             Ensure.IsNotNull(wrapper, "wrapper");
@@ -136,6 +182,11 @@ namespace MongoDB.Driver.Core.Configuration
             return this;
         }
 
+        /// <summary>
+        /// Adds a listener.
+        /// </summary>
+        /// <param name="listener">The listener.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder AddListener(IListener listener)
         {
             var clusterListener = listener as IClusterListener;

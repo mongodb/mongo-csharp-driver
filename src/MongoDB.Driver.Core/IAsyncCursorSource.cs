@@ -19,13 +19,33 @@ using System.Threading;
 using System.Threading.Tasks;
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents an operation that will return a cursor when executed.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public interface IAsyncCursorSource<TDocument>
     {
+        /// <summary>
+        /// Executes the operation and returns a cursor to the results.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken);
     }
 
+    /// <summary>
+    /// Represents extension methods for IAsyncCursorSource.
+    /// </summary>
     public static class IAsyncCursorSourceExtensions
     {
+        /// <summary>
+        /// Calls a delegate for each document returned by the cursor.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="processor">The processor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Func<TDocument, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
@@ -34,6 +54,14 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Calls a delegate for each document returned by the cursor.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="processor">The processor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Func<TDocument, int, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
@@ -42,6 +70,19 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Calls a delegate for each document returned by the cursor.
+        /// </summary>
+        /// <remarks>
+        /// If your delegate is going to take a long time to execute or is going to block
+        /// consider using a different overload of ForEachAsync that uses a delegate that
+        /// returns a Task instead.
+        /// </remarks>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="processor">The processor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Action<TDocument> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
@@ -50,6 +91,19 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Calls a delegate for each document returned by the cursor.
+        /// </summary>
+        /// <remarks>
+        /// If your delegate is going to take a long time to execute or is going to block
+        /// consider using a different overload of ForEachAsync that uses a delegate that
+        /// returns a Task instead.
+        /// </remarks>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="processor">The processor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Action<TDocument, int> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
@@ -58,6 +112,13 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Returns a list containing all the documents returned by the cursor returned by a cursor source.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose value is the list of documents.</returns>
         public static async Task<List<TDocument>> ToListAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))

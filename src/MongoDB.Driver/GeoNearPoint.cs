@@ -71,7 +71,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Converts the GeoNearPoint into a BsonValue for the GeoNear command.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A BsonValue.</returns>
         internal abstract BsonValue ToGeoNearCommandValue();
 
         // nested classes
@@ -97,9 +97,6 @@ namespace MongoDB.Driver
             /// <summary>
             /// Gets the value.
             /// </summary>
-            /// <value>
-            /// The value.
-            /// </value>
             public XYPoint Value
             {
                 get { return _value; }
@@ -139,9 +136,6 @@ namespace MongoDB.Driver
             /// <summary>
             /// Gets the value.
             /// </summary>
-            /// <value>
-            /// The value.
-            /// </value>
             public GeoJsonPoint<TCoordinates> Value
             {
                 get { return _value; }

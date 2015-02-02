@@ -21,15 +21,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Authentication
 {
+    /// <summary>
+    /// A MONGODB-CR authenticator.
+    /// </summary>
     public sealed class MongoDBCRAuthenticator : IAuthenticator
     {
         // static properties
+        /// <summary>
+        /// Gets the name of the mechanism.
+        /// </summary>
+        /// <value>
+        /// The name of the mechanism.
+        /// </value>
         public static string MechanismName
         {
             get { return "MONGODB-CR"; }
@@ -39,18 +49,24 @@ namespace MongoDB.Driver.Core.Authentication
         private readonly UsernamePasswordCredential _credential;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoDBCRAuthenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
         public MongoDBCRAuthenticator(UsernamePasswordCredential credential)
         {
             _credential = Ensure.IsNotNull(credential, "credential");
         }
 
         // properties
+        /// <inheritdoc/>
         public string Name
         {
             get { return MechanismName; }
         }
 
         // methods
+        /// <inheritdoc/>
         public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
@@ -71,7 +87,12 @@ namespace MongoDB.Driver.Core.Authentication
         private async Task<string> GetNonceAsync(IConnection connection, CancellationToken cancellationToken)
         {
             var command = new BsonDocument("getnonce", 1);
-            var protocol = new CommandWireProtocol(new DatabaseNamespace(_credential.Source), command, true, null);
+            var protocol = new CommandWireProtocol<BsonDocument>(
+                new DatabaseNamespace(_credential.Source),
+                command,
+                true,
+                BsonDocumentSerializer.Instance,
+                null);
             var document = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             return (string)document["nonce"];
         }
@@ -85,7 +106,12 @@ namespace MongoDB.Driver.Core.Authentication
                 { "nonce", nonce },
                 { "key", CreateKey(_credential.Username, _credential.Password, nonce) }
             };
-            var protocol = new CommandWireProtocol(new DatabaseNamespace(_credential.Source), command, true, null);
+            var protocol = new CommandWireProtocol<BsonDocument>(
+                new DatabaseNamespace(_credential.Source),
+                command,
+                true,
+                BsonDocumentSerializer.Instance,
+                null);
             await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
         }
 

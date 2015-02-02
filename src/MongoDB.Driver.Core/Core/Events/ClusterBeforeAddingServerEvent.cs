@@ -19,22 +19,43 @@ using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ClusterBeforeAddingServer event.
+    /// </summary>
     public struct ClusterBeforeAddingServerEvent
     {
         private readonly ClusterId _clusterId;
         private readonly EndPoint _endPoint;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterBeforeAddingServerEvent"/> struct.
+        /// </summary>
+        /// <param name="clusterId">The cluster identifier.</param>
+        /// <param name="endPoint">The end point.</param>
         public ClusterBeforeAddingServerEvent(ClusterId clusterId, EndPoint endPoint)
         {
             _clusterId = clusterId;
             _endPoint = endPoint;
         }
 
+        /// <summary>
+        /// Gets the cluster identifier.
+        /// </summary>
+        /// <value>
+        /// The cluster identifier.
+        /// </value>
         public ClusterId ClusterId
         {
             get { return _clusterId; }
         }
 
+        /// <summary>
+        /// Gets the end point.
+        /// </summary>
+        /// <value>
+        /// The end point.
+        /// </value>
         public EndPoint EndPoint
         {
             get { return _endPoint; }

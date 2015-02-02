@@ -15,16 +15,38 @@
 
 namespace MongoDB.Driver.Core.Clusters
 {
+    /// <summary>
+    /// Represents the cluster connection mode.
+    /// </summary>
     public enum ClusterConnectionMode
     {
+        /// <summary>
+        /// Determine the cluster type automatically.
+        /// </summary>
         Automatic,
+
+        /// <summary>
+        /// Connect directly to a single server of any type.
+        /// </summary>
         Direct,
+
+        /// <summary>
+        /// Connect directly to a Standalone server.
+        /// </summary>
         Standalone,
+
+        /// <summary>
+        /// Connect to a replica set.
+        /// </summary>
         ReplicaSet,
+
+        /// <summary>
+        /// Connect to one or more shard routers.
+        /// </summary>
         Sharded
     }
 
-    public static class ClusterConnectionModeExtensionMethods
+    internal static class ClusterConnectionModeExtensionMethods
     {
         public static ClusterType ToClusterType(this ClusterConnectionMode connectionMode)
         {

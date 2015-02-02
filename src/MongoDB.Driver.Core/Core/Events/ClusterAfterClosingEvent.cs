@@ -18,22 +18,43 @@ using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ClusterAfterClosing event.
+    /// </summary>
     public struct ClusterAfterClosingEvent
     {
         private readonly ClusterId _clusterId;
         private readonly TimeSpan _elapsed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterAfterClosingEvent"/> struct.
+        /// </summary>
+        /// <param name="clusterId">The cluster identifier.</param>
+        /// <param name="elapsed">The elapsed time.</param>
         public ClusterAfterClosingEvent(ClusterId clusterId, TimeSpan elapsed)
         {
             _clusterId = clusterId;
             _elapsed = elapsed;
         }
 
+        /// <summary>
+        /// Gets the cluster identifier.
+        /// </summary>
+        /// <value>
+        /// The cluster identifier.
+        /// </value>
         public ClusterId ClusterId
         {
             get { return _clusterId; }
         }
 
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
         public TimeSpan Elapsed
         {
             get { return _elapsed; }

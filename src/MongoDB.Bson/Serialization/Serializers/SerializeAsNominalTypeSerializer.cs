@@ -20,6 +20,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for a class that will be serialized as if it were one of its base classes.
     /// </summary>
+    /// <typeparam name="TActualType">The actual type.</typeparam>
+    /// <typeparam name="TNominalType">The nominal type.</typeparam>
     public class SerializeAsNominalTypeSerializer<TActualType, TNominalType> : SerializerBase<TActualType> where TActualType : class, TNominalType
     {
         // private fields

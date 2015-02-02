@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    public class UpdateWireProtocol : WriteWireProtocolBase
+    internal class UpdateWireProtocol : WriteWireProtocolBase
     {
         // fields
         private readonly bool _isMulti;

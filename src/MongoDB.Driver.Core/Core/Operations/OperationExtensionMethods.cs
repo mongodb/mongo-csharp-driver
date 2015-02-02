@@ -21,8 +21,20 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents extension methods for operations.
+    /// </summary>
     public static class OperationExtensionMethods
     {
+        /// <summary>
+        /// Executes a read operation using a channel source.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="operation">The read operation.</param>
+        /// <param name="channelSource">The channel source.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the result of the operation.</returns>
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IReadOperation<TResult> operation,
             IChannelSourceHandle channelSource,
@@ -36,6 +48,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        /// <summary>
+        /// Executes a write operation using a channel source.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="operation">The write operation.</param>
+        /// <param name="channelSource">The channel source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the result of the operation.</returns>
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IWriteOperation<TResult> operation,
             IChannelSourceHandle channelSource,

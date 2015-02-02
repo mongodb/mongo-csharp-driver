@@ -27,6 +27,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a create indexes operation.
+    /// </summary>
     public class CreateIndexesOperation : IWriteOperation<BsonDocument>
     {
         #region static
@@ -41,6 +44,12 @@ namespace MongoDB.Driver.Core.Operations
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateIndexesOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="requests">The requests.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public CreateIndexesOperation(
             CollectionNamespace collectionNamespace,
             IEnumerable<CreateIndexRequest> requests,
@@ -52,21 +61,45 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets the create index requests.
+        /// </summary>
+        /// <value>
+        /// The create index requests.
+        /// </value>
         public IEnumerable<CreateIndexRequest> Requests
         {
             get { return _requests; }
         }
 
+        /// <summary>
+        /// Gets or sets the write concern.
+        /// </summary>
+        /// <value>
+        /// The write concern.
+        /// </value>
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -83,6 +116,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
@@ -116,7 +150,11 @@ namespace MongoDB.Driver.Core.Operations
                 var document = createIndexRequest.CreateIndexDocument();
                 document.InsertAt(0, new BsonElement("ns", _collectionNamespace.FullName));
                 var documentSource = new BatchableSource<BsonDocument>(new[] { document });
-                var operation = new InsertOpcodeOperation(systemIndexesCollection, documentSource, _messageEncoderSettings);
+                var operation = new InsertOpcodeOperation<BsonDocument>(
+                    systemIndexesCollection,
+                    documentSource,
+                    BsonDocumentSerializer.Instance,
+                    _messageEncoderSettings);
                 await operation.ExecuteAsync(channelSource, cancellationToken).ConfigureAwait(false);
             }
 

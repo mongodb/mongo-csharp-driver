@@ -21,20 +21,54 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents an asynchronous cursor.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public interface IAsyncCursor<TDocument> : IDisposable
     {
+        /// <summary>
+        /// Gets the current batch of documents.
+        /// </summary>
+        /// <value>
+        /// The current batch of documents.
+        /// </value>
         IEnumerable<TDocument> Current { get; }
 
+        /// <summary>
+        /// Moves to the next batch of documents.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result indicates whether any more documents are available.</returns>
         Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 
+    /// <summary>
+    /// Represents extension methods for IAsyncCursor.
+    /// </summary>
     public static class IAsyncCursorExtensions
     {
+        /// <summary>
+        /// Calls a delegate for each document returned by the cursor.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="processor">The processor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Func<TDocument, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ForEachAsync(source, (doc, _) => processor(doc), cancellationToken);
         }
 
+        /// <summary>
+        /// Calls a delegate for each document returned by the cursor.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="processor">The processor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Func<TDocument, int, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
@@ -56,11 +90,37 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Calls a delegate for each document returned by the cursor.
+        /// </summary>
+        /// <remarks>
+        /// If your delegate is going to take a long time to execute or is going to block
+        /// consider using a different overload of ForEachAsync that uses a delegate that
+        /// returns a Task instead.
+        /// </remarks>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="processor">The processor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Action<TDocument> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ForEachAsync(source, (doc, _) => processor(doc), cancellationToken);
         }
 
+        /// <summary>
+        /// Calls a delegate for each document returned by the cursor.
+        /// </summary>
+        /// <remarks>
+        /// If your delegate is going to take a long time to execute or is going to block
+        /// consider using a different overload of ForEachAsync that uses a delegate that
+        /// returns a Task instead.
+        /// </remarks>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="processor">The processor.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Action<TDocument, int> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");
@@ -82,6 +142,13 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Returns a list containing all the documents returned by a cursor.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose value is the list of documents.</returns>
         public static async Task<List<TDocument>> ToListAsync<TDocument>(this IAsyncCursor<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, "source");

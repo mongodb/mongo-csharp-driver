@@ -26,42 +26,57 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
 {
-    public static class ClusterBuilderExtensionMethods
+    /// <summary>
+    /// Extension methods for a ClusterBuilder.
+    /// </summary>
+    public static class ClusterBuilderExtensions
     {
-        public static ClusterBuilder ConfigureWithConnectionString(this ClusterBuilder configuration, string connectionString)
+        /// <summary>
+        /// Configures a cluster builder from a connection string.
+        /// </summary>
+        /// <param name="builder">The cluster builder.</param>
+        /// <param name="connectionString">The connection string.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public static ClusterBuilder ConfigureWithConnectionString(this ClusterBuilder builder, string connectionString)
         {
-            Ensure.IsNotNull(configuration, "configuration");
+            Ensure.IsNotNull(builder, "builder");
             Ensure.IsNotNullOrEmpty(connectionString, "connectionString");
 
             var parsedConnectionString = new ConnectionString(connectionString);
-            return ConfigureWithConnectionString(configuration, parsedConnectionString);
+            return ConfigureWithConnectionString(builder, parsedConnectionString);
         }
 
-        public static ClusterBuilder ConfigureWithConnectionString(this ClusterBuilder configuration, ConnectionString connectionString)
+        /// <summary>
+        /// Configures a cluster builder from a connection string.
+        /// </summary>
+        /// <param name="builder">The cluster builder.</param>
+        /// <param name="connectionString">The connection string.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public static ClusterBuilder ConfigureWithConnectionString(this ClusterBuilder builder, ConnectionString connectionString)
         {
-            Ensure.IsNotNull(configuration, "configuration");
+            Ensure.IsNotNull(builder, "builder");
             Ensure.IsNotNull(connectionString, "connectionString");
 
             // TCP
             if (connectionString.ConnectTimeout != null)
             {
-                configuration.ConfigureTcp(s => s.With(connectTimeout: connectionString.ConnectTimeout.Value));
+                builder = builder.ConfigureTcp(s => s.With(connectTimeout: connectionString.ConnectTimeout.Value));
             }
             if (connectionString.Ipv6.HasValue && connectionString.Ipv6.Value)
             {
-                configuration.ConfigureTcp(s => s.With(addressFamily: AddressFamily.InterNetworkV6));
+                builder = builder.ConfigureTcp(s => s.With(addressFamily: AddressFamily.InterNetworkV6));
             }
 
             if (connectionString.SocketTimeout != null)
             {
-                configuration.ConfigureTcp(s => s.With(
+                builder = builder.ConfigureTcp(s => s.With(
                     readTimeout: connectionString.SocketTimeout.Value,
                     writeTimeout: connectionString.SocketTimeout.Value));
             }
 
             if (connectionString.Ssl != null)
             {
-                configuration.ConfigureSsl(ssl =>
+                builder = builder.ConfigureSsl(ssl =>
                 {
                     if (connectionString.SslVerifyCertificate.GetValueOrDefault(true))
                     {
@@ -77,40 +92,40 @@ namespace MongoDB.Driver.Core.Configuration
             if (connectionString.Username != null)
             {
                 var authenticator = CreateAuthenticator(connectionString);
-                configuration.ConfigureConnection(s => s.With(authenticators: new[] { authenticator }));
+                builder = builder.ConfigureConnection(s => s.With(authenticators: new[] { authenticator }));
             }
 
             if (connectionString.MaxIdleTime != null)
             {
-                configuration.ConfigureConnection(s => s.With(maxIdleTime: connectionString.MaxIdleTime.Value));
+                builder = builder.ConfigureConnection(s => s.With(maxIdleTime: connectionString.MaxIdleTime.Value));
             }
             if (connectionString.MaxLifeTime != null)
             {
-                configuration.ConfigureConnection(s => s.With(maxLifeTime: connectionString.MaxLifeTime.Value));
+                builder = builder.ConfigureConnection(s => s.With(maxLifeTime: connectionString.MaxLifeTime.Value));
             }
 
             // Connection Pool
             if (connectionString.MaxPoolSize != null)
             {
-                configuration.ConfigureConnectionPool(s => s.With(maxConnections: connectionString.MaxPoolSize.Value));
+                builder = builder.ConfigureConnectionPool(s => s.With(maxConnections: connectionString.MaxPoolSize.Value));
             }
             if (connectionString.MinPoolSize != null)
             {
-                configuration.ConfigureConnectionPool(s => s.With(minConnections: connectionString.MinPoolSize.Value));
+                builder = builder.ConfigureConnectionPool(s => s.With(minConnections: connectionString.MinPoolSize.Value));
             }
             if (connectionString.WaitQueueSize != null)
             {
-                configuration.ConfigureConnectionPool(s => s.With(waitQueueSize: connectionString.WaitQueueSize.Value));
+                builder = builder.ConfigureConnectionPool(s => s.With(waitQueueSize: connectionString.WaitQueueSize.Value));
             }
             else if (connectionString.WaitQueueMultiple != null)
             {
                 var maxConnections = connectionString.MaxPoolSize ?? new ConnectionPoolSettings().MaxConnections;
                 var waitQueueSize = (int)Math.Round(maxConnections * connectionString.WaitQueueMultiple.Value);
-                configuration.ConfigureConnectionPool(s => s.With(waitQueueSize: waitQueueSize));
+                builder = builder.ConfigureConnectionPool(s => s.With(waitQueueSize: waitQueueSize));
             }
             if (connectionString.WaitQueueTimeout != null)
             {
-                configuration.ConfigureConnectionPool(s => s.With(waitQueueTimeout: connectionString.WaitQueueTimeout.Value));
+                builder = builder.ConfigureConnectionPool(s => s.With(waitQueueTimeout: connectionString.WaitQueueTimeout.Value));
             }
 
             // Server
@@ -118,23 +133,25 @@ namespace MongoDB.Driver.Core.Configuration
             // Cluster
             if (connectionString.Hosts.Count > 0)
             {
-                configuration.ConfigureCluster(s => s.With(endPoints: Optional.Create<IEnumerable<EndPoint>>(connectionString.Hosts)));
+                builder = builder.ConfigureCluster(s => s.With(endPoints: Optional.Create<IEnumerable<EndPoint>>(connectionString.Hosts)));
             }
             if (connectionString.ReplicaSet != null)
             {
-                configuration.ConfigureCluster(s => s.With(
+                builder = builder.ConfigureCluster(s => s.With(
                     replicaSetName: connectionString.ReplicaSet));
             }
 
-            return configuration;
+            return builder;
         }
 
         private static IAuthenticator CreateAuthenticator(ConnectionString connectionString)
         {
             if (connectionString.Password != null)
             {
+                var defaultSource = GetDefaultSource(connectionString);
+
                 var credential = new UsernamePasswordCredential(
-                        connectionString.AuthSource ?? connectionString.DatabaseName ?? "admin",
+                        connectionString.AuthSource ?? connectionString.DatabaseName ?? defaultSource,
                         connectionString.Username,
                         connectionString.Password);
 
@@ -174,16 +191,33 @@ namespace MongoDB.Driver.Core.Configuration
             throw new NotSupportedException("Unable to create an authenticator.");
         }
 
-        public static ClusterBuilder UsePerformanceCounters(this ClusterBuilder configuration, string applicationName, bool install = false)
+        private static string GetDefaultSource(ConnectionString connectionString)
         {
-            Ensure.IsNotNull(configuration, "configuration");
+            if (connectionString.AuthMechanism != null && connectionString.AuthMechanism.Equals("GSSAPI", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "$external";
+            }
+
+            return "admin";
+        }
+
+        /// <summary>
+        /// Configures the cluster builder to use performance counters.
+        /// </summary>
+        /// <param name="builder">The cluster builder.</param>
+        /// <param name="applicationName">The name of the application.</param>
+        /// <param name="install">if set to <c>true</c> install the performance counters first.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public static ClusterBuilder UsePerformanceCounters(this ClusterBuilder builder, string applicationName, bool install = false)
+        {
+            Ensure.IsNotNull(builder, "builder");
 
             if (install)
             {
-                PerformanceCounterListener.Install();
+                PerformanceCounterListener.InstallPerformanceCounters();
             }
 
-            return configuration.AddListener(new PerformanceCounterListener(applicationName));
+            return builder.AddListener(new PerformanceCounterListener(applicationName));
         }
     }
 }

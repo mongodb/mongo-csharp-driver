@@ -26,16 +26,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     /// </summary>
     public interface IMessageEncoder
     {
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         MongoDBMessage ReadMessage();
-        void WriteMessage(MongoDBMessage message);
-    }
 
-    /// <summary>
-    /// Represents a message encoder.
-    /// </summary>
-    public interface IMessageEncoder<TMessage> : IMessageEncoder where TMessage : MongoDBMessage
-    {
-        new TMessage ReadMessage();
-        void WriteMessage(TMessage message);
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        void WriteMessage(MongoDBMessage message);
     }
 }

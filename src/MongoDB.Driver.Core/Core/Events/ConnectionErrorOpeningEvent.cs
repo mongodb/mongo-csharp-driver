@@ -19,12 +19,22 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a  ConnectionErrorOpening event.
+    /// </summary>
     public struct ConnectionErrorOpeningEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly ConnectionSettings _connectionSettings;
         private readonly Exception _exception;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionErrorOpeningEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="connectionSettings">The connection settings.</param>
+        /// <param name="exception">The exception.</param>
         public ConnectionErrorOpeningEvent(ConnectionId connectionId, ConnectionSettings connectionSettings, Exception exception)
         {
             _connectionId = connectionId;
@@ -32,16 +42,34 @@ namespace MongoDB.Driver.Core.Events
             _exception = exception;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the connection settings.
+        /// </summary>
+        /// <value>
+        /// The connection settings.
+        /// </value>
         public ConnectionSettings ConnectionSettings
         {
             get { return _connectionSettings; }
         }
 
+        /// <summary>
+        /// Gets the exception.
+        /// </summary>
+        /// <value>
+        /// The exception.
+        /// </value>
         public Exception Exception
         {
             get { return _exception; }

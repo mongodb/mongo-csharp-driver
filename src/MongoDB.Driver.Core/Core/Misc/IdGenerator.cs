@@ -17,7 +17,7 @@ using System.Threading;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    public static class IdGenerator<T>
+    internal static class IdGenerator<T>
     {
         // static fields
         private static int __lastId;

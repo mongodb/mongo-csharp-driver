@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         public MongoCollectionImpl(CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
-            _settings = Ensure.IsNotNull(settings, "settings");
+            _settings = Ensure.IsNotNull(settings, "settings").Freeze();
             _cluster = Ensure.IsNotNull(cluster, "cluster");
             _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
 
@@ -117,7 +117,7 @@ namespace MongoDB.Driver
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
-                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperation(findOperation, ct))).ConfigureAwait(false);
+                return await Task.FromResult<IAsyncCursor<TResult>>(new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperation(findOperation, ReadPreference.Primary, ct))).ConfigureAwait(false);
             }
             else
             {
@@ -237,7 +237,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options, CancellationToken cancellationToken)
+        public Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(fieldName, "fieldName");
             Ensure.IsNotNull(filter, "filter");
@@ -277,7 +277,7 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public FindFluent<TDocument, TDocument> Find(object filter)
+        public IFindFluent<TDocument, TDocument> Find(object filter)
         {
             var options = new FindOptions<TDocument>();
             return new FindFluent<TDocument, TDocument>(this, filter, options);
@@ -399,12 +399,6 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task<IAsyncCursor<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var op = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            return ExecuteReadOperation(op, cancellationToken);
-        }
-
         public async Task InsertOneAsync(TDocument document, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull((object)document, "document");
@@ -418,6 +412,21 @@ namespace MongoDB.Driver
             {
                 throw MongoWriteException.FromBulkWriteException(ex);
             }
+        }
+
+        public Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(documents, "documents");
+
+            var models = documents.Select(x => new InsertOneModel<TDocument>(x));
+            BulkWriteOptions bulkWriteOptions = options == null ? null : new BulkWriteOptions { IsOrdered = options.IsOrdered };
+            return BulkWriteAsync(models, bulkWriteOptions, cancellationToken);
+        }
+
+        public Task<IAsyncCursor<BsonDocument>> ListIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var op = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
+            return ExecuteReadOperation(op, ReadPreference.Primary, cancellationToken);
         }
 
         public async Task<ReplaceOneResult> ReplaceOneAsync(object filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken)
@@ -484,6 +493,20 @@ namespace MongoDB.Driver
             {
                 throw MongoWriteException.FromBulkWriteException(ex);
             }
+        }
+
+        public IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.ReadPreference = readPreference;
+            return new MongoCollectionImpl<TDocument>(_collectionNamespace, newSettings, _cluster, _operationExecutor);
+        }
+
+        public IMongoCollection<TDocument> WithWriteConcern(WriteConcern writeConcern)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.WriteConcern = writeConcern;
+            return new MongoCollectionImpl<TDocument>(_collectionNamespace, newSettings, _cluster, _operationExecutor);
         }
 
         private void AssignId(TDocument document)
@@ -578,9 +601,14 @@ namespace MongoDB.Driver
             return BsonDocumentHelper.FilterToBsonDocument<TDocument>(_settings.SerializerRegistry, filter);
         }
 
-        private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
+        private Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
-            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
+            return ExecuteReadOperation(operation, _settings.ReadPreference, cancellationToken);
+        }
+
+        private async Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken)
+        {
+            using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }

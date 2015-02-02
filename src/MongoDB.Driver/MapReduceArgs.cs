@@ -86,9 +86,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the finalize function.
         /// </summary>
-        /// <value>
-        /// The finalize function.
-        /// </value>
         public BsonJavaScript FinalizeFunction
         {
             get { return _finalizeFunction; }
@@ -98,9 +95,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the JavaScript mode (if true all intermediate values are kept in memory as JavaScript objects).
         /// </summary>
-        /// <value>
-        /// The JavaScript mode.
-        /// </value>
         public bool? JsMode
         {
             get { return _jsMode; }
@@ -110,9 +104,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the limit.
         /// </summary>
-        /// <value>
-        /// The limit.
-        /// </value>
         public long? Limit
         {
             get { return _limit; }
@@ -122,9 +113,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the map function.
         /// </summary>
-        /// <value>
-        /// The map function.
-        /// </value>
         public BsonJavaScript MapFunction
         {
             get { return _mapFunction; }
@@ -134,9 +122,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the max time.
         /// </summary>
-        /// <value>
-        /// The max time.
-        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -146,9 +131,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the name of the output collection.
         /// </summary>
-        /// <value>
-        /// The name of the output collection.
-        /// </value>
         public string OutputCollectionName
         {
             get { return _outputCollectionName; }
@@ -158,9 +140,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the name of the output database.
         /// </summary>
-        /// <value>
-        /// The name of the output database.
-        /// </value>
         public string OutputDatabaseName
         {
             get { return _outputDatabaseName; }
@@ -168,11 +147,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether Merge and Reduce output should not be atomic.
+        /// Gets or sets a value indicating whether Merge and Reduce output should not be atomic.
         /// </summary>
-        /// <value>
-        /// Whether Merge and Reduce output should not be atomic.
-        /// </value>
         public bool? OutputIsNonAtomic
         {
             get { return _outputIsNonAtomic; }
@@ -180,11 +156,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether the output is sharded.
+        /// Gets or sets a value indicating whether the output is sharded.
         /// </summary>
-        /// <value>
-        /// Whether the output is sharded.
-        /// </value>
         public bool? OutputIsSharded
         {
             get { return _outputIsSharded; }
@@ -194,9 +167,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the output mode.
         /// </summary>
-        /// <value>
-        /// The output mode.
-        /// </value>
         public MapReduceOutputMode OutputMode
         {
             get { return _outputMode; }
@@ -206,9 +176,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
-        /// <value>
-        /// The query.
-        /// </value>
         public IMongoQuery Query
         {
             get { return _query; }
@@ -218,9 +185,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the reduce function.
         /// </summary>
-        /// <value>
-        /// The reduce function.
-        /// </value>
         public BsonJavaScript ReduceFunction
         {
             get { return _reduceFunction; }
@@ -230,9 +194,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the scope (variables available to the map/reduce functions);
         /// </summary>
-        /// <value>
-        /// The scope.
-        /// </value>
         public IMongoScope Scope
         {
             get { return _scope; }
@@ -242,9 +203,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort order.
         /// </summary>
-        /// <value>
-        /// The sort order.
-        /// </value>
         public IMongoSortBy SortBy
         {
             get { return _sortBy; }
@@ -252,11 +210,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether to include extra information in the result (like timing).
+        /// Gets or sets a value indicating whether to include extra information in the result (like timing).
         /// </summary>
-        /// <value>
-        /// Whether to include extra information in the result (like timing).
-        /// </value>
         public bool? Verbose
         {
             get { return _verbose; }

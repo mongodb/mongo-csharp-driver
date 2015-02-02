@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents internal IConnection extension methods (used to easily access the IConnectionInternal methods).
     /// </summary>
-    internal static class ConnectionExtensionMethods
+    internal static class ConnectionExtensions
     {
         // static methods
         public static Task SendMessageAsync(this IConnection connection, RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)

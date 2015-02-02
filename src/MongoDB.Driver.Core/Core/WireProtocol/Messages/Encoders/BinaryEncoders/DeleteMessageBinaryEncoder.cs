@@ -24,9 +24,17 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    public class DeleteMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<DeleteMessage>
+    /// <summary>
+    /// Represents a binary encoder for a Delete message.
+    /// </summary>
+    public class DeleteMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeleteMessageBinaryEncoder"/> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public DeleteMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
@@ -43,6 +51,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return flags;
         }
 
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         public DeleteMessage ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
@@ -67,6 +79,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 isMulti);
         }
 
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void WriteMessage(DeleteMessage message)
         {
             Ensure.IsNotNull(message, "message");

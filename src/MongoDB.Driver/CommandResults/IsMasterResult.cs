@@ -56,33 +56,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether the server is an arbiter.
+        /// Gets a value indicating whether the server is an arbiter.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server is an arbiter; otherwise, <c>false.</c>.
-        /// </value>
         public bool IsArbiterOnly
         {
             get { return Response.GetValue("arbiterOnly", false).ToBoolean(); }
         }
 
         /// <summary>
-        /// Gets whether the server is the primary.
+        /// Gets a value indicating whether the server is the primary.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server is the primary; otherwise, <c>false</c>.
-        /// </value>
         public bool IsPrimary
         {
             get { return Response.GetValue("ismaster", false).ToBoolean(); }
         }
 
         /// <summary>
-        /// Gets whether the server is a passive member.
+        /// Gets a value indicating whether the server is a passive member.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server is a passive member; otherwise, <c>false</c>.
-        /// </value>
         public bool IsPassive
         {
             //!ArbiterOnly is a workaround for CSHARP-273
@@ -92,20 +83,14 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a value indicating whether this instance is replica set.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is replica set; otherwise, <c>false</c>.
-        /// </value>
         public bool IsReplicaSet
         {
             get { return ReplicaSetName != null || Response.GetValue("isreplicaset", false).ToBoolean(); }
         }
 
         /// <summary>
-        /// Gets whether the server is secondary.
+        /// Gets a value indicating whether the server is secondary.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server is secondary; otherwise, <c>false</c>.
-        /// </value>
         public bool IsSecondary
         {
             get { return Response.GetValue("secondary", false).ToBoolean(); }
@@ -114,9 +99,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the size of the max bson object.
         /// </summary>
-        /// <value>
-        /// The size of the max bson object.
-        /// </value>
         public int MaxBsonObjectSize
         {
             get { return Response.GetValue("maxBsonObjectSize", MongoDefaults.MaxDocumentSize).ToInt32(); }
@@ -125,9 +107,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the length of the max message.
         /// </summary>
-        /// <value>
-        /// The length of the max message.
-        /// </value>
         public int MaxMessageLength
         {
             get
@@ -142,9 +121,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the max wire version.
         /// </summary>
-        /// <value>
-        /// The max wire version.
-        /// </value>
         public int MaxWireVersion
         {
             get { return Response.GetValue("maxWireVersion", 0).ToInt32(); }
@@ -153,9 +129,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the min wire version.
         /// </summary>
-        /// <value>
-        /// The min wire version.
-        /// </value>
         public int MinWireVersion
         {
             get { return Response.GetValue("minWireVersion", 0).ToInt32(); }
@@ -164,9 +137,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the maximum size of the write batch.
         /// </summary>
-        /// <value>
-        /// The maximum size of the write batch.
-        /// </value>
         public int MaxWriteBatchSize
         {
             get { return Response.GetValue("maxWriteBatchSize", MongoDefaults.MaxBatchCount).ToInt32(); }
@@ -233,9 +203,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the name of the replica set.
         /// </summary>
-        /// <value>
-        /// The name of the replica set.
-        /// </value>
         public string ReplicaSetName
         {
             get 

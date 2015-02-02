@@ -37,8 +37,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// Initializes a new instance of the <see cref="GeoJsonMultiPolygonCoordinates{TCoordinates}"/> class.
         /// </summary>
         /// <param name="polygons">The polygons.</param>
-        /// <exception cref="System.ArgumentNullException">polygons</exception>
-        /// <exception cref="System.ArgumentException">One of the polygons is null.;polygons</exception>
         public GeoJsonMultiPolygonCoordinates(IEnumerable<GeoJsonPolygonCoordinates<TCoordinates>> polygons)
         {
             if (polygons == null)
@@ -59,9 +57,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the Polygons.
         /// </summary>
-        /// <value>
-        /// The Polygons.
-        /// </value>
         public ReadOnlyCollection<GeoJsonPolygonCoordinates<TCoordinates>> Polygons
         {
             get { return _polygons; }

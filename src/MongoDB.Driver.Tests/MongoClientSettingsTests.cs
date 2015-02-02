@@ -18,6 +18,9 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
+using System.Net.Sockets;
+using System.Threading;
+using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Tests
 {
@@ -503,6 +506,20 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<InvalidOperationException>(() => { var s = settings.Server; });
             Assert.IsTrue(servers.SequenceEqual(settings.Servers));
             Assert.Throws<InvalidOperationException>(() => { settings.Servers = servers; });
+        }
+
+        [Test]
+        public void TestSocketConfigurator()
+        {
+            var settings = Configuration.TestClient.Settings.Clone();
+            var socketConfiguratorWasCalled = false;
+            Action<Socket> socketConfigurator = s => { socketConfiguratorWasCalled = true; };
+            settings.ClusterConfigurator = cb => cb.ConfigureTcp(tcp => tcp.With(socketConfigurator: socketConfigurator));
+            var subject = new MongoClient(settings);
+
+            SpinWait.SpinUntil(() => subject.Cluster.Description.State == ClusterState.Connected, TimeSpan.FromSeconds(4));
+
+            Assert.That(socketConfiguratorWasCalled, Is.True);
         }
 
         [Test]

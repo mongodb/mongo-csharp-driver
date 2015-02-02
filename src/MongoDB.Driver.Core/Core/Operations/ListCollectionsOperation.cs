@@ -26,6 +26,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a list collections operation.
+    /// </summary>
     public class ListCollectionsOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
         #region static
@@ -39,6 +42,11 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ListCollectionsOperation"/> class.
+        /// </summary>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ListCollectionsOperation(
             DatabaseNamespace databaseNamespace,
             MessageEncoderSettings messageEncoderSettings)
@@ -48,23 +56,42 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the filter.
+        /// </summary>
+        /// <value>
+        /// The filter.
+        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
             set { _filter = value; }
         }
 
+        /// <summary>
+        /// Gets the database namespace.
+        /// </summary>
+        /// <value>
+        /// The database namespace.
+        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
         // methods
+        /// <inheritdoc/>
         public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
@@ -127,7 +154,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var cursor = await operation.ExecuteAsync(channelSource, readPreference, cancellationToken).ConfigureAwait(false);
 
-            return new ProjectingAsyncCursor<BsonDocument, BsonDocument>(cursor, NormalizeQueryResponse);
+            return new BatchTransformingAsyncCursor<BsonDocument, BsonDocument>(cursor, NormalizeQueryResponse);
         }
 
         private IEnumerable<BsonDocument> NormalizeQueryResponse(IEnumerable<BsonDocument> collections)

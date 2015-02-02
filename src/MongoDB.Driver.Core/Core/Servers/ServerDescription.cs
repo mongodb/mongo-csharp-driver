@@ -50,6 +50,23 @@ namespace MongoDB.Driver.Core.Servers
         private readonly Range<int> _wireVersionRange;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerDescription"/> class.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="endPoint">The end point.</param>
+        /// <param name="averageRoundTripTime">The average round trip time.</param>
+        /// <param name="heartbeatException">The heartbeat exception.</param>
+        /// <param name="maxBatchCount">The maximum batch count.</param>
+        /// <param name="maxDocumentSize">The maximum size of a document.</param>
+        /// <param name="maxMessageSize">The maximum size of a message.</param>
+        /// <param name="maxWireDocumentSize">The maximum size of a wire document.</param>
+        /// <param name="replicaSetConfig">The replica set configuration.</param>
+        /// <param name="state">The server state.</param>
+        /// <param name="tags">The replica set tags.</param>
+        /// <param name="type">The server type.</param>
+        /// <param name="version">The server version.</param>
+        /// <param name="wireVersionRange">The wire version range.</param>
         public ServerDescription(
             ServerId serverId,
             EndPoint endPoint,
@@ -90,106 +107,193 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // properties
+        /// <summary>
+        /// Gets the average round trip time.
+        /// </summary>
+        /// <value>
+        /// The average round trip time.
+        /// </value>
         public TimeSpan AverageRoundTripTime
         {
             get { return _averageRoundTripTime; }
         }
 
+        /// <summary>
+        /// Gets the end point.
+        /// </summary>
+        /// <value>
+        /// The end point.
+        /// </value>
         public EndPoint EndPoint
         {
             get { return _endPoint; }
         }
 
+        /// <summary>
+        /// Gets the most recent heartbeat exception.
+        /// </summary>
+        /// <value>
+        /// The the most recent heartbeat exception (null if the most recent heartbeat succeeded).
+        /// </value>
         public Exception HeartbeatException
         {
             get { return _heartbeatException; }
         }
 
+        /// <summary>
+        /// Gets the maximum number of documents in a batch.
+        /// </summary>
+        /// <value>
+        /// The maximum number of documents in a batch.
+        /// </value>
         public int MaxBatchCount
         {
             get { return _maxBatchCount; }
         }
 
+        /// <summary>
+        /// Gets the maximum size of a document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a document.
+        /// </value>
         public int MaxDocumentSize
         {
             get { return _maxDocumentSize; }
         }
 
+        /// <summary>
+        /// Gets the maximum size of a message.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a message.
+        /// </value>
         public int MaxMessageSize
         {
             get { return _maxMessageSize; }
         }
 
+        /// <summary>
+        /// Gets the maximum size of a wire document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a wire document.
+        /// </value>
         public int MaxWireDocumentSize
         {
             get { return _maxWireDocumentSize; }
         }
 
+        /// <summary>
+        /// Gets the replica set configuration.
+        /// </summary>
+        /// <value>
+        /// The replica set configuration.
+        /// </value>
         public ReplicaSetConfig ReplicaSetConfig
         {
             get { return _replicaSetConfig; }
         }
 
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }
         }
 
+        /// <summary>
+        /// Gets the server state.
+        /// </summary>
+        /// <value>
+        /// The server state.
+        /// </value>
         public ServerState State
         {
             get { return _state; }
         }
 
+        /// <summary>
+        /// Gets the replica set tags.
+        /// </summary>
+        /// <value>
+        /// The replica set tags (null if not a replica set or if the replica set has no tags).
+        /// </value>
         public TagSet Tags
         {
             get { return _tags; }
         }
 
+        /// <summary>
+        /// Gets the server type.
+        /// </summary>
+        /// <value>
+        /// The server type.
+        /// </value>
         public ServerType Type
         {
             get { return _type; }
         }
 
+        /// <summary>
+        /// Gets the server version.
+        /// </summary>
+        /// <value>
+        /// The server version.
+        /// </value>
         public SemanticVersion Version
         {
             get { return _version; }
         }
 
+        /// <summary>
+        /// Gets the wire version range.
+        /// </summary>
+        /// <value>
+        /// The wire version range.
+        /// </value>
         public Range<int> WireVersionRange
         {
             get { return _wireVersionRange; }
         }
 
         // methods
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as ServerDescription);
         }
 
-        public bool Equals(ServerDescription rhs)
+        /// <inheritdoc/>
+        public bool Equals(ServerDescription other)
         {
-            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(ServerDescription))
+            if (object.ReferenceEquals(other, null) || other.GetType() != typeof(ServerDescription))
             {
                 return false;
             }
 
             return
-                _averageRoundTripTime == rhs._averageRoundTripTime &&
-                EndPointHelper.Equals(_endPoint, rhs._endPoint) &&
-                object.Equals(_heartbeatException, rhs._heartbeatException) &&
-                _maxBatchCount == rhs._maxBatchCount &&
-                _maxDocumentSize == rhs._maxDocumentSize &&
-                _maxMessageSize == rhs._maxMessageSize &&
-                _maxWireDocumentSize == rhs._maxWireDocumentSize &&
-                object.Equals(_replicaSetConfig, rhs._replicaSetConfig) &&
-                _serverId.Equals(rhs._serverId) &&
-                _state == rhs._state &&
-                object.Equals(_tags, rhs._tags) &&
-                _type == rhs._type &&
-                object.Equals(_version, rhs._version) &&
-                object.Equals(_wireVersionRange, rhs._wireVersionRange);
+                _averageRoundTripTime == other._averageRoundTripTime &&
+                EndPointHelper.Equals(_endPoint, other._endPoint) &&
+                object.Equals(_heartbeatException, other._heartbeatException) &&
+                _maxBatchCount == other._maxBatchCount &&
+                _maxDocumentSize == other._maxDocumentSize &&
+                _maxMessageSize == other._maxMessageSize &&
+                _maxWireDocumentSize == other._maxWireDocumentSize &&
+                object.Equals(_replicaSetConfig, other._replicaSetConfig) &&
+                _serverId.Equals(other._serverId) &&
+                _state == other._state &&
+                object.Equals(_tags, other._tags) &&
+                _type == other._type &&
+                object.Equals(_version, other._version) &&
+                object.Equals(_wireVersionRange, other._wireVersionRange);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             // revision is ignored
@@ -211,6 +315,7 @@ namespace MongoDB.Driver.Core.Servers
                 .GetHashCode();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return new StringBuilder()
@@ -226,6 +331,22 @@ namespace MongoDB.Driver.Core.Servers
                 .ToString();
         }
 
+        /// <summary>
+        /// Returns a new instance of ServerDescription with some values changed.
+        /// </summary>
+        /// <param name="averageRoundTripTime">The average round trip time.</param>
+        /// <param name="heartbeatException">The heartbeat exception.</param>
+        /// <param name="maxBatchCount">The maximum batch count.</param>
+        /// <param name="maxDocumentSize">The maximum size of a document.</param>
+        /// <param name="maxMessageSize">The maximum size of a message.</param>
+        /// <param name="maxWireDocumentSize">The maximum size of a wire document.</param>
+        /// <param name="replicaSetConfig">The replica set configuration.</param>
+        /// <param name="state">The server state.</param>
+        /// <param name="tags">The replica set tags.</param>
+        /// <param name="type">The server type.</param>
+        /// <param name="version">The server version.</param>
+        /// <param name="wireVersionRange">The wire version range.</param>
+        /// <returns>A new instance of ServerDescription.</returns>
         public ServerDescription With(
             Optional<TimeSpan> averageRoundTripTime = default(Optional<TimeSpan>),
             Optional<Exception> heartbeatException = default(Optional<Exception>),

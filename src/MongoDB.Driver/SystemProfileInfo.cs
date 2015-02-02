@@ -119,7 +119,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether exhaust was true.
+        /// Gets or sets a value indicating whether exhaust was true.
         /// </summary>
         public bool Exhaust
         {
@@ -128,7 +128,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether fastMod was true.
+        /// Gets or sets a value indicating whether fastMod was true.
         /// </summary>
         public bool FastMod
         {
@@ -137,7 +137,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether fastModInsert was true.
+        /// Gets or sets a value indicating whether fastModInsert was true.
         /// </summary>
         public bool FastModInsert
         {
@@ -146,7 +146,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether idHack was true.
+        /// Gets or sets a value indicating whether idHack was true.
         /// </summary>
         public bool IdHack
         {
@@ -182,7 +182,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether moved was true.
+        /// Gets or sets a value indicating whether moved was true.
         /// </summary>
         public bool Moved
         {
@@ -298,7 +298,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether scanAndOrder was true.
+        /// Gets or sets a value indicating whether scanAndOrder was true.
         /// </summary>
         public bool ScanAndOrder
         {
@@ -325,7 +325,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether upsert was true.
+        /// Gets or sets a value indicating whether upsert was true.
         /// </summary>
         public bool Upsert
         {

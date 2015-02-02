@@ -22,6 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for a BsonValue that can round trip C# null.
     /// </summary>
+    /// <typeparam name="TBsonValue">The type of the BsonValue.</typeparam>
     public class BsonValueCSharpNullSerializer<TBsonValue> : SerializerBase<TBsonValue> where TBsonValue : BsonValue
     {
         // private fields
@@ -43,7 +44,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public override TBsonValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;

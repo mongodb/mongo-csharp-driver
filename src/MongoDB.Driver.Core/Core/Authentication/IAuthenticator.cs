@@ -20,10 +20,26 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Authentication
 {
+    /// <summary>
+    /// Represents a connection authenticator.
+    /// </summary>
     public interface IAuthenticator
     {
+        /// <summary>
+        /// Gets the name of the authenticator.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         string Name { get; }
 
+        /// <summary>
+        /// Authenticates the connection.
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <param name="description">The connection description.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task.</returns>
         Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
     }
 }

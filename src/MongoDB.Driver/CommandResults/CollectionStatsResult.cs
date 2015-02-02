@@ -123,7 +123,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether the collection is capped.
+        /// Gets a value indicating whether the collection is capped.
         /// </summary>
         public bool IsCapped
         {

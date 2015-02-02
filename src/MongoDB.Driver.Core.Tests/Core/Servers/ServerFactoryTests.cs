@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Servers
     public class ServerFactoryTests
     {
         private ClusterId _clusterId;
+        private ClusterConnectionMode _clusterConnectionMode;
         private IConnectionPoolFactory _connectionPoolFactory;
         private EndPoint _endPoint;
         private IConnectionFactory _heartbeatConnectionFactory;
@@ -41,6 +42,7 @@ namespace MongoDB.Driver.Core.Servers
         public void Setup()
         {
             _clusterId = new ClusterId();
+            _clusterConnectionMode = ClusterConnectionMode.Standalone;
             _connectionPoolFactory = Substitute.For<IConnectionPoolFactory>();
             _endPoint = new DnsEndPoint("localhost", 27017);
             _heartbeatConnectionFactory = Substitute.For<IConnectionFactory>();
@@ -51,7 +53,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void Constructor_should_throw_when_settings_is_null()
         {
-            Action act = () => new ServerFactory(null, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            Action act = () => new ServerFactory(_clusterConnectionMode, null, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -59,7 +61,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void Constructor_should_throw_when_connectionPoolFactory_is_null()
         {
-            Action act = () => new ServerFactory(_settings, null, _heartbeatConnectionFactory, _listener);
+            Action act = () => new ServerFactory(_clusterConnectionMode, _settings, null, _heartbeatConnectionFactory, _listener);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -67,7 +69,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void Constructor_should_throw_when_heartbeatConnectionFactory_is_null()
         {
-            Action act = () => new ServerFactory(_settings, _connectionPoolFactory, null, _listener);
+            Action act = () => new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, null, _listener);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -75,7 +77,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void Constructor_should_not_throw_when_listener_is_null()
         {
-            Action act = () => new ServerFactory(_settings, _connectionPoolFactory, _heartbeatConnectionFactory, null);
+            Action act = () => new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, null);
 
             act.ShouldNotThrow();
         }
@@ -83,7 +85,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void CreateServer_should_throw_if_clusterId_is_null()
         {
-            var subject = new ServerFactory(_settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
 
             Action act = () => subject.CreateServer(null, _endPoint);
 
@@ -93,7 +95,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void CreateServer_should_throw_if_endPoint_is_null()
         {
-            var subject = new ServerFactory(_settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
 
             Action act = () => subject.CreateServer(_clusterId, null);
 
@@ -103,7 +105,7 @@ namespace MongoDB.Driver.Core.Servers
         [Test]
         public void CreateServer_should_return_Server()
         {
-            var subject = new ServerFactory(_settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
 
             var result = subject.CreateServer(_clusterId, _endPoint);
 

@@ -29,23 +29,6 @@ namespace MongoDB.Bson.Tests.Serialization
     [TestFixture]
     public class BsonSerializerTests
     {
-        [Test]
-        public void TestAnonymousClass()
-        {
-            var obj = new
-            {
-                I = 1,
-                D = 1.1,
-                S = "Hello"
-            };
-            var json = obj.ToJson();
-            var expected = "{ 'I' : 1, 'D' : 1.1, 'S' : 'Hello' }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            Assert.Throws<InvalidOperationException>(() => BsonSerializer.Deserialize(bson, obj.GetType()));
-        }
-
         public class Employee
         {
             private class DateOfBirthSerializer : StructSerializerBase<DateTime>

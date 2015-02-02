@@ -24,12 +24,23 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
-    public class InsertMessageJsonEncoder<TDocument> : MessageJsonEncoderBase, IMessageEncoder<InsertMessage<TDocument>>
+    /// <summary>
+    /// Represents a JSON encoder for an Insert message.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the documents.</typeparam>
+    public class InsertMessageJsonEncoder<TDocument> : MessageJsonEncoderBase, IMessageEncoder
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InsertMessageJsonEncoder{TDocument}"/> class.
+        /// </summary>
+        /// <param name="textReader">The text reader.</param>
+        /// <param name="textWriter">The text writer.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
+        /// <param name="serializer">The serializer.</param>
         public InsertMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
             : base(textReader, textWriter, encoderSettings)
         {
@@ -37,6 +48,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // methods
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         public InsertMessage<TDocument> ReadMessage()
         {
             var jsonReader = CreateJsonReader();
@@ -84,6 +99,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 continueOnError);
         }
 
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void WriteMessage(InsertMessage<TDocument> message)
         {
             Ensure.IsNotNull(message, "message");

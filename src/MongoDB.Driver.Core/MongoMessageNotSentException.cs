@@ -19,15 +19,27 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a MongoDB message not sent exception.
+    /// </summary>
     [Serializable]
     public class MongoMessageNotSentException : MongoConnectionException
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoMessageNotSentException"/> class.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
         public MongoMessageNotSentException(ConnectionId connectionId)
             : base(connectionId, "Message not sent.")
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoMessageNotSentException"/> class.
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         protected MongoMessageNotSentException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

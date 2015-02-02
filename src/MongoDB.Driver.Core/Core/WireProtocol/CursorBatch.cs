@@ -22,6 +22,10 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
+    /// <summary>
+    /// Represents one result batch (returned from either a Query or a GetMore message)
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public struct CursorBatch<TDocument>
     {
         // fields
@@ -29,6 +33,11 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly IReadOnlyList<TDocument> _documents;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CursorBatch{TDocument}"/> struct.
+        /// </summary>
+        /// <param name="cursorId">The cursor identifier.</param>
+        /// <param name="documents">The documents.</param>
         public CursorBatch(
             long cursorId,
             IReadOnlyList<TDocument> documents)
@@ -38,11 +47,23 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // properties
+        /// <summary>
+        /// Gets the cursor identifier.
+        /// </summary>
+        /// <value>
+        /// The cursor identifier.
+        /// </value>
         public long CursorId
         {
             get { return _cursorId; }
         }
 
+        /// <summary>
+        /// Gets the documents.
+        /// </summary>
+        /// <value>
+        /// The documents.
+        /// </value>
         public IReadOnlyList<TDocument> Documents
         {
             get { return _documents; }

@@ -18,15 +18,29 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionPoolBeforeClosing event.
+    /// </summary>
     public struct ConnectionPoolBeforeClosingEvent
     {
         private readonly ServerId _serverId;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolBeforeClosingEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
         public ConnectionPoolBeforeClosingEvent(ServerId serverId)
         {
             _serverId = serverId;
         }
 
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }

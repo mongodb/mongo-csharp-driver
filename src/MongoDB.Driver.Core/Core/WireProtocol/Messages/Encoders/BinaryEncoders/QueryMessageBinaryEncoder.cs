@@ -23,9 +23,17 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    public class QueryMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<QueryMessage>
+    /// <summary>
+    /// Represents a binary encoder for a Query message.
+    /// </summary>
+    public class QueryMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueryMessageBinaryEncoder"/> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public QueryMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
@@ -58,6 +66,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return flags;
         }
 
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         public QueryMessage ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
@@ -101,6 +113,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 awaitData);
         }
 
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void WriteMessage(QueryMessage message)
         {
             Ensure.IsNotNull(message, "message");

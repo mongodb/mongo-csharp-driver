@@ -24,6 +24,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a create collection operation.
+    /// </summary>
     public class CreateCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
@@ -37,6 +40,11 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _usePowerOf2Sizes;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateCollectionOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public CreateCollectionOperation(
             CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
@@ -46,46 +54,94 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether an index on _id should be created automatically.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether an index on _id should be created automatically.
+        /// </value>
         public bool? AutoIndexId
         {
             get { return _autoIndexId; }
             set { _autoIndexId = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the collection is a capped collection.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether the collection is a capped collection.
+        /// </value>
         public bool? Capped
         {
             get { return _capped; }
             set { _capped = value; }
         }
 
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum number of documents in a capped collection.
+        /// </summary>
+        /// <value>
+        /// The maximum number of documents in a capped collection.
+        /// </value>
         public long? MaxDocuments
         {
             get { return _maxDocuments; }
             set { _maxDocuments = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum size of a capped collection.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a capped collection.
+        /// </value>
         public long? MaxSize
         {
             get { return _maxSize; }
             set { _maxSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets or sets the storage engine options.
+        /// </summary>
+        /// <value>
+        /// The storage engine options.
+        /// </value>
         public BsonDocument StorageEngine
         {
             get { return _storageEngine; }
             set { _storageEngine = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the collection should use power of 2 sizes.
+        /// </summary>
+        /// <value>
+        /// A value indicating whether the collection should use power of 2 sizes..
+        /// </value>
         public bool? UsePowerOf2Sizes
         {
             get { return _usePowerOf2Sizes; }
@@ -93,7 +149,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -107,6 +163,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

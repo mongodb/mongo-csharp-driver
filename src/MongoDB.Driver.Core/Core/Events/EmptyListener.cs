@@ -26,6 +26,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents an empty listener that ignores all events.
+    /// </summary>
     public class EmptyListener : IClusterListener, IServerListener, IConnectionPoolListener, IConnectionListener
     {
         #region static
@@ -33,6 +37,12 @@ namespace MongoDB.Driver.Core.Events
         private static readonly EmptyListener __instance = new EmptyListener();
 
         // static properties
+        /// <summary>
+        /// Gets an instance of an EmptyListener.
+        /// </summary>
+        /// <value>
+        /// An instance of an EmptyListener.
+        /// </value>
         public static EmptyListener Instance
         {
             get { return __instance; }
@@ -40,138 +50,171 @@ namespace MongoDB.Driver.Core.Events
         #endregion static
 
         #region Clusters
+        /// <inheritdoc/>
         public virtual void ClusterBeforeClosing(ClusterBeforeClosingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ClusterAfterClosing(ClusterAfterClosingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ClusterBeforeOpening(ClusterBeforeOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ClusterAfterOpening(ClusterAfterOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ClusterBeforeAddingServer(ClusterBeforeAddingServerEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ClusterAfterAddingServer(ClusterAfterAddingServerEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ClusterBeforeRemovingServer(ClusterBeforeRemovingServerEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ClusterAfterRemovingServer(ClusterAfterRemovingServerEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ClusterAfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event)
         {
         }
         #endregion
 
         #region Server
+        /// <inheritdoc/>
         public virtual void ServerBeforeClosing(ServerBeforeClosingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ServerAfterClosing(ServerAfterClosingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ServerBeforeOpening(ServerBeforeOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ServerAfterOpening(ServerAfterOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ServerBeforeHeartbeating(ServerBeforeHeartbeatingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ServerAfterHeartbeating(ServerAfterHeartbeatingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ServerErrorHeartbeating(ServerErrorHeartbeatingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ServerAfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event)
         {
         }
         #endregion
 
         #region Connection Pools
+        /// <inheritdoc/>
         public virtual void ConnectionPoolBeforeClosing(ConnectionPoolBeforeClosingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolAfterClosing(ConnectionPoolAfterClosingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolBeforeOpening(ConnectionPoolBeforeOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolAfterOpening(ConnectionPoolAfterOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolBeforeAddingAConnection(ConnectionPoolBeforeAddingAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolAfterAddingAConnection(ConnectionPoolAfterAddingAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolBeforeRemovingAConnection(ConnectionPoolBeforeRemovingAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolAfterRemovingAConnection(ConnectionPoolAfterRemovingAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolBeforeEnteringWaitQueue(ConnectionPoolBeforeEnteringWaitQueueEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolAfterEnteringWaitQueue(ConnectionPoolAfterEnteringWaitQueueEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolErrorEnteringWaitQueue(ConnectionPoolErrorEnteringWaitQueueEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolBeforeCheckingOutAConnection(ConnectionPoolBeforeCheckingOutAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolAfterCheckingOutAConnection(ConnectionPoolAfterCheckingOutAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolErrorCheckingOutAConnection(ConnectionPoolErrorCheckingOutAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolBeforeCheckingInAConnection(ConnectionPoolBeforeCheckingInAConnectionEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionPoolAfterCheckingInAConnection(ConnectionPoolAfterCheckingInAConnectionEvent @event)
         {
         }
@@ -179,50 +222,62 @@ namespace MongoDB.Driver.Core.Events
         #endregion
 
         #region Connections
+        /// <inheritdoc/>
         public virtual void ConnectionFailed(ConnectionFailedEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionBeforeClosing(ConnectionBeforeClosingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionAfterClosing(ConnectionAfterClosingEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionBeforeOpening(ConnectionBeforeOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionAfterOpening(ConnectionAfterOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionErrorOpening(ConnectionErrorOpeningEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionBeforeReceivingMessage(ConnectionBeforeReceivingMessageEvent @event)
         {
         }
 
-        public virtual void ConnectionAfterReceivingMessage<T>(ConnectionAfterReceivingMessageEvent<T> @event)
+        /// <inheritdoc/>
+        public virtual void ConnectionAfterReceivingMessage<TDocument>(ConnectionAfterReceivingMessageEvent<TDocument> @event)
         {
         }
 
-        public virtual void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent@event)
+        /// <inheritdoc/>
+        public virtual void ConnectionErrorReceivingMessage(ConnectionErrorReceivingMessageEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionBeforeSendingMessages(ConnectionBeforeSendingMessagesEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionAfterSendingMessages(ConnectionAfterSendingMessagesEvent @event)
         {
         }
 
+        /// <inheritdoc/>
         public virtual void ConnectionErrorSendingMessages(ConnectionErrorSendingMessagesEvent @event)
         {
         }

@@ -24,10 +24,10 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Operations;
+using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -208,7 +208,7 @@ namespace MongoDB.Driver
             bool? autoIndexId = null;
             bool? capped = null;
             int? maxDocuments = null;
-            int? maxSize = null;
+            long? maxSize = null;
             BsonDocument storageEngine = null;
             bool? usePowerOf2Sizes = null;
 
@@ -231,7 +231,7 @@ namespace MongoDB.Driver
                 }
                 if (optionsDocument.TryGetValue("size", out value))
                 {
-                    maxSize = value.ToInt32();
+                    maxSize = value.ToInt64();
                 }
                 if (optionsDocument.TryGetValue("storageEngine", out value))
                 {
@@ -599,7 +599,7 @@ namespace MongoDB.Driver
         public virtual DatabaseStatsResult GetStats()
         {
             var command = new CommandDocument("dbstats", 1);
-            return RunCommandAs<DatabaseStatsResult>(command, _settings.ReadPreference);
+            return RunCommandAs<DatabaseStatsResult>(command, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -736,7 +736,23 @@ namespace MongoDB.Driver
         public virtual TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command)
             where TCommandResult : CommandResult
         {
-            return RunCommandAs<TCommandResult>(command, _settings.ReadPreference);
+            return RunCommandAs<TCommandResult>(command, ReadPreference.Primary);
+        }
+
+        /// <summary>
+        /// Runs a command on this database and returns the result as a TCommandResult.
+        /// </summary>
+        /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
+        /// <param name="command">The command object.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A TCommandResult</returns>
+        public TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command,
+            ReadPreference readPreference)
+            where TCommandResult : CommandResult
+        {
+            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
+            return RunCommandAs<TCommandResult>(command, resultSerializer, readPreference);
         }
 
         /// <summary>
@@ -847,52 +863,18 @@ namespace MongoDB.Driver
             where TCommandResult : CommandResult
         {
             var commandDocument = command.ToBsonDocument();
-            var isReadCommand = CanCommandBeSentToSecondary.Delegate(commandDocument);
-
-            if (readPreference != ReadPreference.Primary)
-            {
-                var timeoutAt = DateTime.UtcNow + _server.Settings.ConnectTimeout;
-                var cluster = _server.Cluster;
-
-                var clusterType = cluster.Description.Type;
-                while (clusterType == ClusterType.Unknown)
-                {
-                    // TODO: find a way to block until the cluster description changes
-                    if (DateTime.UtcNow >= timeoutAt)
-                    {
-                        throw new TimeoutException();
-                    }
-                    Thread.Sleep(TimeSpan.FromMilliseconds(20));
-                    clusterType = cluster.Description.Type;
-                }
-
-                if (clusterType == ClusterType.ReplicaSet && !isReadCommand)
-                {
-                    readPreference = ReadPreference.Primary;
-                }
-            }
-
             var messageEncoderSettings = GetMessageEncoderSettings();
 
-            if (isReadCommand)
-            {
-                var operation = new ReadCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
-                return ExecuteReadOperation(operation, readPreference);
-            }
-            else
+            if (readPreference == ReadPreference.Primary)
             {
                 var operation = new WriteCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
                 return ExecuteWriteOperation(operation);
             }
-        }
-
-        internal TCommandResult RunCommandAs<TCommandResult>(
-            IMongoCommand command,
-            ReadPreference readPreference)
-            where TCommandResult : CommandResult
-        {
-            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
-            return RunCommandAs<TCommandResult>(command, resultSerializer, readPreference);
+            else
+            {
+                var operation = new ReadCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
+                return ExecuteReadOperation(operation, readPreference);
+            }
         }
 
 #pragma warning disable 618

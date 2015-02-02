@@ -24,6 +24,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a drop index operation.
+    /// </summary>
     public class DropIndexOperation : IWriteOperation<BsonDocument>
     {
         // fields
@@ -32,6 +35,12 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DropIndexOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="keys">The keys.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DropIndexOperation(
             CollectionNamespace collectionNamespace,
             BsonDocument keys,
@@ -40,6 +49,12 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DropIndexOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="indexName">The name of the index.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DropIndexOperation(
             CollectionNamespace collectionNamespace,
             string indexName,
@@ -51,23 +66,41 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets the name of the index.
+        /// </summary>
+        /// <value>
+        /// The name of the index.
+        /// </value>
         public string IndexName
         {
             get { return _indexName; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -76,6 +109,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

@@ -566,12 +566,12 @@ namespace MongoDB.Driver.Tests
             var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             Assert.IsFalse(collection.Exists());
-            var options = CollectionOptions.SetCapped(true).SetMaxSize(10000000);
+            var options = CollectionOptions.SetCapped(true).SetMaxSize(5000000000);
             _database.CreateCollection(collection.Name, options);
             Assert.IsTrue(collection.Exists());
             var stats = collection.GetStats();
             Assert.IsTrue(stats.IsCapped);
-            Assert.IsTrue(stats.StorageSize >= 10000000);
+            Assert.IsTrue(stats.StorageSize >= 5000000000);
             collection.Drop();
         }
 
@@ -1955,32 +1955,14 @@ namespace MongoDB.Driver.Tests
             if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
-                _collection.Insert(new BsonDocument { { "x", "abc" } });
-                _collection.Insert(new BsonDocument { { "x", "def" } });
-                _collection.Insert(new BsonDocument { { "x", "ghi" } });
+                var expectedName = "x_hashed";
+                var expectedKey = "{ x : \"hashed\" }";
+
                 _collection.CreateIndex(IndexKeys.Hashed("x"));
 
-                var query = Query.EQ("x", "abc");
-                var cursor = _collection.FindAs<BsonDocument>(query);
-                var documents = cursor.ToArray();
-
-                Assert.AreEqual(1, documents.Length);
-                Assert.AreEqual("abc", documents[0]["x"].AsString);
-
-                var plan = cursor.Explain();
-                if (_server.BuildInfo.Version < new Version(2, 7, 0))
-                {
-                    Assert.AreEqual("BtreeCursor x_hashed", plan["cursor"].AsString);
-                }
-                else
-                {
-                    var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
-                    var inputStage = winningPlan["inputStage"]["inputStage"].AsBsonDocument; // not sure why there are two inputStages
-                    var stage = inputStage["stage"].AsString;
-                    var keyPattern = inputStage["keyPattern"].AsBsonDocument;
-                    Assert.That(stage, Is.EqualTo("IXSCAN"));
-                    Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ x : \"hashed\" }")));
-                }
+                var index = _collection.GetIndexes().FirstOrDefault(x => x.Name == expectedName);
+                Assert.IsNotNull(index);
+                Assert.AreEqual(BsonDocument.Parse(expectedKey), index.Key);
             }
         }
 
@@ -2892,45 +2874,6 @@ namespace MongoDB.Driver.Tests
 
             var document = new BsonDocument("x", "\udc00"); // invalid lone low surrogate
             Assert.Throws<EncoderFallbackException>(() => { collection.Insert(document); });
-        }
-
-        [Test]
-        public void TestTextSearch()
-        {
-            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
-            {
-                if (_primary.Supports(FeatureId.TextSearchCommand))
-                {
-                    _collection.Drop();
-                    _collection.Insert(new BsonDocument("x", "The quick brown fox"));
-                    _collection.Insert(new BsonDocument("x", "jumped over the fence"));
-                    _collection.CreateIndex(IndexKeys.Text("x"));
-
-                    var textSearchCommand = new CommandDocument
-                    {
-                        { "text", _collection.Name },
-                        { "search", "fox" }
-                    };
-                    var commandResult = _database.RunCommand(textSearchCommand);
-                    var response = commandResult.Response;
-                    Assert.AreEqual(1, response["stats"]["n"].ToInt32());
-                    Assert.AreEqual("The quick brown fox", response["results"][0]["obj"]["x"].AsString);
-                }
-            }
-        }
-
-        [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
-        public void TestTotalDataSize()
-        {
-            _collection.GetTotalDataSize();
-        }
-
-        [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
-        public void TestTotalStorageSize()
-        {
-            _collection.GetTotalStorageSize();
         }
 
         [Test]

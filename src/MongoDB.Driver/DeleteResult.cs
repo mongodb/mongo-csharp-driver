@@ -57,7 +57,7 @@ namespace MongoDB.Driver
 
         // nested classes
         /// <summary>
-        /// Remove result from an acknowledged write concern.
+        /// The result of an acknowledged delete operation.
         /// </summary>
         public class Acknowledged : DeleteResult
         {
@@ -72,17 +72,13 @@ namespace MongoDB.Driver
                 _deletedCount = deletedCount;
             }
 
-            /// <summary>
-            /// Gets the deleted count. If IsAcknowledged is false, this will throw an exception.
-            /// </summary>
+            /// <inheritdoc/>
             public override long DeletedCount
             {
                 get { return _deletedCount; }
             }
 
-            /// <summary>
-            /// Gets a value indicating whether the result is acknowleded.
-            /// </summary>
+            /// <inheritdoc/>
             public override bool IsAcknowledged
             {
                 get { return true; }
@@ -90,7 +86,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Remove result from an unacknowledged write concern.
+        /// The result of an unacknowledged delete operation.
         /// </summary>
         public class Unacknowledged : DeleteResult
         {
@@ -108,18 +104,13 @@ namespace MongoDB.Driver
             {
             }
 
-            /// <summary>
-            /// Gets the deleted count. If IsAcknowledged is false, this will throw an exception.
-            /// </summary>
-            /// <exception cref="System.NotSupportedException">Only acknowledged writes support the DeletedCount property.</exception>
+            /// <inheritdoc/>
             public override long DeletedCount
             {
                 get { throw new NotSupportedException("Only acknowledged writes support the DeletedCount property."); }
             }
 
-            /// <summary>
-            /// Gets a value indicating whether the result is acknowleded.
-            /// </summary>
+            /// <inheritdoc/>
             public override bool IsAcknowledged
             {
                 get { return false; }

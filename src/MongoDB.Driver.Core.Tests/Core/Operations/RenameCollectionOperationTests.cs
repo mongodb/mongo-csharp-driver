@@ -19,7 +19,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
@@ -214,7 +213,7 @@ namespace MongoDB.Driver.Core.Operations
         private void EnsureCollectionDoesNotExist(IWriteBinding binding, CollectionNamespace collectionNamespace)
         {
             var operation = new DropCollectionOperation(collectionNamespace, _messageEncoderSettings);
-            operation.Execute(binding);
+            operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
         }
 
         private void EnsureCollectionExists(IWriteBinding binding, CollectionNamespace collectionNamespace)
@@ -222,7 +221,7 @@ namespace MongoDB.Driver.Core.Operations
             try
             {
                 var operation = new CreateCollectionOperation(collectionNamespace, _messageEncoderSettings);
-                operation.Execute(binding);
+                operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
             }
             catch (MongoCommandException ex)
             {

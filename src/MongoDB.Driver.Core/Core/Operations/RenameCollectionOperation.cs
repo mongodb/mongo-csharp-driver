@@ -24,6 +24,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a rename collection operation.
+    /// </summary>
     public class RenameCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields
@@ -33,6 +36,12 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _newCollectionNamespace;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenameCollectionOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="newCollectionNamespace">The new collection namespace.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public RenameCollectionOperation(
             CollectionNamespace collectionNamespace,
             CollectionNamespace newCollectionNamespace,
@@ -44,29 +53,53 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to drop the target collection first if it already exists.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the target collection should be dropped first if it already exists.; otherwise, <c>false</c>.
+        /// </value>
         public bool? DropTarget
         {
             get { return _dropTarget; }
             set { _dropTarget = value; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets the new collection namespace.
+        /// </summary>
+        /// <value>
+        /// The new collection namespace.
+        /// </value>
         public CollectionNamespace NewCollectionNamespace
         {
             get { return _newCollectionNamespace; }
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -76,6 +109,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

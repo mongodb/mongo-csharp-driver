@@ -53,9 +53,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the href.
         /// </summary>
-        /// <value>
-        /// The href.
-        /// </value>
         public string HRef
         {
             get { return _href; }
@@ -64,9 +61,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the type of the href.
         /// </summary>
-        /// <value>
-        /// The type of the href.
-        /// </value>
         public string HRefType
         {
             get { return _hrefType; }
@@ -75,9 +69,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         /// <summary>
         /// Gets the type of the GeoJson coordinate reference system.
         /// </summary>
-        /// <value>
-        /// The type of the GeoJson coordinate reference system.
-        /// </value>
         public override string Type
         {
             get { return "link"; }

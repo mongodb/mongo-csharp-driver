@@ -18,6 +18,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters
 {
+    /// <summary>
+    /// Represents the data for the event that fires when a cluster description changes.
+    /// </summary>
     public class ClusterDescriptionChangedEventArgs : EventArgs
     {
         // fields
@@ -25,6 +28,11 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ClusterDescription _newClusterDescription;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterDescriptionChangedEventArgs"/> class.
+        /// </summary>
+        /// <param name="oldClusterDescription">The old cluster description.</param>
+        /// <param name="newClusterDescription">The new cluster description.</param>
         public ClusterDescriptionChangedEventArgs(ClusterDescription oldClusterDescription, ClusterDescription newClusterDescription)
         {
             _oldClusterDescription = Ensure.IsNotNull(oldClusterDescription, "oldClusterDescription");
@@ -32,11 +40,23 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // properties
+        /// <summary>
+        /// Gets the old cluster description.
+        /// </summary>
+        /// <value>
+        /// The old cluster description.
+        /// </value>
         public ClusterDescription OldClusterDescription
         {
             get { return _oldClusterDescription; }
         }
 
+        /// <summary>
+        /// Gets the new cluster description.
+        /// </summary>
+        /// <value>
+        /// The new cluster description.
+        /// </value>
         public ClusterDescription NewClusterDescription
         {
             get { return _newClusterDescription; }

@@ -19,6 +19,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
+    /// <summary>
+    /// Represents a factory for JSON message encoders.
+    /// </summary>
     public class JsonMessageEncoderFactory : IMessageEncoderFactory
     {
         // fields
@@ -27,16 +30,32 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private readonly TextWriter _textWriter;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonMessageEncoderFactory"/> class.
+        /// </summary>
+        /// <param name="textReader">The text reader.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public JsonMessageEncoderFactory(TextReader textReader, MessageEncoderSettings encoderSettings)
             : this(Ensure.IsNotNull(textReader, "textReader"), null, encoderSettings)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonMessageEncoderFactory"/> class.
+        /// </summary>
+        /// <param name="textWriter">The text writer.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public JsonMessageEncoderFactory(TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : this(null, Ensure.IsNotNull(textWriter, "textWriter"), encoderSettings)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonMessageEncoderFactory"/> class.
+        /// </summary>
+        /// <param name="textReader">The text reader.</param>
+        /// <param name="textWriter">The text writer.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public JsonMessageEncoderFactory(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
         {
             Ensure.That(textReader != null || textWriter != null, "textReader and textWriter cannot both be null.");
@@ -46,37 +65,44 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         // methods
-        public IMessageEncoder<DeleteMessage> GetDeleteMessageEncoder()
+        /// <inheritdoc/>
+        public IMessageEncoder GetDeleteMessageEncoder()
         {
             return new DeleteMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
-        public IMessageEncoder<GetMoreMessage> GetGetMoreMessageEncoder()
+        /// <inheritdoc/>
+        public IMessageEncoder GetGetMoreMessageEncoder()
         {
             return new GetMoreMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
-        public IMessageEncoder<InsertMessage<TDocument>> GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
+        /// <inheritdoc/>
+        public IMessageEncoder GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new InsertMessageJsonEncoder<TDocument>(_textReader, _textWriter, _encoderSettings, serializer);
         }
 
-        public IMessageEncoder<KillCursorsMessage> GetKillCursorsMessageEncoder()
+        /// <inheritdoc/>
+        public IMessageEncoder GetKillCursorsMessageEncoder()
         {
             return new KillCursorsMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
-        public IMessageEncoder<QueryMessage> GetQueryMessageEncoder()
+        /// <inheritdoc/>
+        public IMessageEncoder GetQueryMessageEncoder()
         {
             return new QueryMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
-        public IMessageEncoder<ReplyMessage<TDocument>> GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
+        /// <inheritdoc/>
+        public IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new ReplyMessageJsonEncoder<TDocument>(_textReader, _textWriter, _encoderSettings, serializer);
         }
 
-        public IMessageEncoder<UpdateMessage> GetUpdateMessageEncoder()
+        /// <inheritdoc/>
+        public IMessageEncoder GetUpdateMessageEncoder()
         {
             return new UpdateMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }

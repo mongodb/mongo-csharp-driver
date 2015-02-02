@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    public class QueryWireProtocol<TDocument> : IWireProtocol<CursorBatch<TDocument>>
+    internal class QueryWireProtocol<TDocument> : IWireProtocol<CursorBatch<TDocument>>
     {
         // fields
         private readonly bool _awaitData;

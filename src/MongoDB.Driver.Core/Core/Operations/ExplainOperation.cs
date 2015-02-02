@@ -24,6 +24,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents an explain operation.
+    /// </summary>
     public class ExplainOperation : IReadOperation<BsonDocument>, IWriteOperation<BsonDocument>
     {
         // fields
@@ -33,6 +36,12 @@ namespace MongoDB.Driver.Core.Operations
         private ExplainVerbosity _verbosity;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExplainOperation"/> class.
+        /// </summary>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ExplainOperation(DatabaseNamespace databaseNamespace, BsonDocument command, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
@@ -42,27 +51,52 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the database namespace.
+        /// </summary>
+        /// <value>
+        /// The database namespace.
+        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
+        /// <summary>
+        /// Gets the command to be explained.
+        /// </summary>
+        /// <value>
+        /// The command to be explained.
+        /// </value>
         public BsonDocument Command
         {
             get { return _command; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets or sets the verbosity.
+        /// </summary>
+        /// <value>
+        /// The verbosity.
+        /// </value>
         public ExplainVerbosity Verbosity
         {
             get { return _verbosity; }
             set { _verbosity = value; }
         }
 
+        /// <inheritdoc/>
         public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             var command = CreateCommand();
@@ -76,6 +110,7 @@ namespace MongoDB.Driver.Core.Operations
             return operation.ExecuteAsync(binding, cancellationToken);
         }
 
+        /// <inheritdoc/>
         public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             var command = CreateCommand();

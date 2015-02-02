@@ -212,6 +212,7 @@
     <Compile Include="Serialization\Serializers\BsonBinaryDataSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBooleanSerializer.cs" />
     <Compile Include="Serialization\IBsonSerializerExtensions.cs" />
+    <Compile Include="Serialization\Serializers\ProjectingDeserializer.cs" />
     <Compile Include="Serialization\Serializers\SerializerHelper.cs" />
     <Compile Include="Serialization\Serializers\DiscriminatedWrapperSerializer.cs" />
     <Compile Include="Serialization\Serializers\SerializerBase.cs" />

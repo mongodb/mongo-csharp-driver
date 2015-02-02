@@ -22,11 +22,21 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Events.Diagnostics
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents a log enricher that adds additional information to a message for logging.
+    /// </summary>
     public class LogEnricher
     {
+        /// <summary>
+        /// Enriches a message for logging.
+        /// </summary>
+        /// <param name="level">The log level.</param>
+        /// <param name="message">The message.</param>
+        /// <returns>An enriched message.</returns>
         public virtual string Enrich(LogLevel level, string message)
         {
-            return level.ToString().PadRight(5) + " " + DateTime.UtcNow.ToString() + " " + Thread.CurrentThread.ManagedThreadId.ToString().PadRight(4) + message;
+            return DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fffffffZ") + " " + level.ToString().PadRight(5) + " " + Thread.CurrentThread.ManagedThreadId.ToString().PadRight(4) + message;
         }
     }
 }

@@ -29,6 +29,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a base class for find and modify operations.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
     public abstract class FindAndModifyOperationBase<TResult> : IWriteOperation<TResult>
     {
         // fields
@@ -37,6 +41,12 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FindAndModifyOperationBase{TResult}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public FindAndModifyOperationBase(CollectionNamespace collectionNamespace, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
@@ -45,24 +55,43 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets the result serializer.
+        /// </summary>
+        /// <value>
+        /// The result serializer.
+        /// </value>
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer; }
         }
 
         // methods
-        public abstract BsonDocument CreateCommand();
+        internal abstract BsonDocument CreateCommand();
 
+        /// <inheritdoc/>
         public Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
@@ -74,6 +103,10 @@ namespace MongoDB.Driver.Core.Operations
             return operation.ExecuteAsync(binding, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the command validator.
+        /// </summary>
+        /// <returns>An element name validator for the command.</returns>
         protected abstract IElementNameValidator GetCommandValidator();
     }
 }

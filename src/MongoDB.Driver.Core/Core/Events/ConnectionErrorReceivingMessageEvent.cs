@@ -20,12 +20,22 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a  ConnectionErrorReceivingMessage event.
+    /// </summary>
     public struct ConnectionErrorReceivingMessageEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly Exception _exception;
         private readonly int _responseTo;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionErrorReceivingMessageEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="responseTo">The id of the message we were receiving a response to.</param>
+        /// <param name="exception">The exception.</param>
         public ConnectionErrorReceivingMessageEvent(ConnectionId connectionId, int responseTo, Exception exception)
         {
             _connectionId = connectionId;
@@ -33,16 +43,34 @@ namespace MongoDB.Driver.Core.Events
             _exception = exception;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the exception.
+        /// </summary>
+        /// <value>
+        /// The exception.
+        /// </value>
         public Exception Exception
         {
             get { return _exception; }
         }
 
+        /// <summary>
+        /// Gets id of the message we were receiving a response to.
+        /// </summary>
+        /// <value>
+        /// The id of the message we were receiving a response to.
+        /// </value>
         public int ResponseTo
         {
             get { return _responseTo; }

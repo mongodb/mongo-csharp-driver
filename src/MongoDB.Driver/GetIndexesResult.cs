@@ -103,7 +103,7 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets whether the dups were dropped when the index was created.
+        /// Gets a value indicating whether dups were dropped when the index was created.
         /// </summary>
         public bool DroppedDups
         {
@@ -122,7 +122,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether the index was created in the background.
+        /// Gets a value indicating whether the index was created in the background.
         /// </summary>
         public bool IsBackground
         {
@@ -141,7 +141,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether the index is sparse.
+        /// Gets a value indicating whether the index is sparse.
         /// </summary>
         public bool IsSparse
         {
@@ -160,7 +160,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether the index is unique.
+        /// Gets a value indicating whether the index is unique.
         /// </summary>
         public bool IsUnique
         {

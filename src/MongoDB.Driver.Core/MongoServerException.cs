@@ -31,7 +31,7 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the MongoServerException class.
+        /// Initializes a new instance of the <see cref="MongoServerException"/> class.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
@@ -41,7 +41,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Initializes a new instance of the MongoServerException class.
+        /// Initializes a new instance of the <see cref="MongoServerException"/> class.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
@@ -53,7 +53,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Initializes a new instance of the MongoServerException class (this overload supports deserialization).
+        /// Initializes a new instance of the <see cref="MongoServerException"/> class.
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
@@ -73,6 +73,7 @@ namespace MongoDB.Driver
         }
 
         // methods
+        /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

@@ -25,6 +25,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
+    /// <summary>
+    /// A GSSAPI SASL authenticator.
+    /// </summary>
     public sealed class GssapiAuthenticator : SaslAuthenticator
     {
         // constants
@@ -33,42 +36,83 @@ namespace MongoDB.Driver.Core.Authentication
         private const string __serviceRealmPropertyName = "REALM";
 
         // static properties
+        /// <summary>
+        /// Gets the name of the canonicalize host name property.
+        /// </summary>
+        /// <value>
+        /// The name of the canonicalize host name property.
+        /// </value>
         public static string CanonicalizeHostNamePropertyName
         {
             get { return __canonicalizeHostNamePropertyName; }
         }
 
+        /// <summary>
+        /// Gets the default service name.
+        /// </summary>
+        /// <value>
+        /// The default service name.
+        /// </value>
         public static string DefaultServiceName
         {
             get { return "mongodb"; }
         }
 
+        /// <summary>
+        /// Gets the name of the mechanism.
+        /// </summary>
+        /// <value>
+        /// The name of the mechanism.
+        /// </value>
         public static string MechanismName
         {
             get { return "GSSAPI"; }
         }
 
+        /// <summary>
+        /// Gets the name of the service name property.
+        /// </summary>
+        /// <value>
+        /// The name of the service name property.
+        /// </value>
         public static string ServiceNamePropertyName
         {
             get { return __serviceNamePropertyName; }
         }
-        
+
+        /// <summary>
+        /// Gets the name of the service realm property.
+        /// </summary>
+        /// <value>
+        /// The name of the service realm property.
+        /// </value>
         public static string ServiceRealmPropertyName
         {
             get { return __serviceRealmPropertyName; }
         }
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GssapiAuthenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
+        /// <param name="properties">The properties.</param>
         public GssapiAuthenticator(UsernamePasswordCredential credential, IEnumerable<KeyValuePair<string, string>> properties)
             : base(CreateMechanism(credential, properties))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GssapiAuthenticator"/> class.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="properties">The properties.</param>
         public GssapiAuthenticator(string username, IEnumerable<KeyValuePair<string, string>> properties)
             : base(CreateMechanism(username, null, properties))
         {
         }
 
+        /// <inheritdoc/>
         public override string DatabaseName
         {
             get { return "$external"; }

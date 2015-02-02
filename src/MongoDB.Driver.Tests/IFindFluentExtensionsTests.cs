@@ -15,6 +15,8 @@
 
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Translators;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -32,6 +34,18 @@ namespace MongoDB.Driver.Tests
             var expectedProject = BsonDocument.Parse("{_id: 1, Tags: 1}");
 
             Assert.AreEqual(expectedProject, subject.Options.Projection);
+        }
+
+        [Test]
+        public void Projection_should_generate_the_correct_fields_and_assign_the_correct_result_serializer()
+        {
+            var subject = CreateSubject()
+                .Projection(x => x.FirstName + " " + x.LastName);
+
+            var expectedProject = BsonDocument.Parse("{FirstName: 1, LastName: 1, _id: 0}");
+
+            Assert.AreEqual(expectedProject, subject.Options.Projection);
+            Assert.IsInstanceOf<ProjectingDeserializer<ProjectedObject, string>>(subject.Options.ResultSerializer);
         }
 
         [Test]

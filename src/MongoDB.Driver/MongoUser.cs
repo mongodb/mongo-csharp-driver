@@ -104,7 +104,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether the user is a read-only user.
+        /// Gets or sets a value indicating whether the user is a read-only user.
         /// </summary>
         public bool IsReadOnly
         {

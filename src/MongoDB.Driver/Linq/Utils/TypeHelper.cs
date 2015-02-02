@@ -15,16 +15,41 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoDB.Driver.Linq.Utils
 {
     internal static class TypeHelper
     {
+        internal static object GetDefault(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
+        }
+
         internal static Type GetElementType(Type seqType)
         {
             Type ienum = FindIEnumerable(seqType);
             if (ienum == null) { return seqType; }
             return ienum.GetGenericArguments()[0];
+        }
+
+        internal static bool ImplementsInterface(Type candidate, Type iface)
+        {
+            if (candidate.Equals(iface))
+            {
+                return true;
+            }
+
+            if (candidate.IsGenericType && candidate.GetGenericTypeDefinition().Equals(iface))
+            {
+                return true;
+            }
+
+            return candidate.GetInterfaces().Any(i => TypeHelper.ImplementsInterface(i, iface));
         }
 
         private static Type FindIEnumerable(Type seqType)

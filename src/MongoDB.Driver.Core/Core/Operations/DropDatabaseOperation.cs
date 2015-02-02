@@ -24,6 +24,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a drop database operation.
+    /// </summary>
     public class DropDatabaseOperation : IWriteOperation<BsonDocument>
     {
         // fields
@@ -31,6 +34,11 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DropDatabaseOperation"/> class.
+        /// </summary>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public DropDatabaseOperation(
             DatabaseNamespace databaseNamespace,
             MessageEncoderSettings messageEncoderSettings)
@@ -40,22 +48,35 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets the database namespace.
+        /// </summary>
+        /// <value>
+        /// The database namespace.
+        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument { { "dropDatabase", 1 } };
         }
 
+        /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

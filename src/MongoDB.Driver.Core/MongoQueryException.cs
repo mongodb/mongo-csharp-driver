@@ -21,6 +21,9 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a MongoDB query exception.
+    /// </summary>
     [Serializable]
     public class MongoQueryException : MongoServerException
     {
@@ -29,6 +32,13 @@ namespace MongoDB.Driver
         private readonly BsonDocument _queryResult;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoQueryException"/> class.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="queryResult">The query result.</param>
         public MongoQueryException(ConnectionId connectionId, string message, BsonDocument query, BsonDocument queryResult)
             : base(connectionId, message, null)
         {
@@ -36,6 +46,11 @@ namespace MongoDB.Driver
             _queryResult = queryResult;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoQueryException"/> class.
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         protected MongoQueryException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -44,17 +59,30 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets the query.
+        /// </summary>
+        /// <value>
+        /// The query.
+        /// </value>
         public BsonDocument Query
         {
             get { return _query; }
         }
 
+        /// <summary>
+        /// Gets the query result.
+        /// </summary>
+        /// <value>
+        /// The query result.
+        /// </value>
         public BsonDocument QueryResult
         {
             get { return _queryResult; }
         }
 
         // methods
+        /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

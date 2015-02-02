@@ -22,6 +22,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
 {
+    /// <summary>
+    /// Represents settings for an SSL stream.
+    /// </summary>
     public class SslStreamSettings
     {
         // fields
@@ -32,6 +35,14 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly RemoteCertificateValidationCallback _serverCertificateValidationCallback;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SslStreamSettings"/> class.
+        /// </summary>
+        /// <param name="checkCertificateRevocation">Whether to check for certificate revocation.</param>
+        /// <param name="clientCertificates">The client certificates.</param>
+        /// <param name="clientCertificateSelectionCallback">The client certificate selection callback.</param>
+        /// <param name="enabledProtocols">The enabled protocols.</param>
+        /// <param name="serverCertificateValidationCallback">The server certificate validation callback.</param>
         public SslStreamSettings(
             Optional<bool> checkCertificateRevocation = default(Optional<bool>),
             Optional<IEnumerable<X509Certificate>> clientCertificates = default(Optional<IEnumerable<X509Certificate>>),
@@ -47,32 +58,71 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // properties
+        /// <summary>
+        /// Gets a value indicating whether to check for certificate revocation.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if certificate should be checked for revocation; otherwise, <c>false</c>.
+        /// </value>
         public bool CheckCertificateRevocation
         {
             get { return _checkCertificateRevocation; }
         }
 
+        /// <summary>
+        /// Gets the client certificates.
+        /// </summary>
+        /// <value>
+        /// The client certificates.
+        /// </value>
         public IEnumerable<X509Certificate> ClientCertificates
         {
             get { return _clientCertificates; }
         }
 
+        /// <summary>
+        /// Gets the client certificate selection callback.
+        /// </summary>
+        /// <value>
+        /// The client certificate selection callback.
+        /// </value>
         public LocalCertificateSelectionCallback ClientCertificateSelectionCallback
         {
             get { return _clientCertificateSelectionCallback; }
         }
 
+        /// <summary>
+        /// Gets the enabled SSL protocols.
+        /// </summary>
+        /// <value>
+        /// The enabled SSL protocols.
+        /// </value>
         public SslProtocols EnabledSslProtocols
         {
             get { return _enabledSslProtocols; }
         }
 
+        /// <summary>
+        /// Gets the server certificate validation callback.
+        /// </summary>
+        /// <value>
+        /// The server certificate validation callback.
+        /// </value>
         public RemoteCertificateValidationCallback ServerCertificateValidationCallback
         {
             get { return _serverCertificateValidationCallback; }
         }
 
         // methods
+        /// <summary>
+        /// Returns a new SsslStreamSettings instance with some settings changed.
+        /// </summary>
+        /// <param name="checkCertificateRevocation">Whether to check certificate revocation.</param>
+        /// <param name="clientCertificates">The client certificates.</param>
+        /// <param name="clientCertificateSelectionCallback">The client certificate selection callback.</param>
+        /// <param name="enabledProtocols">The enabled protocols.</param>
+        /// <param name="serverCertificateValidationCallback">The server certificate validation callback.</param>
+        /// <returns>A new SsslStreamSettings instance.</returns>
         public SslStreamSettings With(
             Optional<bool> checkCertificateRevocation = default(Optional<bool>),
             Optional<IEnumerable<X509Certificate>> clientCertificates = default(Optional<IEnumerable<X509Certificate>>),
