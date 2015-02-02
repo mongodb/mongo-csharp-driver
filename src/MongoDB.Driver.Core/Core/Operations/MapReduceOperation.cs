@@ -27,7 +27,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a map reduce operation.
+    /// Represents a map-reduce operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public class MapReduceOperation<TResult> : MapReduceOperationBase, IReadOperation<IAsyncCursor<TResult>>

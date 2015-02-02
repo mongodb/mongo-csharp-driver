@@ -475,11 +475,10 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(reduce, "reduce");
 
             options = options ?? new MapReduceOptions<TResult>();
-
+            var outputOptions = options.OutputOptions ?? MapReduceOutputOptions.Inline;
             var resultSerializer = ResolveResultSerializer<TResult>(options.ResultSerializer);
 
-            var output = options.Out ?? MapReduceOutput.Inline;
-            if(output == MapReduceOutput.Inline)
+            if (outputOptions == MapReduceOutputOptions.Inline)
             {
                 var operation = new MapReduceOperation<TResult>(
                     _collectionNamespace,
@@ -489,7 +488,7 @@ namespace MongoDB.Driver
                     _messageEncoderSettings)
                 {
                     Filter = BsonDocumentHelper.FilterToBsonDocument<TDocument>(_settings.SerializerRegistry, options.Filter),
-                    FinalizeFunction = options.Finalizer,
+                    FinalizeFunction = options.Finalize,
                     JavaScriptMode = options.JavaScriptMode,
                     Limit = options.Limit,
                     MaxTime = options.MaxTime,
@@ -506,12 +505,11 @@ namespace MongoDB.Driver
             }
             else
             {
-                var collectionOutput = (MapReduceOutput.CollectionOutput)output;
-                var databaseNamespace = collectionOutput.DatabaseName == null ?
+                var collectionOutputOptions = (MapReduceOutputOptions.CollectionOutput)outputOptions;
+                var databaseNamespace = collectionOutputOptions.DatabaseName == null ?
                     _collectionNamespace.DatabaseNamespace :
-                    new DatabaseNamespace(collectionOutput.DatabaseName);
-
-                var outputCollectionNamespace = new CollectionNamespace(databaseNamespace, collectionOutput.CollectionName);
+                    new DatabaseNamespace(collectionOutputOptions.DatabaseName);
+                var outputCollectionNamespace = new CollectionNamespace(databaseNamespace, collectionOutputOptions.CollectionName);
 
                 var operation = new MapReduceOutputToCollectionOperation(
                     _collectionNamespace,
@@ -521,14 +519,14 @@ namespace MongoDB.Driver
                     _messageEncoderSettings)
                 {
                     Filter = BsonDocumentHelper.FilterToBsonDocument<TDocument>(_settings.SerializerRegistry, options.Filter),
-                    FinalizeFunction = options.Finalizer,
+                    FinalizeFunction = options.Finalize,
                     JavaScriptMode = options.JavaScriptMode,
                     Limit = options.Limit,
                     MaxTime = options.MaxTime,
-                    NonAtomicOutput = collectionOutput.NonAtomic,
+                    NonAtomicOutput = collectionOutputOptions.NonAtomic,
                     Scope = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Scope),
-                    OutputMode = collectionOutput.OutputMode,
-                    ShardedOutput = collectionOutput.Sharded,
+                    OutputMode = collectionOutputOptions.OutputMode,
+                    ShardedOutput = collectionOutputOptions.Sharded,
                     Sort = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Sort),
                     Verbose = options.Verbose
                 };

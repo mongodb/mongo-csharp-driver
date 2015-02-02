@@ -222,7 +222,7 @@ namespace MongoDB.Driver
         Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Executes a map reduce command.
+        /// Executes a map-reduce command.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="map">The map function.</param>

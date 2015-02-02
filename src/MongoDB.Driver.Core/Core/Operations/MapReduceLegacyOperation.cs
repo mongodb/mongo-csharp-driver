@@ -22,13 +22,12 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
-namespace MongoDB.Driver.Operations
+namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a map reduce operation.
+    /// Represents a map-reduce operation.
     /// </summary>
     public class MapReduceLegacyOperation : MapReduceOperationBase, IReadOperation<BsonDocument>
     {

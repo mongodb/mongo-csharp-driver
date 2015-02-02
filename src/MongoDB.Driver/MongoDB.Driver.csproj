@@ -272,7 +272,6 @@
     <Compile Include="IMongoGroupBy.cs" />
     <Compile Include="IMongoIndexKeys.cs" />
     <Compile Include="IMongoIndexOptions.cs" />
-    <Compile Include="IMongoMapReduceOptions.cs" />
     <Compile Include="IMongoQuery.cs" />
     <Compile Include="IMongoScope.cs" />
     <Compile Include="IMongoSortBy.cs" />
@@ -319,8 +318,6 @@
     <Compile Include="Wrappers\IndexKeysWrapper.cs" />
     <Compile Include="Wrappers\IndexOptionsDocument.cs" />
     <Compile Include="Wrappers\IndexOptionsWrapper.cs" />
-    <Compile Include="Wrappers\MapReduceOptionsDocument.cs" />
-    <Compile Include="Wrappers\MapReduceOptionsWrapper.cs" />
     <Compile Include="Wrappers\QueryDocument.cs" />
     <Compile Include="Wrappers\QueryWrapper.cs" />
     <Compile Include="Wrappers\ScopeDocument.cs" />

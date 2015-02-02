@@ -186,22 +186,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp290
             Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
         }
 
-#pragma warning disable 618
-        [Test]
-        public void TestMapReduceOptionsDocumentConstructor()
-        {
-            var document1 = new MapReduceOptionsDocument(_dictionary);
-            var document2 = new MapReduceOptionsDocument(_hashtable);
-            var document3 = new MapReduceOptionsDocument(_idictionaryNonGeneric);
-            var document4 = new MapReduceOptionsDocument(_idictionary);
-
-            Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
-            Assert.AreEqual("Hashtable", document2["type"].AsString);
-            Assert.AreEqual("IDictionary", document3["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
-        }
-#pragma warning restore
-
         [Test]
         public void TestQueryDocumentConstructor()
         {

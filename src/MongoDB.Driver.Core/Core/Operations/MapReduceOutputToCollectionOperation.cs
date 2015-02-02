@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a map reduce operation that outputs its results to a collection.
+    /// Represents a map-reduce operation that outputs its results to a collection.
     /// </summary>
     public class MapReduceOutputToCollectionOperation : MapReduceOperationBase, IWriteOperation<BsonDocument>
     {

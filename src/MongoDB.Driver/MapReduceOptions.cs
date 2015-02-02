@@ -1,4 +1,19 @@
-﻿using System;
+﻿/* Copyright 2010-2014 MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,17 +24,17 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Options for a map reduce operation.
+    /// Represents the options for a map-reduce operation.
     /// </summary>
     public sealed class MapReduceOptions<TResult>
     {
         // fields
         private object _filter;
-        private BsonJavaScript _finalizer;
+        private BsonJavaScript _finalize;
         private bool? _javaScriptMode;
         private long? _limit;
         private TimeSpan? _maxTime;
-        private MapReduceOutput _out;
+        private MapReduceOutputOptions _outputOptions;
         private IBsonSerializer<TResult> _resultSerializer;
         private object _scope;
         private object _sort;
@@ -36,12 +51,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the finalizer.
+        /// Gets or sets the finalize function.
         /// </summary>
-        public BsonJavaScript Finalizer
+        public BsonJavaScript Finalize
         {
-            get { return _finalizer; }
-            set { _finalizer = value; }
+            get { return _finalize; }
+            set { _finalize = value; }
         }
 
         /// <summary>
@@ -72,12 +87,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the out.
+        /// Gets or sets the output options.
         /// </summary>
-        public MapReduceOutput Out
+        public MapReduceOutputOptions OutputOptions
         {
-            get { return _out; }
-            set { _out = value; }
+            get { return _outputOptions; }
+            set { _outputOptions = value; }
         }
 
         /// <summary>
@@ -118,72 +133,71 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// Indicates the type of output for a Map/Reduce operation.
+    /// Represents the output options for a map-reduce operation.
     /// </summary>
-    public abstract class MapReduceOutput
+    public abstract class MapReduceOutputOptions
     {
-        private static MapReduceOutput __inline = new InlineOutput();
+        private static MapReduceOutputOptions __inline = new InlineOutput();
 
-        private MapReduceOutput()
+        private MapReduceOutputOptions()
         { }
 
         /// <summary>
-        /// An inline map/reduce output.
+        /// An inline map-reduce output options.
         /// </summary>
-        public static MapReduceOutput Inline
+        public static MapReduceOutputOptions Inline
         {
             get { return __inline; }
         }
 
         /// <summary>
-        /// A merge map/reduce output.
+        /// A merge map-reduce output options.
         /// </summary>
-        /// <param name="collectionName">Name of the collection.</param>
-        /// <param name="databaseName">Name of the database.</param>
-        /// <param name="sharded">The sharded.</param>
-        /// <param name="nonAtomic">The non atomic.</param>
-        /// <returns>A merge map/reduce output.</returns>
-        public static MapReduceOutput Merge(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="databaseName">The name of the database.</param>
+        /// <param name="sharded">Whether the output collection should be sharded.</param>
+        /// <param name="nonAtomic">Whether the server should not lock the database for the duration of the merge.</param>
+        /// <returns>A merge map-reduce output options.</returns>
+        public static MapReduceOutputOptions Merge(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)
         {
             Ensure.IsNotNull(collectionName, "collectionName");
             return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Merge, databaseName, sharded, nonAtomic);
         }
 
         /// <summary>
-        /// A reduce map/reduce output.
+        /// A reduce map-reduce output options.
         /// </summary>
-        /// <param name="collectionName">Name of the collection.</param>
-        /// <param name="databaseName">Name of the database.</param>
-        /// <param name="sharded">The sharded.</param>
-        /// <param name="nonAtomic">The non atomic.</param>
-        /// <returns>A reduce map/reduce output.</returns>
-        public static MapReduceOutput Reduce(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="databaseName">The name of the database.</param>
+        /// <param name="sharded">Whether the output collection should be sharded.</param>
+        /// <param name="nonAtomic">Whether the server should not lock the database for the duration of the reduce.</param>
+        /// <returns>A reduce map-reduce output options.</returns>
+        public static MapReduceOutputOptions Reduce(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)
         {
             Ensure.IsNotNull(collectionName, "collectionName");
             return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Reduce, databaseName, sharded, nonAtomic);
         }
 
         /// <summary>
-        /// A replace map/reduce output.
+        /// A replace map-reduce output options.
         /// </summary>
-        /// <param name="collectionName">Name of the collection.</param>
+        /// <param name="collectionName">The name of the collection.</param>
         /// <param name="databaseName">Name of the database.</param>
-        /// <param name="sharded">The sharded.</param>
-        /// <param name="nonAtomic">The non atomic.</param>
-        /// <returns></returns>
-        public static MapReduceOutput Replace(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)
+        /// <param name="sharded">Whether the output collection should be sharded.</param>
+        /// <returns>A replace map-reduce output options.</returns>
+        public static MapReduceOutputOptions Replace(string collectionName, string databaseName = null, bool? sharded = null)
         {
             Ensure.IsNotNull(collectionName, "collectionName");
-            return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Replace, databaseName, sharded, nonAtomic);
+            return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Replace, databaseName, sharded, null);
         }
 
-        internal sealed class InlineOutput : MapReduceOutput
+        internal sealed class InlineOutput : MapReduceOutputOptions
         {
             internal InlineOutput()
             { }
         }
 
-        internal sealed class CollectionOutput : MapReduceOutput
+        internal sealed class CollectionOutput : MapReduceOutputOptions
         {
             private readonly string _collectionName;
             private readonly string _databaseName;

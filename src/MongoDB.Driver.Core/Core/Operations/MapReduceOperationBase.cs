@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a base class for map reduce operations.
+    /// Represents a base class for map-reduce operations.
     /// </summary>
     public abstract class MapReduceOperationBase
     {
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// <remarks>
         /// Setting this value to true can result in faster execution, but requires more memory on the server, and if
-        /// there are too many emitted objects the map reduce operation may fail.
+        /// there are too many emitted objects the map-reduce operation may fail.
         /// </remarks>
         ///   <c>true</c> if objects emitted by the map function remain as JavaScript objects; otherwise, <c>false</c>.
         /// </value>

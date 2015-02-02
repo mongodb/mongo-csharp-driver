@@ -1480,7 +1480,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Runs a Map/Reduce command on this collection.
+        /// Runs a map-reduce command on this collection.
         /// </summary>
         /// <param name="args">The args.</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
@@ -2037,101 +2037,6 @@ namespace MongoDB.Driver
         private MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query, IBsonSerializer serializer)
         {
             return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer);
-        }
-
-#pragma warning disable 618
-        private MapReduceArgs MapReduceArgsFromOptions(IMongoMapReduceOptions options)
-#pragma warning restore
-        {
-            var args = new MapReduceArgs();
-            var optionsDocument = options.ToBsonDocument();
-
-            BsonValue finalizeFunction;
-            if (optionsDocument.TryGetValue("finalize", out finalizeFunction))
-            {
-                args.FinalizeFunction = finalizeFunction.AsBsonJavaScript;
-            }
-
-            BsonValue jsMode;
-            if (optionsDocument.TryGetValue("jsMode", out jsMode))
-            {
-                args.JsMode = jsMode.ToBoolean();
-            }
-
-            BsonValue limit;
-            if (optionsDocument.TryGetValue("limit", out limit))
-            {
-                args.Limit = limit.ToInt64();
-            }
-
-            BsonValue mapFunction;
-            if (optionsDocument.TryGetValue("map", out mapFunction))
-            {
-                args.MapFunction = mapFunction.AsBsonJavaScript;
-            }
-
-            BsonValue output;
-            if (optionsDocument.TryGetValue("out", out output))
-            {
-                var outputDocument = output.AsBsonDocument;
-                var actionElement = outputDocument.GetElement(0);
-
-                args.OutputMode = (MapReduceOutputMode)Enum.Parse(typeof(MapReduceOutputMode), actionElement.Name, true); // ignoreCase
-                if (args.OutputMode != MapReduceOutputMode.Inline)
-                {
-                    args.OutputCollectionName = actionElement.Value.AsString;
-
-                    BsonValue databaseName;
-                    if (outputDocument.TryGetValue("db", out databaseName))
-                    {
-                        args.OutputDatabaseName = databaseName.AsString;
-                    }
-
-                    BsonValue outputIsSharded;
-                    if (outputDocument.TryGetValue("sharded", out outputIsSharded))
-                    {
-                        args.OutputIsSharded = outputIsSharded.ToBoolean();
-                    }
-
-                    BsonValue nonAtomic;
-                    if (outputDocument.TryGetValue("nonAtomic", out nonAtomic))
-                    {
-                        args.OutputIsNonAtomic = nonAtomic.ToBoolean();
-                    }
-                }
-            }
-
-            BsonValue queryOption;
-            if (optionsDocument.TryGetValue("query", out queryOption))
-            {
-                args.Query = new QueryDocument(queryOption.ToBsonDocument());
-            }
-
-            BsonValue reduceFunction;
-            if (optionsDocument.TryGetValue("reduce", out reduceFunction))
-            {
-                args.ReduceFunction = reduceFunction.AsBsonJavaScript;
-            }
-
-            BsonValue scope;
-            if (optionsDocument.TryGetValue("scope", out scope))
-            {
-                args.SortBy = new SortByDocument(scope.ToBsonDocument());
-            }
-
-            BsonValue sortBy;
-            if (optionsDocument.TryGetValue("sort", out sortBy))
-            {
-                args.SortBy = new SortByDocument(sortBy.ToBsonDocument());
-            }
-
-            BsonValue verbose;
-            if (optionsDocument.TryGetValue("verbose", out verbose))
-            {
-                args.Verbose = verbose.ToBoolean();
-            }
-
-            return args;
         }
     }
 

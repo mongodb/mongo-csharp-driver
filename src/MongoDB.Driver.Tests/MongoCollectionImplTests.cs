@@ -862,11 +862,11 @@ namespace MongoDB.Driver
             var options = new MapReduceOptions<BsonDocument>
             {
                 Filter = new BsonDocument("filter", 1),
-                Finalizer = "finalizer",
+                Finalize = "finalizer",
                 JavaScriptMode = true,
                 Limit = 10,
                 MaxTime = TimeSpan.FromMinutes(2),
-                Out = MapReduceOutput.Inline,
+                OutputOptions = MapReduceOutputOptions.Inline,
                 Scope = scope,
                 Sort = sort,
                 Verbose = true
@@ -880,7 +880,7 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
 
             operation.Filter.Should().Be(filter);
-            operation.FinalizeFunction.Should().Be(options.Finalizer);
+            operation.FinalizeFunction.Should().Be(options.Finalize);
             operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
             operation.Limit.Should().Be(options.Limit);
             operation.MapFunction.Should().Be(new BsonJavaScript("map"));
@@ -901,11 +901,11 @@ namespace MongoDB.Driver
             var options = new MapReduceOptions<BsonDocument>
             {
                 Filter = new BsonDocument("filter", 1),
-                Finalizer = "finalizer",
+                Finalize = "finalizer",
                 JavaScriptMode = true,
                 Limit = 10,
                 MaxTime = TimeSpan.FromMinutes(2),
-                Out = MapReduceOutput.Replace("awesome", "otherDB", true, true),
+                OutputOptions = MapReduceOutputOptions.Replace("awesome", "otherDB", true),
                 Scope = scope,
                 Sort = sort,
                 Verbose = true
@@ -919,12 +919,12 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
 
             operation.Filter.Should().Be(filter);
-            operation.FinalizeFunction.Should().Be(options.Finalizer);
+            operation.FinalizeFunction.Should().Be(options.Finalize);
             operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
             operation.Limit.Should().Be(options.Limit);
             operation.MapFunction.Should().Be(new BsonJavaScript("map"));
             operation.MaxTime.Should().Be(options.MaxTime);
-            operation.NonAtomicOutput.Should().Be(true);
+            operation.NonAtomicOutput.Should().NotHaveValue();
             operation.OutputCollectionNamespace.Should().Be(CollectionNamespace.FromFullName("otherDB.awesome"));
             operation.OutputMode.Should().Be(Core.Operations.MapReduceOutputMode.Replace);
             operation.ReduceFunction.Should().Be(new BsonJavaScript("reduce"));

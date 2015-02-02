@@ -56,6 +56,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.OutputCollectionNamespace.Should().BeSameAs(_outputCollectionNamespace);
             subject.MapFunction.Should().BeSameAs(_mapFunction);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+            subject.Filter.Should().BeNull();
             subject.ReduceFunction.Should().BeSameAs(_reduceFunction);
             subject.OutputMode.Should().Be(MapReduceOutputMode.Replace);
         }
