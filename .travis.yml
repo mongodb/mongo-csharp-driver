@@ -19,8 +19,8 @@ before_install:
 - sudo installer -pkg "MonoFramework-MDK-${MONO_VERSION}.macos10.xamarin.x86.pkg" -target /
 
 script:
-- ./build.sh -ev buildNumber=$TRAVIS_BUILD_NUMBER
+- ./build.sh -ev buildNumber $TRAVIS_BUILD_NUMBER
 - brew install mongodb
 - mkdir -p ./build/db/data
 - mongod --dbpath ./build/db/data --logpath ./build/db/log.log --fork --setParameter enableTestCommands=1
-- ./build.sh Test -ev buildNumber=$TRAVIS_BUILD_NUMBER
+- ./build.sh Test -ev buildNumber $TRAVIS_BUILD_NUMBER
