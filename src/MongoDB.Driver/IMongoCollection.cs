@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -218,7 +219,18 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the insert operation.
         /// </returns>
-        Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken)); 
+        Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Executes a map reduce command.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="map">The map function.</param>
+        /// <param name="reduce">The reduce function.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
+        Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.

@@ -111,6 +111,7 @@
     <Compile Include="Linq\Translators\ProjectedObjectDeserializer.cs" />
     <Compile Include="Linq\Translators\ProjectionInfo.cs" />
     <Compile Include="ListCollectionsOptions.cs" />
+    <Compile Include="MapReduceOptions.cs" />
     <Compile Include="Operations\AddUserOperation.cs" />
     <Compile Include="Operations\AddUserUsingUserManagementCommandsOperation.cs" />
     <Compile Include="Operations\AddUserUsingSystemUsersCollectionOperation.cs" />
@@ -177,7 +178,6 @@
     <Compile Include="Builders\GroupByBuilder.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
-    <Compile Include="Builders\MapReduceOptionsBuilder.cs" />
     <Compile Include="Builders\PushEachOptions.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />

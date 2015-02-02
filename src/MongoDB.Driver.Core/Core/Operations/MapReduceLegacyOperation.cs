@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2014 MongoDB Inc.
+﻿﻿/* Copyright 2013-2014 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,48 +22,31 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
-namespace MongoDB.Driver.Core.Operations
+namespace MongoDB.Driver.Operations
 {
     /// <summary>
     /// Represents a map reduce operation.
     /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class MapReduceOperation<TResult> : MapReduceOperationBase, IReadOperation<IAsyncCursor<TResult>>
+    public class MapReduceLegacyOperation : MapReduceOperationBase, IReadOperation<BsonDocument>
     {
-        // fields
-        private readonly IBsonSerializer<TResult> _resultSerializer;
-
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="MapReduceOperation{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="MapReduceLegacyOperation"/> class.
         /// </summary>
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="mapFunction">The map function.</param>
         /// <param name="reduceFunction">The reduce function.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        public MapReduceOperation(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+        public MapReduceLegacyOperation(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, MessageEncoderSettings messageEncoderSettings)
             : base(
                 collectionNamespace,
                 mapFunction,
                 reduceFunction,
                 messageEncoderSettings)
         {
-            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
-        }
-
-        // properties
-        /// <summary>
-        /// Gets the result serializer.
-        /// </summary>
-        /// <value>
-        /// The result serializer.
-        /// </value>
-        public IBsonSerializer<TResult> ResultSerializer
-        {
-            get { return _resultSerializer;}
         }
 
         // methods
@@ -74,15 +57,12 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var resultArraySerializer = new ArraySerializer<TResult>(_resultSerializer);
-            var resultSerializer = new ElementDeserializer<TResult[]>("results", resultArraySerializer);
-            var operation = new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings);
-            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return new SingleBatchAsyncCursor<TResult>(result);
+            var operation = new ReadCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
+            return operation.ExecuteAsync(binding, cancellationToken);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly BsonDocument _filter;
+        private BsonDocument _filter;
         private BsonJavaScript _finalizeFunction;
         private bool? _javaScriptMode;
         private long? _limit;
@@ -49,14 +49,12 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="mapFunction">The map function.</param>
         /// <param name="reduceFunction">The reduce function.</param>
-        /// <param name="filter">The filter.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        protected MapReduceOperationBase(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument filter, MessageEncoderSettings messageEncoderSettings)
+        protected MapReduceOperationBase(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _mapFunction = Ensure.IsNotNull(mapFunction, "mapFunction");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _filter = Ensure.IsNotNull(filter, "filter");
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
@@ -73,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets the filter.
+        /// Gets or sets the filter.
         /// </summary>
         /// <value>
         /// The filter.
@@ -81,6 +79,7 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Filter
         {
             get { return _filter; }
+            set { _filter = value; }
         }
 
         /// <summary>

@@ -24,6 +24,7 @@ using FluentAssertions;
 using FluentAssertions.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
@@ -850,6 +851,87 @@ namespace MongoDB.Driver
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifyWrites(expectedRequests, true, call);
+        }
+
+        [Test]
+        public async Task MapReduceAsync_with_inline_output_mode_should_execute_the_MapReduceOperation()
+        {
+            var filter = new BsonDocument("filter", 1);
+            var scope = new BsonDocument("test", 3);
+            var sort = new BsonDocument("sort", 1);
+            var options = new MapReduceOptions<BsonDocument>
+            {
+                Filter = new BsonDocument("filter", 1),
+                Finalizer = "finalizer",
+                JavaScriptMode = true,
+                Limit = 10,
+                MaxTime = TimeSpan.FromMinutes(2),
+                Out = MapReduceOutput.Inline,
+                Scope = scope,
+                Sort = sort,
+                Verbose = true
+            };
+            var result = await _subject.MapReduceAsync("map", "reduce", options);
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+
+            call.Operation.Should().BeOfType<MapReduceOperation<BsonDocument>>();
+            var operation = (MapReduceOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+
+            operation.Filter.Should().Be(filter);
+            operation.FinalizeFunction.Should().Be(options.Finalizer);
+            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MapFunction.Should().Be(new BsonJavaScript("map"));
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReduceFunction.Should().Be(new BsonJavaScript("reduce"));
+            operation.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
+            operation.Scope.Should().Be(scope);
+            operation.Sort.Should().Be(sort);
+            operation.Verbose.Should().Be(options.Verbose);
+        }
+
+        [Test]
+        public async Task MapReduceAsync_with_collection_output_mode_should_execute_the_MapReduceOperation()
+        {
+            var filter = new BsonDocument("filter", 1);
+            var scope = new BsonDocument("test", 3);
+            var sort = new BsonDocument("sort", 1);
+            var options = new MapReduceOptions<BsonDocument>
+            {
+                Filter = new BsonDocument("filter", 1),
+                Finalizer = "finalizer",
+                JavaScriptMode = true,
+                Limit = 10,
+                MaxTime = TimeSpan.FromMinutes(2),
+                Out = MapReduceOutput.Replace("awesome", "otherDB", true, true),
+                Scope = scope,
+                Sort = sort,
+                Verbose = true
+            };
+            var result = await _subject.MapReduceAsync("map", "reduce", options);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<MapReduceOutputToCollectionOperation>();
+            var operation = (MapReduceOutputToCollectionOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+
+            operation.Filter.Should().Be(filter);
+            operation.FinalizeFunction.Should().Be(options.Finalizer);
+            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MapFunction.Should().Be(new BsonJavaScript("map"));
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.NonAtomicOutput.Should().Be(true);
+            operation.OutputCollectionNamespace.Should().Be(CollectionNamespace.FromFullName("otherDB.awesome"));
+            operation.OutputMode.Should().Be(Core.Operations.MapReduceOutputMode.Replace);
+            operation.ReduceFunction.Should().Be(new BsonJavaScript("reduce"));
+            operation.Scope.Should().Be(scope);
+            operation.ShardedOutput.Should().Be(true);
+            operation.Sort.Should().Be(sort);
+            operation.Verbose.Should().Be(options.Verbose);
         }
 
         [Test]

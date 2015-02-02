@@ -29,6 +29,7 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Operations;
 using MongoDB.Driver.Sync;
 using MongoDB.Driver.Wrappers;
 
@@ -1481,72 +1482,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Runs a Map/Reduce command on this collection.
         /// </summary>
-        /// <param name="map">A JavaScript function called for each document.</param>
-        /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
-        /// <param name="options">Options for this map/reduce command (see <see cref="MapReduceOptionsDocument"/>, <see cref="MapReduceOptionsWrapper"/> and the <see cref="MapReduceOptions"/> builder).</param>
-        /// <returns>A <see cref="MapReduceResult"/>.</returns>
-        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
-        public virtual MapReduceResult MapReduce(
-            BsonJavaScript map,
-            BsonJavaScript reduce,
-            IMongoMapReduceOptions options)
-        {
-            var args = MapReduceArgsFromOptions(options);
-            args.MapFunction = map;
-            args.ReduceFunction = reduce;
-            return MapReduce(args);
-        }
-
-        /// <summary>
-        /// Runs a Map/Reduce command on document in this collection that match a query.
-        /// </summary>
-        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
-        /// <param name="map">A JavaScript function called for each document.</param>
-        /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
-        /// <param name="options">Options for this map/reduce command (see <see cref="MapReduceOptionsDocument"/>, <see cref="MapReduceOptionsWrapper"/> and the <see cref="MapReduceOptions"/> builder).</param>
-        /// <returns>A <see cref="MapReduceResult"/>.</returns>
-        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
-        public virtual MapReduceResult MapReduce(
-            IMongoQuery query,
-            BsonJavaScript map,
-            BsonJavaScript reduce,
-            IMongoMapReduceOptions options)
-        {
-            var args = MapReduceArgsFromOptions(options);
-            args.Query = query;
-            args.MapFunction = map;
-            args.ReduceFunction = reduce;
-            return MapReduce(args);
-        }
-
-        /// <summary>
-        /// Runs a Map/Reduce command on document in this collection that match a query.
-        /// </summary>
-        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
-        /// <param name="map">A JavaScript function called for each document.</param>
-        /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
-        /// <returns>A <see cref="MapReduceResult"/>.</returns>
-        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
-        public virtual MapReduceResult MapReduce(IMongoQuery query, BsonJavaScript map, BsonJavaScript reduce)
-        {
-            return MapReduce(new MapReduceArgs { Query = query, MapFunction = map, ReduceFunction = reduce });
-        }
-
-        /// <summary>
-        /// Runs a Map/Reduce command on this collection.
-        /// </summary>
-        /// <param name="map">A JavaScript function called for each document.</param>
-        /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
-        /// <returns>A <see cref="MapReduceResult"/>.</returns>
-        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
-        public virtual MapReduceResult MapReduce(BsonJavaScript map, BsonJavaScript reduce)
-        {
-            return MapReduce(new MapReduceArgs { MapFunction = map, ReduceFunction = reduce });
-        }
-
-        /// <summary>
-        /// Runs a Map/Reduce command on this collection.
-        /// </summary>
         /// <param name="args">The args.</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
         public virtual MapReduceResult MapReduce(MapReduceArgs args)
@@ -1555,7 +1490,7 @@ namespace MongoDB.Driver
             if (args.MapFunction == null) { throw new ArgumentException("MapFunction is null.", "args"); }
             if (args.ReduceFunction == null) { throw new ArgumentException("ReduceFunction is null.", "args"); }
 
-            var query = args.Query == null ? new BsonDocument() : BsonDocumentWrapper.Create(args.Query);
+            var query = args.Query == null ? null : BsonDocumentWrapper.Create(args.Query);
             var messageEncoderSettings = GetMessageEncoderSettings();
             var scope = args.Scope == null ? null : BsonDocumentWrapper.Create(args.Scope);
             var sort = args.SortBy == null ? null : BsonDocumentWrapper.Create(args.SortBy);
@@ -1563,16 +1498,13 @@ namespace MongoDB.Driver
             BsonDocument response;
             if (args.OutputMode == MapReduceOutputMode.Inline)
             {
-                var resultSerializer = BsonDocumentSerializer.Instance;
-
-                var operation = new MapReduceOperation<BsonDocument>(
+                var operation = new MapReduceLegacyOperation(
                     _collectionNamespace,
                     args.MapFunction,
                     args.ReduceFunction,
-                    query,
-                    resultSerializer,
                     messageEncoderSettings)
                 {
+                    Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
                     JavaScriptMode = args.JsMode,
                     Limit = args.Limit,
@@ -1595,9 +1527,9 @@ namespace MongoDB.Driver
                     outputCollectionNamespace,
                     args.MapFunction,
                     args.ReduceFunction,
-                    query,
                     messageEncoderSettings)
                 {
+                    Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
                     JavaScriptMode = args.JsMode,
                     Limit = args.Limit,
