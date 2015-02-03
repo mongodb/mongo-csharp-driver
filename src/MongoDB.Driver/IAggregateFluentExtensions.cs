@@ -139,7 +139,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            var serializer = source.Options.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            helper.RegisterExpressionSerializer(field.Parameters[0], serializer);
             var sortDocument = new SortByBuilder<TResult>(helper).Ascending(field).ToBsonDocument();
 
             source = source.Sort(sortDocument);
@@ -161,7 +162,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            var serializer = source.Options.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
             var sortDocument = new SortByBuilder<TResult>(helper).Descending(field).ToBsonDocument();
 
             source = source.Sort(sortDocument);
@@ -183,7 +185,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            var serializer = source.Options.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
             var sortDocument = new SortByBuilder<TResult>(helper).Ascending(field).ToBsonDocument();
 
             // this looks sketchy, but if we get here and this isn't true, then
@@ -209,7 +212,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            var serializer = source.Options.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
             var sortDocument = new SortByBuilder<TResult>(helper).Descending(field).ToBsonDocument();
 
             // this looks sketchy, but if we get here and this isn't true, then
@@ -251,7 +255,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            var serializer = source.Options.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
             var serialiationInfo = helper.GetSerializationInfo(field.Body);
 
             return source.Unwind<BsonDocument>("$" + serialiationInfo.ElementName);
@@ -272,7 +277,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            var serializer = source.Options.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
             var serialiationInfo = helper.GetSerializationInfo(field.Body);
 
             return source.Unwind<TNewResult>("$" + serialiationInfo.ElementName);
@@ -295,7 +301,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(resultSerializer, "resultSerializer");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            var serializer = source.Options.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
             var serialiationInfo = helper.GetSerializationInfo(field.Body);
 
             return source.Unwind<TNewResult>("$" + serialiationInfo.ElementName, resultSerializer);

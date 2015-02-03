@@ -67,8 +67,10 @@ namespace MongoDB.Driver.Linq.Translators
                     new BsonSerializationInfo(null, keySerializer, typeof(TKey)));
             }
 
+            var idExpression = new IdExpression(boundKeyExpression, ((IBsonSerializationInfoExpression)boundKeyExpression).SerializationInfo);
+
             var groupBinder = new GroupSerializationInfoBinder(BsonSerializer.SerializerRegistry);
-            groupBinder.RegisterMemberReplacement(typeof(IGrouping<TKey, TDocument>).GetProperty("Key"), boundKeyExpression);
+            groupBinder.RegisterMemberReplacement(typeof(IGrouping<TKey, TDocument>).GetProperty("Key"), idExpression);
             var groupSerializer = new ArraySerializer<TDocument>(parameterSerializer);
             var boundGroupExpression = BindSerializationInfo(groupBinder, groupProjector, groupSerializer);
             var projectionSerializer = (IBsonSerializer<TResult>)SerializerBuilder.Build(boundGroupExpression, serializerRegistry);
@@ -98,7 +100,7 @@ namespace MongoDB.Driver.Linq.Translators
             public static BsonValue Build(Expression projector)
             {
                 var builder = new ProjectionBuilder();
-                return builder.ResolveValue(projector);
+                return builder.BuildValue(projector);
             }
 
             private BsonValue BuildValue(Expression node)
@@ -112,7 +114,7 @@ namespace MongoDB.Driver.Linq.Translators
                     case ExpressionType.AndAlso:
                         return BuildOperation((BinaryExpression)node, "$and", true);
                     case ExpressionType.ArrayLength:
-                        return new BsonDocument("$size", ResolveValue(((UnaryExpression)node).Operand));
+                        return new BsonDocument("$size", BuildValue(((UnaryExpression)node).Operand));
                     case ExpressionType.Call:
                         return BuildMethodCall((MethodCallExpression)node);
                     case ExpressionType.Coalesce:
@@ -171,7 +173,15 @@ namespace MongoDB.Driver.Linq.Translators
                             {
                                 case MongoExpressionType.Aggregation:
                                     return BuildAggregation((AggregationExpression)node);
+                                case MongoExpressionType.Document:
+                                    return BuildValue(((DocumentExpression)node).Expression);
+                                case MongoExpressionType.Field:
+                                    return "$" + ((FieldExpression)node).SerializationInfo.ElementName;
                             }
+                        }
+                        else if(node is IdExpression)
+                        {
+                            return BuildValue(((IdExpression)node).Expression);
                         }
                         break;
                 }
@@ -196,21 +206,21 @@ namespace MongoDB.Driver.Linq.Translators
                 switch (node.AggregationType)
                 {
                     case AggregationType.AddToSet:
-                        return new BsonDocument("$addToSet", ResolveValue(node.Argument));
+                        return new BsonDocument("$addToSet", BuildValue(node.Argument));
                     case AggregationType.Average:
-                        return new BsonDocument("$avg", ResolveValue(node.Argument));
+                        return new BsonDocument("$avg", BuildValue(node.Argument));
                     case AggregationType.First:
-                        return new BsonDocument("$first", ResolveValue(node.Argument));
+                        return new BsonDocument("$first", BuildValue(node.Argument));
                     case AggregationType.Last:
-                        return new BsonDocument("$last", ResolveValue(node.Argument));
+                        return new BsonDocument("$last", BuildValue(node.Argument));
                     case AggregationType.Max:
-                        return new BsonDocument("$max", ResolveValue(node.Argument));
+                        return new BsonDocument("$max", BuildValue(node.Argument));
                     case AggregationType.Min:
-                        return new BsonDocument("$min", ResolveValue(node.Argument));
+                        return new BsonDocument("$min", BuildValue(node.Argument));
                     case AggregationType.Push:
-                        return new BsonDocument("$push", ResolveValue(node.Argument));
+                        return new BsonDocument("$push", BuildValue(node.Argument));
                     case AggregationType.Sum:
-                        return new BsonDocument("$sum", ResolveValue(node.Argument));
+                        return new BsonDocument("$sum", BuildValue(node.Argument));
                 }
 
                 // we should never ever get here.
@@ -219,9 +229,9 @@ namespace MongoDB.Driver.Linq.Translators
 
             private BsonValue BuildConditional(ConditionalExpression node)
             {
-                var condition = ResolveValue(node.Test);
-                var truePart = ResolveValue(node.IfTrue);
-                var falsePart = ResolveValue(node.IfFalse);
+                var condition = BuildValue(node.Test);
+                var truePart = BuildValue(node.IfTrue);
+                var falsePart = BuildValue(node.IfFalse);
 
                 return new BsonDocument("$cond", new BsonArray(new[] { condition, truePart, falsePart }));
             }
@@ -240,7 +250,7 @@ namespace MongoDB.Driver.Linq.Translators
                         || TypeHelper.ImplementsInterface(node.Expression.Type, typeof(ICollection)))
                     && node.Member.Name == "Count")
                 {
-                    return new BsonDocument("$size", ResolveValue(node.Expression));
+                    return new BsonDocument("$size", BuildValue(node.Expression));
                 }
 
                 var message = string.Format("Member {0} of type {1} are not supported in a $project or $group pipeline operator.", node.Member.Name, node.Member.DeclaringType);
@@ -275,14 +285,14 @@ namespace MongoDB.Driver.Linq.Translators
                     && (TypeHelper.ImplementsInterface(node.Object.Type, typeof(IComparable<>))
                         || TypeHelper.ImplementsInterface(node.Object.Type, typeof(IComparable))))
                 {
-                    return new BsonDocument("$cmp", new BsonArray(new[] { ResolveValue(node.Object), ResolveValue(node.Arguments[0]) }));
+                    return new BsonDocument("$cmp", new BsonArray(new[] { BuildValue(node.Object), BuildValue(node.Arguments[0]) }));
                 }
 
                 if (node.Object != null
                     && node.Method.Name == "Equals"
                     && node.Arguments.Count == 1)
                 {
-                    return new BsonDocument("$eq", new BsonArray(new[] { ResolveValue(node.Object), ResolveValue(node.Arguments[0]) }));
+                    return new BsonDocument("$eq", new BsonArray(new[] { BuildValue(node.Object), BuildValue(node.Arguments[0]) }));
                 }
 
                 var message = string.Format("{0} of type {1} is an unsupported method in a $project or $group pipeline operator.", node.Method.Name, node.Method.DeclaringType);
@@ -293,10 +303,18 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 BsonDocument doc = new BsonDocument();
                 var parameters = node.Constructor.GetParameters();
+                bool hasId = false;
                 for (int i = 0; i < node.Arguments.Count; i++)
                 {
-                    var value = ResolveValue(node.Arguments[i]);
-                    doc.Add(parameters[i].Name, value);
+                    string name = parameters[i].Name;
+                    if(!hasId && node.Arguments[i] is IdExpression)
+                    {
+                        name = "_id";
+                        hasId = true;
+                    }
+
+                    var value = BuildValue(node.Arguments[i]);
+                    doc.Add(name, value);
                 }
 
                 return doc;
@@ -304,7 +322,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             private BsonValue BuildNot(UnaryExpression node)
             {
-                var operand = ResolveValue(node.Operand);
+                var operand = BuildValue(node.Operand);
                 if (operand.IsBsonDocument)
                 {
                     operand = new BsonArray().Add(operand);
@@ -314,8 +332,8 @@ namespace MongoDB.Driver.Linq.Translators
 
             private BsonValue BuildOperation(BinaryExpression node, string op, bool canBeFlattened)
             {
-                var left = ResolveValue(node.Left);
-                var right = ResolveValue(node.Right);
+                var left = BuildValue(node.Left);
+                var right = BuildValue(node.Right);
 
                 // some operations take an array as the argument.
                 // we want to flatten binary values into the top-level 
@@ -329,27 +347,10 @@ namespace MongoDB.Driver.Linq.Translators
                 return new BsonDocument(op, new BsonArray(new[] { left, right }));
             }
 
-            private BsonValue ResolveValue(Expression node)
-            {
-                var fieldExpression = node as FieldExpression;
-                if (fieldExpression != null)
-                {
-                    return "$" + fieldExpression.SerializationInfo.ElementName;
-                }
-
-                var documentExpression = node as DocumentExpression;
-                if (documentExpression != null)
-                {
-                    return ResolveValue(documentExpression.Expression);
-                }
-
-                return BuildValue(node);
-            }
-
             private bool TryBuildDateTimeMemberAccess(MemberExpression node, out BsonValue result)
             {
                 result = null;
-                var field = ResolveValue(node.Expression);
+                var field = BuildValue(node.Expression);
                 switch (node.Member.Name)
                 {
                     case "Day":
@@ -398,15 +399,15 @@ namespace MongoDB.Driver.Linq.Translators
                     case "IsSubsetOf":
                         result = new BsonDocument("$setIsSubset", new BsonArray(new[] 
                         { 
-                            ResolveValue(node.Object), 
-                            ResolveValue(node.Arguments[0])
+                            BuildValue(node.Object), 
+                            BuildValue(node.Arguments[0])
                         }));
                         return true;
                     case "SetEquals":
                         result = new BsonDocument("$setEquals", new BsonArray(new[] 
                         { 
-                            ResolveValue(node.Object), 
-                            ResolveValue(node.Arguments[0])
+                            BuildValue(node.Object), 
+                            BuildValue(node.Arguments[0])
                         }));
                         return true;
                 }
@@ -431,7 +432,7 @@ namespace MongoDB.Driver.Linq.Translators
                         {
                             result = new BsonDocument("$gt", new BsonArray(new BsonValue[] 
                             {
-                                new BsonDocument("$size", ResolveValue(node.Arguments[0])),
+                                new BsonDocument("$size", BuildValue(node.Arguments[0])),
                                 0
                             }));
                             return true;
@@ -446,7 +447,7 @@ namespace MongoDB.Driver.Linq.Translators
                     case "LongCount":
                         if (node.Arguments.Count == 1)
                         {
-                            result = new BsonDocument("$size", ResolveValue(node.Arguments[0]));
+                            result = new BsonDocument("$size", BuildValue(node.Arguments[0]));
                             return true;
                         }
                         break;
@@ -455,8 +456,8 @@ namespace MongoDB.Driver.Linq.Translators
                         {
                             result = new BsonDocument("$setDifference", new BsonArray(new[] 
                             { 
-                                ResolveValue(node.Arguments[0]), 
-                                ResolveValue(node.Arguments[1]) 
+                                BuildValue(node.Arguments[0]), 
+                                BuildValue(node.Arguments[1]) 
                             }));
                             return true;
                         }
@@ -466,8 +467,8 @@ namespace MongoDB.Driver.Linq.Translators
                         {
                             result = new BsonDocument("$setIntersection", new BsonArray(new[] 
                             { 
-                                ResolveValue(node.Arguments[0]), 
-                                ResolveValue(node.Arguments[1]) 
+                                BuildValue(node.Arguments[0]), 
+                                BuildValue(node.Arguments[1]) 
                             }));
                             return true;
                         }
@@ -483,8 +484,8 @@ namespace MongoDB.Driver.Linq.Translators
                         {
                             result = new BsonDocument("$setUnion", new BsonArray(new[] 
                             { 
-                                ResolveValue(node.Arguments[0]), 
-                                ResolveValue(node.Arguments[1])
+                                BuildValue(node.Arguments[0]), 
+                                BuildValue(node.Arguments[1])
                             }));
                             return true;
                         }
@@ -503,16 +504,16 @@ namespace MongoDB.Driver.Linq.Translators
                     var lambda = MongoExpressionVisitor.GetLambda(node.Arguments[1]);
                     if (lambda.Body is IBsonSerializationInfoExpression)
                     {
-                        result = ResolveValue(lambda.Body);
+                        result = BuildValue(lambda.Body);
                         return true;
                     }
 
-                    var inputValue = ResolveValue(node.Arguments[0]);
+                    var inputValue = BuildValue(node.Arguments[0]);
                     var asValue = lambda.Parameters[0].Name;
 
                     // HACK: need to add a leading $ sign to the replacement because of how we resolve values.
                     var body = FieldNameReplacer.Replace(lambda.Body, sourceSerializationExpression.SerializationInfo.ElementName, "$" + asValue);
-                    var inValue = ResolveValue(body);
+                    var inValue = BuildValue(body);
 
                     result = new BsonDocument("$map", new BsonDocument
                             {
@@ -529,7 +530,7 @@ namespace MongoDB.Driver.Linq.Translators
             private bool TryBuildStringMethodCall(MethodCallExpression node, out BsonValue result)
             {
                 result = null;
-                var field = ResolveValue(node.Object);
+                var field = BuildValue(node.Object);
                 switch (node.Method.Name)
                 {
                     case "Equals":
@@ -542,12 +543,12 @@ namespace MongoDB.Driver.Linq.Translators
                                     result = new BsonDocument("$eq",
                                         new BsonArray(new BsonValue[] 
                                         {
-                                            new BsonDocument("$strcasecmp", new BsonArray(new[] { field, ResolveValue(node.Arguments[0]) })),
+                                            new BsonDocument("$strcasecmp", new BsonArray(new[] { field, BuildValue(node.Arguments[0]) })),
                                             0
                                         }));
                                     return true;
                                 case StringComparison.Ordinal:
-                                    result = new BsonDocument("$eq", new BsonArray(new[] { field, ResolveValue(node.Arguments[0]) }));
+                                    result = new BsonDocument("$eq", new BsonArray(new[] { field, BuildValue(node.Arguments[0]) }));
                                     return true;
                                 default:
                                     throw new NotSupportedException("Only Ordinal and OrdinalIgnoreCase are supported for string comparisons.");
@@ -560,8 +561,8 @@ namespace MongoDB.Driver.Linq.Translators
                             result = new BsonDocument("$substr", new BsonArray(new[] 
                             { 
                                 field, 
-                                ResolveValue(node.Arguments[0]), 
-                                ResolveValue(node.Arguments[1])
+                                BuildValue(node.Arguments[0]), 
+                                BuildValue(node.Arguments[1])
                             }));
                             return true;
                         }
@@ -647,19 +648,24 @@ namespace MongoDB.Driver.Linq.Translators
                 foreach (var parameterToProperty in parameterToPropertyMap)
                 {
                     var argument = node.Arguments[parameterToProperty.Parameter.Position];
-                    var field = argument as FieldExpression;
-                    if (field == null)
+                    var serializationExpression = argument as IBsonSerializationInfoExpression;
+                    if (serializationExpression == null)
                     {
                         var serializer = Build(argument);
                         var serializationInfo = new BsonSerializationInfo(parameterToProperty.Property.Name, serializer, parameterToProperty.Property.PropertyType);
-                        field = new FieldExpression(
+                        serializationExpression = new FieldExpression(
                             node.Arguments[parameterToProperty.Parameter.Position],
                             serializationInfo);
                     }
-
-                    classMap.MapMember(parameterToProperty.Property)
-                        .SetSerializer(field.SerializationInfo.Serializer)
+                    
+                    var memberMap = classMap.MapMember(parameterToProperty.Property)
+                        .SetSerializer(serializationExpression.SerializationInfo.Serializer)
                         .SetElementName(parameterToProperty.Property.Name);
+
+                    if (classMap.IdMemberMap == null && serializationExpression is IdExpression)
+                    {
+                        classMap.SetIdMember(memberMap);
+                    }
 
                     //TODO: Need to set default value as well...
                 }
@@ -718,6 +724,29 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 var suffix = elementName.Substring(_oldName.Length);
                 return _newName + suffix;
+            }
+        }
+
+        private class IdExpression : Expression, IBsonSerializationInfoExpression
+        {
+            public IdExpression(Expression expression, BsonSerializationInfo serializationInfo)
+            {
+                Expression = expression;
+                SerializationInfo = serializationInfo;
+            }
+
+            public Expression Expression { get; private set; }
+
+            public override ExpressionType NodeType
+            {
+                get { return ExpressionType.Extension; }
+            }
+
+            public BsonSerializationInfo SerializationInfo { get; private set; }
+
+            public override Type Type
+            {
+                get { return Expression.Type; }
             }
         }
     }

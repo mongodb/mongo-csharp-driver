@@ -97,6 +97,16 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_id_when_not_named_specifically()
+        {
+            var result = await Group(x => x.A, g => new { Test = g.Key });
+
+            result.Projection.Should().Be("{ _id: \"$A\" }");
+
+            result.Value.Test.Should().Be("Awesome");
+        }
+
+        [Test]
         public async Task Should_translate_addToSet()
         {
             var result = await Group(x => x.A, g => new { Result = new HashSet<int>(g.Select(x => x.C.E.F)) });

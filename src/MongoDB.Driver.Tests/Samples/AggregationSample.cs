@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests.Samples
         public async Task States_with_pops_over_20000()
         {
             var result = await _collection.Aggregate()
-                .Group(x => x.State, g => new { _id = g.Key, TotalPopulation = g.Sum(x => x.Population) })
+                .Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
                 .Match(x => x.TotalPopulation > 20000)
                 .ToListAsync();
 
@@ -62,34 +62,34 @@ namespace MongoDB.Driver.Tests.Samples
         public async Task Average_city_population_by_state()
         {
             var result = await _collection.Aggregate()
-                .Group(x => new { State = x.State, City = x.City }, g => new { _id = g.Key, Population = g.Sum(x => x.Population) })
-                .Group(x => x._id.State, g => new { _id = g.Key, AverageCityPopulation = g.Average(x => x.Population) })
-                .SortBy(x => x._id)
+                .Group(x => new { State = x.State, City = x.City }, g => new { StateAndCity = g.Key, Population = g.Sum(x => x.Population) })
+                .Group(x => x.StateAndCity.State, g => new { State = g.Key, AverageCityPopulation = g.Average(x => x.Population) })
+                .SortBy(x => x.State)
                 .ToListAsync();
 
-            result[0]._id.Should().Be("AL");
+            result[0].State.Should().Be("AL");
             result[0].AverageCityPopulation.Should().Be(2847.75);
             result[1].AverageCityPopulation.Should().Be(7528);
-            result[1]._id.Should().Be("MA");
+            result[1].State.Should().Be("MA");
         }
 
         [Test]
         public async Task Largest_and_smallest_cities_by_state()
         {
             var result = await _collection.Aggregate()
-                .Group(x => new { State = x.State, City = x.City }, g => new { _id = g.Key, Population = g.Sum(x => x.Population) })
+                .Group(x => new { State = x.State, City = x.City }, g => new { StateAndCity = g.Key, Population = g.Sum(x => x.Population) })
                 .SortBy(x => x.Population)
-                .Group(x => x._id.State, g => new
+                .Group(x => x.StateAndCity.State, g => new
                 {
-                    _id = g.Key,
-                    BiggestCity = g.Last()._id.City,
+                    State = g.Key,
+                    BiggestCity = g.Last().StateAndCity.City,
                     BiggestPopulation = g.Last().Population,
-                    SmallestCity = g.First()._id.City,
+                    SmallestCity = g.First().StateAndCity.City,
                     SmallestPopulation = g.First().Population
                 })
                 .Project(x => new
                 {
-                    State = x._id,
+                    x.State,
                     BiggestCity = new { Name = x.BiggestCity, Population = x.BiggestPopulation },
                     SmallestCity = new { Name = x.SmallestCity, Population = x.SmallestPopulation }
                 })
