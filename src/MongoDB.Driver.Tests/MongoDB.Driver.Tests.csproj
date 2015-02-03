@@ -162,11 +162,8 @@
     <Compile Include="Jira\CSharp598Tests.cs" />
     <Compile Include="Jira\CSharp532Tests.cs" />
     <Compile Include="Jira\CSharp137Tests.cs" />
-    <Compile Include="Jira\CSharp140Tests.cs" />
     <Compile Include="Jira\CSharp283Tests.cs" />
-    <Compile Include="Jira\CSharp290Tests.cs" />
     <Compile Include="Jira\CSharp321Tests.cs" />
-    <Compile Include="Jira\CSharp594Tests.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoHelperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MongoBulkWriteExceptionTests.cs" />

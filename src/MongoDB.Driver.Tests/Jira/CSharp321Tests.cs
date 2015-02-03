@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
         public void TestOneNestedAnd()
         {
             var query = Query.And(
-                new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
+                Query.Create("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
             );
             var expected = "{ 'x' : 1, 'y' : 2 }".Replace("'", "\"");
             var json = query.ToJson();
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
         public void TestCombineAndWithOneClause()
         {
             var query = Query.And(
-                new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) }),
+                Query.Create("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) }),
                 Query.EQ("z", 3)
             );
             var expected = "{ 'x' : 1, 'y' : 2, 'z' : 3 }".Replace("'", "\"");
@@ -80,8 +80,8 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
         public void TestCombineAndWithAnd()
         {
             var query = Query.And(
-                new QueryDocument("$and", new BsonArray { new BsonDocument("a", 1), new BsonDocument("b", 2) }),
-                new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
+                Query.Create("$and", new BsonArray { new BsonDocument("a", 1), new BsonDocument("b", 2) }),
+                Query.Create("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
             );
             var expected = "{ 'a' : 1, 'b' : 2, 'x' : 1, 'y' : 2 }".Replace("'", "\"");
             var json = query.ToJson();
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
             var query = Query.And(
                 Query.EQ("a", 1),
                 Query.EQ("b", 2),
-                new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
+                Query.Create("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
             );
             var expected = "{ 'a' : 1, 'b' : 2, 'x' : 1, 'y' : 2 }".Replace("'", "\"");
             var json = query.ToJson();
@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp321
         public void TestNestedAndClause()
         {
             var query = Query.And(
-                new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) }),
+                Query.Create("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) }),
                 Query.EQ("z", 3)
             );
             var expected = "{ 'x' : 1, 'y' : 2, 'z' : 3 }".Replace("'", "\"");

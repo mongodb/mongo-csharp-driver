@@ -76,6 +76,8 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="Builders\MongoQueryWrapper.cs" />
+    <Compile Include="Builders\MongoUpdateWrapper.cs" />
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="IAggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
@@ -141,31 +143,6 @@
     <Compile Include="OperationExecutor.cs" />
     <Compile Include="ReplaceOneResult.cs" />
     <Compile Include="UpdateResult.cs" />
-    <Compile Include="Wrappers\BaseWrapper.cs" />
-    <Compile Include="Wrappers\CollectionOptionsDocument.cs" />
-    <Compile Include="Wrappers\CollectionOptionsWrapper.cs" />
-    <Compile Include="Wrappers\CommandDocument.cs" />
-    <Compile Include="Wrappers\CommandWrapper.cs" />
-    <Compile Include="Wrappers\FieldsDocument.cs" />
-    <Compile Include="Wrappers\FieldsWrapper.cs" />
-    <Compile Include="Wrappers\GeoHaystackSearchOptionsDocument.cs" />
-    <Compile Include="Wrappers\GeoHaystackSearchOptionsWrapper.cs" />
-    <Compile Include="Wrappers\GeoNearOptionsDocument.cs" />
-    <Compile Include="Wrappers\GeoNearOptionsWrapper.cs" />
-    <Compile Include="Wrappers\GroupByDocument.cs" />
-    <Compile Include="Wrappers\GroupByWrapper.cs" />
-    <Compile Include="Wrappers\IndexKeysDocument.cs" />
-    <Compile Include="Wrappers\IndexKeysWrapper.cs" />
-    <Compile Include="Wrappers\IndexOptionsDocument.cs" />
-    <Compile Include="Wrappers\IndexOptionsWrapper.cs" />
-    <Compile Include="Wrappers\QueryDocument.cs" />
-    <Compile Include="Wrappers\QueryWrapper.cs" />
-    <Compile Include="Wrappers\ScopeDocument.cs" />
-    <Compile Include="Wrappers\ScopeWrapper.cs" />
-    <Compile Include="Wrappers\SortByDocument.cs" />
-    <Compile Include="Wrappers\SortByWrapper.cs" />
-    <Compile Include="Wrappers\UpdateDocument.cs" />
-    <Compile Include="Wrappers\UpdateWrapper.cs" />
     <Compile Include="WriteConcernError.cs" />
     <Compile Include="BulkWriteResult.cs" />
     <Compile Include="BulkWriteUpsert.cs" />

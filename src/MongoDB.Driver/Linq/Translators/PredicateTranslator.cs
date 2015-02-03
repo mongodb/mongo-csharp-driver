@@ -240,7 +240,7 @@ namespace MongoDB.Driver.Linq
         {
             if (value)
             {
-                return new QueryDocument(); // empty query matches all documents
+                return Query.Empty; // empty query matches all documents
             }
             else
             {
@@ -259,7 +259,7 @@ namespace MongoDB.Driver.Linq
                 }
 
                 var serializationInfo = _serializationInfoHelper.GetSerializationInfo(expression);
-                return new QueryDocument(serializationInfo.ElementName, true);
+                return Query.Create(new BsonDocument(serializationInfo.ElementName, true));
             }
             return null;
         }
@@ -816,8 +816,8 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildNotQuery(UnaryExpression unaryExpression)
         {
-            var queryDocument = new QueryDocument(BuildQuery(unaryExpression.Operand).ToBsonDocument());
-            return Query.Not(queryDocument);
+            var queryDocument = new BsonDocument(BuildQuery(unaryExpression.Operand).ToBsonDocument());
+            return Query.Not(Query.Create(queryDocument));
         }
 
         private IMongoQuery BuildOrElseQuery(BinaryExpression binaryExpression)

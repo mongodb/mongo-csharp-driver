@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestAndWithEmptyQuery()
         {
-            var emptyQuery = new QueryDocument();
+            var emptyQuery = Query.Empty;
             var expected = "{ }";
             var negated = "{ \"$nor\" : [{ }] }";
 
@@ -566,7 +566,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestOrWithEmptyQuery()
         {
-            var emptyQuery = new QueryDocument();
+            var emptyQuery = Query.Empty;
             var expected = "{ }";
             var negated = "{ \"$nor\" : [{ }] }";
 

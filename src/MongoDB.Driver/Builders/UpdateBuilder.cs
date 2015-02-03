@@ -22,7 +22,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Utils;
-using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders
 {
@@ -644,7 +643,8 @@ namespace MongoDB.Driver.Builders
         public static IMongoUpdate Replace<TNominalType>(TNominalType document)
         {
             if (document == null) { throw new ArgumentNullException("document"); }
-            return UpdateWrapper.Create<TNominalType>(document);
+            var serializer = BsonSerializer.LookupSerializer<TNominalType>();
+            return new MongoUpdateWrapper(document, serializer, typeof(TNominalType));
         }
 
         /// <summary>
@@ -657,7 +657,8 @@ namespace MongoDB.Driver.Builders
         {
             if (nominalType == null) { throw new ArgumentNullException("nominalType"); }
             if (document == null) { throw new ArgumentNullException("document"); }
-            return UpdateWrapper.Create(nominalType, document);
+            var serializer = BsonSerializer.LookupSerializer(nominalType);
+            return new MongoUpdateWrapper(document, serializer, nominalType);
         }
 
         /// <summary>
@@ -2213,7 +2214,8 @@ namespace MongoDB.Driver.Builders
         public static IMongoUpdate Replace(TDocument document)
         {
             if (document == null) { throw new ArgumentNullException("document"); }
-            return UpdateWrapper.Create<TDocument>(document);
+            var serializer = BsonSerializer.LookupSerializer<TDocument>();
+            return new MongoUpdateWrapper(document, serializer, typeof(TDocument));
         }
 
         /// <summary>
