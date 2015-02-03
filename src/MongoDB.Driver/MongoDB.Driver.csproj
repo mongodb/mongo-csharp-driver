@@ -100,9 +100,8 @@
     <Compile Include="InsertManyOptions.cs" />
     <Compile Include="Linq\Expressions\AggregationExpression.cs" />
     <Compile Include="Linq\Expressions\AggregationType.cs" />
-    <Compile Include="Linq\Expressions\DocumentExpression.cs" />
-    <Compile Include="Linq\Expressions\FieldExpression.cs" />
-    <Compile Include="Linq\Expressions\FieldExpressionGatherer.cs" />
+    <Compile Include="Linq\Expressions\SerializationExpression.cs" />
+    <Compile Include="Linq\Expressions\FieldGatherer.cs" />
     <Compile Include="Linq\Expressions\IBsonSerializationInfoExpression.cs" />
     <Compile Include="Linq\Expressions\MongoExpression.cs" />
     <Compile Include="Linq\Expressions\MongoExpressionType.cs" />

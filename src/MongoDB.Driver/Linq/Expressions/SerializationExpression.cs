@@ -20,13 +20,13 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    [DebuggerDisplay("Field({SerializationInfo.ElementName})")]
-    internal class FieldExpression : MongoExpression, IBsonSerializationInfoExpression
+    [DebuggerDisplay("Serialization({SerializationInfo.ElementName})")]
+    internal class SerializationExpression : MongoExpression, ISerializationExpression
     {
         private readonly Expression _expression;
         private readonly BsonSerializationInfo _serializationInfo;
 
-        public FieldExpression(Expression expression, BsonSerializationInfo serializationInfo)
+        public SerializationExpression(Expression expression, BsonSerializationInfo serializationInfo)
         {
             _expression = expression;
             _serializationInfo = serializationInfo;
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public override MongoExpressionType MongoNodeType
         {
-            get { return MongoExpressionType.Field; }
+            get { return MongoExpressionType.Serialization; }
         }
 
         public BsonSerializationInfo SerializationInfo
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public override string ToString()
         {
-            return string.Format("Field({0})", _serializationInfo.ElementName);
+            return string.Format("Serialization({0})", _serializationInfo.ElementName);
         }
     }
 }

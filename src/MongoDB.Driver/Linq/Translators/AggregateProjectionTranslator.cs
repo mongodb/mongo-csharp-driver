@@ -59,15 +59,15 @@ namespace MongoDB.Driver.Linq.Translators
 
             var keyBinder = new SerializationInfoBinder(serializerRegistry);
             var boundKeyExpression = BindSerializationInfo(keyBinder, idProjector, parameterSerializer);
-            if (!(boundKeyExpression is IBsonSerializationInfoExpression))
+            if (!(boundKeyExpression is ISerializationExpression))
             {
                 var keySerializer = SerializerBuilder.Build(boundKeyExpression, serializerRegistry);
-                boundKeyExpression = new DocumentExpression(
+                boundKeyExpression = new SerializationExpression(
                     boundKeyExpression,
                     new BsonSerializationInfo(null, keySerializer, typeof(TKey)));
             }
 
-            var idExpression = new IdExpression(boundKeyExpression, ((IBsonSerializationInfoExpression)boundKeyExpression).SerializationInfo);
+            var idExpression = new IdExpression(boundKeyExpression, ((ISerializationExpression)boundKeyExpression).SerializationInfo);
 
             var groupBinder = new GroupSerializationInfoBinder(BsonSerializer.SerializerRegistry);
             groupBinder.RegisterMemberReplacement(typeof(IGrouping<TKey, TDocument>).GetProperty("Key"), idExpression);
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Linq.Translators
         {
             var evaluatedBody = PartialEvaluator.Evaluate(node.Body);
             var parameterSerializationInfo = new BsonSerializationInfo(null, parameterSerializer, parameterSerializer.ValueType);
-            var parameterExpression = new DocumentExpression(node.Parameters[0], parameterSerializationInfo);
+            var parameterExpression = new SerializationExpression(node.Parameters[0], parameterSerializationInfo);
             binder.RegisterParameterReplacement(node.Parameters[0], parameterExpression);
             return binder.Bind(evaluatedBody);
         }
@@ -173,10 +173,8 @@ namespace MongoDB.Driver.Linq.Translators
                             {
                                 case MongoExpressionType.Aggregation:
                                     return BuildAggregation((AggregationExpression)node);
-                                case MongoExpressionType.Document:
-                                    return BuildValue(((DocumentExpression)node).Expression);
-                                case MongoExpressionType.Field:
-                                    return "$" + ((FieldExpression)node).SerializationInfo.ElementName;
+                                case MongoExpressionType.Serialization:
+                                    return BuildSerialization((SerializationExpression)node);
                             }
                         }
                         else if(node is IdExpression)
@@ -188,6 +186,16 @@ namespace MongoDB.Driver.Linq.Translators
 
                 var message = string.Format("{0} is an unsupported node type in an $project or $group pipeline operator.", node.NodeType);
                 throw new NotSupportedException(message);
+            }
+
+            private BsonValue BuildSerialization(SerializationExpression node)
+            {
+                if(string.IsNullOrWhiteSpace(node.SerializationInfo.ElementName))
+                {
+                    return BuildValue(node.Expression);
+                }
+
+                return "$" + node.SerializationInfo.ElementName;
             }
 
             private BsonValue BuildAdd(BinaryExpression node)
@@ -498,11 +506,11 @@ namespace MongoDB.Driver.Linq.Translators
             private bool TryBuildMap(MethodCallExpression node, out BsonValue result)
             {
                 result = null;
-                var sourceSerializationExpression = node.Arguments[0] as IBsonSerializationInfoExpression;
+                var sourceSerializationExpression = node.Arguments[0] as ISerializationExpression;
                 if (sourceSerializationExpression != null)
                 {
                     var lambda = MongoExpressionVisitor.GetLambda(node.Arguments[1]);
-                    if (lambda.Body is IBsonSerializationInfoExpression)
+                    if (lambda.Body is ISerializationExpression)
                     {
                         result = BuildValue(lambda.Body);
                         return true;
@@ -606,9 +614,9 @@ namespace MongoDB.Driver.Linq.Translators
 
             public IBsonSerializer Build(Expression node)
             {
-                if (node is IBsonSerializationInfoExpression)
+                if (node is ISerializationExpression)
                 {
-                    return ((IBsonSerializationInfoExpression)node).SerializationInfo.Serializer;
+                    return ((ISerializationExpression)node).SerializationInfo.Serializer;
                 }
 
                 if (node.NodeType == ExpressionType.New)
@@ -648,12 +656,12 @@ namespace MongoDB.Driver.Linq.Translators
                 foreach (var parameterToProperty in parameterToPropertyMap)
                 {
                     var argument = node.Arguments[parameterToProperty.Parameter.Position];
-                    var serializationExpression = argument as IBsonSerializationInfoExpression;
+                    var serializationExpression = argument as ISerializationExpression;
                     if (serializationExpression == null)
                     {
                         var serializer = Build(argument);
                         var serializationInfo = new BsonSerializationInfo(parameterToProperty.Property.Name, serializer, parameterToProperty.Property.PropertyType);
-                        serializationExpression = new FieldExpression(
+                        serializationExpression = new SerializationExpression(
                             node.Arguments[parameterToProperty.Parameter.Position],
                             serializationInfo);
                     }
@@ -696,28 +704,16 @@ namespace MongoDB.Driver.Linq.Translators
                 _newName = newName;
             }
 
-            protected override Expression VisitDocument(DocumentExpression node)
+            protected override Expression VisitSerialization(SerializationExpression node)
             {
-                if (node.SerializationInfo.ElementName.StartsWith(_oldName))
+                if (node.SerializationInfo.ElementName != null && node.SerializationInfo.ElementName.StartsWith(_oldName))
                 {
-                    return new DocumentExpression(
+                    return new SerializationExpression(
                         node.Expression,
                         node.SerializationInfo.WithNewName(GetReplacementName(node.SerializationInfo.ElementName)));
                 }
 
-                return base.VisitDocument(node);
-            }
-
-            protected override Expression VisitField(FieldExpression node)
-            {
-                if (node.SerializationInfo.ElementName.StartsWith(_oldName))
-                {
-                    return new FieldExpression(
-                        node.Expression,
-                        node.SerializationInfo.WithNewName(GetReplacementName(node.SerializationInfo.ElementName)));
-                }
-
-                return base.VisitField(node);
+                return base.VisitSerialization(node);
             }
 
             private string GetReplacementName(string elementName)
@@ -727,7 +723,7 @@ namespace MongoDB.Driver.Linq.Translators
             }
         }
 
-        private class IdExpression : Expression, IBsonSerializationInfoExpression
+        private class IdExpression : Expression, ISerializationExpression
         {
             public IdExpression(Expression expression, BsonSerializationInfo serializationInfo)
             {

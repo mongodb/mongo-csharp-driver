@@ -17,7 +17,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal interface IBsonSerializationInfoExpression
+    internal interface ISerializationExpression
     {
         BsonSerializationInfo SerializationInfo { get; }
     }

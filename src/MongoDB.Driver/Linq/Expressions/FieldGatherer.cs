@@ -19,25 +19,28 @@ using System.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    internal class FieldExpressionGatherer : MongoExpressionVisitor
+    internal class FieldGatherer : MongoExpressionVisitor
     {
-        public static IReadOnlyList<FieldExpression> Gather(Expression node)
+        public static IReadOnlyList<SerializationExpression> Gather(Expression node)
         {
-            var gatherer = new FieldExpressionGatherer();
+            var gatherer = new FieldGatherer();
             gatherer.Visit(node);
-            return gatherer._fields;
+            return gatherer._serializationExpressions;
         }
 
-        private List<FieldExpression> _fields;
+        private List<SerializationExpression> _serializationExpressions;
 
-        private FieldExpressionGatherer()
+        private FieldGatherer()
         {
-            _fields = new List<FieldExpression>();
+            _serializationExpressions = new List<SerializationExpression>();
         }
 
-        protected override Expression VisitField(FieldExpression node)
+        protected override Expression VisitSerialization(SerializationExpression node)
         {
-            _fields.Add(node);
+            if (node.SerializationInfo.ElementName != null)
+            {
+                _serializationExpressions.Add(node);
+            }
             return node;
         }
 
@@ -48,13 +51,13 @@ namespace MongoDB.Driver.Linq.Expressions
                 return base.VisitMethodCall(node);
             }
 
-            var source = node.Arguments[0] as FieldExpression;
+            var source = node.Arguments[0] as SerializationExpression;
             if (source != null)
             {
-                var fields = FieldExpressionGatherer.Gather(node.Arguments[1]);
+                var fields = FieldGatherer.Gather(node.Arguments[1]);
                 if (fields.Any(x => x.SerializationInfo.ElementName.StartsWith(source.SerializationInfo.ElementName)))
                 {
-                    _fields.AddRange(fields);
+                    _serializationExpressions.AddRange(fields);
                     return node;
                 }
             }
