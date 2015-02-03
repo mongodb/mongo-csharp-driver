@@ -178,7 +178,7 @@
       <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
       <Name>MongoDB.Driver.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj">
+    <ProjectReference Include="..\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj">
       <Project>{89b92fff-4126-4d9a-93c8-2bd7e0cd82ff}</Project>
       <Name>MongoDB.Driver.TestHelpers</Name>
     </ProjectReference>

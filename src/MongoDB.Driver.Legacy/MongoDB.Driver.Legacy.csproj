@@ -158,15 +158,15 @@
     <Compile Include="XYPoint.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MongoDB.Bson\MongoDB.Bson.csproj">
+    <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0e9a3a2a-49cd-4f6c-847c-dc79b4b65ce6}</Project>
       <Name>MongoDB.Bson</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
+    <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
       <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
       <Name>MongoDB.Driver.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\MongoDB.Driver\MongoDB.Driver.csproj">
+    <ProjectReference Include="..\MongoDB.Driver\MongoDB.Driver.csproj">
       <Project>{ae5166cd-76b0-4911-bd80-ced9521f37a1}</Project>
       <Name>MongoDB.Driver</Name>
     </ProjectReference>
