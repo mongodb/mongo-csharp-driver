@@ -279,7 +279,7 @@ namespace MongoDB.Driver
         }
 
         // internal methods
-        internal void ApplyDefaultValues(MongoClientSettings clientSettings)
+        internal void ApplyDefaultValues(IInheritableMongoClientSettings clientSettings)
         {
             if (!_guidRepresentation.HasBeenSet)
             {
@@ -304,34 +304,6 @@ namespace MongoDB.Driver
             if (!_writeEncoding.HasBeenSet)
             {
                 WriteEncoding = clientSettings.WriteEncoding;
-            }
-        }
-
-        internal void ApplyDefaultValues(MongoServerSettings serverSettings)
-        {
-            if (!_guidRepresentation.HasBeenSet)
-            {
-                GuidRepresentation = serverSettings.GuidRepresentation;
-            }
-            if (!_operationTimeout.HasBeenSet)
-            {
-                OperationTimeout = serverSettings.OperationTimeout;
-            }
-            if (!_readEncoding.HasBeenSet)
-            {
-                ReadEncoding = serverSettings.ReadEncoding;
-            }
-            if (!_readPreference.HasBeenSet)
-            {
-                ReadPreference = serverSettings.ReadPreference;
-            }
-            if (!_writeConcern.HasBeenSet)
-            {
-                WriteConcern = serverSettings.WriteConcern;
-            }
-            if (!_writeEncoding.HasBeenSet)
-            {
-                WriteEncoding = serverSettings.WriteEncoding;
             }
         }
     }

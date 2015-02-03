@@ -43,6 +43,11 @@
   <ItemGroup>
     <Compile Include="AggregateArgs.cs" />
     <Compile Include="AggregateEnumerable.cs" />
+    <Compile Include="Builders\CollectionOptionsBuilder.cs" />
+    <Compile Include="Builders\GeoHaystackSearchOptionsBuilder.cs" />
+    <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
+    <Compile Include="Builders\GroupByBuilder.cs" />
+    <Compile Include="Builders\IndexOptionsBuilder.cs" />
     <Compile Include="CommandResults\CollectionStatsResult.cs" />
     <Compile Include="CommandResults\CommandResult.cs" />
     <Compile Include="CommandResults\CommandResultSerializer.cs" />
@@ -75,6 +80,13 @@
     <Compile Include="GridFS\MongoGridFSSettings.cs" />
     <Compile Include="GridFS\MongoGridFSStream.cs" />
     <Compile Include="GroupArgs.cs" />
+    <Compile Include="IMongoCollectionOptions.cs" />
+    <Compile Include="IMongoCommand.cs" />
+    <Compile Include="IMongoGeoHaystackSearchOptions.cs" />
+    <Compile Include="IMongoGeoNearOptions.cs" />
+    <Compile Include="IMongoGroupBy.cs" />
+    <Compile Include="IMongoIndexOptions.cs" />
+    <Compile Include="IMongoScope.cs" />
     <Compile Include="InsertFlags.cs" />
     <Compile Include="Linq\LinqExtensionMethods.cs" />
     <Compile Include="Linq\MongoQueryable.cs" />
@@ -90,7 +102,10 @@
     <Compile Include="MongoInsertOptions.cs" />
     <Compile Include="MongoServer.cs" />
     <Compile Include="MongoServerBuildInfo.cs" />
+    <Compile Include="MongoServerSettings.cs" />
+    <Compile Include="MongoServerState.cs" />
     <Compile Include="MongoUpdateOptions.cs" />
+    <Compile Include="MongoUser.cs" />
     <Compile Include="Operations\AddUserOperation.cs" />
     <Compile Include="Operations\AddUserUsingSystemUsersCollectionOperation.cs" />
     <Compile Include="Operations\AddUserUsingUserManagementCommandsOperation.cs" />

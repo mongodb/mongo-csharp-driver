@@ -95,7 +95,7 @@ namespace MongoDB.Driver
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
             // Console.WriteLine("MongoServer[{0}]: {1}", sequentialId, settings);
 
-            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings);
+            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
             StartTrackingServerInstances();
         }
 

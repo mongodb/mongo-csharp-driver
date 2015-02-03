@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Communication
                 writeTimeout: clusterKey.SocketTimeout);
         }
 
-        private ICluster GetOrCreateCluster(ClusterKey clusterKey)
+        public ICluster GetOrCreateCluster(ClusterKey clusterKey)
         {
             lock (_lock)
             {
@@ -158,18 +158,6 @@ namespace MongoDB.Driver.Communication
                 }
                 return cluster;
             }
-        }
-
-        public ICluster GetOrCreateCluster(MongoClientSettings clientSettings)
-        {
-            var clusterKey = new ClusterKey(clientSettings);
-            return GetOrCreateCluster(clusterKey);
-        }
-
-        public ICluster GetOrCreateCluster(MongoServerSettings serverSettings)
-        {
-            var clusterKey = new ClusterKey(serverSettings);
-            return GetOrCreateCluster(clusterKey);
         }
 
         private static bool AcceptAnySslCertificate(

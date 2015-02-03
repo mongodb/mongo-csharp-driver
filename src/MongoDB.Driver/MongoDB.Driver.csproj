@@ -92,6 +92,7 @@
     <Compile Include="IAggregateFluent.cs" />
     <Compile Include="IFindFluent.cs" />
     <Compile Include="IFindFluentExtensions.cs" />
+    <Compile Include="IInheritableMongoClientSettings.cs" />
     <Compile Include="IMongoCollectionExtensions.cs" />
     <Compile Include="IMongoIndexManager.cs" />
     <Compile Include="InsertManyOptions.cs" />
@@ -149,13 +150,8 @@
     <Compile Include="MongoBulkWriteException.cs" />
     <Compile Include="Support\IndexMap.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
-    <Compile Include="Builders\CollectionOptionsBuilder.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
-    <Compile Include="Builders\GeoHaystackSearchOptionsBuilder.cs" />
-    <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
-    <Compile Include="Builders\GroupByBuilder.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
-    <Compile Include="Builders\IndexOptionsBuilder.cs" />
     <Compile Include="Builders\PushEachOptions.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
@@ -220,16 +216,9 @@
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonCoordinatesSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJson2DCoordinatesSerializer.cs" />
-    <Compile Include="IMongoCollectionOptions.cs" />
-    <Compile Include="IMongoCommand.cs" />
     <Compile Include="IMongoFields.cs" />
-    <Compile Include="IMongoGeoHaystackSearchOptions.cs" />
-    <Compile Include="IMongoGeoNearOptions.cs" />
-    <Compile Include="IMongoGroupBy.cs" />
     <Compile Include="IMongoIndexKeys.cs" />
-    <Compile Include="IMongoIndexOptions.cs" />
     <Compile Include="IMongoQuery.cs" />
-    <Compile Include="IMongoScope.cs" />
     <Compile Include="IMongoSortBy.cs" />
     <Compile Include="IMongoUpdate.cs" />
     <Compile Include="MongoClient.cs" />
@@ -242,9 +231,7 @@
     <Compile Include="MongoIdentity.cs" />
     <Compile Include="MongoIdentityEvidence.cs" />
     <Compile Include="MongoInternalIdentity.cs" />
-    <Compile Include="MongoServerSettings.cs" />
     <Compile Include="MongoUrlBuilder.cs" />
-    <Compile Include="MongoUser.cs" />
     <Compile Include="PasswordEvidence.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Setting.cs" />
@@ -266,7 +253,6 @@
     <Compile Include="Linq\Utils\TypeHelper.cs" />
     <Compile Include="MongoUtils.cs" />
     <Compile Include="MongoDefaults.cs" />
-    <Compile Include="MongoServerState.cs" />
     <Compile Include="MongoCredential.cs" />
     <Compile Include="MongoServerAddress.cs" />
     <Compile Include="MongoUrl.cs" />

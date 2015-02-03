@@ -91,14 +91,9 @@
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Builders\CollectionOptionsBuilderTests.cs" />
     <Compile Include="Builders\FieldsBuilderTypedTests.cs" />
     <Compile Include="Builders\FieldsBuilderTests.cs" />
-    <Compile Include="Builders\GeoNearOptionsBuilderTests.cs" />
-    <Compile Include="Builders\GroupByBuilderTests.cs" />
     <Compile Include="Builders\IndexKeysBuilderTests.cs" />
-    <Compile Include="Builders\IndexOptionsBuilderTests.cs" />
-    <Compile Include="Builders\IndexOptionsBuilderTypedTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderTypedTests.cs" />
@@ -152,10 +147,8 @@
     <Compile Include="MongoDatabaseSettingsTests.cs" />
     <Compile Include="MongoDBRefTests.cs" />
     <Compile Include="MongoServerAddressTests.cs" />
-    <Compile Include="MongoServerSettingsTests.cs" />
     <Compile Include="MongoUrlBuilderTests.cs" />
     <Compile Include="MongoUrlTests.cs" />
-    <Compile Include="MongoUserTests.cs" />
     <Compile Include="SslSettingsTests.cs" />
     <Compile Include="Support\IndexMapTests.cs" />
     <Compile Include="Jira\CSharp606Tests.cs" />

@@ -29,116 +29,6 @@ namespace MongoDB.Driver.Tests.Communication.Security
     public class ClusterKeyTests
     {
         [Test]
-        public void Constructor_with_MongoClientSettings_parameter_should_copy_relevant_values()
-        {
-            var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
-            var servers = new[] { new MongoServerAddress("localhost") };
-
-            var sslSettings = new SslSettings
-            {
-                CheckCertificateRevocation = true,
-                EnabledSslProtocols = SslProtocols.Ssl3
-            };
-
-            var clientSettings = new MongoClientSettings
-            {
-                ConnectionMode = ConnectionMode.Direct,
-                ConnectTimeout = TimeSpan.FromSeconds(1),
-                Credentials = credentials,
-                GuidRepresentation = GuidRepresentation.Standard,
-                IPv6 = true,
-                MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
-                MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
-                MaxConnectionPoolSize = 10,
-                MinConnectionPoolSize = 5,
-                ReplicaSetName = "rs",
-                LocalThreshold = TimeSpan.FromMilliseconds(20),
-                Servers = servers,
-                SocketTimeout = TimeSpan.FromSeconds(4),
-                SslSettings = sslSettings,
-                UseSsl = true,
-                VerifySslCertificate = true,
-                WaitQueueSize = 20,
-                WaitQueueTimeout = TimeSpan.FromSeconds(5)
-            };
-
-            var subject = new ClusterKey(clientSettings);
-
-            subject.ConnectionMode.Should().Be(clientSettings.ConnectionMode);
-            subject.ConnectTimeout.Should().Be(clientSettings.ConnectTimeout);
-            subject.Credentials.Should().Equal(clientSettings.Credentials);
-            subject.IPv6.Should().Be(clientSettings.IPv6);
-            subject.MaxConnectionIdleTime.Should().Be(clientSettings.MaxConnectionIdleTime);
-            subject.MaxConnectionLifeTime.Should().Be(clientSettings.MaxConnectionLifeTime);
-            subject.MaxConnectionPoolSize.Should().Be(clientSettings.MaxConnectionPoolSize);
-            subject.MinConnectionPoolSize.Should().Be(clientSettings.MinConnectionPoolSize);
-            subject.ReplicaSetName.Should().Be(clientSettings.ReplicaSetName);
-            subject.LocalThreshold.Should().Be(clientSettings.LocalThreshold);
-            subject.Servers.Should().Equal(clientSettings.Servers);
-            subject.SocketTimeout.Should().Be(clientSettings.SocketTimeout);
-            subject.SslSettings.Should().Be(clientSettings.SslSettings);
-            subject.UseSsl.Should().Be(clientSettings.UseSsl);
-            subject.VerifySslCertificate.Should().Be(clientSettings.VerifySslCertificate);
-            subject.WaitQueueSize.Should().Be(clientSettings.WaitQueueSize);
-            subject.WaitQueueTimeout.Should().Be(clientSettings.WaitQueueTimeout);
-        }
-
-        [Test]
-        public void Constructor_with_MongoServerSettings_parameter_should_copy_relevant_values()
-        {
-            var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
-            var servers = new[] { new MongoServerAddress("localhost") };
-
-            var sslSettings = new SslSettings
-            {
-                CheckCertificateRevocation = true,
-                EnabledSslProtocols = SslProtocols.Ssl3
-            };
-
-            var serverSettings = new MongoServerSettings
-            {
-                ConnectionMode = ConnectionMode.Direct,
-                ConnectTimeout = TimeSpan.FromSeconds(1),
-                Credentials = credentials,
-                GuidRepresentation = GuidRepresentation.Standard,
-                IPv6 = true,
-                MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
-                MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
-                MaxConnectionPoolSize = 10,
-                MinConnectionPoolSize = 5,
-                ReplicaSetName = "rs",
-                LocalThreshold = TimeSpan.FromMilliseconds(20),
-                Servers = servers,
-                SocketTimeout = TimeSpan.FromSeconds(4),
-                SslSettings = sslSettings,
-                UseSsl = true,
-                VerifySslCertificate = true,
-                WaitQueueSize = 20,
-                WaitQueueTimeout = TimeSpan.FromSeconds(5)
-            };
-
-            var subject = new ClusterKey(serverSettings);
-
-            subject.ConnectionMode.Should().Be(serverSettings.ConnectionMode);
-            subject.ConnectTimeout.Should().Be(serverSettings.ConnectTimeout);
-            subject.Credentials.Should().Equal(serverSettings.Credentials);
-            subject.IPv6.Should().Be(serverSettings.IPv6);
-            subject.MaxConnectionIdleTime.Should().Be(serverSettings.MaxConnectionIdleTime);
-            subject.MaxConnectionLifeTime.Should().Be(serverSettings.MaxConnectionLifeTime);
-            subject.MaxConnectionPoolSize.Should().Be(serverSettings.MaxConnectionPoolSize);
-            subject.MinConnectionPoolSize.Should().Be(serverSettings.MinConnectionPoolSize);
-            subject.ReplicaSetName.Should().Be(serverSettings.ReplicaSetName);
-            subject.LocalThreshold.Should().Be(serverSettings.LocalThreshold);
-            subject.Servers.Should().Equal(serverSettings.Servers);
-            subject.SocketTimeout.Should().Be(serverSettings.SocketTimeout);
-            subject.SslSettings.Should().Be(serverSettings.SslSettings);
-            subject.UseSsl.Should().Be(serverSettings.UseSsl);
-            subject.VerifySslCertificate.Should().Be(serverSettings.VerifySslCertificate);
-            subject.WaitQueueSize.Should().Be(serverSettings.WaitQueueSize);
-            subject.WaitQueueTimeout.Should().Be(serverSettings.WaitQueueTimeout);
-        }
-
-        [Test]
         public void Equals_should_return_true_if_all_fields_are_equal()
         {
             var subject1 = CreateSubject();
@@ -242,7 +132,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 WaitQueueTimeout = waitQueueTimeout
             };
 
-            return new ClusterKey(clientSettings);
+            return clientSettings.ToClusterKey();
         }
     }
 }

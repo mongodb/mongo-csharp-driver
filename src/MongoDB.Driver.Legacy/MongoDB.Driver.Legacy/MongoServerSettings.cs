@@ -21,6 +21,7 @@ using System.Net.Sockets;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Shared;
 
@@ -29,7 +30,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// The settings used to access a MongoDB server.
     /// </summary>
-    public class MongoServerSettings : IEquatable<MongoServerSettings>
+    public class MongoServerSettings : IEquatable<MongoServerSettings>, IInheritableMongoClientSettings
     {
         // private fields
         private Action<ClusterBuilder> _clusterConfigurator;
@@ -772,6 +773,30 @@ namespace MongoDB.Driver
                 parts.Add("WriteEncoding=UTF8Encoding");
             }
             return string.Join(",", parts.ToArray());
+        }
+
+        // internal methods
+        internal ClusterKey ToClusterKey()
+        {
+            return new ClusterKey(
+                _clusterConfigurator,
+                _connectionMode,
+                _connectTimeout,
+                _credentials.ToList(),
+                _ipv6,
+                _localThreshold,
+                _maxConnectionIdleTime,
+                _maxConnectionLifeTime,
+                _maxConnectionPoolSize,
+                _minConnectionPoolSize,
+                _replicaSetName,
+                _servers.ToList(),
+                _socketTimeout,
+                _sslSettings,
+                _useSsl,
+                _verifySslCertificate,
+                _waitQueueSize,
+                _waitQueueTimeout);
         }
     }
 }

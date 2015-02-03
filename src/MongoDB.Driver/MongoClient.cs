@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         public MongoClient(MongoClientSettings settings)
         {
             _settings = settings.FrozenCopy();
-            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings);
+            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor();
         }
 

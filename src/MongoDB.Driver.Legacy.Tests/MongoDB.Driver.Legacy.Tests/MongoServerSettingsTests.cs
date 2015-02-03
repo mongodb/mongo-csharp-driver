@@ -16,6 +16,8 @@
 using System;
 using System.Linq;
 using System.Net.Sockets;
+using System.Security.Authentication;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
@@ -650,6 +652,60 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(writeConcern, settings.WriteConcern);
             Assert.Throws<InvalidOperationException>(() => { settings.WriteConcern = writeConcern; });
+        }
+
+        [Test]
+        public void ToClusterKey_should_copy_relevant_values()
+        {
+            var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
+            var servers = new[] { new MongoServerAddress("localhost") };
+            var sslSettings = new SslSettings
+            {
+                CheckCertificateRevocation = true,
+                EnabledSslProtocols = SslProtocols.Ssl3
+            };
+
+            var subject = new MongoServerSettings
+            {
+                ConnectionMode = ConnectionMode.Direct,
+                ConnectTimeout = TimeSpan.FromSeconds(1),
+                Credentials = credentials,
+                GuidRepresentation = GuidRepresentation.Standard,
+                IPv6 = true,
+                MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
+                MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
+                MaxConnectionPoolSize = 10,
+                MinConnectionPoolSize = 5,
+                ReplicaSetName = "rs",
+                LocalThreshold = TimeSpan.FromMilliseconds(20),
+                Servers = servers,
+                SocketTimeout = TimeSpan.FromSeconds(4),
+                SslSettings = sslSettings,
+                UseSsl = true,
+                VerifySslCertificate = true,
+                WaitQueueSize = 20,
+                WaitQueueTimeout = TimeSpan.FromSeconds(5)
+            };
+
+            var result = subject.ToClusterKey();
+
+            result.ConnectionMode.Should().Be(subject.ConnectionMode);
+            result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            result.Credentials.Should().Equal(subject.Credentials);
+            result.IPv6.Should().Be(subject.IPv6);
+            result.MaxConnectionIdleTime.Should().Be(subject.MaxConnectionIdleTime);
+            result.MaxConnectionLifeTime.Should().Be(subject.MaxConnectionLifeTime);
+            result.MaxConnectionPoolSize.Should().Be(subject.MaxConnectionPoolSize);
+            result.MinConnectionPoolSize.Should().Be(subject.MinConnectionPoolSize);
+            result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
+            result.LocalThreshold.Should().Be(subject.LocalThreshold);
+            result.Servers.Should().Equal(subject.Servers);
+            result.SocketTimeout.Should().Be(subject.SocketTimeout);
+            result.SslSettings.Should().Be(subject.SslSettings);
+            result.UseSsl.Should().Be(subject.UseSsl);
+            result.VerifySslCertificate.Should().Be(subject.VerifySslCertificate);
+            result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
+            result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
     }
 }

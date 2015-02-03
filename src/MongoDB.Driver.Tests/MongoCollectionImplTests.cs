@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         {
             var settings = new MongoCollectionSettings();
             var dbSettings = new MongoDatabaseSettings();
-            dbSettings.ApplyDefaultValues(new MongoServerSettings());
+            dbSettings.ApplyDefaultValues(new MongoClientSettings());
             settings.ApplyDefaultValues(dbSettings);
             _operationExecutor = new MockOperationExecutor();
             _subject = new MongoCollectionImpl<BsonDocument>(

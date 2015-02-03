@@ -49,10 +49,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builders\CollectionOptionsBuilderTests.cs" />
     <Compile Include="Builders\FieldsBuilderTests.cs" />
     <Compile Include="Builders\FieldsBuilderTypedTests.cs" />
+    <Compile Include="Builders\GeoNearOptionsBuilderTests.cs" />
+    <Compile Include="Builders\GroupByBuilderTests.cs" />
     <Compile Include="Builders\IndexKeysBuilderTests.cs" />
     <Compile Include="Builders\IndexKeysBuilderTypedTests.cs" />
+    <Compile Include="Builders\IndexOptionsBuilderTests.cs" />
+    <Compile Include="Builders\IndexOptionsBuilderTypedTests.cs" />
     <Compile Include="Builders\QueryBuilderGeoJsonIntegrationTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />
@@ -136,7 +141,9 @@
     <Compile Include="MongoCollectionTests.cs" />
     <Compile Include="MongoDatabaseTests.cs" />
     <Compile Include="MongoServerBuildInfoTests.cs" />
+    <Compile Include="MongoServerSettingsTests.cs" />
     <Compile Include="MongoServerTests.cs" />
+    <Compile Include="MongoUserTests.cs" />
     <Compile Include="Operations\BulkWriteOperationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\AggregationSample.cs" />
