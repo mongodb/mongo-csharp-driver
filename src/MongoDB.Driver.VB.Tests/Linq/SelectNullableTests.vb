@@ -72,9 +72,9 @@ Namespace MongoDB.Driver.VB.Tests.Linq
 
         <TestFixtureSetUp()> _
         Public Sub Setup()
-            _server = Configuration.TestServer
-            _database = Configuration.TestDatabase
-            _collection = Configuration.GetTestCollection(Of C)()
+            _server = LegacyTestConfiguration.Server
+            _database = LegacyTestConfiguration.Database
+            _collection = LegacyTestConfiguration.GetCollection(Of C)()
 
             _collection.Drop()
             _collection.Insert(New C() With { _

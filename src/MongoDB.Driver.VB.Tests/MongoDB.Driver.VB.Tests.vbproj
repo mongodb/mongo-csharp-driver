@@ -122,9 +122,13 @@
       <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
       <Name>MongoDB.Driver.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MongoDB.Driver.Tests\MongoDB.Driver.Tests.csproj">
-      <Project>{fbbf0d71-107f-49c4-8858-b3a4dc24aa33}</Project>
-      <Name>MongoDB.Driver.Tests</Name>
+    <ProjectReference Include="..\MongoDB.Driver.Legacy.TestHelpers\MongoDB.Driver.Legacy.TestHelpers\MongoDB.Driver.Legacy.TestHelpers.csproj">
+      <Project>{02ab2e44-785a-4d39-99c0-29f93a02ef84}</Project>
+      <Name>MongoDB.Driver.Legacy.TestHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.Legacy\MongoDB.Driver.Legacy\MongoDB.Driver.Legacy.csproj">
+      <Project>{97962946-aa1e-4308-b7a7-6ad92bdbc358}</Project>
+      <Name>MongoDB.Driver.Legacy</Name>
     </ProjectReference>
     <ProjectReference Include="..\MongoDB.Driver\MongoDB.Driver.csproj">
       <Project>{AE5166CD-76B0-4911-BD80-CED9521F37A1}</Project>

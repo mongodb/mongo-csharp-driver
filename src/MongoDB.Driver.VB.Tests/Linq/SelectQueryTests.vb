@@ -148,10 +148,10 @@ Namespace MongoDB.Driver.VB.Tests.Linq
 
         <TestFixtureSetUp()> _
         Public Sub Setup()
-            _server = Configuration.TestServer
+            _server = LegacyTestConfiguration.Server
             _server.Connect()
-            _database = Configuration.TestDatabase
-            _collection = Configuration.GetTestCollection(Of C)()
+            _database = LegacyTestConfiguration.Database
+            _collection = LegacyTestConfiguration.GetCollection(Of C)()
             _systemProfileCollection = _database.GetCollection(Of SystemProfileInfo)("system.profile")
 
             ' documents inserted deliberately out of order to test sorting

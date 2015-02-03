@@ -140,17 +140,6 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <summary>
-        /// Gets a MongoServer object using this client's settings.
-        /// </summary>
-        /// <returns>A MongoServer.</returns>
-        [Obsolete("Use the new high level API instead. See GetDatabase.")]
-        public MongoServer GetServer()
-        {
-            var serverSettings = MongoServerSettings.FromClientSettings(_settings);
-            return MongoServer.Create(serverSettings);
-        }
-
         // private methods
         private MessageEncoderSettings GetMessageEncoderSettings()
         {

@@ -23,7 +23,7 @@ namespace MongoDB.Driver
         [TearDown]
         public void TearDown()
         {
-            SuiteConfiguration.TearDown();
+            CoreTestConfiguration.TearDown();
         }
     }
 }

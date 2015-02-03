@@ -44,10 +44,10 @@ Namespace MongoDB.Driver.VB.Tests.Linq
 
         <TestFixtureSetUp()> _
         Public Sub Setup()
-            _server = Configuration.TestServer
+            _server = LegacyTestConfiguration.Server
             _server.Connect()
-            _database = Configuration.TestDatabase
-            _collection = Configuration.TestCollection
+            _database = LegacyTestConfiguration.Database
+            _collection = LegacyTestConfiguration.Collection
         End Sub
 
         <Test()> _

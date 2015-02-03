@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Connections
             Action<Socket> socketConfigurator = s => socketConfiguratorWasCalled = true;
             var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
             var subject = new TcpStreamFactory(settings);
-            var endPoint = SuiteConfiguration.ConnectionString.Hosts[0];
+            var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
             var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
 
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Connections
         public async Task CreateStreamAsync_should_connect_to_a_running_server_and_return_a_non_null_stream()
         {
             var subject = new TcpStreamFactory();
-            var endPoint = SuiteConfiguration.ConnectionString.Hosts[0];
+            var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
             var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
 
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Connections
             Action<Socket> socketConfigurator = s => s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
             var subject = new TcpStreamFactory(settings);
-            var endPoint = SuiteConfiguration.ConnectionString.Hosts[0];
+            var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
             var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
 

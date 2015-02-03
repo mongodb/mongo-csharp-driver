@@ -35,8 +35,8 @@ namespace MongoDB.Driver.Core.Operations
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            _collectionNamespace = SuiteConfiguration.GetCollectionNamespaceForTestFixture();
-            _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
+            _collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestFixture();
+            _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
         // test methods
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer]
         public async Task ExecuteAsync_should_return_expected_result()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
                 await EnsureCollectionExistsAsync(binding);
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer]
         public async Task ExecuteAsync_should_return_expected_result_when_collection_does_not_exist()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
                 await DropCollectionAsync(binding);
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer]
         public async Task ExecuteAsync_should_return_expected_result_when_database_does_not_exist()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
                 await DropDatabaseAsync(binding);

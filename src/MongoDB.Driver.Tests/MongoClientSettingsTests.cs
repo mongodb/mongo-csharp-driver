@@ -511,7 +511,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestSocketConfigurator()
         {
-            var settings = Configuration.TestClient.Settings.Clone();
+            var settings = DriverTestConfiguration.Client.Settings.Clone();
             var socketConfiguratorWasCalled = false;
             Action<Socket> socketConfigurator = s => { socketConfiguratorWasCalled = true; };
             settings.ClusterConfigurator = cb => cb.ConfigureTcp(tcp => tcp.With(socketConfigurator: socketConfigurator));

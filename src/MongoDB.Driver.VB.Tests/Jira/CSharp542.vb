@@ -38,7 +38,7 @@ Namespace MongoDB.Driver.VB.Tests.Jira
         <Test()>
         Public Sub TestNullableComparison()
 
-            Dim server = Configuration.TestServer
+            Dim server = LegacyTestConfiguration.Server
             Dim db = server.GetDatabase("test")
             Dim col = db.GetCollection(Of Test)("foos")
 

@@ -34,8 +34,8 @@ namespace MongoDB.Driver.Core.Operations
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            _collectionNamespace = SuiteConfiguration.GetCollectionNamespaceForTestFixture();
-            _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
+            _collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestFixture();
+            _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
         // test methods
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer]
         public async Task ExecuteAsync_should_not_throw_when_collection_does_not_exist()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
                 var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer]
         public async Task ExecuteAsync_should_return_expected_result()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
                 var createCollectionOperation = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);

@@ -44,7 +44,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequiresServerAttribute.cs" />
-    <Compile Include="SuiteConfiguration.cs" />
+    <Compile Include="CoreTestConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">

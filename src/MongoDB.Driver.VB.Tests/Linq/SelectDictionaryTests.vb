@@ -114,9 +114,9 @@ Namespace MongoDB.Driver.VB.Tests.Linq
 
         <TestFixtureSetUp()> _
         Public Sub Setup()
-            _server = Configuration.TestServer
-            _database = Configuration.TestDatabase
-            _collection = Configuration.GetTestCollection(Of C)()
+            _server = LegacyTestConfiguration.Server
+            _database = LegacyTestConfiguration.Database
+            _collection = LegacyTestConfiguration.GetCollection(Of C)()
 
             Dim de = New Dictionary(Of String, Integer)()
             Dim dx = New Dictionary(Of String, Integer)() From { _

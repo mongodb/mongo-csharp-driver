@@ -98,16 +98,13 @@
     <Compile Include="Builders\GroupByBuilderTests.cs" />
     <Compile Include="Builders\IndexKeysBuilderTests.cs" />
     <Compile Include="Builders\IndexOptionsBuilderTests.cs" />
-    <Compile Include="Builders\IndexKeysBuilderTypedTests.cs" />
     <Compile Include="Builders\IndexOptionsBuilderTypedTests.cs" />
-    <Compile Include="Builders\QueryBuilderGeoJsonIntegrationTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderTypedTests.cs" />
     <Compile Include="Builders\SortByBuilderTypedTests.cs" />
     <Compile Include="Builders\UpdateBuilderTests.cs" />
     <Compile Include="BulkWriteErrorTests.cs" />
-    <Compile Include="GridFS\MongoGridFSExceptionTests.cs" />
     <Compile Include="IAggregateFluentExtensionsTests.cs" />
     <Compile Include="IFindFluentExtensionsTests.cs" />
     <Compile Include="IMongoCollectionExtensionsTests.cs" />
@@ -117,15 +114,9 @@
     <Compile Include="Linq\Translators\ProjectedObjectDeserializerTests.cs" />
     <Compile Include="Linq\Translators\ProjectedObjectTests.cs" />
     <Compile Include="MongoWriteExceptionTests.cs" />
-    <Compile Include="Samples\AggregationSample.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="WriteModelTests.cs" />
     <Compile Include="BulkWriteResultTests.cs" />
-    <Compile Include="CommandResults\CollectionStatsResultTests.cs" />
-    <Compile Include="CommandResults\CommandResultTests.cs" />
-    <Compile Include="CommandResults\IsMasterResultTests.cs" />
-    <Compile Include="CommandResults\DatabaseStatsResultTests.cs" />
-    <Compile Include="CommandResults\ValidateCollectionResultTests.cs" />
     <Compile Include="Communication\ClusterKeyTests.cs" />
     <Compile Include="Communication\ClusterRegistryTests.cs" />
     <Compile Include="Communication\Security\PlainAuthenticationTests.cs" />
@@ -147,112 +138,37 @@
     <Compile Include="GeoJsonObjectModel\GeoJsonNamedCoordinateReferenceSystemTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonPointTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonPolygonTests.cs" />
-    <Compile Include="Jira\CSharp613Tests.cs" />
-    <Compile Include="Jira\CSharp542Tests.cs" />
     <Compile Include="Jira\CSharp624Tests.cs" />
-    <Compile Include="Jira\CSharp653Tests.cs" />
-    <Compile Include="Jira\CSharp714Tests.cs" />
-    <Compile Include="Jira\CSharp718Tests.cs" />
-    <Compile Include="Jira\CSharp932Tests.cs" />
-    <Compile Include="Jira\CSharp942Tests.cs" />
     <Compile Include="Jira\CSharp779Tests.cs" />
-    <Compile Include="Jira\CSharp801Tests.cs" />
-    <Compile Include="Jira\CSharp840Tests.cs" />
-    <Compile Include="Jira\CSharp893Tests.cs" />
-    <Compile Include="Jira\CSharp958Tests.cs" />
     <Compile Include="Linq\BsonDocumentBackedClassSerializerTests.cs" />
     <Compile Include="Linq\BsonDocumentTests.cs" />
-    <Compile Include="FailPoint.cs" />
-    <Compile Include="Jira\CSharp900Tests.cs" />
     <Compile Include="MockOperationExecutor.cs" />
     <Compile Include="MongoClientSettingsTests.cs" />
     <Compile Include="MongoCollectionImplTests.cs" />
     <Compile Include="MongoDatabaseImplTests.cs" />
-    <Compile Include="MongoServerBuildInfoTests.cs" />
     <Compile Include="MongoClientTests.cs" />
-    <Compile Include="Operations\BulkWriteOperationTests.cs" />
     <Compile Include="MongoCollectionSettingsTests.cs" />
-    <Compile Include="MongoCollectionTests.cs" />
     <Compile Include="MongoCredentialTests.cs" />
     <Compile Include="MongoDatabaseSettingsTests.cs" />
-    <Compile Include="MongoDatabaseTests.cs" />
     <Compile Include="MongoDBRefTests.cs" />
     <Compile Include="MongoServerAddressTests.cs" />
     <Compile Include="MongoServerSettingsTests.cs" />
-    <Compile Include="MongoServerTests.cs" />
-    <Compile Include="Configuration.cs" />
     <Compile Include="MongoUrlBuilderTests.cs" />
     <Compile Include="MongoUrlTests.cs" />
     <Compile Include="MongoUserTests.cs" />
     <Compile Include="SslSettingsTests.cs" />
     <Compile Include="Support\IndexMapTests.cs" />
-    <Compile Include="SystemProfileInfoTests.cs" />
-    <Compile Include="ExpectedErrorMessage.cs" />
-    <Compile Include="GridFS\MongoGridFSFileInfoTests.cs" />
-    <Compile Include="GridFS\MongoGridFSSettingsTests.cs" />
-    <Compile Include="GridFS\MongoGridFSStreamTests.cs" />
-    <Compile Include="GridFS\MongoGridFSTests.cs" />
     <Compile Include="Jira\CSharp606Tests.cs" />
     <Compile Include="Jira\CSharp598Tests.cs" />
-    <Compile Include="Jira\CSharp538Tests.cs" />
     <Compile Include="Jira\CSharp532Tests.cs" />
-    <Compile Include="Jira\CSharp475Tests.cs" />
-    <Compile Include="Jira\CSharp101Tests.cs" />
-    <Compile Include="Jira\CSharp103Tests.cs" />
-    <Compile Include="Jira\CSharp110Tests.cs" />
-    <Compile Include="Jira\CSharp111Tests.cs" />
-    <Compile Include="Jira\CSharp112Tests.cs" />
-    <Compile Include="Jira\CSharp134Tests.cs" />
     <Compile Include="Jira\CSharp137Tests.cs" />
     <Compile Include="Jira\CSharp140Tests.cs" />
-    <Compile Include="Jira\CSharp163Tests.cs" />
-    <Compile Include="Jira\CSharp172Tests.cs" />
-    <Compile Include="Jira\CSharp198Tests.cs" />
-    <Compile Include="Jira\CSharp199Tests.cs" />
-    <Compile Include="Jira\CSharp215Tests.cs" />
-    <Compile Include="Jira\CSharp216Tests.cs" />
-    <Compile Include="Jira\CSharp218Tests.cs" />
-    <Compile Include="Jira\CSharp230Tests.cs" />
-    <Compile Include="Jira\CSharp231Tests.cs" />
-    <Compile Include="Jira\CSharp247Tests.cs" />
-    <Compile Include="Jira\CSharp253Tests.cs" />
-    <Compile Include="Jira\CSharp258Tests.cs" />
-    <Compile Include="Jira\CSharp265Tests.cs" />
-    <Compile Include="Jira\CSharp269Tests.cs" />
-    <Compile Include="Jira\CSharp281Tests.cs" />
-    <Compile Include="Jira\CSharp282Tests.cs" />
     <Compile Include="Jira\CSharp283Tests.cs" />
     <Compile Include="Jira\CSharp290Tests.cs" />
-    <Compile Include="Jira\CSharp307Tests.cs" />
     <Compile Include="Jira\CSharp321Tests.cs" />
-    <Compile Include="Jira\CSharp325Tests.cs" />
-    <Compile Include="Jira\CSharp330Tests.cs" />
-    <Compile Include="Jira\CSharp361Tests.cs" />
-    <Compile Include="Jira\CSharp365Tests.cs" />
-    <Compile Include="Jira\CSharp378Tests.cs" />
-    <Compile Include="Jira\CSharp418Tests.cs" />
-    <Compile Include="Jira\CSharp471Tests.cs" />
-    <Compile Include="Jira\CSharp524Tests.cs" />
-    <Compile Include="Jira\CSharp522Tests.cs" />
     <Compile Include="Jira\CSharp594Tests.cs" />
-    <Compile Include="Jira\CSharp77Tests.cs" />
-    <Compile Include="Jira\CSharp92Tests.cs" />
-    <Compile Include="Jira\CSharp93Tests.cs" />
-    <Compile Include="Jira\CSharp98Tests.cs" />
-    <Compile Include="Jira\CSharp100Tests.cs" />
-    <Compile Include="Linq\ExplainTests.cs" />
-    <Compile Include="Linq\SelectDictionaryTests.cs" />
-    <Compile Include="Linq\SelectNullableTests.cs" />
-    <Compile Include="Linq\SelectOfTypeHierarchicalTests.cs" />
-    <Compile Include="Linq\SelectOfTypeTests.cs" />
-    <Compile Include="Linq\SelectQueryTests.cs" />
-    <Compile Include="Linq\MongoQueryableTests.cs" />
-    <Compile Include="Linq\MongoQueryProviderTests.cs" />
-    <Compile Include="Linq\SkipAndTakeTests.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoHelperTests.cs" />
-    <Compile Include="Linq\WithIndexTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Samples\MagicDiscriminatorTests.cs" />
     <Compile Include="MongoBulkWriteExceptionTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -271,6 +187,10 @@
     <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj">
       <Project>{da56482a-5d8f-41e0-85e6-1f22b310f91b}</Project>
       <Name>MongoDB.Driver.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj">
+      <Project>{89b92fff-4126-4d9a-93c8-2bd7e0cd82ff}</Project>
+      <Name>MongoDB.Driver.TestHelpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\MongoDB.Driver\MongoDB.Driver.csproj">
       <Project>{AE5166CD-76B0-4911-BD80-CED9521F37A1}</Project>
@@ -302,6 +222,10 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CommandResults\" />
+    <Folder Include="Operations\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

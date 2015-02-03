@@ -30,4 +30,6 @@ using System.Runtime.InteropServices;
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
 
+[assembly: InternalsVisibleTo("MongoDB.Driver.Legacy")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.TestHelpers")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Tests")]

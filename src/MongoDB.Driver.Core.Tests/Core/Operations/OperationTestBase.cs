@@ -20,9 +20,9 @@ namespace MongoDB.Driver.Core.Operations
         [TestFixtureSetUp]
         public virtual void TestFixtureSetUp()
         {
-            _databaseNamespace = SuiteConfiguration.DatabaseNamespace;
+            _databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             _collectionNamespace = new CollectionNamespace(_databaseNamespace, GetType().Name);
-            _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
+            _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
         [TestFixtureTearDown]
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation)
         {
-            using (var binding = SuiteConfiguration.GetReadBinding())
+            using (var binding = CoreTestConfiguration.GetReadBinding())
             {
                 return await operation.ExecuteAsync(binding, CancellationToken.None);
             }
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation)
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 return await operation.ExecuteAsync(binding, CancellationToken.None);
             }

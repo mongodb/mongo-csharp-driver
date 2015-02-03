@@ -23,8 +23,8 @@ Namespace MongoDB.Driver.VB.Tests
 
         <TearDown>
         Public Sub TearDown()
-            Dim cluster = SuiteConfiguration.Cluster ' force cluster to be created so database can be dropped
-            SuiteConfiguration.TearDown()
+            Dim cluster = CoreTestConfiguration.Cluster ' force cluster to be created so database can be dropped
+            CoreTestConfiguration.TearDown()
         End Sub
 
     End Class

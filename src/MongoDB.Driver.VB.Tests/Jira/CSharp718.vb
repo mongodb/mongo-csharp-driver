@@ -34,9 +34,9 @@ Namespace MongoDB.Driver.VB.Tests.Jira
 
         <TestFixtureSetUp()>
         Public Sub Setup()
-            _server = Configuration.TestServer
-            _database = Configuration.TestDatabase
-            _collection = Configuration.GetTestCollection(Of C)()
+            _server = LegacyTestConfiguration.Server
+            _database = LegacyTestConfiguration.Database
+            _collection = LegacyTestConfiguration.GetCollection(Of C)()
             TestSetup()
         End Sub
 

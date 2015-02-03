@@ -27,6 +27,7 @@ using NUnit.Framework;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson;
+using MongoDB.Driver.Tests;
 
 namespace MongoDB.Driver.Core.Linq
 {
@@ -37,9 +38,9 @@ namespace MongoDB.Driver.Core.Linq
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            var client = MongoDB.Driver.Tests.Configuration.TestClient;
-            var db = client.GetDatabase(MongoDB.Driver.Tests.Configuration.TestDatabase.Name);
-            _collection = db.GetCollection<Root>(MongoDB.Driver.Tests.Configuration.TestCollection.Name);
+            var client = DriverTestConfiguration.Client;
+            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            _collection = db.GetCollection<Root>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             db.DropCollectionAsync(_collection.CollectionNamespace.CollectionName).GetAwaiter().GetResult();
 
             var root = new Root

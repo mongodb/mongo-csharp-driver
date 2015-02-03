@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
@@ -26,35 +27,27 @@ namespace MongoDB.Driver.Tests
     public class MongoClientTests
     {
         [Test]
-        public void UsesSameMongoServerForIdenticalSettings()
+        public void UsesSameClusterForIdenticalSettings()
         {
             var client1 = new MongoClient("mongodb://localhost");
-#pragma warning disable 618
-            var server1 = client1.GetServer();
-#pragma warning restore
+            var cluster1 = client1.Cluster;
 
             var client2 = new MongoClient("mongodb://localhost");
-#pragma warning disable 618
-            var server2 = client2.GetServer();
-#pragma warning restore
+            var cluster2 = client2.Cluster;
 
-            Assert.AreSame(server1, server2);
+            Assert.AreSame(cluster1, cluster2);
         }
 
         [Test]
-        public void UsesSameMongoServerWhenReadPreferenceTagsAreTheSame()
+        public void UsesSameClusterWhenReadPreferenceTagsAreTheSame()
         {
             var client1 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
-#pragma warning disable 618
-            var server1 = client1.GetServer();
-#pragma warning restore
+            var cluster1 = client1.Cluster;
 
             var client2 = new MongoClient("mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny");
-#pragma warning disable 618
-            var server2 = client2.GetServer();
-#pragma warning restore
+            var cluster2 = client2.Cluster;
 
-            Assert.AreSame(server1, server2);
+            Assert.AreSame(cluster1, cluster2);
         }
 
         [Test]

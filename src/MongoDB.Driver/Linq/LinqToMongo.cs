@@ -53,47 +53,6 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Returns an explanation of how the query was executed (instead of the results).
-        /// </summary>
-        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
-        /// <param name="source">The LINQ query to explain.</param>
-        /// <returns>An explanation of thow the query was executed.</returns>
-        public static BsonDocument Explain<TSource>(this IQueryable<TSource> source)
-        {
-            return Explain(source, false);
-        }
-
-        /// <summary>
-        /// Returns an explanation of how the query was executed (instead of the results).
-        /// </summary>
-        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
-        /// <param name="source">The LINQ query to explain</param>
-        /// <param name="verbose">Whether the explanation should contain more details.</param>
-        /// <returns>An explanation of thow the query was executed.</returns>
-        public static BsonDocument Explain<TSource>(this IQueryable<TSource> source, bool verbose)
-        {
-            var queryProvider = source.Provider as MongoQueryProvider;
-            if (queryProvider == null)
-            {
-                throw new NotSupportedException("Explain can only be called on a Linq to Mongo queryable.");
-            }
-
-            var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(queryProvider, source.Expression);
-            if (selectQuery.Take.HasValue && selectQuery.Take.Value == 0)
-            {
-                throw new NotSupportedException("A query that has a .Take(0) expression will not be sent to the server and can't be explained");
-            }
-            var projector = selectQuery.Execute() as IProjector;
-            if (projector == null)
-            {
-                // this is mainly for .Distinct() queries. First, Last, FirstOrDefault, LastOrDefault don't return
-                // IQueryable<T>, so .Explain() can't be called on them anyway.
-                throw new NotSupportedException("Explain can only be called on Linq queries that return an IProjector");
-            }
-            return projector.Cursor.Explain(verbose);
-        }
-
-        /// <summary>
         /// Determines whether a specified value is contained in a sequence.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of source.</typeparam>
