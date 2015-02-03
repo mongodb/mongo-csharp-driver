@@ -58,13 +58,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [Test]
         public void GetEncoder_should_return_encoder()
         {
-            var mockEncoder = Substitute.For<IMessageEncoder<DeleteMessage>>();
-            var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
-            mockEncoderFactory.GetDeleteMessageEncoder().Returns(mockEncoder);
-
             var subject = new DeleteMessage(1, _collectionNamespace, new BsonDocument("x", 1), true);
-            var encoder = subject.GetEncoder(mockEncoderFactory);
-            encoder.Should().BeSameAs(mockEncoder);
+            var stubEncoderFactory = Substitute.For<IMessageEncoderFactory>();
+            var stubEncoder = Substitute.For<IMessageEncoder>();
+            stubEncoderFactory.GetDeleteMessageEncoder().Returns(stubEncoder);
+
+            var result = subject.GetEncoder(stubEncoderFactory);
+
+            result.Should().BeSameAs(stubEncoder);
         }
     }
 }

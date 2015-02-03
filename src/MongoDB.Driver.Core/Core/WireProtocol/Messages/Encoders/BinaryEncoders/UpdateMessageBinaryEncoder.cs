@@ -27,9 +27,17 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    public class UpdateMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder<UpdateMessage>
+    /// <summary>
+    /// Represents a binary encoder for an Update message.
+    /// </summary>
+    public class UpdateMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UpdateMessageBinaryEncoder"/> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public UpdateMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
@@ -50,6 +58,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return flags;
         }
 
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         public UpdateMessage ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
@@ -79,6 +91,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 isUpsert);
         }
 
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void WriteMessage(UpdateMessage message)
         {
             Ensure.IsNotNull(message, "message");

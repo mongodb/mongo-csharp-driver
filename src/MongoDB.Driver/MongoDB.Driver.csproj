@@ -110,6 +110,8 @@
     <Compile Include="Linq\Translators\ProjectedObject.cs" />
     <Compile Include="Linq\Translators\ProjectedObjectDeserializer.cs" />
     <Compile Include="Linq\Translators\ProjectionInfo.cs" />
+    <Compile Include="ListCollectionsOptions.cs" />
+    <Compile Include="MapReduceOptions.cs" />
     <Compile Include="Operations\AddUserOperation.cs" />
     <Compile Include="Operations\AddUserUsingUserManagementCommandsOperation.cs" />
     <Compile Include="Operations\AddUserUsingSystemUsersCollectionOperation.cs" />
@@ -137,6 +139,11 @@
     <Compile Include="ReplaceOneModel.cs" />
     <Compile Include="CursorType.cs" />
     <Compile Include="ReturnDocument.cs" />
+    <Compile Include="Support\TaskExtensions.cs" />
+    <Compile Include="Sync\AsyncCursorEnumeratorAdapter.cs" />
+    <Compile Include="Sync\IClusterExtensions.cs" />
+    <Compile Include="Sync\IOperationExtensions.cs" />
+    <Compile Include="Sync\IServerExtensions.cs" />
     <Compile Include="UpdateOptions.cs" />
     <Compile Include="UpdateOneModel.cs" />
     <Compile Include="UpdateManyModel.cs" />
@@ -171,7 +178,6 @@
     <Compile Include="Builders\GroupByBuilder.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
-    <Compile Include="Builders\MapReduceOptionsBuilder.cs" />
     <Compile Include="Builders\PushEachOptions.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
@@ -266,7 +272,6 @@
     <Compile Include="IMongoGroupBy.cs" />
     <Compile Include="IMongoIndexKeys.cs" />
     <Compile Include="IMongoIndexOptions.cs" />
-    <Compile Include="IMongoMapReduceOptions.cs" />
     <Compile Include="IMongoQuery.cs" />
     <Compile Include="IMongoScope.cs" />
     <Compile Include="IMongoSortBy.cs" />
@@ -313,8 +318,6 @@
     <Compile Include="Wrappers\IndexKeysWrapper.cs" />
     <Compile Include="Wrappers\IndexOptionsDocument.cs" />
     <Compile Include="Wrappers\IndexOptionsWrapper.cs" />
-    <Compile Include="Wrappers\MapReduceOptionsDocument.cs" />
-    <Compile Include="Wrappers\MapReduceOptionsWrapper.cs" />
     <Compile Include="Wrappers\QueryDocument.cs" />
     <Compile Include="Wrappers\QueryWrapper.cs" />
     <Compile Include="Wrappers\ScopeDocument.cs" />

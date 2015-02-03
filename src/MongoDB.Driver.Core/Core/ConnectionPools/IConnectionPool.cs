@@ -26,16 +26,35 @@ using MongoDB.Driver.Core.Servers;
 namespace MongoDB.Driver.Core.ConnectionPools
 {
     /// <summary>
-    /// Represents a pool of connections.
+    /// Represents a connection pool.
     /// </summary>
     public interface IConnectionPool : IDisposable
     {
         // properties
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         ServerId ServerId { get; }
 
         // methods
+        /// <summary>
+        /// Acquires a connection.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a connection.</returns>
         Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Clears the connection pool.
+        /// </summary>
         void Clear();
+
+        /// <summary>
+        /// Initializes the connection pool.
+        /// </summary>
         void Initialize();
     }
 }

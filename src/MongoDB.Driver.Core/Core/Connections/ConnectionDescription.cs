@@ -19,6 +19,9 @@ using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Connections
 {
+    /// <summary>
+    /// Represents information describing a connection.
+    /// </summary>
     public sealed class ConnectionDescription : IEquatable<ConnectionDescription>
     {
         // fields
@@ -31,6 +34,12 @@ namespace MongoDB.Driver.Core.Connections
         private readonly SemanticVersion _serverVersion;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionDescription"/> class.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="isMasterResult">The issMaster result.</param>
+        /// <param name="buildInfoResult">The buildInfo result.</param>
         public ConnectionDescription(ConnectionId connectionId, IsMasterResult isMasterResult, BuildInfoResult buildInfoResult)
         {
             _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
@@ -44,47 +53,96 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // properties
+        /// <summary>
+        /// Gets the buildInfo result.
+        /// </summary>
+        /// <value>
+        /// The buildInfo result.
+        /// </value>
         public BuildInfoResult BuildInfoResult
         {
             get { return _buildInfoResult; }
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the isMaster result.
+        /// </summary>
+        /// <value>
+        /// The isMaster result.
+        /// </value>
         public IsMasterResult IsMasterResult
         {
             get { return _isMasterResult; }
         }
 
+        /// <summary>
+        /// Gets the maximum number of documents in a batch.
+        /// </summary>
+        /// <value>
+        /// The maximum number of documents in a batch.
+        /// </value>
         public int MaxBatchCount
         {
             get { return _maxBatchCount; }
         }
 
+        /// <summary>
+        /// Gets the maximum size of a document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a document.
+        /// </value>
         public int MaxDocumentSize
         {
             get { return _maxDocumentSize; }
         }
 
+        /// <summary>
+        /// Gets the maximum size of a message.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a message.
+        /// </value>
         public int MaxMessageSize
         {
             get { return _maxMessageSize; }
         }
 
+        /// <summary>
+        /// Gets the maximum size of a wire document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a wire document.
+        /// </value>
         public int MaxWireDocumentSize
         {
             get { return _maxDocumentSize + 16 * 1024; }
         }
 
+        /// <summary>
+        /// Gets the server version.
+        /// </summary>
+        /// <value>
+        /// The server version.
+        /// </value>
         public SemanticVersion ServerVersion
         {
             get { return _serverVersion; }
         }
 
         // methods
+        /// <inheritdoc/>
         public bool Equals(ConnectionDescription other)
         {
             if (other == null)
@@ -98,11 +156,13 @@ namespace MongoDB.Driver.Core.Connections
                 _isMasterResult.Equals(other._isMasterResult);
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as ConnectionDescription);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return new Hasher()
@@ -112,6 +172,11 @@ namespace MongoDB.Driver.Core.Connections
                 .GetHashCode();
         }
 
+        /// <summary>
+        /// Returns a new instance of ConnectionDescription with a different connection identifier.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>A connection description.</returns>
         public ConnectionDescription WithConnectionId(ConnectionId value)
         {
             return _connectionId.StructurallyEquals(value) ? this : new ConnectionDescription(value, _isMasterResult, _buildInfoResult);

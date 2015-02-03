@@ -23,15 +23,28 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
-    public class DeleteMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder<DeleteMessage>
+    /// <summary>
+    /// Represents a JSON encoder for a Delete message.
+    /// </summary>
+    public class DeleteMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeleteMessageJsonEncoder"/> class.
+        /// </summary>
+        /// <param name="textReader">The text reader.</param>
+        /// <param name="textWriter">The text writer.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public DeleteMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : base(textReader, textWriter, encoderSettings)
         {
         }
 
         // methods
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         public DeleteMessage ReadMessage()
         {
             var jsonReader = CreateJsonReader();
@@ -57,6 +70,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 isMulti);
         }
 
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void WriteMessage(DeleteMessage message)
         {
             Ensure.IsNotNull(message, "message");

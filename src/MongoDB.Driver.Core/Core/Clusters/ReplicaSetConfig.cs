@@ -29,6 +29,12 @@ namespace MongoDB.Driver.Core.Clusters
     {
         #region static
         // static properties
+        /// <summary>
+        /// Gets an empty replica set config.
+        /// </summary>
+        /// <value>
+        /// An empty replica set config.
+        /// </value>
         public static ReplicaSetConfig Empty
         {
             get { return new ReplicaSetConfig(Enumerable.Empty<EndPoint>(), null, null, null); }
@@ -42,6 +48,13 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly int? _version;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReplicaSetConfig"/> class.
+        /// </summary>
+        /// <param name="members">The members.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="primary">The primary.</param>
+        /// <param name="version">The version.</param>
         public ReplicaSetConfig(
             IEnumerable<EndPoint> members,
             string name,
@@ -55,32 +68,58 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // properties
+        /// <summary>
+        /// Gets the members.
+        /// </summary>
+        /// <value>
+        /// The members.
+        /// </value>
         public IReadOnlyList<EndPoint> Members
         {
             get { return _members; }
         }
 
+        /// <summary>
+        /// Gets the name of the replica set.
+        /// </summary>
+        /// <value>
+        /// The name of the replica set.
+        /// </value>
         public string Name
         {
             get { return _name; }
         }
 
+        /// <summary>
+        /// Gets the primary.
+        /// </summary>
+        /// <value>
+        /// The primary.
+        /// </value>
         public EndPoint Primary
         {
             get { return _primary; }
         }
 
+        /// <summary>
+        /// Gets the replica set config version.
+        /// </summary>
+        /// <value>
+        /// The replica set config version.
+        /// </value>
         public int? Version
         {
             get { return _version; }
         }
 
         // members
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as ReplicaSetConfig);
         }
 
+        /// <inheritdoc/>
         public bool Equals(ReplicaSetConfig other)
         {
             if (other == null)
@@ -95,6 +134,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _version.Equals(other._version);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return new Hasher()

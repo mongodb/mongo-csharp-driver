@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a factory of BinaryConnections.
     /// </summary>
-    public class BinaryConnectionFactory : IConnectionFactory
+    internal class BinaryConnectionFactory : IConnectionFactory
     {
         #region static
         // static fields

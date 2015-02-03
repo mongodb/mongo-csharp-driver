@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the base class for a command operation.
     /// </summary>
+    /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
     public abstract class CommandOperationBase<TCommandResult>
     {
         // fields
@@ -42,6 +43,13 @@ namespace MongoDB.Driver.Core.Operations
         private IBsonSerializer<TCommandResult> _resultSerializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandOperationBase{TCommandResult}"/> class.
+        /// </summary>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         protected CommandOperationBase(
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
@@ -55,64 +63,87 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the additional options.
+        /// </summary>
+        /// <value>
+        /// The additional options.
+        /// </value>
         public BsonDocument AdditionalOptions
         {
             get { return _additionalOptions; }
             set { _additionalOptions = value; }
         }
 
+        /// <summary>
+        /// Gets the command.
+        /// </summary>
+        /// <value>
+        /// The command.
+        /// </value>
         public BsonDocument Command
         {
             get { return _command; }
-            set { _command = Ensure.IsNotNull(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets or sets the command validator.
+        /// </summary>
+        /// <value>
+        /// The command validator.
+        /// </value>
         public IElementNameValidator CommandValidator
         {
             get { return _commandValidator; }
             set { _commandValidator = Ensure.IsNotNull(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
         public string Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
+        /// <summary>
+        /// Gets the database namespace.
+        /// </summary>
+        /// <value>
+        /// The database namespace.
+        /// </value>
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
-            set { _databaseNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
+        /// <summary>
+        /// Gets the result serializer.
+        /// </summary>
+        /// <value>
+        /// The result serializer.
+        /// </value>
         public IBsonSerializer<TCommandResult> ResultSerializer
         {
             get { return _resultSerializer; }
-            set { _resultSerializer = Ensure.IsNotNull(value, "value"); }
         }
 
         // methods
-        private Task<TCommandResult> ExecuteProtocolAsync(IChannelHandle channel, ServerDescription serverDescription, ReadPreference readPreference, CancellationToken cancellationToken)
-        {
-            var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
-            var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
-
-            return channel.CommandAsync<TCommandResult>(
-                _databaseNamespace,
-                wrappedCommand,
-                _commandValidator,
-                slaveOk,
-                _resultSerializer,
-                _messageEncoderSettings,
-                cancellationToken);
-        }
-
         private BsonDocument CreateWrappedCommand(ServerDescription serverDescription, ReadPreference readPreference)
         {
             BsonDocument readPreferenceDocument = null;
@@ -142,6 +173,28 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        private Task<TCommandResult> ExecuteProtocolAsync(IChannelHandle channel, ServerDescription serverDescription, ReadPreference readPreference, CancellationToken cancellationToken)
+        {
+            var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
+            var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+
+            return channel.CommandAsync<TCommandResult>(
+                _databaseNamespace,
+                wrappedCommand,
+                _commandValidator,
+                slaveOk,
+                _resultSerializer,
+                _messageEncoderSettings,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Executes the protocol.
+        /// </summary>
+        /// <param name="channelSource">The channel source.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the command result.</returns>
         protected async Task<TCommandResult> ExecuteProtocolAsync(
             IChannelSource channelSource,
             ReadPreference readPreference,

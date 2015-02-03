@@ -16,13 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 
-namespace MongoDB.Driver.Core.Sync
+namespace MongoDB.Driver.Sync
 {
-    public sealed class AsyncCursorEnumeratorAdapter<TDocument> : IDisposable
+    internal sealed class AsyncCursorEnumeratorAdapter<TDocument> : IDisposable
     {
         // fields
         private bool _disposed;

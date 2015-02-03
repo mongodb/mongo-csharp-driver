@@ -23,15 +23,28 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
-    public class GetMoreMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder<GetMoreMessage>
+    /// <summary>
+    /// Represents a JSON encoder for a GetMore message.
+    /// </summary>
+    public class GetMoreMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetMoreMessageJsonEncoder"/> class.
+        /// </summary>
+        /// <param name="textReader">The text reader.</param>
+        /// <param name="textWriter">The text writer.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
         public GetMoreMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : base(textReader, textWriter, encoderSettings)
         {
         }
 
         // methods
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
         public GetMoreMessage ReadMessage()
         {
             var jsonReader = CreateJsonReader();
@@ -57,6 +70,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 batchSize);
         }
 
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void WriteMessage(GetMoreMessage message)
         {
             Ensure.IsNotNull(message, "message");

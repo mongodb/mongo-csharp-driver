@@ -35,17 +35,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the options.
         /// </summary>
-        AggregateOptions Options { get; }
+        AggregateOptions<TResult> Options { get; }
 
         /// <summary>
         /// Gets the pipeline.
         /// </summary>
         IList<object> Pipeline { get; }
-
-        /// <summary>
-        /// Gets the result serializer.
-        /// </summary>
-        IBsonSerializer<TResult> ResultSerializer { get; }
 
         /// <summary>
         /// Appends a stage to the pipeline.

@@ -67,7 +67,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(idProjector, "idProjector");
             Ensure.IsNotNull(groupProjector, "groupProjector");
 
-            var serializer = source.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            var serializer = source.Options.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
             var projectionInfo = AggregateProjectionTranslator.TranslateGroup<TKey, TResult, TNewResult>(idProjector, groupProjector, serializer, source.Collection.Settings.SerializerRegistry);
 
             return source.Group<TNewResult>(projectionInfo.Projection, projectionInfo.Serializer);
@@ -119,7 +119,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(project, "projector");
 
-            var serializer = source.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            var serializer = source.Options.ResultSerializer ?? source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>();
             var projectionInfo = AggregateProjectionTranslator.TranslateProject(project, serializer, source.Collection.Settings.SerializerRegistry);
 
             return source.Project<TNewResult>(projectionInfo.Projection, projectionInfo.Serializer);
@@ -144,7 +144,7 @@ namespace MongoDB.Driver
 
             source = source.Sort(sortDocument);
 
-            return new AggregateFluent<TDocument, TResult>(source.Collection, source.Pipeline, source.Options, source.ResultSerializer);
+            return new AggregateFluent<TDocument, TResult>(source.Collection, source.Pipeline, source.Options);
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace MongoDB.Driver
 
             source = source.Sort(sortDocument);
 
-            return new AggregateFluent<TDocument, TResult>(source.Collection, source.Pipeline, source.Options, source.ResultSerializer);
+            return new AggregateFluent<TDocument, TResult>(source.Collection, source.Pipeline, source.Options);
         }
 
         /// <summary>

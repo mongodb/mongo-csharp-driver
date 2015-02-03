@@ -43,6 +43,16 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly IServerSelector _postServerSelector;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterSettings"/> class.
+        /// </summary>
+        /// <param name="connectionMode">The connection mode.</param>
+        /// <param name="endPoints">The end points.</param>
+        /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
+        /// <param name="replicaSetName">Name of the replica set.</param>
+        /// <param name="serverSelectionTimeout">The server selection timeout.</param>
+        /// <param name="preServerSelector">The pre server selector.</param>
+        /// <param name="postServerSelector">The post server selector.</param>
         public ClusterSettings(
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
@@ -62,42 +72,95 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // properties
+        /// <summary>
+        /// Gets the connection mode.
+        /// </summary>
+        /// <value>
+        /// The connection mode.
+        /// </value>
         public ClusterConnectionMode ConnectionMode
         {
             get { return _connectionMode; }
         }
 
+        /// <summary>
+        /// Gets the end points.
+        /// </summary>
+        /// <value>
+        /// The end points.
+        /// </value>
         public IReadOnlyList<EndPoint> EndPoints
         {
             get { return _endPoints; }
         }
 
+        /// <summary>
+        /// Gets the maximum size of the server selection wait queue.
+        /// </summary>
+        /// <value>
+        /// The maximum size of the server selection wait queue.
+        /// </value>
         public int MaxServerSelectionWaitQueueSize
         {
             get { return _maxServerSelectionWaitQueueSize; }
         }
 
+        /// <summary>
+        /// Gets the name of the replica set.
+        /// </summary>
+        /// <value>
+        /// The name of the replica set.
+        /// </value>
         public string ReplicaSetName
         {
             get { return _replicaSetName; }
         }
 
+        /// <summary>
+        /// Gets the server selection timeout.
+        /// </summary>
+        /// <value>
+        /// The server selection timeout.
+        /// </value>
         public TimeSpan ServerSelectionTimeout
         {
             get { return _serverSelectionTimeout; }
         }
 
+        /// <summary>
+        /// Gets the pre server selector.
+        /// </summary>
+        /// <value>
+        /// The pre server selector.
+        /// </value>
         public IServerSelector PreServerSelector
         {
             get { return _preServerSelector; }
         }
 
+        /// <summary>
+        /// Gets the post server selector.
+        /// </summary>
+        /// <value>
+        /// The post server selector.
+        /// </value>
         public IServerSelector PostServerSelector
         {
             get { return _postServerSelector; }
         }
 
         // methods
+        /// <summary>
+        /// Returns a new ClusterSettings instance with some settings changed.
+        /// </summary>
+        /// <param name="connectionMode">The connection mode.</param>
+        /// <param name="endPoints">The end points.</param>
+        /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
+        /// <param name="replicaSetName">Name of the replica set.</param>
+        /// <param name="serverSelectionTimeout">The server selection timeout.</param>
+        /// <param name="preServerSelector">The pre server selector.</param>
+        /// <param name="postServerSelector">The post server selector.</param>
+        /// <returns>A new ClusterSettings instance.</returns>
         public ClusterSettings With(
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),

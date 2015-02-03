@@ -25,12 +25,20 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
+    /// <summary>
+    /// Represents a KillCursors message.
+    /// </summary>
     public class KillCursorsMessage : RequestMessage
     {
         // fields
         private readonly List<long> _cursorIds;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KillCursorsMessage"/> class.
+        /// </summary>
+        /// <param name="requestId">The request identifier.</param>
+        /// <param name="cursorIds">The cursor ids.</param>
         public KillCursorsMessage(
             int requestId,
             IEnumerable<long> cursorIds)
@@ -40,20 +48,22 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
+        /// <summary>
+        /// Gets the cursor ids.
+        /// </summary>
+        /// <value>
+        /// The cursor ids.
+        /// </value>
         public IReadOnlyList<long> CursorIds
         {
             get { return _cursorIds; }
         }
 
         // methods
-        public new IMessageEncoder<KillCursorsMessage> GetEncoder(IMessageEncoderFactory encoderFactory)
+        /// <inheritdoc/>
+        public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetKillCursorsMessageEncoder();
-        }
-
-        protected override IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory)
-        {
-            return GetEncoder(encoderFactory);
         }
     }
 }

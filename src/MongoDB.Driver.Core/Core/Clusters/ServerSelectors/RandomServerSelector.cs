@@ -26,11 +26,15 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     public class RandomServerSelector : IServerSelector
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RandomServerSelector"/> class.
+        /// </summary>
         public RandomServerSelector()
         {
         }
 
         // methods
+        /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
             var list = servers.ToList();
@@ -45,6 +49,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return "RandomServerSelector";

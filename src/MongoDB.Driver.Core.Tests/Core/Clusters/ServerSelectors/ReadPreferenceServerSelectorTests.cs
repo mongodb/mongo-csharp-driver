@@ -205,5 +205,24 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 
             result.Should().BeEquivalentTo(new [] { _primary, _secondary1 });
         }
+
+        [Test]
+        public void Should_select_nothing_when_attempting_to_match_tags_and_servers_do_not_have_tags()
+        {
+            var clusterId = new ClusterId();
+            var primary = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017), ServerType.ReplicaSetPrimary);
+            var secondary = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), ServerType.ReplicaSetSecondary);
+
+            var description = new ClusterDescription(
+                clusterId,
+                ClusterType.ReplicaSet,
+                new[] { primary, secondary });
+
+            var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("a", "1") }) }));
+
+            var result = subject.SelectServers(description, description.Servers).ToList();
+
+            result.Should().BeEmpty();
+        }
     }
 }

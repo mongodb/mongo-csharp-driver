@@ -24,6 +24,9 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a map-reduce operation that outputs its results to a collection.
+    /// </summary>
     public class MapReduceOutputToCollectionOperation : MapReduceOperationBase, IWriteOperation<BsonDocument>
     {
         // fields
@@ -33,18 +36,24 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _shardedOutput;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MapReduceOutputToCollectionOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="outputCollectionNamespace">The output collection namespace.</param>
+        /// <param name="mapFunction">The map function.</param>
+        /// <param name="reduceFunction">The reduce function.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public MapReduceOutputToCollectionOperation(
             CollectionNamespace collectionNamespace,
             CollectionNamespace outputCollectionNamespace,
             BsonJavaScript mapFunction,
             BsonJavaScript reduceFunction,
-            BsonDocument query,
             MessageEncoderSettings messageEncoderSettings)
             : base(
                 collectionNamespace,
                 mapFunction,
                 reduceFunction,
-                query,
                 messageEncoderSettings)
         {
             _outputCollectionNamespace = Ensure.IsNotNull(outputCollectionNamespace, "outputCollectionNamespace");
@@ -52,23 +61,47 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether the server should not lock the database for merge and reduce output modes.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the server should not lock the database for merge and reduce output modes; otherwise, <c>false</c>.
+        /// </value>
         public bool? NonAtomicOutput
         {
             get { return _nonAtomicOutput; }
             set { _nonAtomicOutput = value; }
         }
 
+        /// <summary>
+        /// Gets the output collection namespace.
+        /// </summary>
+        /// <value>
+        /// The output collection namespace.
+        /// </value>
         public CollectionNamespace OutputCollectionNamespace
         {
             get { return _outputCollectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the output mode.
+        /// </summary>
+        /// <value>
+        /// The output mode.
+        /// </value>
         public MapReduceOutputMode OutputMode
         {
             get { return _outputMode; }
             set { _outputMode = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the output collection should be sharded.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the output collection should be sharded; otherwise, <c>false</c>.
+        /// </value>
         public bool? ShardedOutput
         {
             get { return _shardedOutput; }
@@ -76,6 +109,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
+        /// <inheritdoc/>
         protected override BsonDocument CreateOutputOptions()
         {
             var action = _outputMode.ToString().ToLowerInvariant();
@@ -88,6 +122,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        /// <inheritdoc/>
         public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

@@ -21,6 +21,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
 {
+    /// <summary>
+    /// Represents settings for a connection.
+    /// </summary>
     public class ConnectionSettings
     {
         #region static
@@ -34,6 +37,12 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan _maxLifeTime;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionSettings"/> class.
+        /// </summary>
+        /// <param name="authenticators">The authenticators.</param>
+        /// <param name="maxIdleTime">The maximum idle time.</param>
+        /// <param name="maxLifeTime">The maximum life time.</param>
         public ConnectionSettings(
             Optional<IEnumerable<IAuthenticator>> authenticators = default(Optional<IEnumerable<IAuthenticator>>),
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
@@ -45,22 +54,47 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // properties
+        /// <summary>
+        /// Gets the authenticators.
+        /// </summary>
+        /// <value>
+        /// The authenticators.
+        /// </value>
         public IReadOnlyList<IAuthenticator> Authenticators
         {
             get { return _authenticators; }
         }
 
+        /// <summary>
+        /// Gets the maximum idle time.
+        /// </summary>
+        /// <value>
+        /// The maximum idle time.
+        /// </value>
         public TimeSpan MaxIdleTime
         {
             get { return _maxIdleTime; }
         }
 
+        /// <summary>
+        /// Gets the maximum life time.
+        /// </summary>
+        /// <value>
+        /// The maximum life time.
+        /// </value>
         public TimeSpan MaxLifeTime
         {
             get { return _maxLifeTime; }
         }
 
         // methods
+        /// <summary>
+        /// Returns a new ConnectionSettings instance with some settings changed.
+        /// </summary>
+        /// <param name="authenticators">The authenticators.</param>
+        /// <param name="maxIdleTime">The maximum idle time.</param>
+        /// <param name="maxLifeTime">The maximum life time.</param>
+        /// <returns>A new ConnectionSettings instance.</returns>
         public ConnectionSettings With(
             Optional<IEnumerable<IAuthenticator>> authenticators = default(Optional<IEnumerable<IAuthenticator>>),
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +31,6 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly BsonJavaScript _mapFunction = "map";
-        private readonly BsonDocument _query = new BsonDocument("query", 1);
         private readonly BsonJavaScript _reduceFunction = "reduce";
         private readonly IBsonSerializer<BsonDocument> _resultSerializer = BsonDocumentSerializer.Instance;
 
@@ -38,12 +38,12 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void constructor_should_initialize_instance()
         {
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _query, _resultSerializer, _messageEncoderSettings);
+            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.MapFunction.Should().BeSameAs(_mapFunction);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-            subject.Query.Should().BeSameAs(_query);
+            subject.Filter.Should().BeNull();
             subject.ReduceFunction.Should().BeSameAs(_reduceFunction);
             subject.ResultSerializer.Should().BeSameAs(_resultSerializer);
         }
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void constructor_should_throw_when_resultSerializer_is_null()
         {
-            Action action = () => new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _query, null, _messageEncoderSettings);
+            Action action = () => new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, null, _messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("resultSerializer");
         }
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateOutputOptions_should_return_expected_result()
         {
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _query, _resultSerializer, _messageEncoderSettings);
+            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
             var subjectReflector = new Reflector(subject);
             var expectedResult = new BsonDocument("inline", 1);
 
@@ -77,33 +77,33 @@ namespace MongoDB.Driver.Core.Operations
             var query = new BsonDocument();
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, mapFunction, reduceFunction, query, _resultSerializer, _messageEncoderSettings);
-            BsonValue expectedResults = new BsonArray
+            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, mapFunction, reduceFunction, _resultSerializer, _messageEncoderSettings);
+            var expectedResults = new List<BsonDocument>
             {
                 new BsonDocument { {"_id", 1 }, { "value", 3 } },
                 new BsonDocument { {"_id", 2 }, { "value", 4 } },
             };
 
-            var response = await ExecuteOperationAsync(subject);
-            var results = response["results"];
+            var cursor = await ExecuteOperationAsync(subject);
+            var results = await cursor.ToListAsync();
 
-            results.Should().Be(expectedResults);
+            results.Should().Equal(expectedResults);
         }
 
         [Test]
         public void ExecuteAsync_should_throw_when_binding_is_null()
         {
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _query, _resultSerializer, _messageEncoderSettings);
+            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
 
-            Action action = () => subject.ExecuteAsync(null, CancellationToken.None);
+            Func<Task> act = () => subject.ExecuteAsync(null, CancellationToken.None);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
+            act.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
 
         [Test]
         public void ResultSerializer_should_get_value()
         {
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _query, _resultSerializer, _messageEncoderSettings);
+            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
 
             var result = subject.ResultSerializer;
 

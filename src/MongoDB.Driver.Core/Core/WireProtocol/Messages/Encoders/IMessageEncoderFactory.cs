@@ -27,12 +27,50 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     /// </summary>
     public interface IMessageEncoderFactory
     {
-        IMessageEncoder<DeleteMessage> GetDeleteMessageEncoder();
-        IMessageEncoder<GetMoreMessage> GetGetMoreMessageEncoder();
-        IMessageEncoder<InsertMessage<TDocument>> GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
-        IMessageEncoder<KillCursorsMessage> GetKillCursorsMessageEncoder();
-        IMessageEncoder<QueryMessage> GetQueryMessageEncoder();
-        IMessageEncoder<ReplyMessage<TDocument>> GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
-        IMessageEncoder<UpdateMessage> GetUpdateMessageEncoder();
+        /// <summary>
+        /// Gets an encoder for a Delete message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
+        IMessageEncoder GetDeleteMessageEncoder();
+
+        /// <summary>
+        /// Gets an encoder for a GetMore message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
+        IMessageEncoder GetGetMoreMessageEncoder();
+
+        /// <summary>
+        /// Gets an encoder for an Insert message.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>An encoder.</returns>
+        IMessageEncoder GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
+
+        /// <summary>
+        /// Gets an encoder for a KillCursors message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
+        IMessageEncoder GetKillCursorsMessageEncoder();
+
+        /// <summary>
+        /// Gets an encoder for a Query message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
+        IMessageEncoder GetQueryMessageEncoder();
+
+        /// <summary>
+        /// Gets an encoder for a Reply message.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>An encoder.</returns>
+        IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
+
+        /// <summary>
+        /// Gets an encoder for an Update message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
+        IMessageEncoder GetUpdateMessageEncoder();
     }
 }

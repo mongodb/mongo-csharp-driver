@@ -33,6 +33,11 @@ namespace MongoDB.Driver
         private readonly string _value;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Tag"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
         public Tag(string name, string value)
         {
             _name = Ensure.IsNotNull(name, "name");
@@ -40,31 +45,46 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public string Name
         {
             get { return _name; }
         }
 
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
         public string Value
         {
             get { return _value; }
         }
 
         // methods
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as Tag);
         }
 
-        public bool Equals(Tag rhs)
+        /// <inheritdoc/>
+        public bool Equals(Tag other)
         {
-            if (rhs == null)
+            if (other == null)
             {
                 return false;
             }
-            return _name == rhs._name && _value == rhs._value;
+            return _name == other._name && _value == other._value;
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return new Hasher()
@@ -73,6 +93,7 @@ namespace MongoDB.Driver
                 .GetHashCode();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return string.Format("{0} : {1}", _name, _value);

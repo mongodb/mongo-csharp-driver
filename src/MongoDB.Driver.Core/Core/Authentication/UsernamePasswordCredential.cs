@@ -20,6 +20,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
+    /// <summary>
+    /// Represents a username/password credential.
+    /// </summary>
     public sealed class UsernamePasswordCredential
     {
         // fields
@@ -28,11 +31,23 @@ namespace MongoDB.Driver.Core.Authentication
         private string _username;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsernamePasswordCredential"/> class.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
         public UsernamePasswordCredential(string source, string username, string password)
             : this(source, username, ConvertPasswordToSecureString(password))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsernamePasswordCredential"/> class.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
         public UsernamePasswordCredential(string source, string username, SecureString password)
         {
             _source = Ensure.IsNotNullOrEmpty(source, "source");
@@ -41,22 +56,44 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // properties
+        /// <summary>
+        /// Gets the password.
+        /// </summary>
+        /// <value>
+        /// The password.
+        /// </value>
         public SecureString Password
         {
             get { return _password; }
         }
 
+        /// <summary>
+        /// Gets the source.
+        /// </summary>
+        /// <value>
+        /// The source.
+        /// </value>
         public string Source
         {
             get { return _source; }
         }
 
+        /// <summary>
+        /// Gets the username.
+        /// </summary>
+        /// <value>
+        /// The username.
+        /// </value>
         public string Username
         {
             get { return _username; }
         }
 
         // methods
+        /// <summary>
+        /// Gets the password (converts the password from a SecureString to a regular string).
+        /// </summary>
+        /// <returns>The password.</returns>
         public string GetInsecurePassword()
         {
             IntPtr unmanagedPassword = IntPtr.Zero;

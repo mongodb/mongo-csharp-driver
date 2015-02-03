@@ -9,30 +9,24 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Options for finding documents.
+    /// Options for a find operation.
     /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindOptions<TResult>
+    public abstract class FindOptionsBase
     {
         // fields
         private bool _allowPartialResults;
         private int? _batchSize;
         private string _comment;
         private CursorType _cursorType;
-        private int? _limit;
         private TimeSpan? _maxTime;
         private BsonDocument _modifiers;
         private bool _noCursorTimeout;
-        private object _projection;
-        private IBsonSerializer<TResult> _resultSerializer;
-        private int? _skip;
-        private object _sort;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindOptions{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="FindOptionsBase"/> class.
         /// </summary>
-        public FindOptions()
+        public FindOptionsBase()
         {
             _cursorType = CursorType.NonTailable;
         }
@@ -75,15 +69,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets how many documents to return.
-        /// </summary>
-        public int? Limit
-        {
-            get { return _limit; }
-            set { _limit = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>
         public TimeSpan? MaxTime
@@ -102,12 +87,42 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the cursor should not timeout.
+        /// Gets or sets whether a cursor will time out.
         /// </summary>
         public bool NoCursorTimeout
         {
             get { return _noCursorTimeout; }
             set { _noCursorTimeout = value; }
+        }
+    }
+
+    /// <summary>
+    /// Options for finding documents.
+    /// </summary>
+    public class FindOptions : FindOptionsBase
+    { }
+
+    /// <summary>
+    /// Options for finding documents.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    public class FindOptions<TResult> : FindOptionsBase
+    {
+        // fields
+        private int? _limit;
+        private object _projection;
+        private IBsonSerializer<TResult> _resultSerializer;
+        private int? _skip;
+        private object _sort;
+
+        // properties
+        /// <summary>
+        /// Gets or sets how many documents to return.
+        /// </summary>
+        public int? Limit
+        {
+            get { return _limit; }
+            set { _limit = value; }
         }
 
         /// <summary>

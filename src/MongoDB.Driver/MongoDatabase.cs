@@ -24,10 +24,10 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Operations;
+using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {
@@ -208,7 +208,7 @@ namespace MongoDB.Driver
             bool? autoIndexId = null;
             bool? capped = null;
             int? maxDocuments = null;
-            int? maxSize = null;
+            long? maxSize = null;
             BsonDocument storageEngine = null;
             bool? usePowerOf2Sizes = null;
 
@@ -231,7 +231,7 @@ namespace MongoDB.Driver
                 }
                 if (optionsDocument.TryGetValue("size", out value))
                 {
-                    maxSize = value.ToInt32();
+                    maxSize = value.ToInt64();
                 }
                 if (optionsDocument.TryGetValue("storageEngine", out value))
                 {

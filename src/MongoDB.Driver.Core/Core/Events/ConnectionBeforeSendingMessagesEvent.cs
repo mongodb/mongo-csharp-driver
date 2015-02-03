@@ -20,22 +20,43 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionBeforeSendingMessages event.
+    /// </summary>
     public struct ConnectionBeforeSendingMessagesEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly IReadOnlyList<RequestMessage> _messages;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionBeforeSendingMessagesEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="messages">The messages.</param>
         public ConnectionBeforeSendingMessagesEvent(ConnectionId connectionId, IReadOnlyList<RequestMessage> messages)
         {
             _connectionId = connectionId;
             _messages = messages;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the messages.
+        /// </summary>
+        /// <value>
+        /// The messages.
+        /// </value>
         public IReadOnlyList<RequestMessage> Messages
         {
             get { return _messages; }

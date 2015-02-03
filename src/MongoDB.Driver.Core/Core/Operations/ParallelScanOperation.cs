@@ -28,6 +28,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents a parallel scan operation.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public class ParallelScanOperation<TDocument> : IReadOperation<IReadOnlyList<IAsyncCursor<TDocument>>>
     {
         // fields
@@ -38,6 +42,13 @@ namespace MongoDB.Driver.Core.Operations
         private IBsonSerializer<TDocument> _serializer;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ParallelScanOperation{TDocument}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="numberOfCursors">The number of cursors.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ParallelScanOperation(
             CollectionNamespace collectionNamespace,
             int numberOfCursors,
@@ -51,38 +62,64 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the size of a batch.
+        /// </summary>
+        /// <value>
+        /// The size of a batch.
+        /// </value>
         public int? BatchSize
         {
             get { return _batchSize; }
             set { _batchSize = Ensure.IsNullOrGreaterThanZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
-            set { _collectionNamespace = Ensure.IsNotNull(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
-            set { _messageEncoderSettings = value; }
         }
 
+        /// <summary>
+        /// Gets the number of cursors.
+        /// </summary>
+        /// <value>
+        /// The number of cursors.
+        /// </value>
         public int NumberOfCursors
         {
             get { return _numberOfCursors; }
-            set { _numberOfCursors = Ensure.IsBetween(value, 1, 1000, "value"); }
         }
 
+        /// <summary>
+        /// Gets the serializer.
+        /// </summary>
+        /// <value>
+        /// The serializer.
+        /// </value>
         public IBsonSerializer<TDocument> Serializer
         {
             get { return _serializer; }
-            set { _serializer = Ensure.IsNotNull(value, "value"); }
         }
 
         // methods
-        public BsonDocument CreateCommand()
+        internal BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -91,6 +128,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        /// <inheritdoc/>
         public async Task<IReadOnlyList<IAsyncCursor<TDocument>>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

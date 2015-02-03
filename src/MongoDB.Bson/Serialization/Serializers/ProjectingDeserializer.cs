@@ -51,9 +51,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>
-        /// The value.
-        /// </returns>
+        /// <returns>A deserialized value.</returns>
         public override TTo Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var from = _fromSerializer.Deserialize(context);

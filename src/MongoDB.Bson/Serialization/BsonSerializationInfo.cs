@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Serialization
         /// Deserializes the value.
         /// </summary>
         /// <param name="value">The value.</param>
-        /// <returns>The deserialized value.</returns>
+        /// <returns>A deserialized value.</returns>
         public object DeserializeValue(BsonValue value)
         {
             var tempDocument = new BsonDocument("value", value);

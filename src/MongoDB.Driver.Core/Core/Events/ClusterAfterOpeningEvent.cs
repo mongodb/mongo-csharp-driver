@@ -19,12 +19,22 @@ using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ClusterAfterOpening event.
+    /// </summary>
     public struct ClusterAfterOpeningEvent
     {
         private readonly ClusterId _clusterId;
         private readonly ClusterSettings _clusterSettings;
         private readonly TimeSpan _elapsed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterAfterOpeningEvent"/> struct.
+        /// </summary>
+        /// <param name="clusterId">The cluster identifier.</param>
+        /// <param name="clusterSettings">The cluster settings.</param>
+        /// <param name="elapsed">The elapsed time.</param>
         public ClusterAfterOpeningEvent(ClusterId clusterId, ClusterSettings clusterSettings, TimeSpan elapsed)
         {
             _clusterId = clusterId;
@@ -32,16 +42,34 @@ namespace MongoDB.Driver.Core.Events
             _elapsed = elapsed;
         }
 
+        /// <summary>
+        /// Gets the cluster identifier.
+        /// </summary>
+        /// <value>
+        /// The cluster identifier.
+        /// </value>
         public ClusterId ClusterId
         {
             get { return _clusterId; }
         }
 
+        /// <summary>
+        /// Gets the cluster settings.
+        /// </summary>
+        /// <value>
+        /// The cluster settings.
+        /// </value>
         public ClusterSettings ClusterSettings
         {
             get { return _clusterSettings; }
         }
 
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        /// <value>
+        /// The elapsed time.
+        /// </value>
         public TimeSpan Elapsed
         {
             get { return _elapsed; }

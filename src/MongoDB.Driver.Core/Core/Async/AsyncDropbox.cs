@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Async
 {
-    public class AsyncDropbox<TId, TMessage>
+    internal class AsyncDropbox<TId, TMessage>
     {
         // fields
         private readonly object _lock = new object();

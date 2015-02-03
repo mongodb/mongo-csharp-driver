@@ -37,7 +37,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>The value.</returns>
+        /// <returns>A deserialized value.</returns>
         object Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args);
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>The value.</returns>
+        /// <returns>A deserialized value.</returns>
         new TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args);
 
         /// <summary>

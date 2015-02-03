@@ -30,9 +30,17 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a read command operation.
     /// </summary>
+    /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
     public class ReadCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IReadOperation<TCommandResult>
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadCommandOperation{TCommandResult}"/> class.
+        /// </summary>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ReadCommandOperation(
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
@@ -42,7 +50,8 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-        // methods
+        // methods        
+        /// <inheritdoc/>
         public async Task<TCommandResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");

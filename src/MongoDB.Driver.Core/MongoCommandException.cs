@@ -26,6 +26,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a MongoDB command exception.
+    /// </summary>
     [Serializable]
     public class MongoCommandException : MongoServerException
     {
@@ -34,11 +37,24 @@ namespace MongoDB.Driver
         private readonly BsonDocument _result;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoCommandException"/> class.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="command">The command.</param>
         public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command)
             : this(connectionId, message, command, null)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoCommandException"/> class.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="result">The command result.</param>
         public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result)
             : base(connectionId, message)
         {
@@ -46,6 +62,11 @@ namespace MongoDB.Driver
             _result = result; // can be null
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoCommandException"/> class.
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         protected MongoCommandException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -54,27 +75,52 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets the error code.
+        /// </summary>
+        /// <value>
+        /// The error code.
+        /// </value>
         public int Code
         {
             get { return _result.GetValue("code", -1).ToInt32(); }
         }
 
+        /// <summary>
+        /// Gets the command.
+        /// </summary>
+        /// <value>
+        /// The command.
+        /// </value>
         public BsonDocument Command
         {
             get { return _command; }
         }
 
+        /// <summary>
+        /// Gets the error message.
+        /// </summary>
+        /// <value>
+        /// The error message.
+        /// </value>
         public string ErrorMessage
         {
             get { return _result.GetValue("errmsg", "Unknown error.").AsString; }
         }
 
+        /// <summary>
+        /// Gets the command result.
+        /// </summary>
+        /// <value>
+        /// The command result.
+        /// </value>
         public BsonDocument Result
         {
             get { return _result; }
         }
 
         // methods
+        /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

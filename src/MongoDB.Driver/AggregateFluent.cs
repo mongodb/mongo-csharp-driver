@@ -27,17 +27,15 @@ namespace MongoDB.Driver
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
-        private readonly AggregateOptions _options;
+        private readonly AggregateOptions<TResult> _options;
         private readonly IList<object> _pipeline;
-        private readonly IBsonSerializer<TResult> _resultSerializer;
 
         // constructors
-        public AggregateFluent(IMongoCollection<TDocument> collection, IEnumerable<object> pipeline, AggregateOptions options, IBsonSerializer<TResult> resultSerializer)
+        public AggregateFluent(IMongoCollection<TDocument> collection, IEnumerable<object> pipeline, AggregateOptions<TResult> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
             _options = Ensure.IsNotNull(options, "options");
-            _resultSerializer = resultSerializer;
         }
 
         // properties
@@ -46,7 +44,7 @@ namespace MongoDB.Driver
             get { return _collection; }
         }
 
-        public AggregateOptions Options
+        public AggregateOptions<TResult> Options
         {
             get { return _options; }
         }
@@ -54,11 +52,6 @@ namespace MongoDB.Driver
         public IList<object> Pipeline
         {
             get { return _pipeline; }
-        }
-
-        public IBsonSerializer<TResult> ResultSerializer
-        {
-            get { return _resultSerializer; }
         }
 
         // methods
@@ -141,20 +134,20 @@ namespace MongoDB.Driver
 
         public Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var options = new AggregateOptions<TResult>
-            {
-                AllowDiskUse = _options.AllowDiskUse,
-                BatchSize = _options.BatchSize,
-                MaxTime = _options.MaxTime,
-                ResultSerializer = _resultSerializer,
-                UseCursor = _options.UseCursor
-            };
-            return _collection.AggregateAsync(_pipeline, options, cancellationToken);
+            return _collection.AggregateAsync(_pipeline, _options, cancellationToken);
         }
 
         private IAggregateFluent<TDocument, TNewResult> CloneWithNewResultType<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
         {
-            return new AggregateFluent<TDocument, TNewResult>(_collection, _pipeline, _options, resultSerializer);
+            var newOptions = new AggregateOptions<TNewResult>
+            {
+                AllowDiskUse = _options.AllowDiskUse,
+                BatchSize = _options.BatchSize,
+                MaxTime = _options.MaxTime,
+                ResultSerializer = resultSerializer,
+                UseCursor = _options.UseCursor
+            };
+            return new AggregateFluent<TDocument, TNewResult>(_collection, _pipeline, newOptions);
         }
 
         private BsonDocument ConvertToBsonDocument(object document)

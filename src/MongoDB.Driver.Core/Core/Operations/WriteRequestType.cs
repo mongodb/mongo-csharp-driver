@@ -24,10 +24,12 @@ namespace MongoDB.Driver.Core.Operations
         /// A delete request.
         /// </summary>
         Delete,
+
         /// <summary>
         /// An insert request.
         /// </summary>
         Insert,
+
         /// <summary>
         /// An udpate request.
         /// </summary>

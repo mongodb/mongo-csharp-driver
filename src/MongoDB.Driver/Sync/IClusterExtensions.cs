@@ -13,16 +13,15 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.SyncExtensionMethods
+namespace MongoDB.Driver.Sync
 {
-    public static class IClusterExtensionMethods
+    internal static class IClusterExtensionMethods
     {
         // static methods
         public static IServer SelectServer(this ICluster cluster, IServerSelector selector = null, CancellationToken cancellationToken = default(CancellationToken))

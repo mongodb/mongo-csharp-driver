@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteRequest" /> class.
         /// </summary>
-        /// <param name="correlationId">The correlation identifier.</param>
         /// <param name="requestType">The request type.</param>
         protected WriteRequest(WriteRequestType requestType)
         {

@@ -100,7 +100,6 @@
     <Compile Include="Builders\IndexOptionsBuilderTests.cs" />
     <Compile Include="Builders\IndexKeysBuilderTypedTests.cs" />
     <Compile Include="Builders\IndexOptionsBuilderTypedTests.cs" />
-    <Compile Include="Builders\MapReduceOptionsBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderGeoJsonIntegrationTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />
@@ -118,6 +117,7 @@
     <Compile Include="Linq\Translators\ProjectedObjectDeserializerTests.cs" />
     <Compile Include="Linq\Translators\ProjectedObjectTests.cs" />
     <Compile Include="MongoWriteExceptionTests.cs" />
+    <Compile Include="Samples\AggregationSample.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="WriteModelTests.cs" />
     <Compile Include="BulkWriteResultTests.cs" />

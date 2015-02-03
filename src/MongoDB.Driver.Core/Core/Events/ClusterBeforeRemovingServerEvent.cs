@@ -21,22 +21,43 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ClusterBeforeRemovingServer event.
+    /// </summary>
     public struct ClusterBeforeRemovingServerEvent
     {
         private readonly ServerId _serverId;
         private readonly string _reason;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterBeforeRemovingServerEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="reason">The reason the server is being removed.</param>
         public ClusterBeforeRemovingServerEvent(ServerId serverId, string reason)
         {
             _serverId = serverId;
             _reason = reason;
         }
 
+        /// <summary>
+        /// Gets the reason the server is being removed.
+        /// </summary>
+        /// <value>
+        /// The reason the server is being removed.
+        /// </value>
         public string Reason
         {
             get { return _reason; }
         }
 
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         public ServerId ServerId
         {
             get { return _serverId; }

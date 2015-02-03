@@ -16,10 +16,25 @@
 
 namespace MongoDB.Driver.Core.Events.Diagnostics
 {
+    /// <summary>
+    /// Represents a log level.
+    /// </summary>
+    /// <preliminary/>
     public enum LogLevel
     {
+        /// <summary>
+        /// Debug log level.
+        /// </summary>
         Debug,
+
+        /// <summary>
+        /// Information log level.
+        /// </summary>
         Info,
+
+        /// <summary>
+        /// Error log level.
+        /// </summary>
         Error
     }
 }

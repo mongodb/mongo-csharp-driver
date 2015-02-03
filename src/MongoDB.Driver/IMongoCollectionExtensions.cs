@@ -99,7 +99,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IReadOnlyList<TField>> DistinctAsync<TDocument, TField>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions<TField> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions<TField> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");

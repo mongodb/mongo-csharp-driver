@@ -22,6 +22,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+    /// <summary>
+    /// Represents a read binding to a cluster using a ReadPreference to select the server.
+    /// </summary>
     public sealed class ReadPreferenceBinding : IReadBinding
     {
         // fields
@@ -31,6 +34,11 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly IServerSelector _serverSelector;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadPreferenceBinding"/> class.
+        /// </summary>
+        /// <param name="cluster">The cluster.</param>
+        /// <param name="readPreference">The read preference.</param>
         public ReadPreferenceBinding(ICluster cluster, ReadPreference readPreference)
         {
             _cluster = Ensure.IsNotNull(cluster, "cluster");
@@ -39,12 +47,14 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
+        /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
         }
 
         // methods
+        /// <inheritdoc/>
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -52,6 +62,7 @@ namespace MongoDB.Driver.Core.Bindings
             return new ChannelSourceHandle(new ServerChannelSource(server));
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (!_disposed)

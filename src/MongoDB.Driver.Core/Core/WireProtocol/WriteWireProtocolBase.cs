@@ -28,7 +28,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
 {
-    public abstract class WriteWireProtocolBase : IWireProtocol<WriteConcernResult>
+    internal abstract class WriteWireProtocolBase : IWireProtocol<WriteConcernResult>
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;

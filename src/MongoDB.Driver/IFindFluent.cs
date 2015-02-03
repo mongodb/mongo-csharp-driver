@@ -44,27 +44,6 @@ namespace MongoDB.Driver
         FindOptions<TResult> Options { get; }
 
         /// <summary>
-        /// Whether to allow partial results when some shards are unavailable.
-        /// </summary>
-        /// <param name="allowPartialResults">Whether to allow partial results.</param>
-        /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TResult> AllowPartialResults(bool allowPartialResults);
-
-        /// <summary>
-        /// Batches the size.
-        /// </summary>
-        /// <param name="size">The size.</param>
-        /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TResult> BatchSize(int? size);
-
-        /// <summary>
-        /// Comments the specified comment.
-        /// </summary>
-        /// <param name="comment">The comment.</param>
-        /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TResult> Comment(string comment);
-
-        /// <summary>
         /// Counts the asynchronous.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -72,39 +51,11 @@ namespace MongoDB.Driver
         Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Sets the cursor type.
-        /// </summary>
-        /// <param name="cursorType">Type of the cursor.</param>
-        /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TResult> CursorType(CursorType cursorType);
-
-        /// <summary>
         /// Limits the specified limit.
         /// </summary>
         /// <param name="limit">The limit.</param>
         /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> Limit(int? limit);
-
-        /// <summary>
-        /// Maximums the time.
-        /// </summary>
-        /// <param name="maxTime">The maximum time.</param>
-        /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TResult> MaxTime(TimeSpan? maxTime);
-
-        /// <summary>
-        /// Modifierses the specified modifiers.
-        /// </summary>
-        /// <param name="modifiers">The modifiers.</param>
-        /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TResult> Modifiers(BsonDocument modifiers);
-
-        /// <summary>
-        /// Noes the cursor timeout.
-        /// </summary>
-        /// <param name="noCursorTimeout">if set to <c>true</c> [no cursor timeout].</param>
-        /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TResult> NoCursorTimeout(bool noCursorTimeout);
 
         /// <summary>
         /// Projections the specified projection.

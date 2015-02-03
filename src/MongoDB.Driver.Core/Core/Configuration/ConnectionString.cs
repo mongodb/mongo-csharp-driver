@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.Operations;
 namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
-    /// A connection string.
+    /// Represents a connection string.
     /// </summary>
     public sealed class ConnectionString
     {
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         /// <summary>
         /// Gets the connect timeout.
-        /// </summar>
+        /// </summary>
         public TimeSpan? ConnectTimeout
         {
             get { return _connectTimeout; }
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the fsync.
+        /// Gets the fsync value of the write concern.
         /// </summary>
         public bool? FSync
         {
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the IPV6 value.
+        /// Gets whether to use IPv6.
         /// </summary>
         public bool? Ipv6
         {
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the journal value.
+        /// Gets the journal value of the write concern.
         /// </summary>
         public bool? Journal
         {
@@ -207,7 +207,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the size of the max pool.
+        /// Gets the max size of the connection pool.
         /// </summary>
         public int? MaxPoolSize
         {
@@ -215,7 +215,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the size of the min pool.
+        /// Gets the min size of the connection pool.
         /// </summary>
         public int? MinPoolSize
         {
@@ -239,7 +239,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the replica set.
+        /// Gets the replica set name.
         /// </summary>
         public string ReplicaSet
         {
@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the SSL.
+        /// Gets whether to use SSL.
         /// </summary>
         public bool? Ssl
         {
@@ -271,7 +271,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the SSL verify certificate.
+        /// Gets whether to verify SSL certificates.
         /// </summary>
         public bool? SslVerifyCertificate
         {
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the w.
+        /// Gets the w value of the write concern.
         /// </summary>
         public WriteConcern.WValue W
         {
@@ -327,7 +327,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the W timeout.
+        /// Gets the wtimeout value of the write concern.
         /// </summary>
         public TimeSpan? WTimeout
         {
@@ -345,12 +345,7 @@ namespace MongoDB.Driver.Core.Configuration
             return _allOptions[name];
         }
 
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+        /// <inheritdoc/>
         public override string ToString()
         {
             return _originalConnectionString;

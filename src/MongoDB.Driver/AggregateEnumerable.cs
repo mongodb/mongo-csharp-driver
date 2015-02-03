@@ -17,7 +17,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.Sync;
+using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver
 {

@@ -25,9 +25,19 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
-    internal class ServerListenerPair : IServerListener
+    /// <preliminary/>
+    /// <summary>
+    /// Represents a pair of server listeners. All events will be forwarded to both listeners.
+    /// </summary>
+    public class ServerListenerPair : IServerListener
     {
         // static
+        /// <summary>
+        /// Combines two server listeners.
+        /// </summary>
+        /// <param name="first">The first server listener, or null.</param>
+        /// <param name="second">The second server listener, or null.</param>
+        /// <returns>A combined server listener.</returns>
         public static IServerListener Create(IServerListener first, IServerListener second)
         {
             if (first == null)
@@ -48,6 +58,11 @@ namespace MongoDB.Driver.Core.Events
         private readonly IServerListener _second;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerListenerPair"/> class.
+        /// </summary>
+        /// <param name="first">The first server listener.</param>
+        /// <param name="second">The second server listener.</param>
         public ServerListenerPair(IServerListener first, IServerListener second)
         {
             _first = Ensure.IsNotNull(first, "first");
@@ -55,48 +70,56 @@ namespace MongoDB.Driver.Core.Events
         }
 
         // methods
+        /// <inheritdoc/>
         public void ServerBeforeClosing(ServerBeforeClosingEvent @event)
         {
             _first.ServerBeforeClosing(@event);
             _second.ServerBeforeClosing(@event);
         }
 
+        /// <inheritdoc/>
         public void ServerAfterClosing(ServerAfterClosingEvent @event)
         {
             _first.ServerAfterClosing(@event);
             _second.ServerAfterClosing(@event);
         }
 
+        /// <inheritdoc/>
         public void ServerBeforeOpening(ServerBeforeOpeningEvent @event)
         {
             _first.ServerBeforeOpening(@event);
             _second.ServerBeforeOpening(@event);
         }
 
+        /// <inheritdoc/>
         public void ServerAfterOpening(ServerAfterOpeningEvent @event)
         {
             _first.ServerAfterOpening(@event);
             _second.ServerAfterOpening(@event);
         }
 
+        /// <inheritdoc/>
         public void ServerBeforeHeartbeating(ServerBeforeHeartbeatingEvent @event)
         {
             _first.ServerBeforeHeartbeating(@event);
             _second.ServerBeforeHeartbeating(@event);
         }
 
+        /// <inheritdoc/>
         public void ServerAfterHeartbeating(ServerAfterHeartbeatingEvent @event)
         {
             _first.ServerAfterHeartbeating(@event);
             _second.ServerAfterHeartbeating(@event);
         }
 
+        /// <inheritdoc/>
         public void ServerErrorHeartbeating(ServerErrorHeartbeatingEvent @event)
         {
             _first.ServerErrorHeartbeating(@event);
             _second.ServerErrorHeartbeating(@event);
         }
 
+        /// <inheritdoc/>
         public void ServerAfterDescriptionChanged(ServerAfterDescriptionChangedEvent @event)
         {
             _first.ServerAfterDescriptionChanged(@event);

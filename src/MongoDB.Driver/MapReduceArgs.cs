@@ -19,24 +19,24 @@ using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents the output mode for a map reduce operation.
+    /// Represents the output mode for a map-reduce operation.
     /// </summary>
     public enum MapReduceOutputMode
     {
         /// <summary>
-        /// The output of the map reduce operation is returned inline.
+        /// The output of the map-reduce operation is returned inline.
         /// </summary>
         Inline,
         /// <summary>
-        /// The output of the map reduce operation replaces an existing collection.
+        /// The output of the map-reduce operation replaces an existing collection.
         /// </summary>
         Replace,
         /// <summary>
-        /// The output of the map reduce operation is merged with an existing collection.
+        /// The output of the map-reduce operation is merged with an existing collection.
         /// </summary>
         Merge,
         /// <summary>
-        /// The output of the map reduce operation is merged with an existing collection using the reduce function.
+        /// The output of the map-reduce operation is merged with an existing collection using the reduce function.
         /// </summary>
         Reduce
     }
@@ -192,7 +192,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the scope (variables available to the map/reduce functions);
+        /// Gets or sets the scope (variables available to the map-reduce functions);
         /// </summary>
         public IMongoScope Scope
         {

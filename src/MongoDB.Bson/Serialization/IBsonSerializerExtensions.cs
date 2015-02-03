@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="serializer">The serializer.</param>
         /// <param name="context">The deserialization context.</param>
-        /// <returns>The value.</returns>
+        /// <returns>A deserialized value.</returns>
         public static object Deserialize(this IBsonSerializer serializer, BsonDeserializationContext context)
         {
             var args = new BsonDeserializationArgs { NominalType = serializer.ValueType };
@@ -41,7 +41,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TValue">The type that this serializer knows how to serialize.</typeparam>
         /// <param name="serializer">The serializer.</param>
         /// <param name="context">The deserialization context.</param>
-        /// <returns>The value.</returns>
+        /// <returns>A deserialized value.</returns>
         public static TValue Deserialize<TValue>(this IBsonSerializer<TValue> serializer, BsonDeserializationContext context)
         {
             var args = new BsonDeserializationArgs { NominalType = serializer.ValueType };

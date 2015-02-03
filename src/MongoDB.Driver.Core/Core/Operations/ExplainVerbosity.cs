@@ -24,11 +24,13 @@ namespace MongoDB.Driver.Core.Operations
         /// Runs the query planner and chooses the winning plan, but does not actually execute it.
         /// </summary>
         QueryPlanner,
+
         /// <summary>
         /// Runs the query optimizer, and then runs the winning plan to completion. In addition to the
         /// planner information, this makes execution stats available.
         /// </summary>
         ExecutionStats,
+
         /// <summary>
         /// Runs the query optimizer and chooses the winning plan, but then runs all generated plans
         /// to completion. This makes execution stats available for all of the query plans.

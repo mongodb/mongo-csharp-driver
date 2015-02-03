@@ -21,12 +21,34 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents the read preference mode.
+    /// </summary>
     public enum ReadPreferenceMode
     {
+        /// <summary>
+        /// Reads should be from the primary.
+        /// </summary>
         Primary,
+
+        /// <summary>
+        /// Reads should be from the primary if possible, otherwise from a secondary.
+        /// </summary>
         PrimaryPreferred,
+
+        /// <summary>
+        /// Reads should be from a secondary.
+        /// </summary>
         Secondary,
+
+        /// <summary>
+        /// Reads should be from a secondary if possible, otherwise from the primary.
+        /// </summary>
         SecondaryPreferred,
+
+        /// <summary>
+        /// Reads should be from any server that is within the latency threshold window.
+        /// </summary>
         Nearest
     }
 }

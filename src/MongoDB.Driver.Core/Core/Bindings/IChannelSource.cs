@@ -21,14 +21,36 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
+    /// <summary>
+    /// Represents a channel source.
+    /// </summary>
     public interface IChannelSource : IDisposable
     {
+        /// <summary>
+        /// Gets the server description.
+        /// </summary>
+        /// <value>
+        /// The server description.
+        /// </value>
         ServerDescription ServerDescription { get; }
+
+        /// <summary>
+        /// Gets a channel.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a channel.</returns>
         Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken);
     }
 
+    /// <summary>
+    /// Represents a handle to a channel source.
+    /// </summary>
     public interface IChannelSourceHandle : IChannelSource
     {
+        /// <summary>
+        /// Returns a new handle to the underlying channel source.
+        /// </summary>
+        /// <returns>A handle to a channel source.</returns>
         IChannelSourceHandle Fork();
     }
 }

@@ -71,13 +71,12 @@ namespace MongoDB.Driver
         IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings);
 
         /// <summary>
-        /// Gets the collection names.
+        /// Lists all the collections on the server.
         /// </summary>
+        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The list of collection names.
-        /// </returns>
-        Task<IReadOnlyList<string>> GetCollectionNamesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>A Task whose result is a cursor.</returns>
+        Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Renames the collection.

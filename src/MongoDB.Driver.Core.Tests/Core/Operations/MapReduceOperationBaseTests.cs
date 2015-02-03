@@ -28,14 +28,13 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _collectionNamespace = new CollectionNamespace(new DatabaseNamespace("databaseName"), "collectionName");
         private readonly BsonJavaScript _mapFunction = "map";
         private readonly MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
-        private readonly BsonDocument _query = new BsonDocument("query", 1);
         private readonly BsonJavaScript _reduceFunction = "reduce";
 
         // test methods
         [Test]
         public void CollectionNamespace_should_get_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             var result = subject.CollectionNamespace;
 
@@ -45,7 +44,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void constructor_should_initialize_instance()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.FinalizeFunction.Should().BeNull();
@@ -54,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MapFunction.Should().BeSameAs(_mapFunction);
             subject.MaxTime.Should().NotHaveValue();
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-            subject.Query.Should().BeSameAs(_query);
+            subject.Filter.Should().BeNull();
             subject.ReduceFunction.Should().BeSameAs(_reduceFunction);
             subject.Scope.Should().BeNull();
             subject.Sort.Should().BeNull();
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void constructor_should_throw_when_collectionNamespace_is_null()
         {
-            Action action = () => new FakeMapReduceOperation(null, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            Action action = () => new FakeMapReduceOperation(null, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("collectionNamespace");
         }
@@ -72,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void constructor_should_throw_when_mapFunction_is_null()
         {
-            Action action = () => new FakeMapReduceOperation(_collectionNamespace, null, _reduceFunction, _query, _messageEncoderSettings);
+            Action action = () => new FakeMapReduceOperation(_collectionNamespace, null, _reduceFunction, _messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("mapFunction");
         }
@@ -80,23 +79,15 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void constructor_should_throw_when_messageEncoderSettings_is_null()
         {
-            Action action = () => new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, null);
+            Action action = () => new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction,  null);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("messageEncoderSettings");
         }
 
         [Test]
-        public void constructor_should_throw_when_query_is_null()
-        {
-            Action action = () => new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, null, _messageEncoderSettings);
-
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("query");
-        }
-
-        [Test]
         public void constructor_should_throw_when_reduceFunction_is_null()
         {
-            Action action = () => new FakeMapReduceOperation(_collectionNamespace, _mapFunction, null, _query, _messageEncoderSettings);
+            Action action = () => new FakeMapReduceOperation(_collectionNamespace, _mapFunction, null, _messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("reduceFunction");
         }
@@ -104,14 +95,35 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateCommand_should_return_the_expected_result()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+            var expectedResult = new BsonDocument
+            {
+                { "mapreduce", "collectionName" },
+                { "map", _mapFunction },
+                { "reduce", _reduceFunction },
+                { "out", new BsonDocument("fake", 1) }
+            };
+
+            var result = subject.CreateCommand();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void CreateCommand_should_return_the_expected_result_when_Filter_is_provided()
+        {
+            var filter = new BsonDocument("filter", 1);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+            {
+                Filter = filter
+            };
             var expectedResult = new BsonDocument
             {
                 { "mapreduce", "collectionName" },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
-                { "query", _query }
+                { "query", filter }
             };
 
             var result = subject.CreateCommand();
@@ -123,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_the_expected_result_when_FinalizeFunction_is_provided()
         {
             var finalizeFunction = new BsonJavaScript("finalize");
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings)
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
                 FinalizeFunction = finalizeFunction
             };
@@ -133,7 +145,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
-                { "query", _query },
                 { "finalize", finalizeFunction }
             };
 
@@ -146,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_the_expected_result_when_JavaScriptMode_is_provided()
         {
             var javaScriptMode = true;
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings)
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
                 JavaScriptMode = javaScriptMode
             };
@@ -156,7 +167,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
-                { "query", _query },
                 { "jsMode", javaScriptMode }
             };
 
@@ -169,7 +179,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_the_expected_result_when_Limit_is_provided()
         {
             var limit = 1L;
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings)
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
                 Limit = limit
             };
@@ -179,7 +189,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
-                { "query", _query },
                 { "limit", limit }
             };
 
@@ -192,7 +201,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_the_expected_result_when_MaxTime_is_provided()
         {
             var maxTime = TimeSpan.FromSeconds(1.5);
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings)
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
                 MaxTime = maxTime
             };
@@ -202,7 +211,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
-                { "query", _query },
                 { "maxTimeMS", 1500.0 }
             };
 
@@ -215,7 +223,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_the_expected_result_when_Scope_is_provided()
         {
             var scope = new BsonDocument("scope", 1);
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings)
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
                 Scope = scope
             };
@@ -225,7 +233,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
-                { "query", _query },
                 { "scope", scope }
             };
 
@@ -238,7 +245,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_the_expected_result_when_Sort_is_provided()
         {
             var sort = new BsonDocument("sort", 1);
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings)
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
                 Sort = sort
             };
@@ -248,7 +255,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
-                { "query", _query },
                 { "sort", sort }
             };
 
@@ -261,7 +267,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_the_expected_result_when_Verbose_is_provided()
         {
             var verbose = true;
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings)
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
                 Verbose = verbose
             };
@@ -271,7 +277,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
-                { "query", _query },
                 { "verbose", verbose }
             };
 
@@ -281,9 +286,21 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
+        public void Filter_should_get_and_set_value()
+        {
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+            var value = new BsonDocument("filter", 1);
+
+            subject.Filter = value;
+            var result = subject.Filter;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Test]
         public void FinalizeFunction_should_get_and_set_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var value = new BsonJavaScript("finalize");
 
             subject.FinalizeFunction = value;
@@ -295,7 +312,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void JavaScriptMode_should_get_and_set_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var value = true;
 
             subject.JavaScriptMode = value;
@@ -307,7 +324,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Limit_should_get_and_set_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var value = 1L;
 
             subject.Limit = value;
@@ -319,7 +336,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void MapFunction_should_get_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             var result = subject.MapFunction;
 
@@ -329,7 +346,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void MaxTime_should_get_and_set_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var value = TimeSpan.FromSeconds(1.5);
 
             subject.MaxTime = value;
@@ -341,7 +358,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void MessageEncoderSettings_should_get_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             var result = subject.MessageEncoderSettings;
 
@@ -349,19 +366,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        public void Query_should_get_value()
-        {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
-
-            var result = subject.Query;
-
-            result.Should().BeSameAs(_query);
-        }
-
-        [Test]
         public void ReduceFunction_should_get_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             var result = subject.ReduceFunction;
 
@@ -371,7 +378,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Scope_should_get_and_set_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var value = new BsonDocument("scope", 1);
 
             subject.Scope = value;
@@ -383,7 +390,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Sort_should_get_and_set_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var value = new BsonDocument("sort", 1);
 
             subject.Sort = value;
@@ -395,7 +402,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void Verbose_should_get_and_set_value()
         {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var value = true;
 
             subject.Verbose = value;
@@ -411,10 +418,9 @@ namespace MongoDB.Driver.Core.Operations
                 CollectionNamespace collectionNamespace,
                 BsonJavaScript mapFunction,
                 BsonJavaScript reduceFunction,
-                BsonDocument query,
                 MessageEncoderSettings messageEncoderSettings
                 )
-                : base(collectionNamespace, mapFunction, reduceFunction, query, messageEncoderSettings)
+                : base(collectionNamespace, mapFunction, reduceFunction, messageEncoderSettings)
             {
             }
 

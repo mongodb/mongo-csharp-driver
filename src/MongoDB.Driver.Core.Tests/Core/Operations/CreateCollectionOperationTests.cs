@@ -23,7 +23,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 
@@ -348,7 +347,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer("DropCollection", StorageEngines = "mmapv1")]
+        [RequiresServer("DropCollection", StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public async Task ExecuteAsync_should_create_collection_when_UsePowerOf2Sizes_is_set(
             [Values(false, true)]
             bool usePowerOf2Sizes)
@@ -442,7 +441,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var binding = SuiteConfiguration.GetReadWriteBinding())
             {
-                operation.Execute(binding);
+                operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
             }
         }
 

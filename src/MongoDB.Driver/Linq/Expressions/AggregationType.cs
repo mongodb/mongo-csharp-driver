@@ -17,12 +17,13 @@ namespace MongoDB.Driver.Linq.Expressions
 {
     internal enum AggregationType
     {
-        Average = 1,
+        AddToSet = 1,
+        Average,
         First,
         Last,
         Min,
         Max,
         Push,
-        Sum
+        Sum,
     }
 }

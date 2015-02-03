@@ -17,25 +17,46 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ServerAfterDescriptionChanged event.
+    /// </summary>
     public struct ServerAfterDescriptionChangedEvent
     {
         private readonly ServerDescription _oldDescription;
         private readonly ServerDescription _newDescription;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerAfterDescriptionChangedEvent"/> struct.
+        /// </summary>
+        /// <param name="oldDescription">The old description.</param>
+        /// <param name="newDescription">The new description.</param>
         public ServerAfterDescriptionChangedEvent(ServerDescription oldDescription, ServerDescription newDescription)
         {
             _oldDescription = oldDescription;
             _newDescription = newDescription;
         }
 
-        public ServerDescription OldDescription
-        {
-            get { return _oldDescription; }
-        }
-
+        /// <summary>
+        /// Gets the new description.
+        /// </summary>
+        /// <value>
+        /// The new description.
+        /// </value>
         public ServerDescription NewDescription
         {
             get { return _newDescription; }
+        }
+
+        /// <summary>
+        /// Gets the old description.
+        /// </summary>
+        /// <value>
+        /// The old description.
+        /// </value>
+        public ServerDescription OldDescription
+        {
+            get { return _oldDescription; }
         }
     }
 }

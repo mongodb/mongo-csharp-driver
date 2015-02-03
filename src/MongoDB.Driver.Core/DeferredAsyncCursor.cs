@@ -21,6 +21,10 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a cursor for an operation that is not actually executed until MoveNextAsync is called for the first time.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class DeferredAsyncCursor<TDocument> : IAsyncCursor<TDocument>
     {
         // fields
@@ -29,12 +33,17 @@ namespace MongoDB.Driver
         private bool _disposed;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeferredAsyncCursor{TDocument}"/> class.
+        /// </summary>
+        /// <param name="executeAsync">The delegate to execute the first time MoveNextAsync is called.</param>
         public DeferredAsyncCursor(Func<CancellationToken, Task<IAsyncCursor<TDocument>>> executeAsync)
         {
             _executeAsync = Ensure.IsNotNull(executeAsync, "executeAsync");
         }
 
         // properties
+        /// <inheritdoc/>
         public IEnumerable<TDocument> Current
         {
             get
@@ -50,6 +59,7 @@ namespace MongoDB.Driver
         }
 
         // methods
+        /// <inheritdoc/>
         public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
@@ -62,6 +72,7 @@ namespace MongoDB.Driver
             return await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (_cursor != null)

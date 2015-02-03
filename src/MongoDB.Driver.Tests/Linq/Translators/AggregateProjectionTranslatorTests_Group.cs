@@ -96,6 +96,26 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_addToSet()
+        {
+            var result = await Group(x => x.A, g => new { Result = new HashSet<int>(g.Select(x => x.C.E.F)) });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$addToSet\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().Equal(11);
+        }
+
+        [Test]
+        public async Task Should_translate_addToSet_using_Distinct()
+        {
+            var result = await Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Distinct() });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$addToSet\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().Equal(11);
+        }
+
+        [Test]
         public async Task Should_translate_average_with_embedded_projector()
         {
             var result = await Group(x => x.A, g => new { Result = g.Average(x => x.C.E.F) });
@@ -213,6 +233,36 @@ namespace MongoDB.Driver.Core.Linq
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$min\": \"$C.E.F\" } }");
 
             result.Value.Result.Should().Be(11);
+        }
+
+        [Test]
+        public async Task Should_translate_push_with_just_a_select()
+        {
+            var result = await Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F) });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$push\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().Equal(11);
+        }
+
+        [Test]
+        public async Task Should_translate_push_with_ToArray()
+        {
+            var result = await Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).ToArray() });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$push\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().Equal(11);
+        }
+
+        [Test]
+        public async Task Should_translate_push_with_ToList()
+        {
+            var result = await Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).ToList() });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$push\": \"$C.E.F\" } }");
+
+            result.Value.Result.Should().Equal(11);
         }
 
         [Test]

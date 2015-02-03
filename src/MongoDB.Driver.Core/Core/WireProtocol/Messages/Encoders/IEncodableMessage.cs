@@ -27,15 +27,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     public interface IEncodableMessage
     {
         // methods
+        /// <summary>
+        /// Gets an encoder for the message from an encoder factory.
+        /// </summary>
+        /// <param name="encoderFactory">The encoder factory.</param>
+        /// <returns>A message encoder.</returns>
         IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory);
-    }
-
-    /// <summary>
-    /// Represents an encodable message.
-    /// </summary>
-    public interface IEncodableMessage<TMessage> : IEncodableMessage where TMessage : MongoDBMessage
-    {
-        // methods 
-        new IMessageEncoder<TMessage> GetEncoder(IMessageEncoderFactory encoderFactory);
     }
 }

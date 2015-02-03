@@ -13,18 +13,24 @@
 * limitations under the License.
 */
 
-using System;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Serializers;
-
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// A marker interface that represents options for a map/reduce operation (see MapReduceOptionsDocument and the MapReduceOptions builder).
+    /// Options for a list collections operation.
     /// </summary>
-    [Obsolete("Use MapReduceArgs instead.")]
-    [BsonSerializer(typeof(UndiscriminatedActualTypeSerializer<IMongoMapReduceOptions>))]
-    public interface IMongoMapReduceOptions
+    public sealed class ListCollectionsOptions
     {
+        // fields
+        private object _filter;
+
+        // properties
+        /// <summary>
+        /// Gets or sets the filter.
+        /// </summary>
+        public object Filter
+        {
+            get { return _filter; }
+            set { _filter = value; }
+        }
     }
 }

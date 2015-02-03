@@ -35,6 +35,16 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan? _writeTimeout;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TcpStreamSettings"/> class.
+        /// </summary>
+        /// <param name="addressFamily">The address family.</param>
+        /// <param name="connectTimeout">The connect timeout.</param>
+        /// <param name="readTimeout">The read timeout.</param>
+        /// <param name="receiveBufferSize">Size of the receive buffer.</param>
+        /// <param name="sendBufferSize">Size of the send buffer.</param>
+        /// <param name="socketConfigurator">The socket configurator.</param>
+        /// <param name="writeTimeout">The write timeout.</param>
         public TcpStreamSettings(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
             Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
@@ -54,42 +64,95 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // properties
+        /// <summary>
+        /// Gets the address family.
+        /// </summary>
+        /// <value>
+        /// The address family.
+        /// </value>
         public AddressFamily AddressFamily
         {
             get { return _addressFamily; }
         }
 
+        /// <summary>
+        /// Gets the connect timeout.
+        /// </summary>
+        /// <value>
+        /// The connect timeout.
+        /// </value>
         public TimeSpan ConnectTimeout
         {
             get { return _connectTimeout; }
         }
 
+        /// <summary>
+        /// Gets the read timeout.
+        /// </summary>
+        /// <value>
+        /// The read timeout.
+        /// </value>
         public TimeSpan? ReadTimeout
         {
             get { return _readTimeout; }
         }
 
+        /// <summary>
+        /// Gets the size of the receive buffer.
+        /// </summary>
+        /// <value>
+        /// The size of the receive buffer.
+        /// </value>
         public int ReceiveBufferSize
         {
             get { return _receiveBufferSize; }
         }
 
+        /// <summary>
+        /// Gets the size of the send buffer.
+        /// </summary>
+        /// <value>
+        /// The size of the send buffer.
+        /// </value>
         public int SendBufferSize
         {
             get { return _sendBufferSize; }
         }
 
+        /// <summary>
+        /// Gets the socket configurator.
+        /// </summary>
+        /// <value>
+        /// The socket configurator.
+        /// </value>
         public Action<Socket> SocketConfigurator
         {
             get { return _socketConfigurator; }
         }
 
+        /// <summary>
+        /// Gets the write timeout.
+        /// </summary>
+        /// <value>
+        /// The write timeout.
+        /// </value>
         public TimeSpan? WriteTimeout
         {
             get { return _writeTimeout; }
         }
 
         // methods
+        /// <summary>
+        /// Returns a new TcpStreamSettings instance with some settings changed.
+        /// </summary>
+        /// <param name="addressFamily">The address family.</param>
+        /// <param name="connectTimeout">The connect timeout.</param>
+        /// <param name="readTimeout">The read timeout.</param>
+        /// <param name="receiveBufferSize">Size of the receive buffer.</param>
+        /// <param name="sendBufferSize">Size of the send buffer.</param>
+        /// <param name="socketConfigurator">The socket configurator.</param>
+        /// <param name="writeTimeout">The write timeout.</param>
+        /// <returns>A new TcpStreamSettings instance.</returns>
         public TcpStreamSettings With(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
             Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),

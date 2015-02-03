@@ -18,22 +18,43 @@ using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ClusterBeforeOpening event.
+    /// </summary>
     public struct ClusterBeforeOpeningEvent
     {
         private readonly ClusterId _clusterId;
         private readonly ClusterSettings _clusterSettings;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterBeforeOpeningEvent"/> struct.
+        /// </summary>
+        /// <param name="clusterId">The cluster identifier.</param>
+        /// <param name="clusterSettings">The cluster settings.</param>
         public ClusterBeforeOpeningEvent(ClusterId clusterId, ClusterSettings clusterSettings)
         {
             _clusterId = clusterId;
             _clusterSettings = clusterSettings;
         }
 
+        /// <summary>
+        /// Gets the cluster identifier.
+        /// </summary>
+        /// <value>
+        /// The cluster identifier.
+        /// </value>
         public ClusterId ClusterId
         {
             get { return _clusterId; }
         }
 
+        /// <summary>
+        /// Gets the cluster settings.
+        /// </summary>
+        /// <value>
+        /// The cluster settings.
+        /// </value>
         public ClusterSettings ClusterSettings
         {
             get { return _clusterSettings; }

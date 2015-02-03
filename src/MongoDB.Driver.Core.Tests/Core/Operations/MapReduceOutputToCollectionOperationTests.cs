@@ -50,13 +50,13 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void constructor_should_initialize_instance()
         {
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.OutputCollectionNamespace.Should().BeSameAs(_outputCollectionNamespace);
             subject.MapFunction.Should().BeSameAs(_mapFunction);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-            subject.Query.Should().BeSameAs(_query);
+            subject.Filter.Should().BeNull();
             subject.ReduceFunction.Should().BeSameAs(_reduceFunction);
             subject.OutputMode.Should().Be(MapReduceOutputMode.Replace);
         }
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void constructor_should_throw_when_outputCollectionNamespace_is_null()
         {
-            Action action = () => new MapReduceOutputToCollectionOperation(_collectionNamespace, null, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            Action action = () => new MapReduceOutputToCollectionOperation(_collectionNamespace, null, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("outputCollectionNamespace");
         }
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateOutputOptions_should_return_expected_result()
         {
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var subjectReflector = new Reflector(subject);
             var expectedResult = new BsonDocument
             {
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateOutputOptions_should_return_expected_result_when_ShardedOutput_is_provided()
         {
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings)
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
                 ShardedOutput = true
             };
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void CreateOutputOptions_should_return_expected_result_when_NonAtomicOutput_is_provided()
         {
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings)
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
                 NonAtomicOutput = true
             };
@@ -131,10 +131,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             await EnsureTestDataAsync();
 
-            var query = new BsonDocument();
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, mapFunction, reduceFunction, query, _messageEncoderSettings);
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings);
             var expectedDocuments = new BsonDocument[]
             {
                 new BsonDocument { {"_id", 1 }, { "value", 3 } },
@@ -152,7 +151,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void ExecuteAsync_should_throw_when_binding_is_null()
         {
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             Action action = () => subject.ExecuteAsync(null, CancellationToken.None);
 
@@ -162,7 +161,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void NonAtomicOutput_should_get_and_set_value()
         {
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var value = true;
 
             subject.NonAtomicOutput = value;
@@ -174,7 +173,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void OutputCollectionNamespace_should_get__value()
         {
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
             var result = subject.OutputCollectionNamespace;
 
@@ -184,7 +183,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void OutputMode_should_get_and_set_value()
         {
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var value = MapReduceOutputMode.Merge;
 
             subject.OutputMode = value;
@@ -196,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void ShardedOutput_should_get_and_set_value()
         {
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _query, _messageEncoderSettings);
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var value = true;
 
             subject.ShardedOutput = value;

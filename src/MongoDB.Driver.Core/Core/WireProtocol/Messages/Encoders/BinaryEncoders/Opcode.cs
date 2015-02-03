@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    public enum Opcode
+    internal enum Opcode
     {
         Reply = 1,
         Message = 1000,

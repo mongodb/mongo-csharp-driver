@@ -19,6 +19,9 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Servers
 {
+    /// <summary>
+    /// Represents the arguments to the event that occurs when the server description changes.
+    /// </summary>
     public class ServerDescriptionChangedEventArgs : EventArgs
     {
         // fields
@@ -26,6 +29,11 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerDescription _newServerDescription;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerDescriptionChangedEventArgs"/> class.
+        /// </summary>
+        /// <param name="oldServerDescription">The old server description.</param>
+        /// <param name="newServerDescription">The new server description.</param>
         public ServerDescriptionChangedEventArgs(ServerDescription oldServerDescription, ServerDescription newServerDescription)
         {
             _oldServerDescription = Ensure.IsNotNull(oldServerDescription, "oldServerDescription");
@@ -33,11 +41,23 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // properties
+        /// <summary>
+        /// Gets the old server description.
+        /// </summary>
+        /// <value>
+        /// The old server description.
+        /// </value>
         public ServerDescription OldServerDescription
         {
             get { return _oldServerDescription; }
         }
 
+        /// <summary>
+        /// Gets the new server description.
+        /// </summary>
+        /// <value>
+        /// The new server description.
+        /// </value>
         public ServerDescription NewServerDescription
         {
             get { return _newServerDescription; }

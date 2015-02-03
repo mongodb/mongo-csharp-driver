@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization
         /// Gets the serializer.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <returns></returns>
+        /// <returns>A serializer.</returns>
         public override IBsonSerializer GetSerializer(Type type)
         {
             if (type == null)

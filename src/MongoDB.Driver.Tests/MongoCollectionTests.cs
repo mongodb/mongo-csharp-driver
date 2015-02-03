@@ -543,7 +543,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void TestCreateCollectionSetCappedSetMaxDocuments()
         {
             var collection = _database.GetCollection("cappedcollection");
@@ -560,23 +560,23 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void TestCreateCollectionSetCappedSetMaxSize()
         {
             var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             Assert.IsFalse(collection.Exists());
-            var options = CollectionOptions.SetCapped(true).SetMaxSize(10000000);
+            var options = CollectionOptions.SetCapped(true).SetMaxSize(5000000000);
             _database.CreateCollection(collection.Name, options);
             Assert.IsTrue(collection.Exists());
             var stats = collection.GetStats();
             Assert.IsTrue(stats.IsCapped);
-            Assert.IsTrue(stats.StorageSize >= 10000000);
+            Assert.IsTrue(stats.StorageSize >= 5000000000);
             collection.Drop();
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void TestCreateCollectionSetUsePowerOf2Sizes(
             [Values(false, true)]
             bool usePowerOf2Sizes)
@@ -1955,32 +1955,14 @@ namespace MongoDB.Driver.Tests
             if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
-                _collection.Insert(new BsonDocument { { "x", "abc" } });
-                _collection.Insert(new BsonDocument { { "x", "def" } });
-                _collection.Insert(new BsonDocument { { "x", "ghi" } });
+                var expectedName = "x_hashed";
+                var expectedKey = "{ x : \"hashed\" }";
+
                 _collection.CreateIndex(IndexKeys.Hashed("x"));
 
-                var query = Query.EQ("x", "abc");
-                var cursor = _collection.FindAs<BsonDocument>(query);
-                var documents = cursor.ToArray();
-
-                Assert.AreEqual(1, documents.Length);
-                Assert.AreEqual("abc", documents[0]["x"].AsString);
-
-                var plan = cursor.Explain();
-                if (_server.BuildInfo.Version < new Version(2, 7, 0))
-                {
-                    Assert.AreEqual("BtreeCursor x_hashed", plan["cursor"].AsString);
-                }
-                else
-                {
-                    var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
-                    var inputStage = winningPlan["inputStage"]["inputStage"].AsBsonDocument; // not sure why there are two inputStages
-                    var stage = inputStage["stage"].AsString;
-                    var keyPattern = inputStage["keyPattern"].AsBsonDocument;
-                    Assert.That(stage, Is.EqualTo("IXSCAN"));
-                    Assert.That(keyPattern, Is.EqualTo(BsonDocument.Parse("{ x : \"hashed\" }")));
-                }
+                var index = _collection.GetIndexes().FirstOrDefault(x => x.Name == expectedName);
+                Assert.IsNotNull(index);
+                Assert.AreEqual(BsonDocument.Parse(expectedKey), index.Key);
             }
         }
 
@@ -2810,7 +2792,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [RequiresServer(StorageEngines = "mmapv1")]
+        [RequiresServer(StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public void TestGetStatsUsePowerOf2Sizes()
         {
             // SERVER-8409: only run this when talking to a non-mongos 2.2 server or >= 2.4.

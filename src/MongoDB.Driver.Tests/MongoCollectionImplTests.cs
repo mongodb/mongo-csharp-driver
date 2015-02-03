@@ -24,6 +24,7 @@ using FluentAssertions;
 using FluentAssertions.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
@@ -498,7 +499,7 @@ namespace MongoDB.Driver
 
             await _subject.DistinctAsync("a.b", filter, options, CancellationToken.None);
 
-            var call = _operationExecutor.GetReadCall<IReadOnlyList<int>>();
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<int>>();
 
             call.Operation.Should().BeOfType<DistinctOperation<int>>();
             var operation = (DistinctOperation<int>)call.Operation;
@@ -585,19 +586,21 @@ namespace MongoDB.Driver
             Expression<Func<BsonDocument, bool>> filter = doc => doc["x"] == 1;
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var fluent = _subject.Find(filter)
+            var options = new FindOptions
+            {
+                AllowPartialResults = true,
+                BatchSize = 20,
+                Comment = "funny",
+                CursorType = CursorType.TailableAwait,
+                MaxTime = TimeSpan.FromSeconds(3),
+                Modifiers = BsonDocument.Parse("{$snapshot: true}"),
+                NoCursorTimeout = true
+            };
+            var fluent = _subject.Find(filter, options)
                 .Projection<BsonDocument>(projection)
                 .Sort(sort)
-                .AllowPartialResults(true)
-                .BatchSize(20)
-                .Comment("funny")
-                .CursorType(CursorType.TailableAwait)
                 .Limit(30)
-                .MaxTime(TimeSpan.FromSeconds(3))
-                .Modifiers(BsonDocument.Parse("{$snapshot: true}"))
-                .NoCursorTimeout(true)
                 .Skip(40);
-            var options = fluent.Options;
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
@@ -614,12 +617,12 @@ namespace MongoDB.Driver
             operation.Comment.Should().Be("funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(BsonDocument.Parse("{x:1}"));
-            operation.Limit.Should().Be(options.Limit);
+            operation.Limit.Should().Be(30);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
             operation.Projection.Should().Be(projection);
-            operation.Skip.Should().Be(options.Skip);
+            operation.Skip.Should().Be(40);
             operation.Sort.Should().Be(sort);
         }
 
@@ -629,19 +632,21 @@ namespace MongoDB.Driver
             var filter = BsonDocument.Parse("{x:1}");
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var fluent = _subject.Find(filter)
+            var options = new FindOptions
+            {
+                AllowPartialResults = true,
+                BatchSize = 20,
+                Comment = "funny",
+                CursorType = CursorType.TailableAwait,
+                MaxTime = TimeSpan.FromSeconds(3),
+                Modifiers = BsonDocument.Parse("{$snapshot: true}"),
+                NoCursorTimeout = true
+            };
+            var fluent = _subject.Find(filter, options)
                 .Projection<BsonDocument>(projection)
                 .Sort(sort)
-                .AllowPartialResults(true)
-                .BatchSize(20)
-                .Comment("funny")
-                .CursorType(CursorType.TailableAwait)
                 .Limit(30)
-                .MaxTime(TimeSpan.FromSeconds(3))
-                .Modifiers(BsonDocument.Parse("{$snapshot: true}"))
-                .NoCursorTimeout(true)
                 .Skip(40);
-            var options = fluent.Options;
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
@@ -658,12 +663,12 @@ namespace MongoDB.Driver
             operation.Comment.Should().Be("funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(filter);
-            operation.Limit.Should().Be(options.Limit);
+            operation.Limit.Should().Be(30);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
             operation.Projection.Should().Be(projection);
-            operation.Skip.Should().Be(options.Skip);
+            operation.Skip.Should().Be(40);
             operation.Sort.Should().Be(sort);
         }
 
@@ -768,7 +773,7 @@ namespace MongoDB.Driver
         [Test]
         public async Task GetIndexesAsync_should_execute_the_ListIndexesOperation()
         {
-            await _subject.GetIndexesAsync(CancellationToken.None);
+            await _subject.ListIndexesAsync(CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -846,6 +851,87 @@ namespace MongoDB.Driver
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifyWrites(expectedRequests, true, call);
+        }
+
+        [Test]
+        public async Task MapReduceAsync_with_inline_output_mode_should_execute_the_MapReduceOperation()
+        {
+            var filter = new BsonDocument("filter", 1);
+            var scope = new BsonDocument("test", 3);
+            var sort = new BsonDocument("sort", 1);
+            var options = new MapReduceOptions<BsonDocument>
+            {
+                Filter = new BsonDocument("filter", 1),
+                Finalize = "finalizer",
+                JavaScriptMode = true,
+                Limit = 10,
+                MaxTime = TimeSpan.FromMinutes(2),
+                OutputOptions = MapReduceOutputOptions.Inline,
+                Scope = scope,
+                Sort = sort,
+                Verbose = true
+            };
+            var result = await _subject.MapReduceAsync("map", "reduce", options);
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+
+            call.Operation.Should().BeOfType<MapReduceOperation<BsonDocument>>();
+            var operation = (MapReduceOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+
+            operation.Filter.Should().Be(filter);
+            operation.FinalizeFunction.Should().Be(options.Finalize);
+            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MapFunction.Should().Be(new BsonJavaScript("map"));
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReduceFunction.Should().Be(new BsonJavaScript("reduce"));
+            operation.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
+            operation.Scope.Should().Be(scope);
+            operation.Sort.Should().Be(sort);
+            operation.Verbose.Should().Be(options.Verbose);
+        }
+
+        [Test]
+        public async Task MapReduceAsync_with_collection_output_mode_should_execute_the_MapReduceOperation()
+        {
+            var filter = new BsonDocument("filter", 1);
+            var scope = new BsonDocument("test", 3);
+            var sort = new BsonDocument("sort", 1);
+            var options = new MapReduceOptions<BsonDocument>
+            {
+                Filter = new BsonDocument("filter", 1),
+                Finalize = "finalizer",
+                JavaScriptMode = true,
+                Limit = 10,
+                MaxTime = TimeSpan.FromMinutes(2),
+                OutputOptions = MapReduceOutputOptions.Replace("awesome", "otherDB", true),
+                Scope = scope,
+                Sort = sort,
+                Verbose = true
+            };
+            var result = await _subject.MapReduceAsync("map", "reduce", options);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<MapReduceOutputToCollectionOperation>();
+            var operation = (MapReduceOutputToCollectionOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+
+            operation.Filter.Should().Be(filter);
+            operation.FinalizeFunction.Should().Be(options.Finalize);
+            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MapFunction.Should().Be(new BsonJavaScript("map"));
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.NonAtomicOutput.Should().NotHaveValue();
+            operation.OutputCollectionNamespace.Should().Be(CollectionNamespace.FromFullName("otherDB.awesome"));
+            operation.OutputMode.Should().Be(Core.Operations.MapReduceOutputMode.Replace);
+            operation.ReduceFunction.Should().Be(new BsonJavaScript("reduce"));
+            operation.Scope.Should().Be(scope);
+            operation.ShardedOutput.Should().Be(true);
+            operation.Sort.Should().Be(sort);
+            operation.Verbose.Should().Be(options.Verbose);
         }
 
         [Test]

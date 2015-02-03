@@ -32,14 +32,42 @@ namespace MongoDB.Driver.Core.Servers
     public interface IServer
     {
         // events
+        /// <summary>
+        /// Occurs when the server description changes.
+        /// </summary>
         event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
+        /// <summary>
+        /// Gets the server description.
+        /// </summary>
+        /// <value>
+        /// The server description.
+        /// </value>
         ServerDescription Description { get; }
+
+        /// <summary>
+        /// Gets the end point.
+        /// </summary>
+        /// <value>
+        /// The end point.
+        /// </value>
         EndPoint EndPoint { get; }
+
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
         ServerId ServerId { get; }
 
         // methods
+        /// <summary>
+        /// Gets a channel to the server.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a channel.</returns>
         Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken);
     }
 
@@ -49,11 +77,28 @@ namespace MongoDB.Driver.Core.Servers
     public interface IClusterableServer : IServer, IDisposable
     {
         // properties
+        /// <summary>
+        /// Gets a value indicating whether this instance is initialized.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is initialized; otherwise, <c>false</c>.
+        /// </value>
         bool IsInitialized { get; }
 
         // methods
+        /// <summary>
+        /// Initializes this instance.
+        /// </summary>
         void Initialize();
+
+        /// <summary>
+        /// Invalidates this instance (sets the server type to Unknown and clears the connection pool).
+        /// </summary>
         void Invalidate();
+
+        /// <summary>
+        /// Requests a heartbeat as soon as possible.
+        /// </summary>
         void RequestHeartbeat();
     }
 }

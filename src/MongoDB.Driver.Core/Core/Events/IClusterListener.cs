@@ -18,23 +18,68 @@ using System.Net;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
+
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents a listener to cluster events.
+    /// </summary>
     public interface IClusterListener : IListener
     {
         // methods
+        /// <summary>
+        /// An event that occurs before closing a cluster.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ClusterBeforeClosing(ClusterBeforeClosingEvent @event);
+
+        /// <summary>
+        /// An event that occurs after a cluster has been closed.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ClusterAfterClosing(ClusterAfterClosingEvent @event);
 
+        /// <summary>
+        /// An event that occurs before opening a cluster.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ClusterBeforeOpening(ClusterBeforeOpeningEvent @event);
+
+        /// <summary>
+        /// An event that occurs after a cluster has been opened.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ClusterAfterOpening(ClusterAfterOpeningEvent @event);
 
+        /// <summary>
+        /// An event that occurs before adding a server to a cluster.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ClusterBeforeAddingServer(ClusterBeforeAddingServerEvent @event);
+
+        /// <summary>
+        /// An event that occurs after a server has been added to a cluster.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ClusterAfterAddingServer(ClusterAfterAddingServerEvent @event);
 
+        /// <summary>
+        /// An event that occurs before removing a server from a cluster.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ClusterBeforeRemovingServer(ClusterBeforeRemovingServerEvent @event);
+
+        /// <summary>
+        /// An event that occurs after a server has been removed from a cluster.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ClusterAfterRemovingServer(ClusterAfterRemovingServerEvent @event);
 
+        /// <summary>
+        /// An event that occurs after a cluster's description has changed.
+        /// </summary>
+        /// <param name="event">The event.</param>
         void ClusterAfterDescriptionChanged(ClusterAfterDescriptionChangedEvent @event);
     }
 }

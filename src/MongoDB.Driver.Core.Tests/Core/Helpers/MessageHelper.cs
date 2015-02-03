@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Helpers
                     switch (opCode)
                     {
                         case Opcode.Query:
-                            requests.Add(encoderFactory.GetQueryMessageEncoder().ReadMessage());
+                            requests.Add((RequestMessage)encoderFactory.GetQueryMessageEncoder().ReadMessage());
                             break;
                         default:
                             throw new InvalidOperationException("Unsupported request type.");

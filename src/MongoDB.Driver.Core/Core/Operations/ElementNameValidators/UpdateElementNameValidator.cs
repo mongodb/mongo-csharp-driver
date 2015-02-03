@@ -17,23 +17,34 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Core.Operations.ElementNameValidators
 {
+    /// <summary>
+    /// Represents an element name validator for update operations.
+    /// </summary>
     public class UpdateElementNameValidator : IElementNameValidator
     {
         // private static fields
         private static readonly UpdateElementNameValidator __instance = new UpdateElementNameValidator();
 
         // public static fields
+        /// <summary>
+        /// Gets a pre-created instance of an UpdateElementNameValidator.
+        /// </summary>
+        /// <value>
+        /// The pre-created instance.
+        /// </value>
         public static UpdateElementNameValidator Instance
         {
             get { return __instance; }
         }
 
         // methods
+        /// <inheritdoc/>
         public IElementNameValidator GetValidatorForChildContent(string elementName)
         {
             return NoOpElementNameValidator.Instance;
         }
 
+        /// <inheritdoc/>
         public bool IsValidElementName(string elementName)
         {
             return elementName.Length > 0 && elementName[0] == '$';

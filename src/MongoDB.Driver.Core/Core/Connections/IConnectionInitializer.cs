@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public interface IConnectionInitializer
+    internal interface IConnectionInitializer
     {
         Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, CancellationToken cancellationToken);
     }

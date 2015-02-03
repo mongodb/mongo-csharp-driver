@@ -36,7 +36,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="serializerTypeDefinition">The serializer type definition.</param>
         /// <param name="typeArguments">The type arguments.</param>
-        /// <returns></returns>
+        /// <returns>A serializer.</returns>
         protected virtual IBsonSerializer CreateGenericSerializer(Type serializerTypeDefinition, params Type[] typeArguments)
         {
             var serializerType = serializerTypeDefinition.MakeGenericType(typeArguments);
@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization
         /// Creates the serializer.
         /// </summary>
         /// <param name="serializerType">The serializer type.</param>
-        /// <returns></returns>
+        /// <returns>A serializer.</returns>
         protected virtual IBsonSerializer CreateSerializer(Type serializerType)
         {
             return (IBsonSerializer)Activator.CreateInstance(serializerType);

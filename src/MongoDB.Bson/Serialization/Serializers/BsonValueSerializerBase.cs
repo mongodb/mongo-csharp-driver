@@ -19,6 +19,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a base class for BsonValue serializers.
     /// </summary>
+    /// <typeparam name="TBsonValue">The type of the BsonValue.</typeparam>
     public abstract class BsonValueSerializerBase<TBsonValue> : SerializerBase<TBsonValue> where TBsonValue : BsonValue
     {
         // private fields
@@ -40,7 +41,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         public override TBsonValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             if (_bsonType.HasValue)
@@ -84,7 +85,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
-        /// <returns>An object.</returns>
+        /// <returns>A deserialized value.</returns>
         protected abstract TBsonValue DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args);
 
         /// <summary>

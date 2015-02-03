@@ -80,7 +80,9 @@ namespace MongoDB.Driver.Core.Linq
                 },
                 Id = 10,
                 J = new DateTime(2012, 12, 1, 13, 14, 15, 16, DateTimeKind.Utc),
-                K = true
+                K = true,
+                L = new HashSet<int>(new[] { 1, 3, 5 }),
+                M = new[] { 2, 4, 5 }
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
@@ -103,6 +105,28 @@ namespace MongoDB.Driver.Core.Linq
             result.Projection.Should().Be("{ Result: { \"$add\": [\"$_id\", \"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
 
             result.Value.Result.Should().Be(43);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_allElementsTrue()
+        {
+            var result = await Project(x => new { Result = x.G.All(g => g.E.F > 30) });
+
+            result.Projection.Should().Be("{ Result: { \"$allElementsTrue\" : { \"$map\": { input: \"$G\", as: \"g\", in: { \"$gt\": [\"$$g.E.F\", 30 ] } } } }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_anyElementTrue()
+        {
+            var result = await Project(x => new { Result = x.G.Any(g => g.E.F > 40) });
+
+            result.Projection.Should().Be("{ Result: { \"$anyElementTrue\" : { \"$map\": { input: \"$G\", as: \"g\", in: { \"$gt\": [\"$$g.E.F\", 40 ] } } } }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
         }
 
         [Test]
@@ -133,6 +157,16 @@ namespace MongoDB.Driver.Core.Linq
             result.Projection.Should().Be("{ Result: { \"$ifNull\": [\"$A\", \"funny\"] }, _id: 0 }");
 
             result.Value.Result.Should().Be("Awesome");
+        }
+
+        [Test]
+        public async Task Should_translate_compare()
+        {
+            var result = await Project(x => new { Result = x.A.CompareTo("Awesome") });
+
+            result.Projection.Should().Be("{ Result: { \"$cmp\": [\"$A\", \"Awesome\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(0);
         }
 
         [Test]
@@ -228,6 +262,16 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_equals_as_a_method_call()
+        {
+            var result = await Project(x => new { Result = x.C.E.F.Equals(5) });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [\"$C.E.F\", 5] }, _id: 0 }");
+
+            result.Value.Result.Should().BeFalse();
+        }
+
+        [Test]
         public async Task Should_translate_greater_than()
         {
             var result = await Project(x => new { Result = x.C.E.F > 5 });
@@ -275,6 +319,39 @@ namespace MongoDB.Driver.Core.Linq
             result.Projection.Should().Be("{ Result: { \"$lte\": [\"$C.E.F\", 5] }, _id: 0 }");
 
             result.Value.Result.Should().BeFalse();
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_literal_when_a_constant_strings_begins_with_a_dollar()
+        {
+            var result = await Project(x => new { Result = x.A == "$1" });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [\"$A\", { \"$literal\": \"$1\" }] }, _id: 0 }");
+
+            result.Value.Result.Should().BeFalse();
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_map_with_document()
+        {
+            var result = await Project(x => new { Result = x.G.Select(g => g.D + "0") });
+
+            result.Projection.Should().Be("{ Result: { \"$map\": { input: \"$G\", as: \"g\", in: { \"$concat\": [\"$$g.D\", \"0\"] } } }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("Don't0", "Dolphin0");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_map_with_value()
+        {
+            var result = await Project(x => new { Result = x.C.E.I.Select(i => i + "0") });
+
+            result.Projection.Should().Be("{ Result: { \"$map\": { input: \"$C.E.I\", as: \"i\", in: { \"$concat\": [\"$$i\", \"0\"] } } }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("it0", "icky0");
         }
 
         [Test]
@@ -396,6 +473,215 @@ namespace MongoDB.Driver.Core.Linq
             result.Projection.Should().Be("{ Result: { \"$second\": \"$J\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(15);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_size_greater_than_zero_from_any()
+        {
+            var result = await Project(x => new { Result = x.M.Any() });
+
+            result.Projection.Should().Be("{ Result: { \"$gt\": [{ \"$size\": \"$M\" }, 0] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_size_from_an_array()
+        {
+            var result = await Project(x => new { Result = x.M.Length });
+
+            result.Projection.Should().Be("{ Result: { \"$size\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(3);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_size_from_Count_extension_method()
+        {
+            var result = await Project(x => new { Result = x.M.Count() });
+
+            result.Projection.Should().Be("{ Result: { \"$size\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(3);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_size_from_LongCount_extension_method()
+        {
+            var result = await Project(x => new { Result = x.M.LongCount() });
+
+            result.Projection.Should().Be("{ Result: { \"$size\": \"$M\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(3);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_size_from_Count_property_on_Generic_ICollection()
+        {
+            var result = await Project(x => new { Result = x.L.Count });
+
+            result.Projection.Should().Be("{ Result: { \"$size\": \"$L\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(3);
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_set_difference()
+        {
+            var result = await Project(x => new { Result = x.C.E.I.Except(new[] { "it", "not in here" }) });
+
+            result.Projection.Should().Be("{ Result: { \"$setDifference\": [\"$C.E.I\", [\"it\", \"not in here\"] ] }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("icky");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_set_difference_reversed()
+        {
+            var result = await Project(x => new { Result = new[] { "it", "not in here" }.Except(x.C.E.I) });
+
+            result.Projection.Should().Be("{ Result: { \"$setDifference\": [[\"it\", \"not in here\"], \"$C.E.I\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("not in here");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_set_equals()
+        {
+            var result = await Project(x => new { Result = x.L.SetEquals(new[] { 1, 3, 5 }) });
+
+            result.Projection.Should().Be("{ Result: { \"$setEquals\": [\"$L\", [1, 3, 5]] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_set_equals_reversed()
+        {
+            var set = new HashSet<int>(new[] { 1, 3, 5 });
+            var result = await Project(x => new { Result = set.SetEquals(x.L) });
+
+            result.Projection.Should().Be("{ Result: { \"$setEquals\": [[1, 3, 5], \"$L\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_set_intersection()
+        {
+            var result = await Project(x => new { Result = x.C.E.I.Intersect(new[] { "it", "not in here" }) });
+
+            result.Projection.Should().Be("{ Result: { \"$setIntersection\": [\"$C.E.I\", [\"it\", \"not in here\"] ] }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("it");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_set_intersection_reversed()
+        {
+            var result = await Project(x => new { Result = new[] { "it", "not in here" }.Intersect(x.C.E.I) });
+
+            result.Projection.Should().Be("{ Result: { \"$setIntersection\": [[\"it\", \"not in here\"], \"$C.E.I\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Equal("it");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_set_is_subset()
+        {
+            var result = await Project(x => new { Result = x.L.IsSubsetOf(new[] { 1, 3, 5 }) });
+
+            result.Projection.Should().Be("{ Result: { \"$setIsSubset\": [\"$L\", [1, 3, 5]] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_set_is_subset_reversed()
+        {
+            var set = new HashSet<int>(new[] { 1, 3, 5 });
+            var result = await Project(x => new { Result = set.IsSubsetOf(x.L) });
+
+            result.Projection.Should().Be("{ Result: { \"$setIsSubset\": [[1, 3, 5], \"$L\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_set_union()
+        {
+            var result = await Project(x => new { Result = x.C.E.I.Union(new[] { "it", "not in here" }) });
+
+            result.Projection.Should().Be("{ Result: { \"$setUnion\": [\"$C.E.I\", [\"it\", \"not in here\"] ] }, _id: 0 }");
+
+            result.Value.Result.Should().BeEquivalentTo("it", "icky", "not in here");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public async Task Should_translate_set_union_reversed()
+        {
+            var result = await Project(x => new { Result = new[] { "it", "not in here" }.Union(x.C.E.I) });
+
+            result.Projection.Should().Be("{ Result: { \"$setUnion\": [[\"it\", \"not in here\"], \"$C.E.I\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeEquivalentTo("it", "icky", "not in here");
+        }
+
+        [Test]
+        public async Task Should_translate_string_equals()
+        {
+            var result = await Project(x => new { Result = x.B.Equals("Balloon") });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [\"$B\", \"Balloon\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Should_translate_string_equals_using_comparison()
+        {
+            var result = await Project(x => new { Result = x.B.Equals("Balloon", StringComparison.Ordinal) });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [\"$B\", \"Balloon\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Should_translate_string_case_insensitive_equals()
+        {
+            var result = await Project(x => new { Result = x.B.Equals("balloon", StringComparison.OrdinalIgnoreCase) });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [{ \"$strcasecmp\": [\"$B\", \"balloon\"] }, 0] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Test]
+        [TestCase(StringComparison.CurrentCulture)]
+        [TestCase(StringComparison.CurrentCultureIgnoreCase)]
+        [TestCase(StringComparison.InvariantCulture)]
+        [TestCase(StringComparison.InvariantCultureIgnoreCase)]
+        public void Should_throw_for_a_not_supported_string_comparison_type(StringComparison comparison)
+        {
+            Func<Task> act = async () => await Project(x => new { Result = x.B.Equals("balloon", comparison) });
+
+            act.ShouldThrow<NotSupportedException>();
         }
 
         [Test]
@@ -536,6 +822,10 @@ namespace MongoDB.Driver.Core.Linq
             public DateTime J { get; set; }
 
             public bool K { get; set; }
+
+            public HashSet<int> L { get; set; }
+
+            public int[] M { get; set; }
         }
 
         public class C

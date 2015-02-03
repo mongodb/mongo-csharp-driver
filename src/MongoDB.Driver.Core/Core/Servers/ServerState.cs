@@ -21,9 +21,19 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Servers
 {
+    /// <summary>
+    /// Represents the server state.
+    /// </summary>
     public enum ServerState
     {
+        /// <summary>
+        /// The server is disconnected.
+        /// </summary>
         Disconnected,
+
+        /// <summary>
+        /// The server is connected.
+        /// </summary>
         Connected
     }
 }

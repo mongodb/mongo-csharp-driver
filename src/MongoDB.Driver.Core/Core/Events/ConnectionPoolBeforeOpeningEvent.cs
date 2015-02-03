@@ -18,25 +18,46 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionPoolBeforeOpening event.
+    /// </summary>
     public struct ConnectionPoolBeforeOpeningEvent
     {
         private readonly ServerId _serverId;
         private readonly ConnectionPoolSettings _connectionPoolSettings;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolBeforeOpeningEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="connectionPoolSettings">The connection pool settings.</param>
         public ConnectionPoolBeforeOpeningEvent(ServerId serverId, ConnectionPoolSettings connectionPoolSettings)
         {
             _serverId = serverId;
             _connectionPoolSettings = connectionPoolSettings;
         }
 
-        public ServerId ServerId
-        {
-            get { return _serverId; }
-        }
-
+        /// <summary>
+        /// Gets the connection pool settings.
+        /// </summary>
+        /// <value>
+        /// The connection pool settings.
+        /// </value>
         public ConnectionPoolSettings ConnectionPoolSettings
         {
             get { return _connectionPoolSettings; }
+        }
+
+        /// <summary>
+        /// Gets the server identifier.
+        /// </summary>
+        /// <value>
+        /// The server identifier.
+        /// </value>
+        public ServerId ServerId
+        {
+            get { return _serverId; }
         }
     }
 }

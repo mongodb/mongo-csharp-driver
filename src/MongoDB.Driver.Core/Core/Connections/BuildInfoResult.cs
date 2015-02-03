@@ -26,18 +26,31 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
+    /// <summary>
+    /// Represents the result of a buildInfo command.
+    /// </summary>
     public sealed class BuildInfoResult : IEquatable<BuildInfoResult>
     {
         // fields
         private readonly BsonDocument _wrapped;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildInfoResult"/> class.
+        /// </summary>
+        /// <param name="wrapped">The wrapped result document.</param>
         public BuildInfoResult(BsonDocument wrapped)
         {
             _wrapped = Ensure.IsNotNull(wrapped, "wrapped");
         }
 
         // properties
+        /// <summary>
+        /// Gets the server version.
+        /// </summary>
+        /// <value>
+        /// The server version.
+        /// </value>
         public SemanticVersion ServerVersion
         {
             get
@@ -46,6 +59,12 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        /// <summary>
+        /// Gets the wrapped result document.
+        /// </summary>
+        /// <value>
+        /// The wrapped result document.
+        /// </value>
         public BsonDocument Wrapped
         {
             get
@@ -55,6 +74,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
+        /// <inheritdoc/>
         public bool Equals(BuildInfoResult other)
         {
             if (other == null)
@@ -65,11 +85,13 @@ namespace MongoDB.Driver.Core.Connections
             return _wrapped.Equals(other._wrapped);
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as BuildInfoResult);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return _wrapped.GetHashCode();

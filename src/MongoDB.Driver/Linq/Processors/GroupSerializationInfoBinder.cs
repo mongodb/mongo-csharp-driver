@@ -25,9 +25,13 @@ namespace MongoDB.Driver.Linq.Processors
 {
     internal class GroupSerializationInfoBinder : SerializationInfoBinder
     {
+        private bool _isPotentialAggregationMethod;
+
         public GroupSerializationInfoBinder(IBsonSerializerRegistry serializerRegistry)
             : base(serializerRegistry)
-        { }
+        {
+            _isPotentialAggregationMethod = true;
+        }
 
         protected override Expression VisitMember(MemberExpression node)
         {
@@ -46,11 +50,35 @@ namespace MongoDB.Driver.Linq.Processors
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            // only the top-level method calls are potential aggregation methods
+            // For instance, in g => g.Select(x => x.Age).Sum(), only the Sum() is
+            // a potential aggregation method. Select is not. 
+            var oldIsPotentialAggregationMethod = _isPotentialAggregationMethod;
+            _isPotentialAggregationMethod = false;
             var newNode = base.VisitMethodCall(node);
+            _isPotentialAggregationMethod = oldIsPotentialAggregationMethod;
             Expression aggregationNode;
-            if (newNode.NodeType == ExpressionType.Call && TryBindAggregationExpression((MethodCallExpression)newNode, out aggregationNode))
+            if (_isPotentialAggregationMethod && newNode.NodeType == ExpressionType.Call && TryBindAggregationExpression((MethodCallExpression)newNode, out aggregationNode))
             {
                 return aggregationNode;
+            }
+
+            return newNode;
+        }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            var newNode = (NewExpression)base.VisitNew(node);
+            if (newNode.Type.IsGenericType
+                && newNode.Type.GetGenericTypeDefinition() == typeof(HashSet<>)
+                && newNode.Arguments.Count == 1
+                && newNode.Arguments[0] is AggregationExpression
+                && ((AggregationExpression)newNode.Arguments[0]).AggregationType == AggregationType.Push)
+            {
+                return new AggregationExpression(
+                    newNode.Type,
+                    AggregationType.AddToSet,
+                    ((AggregationExpression)newNode.Arguments[0]).Argument);
             }
 
             return newNode;
@@ -102,6 +130,20 @@ namespace MongoDB.Driver.Linq.Processors
                         return GetBodyFromSelector(node);
                     }
                     break;
+                case "Select":
+                    if (node.Arguments.Count == 2)
+                    {
+                        return GetLambda(node.Arguments[1]).Body;
+                    }
+                    break;
+                case "Distinct":
+                case "ToArray":
+                case "ToList":
+                    if (node.Arguments.Count == 1)
+                    {
+                        return GetBodyFromSelector(node);
+                    }
+                    break;
             }
 
             var message = string.Format("Unsupported version of aggregation method {0}.", node.Method.Name);
@@ -128,6 +170,9 @@ namespace MongoDB.Driver.Linq.Processors
                 case "Sum":
                     aggregationType = AggregationType.Sum;
                     return true;
+                case "Distinct":
+                    aggregationType = AggregationType.AddToSet;
+                    return true;
                 case "First":
                     aggregationType = AggregationType.First;
                     return true;
@@ -139,6 +184,11 @@ namespace MongoDB.Driver.Linq.Processors
                     return true;
                 case "Min":
                     aggregationType = AggregationType.Min;
+                    return true;
+                case "Select":
+                case "ToArray":
+                case "ToList":
+                    aggregationType = AggregationType.Push;
                     return true;
             }
 

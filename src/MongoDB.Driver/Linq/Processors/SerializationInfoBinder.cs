@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Linq.Processors
                             itemSerializationInfo.NominalType);
 
                         var serializationInfo = serializationExpression.SerializationInfo.Merge(itemSerializationInfo);
-                        newNode = new FieldExpression(binary, serializationInfo, serializationExpression.IsProjected);
+                        newNode = new FieldExpression(binary, serializationInfo);
                     }
                 }
             }
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Linq.Processors
                     {
                         var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(node.Member.Name);
                         var serializationInfo = serializationExpression.SerializationInfo.Merge(memberSerializationInfo);
-                        return new FieldExpression(mex, serializationInfo, serializationExpression.IsProjected);
+                        return new FieldExpression(mex, serializationInfo);
                     }
                 }
             }
@@ -183,11 +183,11 @@ namespace MongoDB.Driver.Linq.Processors
                     var serializationInfo = new BsonSerializationInfo(serializationExpression.SerializationInfo.ElementName, serializer, node.Type);
                     if (unaryExpression.Operand is DocumentExpression)
                     {
-                        return new DocumentExpression(newNode, serializationInfo, serializationExpression.IsProjected);
+                        return new DocumentExpression(newNode, serializationInfo);
                     }
                     else
                     {
-                        return new FieldExpression(unaryExpression, serializationInfo, serializationExpression.IsProjected);
+                        return new FieldExpression(unaryExpression, serializationInfo);
                     }
                 }
             }
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Linq.Processors
                             itemSerializationInfo.NominalType);
 
                         var serializationInfo = serializationExpression.SerializationInfo.Merge(itemSerializationInfo);
-                        return new FieldExpression(methodCallExpression, serializationInfo, serializationExpression.IsProjected);
+                        return new FieldExpression(methodCallExpression, serializationInfo);
                     }
                 }
             }
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Linq.Processors
                 {
                     var itemSerializationInfo = arraySerializer.GetItemSerializationInfo().WithNewName(indexName);
                     var serializationInfo = serializationExpression.SerializationInfo.Merge(itemSerializationInfo);
-                    return new FieldExpression(methodCallExpression, serializationInfo, serializationExpression.IsProjected);
+                    return new FieldExpression(methodCallExpression, serializationInfo);
                 }
             }
             else if (indexExpression.Type == typeof(string))
@@ -271,7 +271,7 @@ namespace MongoDB.Driver.Linq.Processors
                 {
                     var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(indexName);
                     var serializationInfo = serializationExpression.SerializationInfo.Merge(memberSerializationInfo);
-                    return new FieldExpression(methodCallExpression, serializationInfo, serializationExpression.IsProjected);
+                    return new FieldExpression(methodCallExpression, serializationInfo);
                 }
             }
 
@@ -295,10 +295,9 @@ namespace MongoDB.Driver.Linq.Processors
                     var lambda = (LambdaExpression)node.Arguments[1];
                     RegisterParameterReplacement(
                         lambda.Parameters[0],
-                        new DocumentExpression(
+                        new FieldExpression(
                             lambda.Parameters[0],
-                            itemSerializationInfo.WithNewName(serializationExpression.SerializationInfo.ElementName),
-                            serializationExpression.IsProjected));
+                            itemSerializationInfo.WithNewName(serializationExpression.SerializationInfo.ElementName)));
                 }
             }
 

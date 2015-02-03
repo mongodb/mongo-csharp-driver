@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class UpdateOpcodeOperationEmulator
+    internal class UpdateOpcodeOperationEmulator
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
@@ -49,6 +49,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum size of a document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a document.
+        /// </value>
         public int? MaxDocumentSize
         {
             get { return _maxDocumentSize; }

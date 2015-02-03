@@ -23,7 +23,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents the result of a map/reduce command.
+    /// Represents the result of a map-reduce command.
     /// </summary>
     [BsonSerializer(typeof(CommandResultSerializer<MapReduceResult>))]
     public class MapReduceResult : CommandResult

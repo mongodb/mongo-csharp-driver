@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    public static class TimeSpanParser
+    internal static class TimeSpanParser
     {
         // methods
         public static string ToString(TimeSpan value)
@@ -54,52 +54,52 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static bool TryParse(string s, out TimeSpan value)
+        public static bool TryParse(string value, out TimeSpan result)
         {
-            if (!string.IsNullOrEmpty(s))
+            if (!string.IsNullOrEmpty(value))
             {
-                s = s.ToLowerInvariant();
-                var end = s.Length - 1;
+                value = value.ToLowerInvariant();
+                var end = value.Length - 1;
 
                 var multiplier = 1000; // default units are seconds
-                if (s[end] == 's')
+                if (value[end] == 's')
                 {
-                    if (s[end - 1] == 'm')
+                    if (value[end - 1] == 'm')
                     {
-                        s = s.Substring(0, s.Length - 2);
+                        value = value.Substring(0, value.Length - 2);
                         multiplier = 1;
                     }
                     else
                     {
-                        s = s.Substring(0, s.Length - 1);
+                        value = value.Substring(0, value.Length - 1);
                         multiplier = 1000;
                     }
                 }
-                else if (s[end] == 'm')
+                else if (value[end] == 'm')
                 {
-                    s = s.Substring(0, s.Length - 1);
+                    value = value.Substring(0, value.Length - 1);
                     multiplier = 60 * 1000;
                 }
-                else if (s[end] == 'h')
+                else if (value[end] == 'h')
                 {
-                    s = s.Substring(0, s.Length - 1);
+                    value = value.Substring(0, value.Length - 1);
                     multiplier = 60 * 60 * 1000;
                 }
-                else if (s.IndexOf(':') != -1)
+                else if (value.IndexOf(':') != -1)
                 {
-                    return TimeSpan.TryParse(s, out value);
+                    return TimeSpan.TryParse(value, out result);
                 }
 
                 double multiplicand;
                 var numberStyles = NumberStyles.None;
-                if (double.TryParse(s, numberStyles, CultureInfo.InvariantCulture, out multiplicand))
+                if (double.TryParse(value, numberStyles, CultureInfo.InvariantCulture, out multiplicand))
                 {
-                    value = TimeSpan.FromMilliseconds(multiplicand * multiplier);
+                    result = TimeSpan.FromMilliseconds(multiplicand * multiplier);
                     return true;
                 }
             }
 
-            value = default(TimeSpan);
+            result = default(TimeSpan);
             return false;
         }
     }

@@ -20,7 +20,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    public class DeleteMessage : RequestMessage, IEncodableMessage<DeleteMessage>
+    /// <summary>
+    /// Represents a Delete message.
+    /// </summary>
+    public class DeleteMessage : RequestMessage
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
@@ -28,6 +31,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly BsonDocument _query;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeleteMessage"/> class.
+        /// </summary>
+        /// <param name="requestId">The request identifier.</param>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="isMulti">if set to <c>true</c> [is multi].</param>
         public DeleteMessage(
             int requestId,
             CollectionNamespace collectionNamespace,
@@ -41,30 +51,44 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // properties
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether to delete all matching documents.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if all matching documents should be deleted.; otherwise, <c>false</c>.
+        /// </value>
         public bool IsMulti
         {
             get { return _isMulti; }
         }
 
+        /// <summary>
+        /// Gets the query.
+        /// </summary>
+        /// <value>
+        /// The query.
+        /// </value>
         public BsonDocument Query
         {
             get { return _query; }
         }
 
         // methods
-        public new IMessageEncoder<DeleteMessage> GetEncoder(IMessageEncoderFactory encoderFactory)
+        /// <inheritdoc/>
+        public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
         {
             return encoderFactory.GetDeleteMessageEncoder();
-        }
-
-        protected override IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory)
-        {
-            return GetEncoder(encoderFactory);
         }
     }
 }

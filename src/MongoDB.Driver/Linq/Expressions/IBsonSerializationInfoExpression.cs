@@ -19,8 +19,6 @@ namespace MongoDB.Driver.Linq.Expressions
 {
     internal interface IBsonSerializationInfoExpression
     {
-        bool IsProjected { get; }
-
         BsonSerializationInfo SerializationInfo { get; }
     }
 }

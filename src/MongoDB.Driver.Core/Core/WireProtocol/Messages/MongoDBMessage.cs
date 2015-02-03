@@ -22,14 +22,13 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
+    /// <summary>
+    /// Represents a base class for messages.
+    /// </summary>
     public abstract class MongoDBMessage : IEncodableMessage
     {
-        // methods
-        public IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
-        {
-            return GetNonGenericEncoder(encoderFactory);
-        }
-
-        protected abstract IMessageEncoder GetNonGenericEncoder(IMessageEncoderFactory encoderFactory);
+        // methods        
+        /// <inheritdoc/>
+        public abstract IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory);
     }
 }

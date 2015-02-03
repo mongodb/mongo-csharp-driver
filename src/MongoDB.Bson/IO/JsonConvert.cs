@@ -27,6 +27,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to a Boolean.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A Boolean.</returns>
         public static bool ToBoolean(string value)
         {
             return bool.Parse(value);
@@ -36,6 +37,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to a DateTime.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A DateTime.</returns>
         public static DateTime ToDateTime(string value)
         {
             var formats = new[]
@@ -52,6 +54,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to a DateTimeOffset.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns> A DateTimeOffset.</returns>
         public static DateTimeOffset ToDateTimeOffset(string value)
         {
             return DateTimeOffset.ParseExact(value, "yyyy-MM-ddTHH:mm:ss.FFFFFFFK", DateTimeFormatInfo.InvariantInfo);
@@ -61,6 +64,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to a Decimal.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A Decimal.</returns>
         public static decimal ToDecimal(string value)
         {
             return decimal.Parse(value, NumberFormatInfo.InvariantInfo);
@@ -70,6 +74,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to a Double.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A Double.</returns>
         public static double ToDouble(string value)
         {
             return double.Parse(value, NumberFormatInfo.InvariantInfo);
@@ -79,6 +84,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to an Int16.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>An Int16.</returns>
         public static short ToInt16(string value)
         {
             return Int16.Parse(value);
@@ -88,6 +94,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to an Int32.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>An Int32.</returns>
         public static int ToInt32(string value)
         {
             return Int32.Parse(value);
@@ -97,6 +104,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to an Int64.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>An Int64.</returns>
         public static long ToInt64(string value)
         {
             return Int64.Parse(value);
@@ -106,6 +114,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to a Single.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A Single.</returns>
         public static float ToSingle(string value)
         {
             return float.Parse(value, NumberFormatInfo.InvariantInfo);
@@ -115,6 +124,7 @@ namespace MongoDB.Bson.IO
         /// Converts a Boolean to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         public static string ToString(bool value)
         {
             return value ? "true" : "false";
@@ -124,6 +134,7 @@ namespace MongoDB.Bson.IO
         /// Converts a DateTime to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         public static string ToString(DateTime value)
         {
             return value.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK", DateTimeFormatInfo.InvariantInfo);
@@ -133,6 +144,7 @@ namespace MongoDB.Bson.IO
         /// Converts a DateTimeOffset to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         public static string ToString(DateTimeOffset value)
         {
             return value.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK", DateTimeFormatInfo.InvariantInfo);
@@ -142,6 +154,7 @@ namespace MongoDB.Bson.IO
         /// Converts a Decimal to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         public static string ToString(decimal value)
         {
             return value.ToString("G", NumberFormatInfo.InvariantInfo);
@@ -151,6 +164,7 @@ namespace MongoDB.Bson.IO
         /// Converts a Double to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         public static string ToString(double value)
         {
             return value.ToString("R", NumberFormatInfo.InvariantInfo);
@@ -160,6 +174,7 @@ namespace MongoDB.Bson.IO
         /// Converts a Single to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         public static string ToString(float value)
         {
             return value.ToString("R", NumberFormatInfo.InvariantInfo);
@@ -169,6 +184,7 @@ namespace MongoDB.Bson.IO
         /// Converts an Int32 to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         public static string ToString(int value)
         {
             return value.ToString();
@@ -178,6 +194,7 @@ namespace MongoDB.Bson.IO
         /// Converts an Int64 to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         public static string ToString(long value)
         {
             return value.ToString();
@@ -187,6 +204,7 @@ namespace MongoDB.Bson.IO
         /// Converts an Int16 to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         public static string ToString(short value)
         {
             return value.ToString();
@@ -196,6 +214,7 @@ namespace MongoDB.Bson.IO
         /// Converts a UInt32 to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         [CLSCompliant(false)]
         public static string ToString(uint value)
         {
@@ -206,6 +225,7 @@ namespace MongoDB.Bson.IO
         /// Converts a UInt64 to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         [CLSCompliant(false)]
         public static string ToString(ulong value)
         {
@@ -216,6 +236,7 @@ namespace MongoDB.Bson.IO
         /// Converts a UInt16 to a string.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A string.</returns>
         [CLSCompliant(false)]
         public static string ToString(ushort value)
         {
@@ -226,6 +247,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to a UInt16.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A UInt16.</returns>
         [CLSCompliant(false)]
         public static ushort ToUInt16(string value)
         {
@@ -236,6 +258,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to a UInt32.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A UInt32.</returns>
         [CLSCompliant(false)]
         public static uint ToUInt32(string value)
         {
@@ -246,6 +269,7 @@ namespace MongoDB.Bson.IO
         /// Converts a string to a UInt64.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>A UInt64.</returns>
         [CLSCompliant(false)]
         public static ulong ToUInt64(string value)
         {

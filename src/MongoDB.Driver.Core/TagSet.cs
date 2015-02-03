@@ -32,47 +32,74 @@ namespace MongoDB.Driver
         private readonly IReadOnlyList<Tag> _tags;
 
         // constructor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TagSet"/> class.
+        /// </summary>
         public TagSet()
         {
             _tags = new Tag[0];
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TagSet"/> class.
+        /// </summary>
+        /// <param name="tags">The tags.</param>
         public TagSet(IEnumerable<Tag> tags)
         {
             _tags = Ensure.IsNotNull(tags, "tags").ToList();
         }
 
         // properties
+        /// <summary>
+        /// Gets a value indicating whether the tag set is empty.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the tag set is empty; otherwise, <c>false</c>.
+        /// </value>
         public bool IsEmpty
         {
             get { return _tags.Count == 0; }
         }
 
+        /// <summary>
+        /// Gets the tags.
+        /// </summary>
+        /// <value>
+        /// The tags.
+        /// </value>
         public IReadOnlyList<Tag> Tags
         {
             get { return _tags; }
         }
 
         // methods
+        /// <summary>
+        /// Determines whether the tag set contains all of the required tags.
+        /// </summary>
+        /// <param name="required">The required tags.</param>
+        /// <returns>True if the tag set contains all of the required tags.</returns>
         public bool ContainsAll(TagSet required)
         {
             return required.Tags.All(t => _tags.Contains(t));
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as TagSet);
         }
 
-        public bool Equals(TagSet rhs)
+        /// <inheritdoc/>
+        public bool Equals(TagSet other)
         {
-            if (rhs == null)
+            if (other == null)
             {
                 return false;
             }
-            return _tags.SequenceEqual(rhs._tags);
+            return _tags.SequenceEqual(other._tags);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return new Hasher()
@@ -80,6 +107,7 @@ namespace MongoDB.Driver
                 .GetHashCode();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             if (_tags.Count == 0)

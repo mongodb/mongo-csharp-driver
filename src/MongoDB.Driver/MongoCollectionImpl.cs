@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -78,8 +79,26 @@ namespace MongoDB.Driver
         // methods
         public IAggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options)
         {
-            options = options ?? new AggregateOptions();
-            return new AggregateFluent<TDocument, TDocument>(this, new List<object>(), options, _serializer);
+            AggregateOptions<TDocument> newOptions;
+            if (options == null)
+            {
+                newOptions = new AggregateOptions<TDocument>
+                {
+                    ResultSerializer = _serializer
+                };
+            }
+            else
+            {
+                newOptions = new AggregateOptions<TDocument>
+                {
+                    AllowDiskUse = options.AllowDiskUse,
+                    BatchSize = options.BatchSize,
+                    MaxTime = options.MaxTime,
+                    ResultSerializer = _serializer,
+                    UseCursor = options.UseCursor
+                };
+            }
+            return new AggregateFluent<TDocument, TDocument>(this, new List<object>(), newOptions);
         }
 
         public async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options, CancellationToken cancellationToken)
@@ -237,7 +256,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public Task<IReadOnlyList<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options, CancellationToken cancellationToken)
+        public Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(fieldName, "fieldName");
             Ensure.IsNotNull(filter, "filter");
@@ -277,10 +296,31 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public IFindFluent<TDocument, TDocument> Find(object filter)
+        public IFindFluent<TDocument, TDocument> Find(object filter, FindOptions options)
         {
-            var options = new FindOptions<TDocument>();
-            return new FindFluent<TDocument, TDocument>(this, filter, options);
+            FindOptions<TDocument> genericOptions;
+            if (options == null)
+            {
+                genericOptions = new FindOptions<TDocument>
+                {
+                    ResultSerializer = _serializer
+                };
+            }
+            else
+            {
+                genericOptions = new FindOptions<TDocument>
+                {
+                    AllowPartialResults = options.AllowPartialResults,
+                    BatchSize = options.BatchSize,
+                    Comment = options.Comment,
+                    CursorType = options.CursorType,
+                    MaxTime = options.MaxTime,
+                    Modifiers = options.Modifiers,
+                    NoCursorTimeout = options.NoCursorTimeout,
+                    ResultSerializer = _serializer
+                };
+            }
+            return new FindFluent<TDocument, TDocument>(this, filter, genericOptions);
         }
 
         public Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options, CancellationToken cancellationToken)
@@ -399,12 +439,6 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task<IAsyncCursor<BsonDocument>> GetIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var op = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
-            return ExecuteReadOperation(op, ReadPreference.Primary, cancellationToken);
-        }
-
         public async Task InsertOneAsync(TDocument document, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull((object)document, "document");
@@ -427,6 +461,87 @@ namespace MongoDB.Driver
             var models = documents.Select(x => new InsertOneModel<TDocument>(x));
             BulkWriteOptions bulkWriteOptions = options == null ? null : new BulkWriteOptions { IsOrdered = options.IsOrdered };
             return BulkWriteAsync(models, bulkWriteOptions, cancellationToken);
+        }
+
+        public Task<IAsyncCursor<BsonDocument>> ListIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var op = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
+            return ExecuteReadOperation(op, ReadPreference.Primary, cancellationToken);
+        }
+
+        public async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(map, "map");
+            Ensure.IsNotNull(reduce, "reduce");
+
+            options = options ?? new MapReduceOptions<TResult>();
+            var outputOptions = options.OutputOptions ?? MapReduceOutputOptions.Inline;
+            var resultSerializer = ResolveResultSerializer<TResult>(options.ResultSerializer);
+
+            if (outputOptions == MapReduceOutputOptions.Inline)
+            {
+                var operation = new MapReduceOperation<TResult>(
+                    _collectionNamespace,
+                    map,
+                    reduce,
+                    resultSerializer,
+                    _messageEncoderSettings)
+                {
+                    Filter = BsonDocumentHelper.FilterToBsonDocument<TDocument>(_settings.SerializerRegistry, options.Filter),
+                    FinalizeFunction = options.Finalize,
+                    JavaScriptMode = options.JavaScriptMode,
+                    Limit = options.Limit,
+                    MaxTime = options.MaxTime,
+                    Scope = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Scope),
+                    Sort = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Sort),
+                    Verbose = options.Verbose
+                };
+
+                return await ExecuteReadOperation(operation, cancellationToken);
+            }
+            else
+            {
+                var collectionOutputOptions = (MapReduceOutputOptions.CollectionOutput)outputOptions;
+                var databaseNamespace = collectionOutputOptions.DatabaseName == null ?
+                    _collectionNamespace.DatabaseNamespace :
+                    new DatabaseNamespace(collectionOutputOptions.DatabaseName);
+                var outputCollectionNamespace = new CollectionNamespace(databaseNamespace, collectionOutputOptions.CollectionName);
+
+                var operation = new MapReduceOutputToCollectionOperation(
+                    _collectionNamespace,
+                    outputCollectionNamespace,
+                    map,
+                    reduce,
+                    _messageEncoderSettings)
+                {
+                    Filter = BsonDocumentHelper.FilterToBsonDocument<TDocument>(_settings.SerializerRegistry, options.Filter),
+                    FinalizeFunction = options.Finalize,
+                    JavaScriptMode = options.JavaScriptMode,
+                    Limit = options.Limit,
+                    MaxTime = options.MaxTime,
+                    NonAtomicOutput = collectionOutputOptions.NonAtomic,
+                    Scope = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Scope),
+                    OutputMode = collectionOutputOptions.OutputMode,
+                    ShardedOutput = collectionOutputOptions.Sharded,
+                    Sort = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Sort),
+                    Verbose = options.Verbose
+                };
+
+                var result = await ExecuteWriteOperation(operation, cancellationToken);
+
+                var findOperation = new FindOperation<TResult>(
+                    outputCollectionNamespace,
+                    resultSerializer,
+                    _messageEncoderSettings)
+                {
+                    MaxTime = options.MaxTime
+                };
+
+                // we want to delay execution of the find because the user may
+                // not want to iterate the results at all...
+                var deferredCursor = new DeferredAsyncCursor<TResult>(ct => ExecuteReadOperation(findOperation, ReadPreference.Primary, ct));
+                return await Task.FromResult(deferredCursor).ConfigureAwait(false);
+            }
         }
 
         public async Task<ReplaceOneResult> ReplaceOneAsync(object filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken)

@@ -151,7 +151,7 @@ namespace MongoDB.Bson.IO
         /// Accesses the backing bytes.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns></returns>
+        /// <returns>A segment of the backing bytes.</returns>
         public ArraySegment<byte> AccessBackingBytes(int position)
         {
             ThrowIfDisposed();

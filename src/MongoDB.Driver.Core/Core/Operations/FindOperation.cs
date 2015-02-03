@@ -53,6 +53,12 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _sort;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FindOperation{TDocument}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public FindOperation(
             CollectionNamespace collectionNamespace,
             IBsonSerializer<TDocument> resultSerializer,
@@ -65,87 +71,177 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether the server is allowed to return partial results if any shards are unavailable.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the server is allowed to return partial results if any shards are unavailable; otherwise, <c>false</c>.
+        /// </value>
         public bool AllowPartialResults
         {
             get { return _allowPartialResults; }
             set { _allowPartialResults = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the size of a batch.
+        /// </summary>
+        /// <value>
+        /// The size of a batch.
+        /// </value>
         public int? BatchSize
         {
             get { return _batchSize; }
             set { _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets the collection namespace.
+        /// </summary>
+        /// <value>
+        /// The collection namespace.
+        /// </value>
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
         }
 
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
         public string Comment
         {
             get { return _comment; }
             set { _comment = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the type of the cursor.
+        /// </summary>
+        /// <value>
+        /// The type of the cursor.
+        /// </value>
         public CursorType CursorType
         {
             get { return _cursorType; }
             set { _cursorType = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the filter.
+        /// </summary>
+        /// <value>
+        /// The filter.
+        /// </value>
         public BsonDocument Filter
         {
             get { return _filter; }
             set { _filter = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the limit.
+        /// </summary>
+        /// <value>
+        /// The limit.
+        /// </value>
         public int? Limit
         {
             get { return _limit; }
             set { _limit = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum time the server should spend on this operation.
+        /// </summary>
+        /// <value>
+        /// The maximum time the server should spend on this operation.
+        /// </value>
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = value; }
         }
 
+        /// <summary>
+        /// Gets the message encoder settings.
+        /// </summary>
+        /// <value>
+        /// The message encoder settings.
+        /// </value>
         public MessageEncoderSettings MessageEncoderSettings
         {
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets or sets any additional query modifiers.
+        /// </summary>
+        /// <value>
+        /// The additional query modifiers.
+        /// </value>
         public BsonDocument Modifiers
         {
             get { return _modifiers; }
             set { _modifiers = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the server will not timeout the cursor.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the server will not timeout the cursor; otherwise, <c>false</c>.
+        /// </value>
         public bool NoCursorTimeout
         {
             get { return _noCursorTimeout; }
             set { _noCursorTimeout = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the projection.
+        /// </summary>
+        /// <value>
+        /// The projection.
+        /// </value>
         public BsonDocument Projection
         {
             get { return _projection; }
             set { _projection = value; }
         }
 
+        /// <summary>
+        /// Gets the result serializer.
+        /// </summary>
+        /// <value>
+        /// The result serializer.
+        /// </value>
         public IBsonSerializer<TDocument> ResultSerializer
         {
             get { return _resultSerializer; }
         }
 
+        /// <summary>
+        /// Gets or sets the number of documents skip.
+        /// </summary>
+        /// <value>
+        /// The number of documents skip.
+        /// </value>
         public int? Skip
         {
             get { return _skip; }
             set { _skip = Ensure.IsNullOrGreaterThanOrEqualToZero(value, "value"); }
         }
 
+        /// <summary>
+        /// Gets or sets the sort specification.
+        /// </summary>
+        /// <value>
+        /// The sort specification.
+        /// </value>
         public BsonDocument Sort
         {
             get { return _sort; }
@@ -195,6 +291,7 @@ namespace MongoDB.Driver.Core.Operations
             return wrappedQuery;
         }
 
+        /// <inheritdoc/>
         public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
@@ -221,6 +318,11 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        /// <summary>
+        /// Returns an explain operation for this find operation.
+        /// </summary>
+        /// <param name="verbosity">The verbosity.</param>
+        /// <returns>An explain operation.</returns>
         public IReadOperation<BsonDocument> ToExplainOperation(ExplainVerbosity verbosity)
         {
             BsonDocument modifiers;

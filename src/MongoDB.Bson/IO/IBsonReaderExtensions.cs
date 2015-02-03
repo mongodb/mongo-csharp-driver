@@ -209,6 +209,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads the name of an element from the reader.
         /// </summary>
+        /// <param name="reader">The reader.</param>
         /// <returns>The name of the element.</returns>
         public static string ReadName(this IBsonReader reader)
         {

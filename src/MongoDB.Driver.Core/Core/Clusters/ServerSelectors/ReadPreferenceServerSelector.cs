@@ -32,6 +32,12 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         private static readonly ReadPreferenceServerSelector __primary = new ReadPreferenceServerSelector(ReadPreference.Primary);
 
         // static properties
+        /// <summary>
+        /// Gets a ReadPreferenceServerSelector that selects the Primary.
+        /// </summary>
+        /// <value>
+        /// A server selector.
+        /// </value>
         public static ReadPreferenceServerSelector Primary
         {
             get { return __primary; }
@@ -42,12 +48,17 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         private readonly ReadPreference _readPreference;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadPreferenceServerSelector"/> class.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
         public ReadPreferenceServerSelector(ReadPreference readPreference)
         {
             _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
         }
 
         // methods
+        /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
             switch (cluster.Type)
@@ -62,6 +73,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             }
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return string.Format("ReadPreferenceServerSelector{{ ReadPreference = {0} }}", _readPreference);
@@ -80,7 +92,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 var matchingServers = new List<ServerDescription>();
                 foreach (var server in servers)
                 {
-                    if (server.Tags.ContainsAll(tagSet))
+                    if (server.Tags != null && server.Tags.ContainsAll(tagSet))
                     {
                         matchingServers.Add(server);
                     }

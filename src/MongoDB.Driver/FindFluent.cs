@@ -40,24 +40,6 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public IFindFluent<TDocument, TResult> AllowPartialResults(bool allowPartialResults)
-        {
-            _options.AllowPartialResults = allowPartialResults;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TResult> BatchSize(int? size)
-        {
-            _options.BatchSize = size;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TResult> Comment(string comment)
-        {
-            _options.Comment = comment;
-            return this;
-        }
-
         public Task<long> CountAsync(CancellationToken cancellationToken)
         {
             BsonValue hint;
@@ -73,33 +55,9 @@ namespace MongoDB.Driver
             return _collection.CountAsync(_filter, options, cancellationToken);
         }
 
-        public IFindFluent<TDocument, TResult> CursorType(CursorType cursorType)
-        {
-            _options.CursorType = cursorType;
-            return this;
-        }
-
         public IFindFluent<TDocument, TResult> Limit(int? limit)
         {
             _options.Limit = limit;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TResult> MaxTime(TimeSpan? maxTime)
-        {
-            _options.MaxTime = maxTime;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TResult> Modifiers(BsonDocument modifiers)
-        {
-            _options.Modifiers = modifiers;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TResult> NoCursorTimeout(bool noCursorTimeout)
-        {
-            _options.NoCursorTimeout = noCursorTimeout;
             return this;
         }
 

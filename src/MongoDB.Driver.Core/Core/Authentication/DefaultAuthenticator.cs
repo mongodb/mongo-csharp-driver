@@ -21,6 +21,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
+    /// <summary>
+    /// The default authenticator (uses SCRAM-SHA1 if possible, falls back to MONGODB-CR otherwise).
+    /// </summary>
     public class DefaultAuthenticator : IAuthenticator
     {
         // static
@@ -31,6 +34,10 @@ namespace MongoDB.Driver.Core.Authentication
         private readonly IRandomStringGenerator _randomStringGenerator;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultAuthenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
         public DefaultAuthenticator(UsernamePasswordCredential credential)
             : this(credential, new RNGCryptoServiceProviderRandomStringGenerator())
         {
@@ -43,12 +50,14 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // properties
+        /// <inheritdoc/>
         public string Name
         {
             get { return "DEFAULT"; }
         }
 
         // methods
+        /// <inheritdoc/>
         public Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");

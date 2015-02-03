@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    public sealed class ExclusiveConnectionPoolFactory : IConnectionPoolFactory
+    internal sealed class ExclusiveConnectionPoolFactory : IConnectionPoolFactory
     {
         // fields
         private readonly IConnectionFactory _connectionFactory;

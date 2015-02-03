@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Clusters
     {
         #region static
         // static methods
-        public static ClusterDescription CreateInitial(ClusterId clusterId, ClusterType clusterType)
+        internal static ClusterDescription CreateInitial(ClusterId clusterId, ClusterType clusterType)
         {
             return new ClusterDescription(
                 clusterId,
@@ -45,6 +45,12 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ClusterType _type;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterDescription"/> class.
+        /// </summary>
+        /// <param name="clusterId">The cluster identifier.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="servers">The servers.</param>
         public ClusterDescription(
             ClusterId clusterId,
             ClusterType type,
@@ -56,27 +62,52 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // properties
+        /// <summary>
+        /// Gets the cluster identifier.
+        /// </summary>
+        /// <value>
+        /// The cluster identifier.
+        /// </value>
         public ClusterId ClusterId
         {
             get { return _clusterId; }
         }
 
+        /// <summary>
+        /// Gets the servers.
+        /// </summary>
+        /// <value>
+        /// The servers.
+        /// </value>
         public IReadOnlyList<ServerDescription> Servers
         {
             get { return _servers; }
         }
 
+        /// <summary>
+        /// Gets the cluster state.
+        /// </summary>
+        /// <value>
+        /// The cluster state.
+        /// </value>
         public ClusterState State
         {
             get { return _servers.Any(x => x.State == ServerState.Connected) ? ClusterState.Connected : ClusterState.Disconnected; }
         }
 
+        /// <summary>
+        /// Gets the cluster type.
+        /// </summary>
+        /// <value>
+        /// The cluster type.
+        /// </value>
         public ClusterType Type
         {
             get { return _type; }
         }
 
         // methods
+        /// <inheritdoc/>
         public bool Equals(ClusterDescription other)
         {
             if (other == null)
@@ -90,11 +121,13 @@ namespace MongoDB.Driver.Core.Clusters
                 _type == other._type;
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return Equals(obj as ClusterDescription);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             // ignore _revision
@@ -105,6 +138,7 @@ namespace MongoDB.Driver.Core.Clusters
                 .GetHashCode();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             var servers = string.Join(", ", _servers.Select(n => n.ToString()).ToArray());
@@ -116,6 +150,11 @@ namespace MongoDB.Driver.Core.Clusters
                 servers);
         }
 
+        /// <summary>
+        /// Returns a new ClusterDescription with a changed ServerDescription.
+        /// </summary>
+        /// <param name="value">The server description.</param>
+        /// <returns>A ClusterDescription.</returns>
         public ClusterDescription WithServerDescription(ServerDescription value)
         {
             Ensure.IsNotNull(value, "value");
@@ -143,6 +182,11 @@ namespace MongoDB.Driver.Core.Clusters
                 replacementServers);
         }
 
+        /// <summary>
+        /// Returns a new ClusterDescription with a ServerDescription removed.
+        /// </summary>
+        /// <param name="endPoint">The end point of the server description to remove.</param>
+        /// <returns>A ClusterDescription.</returns>
         public ClusterDescription WithoutServerDescription(EndPoint endPoint)
         {
             var oldServerDescription = _servers.SingleOrDefault(s => s.EndPoint == endPoint);
@@ -157,6 +201,11 @@ namespace MongoDB.Driver.Core.Clusters
                     _servers.Where(s => !EndPointHelper.Equals(s.EndPoint, endPoint)));
         }
 
+        /// <summary>
+        /// Returns a new ClusterDescription with a changed ClusterType.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>A ClusterDescription.</returns>
         public ClusterDescription WithType(ClusterType value)
         {
             return _type == value ? this : new ClusterDescription(_clusterId, value, _servers);

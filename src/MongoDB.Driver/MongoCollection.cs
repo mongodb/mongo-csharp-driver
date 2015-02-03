@@ -28,9 +28,9 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.Sync;
-using MongoDB.Driver.Core.SyncExtensionMethods;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Operations;
+using MongoDB.Driver.Sync;
 using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver
@@ -284,7 +284,7 @@ namespace MongoDB.Driver
                 MaxTime = args.MaxTime,
             };
 
-            return ExecuteReadOperation(operation);
+            return ExecuteReadOperation(operation).ToListAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -1480,73 +1480,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Runs a Map/Reduce command on this collection.
-        /// </summary>
-        /// <param name="map">A JavaScript function called for each document.</param>
-        /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
-        /// <param name="options">Options for this map/reduce command (see <see cref="MapReduceOptionsDocument"/>, <see cref="MapReduceOptionsWrapper"/> and the <see cref="MapReduceOptions"/> builder).</param>
-        /// <returns>A <see cref="MapReduceResult"/>.</returns>
-        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
-        public virtual MapReduceResult MapReduce(
-            BsonJavaScript map,
-            BsonJavaScript reduce,
-            IMongoMapReduceOptions options)
-        {
-            var args = MapReduceArgsFromOptions(options);
-            args.MapFunction = map;
-            args.ReduceFunction = reduce;
-            return MapReduce(args);
-        }
-
-        /// <summary>
-        /// Runs a Map/Reduce command on document in this collection that match a query.
-        /// </summary>
-        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
-        /// <param name="map">A JavaScript function called for each document.</param>
-        /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
-        /// <param name="options">Options for this map/reduce command (see <see cref="MapReduceOptionsDocument"/>, <see cref="MapReduceOptionsWrapper"/> and the <see cref="MapReduceOptions"/> builder).</param>
-        /// <returns>A <see cref="MapReduceResult"/>.</returns>
-        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
-        public virtual MapReduceResult MapReduce(
-            IMongoQuery query,
-            BsonJavaScript map,
-            BsonJavaScript reduce,
-            IMongoMapReduceOptions options)
-        {
-            var args = MapReduceArgsFromOptions(options);
-            args.Query = query;
-            args.MapFunction = map;
-            args.ReduceFunction = reduce;
-            return MapReduce(args);
-        }
-
-        /// <summary>
-        /// Runs a Map/Reduce command on document in this collection that match a query.
-        /// </summary>
-        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
-        /// <param name="map">A JavaScript function called for each document.</param>
-        /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
-        /// <returns>A <see cref="MapReduceResult"/>.</returns>
-        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
-        public virtual MapReduceResult MapReduce(IMongoQuery query, BsonJavaScript map, BsonJavaScript reduce)
-        {
-            return MapReduce(new MapReduceArgs { Query = query, MapFunction = map, ReduceFunction = reduce });
-        }
-
-        /// <summary>
-        /// Runs a Map/Reduce command on this collection.
-        /// </summary>
-        /// <param name="map">A JavaScript function called for each document.</param>
-        /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
-        /// <returns>A <see cref="MapReduceResult"/>.</returns>
-        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
-        public virtual MapReduceResult MapReduce(BsonJavaScript map, BsonJavaScript reduce)
-        {
-            return MapReduce(new MapReduceArgs { MapFunction = map, ReduceFunction = reduce });
-        }
-
-        /// <summary>
-        /// Runs a Map/Reduce command on this collection.
+        /// Runs a map-reduce command on this collection.
         /// </summary>
         /// <param name="args">The args.</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
@@ -1556,7 +1490,7 @@ namespace MongoDB.Driver
             if (args.MapFunction == null) { throw new ArgumentException("MapFunction is null.", "args"); }
             if (args.ReduceFunction == null) { throw new ArgumentException("ReduceFunction is null.", "args"); }
 
-            var query = args.Query == null ? new BsonDocument() : BsonDocumentWrapper.Create(args.Query);
+            var query = args.Query == null ? null : BsonDocumentWrapper.Create(args.Query);
             var messageEncoderSettings = GetMessageEncoderSettings();
             var scope = args.Scope == null ? null : BsonDocumentWrapper.Create(args.Scope);
             var sort = args.SortBy == null ? null : BsonDocumentWrapper.Create(args.SortBy);
@@ -1564,16 +1498,13 @@ namespace MongoDB.Driver
             BsonDocument response;
             if (args.OutputMode == MapReduceOutputMode.Inline)
             {
-                var resultSerializer = BsonDocumentSerializer.Instance;
-
-                var operation = new MapReduceOperation<BsonDocument>(
+                var operation = new MapReduceLegacyOperation(
                     _collectionNamespace,
                     args.MapFunction,
                     args.ReduceFunction,
-                    query,
-                    resultSerializer,
                     messageEncoderSettings)
                 {
+                    Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
                     JavaScriptMode = args.JsMode,
                     Limit = args.Limit,
@@ -1596,9 +1527,9 @@ namespace MongoDB.Driver
                     outputCollectionNamespace,
                     args.MapFunction,
                     args.ReduceFunction,
-                    query,
                     messageEncoderSettings)
                 {
+                    Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
                     JavaScriptMode = args.JsMode,
                     Limit = args.Limit,
@@ -2106,101 +2037,6 @@ namespace MongoDB.Driver
         private MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query, IBsonSerializer serializer)
         {
             return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer);
-        }
-
-#pragma warning disable 618
-        private MapReduceArgs MapReduceArgsFromOptions(IMongoMapReduceOptions options)
-#pragma warning restore
-        {
-            var args = new MapReduceArgs();
-            var optionsDocument = options.ToBsonDocument();
-
-            BsonValue finalizeFunction;
-            if (optionsDocument.TryGetValue("finalize", out finalizeFunction))
-            {
-                args.FinalizeFunction = finalizeFunction.AsBsonJavaScript;
-            }
-
-            BsonValue jsMode;
-            if (optionsDocument.TryGetValue("jsMode", out jsMode))
-            {
-                args.JsMode = jsMode.ToBoolean();
-            }
-
-            BsonValue limit;
-            if (optionsDocument.TryGetValue("limit", out limit))
-            {
-                args.Limit = limit.ToInt64();
-            }
-
-            BsonValue mapFunction;
-            if (optionsDocument.TryGetValue("map", out mapFunction))
-            {
-                args.MapFunction = mapFunction.AsBsonJavaScript;
-            }
-
-            BsonValue output;
-            if (optionsDocument.TryGetValue("out", out output))
-            {
-                var outputDocument = output.AsBsonDocument;
-                var actionElement = outputDocument.GetElement(0);
-
-                args.OutputMode = (MapReduceOutputMode)Enum.Parse(typeof(MapReduceOutputMode), actionElement.Name, true); // ignoreCase
-                if (args.OutputMode != MapReduceOutputMode.Inline)
-                {
-                    args.OutputCollectionName = actionElement.Value.AsString;
-
-                    BsonValue databaseName;
-                    if (outputDocument.TryGetValue("db", out databaseName))
-                    {
-                        args.OutputDatabaseName = databaseName.AsString;
-                    }
-
-                    BsonValue outputIsSharded;
-                    if (outputDocument.TryGetValue("sharded", out outputIsSharded))
-                    {
-                        args.OutputIsSharded = outputIsSharded.ToBoolean();
-                    }
-
-                    BsonValue nonAtomic;
-                    if (outputDocument.TryGetValue("nonAtomic", out nonAtomic))
-                    {
-                        args.OutputIsNonAtomic = nonAtomic.ToBoolean();
-                    }
-                }
-            }
-
-            BsonValue queryOption;
-            if (optionsDocument.TryGetValue("query", out queryOption))
-            {
-                args.Query = new QueryDocument(queryOption.ToBsonDocument());
-            }
-
-            BsonValue reduceFunction;
-            if (optionsDocument.TryGetValue("reduce", out reduceFunction))
-            {
-                args.ReduceFunction = reduceFunction.AsBsonJavaScript;
-            }
-
-            BsonValue scope;
-            if (optionsDocument.TryGetValue("scope", out scope))
-            {
-                args.SortBy = new SortByDocument(scope.ToBsonDocument());
-            }
-
-            BsonValue sortBy;
-            if (optionsDocument.TryGetValue("sort", out sortBy))
-            {
-                args.SortBy = new SortByDocument(sortBy.ToBsonDocument());
-            }
-
-            BsonValue verbose;
-            if (optionsDocument.TryGetValue("verbose", out verbose))
-            {
-                args.Verbose = verbose.ToBoolean();
-            }
-
-            return args;
         }
     }
 

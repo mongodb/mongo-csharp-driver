@@ -22,6 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <DocumentationFile>bin\Debug\MongoDB.Driver.Core.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\MongoDB.Driver.Core.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -127,6 +129,7 @@
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="Core\Misc\StringBuilderExtensionMethods.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperation.cs" />
+    <Compile Include="Core\Operations\MapReduceLegacyOperation.cs" />
     <Compile Include="ServerErrorCategory.cs" />
     <Compile Include="Core\Operations\MongoBulkWriteOperationException.cs" />
     <Compile Include="Core\Operations\CreateIndexRequest.cs" />
@@ -152,7 +155,6 @@
     <Compile Include="Core\Operations\PingOperation.cs" />
     <Compile Include="Core\Operations\QueryHelper.cs" />
     <Compile Include="Core\Operations\UpdateType.cs" />
-    <Compile Include="Core\Sync\AsyncCursorEnumeratorAdapter.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\MessageBinaryEncoderBase.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\MessageJsonEncoderBase.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\MessageEncoderSettings.cs" />
@@ -167,7 +169,6 @@
     <Compile Include="Core\Misc\IndexMap.cs" />
     <Compile Include="Core\Misc\Metronome.cs" />
     <Compile Include="Core\Async\AsyncQueue.cs" />
-    <Compile Include="Core\Async\TaskExtensionMethods.cs" />
     <Compile Include="Core\Authentication\AuthenticationHelper.cs" />
     <Compile Include="Core\Authentication\MongoDBX509Authenticator.cs" />
     <Compile Include="Core\Authentication\PlainAuthenticator.cs" />
@@ -211,7 +212,7 @@
     <Compile Include="Core\Events\IClusterListener.cs" />
     <Compile Include="Core\Events\IConnectionListener.cs" />
     <Compile Include="Core\Configuration\ClusterBuilder.cs" />
-    <Compile Include="Core\Configuration\ClusterBuilderExtensionMethods.cs" />
+    <Compile Include="Core\Configuration\ClusterBuilderExtensions.cs" />
     <Compile Include="Core\Operations\WriteRequestType.cs" />
     <Compile Include="Core\Servers\ServerDescriptionChangedEventArgs.cs" />
     <Compile Include="Core\Clusters\ICluster.cs" />
@@ -225,7 +226,7 @@
     <Compile Include="MongoWaitQueueFullException.cs" />
     <Compile Include="MongoNodeIsRecoveringException.cs" />
     <Compile Include="MongoNotPrimaryException.cs" />
-    <Compile Include="ProjectingAsyncCursor.cs" />
+    <Compile Include="BatchTransformingAsyncCursor.cs" />
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReadPreferenceMode.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfig.cs" />
@@ -245,7 +246,7 @@
     <Compile Include="Core\Connections\BinaryConnection.cs" />
     <Compile Include="Core\Connections\BinaryConnectionFactory.cs" />
     <Compile Include="Core\Connections\ConnectionDescription.cs" />
-    <Compile Include="Core\Connections\ConnectionExtensionMethods.cs" />
+    <Compile Include="Core\Connections\ConnectionExtensions.cs" />
     <Compile Include="Core\Connections\ConnectionInitializer.cs" />
     <Compile Include="Core\Configuration\ConnectionSettings.cs" />
     <Compile Include="Core\Connections\IConnection.cs" />
@@ -318,7 +319,7 @@
     <Compile Include="Core\Operations\GroupOperation.cs" />
     <Compile Include="Core\Operations\InsertOpcodeOperation.cs" />
     <Compile Include="Core\Operations\IOperation.cs" />
-    <Compile Include="Core\Operations\ListDatabaseNamesOperation.cs" />
+    <Compile Include="Core\Operations\ListDatabasesOperation.cs" />
     <Compile Include="Core\Operations\MapReduceOperation.cs" />
     <Compile Include="Core\Operations\MapReduceOperationBase.cs" />
     <Compile Include="Core\Operations\MapReduceOutputMode.cs" />
@@ -341,10 +342,6 @@
     <Compile Include="Core\Configuration\ServerSettings.cs" />
     <Compile Include="Core\Servers\ServerState.cs" />
     <Compile Include="Core\Servers\ServerType.cs" />
-    <Compile Include="Core\Sync\IBindingExtensionMethods.cs" />
-    <Compile Include="Core\Sync\IClusterExtensionMethods.cs" />
-    <Compile Include="Core\Sync\IOperationExtensionMethods.cs" />
-    <Compile Include="Core\Sync\IServerExtensionMethods.cs" />
     <Compile Include="Core\WireProtocol\CommandWireProtocol.cs" />
     <Compile Include="Core\WireProtocol\CursorBatch.cs" />
     <Compile Include="Core\WireProtocol\DeleteWireProtocol.cs" />
@@ -375,7 +372,6 @@
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\UpdateMessageJsonEncoder.cs" />
     <Compile Include="Core\WireProtocol\Messages\GetMoreMessage.cs" />
     <Compile Include="Core\WireProtocol\Messages\InsertMessage.cs" />
-    <Compile Include="Core\WireProtocol\Messages\IReplyMessageDocumentDecoder.cs" />
     <Compile Include="Core\WireProtocol\Messages\KillCursorsMessage.cs" />
     <Compile Include="Core\WireProtocol\Messages\MongoDBMessage.cs" />
     <Compile Include="Core\WireProtocol\Messages\QueryMessage.cs" />

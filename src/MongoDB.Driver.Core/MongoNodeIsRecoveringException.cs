@@ -22,6 +22,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Represents a MongoDB node is recovering exception.
+    /// </summary>
     [Serializable]
     public class MongoNodeIsRecoveringException : MongoServerException
     {
@@ -29,12 +32,22 @@ namespace MongoDB.Driver
         private readonly BsonDocument _result;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoNodeIsRecoveringException"/> class.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="result">The result.</param>
         public MongoNodeIsRecoveringException(ConnectionId connectionId, BsonDocument result)
             : base(connectionId, "Server returned node is recovering error.")
         {
             _result = Ensure.IsNotNull(result, "result");
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoNodeIsRecoveringException"/> class.
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         protected MongoNodeIsRecoveringException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -42,12 +55,19 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets the result from the server.
+        /// </summary>
+        /// <value>
+        /// The result from the server.
+        /// </value>
         public BsonDocument Result
         {
             get { return _result; }
         }
 
         // methods
+        /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

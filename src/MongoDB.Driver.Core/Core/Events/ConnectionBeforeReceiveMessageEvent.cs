@@ -18,22 +18,43 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Events
 {
+    /// <preliminary/>
+    /// <summary>
+    /// Represents information about a ConnectionBeforeReceivingMessage event.
+    /// </summary>
     public struct ConnectionBeforeReceivingMessageEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly int _responseTo;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionBeforeReceivingMessageEvent"/> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="responseTo">The id of the message we are receiving a response to.</param>
         public ConnectionBeforeReceivingMessageEvent(ConnectionId connectionId, int responseTo)
         {
             _connectionId = connectionId;
             _responseTo = responseTo;
         }
 
+        /// <summary>
+        /// Gets the connection identifier.
+        /// </summary>
+        /// <value>
+        /// The connection identifier.
+        /// </value>
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Gets the id of the message we are receiving a response to.
+        /// </summary>
+        /// <value>
+        /// The id of the message we are receiving a response to.
+        /// </value>
         public int ResponseTo
         {
             get { return _responseTo; }

@@ -31,6 +31,12 @@ namespace MongoDB.Driver.Core.Servers
     public interface IClusterableServerFactory
     {
         // methods
+        /// <summary>
+        /// Creates the server.
+        /// </summary>
+        /// <param name="clusterId">The cluster identifier.</param>
+        /// <param name="endPoint">The end point.</param>
+        /// <returns>A server.</returns>
         IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint);
     }
 }

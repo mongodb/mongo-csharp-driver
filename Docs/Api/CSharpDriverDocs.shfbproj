@@ -22,6 +22,7 @@
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Bson.dll" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Bson.xml" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.Core.dll" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.Core.XML" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.dll" />
       <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.xml" />
     </DocumentationSources>
@@ -44,14 +45,31 @@
 <NamespaceSummaryItem name="MongoDB.Driver.Wrappers" isDocumented="True">Wrapped versions of various classes for use in serialization are present in the MongoDB.Driver.Wrappers namespace.</NamespaceSummaryItem>
 <NamespaceSummaryItem name="MongoDB.Driver.Linq" isDocumented="True">The MongoDB.Driver.Linq namespace contains the LINQ related classes.</NamespaceSummaryItem>
 <NamespaceSummaryItem name="MongoDB.Driver.GeoJsonObjectModel" isDocumented="True">Classes used to build GeoJson objects in a type-safe manner.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="MongoDB.Driver.GeoJsonObjectModel.Serializers" isDocumented="True">GeoJson object model serializers.</NamespaceSummaryItem></NamespaceSummaries>
+<NamespaceSummaryItem name="MongoDB.Driver.GeoJsonObjectModel.Serializers" isDocumented="True">GeoJson object model serializers.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication" isDocumented="True">The MongoDB.Driver.Core.Authentication namespace contains classes related to authentication.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication.Sspi" isDocumented="False" />
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Bindings" isDocumented="True">The MongoDB.Driver.Core.Bindings namespace contains classes related to bindings.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Clusters" isDocumented="True">The MongoDB.Driver.Core.Clusters namespace contains classes related to clusters.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Clusters.ServerSelectors" isDocumented="True">The MongoDB.Driver.Core.Clusters.ServerSelectors namespace contains classes related to server selectors.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Configuration" isDocumented="True">The MongoDB.Driver.Core.Configuration namespace contains classes related to configuration.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.ConnectionPools" isDocumented="True">The MongoDB.Driver.Core.ConnecitonPools namespace contains classes related to connection pools.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Connections" isDocumented="True">The MongoDB.Driver.Core.Connections namespace contains classes related to connections.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Events" isDocumented="True">The MongoDB.Driver.Core.Events namespace contains classes related to events.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Events.Diagnostics" isDocumented="True">The MongoDB.Driver.Core.Events.Diagnostics namespace contains classes related to diagnostics.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Misc" isDocumented="True">The MongoDB.Driver.Core.Misc namespace contains miscellaneous classes.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Operations" isDocumented="True">The MongoDB.Driver.Core.Operations namespace contains classes related to operations.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Operations.ElementNameValidators" isDocumented="True">The MongoDB.Driver.Core.Operations.ElementNameValidators namespace contains classes related to element name validators for operations.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.Servers" isDocumented="True">The MongoDB.Driver.Core.Servers namespace contains classes related to servers.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.WireProtocol" isDocumented="True">The MongoDB.Driver.Core.WireProtocol namespace contains classes related to the wire protocol.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.WireProtocol.Messages" isDocumented="True">The MongoDB.Driver.Core.WireProtocol.Messages namespace contains classes related to wire protocol messages.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.WireProtocol.Messages.Encoders" isDocumented="True">The MongoDB.Driver.Core.WireProtoco.Messages.Encoders namespace contains classes related to message encoders.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders" isDocumented="True">The MongoDB.Driver.Core.WireProtoco.Messages.Encoders.BinaryEncoders namespace contains classes related to binary message encoders.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders" isDocumented="True">The MongoDB.Driver.Core.WireProtoco.Messages.Encoders.JsonEncoders namespace contains classes related to JSON message encoders.</NamespaceSummaryItem></NamespaceSummaries>
     <CopyrightText>Copyright &amp;#169%3b 2010-2014 MongoDB Inc.</CopyrightText>
     <FeedbackEMailAddress>dotnet-driver@mongodb.com</FeedbackEMailAddress>
     <FeedbackEMailLinkText>MongoDB</FeedbackEMailLinkText>
     <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
     <HelpFileVersion>0.0.0.0</HelpFileVersion>
-    <PlugInConfigurations>
-    </PlugInConfigurations>
     <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
     <SyntaxFilters>CSharp, VisualBasic, FSharp</SyntaxFilters>
     <SdkLinkTarget>Blank</SdkLinkTarget>
@@ -60,6 +78,18 @@
     <Preliminary>False</Preliminary>
     <NamingMethod>Guid</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
+    <ComponentConfigurations>
+      <ComponentConfig id="IntelliSense Component" enabled="True" xmlns="">
+        <component id="IntelliSense Component">
+          <!-- Output options (optional)
+  Attributes:
+    Include namespaces (false by default)
+    Namespaces comments filename ("Namespaces" if not specified or empty)
+    Output folder (current folder if not specified or empty) -->
+          <output includeNamespaces="false" namespacesFile="Namespaces" folder="{@OutputFolder}\..\bin\net45" />
+        </component>
+      </ComponentConfig>
+    </ComponentConfigurations>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional

@@ -27,7 +27,7 @@ namespace MongoDB.Driver
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the ExecutionTimeoutException class.
+        /// Initializes a new instance of the <see cref="MongoExecutionTimeoutException"/> class.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
@@ -37,7 +37,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Initializes a new instance of the ExecutionTimeoutException class.
+        /// Initializes a new instance of the <see cref="MongoExecutionTimeoutException"/> class.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
@@ -48,7 +48,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Initializes a new instance of the ExecutionTimeoutException class (this overload supports deserialization).
+        /// Initializes a new instance of the <see cref="MongoExecutionTimeoutException"/> class.
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
