@@ -94,6 +94,7 @@
     <Compile Include="Builders\FieldsBuilderTypedTests.cs" />
     <Compile Include="Builders\FieldsBuilderTests.cs" />
     <Compile Include="Builders\IndexKeysBuilderTests.cs" />
+    <Compile Include="Builders\IndexKeysBuilderTypedTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderTypedTests.cs" />

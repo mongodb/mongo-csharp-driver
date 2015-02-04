@@ -45,6 +45,7 @@ namespace MongoDB.Driver
         /// Gets a MongoServer object using this client's settings.
         /// </summary>
         /// <returns>A MongoServer.</returns>
+        [Obsolete("Use the new API instead.")]
         public static MongoServer GetServer(this MongoClient client)
         {
             var serverSettings = MongoServerSettings.FromClientSettings(client.Settings);
@@ -736,7 +737,7 @@ namespace MongoDB.Driver
         /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
         /// </summary>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart()
+        internal virtual IDisposable RequestStart()
         {
             return RequestStart(ReadPreference.Primary);
         }
@@ -748,7 +749,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="readPreference">The read preference.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart(ReadPreference readPreference)
+        internal virtual IDisposable RequestStart(ReadPreference readPreference)
         {
             var serverSelector = new ReadPreferenceServerSelector(readPreference);
             return RequestStart(serverSelector, readPreference);
@@ -761,7 +762,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="serverInstance">The server instance this request should be tied to.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart(MongoServerInstance serverInstance)
+        internal virtual IDisposable RequestStart(MongoServerInstance serverInstance)
         {
             var endPoint = serverInstance.EndPoint;
             var serverSelector = new EndPointServerSelector(endPoint);

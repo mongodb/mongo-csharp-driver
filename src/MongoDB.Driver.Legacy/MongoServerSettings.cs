@@ -20,7 +20,6 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Shared;

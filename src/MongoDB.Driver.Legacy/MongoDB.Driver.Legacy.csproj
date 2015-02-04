@@ -58,8 +58,8 @@
     <Compile Include="CommandResults\GetProfilingLevelResult.cs" />
     <Compile Include="CommandResults\MapReduceResult.cs" />
     <Compile Include="CommandResults\ValidateCollectionResult.cs" />
-    <Compile Include="Communications\MongoServerInstance.cs" />
-    <Compile Include="Communications\MongoServerInstanceType.cs" />
+    <Compile Include="Communication\MongoServerInstance.cs" />
+    <Compile Include="Communication\MongoServerInstanceType.cs" />
     <Compile Include="CountArgs.cs" />
     <Compile Include="DistinctArgs.cs" />
     <Compile Include="EvalArgs.cs" />

@@ -43,8 +43,8 @@ namespace MongoDB.Driver.Tests.Builders
             [BsonIgnoreIfDefault]
             [BsonElement("relevance")]
             public double R { get; set; }
-
         }
+
         [Test]
         public void TestMetaText()
         {
