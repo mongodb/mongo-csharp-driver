@@ -45,6 +45,7 @@
     <DocumentationFile>bin\Debug\MongoDB.Driver.XML</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -53,10 +54,11 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Release\MongoDB.Driver.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -233,7 +235,6 @@
     <Compile Include="MongoInternalIdentity.cs" />
     <Compile Include="MongoUrlBuilder.cs" />
     <Compile Include="PasswordEvidence.cs" />
-    <Compile Include="Range.cs" />
     <Compile Include="Setting.cs" />
     <Compile Include="SslSettings.cs" />
     <Compile Include="Linq\Expressions\ExpressionVisitorGeneric.cs" />

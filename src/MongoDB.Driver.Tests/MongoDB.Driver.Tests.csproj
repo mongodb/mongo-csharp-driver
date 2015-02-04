@@ -110,6 +110,7 @@
     <Compile Include="Linq\Translators\ProjectedObjectDeserializerTests.cs" />
     <Compile Include="Linq\Translators\ProjectedObjectTests.cs" />
     <Compile Include="MongoWriteExceptionTests.cs" />
+    <Compile Include="Samples\AggregationSample.cs" />
     <Compile Include="SetupFixture.cs" />
     <Compile Include="WriteModelTests.cs" />
     <Compile Include="BulkWriteResultTests.cs" />

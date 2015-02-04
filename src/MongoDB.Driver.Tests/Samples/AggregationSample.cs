@@ -29,9 +29,9 @@ namespace MongoDB.Driver.Tests.Samples
         public void TestFixtureSetUp()
         {
             var client = DriverTestConfiguration.Client;
-            var db = client.GetDatabase(LegacyTestConfiguration.Database.Name);
-            db.DropCollectionAsync(LegacyTestConfiguration.Collection.Name).GetAwaiter().GetResult();
-            _collection = db.GetCollection<ZipEntry>(LegacyTestConfiguration.Collection.Name);
+            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            db.DropCollectionAsync(DriverTestConfiguration.CollectionNamespace.CollectionName).GetAwaiter().GetResult();
+            _collection = db.GetCollection<ZipEntry>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
             // This is a subset of the data from the mongodb docs zip code aggregation examples
             _collection.InsertManyAsync(new[] 
