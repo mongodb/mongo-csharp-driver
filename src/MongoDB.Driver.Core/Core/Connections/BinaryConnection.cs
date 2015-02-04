@@ -161,14 +161,17 @@ namespace MongoDB.Driver.Core.Connections
 
                     _backgroundTaskCancellationTokenSource.Cancel();
                     _backgroundTaskCancellationTokenSource.Dispose();
-                    try
+                    if (_stream != null)
                     {
-                        _stream.Close();
-                        _stream.Dispose();
-                    }
-                    catch
-                    {
-                        // eat this...
+                        try
+                        {
+                            _stream.Close();
+                            _stream.Dispose();
+                        }
+                        catch
+                        {
+                            // eat this...
+                        }
                     }
 
                     if (_listener != null)

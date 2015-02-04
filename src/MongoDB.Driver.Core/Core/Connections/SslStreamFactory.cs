@@ -66,7 +66,16 @@ namespace MongoDB.Driver.Core.Connections
 
             var clientCertificates = new X509CertificateCollection(_settings.ClientCertificates.ToArray());
 
-            await sslStream.AuthenticateAsClientAsync(targetHost, clientCertificates, _settings.EnabledSslProtocols, _settings.CheckCertificateRevocation).ConfigureAwait(false);
+            try
+            {
+                await sslStream.AuthenticateAsClientAsync(targetHost, clientCertificates, _settings.EnabledSslProtocols, _settings.CheckCertificateRevocation).ConfigureAwait(false);
+            }
+            catch
+            {
+                stream.Close();
+                stream.Dispose();
+                throw;
+            }
             return sslStream;
         }
     }

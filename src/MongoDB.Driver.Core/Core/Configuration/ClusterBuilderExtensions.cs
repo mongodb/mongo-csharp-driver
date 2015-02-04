@@ -19,6 +19,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events.Diagnostics;
@@ -78,10 +79,10 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 builder = builder.ConfigureSsl(ssl =>
                 {
-                    if (connectionString.SslVerifyCertificate.GetValueOrDefault(true))
+                    if (!connectionString.SslVerifyCertificate.GetValueOrDefault(true))
                     {
                         ssl = ssl.With(
-                            serverCertificateValidationCallback: new RemoteCertificateValidationCallback((obj, cert, chain, errors) => true));
+                            serverCertificateValidationCallback: new RemoteCertificateValidationCallback(AcceptAnySslCertificate));
                     }
 
                     return ssl;
@@ -142,6 +143,16 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             return builder;
+        }
+
+        private static bool AcceptAnySslCertificate(
+            object sender,
+            X509Certificate certificate,
+            X509Chain chain,
+            SslPolicyErrors sslPolicyErrors
+        )
+        {
+            return true;
         }
 
         private static IAuthenticator CreateAuthenticator(ConnectionString connectionString)
