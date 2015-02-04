@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Linq.Translators
                                     return BuildSerialization((SerializationExpression)node);
                             }
                         }
-                        else if(node is IdExpression)
+                        else if (node is IdExpression)
                         {
                             return BuildValue(((IdExpression)node).Expression);
                         }
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Linq.Translators
 
             private BsonValue BuildSerialization(SerializationExpression node)
             {
-                if(string.IsNullOrWhiteSpace(node.SerializationInfo.ElementName))
+                if (string.IsNullOrWhiteSpace(node.SerializationInfo.ElementName))
                 {
                     return BuildValue(node.Expression);
                 }
@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Linq.Translators
                 for (int i = 0; i < node.Arguments.Count; i++)
                 {
                     string name = parameters[i].Name;
-                    if(!hasId && node.Arguments[i] is IdExpression)
+                    if (!hasId && node.Arguments[i] is IdExpression)
                     {
                         name = "_id";
                         hasId = true;
@@ -665,7 +665,7 @@ namespace MongoDB.Driver.Linq.Translators
                             node.Arguments[parameterToProperty.Parameter.Position],
                             serializationInfo);
                     }
-                    
+
                     var memberMap = classMap.MapMember(parameterToProperty.Property)
                         .SetSerializer(serializationExpression.SerializationInfo.Serializer)
                         .SetElementName(parameterToProperty.Property.Name);
