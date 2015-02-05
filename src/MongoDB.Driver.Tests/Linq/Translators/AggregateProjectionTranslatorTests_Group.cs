@@ -87,6 +87,28 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_using_non_anonymous_type_with_default_constructor()
+        {
+            var result = await Group(x => x.A, g => new RootView { Property = g.Key, Field = g.First().B });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Field: { \"$first\" : \"$B\" } }");
+
+            result.Value.Property.Should().Be("Awesome");
+            result.Value.Field.Should().Be("Balloon");
+        }
+
+        [Test]
+        public async Task Should_translate_using_non_anonymous_type_with_parameterized_constructor()
+        {
+            var result = await Group(x => x.A, g => new RootView(g.Key) { Field = g.First().B });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Field: { \"$first\" : \"$B\" } }");
+
+            result.Value.Property.Should().Be("Awesome");
+            result.Value.Field.Should().Be("Balloon");
+        }
+
+        [Test]
         public async Task Should_translate_just_id()
         {
             var result = await Group(x => x.A, g => new { _id = g.Key });
@@ -341,6 +363,22 @@ namespace MongoDB.Driver.Core.Linq
         {
             public BsonDocument Projection;
             public T Value;
+        }
+
+        private class RootView
+        {
+            public RootView()
+            {
+            }
+
+            public RootView(string property)
+            {
+                Property = property;
+            }
+
+            public string Property { get; set; }
+
+            public string Field = null;
         }
 
         private class Root

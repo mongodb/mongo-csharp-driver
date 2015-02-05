@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Utils
 {
@@ -35,6 +36,19 @@ namespace MongoDB.Driver.Linq.Utils
             Type ienum = FindIEnumerable(seqType);
             if (ienum == null) { return seqType; }
             return ienum.GetGenericArguments()[0];
+        }
+
+        internal static Type GetMemberType(MemberInfo member)
+        {
+            switch (member.MemberType)
+            {
+                case MemberTypes.Field:
+                    return ((FieldInfo)member).FieldType;
+                case MemberTypes.Property:
+                    return ((PropertyInfo)member).PropertyType;
+                default:
+                    throw new MongoInternalException("Can't get member type.");
+            }
         }
 
         internal static bool ImplementsInterface(Type candidate, Type iface)
