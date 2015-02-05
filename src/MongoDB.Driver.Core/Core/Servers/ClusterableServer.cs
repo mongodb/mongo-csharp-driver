@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 var stopwatch = Stopwatch.StartNew();
                 _connectionPool.Initialize();
-                MonitorServer();
+                MonitorServer().ConfigureAwait(false);
                 stopwatch.Stop();
 
                 if (_listener != null)
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private async void MonitorServer()
+        private async Task MonitorServer()
         {
             var metronome = new Metronome(_settings.HeartbeatInterval);
             var heartbeatCancellationToken = _heartbeatCancellationTokenSource.Token;

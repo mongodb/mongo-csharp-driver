@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async void ReceiveBackgroundTask()
+        private async Task ReceiveBackgroundTask()
         {
             while (!_backgroundTaskCancellationToken.IsCancellationRequested)
             {
@@ -306,7 +306,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async void SendBackgroundTask()
+        private async Task SendBackgroundTask()
         {
             while (!_backgroundTaskCancellationToken.IsCancellationRequested)
             {
@@ -411,8 +411,8 @@ namespace MongoDB.Driver.Core.Connections
 
         private void StartBackgroundTasks()
         {
-            SendBackgroundTask();
-            ReceiveBackgroundTask();
+            SendBackgroundTask().ConfigureAwait(false);
+            ReceiveBackgroundTask().ConfigureAwait(false);
         }
 
         private void ThrowIfDisposed()
