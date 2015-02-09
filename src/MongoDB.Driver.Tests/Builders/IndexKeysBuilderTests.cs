@@ -25,18 +25,6 @@ namespace MongoDB.Driver.Tests.Builders
     [TestFixture]
     public class IndexKeysBuilderTests
     {
-        private MongoServer _server;
-        private MongoDatabase _database;
-        private MongoServerInstance _primary;
-
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
-        {
-            _server = Configuration.TestServer;
-            _database = Configuration.TestDatabase;
-            _primary = _server.Primary;
-        }
-
         [Test]
         public void TestAscending1()
         {
@@ -203,25 +191,6 @@ namespace MongoDB.Driver.Tests.Builders
             var key = IndexKeys.Text("a").Ascending("b");
             string expected = "{ \"a\" : \"text\", \"b\" : 1 }";
             Assert.AreEqual(expected, key.ToJson());
-        }
-
-        [Test]
-        public void TestTextIndexCreation()
-        {
-            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
-            {
-                if (_primary.Supports(FeatureId.TextSearchCommand))
-                {
-                    var collection = _database.GetCollection<BsonDocument>("test_text");
-                    collection.Drop();
-                    collection.CreateIndex(IndexKeys.Text("a", "b").Ascending("c"), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
-                    var indexes = collection.GetIndexes();
-                    var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
-                    Assert.AreEqual("idioma", index["language_override"].AsString);
-                    Assert.AreEqual("spanish", index["default_language"].AsString);
-                    Assert.AreEqual(1, index["key"]["c"].AsInt32);
-                }
-            }
         }
     }
 }

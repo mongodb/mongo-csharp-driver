@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         // setup methods
         public override void TestFixtureSetUp()
         {
-            _databaseNamespace = SuiteConfiguration.GetDatabaseNamespaceForTestFixture();
+            _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
             _collectionNamespace = new CollectionNamespace(_databaseNamespace, "old");
             _newCollectionNamespace = new CollectionNamespace(_databaseNamespace, "new");
         }
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer]
         public async Task ExecuteAsync_should_return_expected_result()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
                 EnsureCollectionExists(binding, _collectionNamespace);
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer]
         public async Task ExecuteAsync_should_return_expected_result_when_dropTarget_is_true_and_newCollectionNamespace_exists()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
                 {
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer]
         public void ExecuteAsync_should_throw_when_dropTarget_is_false_and_newCollectionNamespace_exists()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings)
                 {

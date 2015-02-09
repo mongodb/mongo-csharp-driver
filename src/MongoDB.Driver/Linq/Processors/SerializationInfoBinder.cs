@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Linq.Processors
             var binary = newNode as BinaryExpression;
             if (binary != null && binary.NodeType == ExpressionType.ArrayIndex)
             {
-                var serializationExpression = binary.Left as IBsonSerializationInfoExpression;
+                var serializationExpression = binary.Left as ISerializationExpression;
                 if (serializationExpression != null)
                 {
                     var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Linq.Processors
                             itemSerializationInfo.NominalType);
 
                         var serializationInfo = serializationExpression.SerializationInfo.Merge(itemSerializationInfo);
-                        newNode = new FieldExpression(binary, serializationInfo);
+                        newNode = new SerializationExpression(binary, serializationInfo);
                     }
                 }
             }
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Linq.Processors
             Expression newNode;
             if (_memberMap.TryGetValue(node.Member, out newNode))
             {
-                if (newNode is IBsonSerializationInfoExpression)
+                if (newNode is ISerializationExpression)
                 {
                     return newNode;
                 }
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Linq.Processors
             var mex = newNode as MemberExpression;
             if (mex != null)
             {
-                var serializationExpression = mex.Expression as IBsonSerializationInfoExpression;
+                var serializationExpression = mex.Expression as ISerializationExpression;
                 if (serializationExpression != null)
                 {
                     var documentSerializer = serializationExpression.SerializationInfo.Serializer as IBsonDocumentSerializer;
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Linq.Processors
                     {
                         var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(node.Member.Name);
                         var serializationInfo = serializationExpression.SerializationInfo.Merge(memberSerializationInfo);
-                        return new FieldExpression(mex, serializationInfo);
+                        return new SerializationExpression(mex, serializationInfo);
                     }
                 }
             }
@@ -176,19 +176,12 @@ namespace MongoDB.Driver.Linq.Processors
                     }
                 }
 
-                var serializationExpression = unaryExpression.Operand as IBsonSerializationInfoExpression;
+                var serializationExpression = unaryExpression.Operand as ISerializationExpression;
                 if (serializationExpression != null)
                 {
                     var serializer = _serializerRegistry.GetSerializer(node.Type);
                     var serializationInfo = new BsonSerializationInfo(serializationExpression.SerializationInfo.ElementName, serializer, node.Type);
-                    if (unaryExpression.Operand is DocumentExpression)
-                    {
-                        return new DocumentExpression(newNode, serializationInfo);
-                    }
-                    else
-                    {
-                        return new FieldExpression(unaryExpression, serializationInfo);
-                    }
+                    return new SerializationExpression(unaryExpression, serializationInfo);
                 }
             }
 
@@ -208,7 +201,7 @@ namespace MongoDB.Driver.Linq.Processors
             if (node != newNode && methodCallExpression != null &&
                 (methodCallExpression.Method.DeclaringType == typeof(Enumerable) || methodCallExpression.Method.DeclaringType == typeof(Queryable)))
             {
-                var serializationExpression = methodCallExpression.Arguments[0] as IBsonSerializationInfoExpression;
+                var serializationExpression = methodCallExpression.Arguments[0] as ISerializationExpression;
                 if (serializationExpression != null)
                 {
                     var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
@@ -222,7 +215,7 @@ namespace MongoDB.Driver.Linq.Processors
                             itemSerializationInfo.NominalType);
 
                         var serializationInfo = serializationExpression.SerializationInfo.Merge(itemSerializationInfo);
-                        return new FieldExpression(methodCallExpression, serializationInfo);
+                        return new SerializationExpression(methodCallExpression, serializationInfo);
                     }
                 }
             }
@@ -243,7 +236,7 @@ namespace MongoDB.Driver.Linq.Processors
                 return newNode;
             }
 
-            var serializationExpression = methodCallExpression.Object as IBsonSerializationInfoExpression;
+            var serializationExpression = methodCallExpression.Object as ISerializationExpression;
             if (serializationExpression == null)
             {
                 return newNode;
@@ -261,7 +254,7 @@ namespace MongoDB.Driver.Linq.Processors
                 {
                     var itemSerializationInfo = arraySerializer.GetItemSerializationInfo().WithNewName(indexName);
                     var serializationInfo = serializationExpression.SerializationInfo.Merge(itemSerializationInfo);
-                    return new FieldExpression(methodCallExpression, serializationInfo);
+                    return new SerializationExpression(methodCallExpression, serializationInfo);
                 }
             }
             else if (indexExpression.Type == typeof(string))
@@ -271,7 +264,7 @@ namespace MongoDB.Driver.Linq.Processors
                 {
                     var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(indexName);
                     var serializationInfo = serializationExpression.SerializationInfo.Merge(memberSerializationInfo);
-                    return new FieldExpression(methodCallExpression, serializationInfo);
+                    return new SerializationExpression(methodCallExpression, serializationInfo);
                 }
             }
 
@@ -285,7 +278,7 @@ namespace MongoDB.Driver.Linq.Processors
 
             // we need to make sure that the serialization info for the parameter
             // is the item serialization from the parent IBsonArraySerializer
-            var serializationExpression = arguments[0] as IBsonSerializationInfoExpression;
+            var serializationExpression = arguments[0] as ISerializationExpression;
             if (serializationExpression != null)
             {
                 var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
@@ -295,7 +288,7 @@ namespace MongoDB.Driver.Linq.Processors
                     var lambda = (LambdaExpression)node.Arguments[1];
                     RegisterParameterReplacement(
                         lambda.Parameters[0],
-                        new FieldExpression(
+                        new SerializationExpression(
                             lambda.Parameters[0],
                             itemSerializationInfo.WithNewName(serializationExpression.SerializationInfo.ElementName)));
                 }

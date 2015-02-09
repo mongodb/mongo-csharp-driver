@@ -140,14 +140,14 @@ namespace MongoDB.Driver.Core
 
             if (Authentication == AuthenticationRequirement.On)
             {
-                if (SuiteConfiguration.ConnectionString.Username == null)
+                if (CoreTestConfiguration.ConnectionString.Username == null)
                 {
                     Assert.Ignore("Requires authentication but no credentials were provided.");
                 }
             }
             else
             {
-                if (SuiteConfiguration.ConnectionString.Username != null)
+                if (CoreTestConfiguration.ConnectionString.Username != null)
                 {
                     Assert.Ignore("Requires no authentication but credentials were provided.");
                 }
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Core
                 return;
             }
 
-            var clusterType = SuiteConfiguration.Cluster.Description.Type;
+            var clusterType = CoreTestConfiguration.Cluster.Description.Type;
             if ((ClusterTypes & ClusterTypes.Standalone) == ClusterTypes.Standalone && clusterType == ClusterType.Standalone)
             {
                 return;
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core
         {
             if (_storageEngines != null)
             {
-                var storageEngine = SuiteConfiguration.GetStorageEngine();
+                var storageEngine = CoreTestConfiguration.GetStorageEngine();
                 if (!_storageEngines.Contains(storageEngine))
                 {
                     var message = string.Format("Requires storage engine \"{0}\", but currently connected to a server using storage engine \"{1}\".", StorageEngines, storageEngine);
@@ -200,9 +200,9 @@ namespace MongoDB.Driver.Core
             {
                 var minSemanticVersion = SemanticVersion.Parse(MinimumVersion);
 
-                if (SuiteConfiguration.ServerVersion < minSemanticVersion)
+                if (CoreTestConfiguration.ServerVersion < minSemanticVersion)
                 {
-                    var message = string.Format("Requires a minimum server version of {0}, but currently connected to version {1}.", minSemanticVersion, SuiteConfiguration.ServerVersion);
+                    var message = string.Format("Requires a minimum server version of {0}, but currently connected to version {1}.", minSemanticVersion, CoreTestConfiguration.ServerVersion);
                     Assert.Ignore(message);
                 }
             }
@@ -211,9 +211,9 @@ namespace MongoDB.Driver.Core
             {
                 var version = SemanticVersion.Parse(VersionLessThan);
 
-                if (SuiteConfiguration.ServerVersion >= version)
+                if (CoreTestConfiguration.ServerVersion >= version)
                 {
-                    var message = string.Format("Requires a server version less than {0}, but currently connected to version {1}.", version, SuiteConfiguration.ServerVersion);
+                    var message = string.Format("Requires a server version less than {0}, but currently connected to version {1}.", version, CoreTestConfiguration.ServerVersion);
                     Assert.Ignore(message);
                 }
             }

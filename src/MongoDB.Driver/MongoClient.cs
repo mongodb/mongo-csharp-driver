@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         public MongoClient(MongoClientSettings settings)
         {
             _settings = settings.FrozenCopy();
-            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings);
+            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor();
         }
 
@@ -138,17 +138,6 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
-        }
-
-        /// <summary>
-        /// Gets a MongoServer object using this client's settings.
-        /// </summary>
-        /// <returns>A MongoServer.</returns>
-        [Obsolete("Use the new high level API instead. See GetDatabase.")]
-        public MongoServer GetServer()
-        {
-            var serverSettings = MongoServerSettings.FromClientSettings(_settings);
-            return MongoServer.Create(serverSettings);
         }
 
         // private methods

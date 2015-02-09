@@ -45,6 +45,7 @@
     <DocumentationFile>bin\Debug\MongoDB.Driver.XML</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -53,10 +54,11 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Release\MongoDB.Driver.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -76,10 +78,11 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="Builders\MongoQueryWrapper.cs" />
+    <Compile Include="Builders\MongoUpdateWrapper.cs" />
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="IAggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
-    <Compile Include="AggregateEnumerable.cs" />
     <Compile Include="BsonDocumentHelper.cs" />
     <Compile Include="Builders\UpdateCurrentDateType.cs" />
     <Compile Include="BulkWriteOptions.cs" />
@@ -91,18 +94,19 @@
     <Compile Include="IAggregateFluent.cs" />
     <Compile Include="IFindFluent.cs" />
     <Compile Include="IFindFluentExtensions.cs" />
+    <Compile Include="IInheritableMongoClientSettings.cs" />
     <Compile Include="IMongoCollectionExtensions.cs" />
     <Compile Include="IMongoIndexManager.cs" />
     <Compile Include="InsertManyOptions.cs" />
     <Compile Include="Linq\Expressions\AggregationExpression.cs" />
     <Compile Include="Linq\Expressions\AggregationType.cs" />
-    <Compile Include="Linq\Expressions\DocumentExpression.cs" />
-    <Compile Include="Linq\Expressions\FieldExpression.cs" />
-    <Compile Include="Linq\Expressions\FieldExpressionGatherer.cs" />
-    <Compile Include="Linq\Expressions\IBsonSerializationInfoExpression.cs" />
+    <Compile Include="Linq\Expressions\SerializationExpression.cs" />
+    <Compile Include="Linq\Expressions\FieldGatherer.cs" />
+    <Compile Include="Linq\Expressions\ISerializationExpression.cs" />
     <Compile Include="Linq\Expressions\MongoExpression.cs" />
     <Compile Include="Linq\Expressions\MongoExpressionType.cs" />
     <Compile Include="Linq\Expressions\MongoExpressionVisitor.cs" />
+    <Compile Include="Linq\LinqToMongo.cs" />
     <Compile Include="Linq\Processors\GroupSerializationInfoBinder.cs" />
     <Compile Include="Linq\Processors\SerializationInfoBinder.cs" />
     <Compile Include="Linq\Translators\AggregateProjectionTranslator.cs" />
@@ -112,19 +116,9 @@
     <Compile Include="Linq\Translators\ProjectionInfo.cs" />
     <Compile Include="ListCollectionsOptions.cs" />
     <Compile Include="MapReduceOptions.cs" />
-    <Compile Include="Operations\AddUserOperation.cs" />
-    <Compile Include="Operations\AddUserUsingUserManagementCommandsOperation.cs" />
-    <Compile Include="Operations\AddUserUsingSystemUsersCollectionOperation.cs" />
-    <Compile Include="Operations\DropUserOperation.cs" />
-    <Compile Include="Operations\DropUserUsingUserManagementCommandsOperation.cs" />
-    <Compile Include="Operations\DropUserUsingSystemUsersCollectionOperation.cs" />
-    <Compile Include="Operations\FindUsersOperation.cs" />
-    <Compile Include="Operations\FindUsersUsingUserManagementCommandsOperation.cs" />
-    <Compile Include="Operations\FindUsersUsingSystemUsersCollectionOperation.cs" />
     <Compile Include="RenameCollectionOptions.cs" />
     <Compile Include="CreateCollectionOptions.cs" />
     <Compile Include="DistinctOptions.cs" />
-    <Compile Include="ExplainVerbosity.cs" />
     <Compile Include="FindFluent.cs" />
     <Compile Include="FindOptions.cs" />
     <Compile Include="FindOneAndDeleteOptions.cs" />
@@ -140,10 +134,6 @@
     <Compile Include="CursorType.cs" />
     <Compile Include="ReturnDocument.cs" />
     <Compile Include="Support\TaskExtensions.cs" />
-    <Compile Include="Sync\AsyncCursorEnumeratorAdapter.cs" />
-    <Compile Include="Sync\IClusterExtensions.cs" />
-    <Compile Include="Sync\IOperationExtensions.cs" />
-    <Compile Include="Sync\IServerExtensions.cs" />
     <Compile Include="UpdateOptions.cs" />
     <Compile Include="UpdateOneModel.cs" />
     <Compile Include="UpdateManyModel.cs" />
@@ -153,7 +143,6 @@
     <Compile Include="MongoCollectionImpl.cs" />
     <Compile Include="MongoDatabaseImpl.cs" />
     <Compile Include="OperationExecutor.cs" />
-    <Compile Include="ParallelScanArgs.cs" />
     <Compile Include="ReplaceOneResult.cs" />
     <Compile Include="UpdateResult.cs" />
     <Compile Include="WriteConcernError.cs" />
@@ -161,44 +150,13 @@
     <Compile Include="BulkWriteUpsert.cs" />
     <Compile Include="MongoBulkWriteException.cs" />
     <Compile Include="Support\IndexMap.cs" />
-    <Compile Include="Operations\BulkWriteOperation.cs" />
-    <Compile Include="Operations\BulkWriteRequestBuilder.cs" />
-    <Compile Include="Operations\BulkUpdateRequestBuilder.cs" />
-    <Compile Include="DistinctArgs.cs" />
-    <Compile Include="FeatureId.cs" />
-    <Compile Include="CountArgs.cs" />
-    <Compile Include="EvalArgs.cs" />
-    <Compile Include="FindAndModifyArgs.cs" />
-    <Compile Include="AggregateArgs.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
-    <Compile Include="Builders\CollectionOptionsBuilder.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
-    <Compile Include="Builders\GeoHaystackSearchOptionsBuilder.cs" />
-    <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
-    <Compile Include="Builders\GroupByBuilder.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
-    <Compile Include="Builders\IndexOptionsBuilder.cs" />
     <Compile Include="Builders\PushEachOptions.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
-    <Compile Include="CommandResults\CollectionStatsResult.cs" />
-    <Compile Include="CommandResults\CommandResult.cs" />
-    <Compile Include="CommandResults\CommandResultSerializer.cs" />
-    <Compile Include="CommandResults\DatabaseStatsResult.cs" />
-    <Compile Include="CommandResults\DistinctCommandResult.cs" />
-    <Compile Include="CommandResults\DistinctCommandResultSerializer.cs" />
-    <Compile Include="CommandResults\FindAndModifyResult.cs" />
-    <Compile Include="CommandResults\GeoHaystackSearchResult.cs" />
-    <Compile Include="CommandResults\GeoNearResult.cs" />
-    <Compile Include="CommandResults\GetProfilingLevelResult.cs" />
-    <Compile Include="CommandResults\IsMasterResult.cs" />
-    <Compile Include="CommandResults\ValidateCollectionResult.cs" />
-    <Compile Include="Communication\MongoServerInstanceType.cs" />
-    <Compile Include="EvalFlags.cs" />
-    <Compile Include="FindAndRemoveArgs.cs" />
-    <Compile Include="FindOneArgs.cs" />
-    <Compile Include="GeoHaystackSearchArgs.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonBoundingBox.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonCoordinateReferenceSystem.cs" />
@@ -259,24 +217,11 @@
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonCoordinatesSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJson2DCoordinatesSerializer.cs" />
-    <Compile Include="GeoNearArgs.cs" />
-    <Compile Include="GeoNearPoint.cs" />
-    <Compile Include="GetStatsArgs.cs" />
-    <Compile Include="GroupArgs.cs" />
-    <Compile Include="InsertFlags.cs" />
-    <Compile Include="IMongoCollectionOptions.cs" />
-    <Compile Include="IMongoCommand.cs" />
     <Compile Include="IMongoFields.cs" />
-    <Compile Include="IMongoGeoHaystackSearchOptions.cs" />
-    <Compile Include="IMongoGeoNearOptions.cs" />
-    <Compile Include="IMongoGroupBy.cs" />
     <Compile Include="IMongoIndexKeys.cs" />
-    <Compile Include="IMongoIndexOptions.cs" />
     <Compile Include="IMongoQuery.cs" />
-    <Compile Include="IMongoScope.cs" />
     <Compile Include="IMongoSortBy.cs" />
     <Compile Include="IMongoUpdate.cs" />
-    <Compile Include="MapReduceArgs.cs" />
     <Compile Include="MongoClient.cs" />
     <Compile Include="MongoClientSettings.cs" />
     <Compile Include="MongoCollectionSettings.cs" />
@@ -286,55 +231,17 @@
     <Compile Include="MongoExternalIdentity.cs" />
     <Compile Include="MongoIdentity.cs" />
     <Compile Include="MongoIdentityEvidence.cs" />
-    <Compile Include="MongoInsertOptions.cs" />
     <Compile Include="MongoInternalIdentity.cs" />
-    <Compile Include="MongoServerBuildInfo.cs" />
-    <Compile Include="Communication\MongoServerInstance.cs" />
-    <Compile Include="MongoServerSettings.cs" />
-    <Compile Include="MongoUpdateOptions.cs" />
     <Compile Include="MongoUrlBuilder.cs" />
-    <Compile Include="MongoUser.cs" />
     <Compile Include="PasswordEvidence.cs" />
-    <Compile Include="ProfilingLevel.cs" />
-    <Compile Include="Range.cs" />
     <Compile Include="Setting.cs" />
     <Compile Include="SslSettings.cs" />
-    <Compile Include="SystemProfileInfo.cs" />
-    <Compile Include="ValidateCollectionArgs.cs" />
-    <Compile Include="Wrappers\BaseWrapper.cs" />
-    <Compile Include="Wrappers\CollectionOptionsDocument.cs" />
-    <Compile Include="Wrappers\CollectionOptionsWrapper.cs" />
-    <Compile Include="Wrappers\CommandDocument.cs" />
-    <Compile Include="Wrappers\CommandWrapper.cs" />
-    <Compile Include="Wrappers\FieldsDocument.cs" />
-    <Compile Include="Wrappers\FieldsWrapper.cs" />
-    <Compile Include="Wrappers\GeoHaystackSearchOptionsDocument.cs" />
-    <Compile Include="Wrappers\GeoHaystackSearchOptionsWrapper.cs" />
-    <Compile Include="Wrappers\GeoNearOptionsDocument.cs" />
-    <Compile Include="Wrappers\GeoNearOptionsWrapper.cs" />
-    <Compile Include="Wrappers\GroupByDocument.cs" />
-    <Compile Include="Wrappers\GroupByWrapper.cs" />
-    <Compile Include="Wrappers\IndexKeysDocument.cs" />
-    <Compile Include="Wrappers\IndexKeysWrapper.cs" />
-    <Compile Include="Wrappers\IndexOptionsDocument.cs" />
-    <Compile Include="Wrappers\IndexOptionsWrapper.cs" />
-    <Compile Include="Wrappers\QueryDocument.cs" />
-    <Compile Include="Wrappers\QueryWrapper.cs" />
-    <Compile Include="Wrappers\ScopeDocument.cs" />
-    <Compile Include="Wrappers\ScopeWrapper.cs" />
-    <Compile Include="Wrappers\SortByDocument.cs" />
-    <Compile Include="Wrappers\SortByWrapper.cs" />
-    <Compile Include="Wrappers\UpdateDocument.cs" />
-    <Compile Include="Wrappers\UpdateWrapper.cs" />
-    <Compile Include="GridFS\MongoGridFSException.cs" />
-    <Compile Include="GridFS\MongoGridFSCreateOptions.cs" />
     <Compile Include="Linq\Expressions\ExpressionVisitorGeneric.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoFinder.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoHelper.cs" />
     <Compile Include="Linq\Expressions\ExpressionNormalizer.cs" />
     <Compile Include="Linq\Expressions\ExpressionFormatter.cs" />
     <Compile Include="Linq\Expressions\ExpressionParameterReplacer.cs" />
-    <Compile Include="Linq\LinqToMongo.cs" />
     <Compile Include="Linq\Translators\DeserializationProjector.cs" />
     <Compile Include="Linq\Translators\Nominator.cs" />
     <Compile Include="Linq\Translators\OrderByDirection.cs" />
@@ -343,39 +250,18 @@
     <Compile Include="Linq\Expressions\ExpressionPrettyPrinter.cs" />
     <Compile Include="Linq\Expressions\ExpressionVisitor.cs" />
     <Compile Include="Linq\Translators\PredicateTranslator.cs" />
-    <Compile Include="Linq\Translators\Projector.cs" />
-    <Compile Include="Linq\Translators\SelectQuery.cs" />
-    <Compile Include="Linq\LinqExtensionMethods.cs" />
-    <Compile Include="Linq\MongoQueryable.cs" />
-    <Compile Include="Linq\MongoQueryProvider.cs" />
-    <Compile Include="Linq\Translators\MongoQueryTranslator.cs" />
-    <Compile Include="Linq\Translators\TranslatedQuery.cs" />
     <Compile Include="Linq\Utils\TypeHelper.cs" />
     <Compile Include="MongoUtils.cs" />
     <Compile Include="MongoDefaults.cs" />
-    <Compile Include="GridFS\MongoGridFS.cs" />
-    <Compile Include="GridFS\MongoGridFSFileInfo.cs" />
-    <Compile Include="GridFS\MongoGridFSSettings.cs" />
-    <Compile Include="GridFS\MongoGridFSStream.cs" />
-    <Compile Include="MongoServerState.cs" />
-    <Compile Include="QueryFlags.cs" />
-    <Compile Include="MongoCollection.cs" />
     <Compile Include="MongoCredential.cs" />
-    <Compile Include="CommandResults\MapReduceResult.cs" />
-    <Compile Include="MongoServer.cs" />
-    <Compile Include="MongoCursor.cs" />
-    <Compile Include="MongoDatabase.cs" />
     <Compile Include="MongoServerAddress.cs" />
     <Compile Include="MongoUrl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RemoveFlags.cs" />
-    <Compile Include="UpdateFlags.cs" />
     <Compile Include="ExternalEvidence.cs" />
     <Compile Include="MongoWriteException.cs" />
     <Compile Include="WriteError.cs" />
     <Compile Include="WriteModel.cs" />
     <Compile Include="WriteModelType.cs" />
-    <Compile Include="XYPoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -393,9 +279,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="GetIndexesResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">

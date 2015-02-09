@@ -161,14 +161,17 @@ namespace MongoDB.Driver.Core.Connections
 
                     _backgroundTaskCancellationTokenSource.Cancel();
                     _backgroundTaskCancellationTokenSource.Dispose();
-                    try
+                    if (_stream != null)
                     {
-                        _stream.Close();
-                        _stream.Dispose();
-                    }
-                    catch
-                    {
-                        // eat this...
+                        try
+                        {
+                            _stream.Close();
+                            _stream.Dispose();
+                        }
+                        catch
+                        {
+                            // eat this...
+                        }
                     }
 
                     if (_listener != null)
@@ -231,7 +234,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async void ReceiveBackgroundTask()
+        private async Task ReceiveBackgroundTask()
         {
             while (!_backgroundTaskCancellationToken.IsCancellationRequested)
             {
@@ -303,7 +306,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async void SendBackgroundTask()
+        private async Task SendBackgroundTask()
         {
             while (!_backgroundTaskCancellationToken.IsCancellationRequested)
             {
@@ -408,8 +411,8 @@ namespace MongoDB.Driver.Core.Connections
 
         private void StartBackgroundTasks()
         {
-            SendBackgroundTask();
-            ReceiveBackgroundTask();
+            SendBackgroundTask().ConfigureAwait(false);
+            ReceiveBackgroundTask().ConfigureAwait(false);
         }
 
         private void ThrowIfDisposed()

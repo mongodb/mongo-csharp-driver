@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
         public override void TestFixtureSetUp()
         {
             base.TestFixtureSetUp();
-            _databaseNamespace = SuiteConfiguration.GetDatabaseNamespaceForTestFixture();
+            _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
         }
 
         // test methods

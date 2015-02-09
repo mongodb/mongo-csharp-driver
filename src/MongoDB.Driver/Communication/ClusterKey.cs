@@ -69,58 +69,50 @@ namespace MongoDB.Driver.Communication
         private readonly TimeSpan _waitQueueTimeout;
 
         // constructors
-        public ClusterKey(MongoClientSettings clientSettings)
+        public ClusterKey(
+            Action<ClusterBuilder> clusterConfigurator,
+            ConnectionMode connectionMode,
+            TimeSpan connectTimeout,
+            IReadOnlyList<MongoCredential> credentials,
+            bool ipv6,
+            TimeSpan localThreshold,
+            TimeSpan maxConnectionIdleTime,
+            TimeSpan maxConnectionLifeTime,
+            int maxConnectionPoolSize,
+            int minConnectionPoolSize,
+            string replicaSetName,
+            IReadOnlyList<MongoServerAddress> servers,
+            TimeSpan socketTimeout,
+            SslSettings sslSettings,
+            bool useSsl,
+            bool verifySslCertificate,
+            int waitQueueSize,
+            TimeSpan waitQueueTimeout)
         {
-            _clusterConfigurator = clientSettings.ClusterConfigurator;
-            _connectionMode = clientSettings.ConnectionMode;
-            _connectTimeout = clientSettings.ConnectTimeout;
-            _credentials = clientSettings.Credentials.ToList();
-            _heartbeatInterval = __defaultHeartbeatInterval; // TODO: add HeartbeatInterval to MongoClientSettings?
-            _heartbeatTimeout = __defaultHeartbeatTimeout; // TODO: add HeartbeatTimeout to MongoClientSettings?
-            _ipv6 = clientSettings.IPv6;
-            _localThreshold = clientSettings.LocalThreshold;
-            _maxConnectionIdleTime = clientSettings.MaxConnectionIdleTime;
-            _maxConnectionLifeTime = clientSettings.MaxConnectionLifeTime;
-            _maxConnectionPoolSize = clientSettings.MaxConnectionPoolSize;
-            _minConnectionPoolSize = clientSettings.MinConnectionPoolSize;
-            _receiveBufferSize = __defaultReceiveBufferSize; // TODO: add ReceiveBufferSize to MongoClientSettings?
-            _replicaSetName = clientSettings.ReplicaSetName;
-            _sendBufferSize = __defaultSendBufferSize; // TODO: add SendBufferSize to MongoClientSettings?
-            _servers = clientSettings.Servers.ToList();
-            _socketTimeout = clientSettings.SocketTimeout;
-            _sslSettings = clientSettings.SslSettings;
-            _useSsl = clientSettings.UseSsl;
-            _verifySslCertificate = clientSettings.VerifySslCertificate;
-            _waitQueueSize = clientSettings.WaitQueueSize;
-            _waitQueueTimeout = clientSettings.WaitQueueTimeout;
-            _hashCode = CalculateHashCode();
-        }
-
-        public ClusterKey(MongoServerSettings serverSettings)
-        {
-            _clusterConfigurator = serverSettings.ClusterConfigurator;
-            _connectionMode = serverSettings.ConnectionMode;
-            _connectTimeout = serverSettings.ConnectTimeout;
-            _credentials = serverSettings.Credentials.ToList();
+            _clusterConfigurator = clusterConfigurator;
+            _connectionMode = connectionMode;
+            _connectTimeout = connectTimeout;
+            _credentials = credentials;
             _heartbeatInterval = __defaultHeartbeatInterval; // TODO: add HeartbeatInterval to MongoServerSettings?
             _heartbeatTimeout = __defaultHeartbeatTimeout; // TODO: add HeartbeatTimeout to MongoServerSettings?
-            _ipv6 = serverSettings.IPv6;
-            _localThreshold = serverSettings.LocalThreshold;
-            _maxConnectionIdleTime = serverSettings.MaxConnectionIdleTime;
-            _maxConnectionLifeTime = serverSettings.MaxConnectionLifeTime;
-            _maxConnectionPoolSize = serverSettings.MaxConnectionPoolSize;
-            _minConnectionPoolSize = serverSettings.MinConnectionPoolSize;
+            _ipv6 = ipv6;
+            _localThreshold = localThreshold;
+            _maxConnectionIdleTime = maxConnectionIdleTime;
+            _maxConnectionLifeTime = maxConnectionLifeTime;
+            _maxConnectionPoolSize = maxConnectionPoolSize;
+            _minConnectionPoolSize = minConnectionPoolSize;
             _receiveBufferSize = __defaultReceiveBufferSize; // TODO: add ReceiveBufferSize to MongoServerSettings?
-            _replicaSetName = serverSettings.ReplicaSetName;
+            _replicaSetName = replicaSetName;
             _sendBufferSize = __defaultSendBufferSize; // TODO: add SendBufferSize to MongoServerSettings?
-            _servers = serverSettings.Servers.ToList();
-            _socketTimeout = serverSettings.SocketTimeout;
-            _sslSettings = serverSettings.SslSettings;
-            _useSsl = serverSettings.UseSsl;
-            _verifySslCertificate = serverSettings.VerifySslCertificate;
-            _waitQueueSize = serverSettings.WaitQueueSize;
-            _waitQueueTimeout = serverSettings.WaitQueueTimeout;
-            _hashCode = CalculateHashCode();
+            _servers = servers;
+            _socketTimeout = socketTimeout;
+            _sslSettings = sslSettings;
+            _useSsl = useSsl;
+            _verifySslCertificate = verifySslCertificate;
+            _waitQueueSize = waitQueueSize;
+            _waitQueueTimeout = waitQueueTimeout;
+
+           _hashCode = CalculateHashCode();
         }
 
         // properties

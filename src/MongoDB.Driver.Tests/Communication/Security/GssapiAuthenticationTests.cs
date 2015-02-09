@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [SetUp]
         public void Setup()
         {
-            _settings = Configuration.TestClient.Settings.Clone();
+            _settings = DriverTestConfiguration.Client.Settings.Clone();
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             Assert.Throws<MongoQueryException>(() =>
             {
                 client
-                    .GetDatabase(Configuration.TestDatabase.Name)
+                    .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
                     .Find(new BsonDocument())
                     .ToListAsync()
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var client = new MongoClient(_settings);
 
             var result = client
-                .GetDatabase(Configuration.TestDatabase.Name)
+                .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                 .GetCollection<BsonDocument>(__collectionName)
                 .Find(new BsonDocument())
                 .ToListAsync()
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             Assert.Throws<TimeoutException>(() =>
             {
                 client
-                    .GetDatabase(Configuration.TestDatabase.Name)
+                    .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
                     .Find(new BsonDocument())
                     .ToListAsync()

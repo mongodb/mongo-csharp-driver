@@ -115,19 +115,21 @@ namespace MongoDB.Driver.Communication
 
         private SslStreamSettings ConfigureSsl(SslStreamSettings settings, ClusterKey clusterKey)
         {
-            if (clusterKey.SslSettings != null)
+            if (clusterKey.UseSsl)
             {
-                var validationCallback = clusterKey.SslSettings.ServerCertificateValidationCallback;
+                var sslSettings = clusterKey.SslSettings ?? new SslSettings();
+
+                var validationCallback = sslSettings.ServerCertificateValidationCallback;
                 if (validationCallback == null && !clusterKey.VerifySslCertificate)
                 {
                     validationCallback = AcceptAnySslCertificate;
                 }
 
                 return settings.With(
-                    clientCertificates: Optional.Create(clusterKey.SslSettings.ClientCertificates ?? Enumerable.Empty<X509Certificate>()),
-                    checkCertificateRevocation: clusterKey.SslSettings.CheckCertificateRevocation,
-                    clientCertificateSelectionCallback: clusterKey.SslSettings.ClientCertificateSelectionCallback,
-                    enabledProtocols: clusterKey.SslSettings.EnabledSslProtocols,
+                    clientCertificates: Optional.Create(sslSettings.ClientCertificates ?? Enumerable.Empty<X509Certificate>()),
+                    checkCertificateRevocation: sslSettings.CheckCertificateRevocation,
+                    clientCertificateSelectionCallback: sslSettings.ClientCertificateSelectionCallback,
+                    enabledProtocols: sslSettings.EnabledSslProtocols,
                     serverCertificateValidationCallback: validationCallback);
             }
 
@@ -144,7 +146,7 @@ namespace MongoDB.Driver.Communication
                 writeTimeout: clusterKey.SocketTimeout);
         }
 
-        private ICluster GetOrCreateCluster(ClusterKey clusterKey)
+        public ICluster GetOrCreateCluster(ClusterKey clusterKey)
         {
             lock (_lock)
             {
@@ -156,18 +158,6 @@ namespace MongoDB.Driver.Communication
                 }
                 return cluster;
             }
-        }
-
-        public ICluster GetOrCreateCluster(MongoClientSettings clientSettings)
-        {
-            var clusterKey = new ClusterKey(clientSettings);
-            return GetOrCreateCluster(clusterKey);
-        }
-
-        public ICluster GetOrCreateCluster(MongoServerSettings serverSettings)
-        {
-            var clusterKey = new ClusterKey(serverSettings);
-            return GetOrCreateCluster(clusterKey);
         }
 
         private static bool AcceptAnySslCertificate(

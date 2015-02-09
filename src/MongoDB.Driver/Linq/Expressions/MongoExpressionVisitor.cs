@@ -63,10 +63,8 @@ namespace MongoDB.Driver.Linq.Expressions
                 {
                     case MongoExpressionType.Aggregation:
                         return VisitAggregation((AggregationExpression)node);
-                    case MongoExpressionType.Document:
-                        return VisitDocument((DocumentExpression)node);
-                    case MongoExpressionType.Field:
-                        return VisitField((FieldExpression)node);
+                    case MongoExpressionType.Serialization:
+                        return VisitSerialization((SerializationExpression)node);
                 }
             }
 
@@ -78,12 +76,7 @@ namespace MongoDB.Driver.Linq.Expressions
             return node;
         }
 
-        protected virtual Expression VisitDocument(DocumentExpression node)
-        {
-            return node;
-        }
-
-        protected virtual Expression VisitField(FieldExpression node)
+        protected virtual Expression VisitSerialization(SerializationExpression node)
         {
             return node;
         }

@@ -48,7 +48,7 @@ let nuspecFiles =
     [ { File = buildDir @@ "MongoDB.Bson.nuspec"; Dependencies = []; Symbols = true; }
       { File = buildDir @@ "MongoDB.Driver.Core.nuspec"; Dependencies = ["MongoDB.Bson"]; Symbols = true; }
       { File = buildDir @@ "MongoDB.Driver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"]; Symbols = true; }
-      { File = buildDir @@ "mongocsharpdriver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB.Driver"]; Symbols = false; }]
+      { File = buildDir @@ "mongocsharpdriver.nuspec"; Dependencies = ["MongoDB.Bson"; "MongoDB.Driver.Core"; "MongoDB.Driver"]; Symbols = true; }]
 
 let nuspecBuildFile = buildDir @@ "MongoDB.Driver-Build.nuspec"
 let licenseFile = baseDir @@ "License.txt"
@@ -127,7 +127,7 @@ Target "Test" (fun _ ->
             { p with 
                 OutputFile = testResultsDir @@ getBuildParamOrDefault "testResults" "test-results.xml"
                 DisableShadowCopy = true
-                ShowLabels = true
+                ShowLabels = Boolean.Parse(getBuildParamOrDefault "testLabels" Boolean.FalseString)
                 Framework = !framework
                 IncludeCategory = getBuildParamOrDefault "testInclude" ""
                 ExcludeCategory = getBuildParamOrDefault "testExclude" ""
@@ -178,9 +178,13 @@ Target "Zip" (fun _ ->
           binDir45 @@ "MongoDB.Bson.xml"
           binDir45 @@ "MongoDB.Driver.Core.dll"
           binDir45 @@ "MongoDB.Driver.Core.pdb"
+          binDir45 @@ "MongoDB.Driver.Core.xml"
           binDir45 @@ "MongoDB.Driver.dll"
           binDir45 @@ "MongoDB.Driver.pdb"
           binDir45 @@ "MongoDB.Driver.xml"
+          binDir45 @@ "MongoDB.Driver.Legacy.dll"
+          binDir45 @@ "MongoDB.Driver.Legacy.pdb"
+          binDir45 @@ "MongoDB.Driver.Legacy.xml"
           licenseFile
           releaseNotesFile 
           docsArtifactFile ]

@@ -13,12 +13,9 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
@@ -26,18 +23,6 @@ namespace MongoDB.Driver.Tests.Builders
 {
     public class IndexKeysBuilderTypedTests
     {
-        private MongoServer _server;
-        private MongoDatabase _database;
-        private MongoServerInstance _primary;
-
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
-        {
-            _server = Configuration.TestServer;
-            _database = Configuration.TestDatabase;
-            _primary = _server.Primary;
-        }
-
         private class Test
         {
             [BsonElement("a")]
@@ -221,25 +206,6 @@ namespace MongoDB.Driver.Tests.Builders
             var key = IndexKeys<Test>.Text(x => x.A).Ascending(x => x.B);
             string expected = "{ \"a\" : \"text\", \"b\" : 1 }";
             Assert.AreEqual(expected, key.ToJson());
-        }
-
-        [Test]
-        public void TestTextIndexCreation()
-        {
-            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
-            {
-                if (_primary.Supports(FeatureId.TextSearchCommand))
-                {
-                    var collection = _database.GetCollection<Test>("test_text");
-                    collection.Drop();
-                    collection.CreateIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
-                    var indexes = collection.GetIndexes();
-                    var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
-                    Assert.AreEqual("idioma", index["language_override"].AsString);
-                    Assert.AreEqual("spanish", index["default_language"].AsString);
-                    Assert.AreEqual(1, index["key"]["c"].AsInt32);
-                }
-            }
         }
 
         [Test]

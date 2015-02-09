@@ -31,6 +31,17 @@ namespace MongoDB.Driver.Builders
     {
         // public static properties
         /// <summary>
+        /// Gets an empty query.
+        /// </summary>
+        /// <value>
+        /// An empty query.
+        /// </value>
+        public static IMongoQuery Empty
+        {
+            get { return Query.Create(new BsonDocument()); }
+        }
+
+        /// <summary>
         /// Gets a null value with a type of IMongoQuery.
         /// </summary>
         public static IMongoQuery Null
@@ -57,7 +68,7 @@ namespace MongoDB.Driver.Builders
             }
 
             var condition = new BsonDocument("$all", new BsonArray(values));
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -76,7 +87,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentOutOfRangeException("queries", "And cannot be called with zero queries.");
             }
 
-            var queryDocument = new QueryDocument();
+            var queryDocument = new BsonDocument();
             foreach (var query in queries)
             {
                 if (query == null)
@@ -90,7 +101,7 @@ namespace MongoDB.Driver.Builders
                 }
             }
 
-            return queryDocument;
+            return Query.Create(queryDocument);
         }
 
         /// <summary>
@@ -101,6 +112,27 @@ namespace MongoDB.Driver.Builders
         public static IMongoQuery And(params IMongoQuery[] queries)
         {
             return And((IEnumerable<IMongoQuery>)queries);
+        }
+
+        /// <summary>
+        /// Creates a query manually.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Create(BsonDocument query)
+        {
+            return new MongoQueryWrapper(query);
+        }
+
+        /// <summary>
+        /// Creates a query manually.
+        /// </summary>
+        /// <param name="name">The element name.</param>
+        /// <param name="condition">The condition.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Create(string name, BsonValue condition)
+        {
+            return new MongoQueryWrapper(new BsonDocument(name, condition));
         }
 
         /// <summary>
@@ -121,7 +153,7 @@ namespace MongoDB.Driver.Builders
             }
 
             var condition = new BsonDocument("$elemMatch", query.ToBsonDocument());
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -141,7 +173,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("value");
             }
 
-            return new QueryDocument(name, value);
+            return Query.Create(name, value);
         }
 
         /// <summary>
@@ -156,7 +188,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("name");
             }
 
-            return new QueryDocument(name, new BsonDocument("$exists", true));
+            return Query.Create(name, new BsonDocument("$exists", true));
         }
 
         /// <summary>
@@ -181,7 +213,7 @@ namespace MongoDB.Driver.Builders
             var geoDoc = new BsonDocument("$geometry", BsonDocumentWrapper.Create(geometry));
             var condition = new BsonDocument("$geoIntersects", geoDoc);
 
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -201,7 +233,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("value");
             }
 
-            return new QueryDocument(name, new BsonDocument("$gt", value));
+            return Query.Create(name, new BsonDocument("$gt", value));
         }
 
         /// <summary>
@@ -221,7 +253,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("value");
             }
 
-            return new QueryDocument(name, new BsonDocument("$gte", value));
+            return Query.Create(name, new BsonDocument("$gte", value));
         }
 
         /// <summary>
@@ -241,7 +273,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("values");
             }
 
-            return new QueryDocument(name, new BsonDocument("$in", new BsonArray(values)));
+            return Query.Create(name, new BsonDocument("$in", new BsonArray(values)));
         }
 
         /// <summary>
@@ -261,7 +293,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("value");
             }
 
-            return new QueryDocument(name, new BsonDocument("$lt", value));
+            return Query.Create(name, new BsonDocument("$lt", value));
         }
 
         /// <summary>
@@ -281,7 +313,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("value");
             }
 
-            return new QueryDocument(name, new BsonDocument("$lte", value));
+            return Query.Create(name, new BsonDocument("$lte", value));
         }
 
         /// <summary>
@@ -301,7 +333,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("regex");
             }
 
-            return new QueryDocument(name, regex);
+            return Query.Create(name, regex);
         }
 
         /// <summary>
@@ -328,7 +360,7 @@ namespace MongoDB.Driver.Builders
             {
                 condition = new BsonDocument("$mod", new BsonArray { modulus, value });
             }
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -387,7 +419,7 @@ namespace MongoDB.Driver.Builders
             }
             var condition = new BsonDocument(op, geometry);
 
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -438,7 +470,7 @@ namespace MongoDB.Driver.Builders
                 condition.Add("$maxDistance", maxDistance);
             }
 
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -473,7 +505,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("value");
             }
 
-            return new QueryDocument(name, new BsonDocument("$ne", value));
+            return Query.Create(name, new BsonDocument("$ne", value));
         }
 
         /// <summary>
@@ -488,7 +520,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("name");
             }
 
-            return new QueryDocument(name, new BsonDocument("$exists", false));
+            return Query.Create(name, new BsonDocument("$exists", false));
         }
 
         /// <summary>
@@ -508,7 +540,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("values");
             }
 
-            return new QueryDocument(name, new BsonDocument("$nin", new BsonArray(values)));
+            return Query.Create(name, new BsonDocument("$nin", new BsonArray(values)));
         }
 
         /// <summary>
@@ -554,7 +586,7 @@ namespace MongoDB.Driver.Builders
                     else
                     {
                         // if any query is { } (which matches everything) then the overall Or matches everything also
-                        return new QueryDocument();
+                        return Query.Empty;
                     }
                 }
             }
@@ -562,11 +594,11 @@ namespace MongoDB.Driver.Builders
             switch (queryArray.Count)
             {
                 case 0:
-                    return new QueryDocument(); // all queries were empty so just return an empty query
+                    return Query.Empty; // all queries were empty so just return an empty query
                 case 1:
-                    return new QueryDocument(queryArray[0].AsBsonDocument);
+                    return Query.Create(queryArray[0].AsBsonDocument);
                 default:
-                    return new QueryDocument("$or", queryArray);
+                    return Query.Create("$or", queryArray);
             }
         }
 
@@ -594,7 +626,7 @@ namespace MongoDB.Driver.Builders
             }
 
             var condition = new BsonDocument("$size", size);
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -612,7 +644,7 @@ namespace MongoDB.Driver.Builders
 
             var elementName = string.Format("{0}.{1}", name, size);
             var condition = new BsonDocument("$exists", true);
-            return new QueryDocument(elementName, condition);
+            return Query.Create(elementName, condition);
         }
 
         /// <summary>
@@ -630,7 +662,7 @@ namespace MongoDB.Driver.Builders
 
             var elementName = string.Format("{0}.{1}", name, size - 1);
             var condition = new BsonDocument("$exists", true);
-            return new QueryDocument(elementName, condition);
+            return Query.Create(elementName, condition);
         }
 
         /// <summary>
@@ -648,7 +680,7 @@ namespace MongoDB.Driver.Builders
 
             var elementName = string.Format("{0}.{1}", name, size - 1);
             var condition = new BsonDocument("$exists", false);
-            return new QueryDocument(elementName, condition);
+            return Query.Create(elementName, condition);
         }
 
         /// <summary>
@@ -666,7 +698,7 @@ namespace MongoDB.Driver.Builders
 
             var elementName = string.Format("{0}.{1}", name, size);
             var condition = new BsonDocument("$exists", false);
-            return new QueryDocument(elementName, condition);
+            return Query.Create(elementName, condition);
         }
 
         /// <summary>
@@ -683,7 +715,7 @@ namespace MongoDB.Driver.Builders
             }
 
             var condition = new BsonDocument("$type", (int)type);
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -698,7 +730,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("javascript");
             }
 
-            return new QueryDocument("$where", javascript);
+            return Query.Create("$where", javascript);
         }
 
         /// <summary>
@@ -723,7 +755,7 @@ namespace MongoDB.Driver.Builders
             var geoDoc = new BsonDocument("$geometry", BsonDocumentWrapper.Create(polygon));
             var condition = new BsonDocument("$within", geoDoc);
 
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -757,7 +789,7 @@ namespace MongoDB.Driver.Builders
 
             var shape = spherical ? "$centerSphere" : "$center";
             var condition = new BsonDocument("$within", new BsonDocument(shape, new BsonArray { new BsonArray { centerX, centerY }, radius }));
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -789,7 +821,7 @@ namespace MongoDB.Driver.Builders
             }
 
             var condition = new BsonDocument("$within", new BsonDocument("$polygon", arrayOfPoints));
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -809,7 +841,7 @@ namespace MongoDB.Driver.Builders
             }
 
             var condition = new BsonDocument("$within", new BsonDocument("$box", new BsonArray { new BsonArray { lowerLeftX, lowerLeftY }, new BsonArray { upperRightX, upperRightY } }));
-            return new QueryDocument(name, condition);
+            return Query.Create(name, condition);
         }
 
         /// <summary>
@@ -840,7 +872,7 @@ namespace MongoDB.Driver.Builders
                 { "$search", searchString },
                 { "$language", language, language != null }
             };
-            return new QueryDocument("$text", condition);
+            return Query.Create("$text", condition);
         }
 
         // private methods
@@ -906,7 +938,7 @@ namespace MongoDB.Driver.Builders
         private static IMongoQuery NegateArbitraryQuery(BsonDocument query)
         {
             // $not only works as a meta operator on a single operator so simulate Not using $nor
-            return new QueryDocument("$nor", new BsonArray { query });
+            return Query.Create("$nor", new BsonArray { query });
         }
 
         private static IMongoQuery NegateQuery(BsonDocument query)
@@ -938,16 +970,16 @@ namespace MongoDB.Driver.Builders
             switch (operatorName)
             {
                 case "$exists":
-                    return new QueryDocument(fieldName, new BsonDocument("$exists", !args.AsBoolean));
+                    return Query.Create(fieldName, new BsonDocument("$exists", !args.AsBoolean));
                 case "$in":
-                    return new QueryDocument(fieldName, new BsonDocument("$nin", args.AsBsonArray));
+                    return Query.Create(fieldName, new BsonDocument("$nin", args.AsBsonArray));
                 case "$ne":
                 case "$not":
-                    return new QueryDocument(fieldName, args);
+                    return Query.Create(fieldName, args);
                 case "$nin":
-                    return new QueryDocument(fieldName, new BsonDocument("$in", args.AsBsonArray));
+                    return Query.Create(fieldName, new BsonDocument("$in", args.AsBsonArray));
                 default:
-                    return new QueryDocument(fieldName, new BsonDocument("$not", new BsonDocument(operatorName, args)));
+                    return Query.Create(fieldName, new BsonDocument("$not", new BsonDocument(operatorName, args)));
             }
         }
 
@@ -980,12 +1012,12 @@ namespace MongoDB.Driver.Builders
         {
             if (value.IsBsonRegularExpression)
             {
-                return new QueryDocument(fieldName, new BsonDocument("$not", value));
+                return Query.Create(fieldName, new BsonDocument("$not", value));
             }
             else
             {
                 // turn implied equality comparison into $ne
-                return new QueryDocument(fieldName, new BsonDocument("$ne", value));
+                return Query.Create(fieldName, new BsonDocument("$ne", value));
             }
         }
 
@@ -994,9 +1026,9 @@ namespace MongoDB.Driver.Builders
             switch (operatorName)
             {
                 case "$or":
-                    return new QueryDocument("$nor", args);
+                    return Query.Create("$nor", args);
                 case "$nor":
-                    return new QueryDocument("$or", args);
+                    return Query.Create("$or", args);
                 default:
                     return NegateArbitraryQuery(query);
             }

@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Shared;
 
@@ -28,7 +29,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// The settings for a MongoDB client.
     /// </summary>
-    public class MongoClientSettings : IEquatable<MongoClientSettings>
+    public class MongoClientSettings : IEquatable<MongoClientSettings>, IInheritableMongoClientSettings
     {
         // private fields
         private Action<ClusterBuilder> _clusterConfigurator;
@@ -727,6 +728,30 @@ namespace MongoDB.Driver
                 sb.Append("WriteEncoding=UTF8Encoding;");
             }
             return sb.ToString();
+        }
+
+        // internal methods
+        internal ClusterKey ToClusterKey()
+        {
+            return new ClusterKey(
+                _clusterConfigurator,
+                _connectionMode,
+                _connectTimeout,
+                _credentials.ToList(),
+                _ipv6,
+                _localThreshold,
+                _maxConnectionIdleTime,
+                _maxConnectionLifeTime,
+                _maxConnectionPoolSize,
+                _minConnectionPoolSize,
+                _replicaSetName,
+                _servers.ToList(),
+                _socketTimeout,
+                _sslSettings,
+                _useSsl,
+                _verifySslCertificate,
+                _waitQueueSize,
+                _waitQueueTimeout);
         }
     }
 }

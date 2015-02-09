@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             var subject = new ClusterRegistry();
 
-            using (var cluster = subject.GetOrCreateCluster(clientSettings))
+            using (var cluster = subject.GetOrCreateCluster(clientSettings.ToClusterKey()))
             {
                 var address = clientSettings.Servers.Single();
                 var endPoints = new[] { new DnsEndPoint(address.Host, address.Port) };
@@ -99,8 +99,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             var subject = new ClusterRegistry();
 
-            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1))
-            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2))
+            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey()))
+            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey()))
             {
                 cluster2.Should().NotBeSameAs(cluster1);
             }
@@ -114,8 +114,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             var subject = new ClusterRegistry();
 
-            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1))
-            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2))
+            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey()))
+            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey()))
             {
                 cluster2.Should().BeSameAs(cluster1);
             }
