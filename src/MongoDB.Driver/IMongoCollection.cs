@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -32,6 +33,11 @@ namespace MongoDB.Driver
         CollectionNamespace CollectionNamespace { get; }
 
         /// <summary>
+        /// Gets the document serializer.
+        /// </summary>
+        IBsonSerializer<TDocument> DocumentSerializer { get; }
+
+        /// <summary>
         /// Gets the index manager.
         /// </summary>
         IMongoIndexManager<TDocument> IndexManager { get; }
@@ -40,13 +46,6 @@ namespace MongoDB.Driver
         /// Gets the settings.
         /// </summary>
         MongoCollectionSettings Settings { get; }
-
-        /// <summary>
-        /// Begins a fluent aggregation interface.
-        /// </summary>
-        /// <param name="options">The options.</param>
-        /// <returns>A fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options = null);
 
         /// <summary>
         /// Runs an aggregation pipeline.
@@ -108,14 +107,6 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Begins a fluent find interface.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>A fluent find interface.</returns>
-        IFindFluent<TDocument, TDocument> Find(object filter, FindOptions options = null);
 
         /// <summary>
         /// Finds the documents matching the filter.
