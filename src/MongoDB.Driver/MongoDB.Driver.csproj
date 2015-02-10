@@ -81,14 +81,14 @@
     <Compile Include="Builders\MongoQueryWrapper.cs" />
     <Compile Include="Builders\MongoUpdateWrapper.cs" />
     <Compile Include="BulkWriteError.cs" />
+    <Compile Include="ConnectionMode.cs" />
     <Compile Include="IAggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="BsonDocumentHelper.cs" />
     <Compile Include="Builders\UpdateCurrentDateType.cs" />
     <Compile Include="BulkWriteOptions.cs" />
-    <Compile Include="Communication\ClusterKey.cs" />
-    <Compile Include="Communication\ClusterRegistry.cs" />
-    <Compile Include="Communication\ConnectionModeExtensionMethods.cs" />
+    <Compile Include="ClusterKey.cs" />
+    <Compile Include="ClusterRegistry.cs" />
     <Compile Include="CountOptions.cs" />
     <Compile Include="CreateIndexOptions.cs" />
     <Compile Include="IAggregateFluent.cs" />
@@ -133,7 +133,6 @@
     <Compile Include="ReplaceOneModel.cs" />
     <Compile Include="CursorType.cs" />
     <Compile Include="ReturnDocument.cs" />
-    <Compile Include="Support\TaskExtensions.cs" />
     <Compile Include="UpdateOptions.cs" />
     <Compile Include="UpdateOneModel.cs" />
     <Compile Include="UpdateManyModel.cs" />

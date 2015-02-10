@@ -161,6 +161,54 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Find_with_an_expression_should_call_collection_FindAsync_with_correct_options()
+        {
+            var subject = CreateSubject();
+            var filter = BsonDocument.Parse("{Age:1}");
+            var projection = BsonDocument.Parse("{y:1}");
+            var sort = BsonDocument.Parse("{a:1}");
+            var options = new FindOptions
+            {
+                AllowPartialResults = true,
+                BatchSize = 20,
+                Comment = "funny",
+                CursorType = CursorType.TailableAwait,
+                MaxTime = TimeSpan.FromSeconds(3),
+                Modifiers = BsonDocument.Parse("{$snapshot: true}"),
+                NoCursorTimeout = true
+            };
+
+            var fluent = subject.Find(x => x.Age == 1, options)
+                .Projection<BsonDocument>(projection)
+                .Sort(sort)
+                .Limit(30)
+                .Skip(40);
+
+            object actualFilter = null;
+            FindOptions<BsonDocument> actualOptions = null;
+            subject.FindAsync(
+                Arg.Do<object>(x => actualFilter = x),
+                Arg.Do<FindOptions<BsonDocument>>(x => actualOptions = x),
+                Arg.Any<CancellationToken>());
+
+            fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+            actualFilter.Should().BeOfType<Expression<Func<Person, bool>>>();
+            actualOptions.AllowPartialResults.Should().Be(fluent.Options.AllowPartialResults);
+            actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
+            actualOptions.Comment.Should().Be(fluent.Options.Comment);
+            actualOptions.CursorType.Should().Be(fluent.Options.CursorType);
+            actualOptions.Limit.Should().Be(fluent.Options.Limit);
+            actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);
+            actualOptions.Modifiers.Should().Be(fluent.Options.Modifiers);
+            actualOptions.NoCursorTimeout.Should().Be(fluent.Options.NoCursorTimeout);
+            actualOptions.Projection.Should().Be(fluent.Options.Projection);
+            actualOptions.ResultSerializer.Should().Be(fluent.Options.ResultSerializer);
+            actualOptions.Skip.Should().Be(fluent.Options.Skip);
+            actualOptions.Sort.Should().Be(fluent.Options.Sort);
+        }
+
+        [Test]
         public void FindOneAndDeleteAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
             var subject = CreateSubject();

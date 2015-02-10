@@ -201,7 +201,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            return Find(collection, filter, options);
+            return Find(collection, (object)filter, options);
         }
 
         /// <summary>

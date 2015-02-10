@@ -20,10 +20,9 @@ using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Communication;
 using NUnit.Framework;
 
-namespace MongoDB.Driver.Tests.Communication.Security
+namespace MongoDB.Driver.Tests
 {
     [TestFixture]
     public class ClusterKeyTests
