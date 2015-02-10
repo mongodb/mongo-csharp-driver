@@ -113,16 +113,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public IMongoDatabase GetDatabase(string name)
+        public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
         {
-            var settings = new MongoDatabaseSettings();
-            return GetDatabase(name, settings);
-        }
+            settings = settings == null ?
+                new MongoDatabaseSettings() :
+                settings.Clone();
 
-        /// <inheritdoc/>
-        public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings)
-        {
-            settings = settings.Clone();
             settings.ApplyDefaultValues(_settings);
 
             return new MongoDatabaseImpl(new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
