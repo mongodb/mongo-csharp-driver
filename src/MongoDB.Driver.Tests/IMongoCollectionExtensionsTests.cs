@@ -118,23 +118,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void FindOneAndUpdateAsync_with_an_expression_and_update_builder_should_call_collection_with_the_correct_filter()
-        {
-            var subject = CreateSubject();
-            subject.FindOneAndUpdateAsync(
-                x => x.FirstName == "Jack",
-                ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10));
-
-            var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
-
-            subject.Received().FindOneAndUpdateAsync(
-                Arg.Any<object>(),
-                Arg.Is<object>(o => Matches(o, expectedUpdate)),
-                null,
-                default(CancellationToken));
-        }
-
-        [Test]
         public void FindOneAndUpdateAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter()
         {
             var subject = CreateSubject();
@@ -143,25 +126,6 @@ namespace MongoDB.Driver.Tests
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
 
             subject.Received().FindOneAndUpdateAsync<BsonDocument>(Arg.Any<object>(), update, options, default(CancellationToken));
-        }
-
-        [Test]
-        public void FindOneAndUpdateAsync_with_an_expression_and_update_builder_and_result_options_should_call_collection_with_the_correct_filter()
-        {
-            var subject = CreateSubject();
-            var options = new FindOneAndUpdateOptions<BsonDocument>();
-            subject.FindOneAndUpdateAsync(
-                x => x.FirstName == "Jack",
-                ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10), 
-                options);
-
-            var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
-
-            subject.Received().FindOneAndUpdateAsync<BsonDocument>(
-                Arg.Any<object>(),
-                Arg.Is<object>(o => Matches(o, expectedUpdate)),
-                options, 
-                default(CancellationToken));
         }
 
         [Test]
@@ -186,23 +150,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void UpdateManyAsync_with_an_expression_and_update_builder_should_call_collection_with_the_correct_filter()
-        {
-            var subject = CreateSubject();
-            subject.UpdateManyAsync(
-                x => x.FirstName == "Jack",
-                ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10));
-
-            var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
-
-            subject.Received().UpdateManyAsync(
-                Arg.Any<object>(),
-                Arg.Is<object>(o => Matches(o, expectedUpdate)),
-                null,
-                default(CancellationToken));
-        }
-
-        [Test]
         public void UpdateOneAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
             var subject = CreateSubject();
@@ -210,23 +157,6 @@ namespace MongoDB.Driver.Tests
             subject.UpdateOneAsync(x => x.FirstName == "Jack", update);
 
             subject.Received().UpdateOneAsync(Arg.Any<object>(), update, null, default(CancellationToken));
-        }
-
-        [Test]
-        public void UpdateOneAsync_with_an_expression_and_update_builder_should_call_collection_with_the_correct_filter()
-        {
-            var subject = CreateSubject();
-            subject.UpdateOneAsync(
-                x => x.FirstName == "Jack",
-                ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10));
-
-            var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
-
-            subject.Received().UpdateOneAsync(
-                Arg.Any<object>(),
-                Arg.Is<object>(o => Matches(o, expectedUpdate)),
-                null,
-                default(CancellationToken));
         }
 
         private bool Matches(object o, BsonDocument doc)

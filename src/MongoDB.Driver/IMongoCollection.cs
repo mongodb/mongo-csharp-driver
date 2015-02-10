@@ -121,17 +121,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Finds a single document and deletes it atomically.
         /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The deleted document if one was deleted.
-        /// </returns>
-        Task<TDocument> FindOneAndDeleteAsync(object filter, FindOneAndDeleteOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Finds a single document and deletes it atomically.
-        /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
@@ -140,18 +129,6 @@ namespace MongoDB.Driver
         /// The returned document.
         /// </returns>
         Task<TResult> FindOneAndDeleteAsync<TResult>(object filter, FindOneAndDeleteOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Finds a single document and replaces it atomically.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="replacement">The replacement.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The returned document.
-        /// </returns>
-        Task<TDocument> FindOneAndReplaceAsync(object filter, TDocument replacement, FindOneAndReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and replaces it atomically.
@@ -165,18 +142,6 @@ namespace MongoDB.Driver
         /// The returned document.
         /// </returns>
         Task<TResult> FindOneAndReplaceAsync<TResult>(object filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Finds a single document and updates it atomically.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="update">The update.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The returned document.
-        /// </returns>
-        Task<TDocument> FindOneAndUpdateAsync(object filter, object update, FindOneAndUpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and updates it atomically.
