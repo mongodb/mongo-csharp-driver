@@ -69,49 +69,6 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task Aggregate_should_execute_the_AggregateOperation_when_out_is_not_specified()
-        {
-            var pipeline = new object[] 
-            { 
-                BsonDocument.Parse("{ $match: { x: 2 } }"),
-                BsonDocument.Parse("{ $project : { Age : \"$age\", Name : { $concat : [\"$firstName\", \" \", \"$lastName\"] }, _id : 0 } }"),
-                BsonDocument.Parse("{ $group : { _id : \"$Age\", Name : { \"$first\" : \"$Name\" } } }"),
-                BsonDocument.Parse("{ $project : { _id: 1 } }")
-            };
-
-            var fluent = _subject.Aggregate(new AggregateOptions
-                {
-                    AllowDiskUse = true,
-                    BatchSize = 10,
-                    MaxTime = TimeSpan.FromSeconds(3),
-                    UseCursor = false
-                })
-                .Match("{x: 2}")
-                .Project(x => new { Age = x["age"], Name = (string)x["firstName"] + " " + (string)x["lastName"] })
-                .Group(x => x.Age, g => new { _id = g.Key, Name = g.First().Name })
-                .Project("{ _id: 1 }");
-
-            var options = fluent.Options;
-
-            var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
-            _operationExecutor.EnqueueResult(fakeCursor);
-
-            await fluent.ToCursorAsync(CancellationToken.None);
-
-            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
-
-            call.Operation.Should().BeOfType<AggregateOperation<BsonDocument>>();
-            var operation = (AggregateOperation<BsonDocument>)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
-            operation.BatchSize.Should().Be(options.BatchSize);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.UseCursor.Should().Be(options.UseCursor);
-
-            operation.Pipeline.Should().Equal(pipeline);
-        }
-
-        [Test]
         public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
         {
             var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
@@ -581,31 +538,30 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task Find_with_an_expression_should_execute_correctly()
+        public async Task FindAsync_with_an_expression_should_execute_correctly()
         {
             Expression<Func<BsonDocument, bool>> filter = doc => doc["x"] == 1;
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var options = new FindOptions
+            var options = new FindOptions<BsonDocument>
             {
                 AllowPartialResults = true,
                 BatchSize = 20,
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
+                Limit = 30,
                 MaxTime = TimeSpan.FromSeconds(3),
                 Modifiers = BsonDocument.Parse("{$snapshot: true}"),
-                NoCursorTimeout = true
+                NoCursorTimeout = true,
+                Projection = projection,
+                Skip = 40,
+                Sort = sort
             };
-            var fluent = _subject.Find(filter, options)
-                .Projection<BsonDocument>(projection)
-                .Sort(sort)
-                .Limit(30)
-                .Skip(40);
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            await fluent.ToCursorAsync(CancellationToken.None);
+            await _subject.FindAsync(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -616,59 +572,13 @@ namespace MongoDB.Driver
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Comment.Should().Be("funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
-            operation.Filter.Should().Be(BsonDocument.Parse("{x:1}"));
-            operation.Limit.Should().Be(30);
+            operation.Filter.Should().Be(new BsonDocument("x", 1));
+            operation.Limit.Should().Be(options.Limit);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
             operation.Projection.Should().Be(projection);
-            operation.Skip.Should().Be(40);
-            operation.Sort.Should().Be(sort);
-        }
-
-        [Test]
-        public async Task Find_should_execute_the_FindOperation()
-        {
-            var filter = BsonDocument.Parse("{x:1}");
-            var projection = BsonDocument.Parse("{y:1}");
-            var sort = BsonDocument.Parse("{a:1}");
-            var options = new FindOptions
-            {
-                AllowPartialResults = true,
-                BatchSize = 20,
-                Comment = "funny",
-                CursorType = CursorType.TailableAwait,
-                MaxTime = TimeSpan.FromSeconds(3),
-                Modifiers = BsonDocument.Parse("{$snapshot: true}"),
-                NoCursorTimeout = true
-            };
-            var fluent = _subject.Find(filter, options)
-                .Projection<BsonDocument>(projection)
-                .Sort(sort)
-                .Limit(30)
-                .Skip(40);
-
-            var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
-            _operationExecutor.EnqueueResult(fakeCursor);
-
-            await fluent.ToCursorAsync(CancellationToken.None);
-
-            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
-
-            call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
-            var operation = (FindOperation<BsonDocument>)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
-            operation.BatchSize.Should().Be(options.BatchSize);
-            operation.Comment.Should().Be("funny");
-            operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
-            operation.Filter.Should().Be(filter);
-            operation.Limit.Should().Be(30);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.Modifiers.Should().Be(options.Modifiers);
-            operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
-            operation.Projection.Should().Be(projection);
-            operation.Skip.Should().Be(40);
+            operation.Skip.Should().Be(options.Skip);
             operation.Sort.Should().Be(sort);
         }
 
