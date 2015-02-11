@@ -112,8 +112,6 @@ namespace MongoDB.Driver.Core.Clusters
                     switch (connectionMode)
                     {
                         case ClusterConnectionMode.Automatic:
-                            return serverType == ServerType.Standalone || serverType == ServerType.ShardRouter;
-
                         case ClusterConnectionMode.Direct:
                             return true;
 
