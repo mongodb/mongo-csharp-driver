@@ -73,6 +73,9 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Hasher.cs</Link>
     </Compile>
+    <Compile Include="..\MongoDB.Shared\PowerOf2.cs">
+      <Link>PowerOf2.cs</Link>
+    </Compile>
     <Compile Include="BsonExtensionMethods.cs" />
     <Compile Include="Exceptions\DuplicateBsonMemberMapAttributeException.cs" />
     <Compile Include="IO\ArrayElementNameAccelerator.cs" />
@@ -85,6 +88,7 @@
     <Compile Include="IO\BsonStreamWriter.cs" />
     <Compile Include="IO\BsonTrie.cs" />
     <Compile Include="IO\BsonWriterSettings.cs" />
+    <Compile Include="IO\ByteArrayChunk.cs" />
     <Compile Include="IO\ByteBufferSlice.cs" />
     <Compile Include="IO\IBsonChunk.cs" />
     <Compile Include="IO\IBsonChunkSource.cs" />
@@ -94,6 +98,7 @@
     <Compile Include="IO\IBsonWriterExtensions.cs" />
     <Compile Include="IO\IElementNameValidator.cs" />
     <Compile Include="IO\INameDecoder.cs" />
+    <Compile Include="IO\InputBufferChunkSource.cs" />
     <Compile Include="IO\JsonBuffer.cs" />
     <Compile Include="IO\ByteBufferFactory.cs" />
     <Compile Include="IO\ByteArrayBuffer.cs" />
@@ -104,6 +109,7 @@
     <Compile Include="IO\JsonConvert.cs" />
     <Compile Include="IO\MultiChunkBuffer.cs" />
     <Compile Include="IO\NoOpElementNameValidator.cs" />
+    <Compile Include="IO\OutputBufferChunkSource.cs" />
     <Compile Include="IO\TrieNameDecoder.cs" />
     <Compile Include="IO\Utf8Encodings.cs" />
     <Compile Include="IO\Utf8NameDecoder.cs" />

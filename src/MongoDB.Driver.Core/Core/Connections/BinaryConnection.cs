@@ -231,7 +231,8 @@ namespace MongoDB.Driver.Core.Connections
                 var messageSizeBytes = new byte[4];
                 await _stream.FillBufferAsync(messageSizeBytes, 0, 4, _backgroundTaskCancellationToken).ConfigureAwait(false);
                 var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
-                var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, messageSize);
+                var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
+                var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize); // will be Disposed by dropbox
                 buffer.WriteBytes(0, messageSizeBytes, 0, 4);
                 await _stream.FillBufferAsync(buffer, 4, messageSize - 4, _backgroundTaskCancellationToken).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
@@ -376,7 +377,8 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
-                using (var buffer = new MultiChunkBuffer(BsonChunkPool.Default))
+                var outputBufferChunkSource = new OutputBufferChunkSource(BsonChunkPool.Default);
+                using (var buffer = new MultiChunkBuffer(outputBufferChunkSource))
                 {
                     using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: false))
                     {
