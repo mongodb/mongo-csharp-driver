@@ -21,96 +21,77 @@ using System.Linq;
 namespace MongoDB.Bson.IO
 {
     /// <summary>
-    /// An IBsonBuffer that has multiple chunks.
+    /// An IByteBuffer that is backed by multiple chunks.
     /// </summary>
-    public class MultiChunkBuffer : IByteBuffer
+    public sealed class MultiChunkBuffer : IByteBuffer
     {
         // private fields
-        private readonly BsonChunkPool _chunkPool;
-        private readonly int _chunkSize;
-        private readonly int _origin;
         private int _capacity;
-        private List<BsonChunk> _chunks;
+        private int _chunkIndex;
+        private List<IBsonChunk> _chunks;
+        private readonly IBsonChunkSource _chunkSource;
         private bool _disposed;
         private bool _isReadOnly;
         private int _length;
+        private List<int> _positions;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiChunkBuffer"/> class.
         /// </summary>
-        /// <param name="chunkPool">The chunk pool.</param>
+        /// <param name="chunkSource">The chunk pool.</param>
         /// <exception cref="System.ArgumentNullException">chunkPool</exception>
-        public MultiChunkBuffer(BsonChunkPool chunkPool)
+        public MultiChunkBuffer(IBsonChunkSource chunkSource)
         {
-            if (chunkPool == null)
+            if (chunkSource == null)
             {
-                throw new ArgumentNullException("chunkPool");
+                throw new ArgumentNullException("chunkSource");
             }
 
-            _chunkPool = chunkPool;
-            _chunks = new List<BsonChunk>();
-            _chunkSize = chunkPool.ChunkSize;
-            _origin = 0;
+            _chunks = new List<IBsonChunk>();
+            _chunkSource = chunkSource;
             _length = 0;
+            _positions = new List<int> { 0 };
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiChunkBuffer"/> class.
         /// </summary>
         /// <param name="chunks">The chunks.</param>
-        /// <param name="origin">The slice offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
         /// <exception cref="System.ArgumentNullException">chunks</exception>
-        internal MultiChunkBuffer(IEnumerable<BsonChunk> chunks, int origin, int length, bool isReadOnly)
+        internal MultiChunkBuffer(IEnumerable<IBsonChunk> chunks, int length, bool isReadOnly)
         {
             if (chunks == null)
             {
                 throw new ArgumentNullException("chunks");
             }
 
-            _chunks = new List<BsonChunk>(chunks);
+            _chunks = new List<IBsonChunk>(chunks);
             if (_chunks.Count == 0)
             {
                 throw new ArgumentException("No chunks where provided.", "chunks");
             }
 
-            _chunkSize = _chunks[0].Bytes.Length;
-            if (_chunks.Any(c => c.Bytes.Length != _chunkSize))
-            {
-                throw new ArgumentException("The chunks are not all the same size.");
-            }
-            _capacity = _chunks.Count * _chunkSize;
-
-            if (origin < 0 || origin > _capacity)
-            {
-                throw new ArgumentOutOfRangeException("origin");
-            }
-            _origin = origin;
-
-            if (length < 0 || _origin + length > _capacity)
-            {
-                throw new ArgumentOutOfRangeException("length");
-            }
             _length = length;
-
-            _chunkPool = null;
             _isReadOnly = isReadOnly;
+            _positions = new List<int> { 0 };
 
             foreach (var chunk in _chunks)
             {
-                chunk.IncrementReferenceCount();
+                _capacity += chunk.Bytes.Count;
+                _positions.Add(_capacity);
+            }
+
+            if (length < 0 || length > _capacity)
+            {
+                throw new ArgumentOutOfRangeException("length");
             }
         }
 
         // public properties
-        /// <summary>
-        /// Gets the capacity.
-        /// </summary>
-        /// <value>
-        /// The capacity.
-        /// </value>
+        /// <inheritdoc/>
         public int Capacity
         {
             get
@@ -120,13 +101,7 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether this instance is read only.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is read only; otherwise, <c>false</c>.
-        /// </value>
-        /// <exception cref="System.ObjectDisposedException">MultiChunkBuffer</exception>
+        /// <inheritdoc/>
         public bool IsReadOnly
         {
             get
@@ -136,15 +111,7 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Gets or sets the length.
-        /// </summary>
-        /// <value>
-        /// The length.
-        /// </value>
-        /// <exception cref="System.ObjectDisposedException">MultiChunkBuffer</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Length</exception>
-        /// <exception cref="System.InvalidOperationException">The length of a read only buffer cannot be changed.</exception>
+        /// <inheritdoc/>
         public int Length
         {
             get
@@ -155,7 +122,7 @@ namespace MongoDB.Bson.IO
             set
             {
                 ThrowIfDisposed();
-                if (value < 0 || _origin + value > _capacity)
+                if (value < 0 || value > _capacity)
                 {
                     throw new ArgumentOutOfRangeException("Length");
                 }
@@ -166,16 +133,7 @@ namespace MongoDB.Bson.IO
         }
 
         // public methods
-        /// <summary>
-        /// Access the backing bytes directly. The returned ArraySegment will point to the desired position and contain
-        /// as many bytes as possible up to the next chunk boundary (if any). If the returned ArraySegment does not
-        /// contain enough bytes for your needs you will have to call ReadBytes instead.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <returns>
-        /// An ArraySegment pointing directly to the backing bytes for the position.
-        /// </returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
+        /// <inheritdoc/>
         public ArraySegment<byte> AccessBackingBytes(int position)
         {
             ThrowIfDisposed();
@@ -184,17 +142,14 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
             }
 
-            var chunkIndex = (_origin + position) / _chunkSize;
-            var chunkOffset = (_origin + position) % _chunkSize;
-            var chunkRemaining = _chunkSize - chunkOffset;
-            return new ArraySegment<byte>(_chunks[chunkIndex].Bytes, chunkOffset, chunkRemaining);
+            var chunkIndex = GetChunkIndex(position);
+            var chunkOffset = position - _positions[chunkIndex];
+            var segment = _chunks[chunkIndex].Bytes;
+            var chunkRemaining = segment.Count - chunkOffset;
+            return new ArraySegment<byte>(segment.Array, segment.Offset + chunkOffset, chunkRemaining);
         }
 
-        /// <summary>
-        /// Clears the specified bytes.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="count">The count.</param>
+        /// <inheritdoc/>
         public void Clear(int position, int count)
         {
             ThrowIfDisposed();
@@ -207,62 +162,50 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentException("Count extends beyond the end of the buffer.", "count");
             }
 
-            var chunkIndex = (_origin + position) / _chunkSize;
-            var chunkOffset = (_origin + position) % _chunkSize;
+            var chunkIndex = GetChunkIndex(position);
+            var chunkOffset = position - _positions[chunkIndex];
             while (count > 0)
             {
-                var chunkRemaining = _chunkSize - chunkOffset;
-                var toClear = count < chunkRemaining ? count : chunkRemaining;
-                Array.Clear(_chunks[chunkIndex].Bytes, chunkOffset, toClear);
+                var segment = _chunks[chunkIndex].Bytes;
+                var chunkRemaining = segment.Count - chunkOffset;
+                var partialCount = Math.Min(count, chunkRemaining);
+                Array.Clear(segment.Array, segment.Offset + chunkOffset, partialCount);
                 chunkIndex += 1;
                 chunkOffset = 0;
-                count -= toClear;
+                count -= partialCount;
             }
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (!_disposed)
+            {
+                _disposed = true;
+                foreach (var chunk in _chunks)
+                {
+                    chunk.Dispose();
+                }
+                _chunks = null;
+                _positions = null;
+            }
         }
 
-        /// <summary>
-        /// Expands the buffer to at least the specified minimum length. Depending on the buffer's growth strategy
-        /// it may choose to expand to a larger length.
-        /// </summary>
-        /// <param name="capacity">The minimum length.</param>
-        /// <exception cref="System.InvalidOperationException">Capacity cannot be expanded because this buffer was created without specifying a chunk pool.</exception>
+        /// <inheritdoc/>
         public void EnsureCapacity(int capacity)
         {
-            if (_chunkPool == null)
+            if (_chunkSource == null)
             {
                 throw new InvalidOperationException("Capacity cannot be expanded because this buffer was created without specifying a chunk pool.");
             }
 
-            if (_capacity < _origin + capacity)
+            if (_capacity < capacity)
             {
-                ExpandCapacity(_origin + capacity);
+                ExpandCapacity(capacity);
             }
         }
 
-        /// <summary>
-        /// Gets a slice of this buffer.
-        /// </summary>
-        /// <param name="position">The position of the start of the slice.</param>
-        /// <param name="length">The length of the slice.</param>
-        /// <returns>
-        /// A slice of this buffer.
-        /// </returns>
-        /// <exception cref="System.ObjectDisposedException">MultiChunkBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">GetSlice can only be called for read only buffers.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// position
-        /// or
-        /// length
-        /// </exception>
+        /// <inheritdoc/>
         public IByteBuffer GetSlice(int position, int length)
         {
             ThrowIfDisposed();
@@ -272,45 +215,35 @@ namespace MongoDB.Bson.IO
             }
             if (length < 0)
             {
-                throw new ArgumentException("Length is negative.", "count");
+                throw new ArgumentException("Length is negative.", "length");
             }
             if (position + length > _length)
             {
-                throw new ArgumentException("Length extends past the end of the buffer.", "count");
+                throw new ArgumentException("Length extends past the end of the buffer.", "length");
             }
             EnsureIsReadOnly();
 
-            var firstChunk = (_origin + position) / _chunkSize;
-            var lastChunk = (_origin + position + length - 1) / _chunkSize;
-            var origin = (_origin + position) - (firstChunk * _chunkSize);
+            var firstChunkIndex = GetChunkIndex(position);
+            var lastChunkIndex = GetChunkIndex(position + length - 1);
 
-            if (firstChunk == lastChunk)
+            IByteBuffer forkedBuffer;
+            if (firstChunkIndex == lastChunkIndex)
             {
-                return new SingleChunkBuffer(_chunks[firstChunk], origin, length, isReadOnly: true);
+                var forkedChunk = _chunks[firstChunkIndex].Fork();
+                forkedBuffer = new SingleChunkBuffer(forkedChunk, forkedChunk.Bytes.Count, isReadOnly: true);
             }
             else
             {
-                var chunks = _chunks.Skip(firstChunk).Take(lastChunk - firstChunk + 1);
-                return new MultiChunkBuffer(chunks, origin, length, isReadOnly: true);
+                var forkedChunks = _chunks.Skip(firstChunkIndex).Take(lastChunkIndex - firstChunkIndex + 1).Select(c => c.Fork());
+                var forkedBufferLength = _positions[lastChunkIndex + 1] - _positions[firstChunkIndex];
+                forkedBuffer = new MultiChunkBuffer(forkedChunks, forkedBufferLength, isReadOnly: true);
             }
+
+            var offset = position - _positions[firstChunkIndex];
+            return new ByteBufferSlice(forkedBuffer, offset, length);
         }
 
-        /// <summary>
-        /// Loads the buffer from a stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="position">The position.</param>
-        /// <param name="count">The count.</param>
-        /// <exception cref="System.ArgumentNullException">stream</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">count</exception>
-        /// <exception cref="System.ArgumentException">
-        /// Count is negative.;count
-        /// or
-        /// Count extends past the end of the buffer.;count
-        /// </exception>
-        /// <exception cref="System.IO.EndOfStreamException"></exception>
-        /// <exception cref="System.ObjectDisposedException">MultiChunkBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">The MultiChunkBuffer is read only.</exception>
+        /// <inheritdoc/>
         public void LoadFrom(Stream stream, int position, int count)
         {
             ThrowIfDisposed();
@@ -334,11 +267,12 @@ namespace MongoDB.Bson.IO
 
             while (count > 0)
             {
-                var chunkIndex = (_origin + position) / _chunkSize;
-                var chunkOffset = (_origin + position) % _chunkSize;
-                var chunkRemaining = _chunkSize - chunkOffset;
-                var bytesToRead = (count <= chunkRemaining) ? count : chunkRemaining;
-                var bytesRead = stream.Read(_chunks[chunkIndex].Bytes, chunkOffset, bytesToRead);
+                var chunkIndex = GetChunkIndex(position);
+                var segment = _chunks[chunkIndex].Bytes;
+                var chunkOffset = position - _positions[chunkIndex];
+                var chunkRemaining = segment.Count - chunkOffset;
+                var partialCount = Math.Min(count, chunkRemaining);
+                var bytesRead = stream.Read(segment.Array, segment.Offset + chunkOffset, partialCount);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -348,24 +282,14 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Makes this buffer read only.
-        /// </summary>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
+        /// <inheritdoc/>
         public void MakeReadOnly()
         {
             ThrowIfDisposed();
             _isReadOnly = true;
         }
 
-        /// <summary>
-        /// Reads a byte.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <returns>
-        /// A byte.
-        /// </returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
+        /// <inheritdoc/>
         public byte ReadByte(int position)
         {
             ThrowIfDisposed();
@@ -374,29 +298,13 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
             }
 
-            var chunkIndex = (_origin + position) / _chunkSize;
-            var chunkOffset = (_origin + position) % _chunkSize;
-            return _chunks[chunkIndex].Bytes[chunkOffset];
+            var chunkIndex = GetChunkIndex(position);
+            var chunkOffset = position - _positions[chunkIndex];
+            var segment = _chunks[chunkIndex].Bytes;
+            return segment.Array[segment.Offset + chunkOffset];
         }
 
-        /// <summary>
-        /// Reads bytes.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="destination">The destination.</param>
-        /// <param name="offset">The destination offset.</param>
-        /// <param name="count">The count.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
-        /// <exception cref="System.ArgumentNullException">destination</exception>
-        /// <exception cref="System.ArgumentException">
-        /// Offset is negative.;offset
-        /// or
-        /// Count is negative.;count
-        /// or
-        /// Count extends past the end of the buffer.;count
-        /// or
-        /// Count extends past the end of the destination.;count
-        /// </exception>
+        /// <inheritdoc/>
         public void ReadBytes(int position, byte[] destination, int offset, int count)
         {
             ThrowIfDisposed();
@@ -425,26 +333,22 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentException("Count extends past the end of the destination.", "count");
             }
 
-            var chunkIndex = (_origin + position) / _chunkSize;
-            var chunkOffset = (_origin + position) % _chunkSize;
+            var chunkIndex = GetChunkIndex(position);
+            var chunkOffset = position - _positions[chunkIndex];
             while (count > 0)
             {
-                var chunkRemaining = _chunkSize - chunkOffset;
-                var bytesToCopy = (count < chunkRemaining) ? count : chunkRemaining;
-                Buffer.BlockCopy(_chunks[chunkIndex].Bytes, chunkOffset, destination, offset, bytesToCopy);
+                var segment = _chunks[chunkIndex].Bytes;
+                var chunkRemaining = segment.Count - chunkOffset;
+                var partialCount = Math.Min(count, chunkRemaining);
+                Buffer.BlockCopy(segment.Array, segment.Offset + chunkOffset, destination, offset, partialCount);
                 chunkIndex += 1;
                 chunkOffset = 0;
-                count -= bytesToCopy;
-                offset += bytesToCopy;
+                count -= partialCount;
+                offset += partialCount;
             }
         }
 
-        /// <summary>
-        /// Writes a byte.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="value">The value.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
+        /// <inheritdoc/>
         public void WriteByte(int position, byte value)
         {
             ThrowIfDisposed();
@@ -454,31 +358,13 @@ namespace MongoDB.Bson.IO
             }
             EnsureIsWritable();
 
-            var chunkIndex = (_origin + position) / _chunkSize;
-            var chunkOffset = (_origin + position) % _chunkSize;
-            _chunks[chunkIndex].Bytes[chunkOffset] = value;
+            var chunkIndex = GetChunkIndex(position);
+            var chunkOffset = position - _positions[chunkIndex];
+            var segment = _chunks[chunkIndex].Bytes;
+            segment.Array[segment.Offset + chunkOffset] = value;
         }
 
-        /// <summary>
-        /// Writes bytes.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="source">The bytes (in the form of a byte array).</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="count">The count.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// position;Position is outside of the buffer.
-        /// or
-        /// offset;Offset is outside of the source.
-        /// </exception>
-        /// <exception cref="System.ArgumentNullException">source</exception>
-        /// <exception cref="System.ArgumentException">
-        /// Count is negative.;count
-        /// or
-        /// Count extends past the end of the buffer.;count
-        /// or
-        /// Count extends past the end of the source.;count
-        /// </exception>
+        /// <inheritdoc/>
         public void WriteBytes(int position, byte[] source, int offset, int count)
         {
             ThrowIfDisposed();
@@ -508,75 +394,37 @@ namespace MongoDB.Bson.IO
             }
             EnsureIsWritable();
 
-            var chunkIndex = (_origin + position) / _chunkSize;
-            var chunkOffset = (_origin + position) % _chunkSize;
+            var chunkIndex = GetChunkIndex(position);
+            var chunkOffset = position - _positions[chunkIndex];
             while (count > 0)
             {
-                var chunkRemaining = _chunkSize - chunkOffset;
-                var bytesToCopy = (count < chunkRemaining) ? count : chunkRemaining;
-                Buffer.BlockCopy(source, offset, _chunks[chunkIndex].Bytes, chunkOffset, bytesToCopy);
+                var segment = _chunks[chunkIndex].Bytes;
+                var chunkRemaining = segment.Count - chunkOffset;
+                var partialCount = Math.Min(count, chunkRemaining);
+                Buffer.BlockCopy(source, offset, segment.Array, segment.Offset + chunkOffset, partialCount);
                 chunkIndex += 1;
                 chunkOffset = 0;
-                offset += bytesToCopy;
-                count -= bytesToCopy;
+                offset += partialCount;
+                count -= partialCount;
             }
         }
 
-        /// <summary>
-        /// Writes Length bytes from this buffer starting at Position 0 to a stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <exception cref="System.ObjectDisposedException">MultiChunkBuffer</exception>
-        public void WriteTo(Stream stream)
+        /// <inheritdoc/>
+        public void WriteTo(Stream stream, int position, int count)
         {
             ThrowIfDisposed();
 
-            var chunkIndex = _origin / _chunkSize;
-            var chunkOffset = _origin % _chunkSize;
-            var remaining = _length;
-            while (remaining > 0)
+            var chunkIndex = GetChunkIndex(position);
+            var chunkOffset = position - _positions[chunkIndex];
+            while (count > 0)
             {
-                var chunkRemaining = _chunkSize - chunkOffset;
-                var bytesToWrite = (remaining < chunkRemaining) ? remaining : chunkRemaining;
-                stream.Write(_chunks[chunkIndex].Bytes, chunkOffset, bytesToWrite);
+                var segment = _chunks[chunkIndex].Bytes;
+                var chunkRemaining = segment.Count - chunkOffset;
+                var partialCount = Math.Min(count, chunkRemaining);
+                stream.Write(segment.Array, segment.Offset + chunkOffset, partialCount);
                 chunkIndex += 1;
                 chunkOffset = 0;
-                remaining -= bytesToWrite;
-            }
-        }
-
-        // protected methods
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    if (_chunks != null)
-                    {
-                        foreach (var chunk in _chunks)
-                        {
-                            chunk.DecrementReferenceCount();
-                        }
-                        _chunks = null;
-                    }
-                }
-                _disposed = true;
-            }
-        }
-
-        /// <summary>
-        /// Throws if disposed.
-        /// </summary>
-        /// <exception cref="System.ObjectDisposedException"></exception>
-        protected void ThrowIfDisposed()
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().Name);
+                count -= partialCount;
             }
         }
 
@@ -601,10 +449,38 @@ namespace MongoDB.Bson.IO
         {
             while (_capacity < targetCapacity)
             {
-                var chunk = _chunkPool.AcquireChunk();
-                chunk.IncrementReferenceCount();
+                var chunk = _chunkSource.GetChunk(targetCapacity);
                 _chunks.Add(chunk);
-                _capacity += _chunkSize;
+                _capacity += chunk.Bytes.Count;
+                _positions.Add(_capacity);
+            }
+        }
+
+        private int GetChunkIndex(int position)
+        {
+            // locality of reference means this loop will only execute once most of the time
+            while (true)
+            {
+                if (position >= _positions[_chunkIndex + 1])
+                {
+                    _chunkIndex++;
+                }
+                else if (position < _positions[_chunkIndex])
+                {
+                    _chunkIndex--;
+                }
+                else
+                {
+                    return _chunkIndex;
+                }
+            }
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
             }
         }
     }

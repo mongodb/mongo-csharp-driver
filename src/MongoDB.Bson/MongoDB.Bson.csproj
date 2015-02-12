@@ -76,7 +76,6 @@
     <Compile Include="BsonExtensionMethods.cs" />
     <Compile Include="Exceptions\DuplicateBsonMemberMapAttributeException.cs" />
     <Compile Include="IO\ArrayElementNameAccelerator.cs" />
-    <Compile Include="IO\BsonChunk.cs" />
     <Compile Include="IO\BsonChunkPool.cs" />
     <Compile Include="IO\BsonDocumentReaderSettings.cs" />
     <Compile Include="IO\BsonDocumentWriterSettings.cs" />
@@ -86,6 +85,9 @@
     <Compile Include="IO\BsonStreamWriter.cs" />
     <Compile Include="IO\BsonTrie.cs" />
     <Compile Include="IO\BsonWriterSettings.cs" />
+    <Compile Include="IO\ByteBufferSlice.cs" />
+    <Compile Include="IO\IBsonChunk.cs" />
+    <Compile Include="IO\IBsonChunkSource.cs" />
     <Compile Include="IO\IBsonReader.cs" />
     <Compile Include="IO\IBsonReaderExtensions.cs" />
     <Compile Include="IO\IBsonWriter.cs" />

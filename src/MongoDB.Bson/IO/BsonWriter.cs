@@ -289,7 +289,7 @@ namespace MongoDB.Bson.IO
                 streamWriter.WriteBsonType(BsonType.Array);
                 streamWriter.WriteByte((byte)'x');
                 streamWriter.WriteByte(0);
-                slice.WriteTo(streamWriter.BaseStream);
+                slice.WriteTo(streamWriter.BaseStream, 0, slice.Length);
                 streamWriter.WriteByte(0);
 
                 memoryStream.Position = 0;

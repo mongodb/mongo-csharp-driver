@@ -27,34 +27,36 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Creates a buffer of the specified length. Depending on the length, either a SingleChunkBuffer or a MultiChunkBuffer will be created.
         /// </summary>
-        /// <param name="chunkPool">The chunk pool.</param>
-        /// <param name="length">The length.</param>
-        /// <returns>A buffer.</returns>
-        public static IByteBuffer Create(BsonChunkPool chunkPool, int length)
+        /// <param name="chunkSource">The chunk pool.</param>
+        /// <param name="requiredCapacity">The required capacity.</param>
+        /// <returns>A buffer with at least the required capacity.</returns>
+        public static IByteBuffer Create(IBsonChunkSource chunkSource, int requiredCapacity)
         {
-            if (chunkPool == null)
+            if (chunkSource == null)
             {
-                throw new ArgumentNullException("pool");
+                throw new ArgumentNullException("chunkSource");
             }
-            if (length <= 0)
+            if (requiredCapacity <= 0)
             {
-                throw new ArgumentOutOfRangeException("length");
+                throw new ArgumentOutOfRangeException("requiredCapacity");
             }
 
-            if (length < chunkPool.ChunkSize)
+            var capacity = 0;
+            var chunks = new List<IBsonChunk>();
+            while (capacity < requiredCapacity)
             {
-                var chunk = chunkPool.AcquireChunk();
-                return new SingleChunkBuffer(chunk, 0, length, false);
+                var chunk = chunkSource.GetChunk(requiredCapacity - capacity);
+                chunks.Add(chunk);
+                capacity += chunk.Bytes.Count;
+            }
+
+            if (chunks.Count == 1)
+            {
+                return new SingleChunkBuffer(chunks[0], 0, isReadOnly: false);
             }
             else
             {
-                var chunksNeeded = ((length - 1) / chunkPool.ChunkSize) + 1;
-                var chunks = new List<BsonChunk>(chunksNeeded);
-                for (int i = 0; i < chunksNeeded; i++)
-                {
-                    chunks.Add(chunkPool.AcquireChunk());
-                }
-                return new MultiChunkBuffer(chunks, 0, length, false);
+                return new MultiChunkBuffer(chunks, 0, isReadOnly: false);
             }
         }
 

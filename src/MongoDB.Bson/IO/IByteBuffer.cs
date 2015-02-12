@@ -131,6 +131,8 @@ namespace MongoDB.Bson.IO
         /// Writes the contents of this buffer to a stream.
         /// </summary>
         /// <param name="stream">The stream.</param>
-        void WriteTo(Stream stream);
+        /// <param name="position">The position.</param>
+        /// <param name="count">The count.</param>
+        void WriteTo(Stream stream, int position, int count);
     }
 }

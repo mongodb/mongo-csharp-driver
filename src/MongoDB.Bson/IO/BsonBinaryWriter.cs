@@ -508,7 +508,7 @@ namespace MongoDB.Bson.IO
 
             _streamWriter.WriteBsonType(BsonType.Array);
             WriteNameHelper();
-            slice.WriteTo(_streamWriter.BaseStream); // assumes byteBuffer is a valid raw BSON array
+            slice.WriteTo(_streamWriter.BaseStream, 0, slice.Length); // assumes byteBuffer is a valid raw BSON array
 
             State = GetNextState();
         }
@@ -530,7 +530,7 @@ namespace MongoDB.Bson.IO
                 _streamWriter.WriteBsonType(BsonType.Document);
                 WriteNameHelper();
             }
-            slice.WriteTo(_streamWriter.BaseStream); // assumes byteBuffer is a valid raw BSON document
+            slice.WriteTo(_streamWriter.BaseStream, 0, slice.Length); // assumes byteBuffer is a valid raw BSON document
 
             if (_context == null)
             {

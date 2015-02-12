@@ -78,7 +78,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 using (var memoryStream = new MemoryStream())
                 {
-                    buffer.WriteTo(memoryStream);
+                    buffer.WriteTo(memoryStream, 0, buffer.Length);
                     Assert.AreEqual(2, memoryStream.Length);
                 }
             }

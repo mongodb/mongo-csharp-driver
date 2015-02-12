@@ -28,9 +28,10 @@ namespace MongoDB.Bson.Tests.IO
             var length = chunkSize * 3;
             using (var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, length))
             {
+                buffer.Length = length;
                 buffer.MakeReadOnly();
                 var slice = buffer.GetSlice(chunkSize, 1);
-                Assert.IsInstanceOf<SingleChunkBuffer>(slice);
+                Assert.IsInstanceOf<ByteBufferSlice>(slice);
             }
         }
 
@@ -41,9 +42,10 @@ namespace MongoDB.Bson.Tests.IO
             var length = chunkSize * 3;
             using (var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, length))
             {
+                buffer.Length = length;
                 buffer.MakeReadOnly();
                 var slice = buffer.GetSlice(chunkSize, chunkSize + 1);
-                Assert.IsInstanceOf<MultiChunkBuffer>(slice);
+                Assert.IsInstanceOf<ByteBufferSlice>(slice);
             }
         }
     }

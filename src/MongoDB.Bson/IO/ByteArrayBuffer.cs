@@ -61,12 +61,7 @@ namespace MongoDB.Bson.IO
         }
 
         // public properties
-        /// <summary>
-        /// Gets the capacity.
-        /// </summary>
-        /// <value>
-        /// The capacity.
-        /// </value>
+        /// <inheritdoc/>
         public int Capacity
         {
             get
@@ -76,13 +71,7 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether this instance is read only.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is read only; otherwise, <c>false</c>.
-        /// </value>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
+        /// <inheritdoc/>
         public bool IsReadOnly
         {
             get
@@ -92,13 +81,7 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Gets or sets the length.
-        /// </summary>
-        /// <value>
-        /// The length.
-        /// </value>
-        /// <exception cref="System.ArgumentException">Length is negative.;value</exception>
+        /// <inheritdoc/>
         public int Length
         {
             get
@@ -147,11 +130,7 @@ namespace MongoDB.Bson.IO
         }
 
         // public methods
-        /// <summary>
-        /// Accesses the backing bytes.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <returns>A segment of the backing bytes.</returns>
+        /// <inheritdoc/>
         public ArraySegment<byte> AccessBackingBytes(int position)
         {
             ThrowIfDisposed();
@@ -163,11 +142,7 @@ namespace MongoDB.Bson.IO
             return new ArraySegment<byte>(_bytes, _origin + position, _length - position);
         }
 
-        /// <summary>
-        /// Clears the specified bytes.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="count">The count.</param>
+        /// <inheritdoc/>
         public void Clear(int position, int count)
         {
             ThrowIfDisposed();
@@ -187,21 +162,14 @@ namespace MongoDB.Bson.IO
             Array.Clear(_bytes, _origin + position, count);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        /// <summary>
-        /// Expands the buffer to at least the specified minimum length. Depending on the buffer's growth strategy
-        /// it may choose to expand to a larger length.
-        /// </summary>
-        /// <param name="capacity">The minimum length.</param>
-        /// <exception cref="System.ArgumentException">Minimum length is negative.;minimumLength</exception>
+        /// <inheritdoc/>
         public void EnsureCapacity(int capacity)
         {
             if (capacity < 0)
@@ -221,21 +189,7 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Gets a slice of this buffer.
-        /// </summary>
-        /// <param name="position">The position of the start of the slice.</param>
-        /// <param name="length">The length of the slice.</param>
-        /// <returns>
-        /// A slice of this buffer.
-        /// </returns>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">GetSlice can only be called for read only buffers.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// position
-        /// or
-        /// length
-        /// </exception>
+        /// <inheritdoc/>
         public virtual IByteBuffer GetSlice(int position, int length)
         {
             ThrowIfDisposed();
@@ -245,31 +199,18 @@ namespace MongoDB.Bson.IO
             }
             if (length < 0)
             {
-                throw new ArgumentException("Length is negative.", "count");
+                throw new ArgumentException("Length is negative.", "length");
             }
             if (position + length > _length)
             {
-                throw new ArgumentException("Length extends past the end of the buffer.", "count");
+                throw new ArgumentException("Length extends past the end of the buffer.", "length");
             }
             EnsureIsReadOnly();
 
             return new ByteArrayBuffer(_bytes, _origin + position, length, isReadOnly: true);
         }
 
-        /// <summary>
-        /// Loads the buffer from a stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="position">The position.</param>
-        /// <param name="count">The count.</param>
-        /// <exception cref="System.ArgumentNullException">stream</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
-        /// <exception cref="System.ArgumentException">
-        /// Count is negative.;count
-        /// or
-        /// Count extends past the end of the buffer.;count
-        /// </exception>
-        /// <exception cref="System.IO.EndOfStreamException"></exception>
+        /// <inheritdoc/>
         public void LoadFrom(Stream stream, int position, int count)
         {
             ThrowIfDisposed();
@@ -303,24 +244,14 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Makes this buffer read only.
-        /// </summary>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
+        /// <inheritdoc/>
         public void MakeReadOnly()
         {
             ThrowIfDisposed();
             _isReadOnly = true;
         }
 
-        /// <summary>
-        /// Reads a byte.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <returns>
-        /// A byte.
-        /// </returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
+        /// <inheritdoc/>
         public byte ReadByte(int position)
         {
             ThrowIfDisposed();
@@ -332,24 +263,7 @@ namespace MongoDB.Bson.IO
             return _bytes[_origin + position];
         }
 
-        /// <summary>
-        /// Reads bytes.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="destination">The destination.</param>
-        /// <param name="offset">The destination offset.</param>
-        /// <param name="count">The count.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
-        /// <exception cref="System.ArgumentNullException">destination</exception>
-        /// <exception cref="System.ArgumentException">
-        /// Offset is negative.;offset
-        /// or
-        /// Count is negative.;count
-        /// or
-        /// Count extends past the end of the buffer.;count
-        /// or
-        /// Count extends past the end of the destination.;count
-        /// </exception>
+        /// <inheritdoc/>
         public void ReadBytes(int position, byte[] destination, int offset, int count)
         {
             ThrowIfDisposed();
@@ -381,12 +295,7 @@ namespace MongoDB.Bson.IO
             Buffer.BlockCopy(_bytes, _origin + position, destination, offset, count);
         }
 
-        /// <summary>
-        /// Writes a byte.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="value">The value.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
+        /// <inheritdoc/>
         public void WriteByte(int position, byte value)
         {
             ThrowIfDisposed();
@@ -399,26 +308,7 @@ namespace MongoDB.Bson.IO
             _bytes[_origin + position] = value;
         }
 
-        /// <summary>
-        /// Writes bytes.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="source">The bytes (in the form of a byte array).</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="count">The count.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// position;Position is outside of the buffer.
-        /// or
-        /// offset;Offset is outside of the source.
-        /// </exception>
-        /// <exception cref="System.ArgumentNullException">source</exception>
-        /// <exception cref="System.ArgumentException">
-        /// Count is negative.;count
-        /// or
-        /// Count extends past the end of the buffer.;count
-        /// or
-        /// Count extends past the end of the source.;count
-        /// </exception>
+        /// <inheritdoc/>
         public void WriteBytes(int position, byte[] source, int offset, int count)
         {
             ThrowIfDisposed();
@@ -451,12 +341,8 @@ namespace MongoDB.Bson.IO
             Buffer.BlockCopy(source, offset, _bytes, _origin + position, count);
         }
 
-        /// <summary>
-        /// Writes Length bytes from this buffer starting at Position 0 to a stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        public void WriteTo(Stream stream)
+        /// <inheritdoc/>
+        public void WriteTo(Stream stream, int position, int count)
         {
             ThrowIfDisposed();
             if (stream == null)
@@ -464,7 +350,7 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentNullException("stream");
             }
 
-            stream.Write(_bytes, _origin, _length);
+            stream.Write(_bytes, _origin + position, count);
         }
 
         // protected methods

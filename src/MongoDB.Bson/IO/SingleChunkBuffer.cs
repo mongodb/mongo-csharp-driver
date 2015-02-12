@@ -14,92 +14,317 @@
 */
 
 using System;
+using System.IO;
 
 namespace MongoDB.Bson.IO
 {
     /// <summary>
-    /// An IBsonBuffer that only has a single chunk.
+    /// An IByteBuffer that is backed by a single chunk.
     /// </summary>
-    public class SingleChunkBuffer : ByteArrayBuffer
+    public sealed class SingleChunkBuffer : IByteBuffer
     {
         // private fields
-        private readonly BsonChunk _chunk;
+        private IBsonChunk _chunk;
+        private bool _disposed;
+        private bool _isReadOnly;
+        private int _length;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="SingleChunkBuffer"/> class.
         /// </summary>
-        /// <param name="chunk">The chunk.</param>
-        /// <param name="sliceOffset">The slice offset.</param>
+        /// <param name="chunk">The chuns.</param>
         /// <param name="length">The length.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
-        public SingleChunkBuffer(BsonChunk chunk, int sliceOffset, int length, bool isReadOnly)
-            : base(GetChunkBytes(chunk), sliceOffset, length, isReadOnly)
-        {
-            _chunk = chunk;
-            chunk.IncrementReferenceCount();
-        }
-
-        // public methods
-        /// <summary>
-        /// Gets a slice of this buffer.
-        /// </summary>
-        /// <param name="position">The position of the start of the slice.</param>
-        /// <param name="length">The length of the slice.</param>
-        /// <returns>
-        /// A slice of this buffer.
-        /// </returns>
-        /// <exception cref="System.ObjectDisposedException">SingleChunkBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">GetSlice can only be called for read only buffers.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// position
-        /// or
-        /// length
-        /// </exception>
-        public override IByteBuffer GetSlice(int position, int length)
-        {
-            ThrowIfDisposed();
-            EnsureIsReadOnly();
-            if (position < 0 || position >= Length)
-            {
-                throw new ArgumentOutOfRangeException("position");
-            }
-            if (length <= 0 || length > Length - position)
-            {
-                throw new ArgumentOutOfRangeException("length");
-            }
-
-            return new SingleChunkBuffer(_chunk, Origin + position, length, true);
-        }
-
-        // protected methods
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (!Disposed)
-            {
-                if (disposing)
-                {
-                    if (_chunk != null)
-                    {
-                        _chunk.DecrementReferenceCount();
-                    }
-                }
-            }
-            base.Dispose(disposing);
-        }
-
-        // private static methods
-        private static byte[] GetChunkBytes(BsonChunk chunk)
+        internal SingleChunkBuffer(IBsonChunk chunk, int length, bool isReadOnly)
         {
             if (chunk == null)
             {
                 throw new ArgumentNullException("chunk");
             }
-            return chunk.Bytes;
+            if (length < 0 || length > chunk.Bytes.Count)
+            {
+                throw new ArgumentOutOfRangeException("length");
+            }
+
+            _chunk = chunk;
+            _length = length;
+            _isReadOnly = isReadOnly;
+        }
+
+        // public properties
+        /// <inheritdoc/>
+        public int Capacity
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _isReadOnly ? _length : _chunk.Bytes.Count;
+            }
+        }
+
+        /// <inheritdoc/>
+        public bool IsReadOnly
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _isReadOnly;
+            }
+        }
+
+        /// <inheritdoc/>
+        public int Length
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _length;
+            }
+            set
+            {
+                ThrowIfDisposed();
+                if (value < 0 || value > _chunk.Bytes.Count)
+                {
+                    throw new ArgumentOutOfRangeException("Length");
+                }
+                EnsureIsWritable();
+
+                _length = value;
+            }
+        }
+
+        // public methods
+        /// <inheritdoc/>
+        public ArraySegment<byte> AccessBackingBytes(int position)
+        {
+            ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+
+            return new ArraySegment<byte>(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, _chunk.Bytes.Count - position);
+        }
+
+        /// <inheritdoc/>
+        public void Clear(int position, int count)
+        {
+            ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+            if (position + count > _length)
+            {
+                throw new ArgumentException("Count extends beyond the end of the buffer.", "count");
+            }
+
+            Array.Clear(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, count);
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                _chunk.Dispose();
+                _chunk = null;
+            }
+        }
+
+        /// <inheritdoc/>
+        public void EnsureCapacity(int capacity)
+        {
+            throw new NotSupportedException("Capacity cannot be expanded for a SingleChunkBuffer.");
+        }
+
+        /// <inheritdoc/>
+        public IByteBuffer GetSlice(int position, int length)
+        {
+            ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+            if (length < 0)
+            {
+                throw new ArgumentException("Length is negative.", "length");
+            }
+            if (position + length > _length)
+            {
+                throw new ArgumentException("Length extends past the end of the buffer.", "length");
+            }
+            EnsureIsReadOnly();
+
+            var forkedBuffer = new SingleChunkBuffer(_chunk.Fork(), _length, isReadOnly: true);
+
+            return new ByteBufferSlice(forkedBuffer, position, length);
+        }
+
+        /// <inheritdoc/>
+        public void LoadFrom(Stream stream, int position, int count)
+        {
+            ThrowIfDisposed();
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+            if (count < 0)
+            {
+                throw new ArgumentException("Count is negative.", "count");
+            }
+            if (position + count > _length)
+            {
+                throw new ArgumentException("Count extends past the end of the buffer.", "count");
+            }
+            EnsureIsWritable();
+
+            while (count > 0)
+            {
+                var bytesRead = stream.Read(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, count);
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+                position += bytesRead;
+                count -= bytesRead;
+            }
+        }
+      
+        /// <inheritdoc/>
+        public void MakeReadOnly()
+        {
+            ThrowIfDisposed();
+            _isReadOnly = true;
+        }
+
+        /// <inheritdoc/>
+        public byte ReadByte(int position)
+        {
+            ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+
+            return _chunk.Bytes.Array[_chunk.Bytes.Offset + position];
+        }
+
+        /// <inheritdoc/>
+        public void ReadBytes(int position, byte[] destination, int offset, int count)
+        {
+            ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+            if (destination == null)
+            {
+                throw new ArgumentNullException("destination");
+            }
+            if (offset < 0)
+            {
+                throw new ArgumentException("Offset is negative.", "offset");
+            }
+            if (count < 0)
+            {
+                throw new ArgumentException("Count is negative.", "count");
+            }
+            if (position + count > _length)
+            {
+                throw new ArgumentException("Count extends past the end of the buffer.", "count");
+            }
+            if (offset + count > destination.Length)
+            {
+                throw new ArgumentException("Count extends past the end of the destination.", "count");
+            }
+
+            Buffer.BlockCopy(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, destination, offset, count);
+        }
+
+        /// <inheritdoc/>
+        public void WriteByte(int position, byte value)
+        {
+            ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+            EnsureIsWritable();
+
+            _chunk.Bytes.Array[_chunk.Bytes.Offset + position] = value;
+        }
+
+        /// <inheritdoc/>
+        public void WriteBytes(int position, byte[] source, int offset, int count)
+        {
+            ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (offset < 0 || offset > source.Length)
+            {
+                throw new ArgumentOutOfRangeException("offset", "Offset is outside of the source.");
+            }
+            if (count < 0)
+            {
+                throw new ArgumentException("Count is negative.", "count");
+            }
+            if (position + count > _length)
+            {
+                throw new ArgumentException("Count extends past the end of the buffer.", "count");
+            }
+            if (offset + count > source.Length)
+            {
+                throw new ArgumentException("Count extends past the end of the source.", "count");
+            }
+            EnsureIsWritable();
+
+            Buffer.BlockCopy(source, offset, _chunk.Bytes.Array, _chunk.Bytes.Offset + position, count);
+        }
+
+        /// <inheritdoc/>
+        public void WriteTo(Stream stream, int position, int count)
+        {
+            ThrowIfDisposed();
+
+            stream.Write(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, count);
+        }
+
+        // private methods
+        private void EnsureIsReadOnly()
+        {
+            if (!_isReadOnly)
+            {
+                throw new InvalidOperationException("MultiChunkBuffer is not read only.");
+            }
+        }
+
+        private void EnsureIsWritable()
+        {
+            if (_isReadOnly)
+            {
+                throw new InvalidOperationException("MultiChunkBuffer is not writable.");
+            }
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
         }
     }
 }

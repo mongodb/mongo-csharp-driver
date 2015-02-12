@@ -166,7 +166,7 @@ namespace MongoDB.Bson.IO
             }
             if (position + length > _length)
             {
-                throw new ArgumentException("Length extends beyond the end of the stream.");
+                throw new ArgumentException("Length extends beyond the end of the stream.", "length");
             }
 
             return _byteBuffer.GetSlice(position, length);
