@@ -10,22 +10,27 @@ namespace MongoDB.Driver
     internal class FindFluent<TDocument, TResult> : IOrderedFindFluent<TDocument, TResult>
     {
         // fields
-        private readonly IMongoCollection<TDocument> _collection;
+        private readonly IReadableMongoCollection<TDocument> _collection;
         private object _filter;
         private readonly FindOptions<TResult> _options;
 
         // constructors
-        public FindFluent(IMongoCollection<TDocument> collection, object filter, FindOptions<TResult> options)
+        public FindFluent(IReadableMongoCollection<TDocument> collection, object filter, FindOptions<TResult> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _filter = Ensure.IsNotNull(filter, "filter");
             _options = Ensure.IsNotNull(options, "options");
+
+            if (_options.ResultSerializer == null)
+            {
+                _options.ResultSerializer = collection.Settings.SerializerRegistry.GetSerializer<TResult>();
+            }
         }
 
         // properties
-        public IMongoCollection<TDocument> Collection
+        public IBsonSerializer<TDocument> DocumentSerializer
         {
-            get { return _collection; }
+            get { return _collection.DocumentSerializer; }
         }
 
         public object Filter

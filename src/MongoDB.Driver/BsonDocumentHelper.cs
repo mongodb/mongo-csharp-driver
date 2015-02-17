@@ -58,5 +58,22 @@ namespace MongoDB.Driver
 
             return ToBsonDocument(registry, filter);
         }
+
+        internal static BsonDocument GetDiscriminatedFilter<TDocument, TNewDocument>()
+        {
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDocument));
+            var discriminator = discriminatorConvention.GetDiscriminator(typeof(TDocument), typeof(TNewDocument));
+            if (discriminator == null)
+            {
+                return null;
+            }
+
+            if (discriminator.IsBsonArray)
+            {
+                discriminator = discriminator[discriminator.AsBsonArray.Count - 1];
+            }
+
+            return new BsonDocument(discriminatorConvention.ElementName, discriminator);
+        }
     }
 }

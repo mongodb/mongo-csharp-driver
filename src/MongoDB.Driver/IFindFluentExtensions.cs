@@ -63,8 +63,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(projection, "projection");
 
-            var parameterSerializer = source.Collection.Settings.SerializerRegistry.GetSerializer<TDocument>();
-            var projectionInfo = FindProjectionTranslator.Translate<TDocument, TNewResult>(projection, parameterSerializer);
+            var projectionInfo = FindProjectionTranslator.Translate<TDocument, TNewResult>(projection, source.DocumentSerializer);
 
             return source.Projection<TNewResult>(projectionInfo.Projection, projectionInfo.Serializer);
         }
@@ -83,12 +82,12 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            helper.RegisterExpressionSerializer(field.Parameters[0], source.Options.ResultSerializer);
             var sortDocument = new SortByBuilder<TResult>(helper).Ascending(field).ToBsonDocument();
 
-            source = source.Sort(sortDocument);
-
-            return new FindFluent<TDocument, TResult>(source.Collection, source.Filter, source.Options);
+            // We require an implementation of IFindFluent<TDocument, TResult> 
+            // to also implement IOrderedFindFluent<TDocument, TResult>
+            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(sortDocument);
         }
 
         /// <summary>
@@ -105,12 +104,12 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            helper.RegisterExpressionSerializer(field.Parameters[0], source.Options.ResultSerializer);
             var sortDocument = new SortByBuilder<TResult>(helper).Descending(field).ToBsonDocument();
 
-            source = source.Sort(sortDocument);
-
-            return new FindFluent<TDocument, TResult>(source.Collection, source.Filter, source.Options);
+            // We require an implementation of IFindFluent<TDocument, TResult> 
+            // to also implement IOrderedFindFluent<TDocument, TResult>
+            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(sortDocument);
         }
 
         /// <summary>
@@ -127,7 +126,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            helper.RegisterExpressionSerializer(field.Parameters[0], source.Options.ResultSerializer);
             var sortDocument = new SortByBuilder<TResult>(helper).Ascending(field).ToBsonDocument();
 
             // this looks sketchy, but if we get here and this isn't true, then
@@ -153,7 +152,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Collection.Settings.SerializerRegistry.GetSerializer<TResult>());
+            helper.RegisterExpressionSerializer(field.Parameters[0], source.Options.ResultSerializer);
             var sortDocument = new SortByBuilder<TResult>(helper).Descending(field).ToBsonDocument();
 
             // this looks sketchy, but if we get here and this isn't true, then

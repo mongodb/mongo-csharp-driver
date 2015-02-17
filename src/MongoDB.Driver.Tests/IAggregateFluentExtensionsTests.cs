@@ -198,7 +198,7 @@ namespace MongoDB.Driver.Tests
             Assert.AreSame(BsonDocumentSerializer.Instance, subject.Options.ResultSerializer);
         }
 
-        private IAggregateFluent<Person, Person> CreateSubject()
+        private IAggregateFluent<Person> CreateSubject()
         {
             var settings = new MongoCollectionSettings();
             var collection = Substitute.For<IMongoCollection<Person>>();

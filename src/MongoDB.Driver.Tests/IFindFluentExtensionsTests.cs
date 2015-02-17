@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq.Expressions;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -130,6 +132,7 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoCollectionSettings();
             var collection = Substitute.For<IMongoCollection<Person>>();
             collection.Settings.Returns(settings);
+            collection.DocumentSerializer.Returns(settings.SerializerRegistry.GetSerializer<Person>());
             var options = new FindOptions<Person>();
             var subject = new FindFluent<Person, Person>(collection, new BsonDocument(), options);
 

@@ -29,9 +29,9 @@ namespace MongoDB.Driver
     public interface IFindFluent<TDocument, TResult> : IAsyncCursorSource<TResult>
     {
         /// <summary>
-        /// Gets the collection.
+        /// Gets the document serializer.
         /// </summary>
-        IMongoCollection<TDocument> Collection { get; }
+        IBsonSerializer<TDocument> DocumentSerializer { get; }
 
         /// <summary>
         /// Gets or sets the filter.
@@ -44,45 +44,37 @@ namespace MongoDB.Driver
         FindOptions<TResult> Options { get; }
 
         /// <summary>
-        /// Counts the asynchronous.
+        /// Counts the number of documents.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The fluent find interface.</returns>
         Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Limits the specified limit.
+        /// Limits the number of documents.
         /// </summary>
         /// <param name="limit">The limit.</param>
         /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> Limit(int? limit);
 
         /// <summary>
-        /// Projections the specified projection.
-        /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="projection">The projection.</param>
-        /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection);
-
-        /// <summary>
-        /// Projections the specified projection.
+        /// Projects the the documents.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="projection">The projection.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer);
+        IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer = null);
 
         /// <summary>
-        /// Skips the specified skip.
+        /// Skips the the specified number of documents.
         /// </summary>
         /// <param name="skip">The skip.</param>
         /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TResult> Skip(int? skip);
 
         /// <summary>
-        /// Sorts the specified sort.
+        /// Sorts the the documents.
         /// </summary>
         /// <param name="sort">The sort.</param>
         /// <returns>The fluent find interface.</returns>

@@ -66,6 +66,11 @@ namespace MongoDB.Driver
             get { return _collectionNamespace; }
         }
 
+        IBsonSerializer IReadOnlyMongoCollection.DocumentSerializer
+        {
+            get { return _documentSerializer; }
+        }
+
         public IBsonSerializer<TDocument> DocumentSerializer
         {
             get { return _documentSerializer; }
@@ -330,11 +335,6 @@ namespace MongoDB.Driver
             };
 
             return ExecuteWriteOperation(operation, cancellationToken);
-        }
-
-        public Task<TDocument> FindOneAndReplaceAsync(object filter, TDocument replacement, FindOneAndReplaceOptions<TDocument> options, CancellationToken cancellationToken)
-        {
-            return FindOneAndReplaceAsync<TDocument>(filter, replacement, options, cancellationToken);
         }
 
         public Task<TResult> FindOneAndReplaceAsync<TResult>(object filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options, CancellationToken cancellationToken)
@@ -721,6 +721,82 @@ namespace MongoDB.Driver
             }
 
             return _settings.SerializerRegistry.GetSerializer<TResult>();
+        }
+        
+        private class OfTypeMongoCollectionWrapper<TNewDocument> : IReadableMongoCollection<TNewDocument>
+        {
+            private readonly MongoCollectionImpl<TNewDocument> _wrappedCollection;
+            private readonly BsonDocument _ofTypeFilter;
+
+            public OfTypeMongoCollectionWrapper(MongoCollectionImpl<TNewDocument> wrappedCollection, BsonDocument ofTypeFilter)
+            {
+                _wrappedCollection = wrappedCollection;
+                _ofTypeFilter = ofTypeFilter;
+            }
+
+            public CollectionNamespace CollectionNamespace
+            {
+                get { return _wrappedCollection.CollectionNamespace; }
+            }
+
+            IBsonSerializer IReadOnlyMongoCollection.DocumentSerializer
+            {
+                get { return DocumentSerializer; }
+            }
+
+            public IBsonSerializer<TNewDocument> DocumentSerializer
+            {
+                get { return _wrappedCollection.DocumentSerializer; }
+            }
+
+            public MongoCollectionSettings Settings
+            {
+                get { return _wrappedCollection.Settings; }
+            }
+
+            public Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                var list = Ensure.IsNotNull(pipeline, "pipeline").ToList();
+                list.Insert(0, new BsonDocument("$match", _ofTypeFilter));
+                return _wrappedCollection.AggregateAsync<TResult>(list, options, cancellationToken);
+            }
+
+            public Task<long> CountAsync(object filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                return _wrappedCollection.CountAsync(CombineFilters(filter), options, cancellationToken);
+            }
+
+            public Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                return _wrappedCollection.DistinctAsync(fieldName, CombineFilters(filter), options, cancellationToken);
+            }
+
+            public Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                return _wrappedCollection.FindAsync(CombineFilters(filter), options, cancellationToken);
+            }
+
+            public Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                options = options ?? new MapReduceOptions<TResult>();
+                options.Filter = CombineFilters(options.Filter);
+                return _wrappedCollection.MapReduceAsync(map, reduce, options, cancellationToken);
+            }
+
+            private BsonDocument CombineFilters(object filter)
+            {
+                var filterDocument = BsonDocumentHelper.FilterToBsonDocument<TNewDocument>(Settings.SerializerRegistry, filter);
+                if (filterDocument != null)
+                {
+                    filterDocument = new BsonDocument("$and", new BsonArray(new[] { _ofTypeFilter, filterDocument }));
+                }
+                else
+                {
+                    filterDocument = _ofTypeFilter;
+                }
+
+                return filterDocument;
+            }
         }
     }
 }

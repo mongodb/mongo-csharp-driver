@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -23,15 +24,15 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    internal class AggregateFluent<TDocument, TResult> : IOrderedAggregateFluent<TDocument, TResult>
+    internal class AggregateFluent<TCollectionDocument, TDocument> : IOrderedAggregateFluent<TDocument>
     {
         // fields
-        private readonly IMongoCollection<TDocument> _collection;
-        private readonly AggregateOptions<TResult> _options;
+        private readonly IReadableMongoCollection<TCollectionDocument> _collection;
+        private readonly AggregateOptions<TDocument> _options;
         private readonly IList<object> _pipeline;
 
         // constructors
-        public AggregateFluent(IMongoCollection<TDocument> collection, IEnumerable<object> pipeline, AggregateOptions<TResult> options)
+        public AggregateFluent(IReadableMongoCollection<TCollectionDocument> collection, IEnumerable<object> pipeline, AggregateOptions<TDocument> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
@@ -39,12 +40,7 @@ namespace MongoDB.Driver
         }
 
         // properties
-        public IMongoCollection<TDocument> Collection
-        {
-            get { return _collection; }
-        }
-
-        public AggregateOptions<TResult> Options
+        public AggregateOptions<TDocument> Options
         {
             get { return _options; }
         }
@@ -54,92 +50,94 @@ namespace MongoDB.Driver
             get { return _pipeline; }
         }
 
-        // methods
-        public IAggregateFluent<TDocument, TResult> AppendStage(object stage)
+        public MongoCollectionSettings Settings
         {
-            _pipeline.Add(stage);
-            return this;
+            get { return _collection.Settings; }
         }
 
-        public IAggregateFluent<TDocument, TResult> GeoNear(object geoNear)
+        // methods
+        public IAggregateFluent<TDocument> GeoNear(object geoNear)
         {
             return AppendStage(new BsonDocument("$geoNear", ConvertToBsonDocument(geoNear)));
         }
 
-        public IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group)
+        public IAggregateFluent<TNewResult> Group<TNewResult>(object group, IBsonSerializer<TNewResult> resultSerializer)
         {
-            return Group<TNewResult>(group, null);
+            return AppendStage<TNewResult>(new BsonDocument("$group", ConvertToBsonDocument(group)), resultSerializer);
         }
 
-        public IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group, IBsonSerializer<TNewResult> resultSerializer)
-        {
-            AppendStage(new BsonDocument("$group", ConvertToBsonDocument(group)));
-
-            return CloneWithNewResultType<TNewResult>(resultSerializer);
-        }
-
-        public IAggregateFluent<TDocument, TResult> Limit(int limit)
+        public IAggregateFluent<TDocument> Limit(int limit)
         {
             return AppendStage(new BsonDocument("$limit", limit));
         }
 
-        public IAggregateFluent<TDocument, TResult> Match(object filter)
+        public IAggregateFluent<TDocument> Match(object filter)
         {
             return AppendStage(new BsonDocument("$match", ConvertFilterToBsonDocument(filter)));
         }
 
-        public Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken)
+        public Task<IAsyncCursor<TDocument>> OutAsync(string collectionName, CancellationToken cancellationToken)
         {
             AppendStage(new BsonDocument("$out", collectionName));
             return ToCursorAsync(cancellationToken);
         }
 
-        public IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project)
+        public IAggregateFluent<TNewResult> Project<TNewResult>(object project, IBsonSerializer<TNewResult> resultSerializer)
         {
-            return Project<TNewResult>(project, null);
+            return AppendStage<TNewResult>(new BsonDocument("$project", ConvertToBsonDocument(project)), resultSerializer);
         }
 
-        public IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project, IBsonSerializer<TNewResult> resultSerializer)
-        {
-            AppendStage(new BsonDocument("$project", ConvertToBsonDocument(project)));
-
-            return CloneWithNewResultType<TNewResult>(resultSerializer);
-        }
-
-        public IAggregateFluent<TDocument, TResult> Redact(object redact)
+        public IAggregateFluent<TDocument> Redact(object redact)
         {
             return AppendStage(new BsonDocument("$redact", ConvertToBsonDocument(redact)));
         }
 
-        public IAggregateFluent<TDocument, TResult> Skip(int skip)
+        public IAggregateFluent<TDocument> Skip(int skip)
         {
             return AppendStage(new BsonDocument("$skip", skip));
         }
 
-        public IAggregateFluent<TDocument, TResult> Sort(object sort)
+        public IAggregateFluent<TDocument> Sort(object sort)
         {
             return AppendStage(new BsonDocument("$sort", ConvertToBsonDocument(sort)));
         }
 
-        public IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName)
+        public IAggregateFluent<TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer)
         {
-            return Unwind<TNewResult>(fieldName, null);
+            return AppendStage<TNewResult>(new BsonDocument("$unwind", fieldName), resultSerializer);
         }
 
-        public IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer)
-        {
-            AppendStage(new BsonDocument("$unwind", fieldName));
-            return CloneWithNewResultType<TNewResult>(resultSerializer);
-        }
-
-        public Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _collection.AggregateAsync(_pipeline, _options, cancellationToken);
         }
 
-        private IAggregateFluent<TDocument, TNewResult> CloneWithNewResultType<TNewResult>(IBsonSerializer<TNewResult> resultSerializer)
+        public override string ToString()
         {
-            var newOptions = new AggregateOptions<TNewResult>
+            var sb = new StringBuilder("aggregate([");
+            if (_pipeline.Count > 0)
+            {
+                foreach (var stage in _pipeline)
+                {
+                    sb.Append(ConvertToBsonDocument(stage));
+                    sb.Append(", ");
+                }
+                sb.Remove(sb.Length - 2, 2);
+            }
+            sb.Append("])");
+            return sb.ToString();
+        }
+
+        private IAggregateFluent<TDocument> AppendStage(object stage)
+        {
+            _pipeline.Add(stage);
+            return this;
+        }
+
+        private IAggregateFluent<TResult> AppendStage<TResult>(object stage, IBsonSerializer<TResult> resultSerializer)
+        {
+            _pipeline.Add(stage);
+            var newOptions = new AggregateOptions<TResult>
             {
                 AllowDiskUse = _options.AllowDiskUse,
                 BatchSize = _options.BatchSize,
@@ -147,7 +145,8 @@ namespace MongoDB.Driver
                 ResultSerializer = resultSerializer,
                 UseCursor = _options.UseCursor
             };
-            return new AggregateFluent<TDocument, TNewResult>(_collection, _pipeline, newOptions);
+
+            return new AggregateFluent<TCollectionDocument, TResult>(_collection, _pipeline, newOptions);
         }
 
         private BsonDocument ConvertToBsonDocument(object document)
@@ -157,7 +156,7 @@ namespace MongoDB.Driver
 
         private BsonDocument ConvertFilterToBsonDocument(object filter)
         {
-            return BsonDocumentHelper.FilterToBsonDocument<TResult>(_collection.Settings.SerializerRegistry, filter);
+            return BsonDocumentHelper.FilterToBsonDocument<TDocument>(_collection.Settings.SerializerRegistry, filter);
         }
     }
 }

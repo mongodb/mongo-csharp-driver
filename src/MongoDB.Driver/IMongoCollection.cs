@@ -22,40 +22,15 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents a collection in MongoDB.
+    /// Represents a typed collection in MongoDB.
     /// </summary>
     /// <typeparam name="TDocument">The type of the documents stored in the collection.</typeparam>
-    public interface IMongoCollection<TDocument>
+    public interface IMongoCollection<TDocument> : IReadableMongoCollection<TDocument>
     {
-        /// <summary>
-        /// Gets the namespace of the collection.
-        /// </summary>
-        CollectionNamespace CollectionNamespace { get; }
-
-        /// <summary>
-        /// Gets the document serializer.
-        /// </summary>
-        IBsonSerializer<TDocument> DocumentSerializer { get; }
-
         /// <summary>
         /// Gets the index manager.
         /// </summary>
         IMongoIndexManager<TDocument> IndexManager { get; }
-
-        /// <summary>
-        /// Gets the settings.
-        /// </summary>
-        MongoCollectionSettings Settings { get; }
-
-        /// <summary>
-        /// Runs an aggregation pipeline.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Performs multiple write operations.
@@ -65,17 +40,6 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The result of writing.</returns>
         Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents in the collection.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The number of documents in the collection.
-        /// </returns>
-        Task<long> CountAsync(object filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes multiple documents.
@@ -96,27 +60,6 @@ namespace MongoDB.Driver
         /// The result of the delete operation.
         /// </returns>
         Task<DeleteResult> DeleteOneAsync(object filter, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Gets the distinct values for a specified field.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="fieldName">The name of the field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Finds the documents matching the filter.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.
@@ -177,16 +120,6 @@ namespace MongoDB.Driver
         /// </returns>
         Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <summary>
-        /// Executes a map-reduce command.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="map">The map function.</param>
-        /// <param name="reduce">The reduce function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.

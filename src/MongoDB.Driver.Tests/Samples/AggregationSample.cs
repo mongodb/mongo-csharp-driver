@@ -50,10 +50,15 @@ namespace MongoDB.Driver.Tests.Samples
         [Test]
         public async Task States_with_pops_over_20000()
         {
-            var result = await _collection.Aggregate()
+            var pipeline = _collection.Aggregate()
                 .Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
-                .Match(x => x.TotalPopulation > 20000)
-                .ToListAsync();
+                .Match(x => x.TotalPopulation > 20000);
+
+            pipeline.ToString().Should().Be("aggregate([" +
+                    "{ \"$group\" : { \"_id\" : \"$state\", \"TotalPopulation\" : { \"$sum\" : \"$pop\" } } }, " +
+                    "{ \"$match\" : { \"TotalPopulation\" : { \"$gt\" : 20000 } } }])");
+
+            var result = await pipeline.ToListAsync();
 
             result.Count.Should().Be(1);
         }
@@ -61,11 +66,17 @@ namespace MongoDB.Driver.Tests.Samples
         [Test]
         public async Task Average_city_population_by_state()
         {
-            var result = await _collection.Aggregate()
+            var pipeline = _collection.Aggregate()
                 .Group(x => new { State = x.State, City = x.City }, g => new { StateAndCity = g.Key, Population = g.Sum(x => x.Population) })
                 .Group(x => x.StateAndCity.State, g => new { State = g.Key, AverageCityPopulation = g.Average(x => x.Population) })
-                .SortBy(x => x.State)
-                .ToListAsync();
+                .SortBy(x => x.State);
+
+            pipeline.ToString().Should().Be("aggregate([" +
+                "{ \"$group\" : { \"_id\" : { \"State\" : \"$state\", \"City\" : \"$city\" }, \"Population\" : { \"$sum\" : \"$pop\" } } }, " +
+                "{ \"$group\" : { \"_id\" : \"$_id.State\", \"AverageCityPopulation\" : { \"$avg\" : \"$Population\" } } }, " +
+                "{ \"$sort\" : { \"_id\" : 1 } }])");
+
+            var result = await pipeline.ToListAsync();
 
             result[0].State.Should().Be("AL");
             result[0].AverageCityPopulation.Should().Be(2847.75);
@@ -76,7 +87,7 @@ namespace MongoDB.Driver.Tests.Samples
         [Test]
         public async Task Largest_and_smallest_cities_by_state()
         {
-            var result = await _collection.Aggregate()
+            var pipeline = _collection.Aggregate()
                 .Group(x => new { State = x.State, City = x.City }, g => new { StateAndCity = g.Key, Population = g.Sum(x => x.Population) })
                 .SortBy(x => x.Population)
                 .Group(x => x.StateAndCity.State, g => new
@@ -93,8 +104,16 @@ namespace MongoDB.Driver.Tests.Samples
                     BiggestCity = new { Name = x.BiggestCity, Population = x.BiggestPopulation },
                     SmallestCity = new { Name = x.SmallestCity, Population = x.SmallestPopulation }
                 })
-                .SortBy(x => x.State)
-                .ToListAsync();
+                .SortBy(x => x.State);
+
+            pipeline.ToString().Should().Be("aggregate([" +
+                "{ \"$group\" : { \"_id\" : { \"State\" : \"$state\", \"City\" : \"$city\" }, \"Population\" : { \"$sum\" : \"$pop\" } } }, " +
+                "{ \"$sort\" : { \"Population\" : 1 } }, " +
+                "{ \"$group\" : { \"_id\" : \"$_id.State\", \"BiggestCity\" : { \"$last\" : \"$_id.City\" }, \"BiggestPopulation\" : { \"$last\" : \"$Population\" }, \"SmallestCity\" : { \"$first\" : \"$_id.City\" }, \"SmallestPopulation\" : { \"$first\" : \"$Population\" } } }, " +
+                "{ \"$project\" : { \"State\" : \"$_id\", \"BiggestCity\" : { \"Name\" : \"$BiggestCity\", \"Population\" : \"$BiggestPopulation\" }, \"SmallestCity\" : { \"Name\" : \"$SmallestCity\", \"Population\" : \"$SmallestPopulation\" }, \"_id\" : 0 } }, " +
+                "{ \"$sort\" : { \"State\" : 1 } }])");
+
+            var result = await pipeline.ToListAsync();
 
             result[0].State.Should().Be("AL");
             result[0].BiggestCity.Name.Should().Be("THOMASVILLE");

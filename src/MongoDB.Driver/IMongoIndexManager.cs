@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -30,6 +31,11 @@ namespace MongoDB.Driver
         /// Gets the namespace of the collection.
         /// </summary>
         CollectionNamespace CollectionNamespace { get; }
+
+        /// <summary>
+        /// Gets the document serializer.
+        /// </summary>
+        IBsonSerializer<TDocument> DocumentSerializer { get; }
 
         /// <summary>
         /// Gets the collection settings.

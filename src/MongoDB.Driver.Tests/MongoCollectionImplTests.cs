@@ -39,17 +39,21 @@ namespace MongoDB.Driver
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(0), new DnsEndPoint("localhost", 27017)), 0);
         private MockOperationExecutor _operationExecutor;
-        private MongoCollectionImpl<BsonDocument> _subject;
 
         [SetUp]
         public void Setup()
+        {
+            _operationExecutor = new MockOperationExecutor();
+        }
+
+        private MongoCollectionImpl<TDocument> CreateSubject<TDocument>()
         {
             var settings = new MongoCollectionSettings();
             var dbSettings = new MongoDatabaseSettings();
             dbSettings.ApplyDefaultValues(new MongoClientSettings());
             settings.ApplyDefaultValues(dbSettings);
-            _operationExecutor = new MockOperationExecutor();
-            _subject = new MongoCollectionImpl<BsonDocument>(
+
+            return new MongoCollectionImpl<TDocument>(
                 new CollectionNamespace("foo", "bar"),
                 settings,
                 Substitute.For<ICluster>(),
@@ -59,13 +63,15 @@ namespace MongoDB.Driver
         [Test]
         public void CollectionName_should_be_set()
         {
-            _subject.CollectionNamespace.CollectionName.Should().Be("bar");
+            var subject = CreateSubject<BsonDocument>();
+            subject.CollectionNamespace.CollectionName.Should().Be("bar");
         }
 
         [Test]
         public void Settings_should_be_set()
         {
-            _subject.Settings.Should().NotBeNull();
+            var subject = CreateSubject<BsonDocument>();
+            subject.Settings.Should().NotBeNull();
         }
 
         [Test]
@@ -83,7 +89,8 @@ namespace MongoDB.Driver
             var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            await _subject.AggregateAsync(pipeline, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.AggregateAsync(pipeline, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -110,7 +117,8 @@ namespace MongoDB.Driver
                 UseCursor = false
             };
 
-            var result = await _subject.AggregateAsync(pipeline, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            var result = await subject.AggregateAsync(pipeline, options, CancellationToken.None);
 
             _operationExecutor.QueuedCallCount.Should().Be(1);
             var writeCall = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -171,7 +179,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { new InsertRequest(new BsonDocument("b", 1)) });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            var result = await _subject.BulkWriteAsync(requests, bulkOptions, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            var result = await subject.BulkWriteAsync(requests, bulkOptions, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
 
@@ -286,7 +295,9 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(20),
                 Skip = 30
             };
-            await _subject.CountAsync(filter, options, CancellationToken.None);
+
+            var subject = CreateSubject<BsonDocument>();
+            await subject.CountAsync(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<long>();
 
@@ -325,7 +336,9 @@ namespace MongoDB.Driver
                 Version = 70,
                 Weights = weights
             };
-            await _subject.CreateIndexAsync(keys, options, CancellationToken.None);
+
+            var subject = CreateSubject<BsonDocument>();
+            await subject.CreateIndexAsync(keys, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -362,7 +375,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.DeleteManyAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.DeleteManyAsync(
                 filter,
                 CancellationToken.None);
 
@@ -392,7 +406,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.DeleteManyAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.DeleteManyAsync(
                     filter,
                     CancellationToken.None).GetAwaiter().GetResult();
 
@@ -407,7 +422,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.DeleteOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.DeleteOneAsync(
                 filter,
                 CancellationToken.None);
 
@@ -437,7 +453,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.DeleteOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.DeleteOneAsync(
                     filter,
                     CancellationToken.None).GetAwaiter().GetResult();
 
@@ -454,7 +471,8 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
-            await _subject.DistinctAsync("a.b", filter, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.DistinctAsync("a.b", filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<int>>();
 
@@ -469,7 +487,8 @@ namespace MongoDB.Driver
         [Test]
         public async Task DropIndexAsync_with_a_name_should_execute_the_DropIndexOperation()
         {
-            await _subject.DropIndexAsync("name", CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.DropIndexAsync("name", CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -482,7 +501,8 @@ namespace MongoDB.Driver
         [Test]
         public async Task DropIndexAsync_with_keys_should_execute_the_DropIndexOperation()
         {
-            await _subject.DropIndexAsync(new { A = 1, B = -1 }, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.DropIndexAsync(new { A = 1, B = -1 }, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -516,7 +536,8 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            await _subject.FindAsync(filter, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.FindAsync(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -561,7 +582,8 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            await _subject.FindAsync(filter, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.FindAsync(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -595,7 +617,8 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndDeleteAsync<BsonDocument>(filter, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.FindOneAndDeleteAsync<BsonDocument>(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -628,7 +651,8 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndReplaceAsync<BsonDocument>(filter, replacement, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.FindOneAndReplaceAsync<BsonDocument>(filter, replacement, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -664,7 +688,8 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndUpdateAsync<BsonDocument>(filter, update, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.FindOneAndUpdateAsync<BsonDocument>(filter, update, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -683,7 +708,8 @@ namespace MongoDB.Driver
         [Test]
         public async Task GetIndexesAsync_should_execute_the_ListIndexesOperation()
         {
-            await _subject.ListIndexesAsync(CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.ListIndexesAsync(CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -700,7 +726,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(1, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.InsertOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.InsertOneAsync(
                 document,
                 CancellationToken.None);
 
@@ -730,7 +757,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.InsertOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.InsertOneAsync(
                     document,
                     CancellationToken.None).GetAwaiter().GetResult();
 
@@ -754,7 +782,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(2, expectedRequests);
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.InsertManyAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.InsertManyAsync(
                 documents,
                 null,
                 CancellationToken.None);
@@ -781,7 +810,9 @@ namespace MongoDB.Driver
                 Sort = sort,
                 Verbose = true
             };
-            var result = await _subject.MapReduceAsync("map", "reduce", options);
+
+            var subject = CreateSubject<BsonDocument>();
+            var result = await subject.MapReduceAsync("map", "reduce", options);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -820,7 +851,9 @@ namespace MongoDB.Driver
                 Sort = sort,
                 Verbose = true
             };
-            var result = await _subject.MapReduceAsync("map", "reduce", options);
+
+            var subject = CreateSubject<BsonDocument>();
+            var result = await subject.MapReduceAsync("map", "reduce", options);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -855,7 +888,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.ReplaceOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.ReplaceOneAsync(
                 filter,
                 replacement,
                 new UpdateOptions { IsUpsert = upsert },
@@ -889,7 +923,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.ReplaceOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.ReplaceOneAsync(
                 filter,
                 replacement,
                 new UpdateOptions { IsUpsert = upsert },
@@ -909,7 +944,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.UpdateManyAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.UpdateManyAsync(
                 filter,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
@@ -943,7 +979,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.UpdateManyAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.UpdateManyAsync(
                 filter,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
@@ -963,7 +1000,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.UpdateOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.UpdateOneAsync(
                 filter,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
@@ -997,7 +1035,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.UpdateOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.UpdateOneAsync(
                 filter,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
@@ -1009,14 +1048,16 @@ namespace MongoDB.Driver
         [Test]
         public void WithReadPreference_should_return_a_new_collection_with_the_read_preference_changed()
         {
-            var newSubject = _subject.WithReadPreference(ReadPreference.Nearest);
+            var subject = CreateSubject<BsonDocument>();
+            var newSubject = subject.WithReadPreference(ReadPreference.Nearest);
             newSubject.Settings.ReadPreference.Should().Be(ReadPreference.Nearest);
         }
 
         [Test]
         public void WithWriteConcern_should_return_a_new_collection_with_the_write_concern_changed()
         {
-            var newSubject = _subject.WithWriteConcern(WriteConcern.WMajority);
+            var subject = CreateSubject<BsonDocument>();
+            var newSubject = subject.WithWriteConcern(WriteConcern.WMajority);
             newSubject.Settings.WriteConcern.Should().Be(WriteConcern.WMajority);
         }
 
@@ -1041,6 +1082,16 @@ namespace MongoDB.Driver
             where TRequest : WriteRequest
         {
             VerifyWrites(new[] { expectedRequest }, true, call);
+        }
+
+        private class A
+        {
+            public int PropA = 0;
+        }
+
+        private class B : A
+        {
+            public int PropB = 0;
         }
     }
 }
