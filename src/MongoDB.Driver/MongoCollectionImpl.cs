@@ -152,7 +152,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public override Task<long> CountAsync(object filter, CountOptions options, CancellationToken cancellationToken)
+        public override Task<long> CountAsync(Filter<TDocument> filter, CountOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
 
@@ -160,7 +160,7 @@ namespace MongoDB.Driver
 
             var operation = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                Filter = ConvertFilterToBsonDocument(filter),
+                Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 Hint = options.Hint is string ? BsonValue.Create((string)options.Hint) : ConvertToBsonDocument(options.Hint),
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
@@ -170,7 +170,7 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, cancellationToken);
         }
 
-        public override Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options, CancellationToken cancellationToken)
+        public override Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, Filter<TDocument> filter, DistinctOptions<TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(fieldName, "fieldName");
             Ensure.IsNotNull(filter, "filter");
@@ -184,14 +184,14 @@ namespace MongoDB.Driver
                 fieldName,
                 _messageEncoderSettings)
             {
-                Filter = ConvertFilterToBsonDocument(filter),
+                Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 MaxTime = options.MaxTime
             };
 
             return ExecuteReadOperation(operation, cancellationToken);
         }
 
-        public override Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options, CancellationToken cancellationToken)
+        public override Task<IAsyncCursor<TResult>> FindAsync<TResult>(Filter<TDocument> filter, FindOptions<TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
 
@@ -207,7 +207,7 @@ namespace MongoDB.Driver
                 BatchSize = options.BatchSize,
                 Comment = options.Comment,
                 CursorType = options.CursorType.ToCore(),
-                Filter = ConvertFilterToBsonDocument(filter),
+                Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
                 Modifiers = options.Modifiers,
@@ -220,7 +220,7 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, cancellationToken);
         }
 
-        public override Task<TResult> FindOneAndDeleteAsync<TResult>(object filter, FindOneAndDeleteOptions<TResult> options, CancellationToken cancellationToken)
+        public override Task<TResult> FindOneAndDeleteAsync<TResult>(Filter<TDocument> filter, FindOneAndDeleteOptions<TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
 
@@ -229,7 +229,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOneAndDeleteOperation<TResult>(
                 _collectionNamespace,
-                ConvertFilterToBsonDocument(filter),
+                filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
             {
@@ -241,7 +241,7 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public override Task<TResult> FindOneAndReplaceAsync<TResult>(object filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options, CancellationToken cancellationToken)
+        public override Task<TResult> FindOneAndReplaceAsync<TResult>(Filter<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options, CancellationToken cancellationToken)
         {
             var replacementObject = (object)replacement; // only box once if it's a struct
             Ensure.IsNotNull(filter, "filter");
@@ -252,7 +252,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOneAndReplaceOperation<TResult>(
                 _collectionNamespace,
-                ConvertFilterToBsonDocument(filter),
+                filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 ConvertToBsonDocument(replacementObject),
                 new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
@@ -267,7 +267,7 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public override Task<TResult> FindOneAndUpdateAsync<TResult>(object filter, object update, FindOneAndUpdateOptions<TResult> options, CancellationToken cancellationToken)
+        public override Task<TResult> FindOneAndUpdateAsync<TResult>(Filter<TDocument> filter, object update, FindOneAndUpdateOptions<TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");
@@ -277,7 +277,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOneAndUpdateOperation<TResult>(
                 _collectionNamespace,
-                ConvertFilterToBsonDocument(filter),
+                filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 ConvertToBsonDocument(update),
                 new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
@@ -292,12 +292,12 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(map, "map");
             Ensure.IsNotNull(reduce, "reduce");
 
-            options = options ?? new MapReduceOptions<TResult>();
+            options = options ?? new MapReduceOptions<TDocument, TResult>();
             var outputOptions = options.OutputOptions ?? MapReduceOutputOptions.Inline;
             var resultSerializer = ResolveResultSerializer<TResult>(options.ResultSerializer);
 
@@ -310,7 +310,7 @@ namespace MongoDB.Driver
                     resultSerializer,
                     _messageEncoderSettings)
                 {
-                    Filter = BsonDocumentHelper.FilterToBsonDocument<TDocument>(_settings.SerializerRegistry, options.Filter),
+                    Filter = options.Filter == null ? null : options.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                     FinalizeFunction = options.Finalize,
                     JavaScriptMode = options.JavaScriptMode,
                     Limit = options.Limit,
@@ -337,7 +337,7 @@ namespace MongoDB.Driver
                     reduce,
                     _messageEncoderSettings)
                 {
-                    Filter = BsonDocumentHelper.FilterToBsonDocument<TDocument>(_settings.SerializerRegistry, options.Filter),
+                    Filter = options.Filter == null ? null : options.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                     FinalizeFunction = options.Finalize,
                     JavaScriptMode = options.JavaScriptMode,
                     Limit = options.Limit,
@@ -412,15 +412,15 @@ namespace MongoDB.Driver
                         CorrelationId = index
                     };
                 case WriteModelType.DeleteMany:
-                    var removeManyModel = (DeleteManyModel<TDocument>)model;
-                    return new DeleteRequest(ConvertFilterToBsonDocument(removeManyModel.Filter))
+                    var deleteManyModel = (DeleteManyModel<TDocument>)model;
+                    return new DeleteRequest(deleteManyModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry))
                     {
                         CorrelationId = index,
                         Limit = 0
                     };
                 case WriteModelType.DeleteOne:
-                    var removeOneModel = (DeleteOneModel<TDocument>)model;
-                    return new DeleteRequest(ConvertFilterToBsonDocument(removeOneModel.Filter))
+                    var deleteOneModel = (DeleteOneModel<TDocument>)model;
+                    return new DeleteRequest(deleteOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry))
                     {
                         CorrelationId = index,
                         Limit = 1
@@ -429,7 +429,7 @@ namespace MongoDB.Driver
                     var replaceOneModel = (ReplaceOneModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Replacement,
-                        ConvertFilterToBsonDocument(replaceOneModel.Filter),
+                        replaceOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                         new BsonDocumentWrapper(replaceOneModel.Replacement, _documentSerializer))
                     {
                         CorrelationId = index,
@@ -440,7 +440,7 @@ namespace MongoDB.Driver
                     var updateManyModel = (UpdateManyModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Update,
-                        ConvertFilterToBsonDocument(updateManyModel.Filter),
+                        updateManyModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                         ConvertToBsonDocument(updateManyModel.Update))
                     {
                         CorrelationId = index,
@@ -451,7 +451,7 @@ namespace MongoDB.Driver
                     var updateOneModel = (UpdateOneModel<TDocument>)model;
                     return new UpdateRequest(
                         UpdateType.Update,
-                        ConvertFilterToBsonDocument(updateOneModel.Filter),
+                        updateOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                         ConvertToBsonDocument(updateOneModel.Update))
                     {
                         CorrelationId = index,
@@ -466,11 +466,6 @@ namespace MongoDB.Driver
         private BsonDocument ConvertToBsonDocument(object document)
         {
             return BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, document);
-        }
-
-        private BsonDocument ConvertFilterToBsonDocument(object filter)
-        {
-            return BsonDocumentHelper.FilterToBsonDocument<TDocument>(_settings.SerializerRegistry, filter);
         }
 
         private Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)

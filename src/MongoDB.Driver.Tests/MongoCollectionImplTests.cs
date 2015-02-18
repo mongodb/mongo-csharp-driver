@@ -798,7 +798,7 @@ namespace MongoDB.Driver
             var filter = new BsonDocument("filter", 1);
             var scope = new BsonDocument("test", 3);
             var sort = new BsonDocument("sort", 1);
-            var options = new MapReduceOptions<BsonDocument>
+            var options = new MapReduceOptions<BsonDocument, BsonDocument>
             {
                 Filter = new BsonDocument("filter", 1),
                 Finalize = "finalizer",
@@ -839,7 +839,7 @@ namespace MongoDB.Driver
             var filter = new BsonDocument("filter", 1);
             var scope = new BsonDocument("test", 3);
             var sort = new BsonDocument("sort", 1);
-            var options = new MapReduceOptions<BsonDocument>
+            var options = new MapReduceOptions<BsonDocument, BsonDocument>
             {
                 Filter = new BsonDocument("filter", 1),
                 Finalize = "finalizer",

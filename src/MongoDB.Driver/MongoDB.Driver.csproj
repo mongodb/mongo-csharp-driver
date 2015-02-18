@@ -82,6 +82,7 @@
     <Compile Include="Builders\MongoUpdateWrapper.cs" />
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="ConnectionMode.cs" />
+    <Compile Include="Filter.cs" />
     <Compile Include="IAggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="BsonDocumentHelper.cs" />

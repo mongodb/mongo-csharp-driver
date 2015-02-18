@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>
-        object Filter { get; set; }
+        Filter<TDocument> Filter { get; set; }
 
         /// <summary>
         /// Gets the options.

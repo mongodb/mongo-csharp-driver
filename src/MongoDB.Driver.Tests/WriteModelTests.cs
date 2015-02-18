@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<ReplaceOneModel<BsonDocument>>();
             var model = (ReplaceOneModel<BsonDocument>)result;
-            model.Filter.Should().BeSameAs(filter);
+            ((ObjectFilter<BsonDocument>)model.Filter).Object.Should().BeSameAs(filter);
             model.Replacement.Should().BeSameAs(replacement);
             model.IsUpsert.Should().Be(isUpsert);
         }
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<ReplaceOneModel<TestClass>>();
             var model = (ReplaceOneModel<TestClass>)result;
-            model.Filter.Should().BeSameAs(filter);
+            ((ObjectFilter<TestClass>)model.Filter).Object.Should().BeSameAs(filter);
             model.Replacement.Should().BeSameAs(replacement);
             model.IsUpsert.Should().Be(isUpsert);
         }
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<UpdateOneModel<BsonDocument>>();
             var model = (UpdateOneModel<BsonDocument>)result;
-            model.Filter.Should().BeSameAs(filter);
+            ((ObjectFilter<BsonDocument>)model.Filter).Object.Should().BeSameAs(filter);
             model.Update.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<UpdateManyModel<BsonDocument>>();
             var model = (UpdateManyModel<BsonDocument>)result;
-            model.Filter.Should().BeSameAs(filter);
+            ((BsonDocumentFilter<BsonDocument>)model.Filter).Document.Should().BeSameAs(filter);
             model.Update.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }
@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<UpdateManyModel<BsonDocument>>();
             var model = (UpdateManyModel<BsonDocument>)result;
-            model.Filter.Should().BeSameAs(filter);
+            ((ObjectFilter<BsonDocument>)model.Filter).Object.Should().BeSameAs(filter);
             model.Update.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }

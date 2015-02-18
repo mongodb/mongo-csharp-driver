@@ -51,13 +51,12 @@ namespace MongoDB.Driver
 
         private static WriteModel<TDocument> ConvertDeleteRequest(DeleteRequest request)
         {
-            var filter = Unwrap(request.Filter);
             if(request.Limit == 1)
             {
-                return new DeleteOneModel<TDocument>(filter);
+                return new DeleteOneModel<TDocument>(UnwrapFilter(request.Filter));
             }
 
-            return new DeleteManyModel<TDocument>(filter);
+            return new DeleteManyModel<TDocument>(UnwrapFilter(request.Filter));
         }
 
         private static WriteModel<TDocument> ConvertInsertRequest(InsertRequest request)
@@ -68,11 +67,10 @@ namespace MongoDB.Driver
 
         private static WriteModel<TDocument> ConvertUpdateRequest(UpdateRequest request)
         {
-            var filter = Unwrap(request.Filter);
             var update = Unwrap(request.Update);
             if(request.IsMulti)
             {
-                return new UpdateManyModel<TDocument>(filter, update)
+                return new UpdateManyModel<TDocument>(UnwrapFilter(request.Filter), update)
                 {
                     IsUpsert = request.IsUpsert
                 };
@@ -81,7 +79,7 @@ namespace MongoDB.Driver
             var firstElement = request.Update.GetElement(0).Name;
             if(firstElement.StartsWith("$"))
             {
-                return new UpdateOneModel<TDocument>(filter, update)
+                return new UpdateOneModel<TDocument>(UnwrapFilter(request.Filter), update)
                 {
                     IsUpsert = request.IsUpsert
                 };
@@ -94,10 +92,25 @@ namespace MongoDB.Driver
         {
             var document = (TDocument)Unwrap(request.Update);
 
-            return new ReplaceOneModel<TDocument>(Unwrap(request.Filter), document)
+            return new ReplaceOneModel<TDocument>(UnwrapFilter(request.Filter), document)
             {
                 IsUpsert = request.IsUpsert
             };
+        }
+
+        private static Filter<TDocument> UnwrapFilter(BsonDocument filter)
+        {
+            var wrapper = filter as BsonDocumentWrapper;
+            if(wrapper != null)
+            {
+                if (wrapper.Wrapped is BsonDocument)
+                {
+                    return new BsonDocumentFilter<TDocument>((BsonDocument)wrapper.Wrapped);
+                }
+                return new ObjectFilter<TDocument>(wrapper.Wrapped);
+            }
+
+            return new BsonDocumentFilter<TDocument>(filter);
         }
 
         private static object Unwrap(BsonDocument wrapper)

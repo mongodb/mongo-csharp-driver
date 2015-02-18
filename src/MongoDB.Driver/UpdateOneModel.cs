@@ -31,7 +31,7 @@ namespace MongoDB.Driver
     public sealed class UpdateOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields
-        private readonly object _filter;
+        private readonly Filter<TDocument> _filter;
         private bool _isUpsert;
         private readonly object _update;
 
@@ -41,7 +41,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
-        public UpdateOneModel(object filter, object update)
+        public UpdateOneModel(Filter<TDocument> filter, object update)
         {
             _filter = Ensure.IsNotNull(filter, "filter");
             _update = Ensure.IsNotNull(update, "update");
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the filter.
         /// </summary>
-        public object Filter
+        public Filter<TDocument> Filter
         {
             get { return _filter; }
         }

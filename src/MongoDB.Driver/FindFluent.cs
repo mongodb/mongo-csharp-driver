@@ -11,11 +11,11 @@ namespace MongoDB.Driver
     {
         // fields
         private readonly IReadableMongoCollection<TDocument> _collection;
-        private object _filter;
+        private Filter<TDocument> _filter;
         private readonly FindOptions<TResult> _options;
 
         // constructors
-        public FindFluent(IReadableMongoCollection<TDocument> collection, object filter, FindOptions<TResult> options)
+        public FindFluent(IReadableMongoCollection<TDocument> collection, Filter<TDocument> filter, FindOptions<TResult> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _filter = Ensure.IsNotNull(filter, "filter");
@@ -33,7 +33,7 @@ namespace MongoDB.Driver
             get { return _collection.DocumentSerializer; }
         }
 
-        public object Filter
+        public Filter<TDocument> Filter
         {
             get { return _filter; }
             set { _filter = Ensure.IsNotNull(value, "value"); }

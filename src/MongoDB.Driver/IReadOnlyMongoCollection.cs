@@ -24,7 +24,8 @@ namespace MongoDB.Driver
     /// <summary>
     /// The read methods on a mongo collection.
     /// </summary>
-    public interface IReadOnlyMongoCollection
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public interface IReadableMongoCollection<TDocument>
     {
         /// <summary>
         /// Gets the namespace of the collection.
@@ -34,7 +35,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the document serializer.
         /// </summary>
-        IBsonSerializer DocumentSerializer { get; }
+        IBsonSerializer<TDocument> DocumentSerializer { get; }
 
         /// <summary>
         /// Gets the settings.
@@ -60,7 +61,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The number of documents in the collection.
         /// </returns>
-        Task<long> CountAsync(object filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<long> CountAsync(Filter<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Gets the distinct values for a specified field.
@@ -71,7 +72,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, Filter<TDocument> filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds the documents matching the filter.
@@ -81,7 +82,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TResult>> FindAsync<TResult>(Filter<TDocument> filter, FindOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Executes a map-reduce command.
@@ -92,18 +93,6 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-    }
-
-    /// <summary>
-    /// The read methods on a mongo collection.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public interface IReadableMongoCollection<TDocument> : IReadOnlyMongoCollection
-    {
-        /// <summary>
-        /// Gets the document serializer.
-        /// </summary>
-        new IBsonSerializer<TDocument> DocumentSerializer { get; }
+        Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

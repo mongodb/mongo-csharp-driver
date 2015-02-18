@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             subject.CountAsync(x => x.FirstName == "Jack");
 
-            subject.Received().CountAsync(Arg.Any<object>(), null, default(CancellationToken));
+            subject.Received().CountAsync(Arg.Any<Filter<Person>>(), null, default(CancellationToken));
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             subject.DeleteManyAsync(x => x.FirstName == "Jack");
 
-            subject.Received().DeleteManyAsync(Arg.Any<object>(), default(CancellationToken));
+            subject.Received().DeleteManyAsync(Arg.Any<Filter<Person>>(), default(CancellationToken));
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             subject.DeleteOneAsync(x => x.FirstName == "Jack");
 
-            subject.Received().DeleteOneAsync(Arg.Any<object>(), default(CancellationToken));
+            subject.Received().DeleteOneAsync(Arg.Any<Filter<Person>>(), default(CancellationToken));
         }
 
         [Test]
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Tests
 
             subject.Received().DistinctAsync(
                 expectedFieldName,
-                Arg.Any<object>(),
+                Arg.Any<Filter<Person>>(),
                 Arg.Is<DistinctOptions<string>>(opt => opt.ResultSerializer != null),
                 default(CancellationToken));
         }
@@ -136,16 +136,16 @@ namespace MongoDB.Driver.Tests
                 .Limit(30)
                 .Skip(40);
 
-            object actualFilter = null;
+            Filter<Person> actualFilter = null;
             FindOptions<BsonDocument> actualOptions = null;
             subject.FindAsync(
-                Arg.Do<object>(x => actualFilter = x),
+                Arg.Do<Filter<Person>>(x => actualFilter = x),
                 Arg.Do<FindOptions<BsonDocument>>(x => actualOptions = x),
                 Arg.Any<CancellationToken>());
 
             fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-            actualFilter.Should().Be(filter);
+            ((BsonDocumentFilter<Person>)actualFilter).Document.Should().Be(filter);
             actualOptions.AllowPartialResults.Should().Be(fluent.Options.AllowPartialResults);
             actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
             actualOptions.Comment.Should().Be(fluent.Options.Comment);
@@ -184,16 +184,17 @@ namespace MongoDB.Driver.Tests
                 .Limit(30)
                 .Skip(40);
 
-            object actualFilter = null;
+            Filter<Person> actualFilter = null;
             FindOptions<BsonDocument> actualOptions = null;
             subject.FindAsync(
-                Arg.Do<object>(x => actualFilter = x),
+                Arg.Do<Filter<Person>>(x => actualFilter = x),
                 Arg.Do<FindOptions<BsonDocument>>(x => actualOptions = x),
                 Arg.Any<CancellationToken>());
 
             fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-            actualFilter.Should().BeOfType<Expression<Func<Person, bool>>>();
+            actualFilter.Should().BeOfType<ExpressionFilter<Person>>();
+            actualFilter.Render(subject.DocumentSerializer, subject.Settings.SerializerRegistry).Should().Be(filter);
             actualOptions.AllowPartialResults.Should().Be(fluent.Options.AllowPartialResults);
             actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
             actualOptions.Comment.Should().Be(fluent.Options.Comment);
@@ -214,7 +215,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack");
 
-            subject.Received().FindOneAndDeleteAsync<Person>(Arg.Any<object>(), null, default(CancellationToken));
+            subject.Received().FindOneAndDeleteAsync<Person>(Arg.Any<Filter<Person>>(), null, default(CancellationToken));
         }
 
         [Test]
@@ -224,7 +225,7 @@ namespace MongoDB.Driver.Tests
             var options = new FindOneAndDeleteOptions<BsonDocument>();
             subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack", options);
 
-            subject.Received().FindOneAndDeleteAsync<BsonDocument>(Arg.Any<object>(), options, default(CancellationToken));
+            subject.Received().FindOneAndDeleteAsync<BsonDocument>(Arg.Any<Filter<Person>>(), options, default(CancellationToken));
         }
 
         [Test]
@@ -234,7 +235,7 @@ namespace MongoDB.Driver.Tests
             var replacement = new Person();
             subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement);
 
-            subject.Received().FindOneAndReplaceAsync<Person>(Arg.Any<object>(), replacement, null, default(CancellationToken));
+            subject.Received().FindOneAndReplaceAsync<Person>(Arg.Any<Filter<Person>>(), replacement, null, default(CancellationToken));
         }
 
         [Test]
@@ -245,7 +246,7 @@ namespace MongoDB.Driver.Tests
             var options = new FindOneAndReplaceOptions<BsonDocument>();
             subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement, options);
 
-            subject.Received().FindOneAndReplaceAsync<BsonDocument>(Arg.Any<object>(), replacement, options, default(CancellationToken));
+            subject.Received().FindOneAndReplaceAsync<BsonDocument>(Arg.Any<Filter<Person>>(), replacement, options, default(CancellationToken));
         }
 
         [Test]
@@ -255,7 +256,7 @@ namespace MongoDB.Driver.Tests
             var update = new BsonDocument();
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update);
 
-            subject.Received().FindOneAndUpdateAsync<Person>(Arg.Any<object>(), update, null, default(CancellationToken));
+            subject.Received().FindOneAndUpdateAsync<Person>(Arg.Any<Filter<Person>>(), update, null, default(CancellationToken));
         }
 
         [Test]
@@ -266,7 +267,7 @@ namespace MongoDB.Driver.Tests
             var options = new FindOneAndUpdateOptions<BsonDocument>();
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
 
-            subject.Received().FindOneAndUpdateAsync<BsonDocument>(Arg.Any<object>(), update, options, default(CancellationToken));
+            subject.Received().FindOneAndUpdateAsync<BsonDocument>(Arg.Any<Filter<Person>>(), update, options, default(CancellationToken));
         }
 
         [Test]
@@ -276,7 +277,7 @@ namespace MongoDB.Driver.Tests
             var replacement = new Person();
             subject.ReplaceOneAsync(x => x.FirstName == "Jack", replacement);
 
-            subject.Received().ReplaceOneAsync(Arg.Any<object>(), replacement, null, default(CancellationToken));
+            subject.Received().ReplaceOneAsync(Arg.Any<Filter<Person>>(), replacement, null, default(CancellationToken));
         }
 
         [Test]
@@ -287,7 +288,7 @@ namespace MongoDB.Driver.Tests
             subject.UpdateManyAsync(x => x.FirstName == "Jack", update);
 
 
-            subject.Received().UpdateManyAsync(Arg.Any<object>(), update, null, default(CancellationToken));
+            subject.Received().UpdateManyAsync(Arg.Any<Filter<Person>>(), update, null, default(CancellationToken));
         }
 
         [Test]
@@ -297,7 +298,7 @@ namespace MongoDB.Driver.Tests
             var update = new BsonDocument();
             subject.UpdateOneAsync(x => x.FirstName == "Jack", update);
 
-            subject.Received().UpdateOneAsync(Arg.Any<object>(), update, null, default(CancellationToken));
+            subject.Received().UpdateOneAsync(Arg.Any<Filter<Person>>(), update, null, default(CancellationToken));
         }
 
         private bool Matches(object o, BsonDocument doc)
@@ -309,6 +310,7 @@ namespace MongoDB.Driver.Tests
         {
             var settings = new MongoCollectionSettings();
             var subject = Substitute.For<IMongoCollection<Person>>();
+            subject.DocumentSerializer.Returns(settings.SerializerRegistry.GetSerializer<Person>());
             subject.Settings.Returns(settings);
 
             return subject;

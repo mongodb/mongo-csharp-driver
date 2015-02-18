@@ -26,10 +26,10 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the options for a map-reduce operation.
     /// </summary>
-    public sealed class MapReduceOptions<TResult>
+    public sealed class MapReduceOptions<TDocument, TResult>
     {
         // fields
-        private object _filter;
+        private Filter<TDocument> _filter;
         private BsonJavaScript _finalize;
         private bool? _javaScriptMode;
         private long? _limit;
@@ -44,7 +44,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>
-        public object Filter
+        public Filter<TDocument> Filter
         {
             get { return _filter; }
             set { _filter = value; }

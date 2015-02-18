@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the delete operation.
         /// </returns>
-        Task<DeleteResult> DeleteManyAsync(object filter, CancellationToken cancellationToken = default(CancellationToken));
+        Task<DeleteResult> DeleteManyAsync(Filter<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes a single document.
@@ -61,7 +61,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the delete operation.
         /// </returns>
-        Task<DeleteResult> DeleteOneAsync(object filter, CancellationToken cancellationToken = default(CancellationToken));
+        Task<DeleteResult> DeleteOneAsync(Filter<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.
@@ -73,7 +73,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        Task<TResult> FindOneAndDeleteAsync<TResult>(object filter, FindOneAndDeleteOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TResult> FindOneAndDeleteAsync<TResult>(Filter<TDocument> filter, FindOneAndDeleteOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and replaces it atomically.
@@ -86,7 +86,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        Task<TResult> FindOneAndReplaceAsync<TResult>(object filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TResult> FindOneAndReplaceAsync<TResult>(Filter<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and updates it atomically.
@@ -99,7 +99,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        Task<TResult> FindOneAndUpdateAsync<TResult>(object filter, object update, FindOneAndUpdateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TResult> FindOneAndUpdateAsync<TResult>(Filter<TDocument> filter, object update, FindOneAndUpdateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts a single document.
@@ -133,7 +133,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        Task<ReplaceOneResult> ReplaceOneAsync(object filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ReplaceOneResult> ReplaceOneAsync(Filter<TDocument> filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates many documents.
@@ -145,7 +145,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateManyAsync(object filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<UpdateResult> UpdateManyAsync(Filter<TDocument> filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates a single document.
@@ -157,7 +157,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateOneAsync(object filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<UpdateResult> UpdateOneAsync(Filter<TDocument> filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Returns a new collection with a different read preference.
