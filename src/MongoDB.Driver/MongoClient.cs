@@ -77,8 +77,10 @@ namespace MongoDB.Driver
         }
 
         // public properties
-        /// <inheritdoc/>
-        public sealed override ICluster Cluster
+        /// <summary>
+        /// Gets the cluster.
+        /// </summary>
+        public ICluster Cluster
         {
             get { return _cluster; }
         }
