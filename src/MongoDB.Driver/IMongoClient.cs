@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -25,6 +23,10 @@ namespace MongoDB.Driver
     /// <summary>
     /// The client interface to MongoDB.
     /// </summary>
+    /// <remarks>
+    /// This interface is not guaranteed to remain stable. Implementors should use
+    /// <see cref="MongoClientBase"/>.
+    /// </remarks>
     public interface IMongoClient
     {
         /// <summary>

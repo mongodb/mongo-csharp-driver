@@ -118,6 +118,10 @@
     <Compile Include="Linq\Translators\ProjectionInfo.cs" />
     <Compile Include="ListCollectionsOptions.cs" />
     <Compile Include="MapReduceOptions.cs" />
+    <Compile Include="MongoClientBase.cs" />
+    <Compile Include="MongoCollectionBase.cs" />
+    <Compile Include="MongoDatabaseBase.cs" />
+    <Compile Include="MongoIndexManagerBase.cs" />
     <Compile Include="RenameCollectionOptions.cs" />
     <Compile Include="CreateCollectionOptions.cs" />
     <Compile Include="DistinctOptions.cs" />

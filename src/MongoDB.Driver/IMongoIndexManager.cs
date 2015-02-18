@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -24,6 +23,10 @@ namespace MongoDB.Driver
     /// <summary>
     /// An interface representing methods used to create, delete and modify indexes.
     /// </summary>
+    /// <remarks>
+    /// This interface is not guaranteed to remain stable. Implementors should use
+    /// <see cref="MongoIndexManagerBase{TDocument}"/>.
+    /// </remarks>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public interface IMongoIndexManager<TDocument>
     {

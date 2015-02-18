@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -27,7 +25,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver
 {
     /// <inheritdoc/>
-    public class MongoClient : IMongoClient
+    public class MongoClient : MongoClientBase
     {
         // private fields
         private readonly ICluster _cluster;
@@ -80,13 +78,13 @@ namespace MongoDB.Driver
 
         // public properties
         /// <inheritdoc/>
-        public ICluster Cluster
+        public sealed override ICluster Cluster
         {
             get { return _cluster; }
         }
 
         /// <inheritdoc/>
-        public MongoClientSettings Settings
+        public sealed override MongoClientSettings Settings
         {
             get { return _settings; }
         }
@@ -100,7 +98,7 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
-        public async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+        public sealed override async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings);
@@ -112,7 +110,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
+        public sealed override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
         {
             settings = settings == null ?
                 new MongoDatabaseSettings() :
@@ -124,7 +122,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public sealed override async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListDatabasesOperation(messageEncoderSettings);

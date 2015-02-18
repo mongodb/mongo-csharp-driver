@@ -28,7 +28,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
 {
-    internal sealed class MongoDatabaseImpl : IMongoDatabase
+    internal sealed class MongoDatabaseImpl : MongoDatabaseBase
     {
         // fields
         private readonly ICluster _cluster;
@@ -46,18 +46,18 @@ namespace MongoDB.Driver
         }
 
         // properties
-        public DatabaseNamespace DatabaseNamespace
+        public override DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
-        public MongoDatabaseSettings Settings
+        public override MongoDatabaseSettings Settings
         {
             get { return _settings; }
         }
 
         // methods
-        public Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
+        public override Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNullOrEmpty(name, "name");
             options = options ?? new CreateCollectionOptions();
@@ -75,14 +75,14 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task DropCollectionAsync(string name, CancellationToken cancellationToken)
+        public override Task DropCollectionAsync(string name, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new DropCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings);
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
+        public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
         {
             Ensure.IsNotNullOrEmpty(name, "name");
 
@@ -95,7 +95,7 @@ namespace MongoDB.Driver
             return new MongoCollectionImpl<TDocument>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
-        public Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)
+        public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
@@ -105,7 +105,7 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken);
         }
 
-        public Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
+        public override Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNullOrEmpty(oldName, "oldName");
             Ensure.IsNotNullOrEmpty(newName, "newName");
@@ -122,7 +122,7 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(command, "command");
             readPreference = readPreference ?? ReadPreference.Primary;

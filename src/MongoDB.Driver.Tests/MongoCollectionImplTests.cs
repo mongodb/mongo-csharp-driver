@@ -338,7 +338,7 @@ namespace MongoDB.Driver
             };
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.CreateIndexAsync(keys, options, CancellationToken.None);
+            await subject.IndexManager.CreateIndexAsync(keys, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -488,7 +488,7 @@ namespace MongoDB.Driver
         public async Task DropIndexAsync_with_a_name_should_execute_the_DropIndexOperation()
         {
             var subject = CreateSubject<BsonDocument>();
-            await subject.DropIndexAsync("name", CancellationToken.None);
+            await subject.IndexManager.DropIndexAsync("name", CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -502,7 +502,7 @@ namespace MongoDB.Driver
         public async Task DropIndexAsync_with_keys_should_execute_the_DropIndexOperation()
         {
             var subject = CreateSubject<BsonDocument>();
-            await subject.DropIndexAsync(new { A = 1, B = -1 }, CancellationToken.None);
+            await subject.IndexManager.DropIndexAsync(new { A = 1, B = -1 }, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -709,7 +709,7 @@ namespace MongoDB.Driver
         public async Task GetIndexesAsync_should_execute_the_ListIndexesOperation()
         {
             var subject = CreateSubject<BsonDocument>();
-            await subject.ListIndexesAsync(CancellationToken.None);
+            await subject.IndexManager.ListIndexesAsync(CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 

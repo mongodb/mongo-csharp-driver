@@ -16,14 +16,16 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a typed collection in MongoDB.
     /// </summary>
+    /// <remarks>
+    /// This interface is not guaranteed to remain stable. Implementors should use
+    /// <see cref="MongoCollectionBase{TDocument}"/>.
+    /// </remarks>
     /// <typeparam name="TDocument">The type of the documents stored in the collection.</typeparam>
     public interface IMongoCollection<TDocument> : IReadableMongoCollection<TDocument>
     {
