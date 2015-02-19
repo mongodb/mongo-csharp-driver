@@ -29,14 +29,25 @@ namespace MongoDB.Driver.Tests
     public class IFindFluentExtensionsTests
     {
         [Test]
-        public void Projection_should_generate_the_correct_fields_when_a_result_type_is_not_specified()
+        public void Projection_should_generate_the_correct_fields_when_a_BsonDocument_is_used()
         {
             var subject = CreateSubject()
                 .Projection(BsonDocument.Parse("{_id: 1, Tags: 1}"));
 
-            var expectedProject = BsonDocument.Parse("{_id: 1, Tags: 1}");
+            var expectedProjection = BsonDocument.Parse("{_id: 1, Tags: 1}");
 
-            Assert.AreEqual(expectedProject, subject.Options.Projection);
+            AssertProjection(subject, expectedProjection);
+        }
+
+        [Test]
+        public void Projection_should_generate_the_correct_fields_when_a_string_is_used()
+        {
+            var subject = CreateSubject()
+                .Projection("{_id: 1, Tags: 1}");
+
+            var expectedProjection = BsonDocument.Parse("{_id: 1, Tags: 1}");
+
+            AssertProjection(subject, expectedProjection);
         }
 
         [Test]
@@ -45,10 +56,9 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject()
                 .Projection(x => x.FirstName + " " + x.LastName);
 
-            var expectedProject = BsonDocument.Parse("{FirstName: 1, LastName: 1, _id: 0}");
+            var expectedProjection = BsonDocument.Parse("{FirstName: 1, LastName: 1, _id: 0}");
 
-            Assert.AreEqual(expectedProject, subject.Options.Projection);
-            Assert.IsInstanceOf<ProjectingDeserializer<ProjectedObject, string>>(subject.Options.ResultSerializer);
+            AssertProjection(subject, expectedProjection);
         }
 
         [Test]
@@ -128,16 +138,20 @@ namespace MongoDB.Driver.Tests
             AssertSort(subject, expectedSort);
         }
 
+        private static void AssertProjection<TResult>(IFindFluent<Person, TResult> subject, BsonDocument expectedProjection)
+        {
+            Assert.AreEqual(expectedProjection, subject.Options.Projection.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry).Document);
+        }
+
         private static void AssertSort(IFindFluent<Person, Person> subject, BsonDocument expectedSort)
         {
-            Assert.AreEqual(expectedSort, subject.Options.Sort.Render(subject.DocumentSerializer, BsonSerializer.SerializerRegistry));
+            Assert.AreEqual(expectedSort, subject.Options.Sort.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry));
         }
 
         private IFindFluent<Person, Person> CreateSubject()
         {
             var settings = new MongoCollectionSettings();
             var collection = Substitute.For<IMongoCollection<Person>>();
-            collection.DocumentSerializer.Returns(BsonSerializer.SerializerRegistry.GetSerializer<Person>());
             collection.Settings.Returns(settings);
             var options = new FindOptions<Person, Person>();
             var subject = new FindFluent<Person, Person>(collection, new BsonDocument(), options);

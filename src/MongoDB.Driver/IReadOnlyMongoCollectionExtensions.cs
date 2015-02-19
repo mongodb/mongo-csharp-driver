@@ -177,10 +177,7 @@ namespace MongoDB.Driver
             FindOptions<TDocument, TDocument> genericOptions;
             if (options == null)
             {
-                genericOptions = new FindOptions<TDocument, TDocument>
-                {
-                    ResultSerializer = collection.DocumentSerializer
-                };
+                genericOptions = new FindOptions<TDocument, TDocument>();
             }
             else
             {
@@ -192,8 +189,7 @@ namespace MongoDB.Driver
                     CursorType = options.CursorType,
                     MaxTime = options.MaxTime,
                     Modifiers = options.Modifiers,
-                    NoCursorTimeout = options.NoCursorTimeout,
-                    ResultSerializer = collection.DocumentSerializer
+                    NoCursorTimeout = options.NoCursorTimeout
                 };
             }
 

@@ -111,8 +111,7 @@ namespace MongoDB.Driver
     {
         // fields
         private int? _limit;
-        private object _projection;
-        private IBsonSerializer<TResult> _resultSerializer;
+        private Projection<TDocument, TResult> _projection;
         private int? _skip;
         private Sort<TDocument> _sort;
 
@@ -129,19 +128,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the projection.
         /// </summary>
-        public object Projection
+        public Projection<TDocument, TResult> Projection
         {
             get { return _projection; }
             set { _projection = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the result serializer.
-        /// </summary>
-        public IBsonSerializer<TResult> ResultSerializer
-        {
-            get { return _resultSerializer; }
-            set { _resultSerializer = value; }
         }
 
         /// <summary>

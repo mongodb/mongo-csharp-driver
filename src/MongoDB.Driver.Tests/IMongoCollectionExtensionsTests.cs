@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Tests
             };
 
             var fluent = subject.Find(filter, options)
-                .Projection<BsonDocument>(projection)
+                .Projection(projection)
                 .Sort(sort)
                 .Limit(30)
                 .Skip(40);
@@ -155,7 +155,6 @@ namespace MongoDB.Driver.Tests
             actualOptions.Modifiers.Should().Be(fluent.Options.Modifiers);
             actualOptions.NoCursorTimeout.Should().Be(fluent.Options.NoCursorTimeout);
             actualOptions.Projection.Should().Be(fluent.Options.Projection);
-            actualOptions.ResultSerializer.Should().Be(fluent.Options.ResultSerializer);
             actualOptions.Skip.Should().Be(fluent.Options.Skip);
             actualOptions.Sort.Should().Be(fluent.Options.Sort);
         }
@@ -179,7 +178,7 @@ namespace MongoDB.Driver.Tests
             };
 
             var fluent = subject.Find(x => x.Age == 1, options)
-                .Projection<BsonDocument>(projection)
+                .Projection(projection)
                 .Sort(sort)
                 .Limit(30)
                 .Skip(40);
@@ -204,7 +203,6 @@ namespace MongoDB.Driver.Tests
             actualOptions.Modifiers.Should().Be(fluent.Options.Modifiers);
             actualOptions.NoCursorTimeout.Should().Be(fluent.Options.NoCursorTimeout);
             actualOptions.Projection.Should().Be(fluent.Options.Projection);
-            actualOptions.ResultSerializer.Should().Be(fluent.Options.ResultSerializer);
             actualOptions.Skip.Should().Be(fluent.Options.Skip);
             actualOptions.Sort.Should().Be(fluent.Options.Sort);
         }

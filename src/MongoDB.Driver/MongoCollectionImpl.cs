@@ -196,11 +196,12 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             options = options ?? new FindOptions<TDocument, TResult>();
-            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
+            var projection = options.Projection ?? new TypeChangeProjection<TDocument, TResult>();
+            var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOperation<TResult>(
                 _collectionNamespace,
-                resultSerializer,
+                renderedProjection.Serializer,
                 _messageEncoderSettings)
             {
                 AllowPartialResults = options.AllowPartialResults,
@@ -212,7 +213,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 Modifiers = options.Modifiers,
                 NoCursorTimeout = options.NoCursorTimeout,
-                Projection = ConvertToBsonDocument(options.Projection),
+                Projection = renderedProjection.Document,
                 Skip = options.Skip,
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
@@ -225,16 +226,17 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             options = options ?? new FindOneAndDeleteOptions<TDocument, TResult>();
-            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
+            var projection = options.Projection ?? new TypeChangeProjection<TDocument, TResult>();
+            var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndDeleteOperation<TResult>(
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
-                new FindAndModifyValueDeserializer<TResult>(resultSerializer),
+                new FindAndModifyValueDeserializer<TResult>(renderedProjection.Serializer),
                 _messageEncoderSettings)
             {
                 MaxTime = options.MaxTime,
-                Projection = ConvertToBsonDocument(options.Projection),
+                Projection = renderedProjection.Document,
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
 
@@ -248,18 +250,19 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(replacementObject, "replacement");
 
             options = options ?? new FindOneAndReplaceOptions<TDocument, TResult>();
-            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
+            var projection = options.Projection ?? new TypeChangeProjection<TDocument, TResult>();
+            var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndReplaceOperation<TResult>(
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 ConvertToBsonDocument(replacementObject),
-                new FindAndModifyValueDeserializer<TResult>(resultSerializer),
+                new FindAndModifyValueDeserializer<TResult>(renderedProjection.Serializer),
                 _messageEncoderSettings)
             {
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
-                Projection = ConvertToBsonDocument(options.Projection),
+                Projection = renderedProjection.Document,
                 ReturnDocument = options.ReturnDocument.ToCore(),
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
@@ -273,18 +276,19 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(update, "update");
 
             options = options ?? new FindOneAndUpdateOptions<TDocument, TResult>();
-            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
+            var projection = options.Projection ?? new TypeChangeProjection<TDocument, TResult>();
+            var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndUpdateOperation<TResult>(
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 update.Render(_documentSerializer, _settings.SerializerRegistry),
-                new FindAndModifyValueDeserializer<TResult>(resultSerializer),
+                new FindAndModifyValueDeserializer<TResult>(renderedProjection.Serializer),
                 _messageEncoderSettings)
             {
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
-                Projection = ConvertToBsonDocument(options.Projection),
+                Projection = renderedProjection.Document,
                 ReturnDocument = options.ReturnDocument.ToCore(),
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };

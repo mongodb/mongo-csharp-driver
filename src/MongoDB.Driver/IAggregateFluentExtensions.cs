@@ -72,7 +72,7 @@ namespace MongoDB.Driver
             var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
             var projectionInfo = AggregateProjectionTranslator.TranslateGroup<TKey, TDocument, TResult>(idProjector, groupProjector, serializer, source.Settings.SerializerRegistry);
 
-            return source.Group<TResult>(projectionInfo.Projection, projectionInfo.Serializer);
+            return source.Group<TResult>(projectionInfo.Document, projectionInfo.Serializer);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace MongoDB.Driver
             var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
             var projectionInfo = AggregateProjectionTranslator.TranslateProject(project, serializer, source.Settings.SerializerRegistry);
 
-            return source.Project<TResult>(projectionInfo.Projection, projectionInfo.Serializer);
+            return source.Project<TResult>(projectionInfo.Document, projectionInfo.Serializer);
         }
 
         /// <summary>

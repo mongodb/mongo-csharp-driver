@@ -116,7 +116,6 @@
     <Compile Include="Linq\Translators\FindProjectionTranslator.cs" />
     <Compile Include="Linq\Translators\ProjectedObject.cs" />
     <Compile Include="Linq\Translators\ProjectedObjectDeserializer.cs" />
-    <Compile Include="Linq\Translators\ProjectionInfo.cs" />
     <Compile Include="ListCollectionsOptions.cs" />
     <Compile Include="MapReduceOptions.cs" />
     <Compile Include="MongoClientBase.cs" />
@@ -140,6 +139,7 @@
     <Compile Include="ReplaceOneModel.cs" />
     <Compile Include="CursorType.cs" />
     <Compile Include="ReturnDocument.cs" />
+    <Compile Include="Projection.cs" />
     <Compile Include="Sort.cs" />
     <Compile Include="Update2.cs" />
     <Compile Include="UpdateOptions.cs" />

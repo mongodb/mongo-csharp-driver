@@ -20,19 +20,9 @@ namespace MongoDB.Driver
             _collection = Ensure.IsNotNull(collection, "collection");
             _filter = Ensure.IsNotNull(filter, "filter");
             _options = Ensure.IsNotNull(options, "options");
-
-            if (_options.ResultSerializer == null)
-            {
-                _options.ResultSerializer = collection.Settings.SerializerRegistry.GetSerializer<TResult>();
-            }
         }
 
         // properties
-        public IBsonSerializer<TDocument> DocumentSerializer
-        {
-            get { return _collection.DocumentSerializer; }
-        }
-
         public Filter<TDocument> Filter
         {
             get { return _filter; }
@@ -66,12 +56,7 @@ namespace MongoDB.Driver
             return this;
         }
 
-        public IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection)
-        {
-            return Projection<TNewResult>(projection, null);
-        }
-
-        public IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer)
+        public IFindFluent<TDocument, TNewResult> Projection<TNewResult>(Projection<TDocument, TNewResult> projection)
         {
             var newOptions = new FindOptions<TDocument, TNewResult>
             {
@@ -84,7 +69,6 @@ namespace MongoDB.Driver
                 Modifiers = _options.Modifiers,
                 NoCursorTimeout = _options.NoCursorTimeout,
                 Projection = projection,
-                ResultSerializer = resultSerializer ?? _collection.Settings.SerializerRegistry.GetSerializer<TNewResult>(),
                 Skip = _options.Skip,
                 Sort = _options.Sort,
             };

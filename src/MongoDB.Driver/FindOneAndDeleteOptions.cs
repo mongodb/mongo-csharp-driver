@@ -31,8 +31,7 @@ namespace MongoDB.Driver
     {
         // fields
         private TimeSpan? _maxTime;
-        private object _projection;
-        private IBsonSerializer<TResult> _resultSerializer;
+        private Projection<TDocument, TResult> _projection;
         private Sort<TDocument> _sort;
 
         // properties
@@ -48,19 +47,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the projection.
         /// </summary>
-        public object Projection
+        public Projection<TDocument, TResult> Projection
         {
             get { return _projection; }
             set { _projection = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the result serializer.
-        /// </summary>
-        public IBsonSerializer<TResult> ResultSerializer
-        {
-            get { return _resultSerializer; }
-            set { _resultSerializer = value; }
         }
 
         /// <summary>

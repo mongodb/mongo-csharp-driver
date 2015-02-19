@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Core.Linq
                 var context = BsonDeserializationContext.CreateRoot(reader);
                 return new ProjectedResult<T>
                 {
-                    Projection = projectionInfo.Projection,
+                    Projection = projectionInfo.Document,
                     Value = projectionInfo.Serializer.Deserialize(context)
                 };
             }

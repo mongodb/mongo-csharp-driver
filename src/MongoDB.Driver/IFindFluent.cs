@@ -29,11 +29,6 @@ namespace MongoDB.Driver
     public interface IFindFluent<TDocument, TResult> : IAsyncCursorSource<TResult>
     {
         /// <summary>
-        /// Gets the document serializer.
-        /// </summary>
-        IBsonSerializer<TDocument> DocumentSerializer { get; }
-
-        /// <summary>
         /// Gets or sets the filter.
         /// </summary>
         Filter<TDocument> Filter { get; set; }
@@ -62,9 +57,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="projection">The projection.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
         /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer = null);
+        IFindFluent<TDocument, TNewResult> Projection<TNewResult>(Projection<TDocument, TNewResult> projection);
 
         /// <summary>
         /// Skips the the specified number of documents.

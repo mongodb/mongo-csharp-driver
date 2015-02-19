@@ -20,11 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq.Translators;
-using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
 {
@@ -41,12 +37,12 @@ namespace MongoDB.Driver
         /// <param name="source">The source.</param>
         /// <param name="projection">The projection.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IFindFluent<TDocument, BsonDocument> Projection<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, object projection)
+        public static IFindFluent<TDocument, BsonDocument> Projection<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Projection<TDocument, BsonDocument> projection)
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(projection, "projection");
 
-            return source.Projection<BsonDocument>(projection, BsonDocumentSerializer.Instance);
+            return source.Projection<BsonDocument>(projection);
         }
 
         /// <summary>
@@ -63,9 +59,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(projection, "projection");
 
-            var projectionInfo = FindProjectionTranslator.Translate<TDocument, TNewResult>(projection, source.DocumentSerializer);
-
-            return source.Projection<TNewResult>(projectionInfo.Projection, projectionInfo.Serializer);
+            return source.Projection<TNewResult>(new ClientSideExpressionProjection<TDocument, TNewResult>(projection));
         }
 
         /// <summary>
