@@ -255,23 +255,5 @@ namespace MongoDB.Driver
                 }
             }
         }
-
-        private sealed class PairSort<TDocument> : Sort<TDocument>
-        {
-            private readonly Sort<TDocument> _first;
-            private readonly Sort<TDocument> _second;
-
-            public PairSort(Sort<TDocument> first, Sort<TDocument> second)
-            {
-                _first = Ensure.IsNotNull(first, "first");
-                _second = Ensure.IsNotNull(second, "second");
-            }
-
-            public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-            {
-                return _first.Render(documentSerializer, serializerRegistry)
-                    .Merge(_second.Render(documentSerializer, serializerRegistry), false);
-            }
-        }
     }
 }

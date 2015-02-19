@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests
         public void Group_should_generate_the_correct_group_when_a_result_type_is_not_specified()
         {
             var subject = CreateSubject()
-                .Group(new { _id = "$Tags" });
+                .Group("{_id: \"$Tags\" }");
 
             var expectedGroup = BsonDocument.Parse("{$group: {_id: '$Tags'}}");
 
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests
         public void Project_should_generate_the_correct_document_when_a_result_type_is_not_specified()
         {
             var subject = CreateSubject()
-                .Project(new { Awesome = "$Tags" });
+                .Project(BsonDocument.Parse("{ Awesome: \"$Tags\" }"));
 
             var expectedProject = BsonDocument.Parse("{$project: {Awesome: '$Tags'}}");
 
@@ -202,8 +202,12 @@ namespace MongoDB.Driver.Tests
         {
             var settings = new MongoCollectionSettings();
             var collection = Substitute.For<IMongoCollection<Person>>();
+            collection.DocumentSerializer.Returns(settings.SerializerRegistry.GetSerializer<Person>());
             collection.Settings.Returns(settings);
-            var options = new AggregateOptions<Person>();
+            var options = new AggregateOptions<Person>
+            {
+                ResultSerializer = collection.DocumentSerializer
+            };
             var subject = new AggregateFluent<Person, Person>(collection, new List<object>(), options);
 
             return subject;

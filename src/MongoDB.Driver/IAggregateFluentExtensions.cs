@@ -14,15 +14,12 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Translators;
 using MongoDB.Driver.Linq.Utils;
@@ -43,19 +40,19 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Group<TDocument>(this IAggregateFluent<TDocument> source, object group)
+        public static IAggregateFluent<BsonDocument> Group<TDocument>(this IAggregateFluent<TDocument> source, Projection<TDocument, BsonDocument> group)
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(group, "group");
 
-            return source.Group<BsonDocument>(group, BsonDocumentSerializer.Instance);
+            return source.Group<BsonDocument>(group);
         }
 
         /// <summary>
         /// Appends a group stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the new result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="idProjector">The identifier projector.</param>
@@ -63,16 +60,13 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<TResult> Group<TDocument, TKey, TResult>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, TKey>> idProjector, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector)
+        public static IAggregateFluent<TResult> Group<TKey, TDocument, TResult>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, TKey>> idProjector, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector)
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(idProjector, "idProjector");
             Ensure.IsNotNull(groupProjector, "groupProjector");
 
-            var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
-            var projectionInfo = AggregateProjectionTranslator.TranslateGroup<TKey, TDocument, TResult>(idProjector, groupProjector, serializer, source.Settings.SerializerRegistry);
-
-            return source.Group<TResult>(projectionInfo.Document, projectionInfo.Serializer);
+            return source.Group<TResult>(new GroupExpressionProjection<TKey, TDocument, TResult>(idProjector, groupProjector));
         }
 
         /// <summary>
@@ -89,7 +83,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(filter, "filter");
 
-            return source.Match(filter);
+            return source.Match(new ExpressionFilter<TDocument>(filter));
         }
 
         /// <summary>
@@ -101,12 +95,12 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Project<TDocument>(this IAggregateFluent<TDocument> source, object project)
+        public static IAggregateFluent<BsonDocument> Project<TDocument>(this IAggregateFluent<TDocument> source, Projection<TDocument, BsonDocument> project)
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(project, "project");
 
-            return source.Project<BsonDocument>(project, BsonDocumentSerializer.Instance);
+            return source.Project<BsonDocument>(project);
         }
 
         /// <summary>
@@ -127,7 +121,7 @@ namespace MongoDB.Driver
             var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
             var projectionInfo = AggregateProjectionTranslator.TranslateProject(project, serializer, source.Settings.SerializerRegistry);
 
-            return source.Project<TResult>(projectionInfo.Document, projectionInfo.Serializer);
+            return source.Project<TResult>(new ProjectExpressionProjection<TDocument, TResult>(project));
         }
 
         /// <summary>
@@ -144,12 +138,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            var helper = new BsonSerializationInfoHelper();
-            var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
-            helper.RegisterExpressionSerializer(field.Parameters[0], serializer);
-            var sortDocument = new SortByBuilder<TDocument>(helper).Ascending(field).ToBsonDocument();
-
-            return (IOrderedAggregateFluent<TDocument>)source.Sort(sortDocument);
+            return (IOrderedAggregateFluent<TDocument>)source.Sort(new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Ascending));
         }
 
         /// <summary>
@@ -166,40 +155,31 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            var helper = new BsonSerializationInfoHelper();
-            var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
-            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
-            var sortDocument = new SortByBuilder<TDocument>(helper).Descending(field).ToBsonDocument();
-
-            return (IOrderedAggregateFluent<TDocument>)source.Sort(sortDocument);
+            return (IOrderedAggregateFluent<TDocument>)source.Sort(new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Descending));
         }
 
         /// <summary>
         /// Modifies the current sort stage by appending an ascending field specification to it.
         /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TDocument">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
         /// <param name="field">The field to sort by.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IOrderedAggregateFluent<TResult> ThenBy<TResult>(this IOrderedAggregateFluent<TResult> source, Expression<Func<TResult, object>> field)
+        public static IOrderedAggregateFluent<TDocument> ThenBy<TDocument>(this IOrderedAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> field)
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            var helper = new BsonSerializationInfoHelper();
-            var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TResult>();
-            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
-            var sortDocument = new SortByBuilder<TResult>(helper).Ascending(field).ToBsonDocument();
-
             // this looks sketchy, but if we get here and this isn't true, then
             // someone is being a bad citizen.
-            var currentSortStage = (BsonDocument)source.Pipeline.Last();
+            var currentSort = new BsonDocumentSort<TDocument>(((BsonDocument)source.Pipeline.Last())["$sort"].AsBsonDocument);
+            source.Pipeline.RemoveAt(source.Pipeline.Count - 1); // remove it so we can add it back
 
-            currentSortStage["$sort"].AsBsonDocument.AddRange(sortDocument);
-
-            return source;
+            return (IOrderedAggregateFluent<TDocument>)source.Sort(new PairSort<TDocument>(
+                currentSort,
+                new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Ascending)));
         }
 
         /// <summary>
@@ -216,18 +196,14 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            var helper = new BsonSerializationInfoHelper();
-            var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
-            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
-            var sortDocument = new SortByBuilder<TDocument>(helper).Descending(field).ToBsonDocument();
-
             // this looks sketchy, but if we get here and this isn't true, then
             // someone is being a bad citizen.
-            var currentSortStage = (BsonDocument)source.Pipeline.Last();
+            var currentSort = new BsonDocumentSort<TDocument>(((BsonDocument)source.Pipeline.Last())["$sort"].AsBsonDocument);
+            source.Pipeline.RemoveAt(source.Pipeline.Count - 1); // remove it so we can add it back
 
-            currentSortStage["$sort"].AsBsonDocument.AddRange(sortDocument);
-
-            return source;
+            return (IOrderedAggregateFluent<TDocument>)source.Sort(new PairSort<TDocument>(
+                currentSort,
+                new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Descending)));
         }
 
         /// <summary>
@@ -263,7 +239,7 @@ namespace MongoDB.Driver
 
             var helper = new BsonSerializationInfoHelper();
             var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
-            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
+            helper.RegisterExpressionSerializer(field.Parameters[0], serializer);
             var serialiationInfo = helper.GetSerializationInfo(field.Body);
 
             return source.Unwind<BsonDocument>("$" + serialiationInfo.ElementName);
@@ -288,7 +264,7 @@ namespace MongoDB.Driver
 
             var helper = new BsonSerializationInfoHelper();
             var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
-            helper.RegisterExpressionSerializer(field.Parameters[0], serializer); 
+            helper.RegisterExpressionSerializer(field.Parameters[0], serializer);
             var serialiationInfo = helper.GetSerializationInfo(field.Body);
 
             return source.Unwind<TResult>("$" + serialiationInfo.ElementName, resultSerializer);
@@ -397,6 +373,53 @@ namespace MongoDB.Driver
                 {
                     return default(TDocument);
                 }
+            }
+        }
+
+        private sealed class ProjectExpressionProjection<TDocument, TResult> : Projection<TDocument, TResult>
+        {
+            private readonly Expression<Func<TDocument, TResult>> _expression;
+
+            public ProjectExpressionProjection(Expression<Func<TDocument, TResult>> expression)
+            {
+                _expression = Ensure.IsNotNull(expression, "expression");
+            }
+
+            public Expression<Func<TDocument, TResult>> Expression
+            {
+                get { return _expression; }
+            }
+
+            public override RenderedProjection<TResult> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            {
+                return AggregateProjectionTranslator.TranslateProject<TDocument, TResult>(_expression, documentSerializer, serializerRegistry);
+            }
+        }
+
+        private sealed class GroupExpressionProjection<TKey, TDocument, TResult> : Projection<TDocument, TResult>
+        {
+            private readonly Expression<Func<TDocument, TKey>> _idExpression;
+            private readonly Expression<Func<IGrouping<TKey, TDocument>, TResult>> _groupExpression;
+
+            public GroupExpressionProjection(Expression<Func<TDocument, TKey>> idExpression, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupExpression)
+            {
+                _idExpression = Ensure.IsNotNull(idExpression, "idExpression");
+                _groupExpression = Ensure.IsNotNull(groupExpression, "groupExpression");
+            }
+
+            public Expression<Func<TDocument, TKey>> IdExpression
+            {
+                get { return _idExpression; }
+            }
+
+            public Expression<Func<IGrouping<TKey, TDocument>, TResult>> GroupExpression
+            {
+                get { return _groupExpression; }
+            }
+
+            public override RenderedProjection<TResult> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            {
+                return AggregateProjectionTranslator.TranslateGroup<TKey, TDocument, TResult>(_idExpression, _groupExpression, documentSerializer, serializerRegistry);
             }
         }
     }

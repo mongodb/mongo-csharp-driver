@@ -53,9 +53,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="group">The group expressions.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TResult> Group<TResult>(object group, IBsonSerializer<TResult> resultSerializer = null);
+        IAggregateFluent<TResult> Group<TResult>(Projection<TDocument, TResult> group);
 
         /// <summary>
         /// Appends a limit stage to the pipeline.
@@ -69,7 +68,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument> Match(object filter);
+        IAggregateFluent<TDocument> Match(Filter<TDocument> filter);
 
         /// <summary>
         /// Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
@@ -84,9 +83,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="project">The project specifications.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TResult> Project<TResult>(object project, IBsonSerializer<TResult> resultSerializer = null);
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        IAggregateFluent<TResult> Project<TResult>(Projection<TDocument, TResult> project);
 
         /// <summary>
         /// Appends a redact stage to the pipeline.
@@ -107,7 +107,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sort">The sort specification.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument> Sort(object sort);
+        IAggregateFluent<TDocument> Sort(Sort<TDocument> sort);
 
         /// <summary>
         /// Appends an unwind stage to the pipeline.

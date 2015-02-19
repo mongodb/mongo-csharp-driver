@@ -215,4 +215,32 @@ namespace MongoDB.Driver
             return new BsonDocumentWrapper(_obj, serializer);
         }
     }
+
+    /// <summary>
+    /// A pair of <see cref="Sort{TDocument}"/> that are combined.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public sealed class PairSort<TDocument> : Sort<TDocument>
+    {
+        private readonly Sort<TDocument> _first;
+        private readonly Sort<TDocument> _second;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PairSort{TDocument}"/> class.
+        /// </summary>
+        /// <param name="first">The first.</param>
+        /// <param name="second">The second.</param>
+        public PairSort(Sort<TDocument> first, Sort<TDocument> second)
+        {
+            _first = Ensure.IsNotNull(first, "first");
+            _second = Ensure.IsNotNull(second, "second");
+        }
+
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return _first.Render(documentSerializer, serializerRegistry)
+                .Merge(_second.Render(documentSerializer, serializerRegistry), false);
+        }
+    }
 }
