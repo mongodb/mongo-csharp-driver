@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Tests
             {
                 ResultSerializer = collection.DocumentSerializer
             };
-            var subject = new AggregateFluent<Person, Person>(collection, new List<object>(), options);
+            var subject = new AggregateFluent<Person, Person>(collection, Enumerable.Empty<BsonDocument>(), options);
 
             return subject;
         }

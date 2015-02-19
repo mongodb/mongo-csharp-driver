@@ -117,9 +117,6 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(project, "projector");
 
-            var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
-            var projectionInfo = AggregateProjectionTranslator.TranslateProject(project, serializer, source.Settings.SerializerRegistry);
-
             return source.Project<TResult>(new ProjectExpressionProjection<TDocument, TResult>(project));
         }
 
@@ -173,7 +170,7 @@ namespace MongoDB.Driver
 
             // this looks sketchy, but if we get here and this isn't true, then
             // someone is being a bad citizen.
-            var currentSort = new BsonDocumentSort<TDocument>(((BsonDocument)source.Pipeline.Last())["$sort"].AsBsonDocument);
+            var currentSort = new BsonDocumentSort<TDocument>(source.Pipeline.Last()["$sort"].AsBsonDocument);
             source.Pipeline.RemoveAt(source.Pipeline.Count - 1); // remove it so we can add it back
 
             return (IOrderedAggregateFluent<TDocument>)source.Sort(new PairSort<TDocument>(
@@ -197,7 +194,7 @@ namespace MongoDB.Driver
 
             // this looks sketchy, but if we get here and this isn't true, then
             // someone is being a bad citizen.
-            var currentSort = new BsonDocumentSort<TDocument>(((BsonDocument)source.Pipeline.Last())["$sort"].AsBsonDocument);
+            var currentSort = new BsonDocumentSort<TDocument>(source.Pipeline.Last()["$sort"].AsBsonDocument);
             source.Pipeline.RemoveAt(source.Pipeline.Count - 1); // remove it so we can add it back
 
             return (IOrderedAggregateFluent<TDocument>)source.Sort(new PairSort<TDocument>(

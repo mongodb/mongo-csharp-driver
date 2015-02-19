@@ -75,7 +75,7 @@ namespace MongoDB.Driver
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
         {
-            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
+            var pipeline = new [] { BsonDocument.Parse("{$match: {x: 2}}") };
             var options = new AggregateOptions<BsonDocument>()
             {
                 AllowDiskUse = true,
@@ -106,7 +106,7 @@ namespace MongoDB.Driver
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified()
         {
-            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}"), BsonDocument.Parse("{$out: \"funny\"}") };
+            var pipeline = new [] { BsonDocument.Parse("{$match: {x: 2}}"), BsonDocument.Parse("{$out: \"funny\"}") };
             var options = new AggregateOptions<BsonDocument>()
             {
                 AllowDiskUse = true,

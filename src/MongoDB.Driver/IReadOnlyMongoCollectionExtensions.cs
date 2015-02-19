@@ -61,7 +61,7 @@ namespace MongoDB.Driver
                     UseCursor = options.UseCursor
                 };
             }
-            return new AggregateFluent<TDocument, TDocument>(collection, new List<object>(), newOptions);
+            return new AggregateFluent<TDocument, TDocument>(collection, new List<BsonDocument>(), newOptions);
         }
 
         /// <summary>

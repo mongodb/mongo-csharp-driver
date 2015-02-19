@@ -813,7 +813,7 @@ namespace MongoDB.Driver.Core.Linq
 
             var pipelineOperator = new BsonDocument("$project", projectionInfo.Document);
             var options = new AggregateOptions<T> { ResultSerializer = projectionInfo.Serializer };
-            using (var cursor = await _collection.AggregateAsync<T>(new object[] { pipelineOperator }, options))
+            using (var cursor = await _collection.AggregateAsync<T>(new [] { pipelineOperator }, options))
             {
                 var list = await cursor.ToListAsync();
                 return new ProjectedResult<T>

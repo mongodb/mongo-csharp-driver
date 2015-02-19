@@ -29,10 +29,10 @@ namespace MongoDB.Driver
         // fields
         private readonly IReadOnlyMongoCollection<TCollectionDocument> _collection;
         private readonly AggregateOptions<TDocument> _options;
-        private readonly IList<object> _pipeline;
+        private readonly IList<BsonDocument> _pipeline;
 
         // constructors
-        public AggregateFluent(IReadOnlyMongoCollection<TCollectionDocument> collection, IEnumerable<object> pipeline, AggregateOptions<TDocument> options)
+        public AggregateFluent(IReadOnlyMongoCollection<TCollectionDocument> collection, IEnumerable<BsonDocument> pipeline, AggregateOptions<TDocument> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
@@ -45,14 +45,9 @@ namespace MongoDB.Driver
             get { return _options; }
         }
 
-        public IList<object> Pipeline
+        public IList<BsonDocument> Pipeline
         {
             get { return _pipeline; }
-        }
-
-        public MongoCollectionSettings Settings
-        {
-            get { return _collection.Settings; }
         }
 
         // methods
@@ -122,7 +117,7 @@ namespace MongoDB.Driver
             return AppendStage<TResult>(new BsonDocument("$unwind", "$" + renderedFieldName), resultSerializer);
         }
 
-        public Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken)
         {
             return _collection.AggregateAsync(_pipeline, _options, cancellationToken);
         }
@@ -143,13 +138,13 @@ namespace MongoDB.Driver
             return sb.ToString();
         }
 
-        private IAggregateFluent<TDocument> AppendStage(object stage)
+        private IAggregateFluent<TDocument> AppendStage(BsonDocument stage)
         {
             _pipeline.Add(stage);
             return this;
         }
 
-        private IAggregateFluent<TResult> AppendStage<TResult>(object stage, IBsonSerializer<TResult> resultSerializer)
+        private IAggregateFluent<TResult> AppendStage<TResult>(BsonDocument stage, IBsonSerializer<TResult> resultSerializer)
         {
             _pipeline.Add(stage);
             var newOptions = new AggregateOptions<TResult>
@@ -167,11 +162,6 @@ namespace MongoDB.Driver
         private BsonDocument ConvertToBsonDocument(object document)
         {
             return BsonDocumentHelper.ToBsonDocument(_collection.Settings.SerializerRegistry, document);
-        }
-
-        private BsonDocument ConvertFilterToBsonDocument(object filter)
-        {
-            return BsonDocumentHelper.FilterToBsonDocument<TDocument>(_collection.Settings.SerializerRegistry, filter);
         }
     }
 }

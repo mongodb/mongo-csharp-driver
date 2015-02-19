@@ -78,12 +78,11 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options, CancellationToken cancellationToken)
+        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<BsonDocument> pipeline, AggregateOptions<TResult> options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(pipeline, "pipeline");
+            var pipelineDocuments = Ensure.IsNotNull(pipeline, "pipeline").ToList();
 
             options = options ?? new AggregateOptions<TResult>();
-            var pipelineDocuments = pipeline.Select(x => ConvertToBsonDocument(x)).ToList();
 
             var last = pipelineDocuments.LastOrDefault();
             if (last != null && last.GetElement(0).Name == "$out")

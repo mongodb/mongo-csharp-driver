@@ -51,10 +51,10 @@ namespace MongoDB.Driver.Tests
                 .Group("{ _id : \"$Age\", Name : { \"$first\" : \"$Name\" } }")
                 .Project("{ _id: 1 }");
 
-            IEnumerable<object> actualPipeline = null;
+            IEnumerable<BsonDocument> actualPipeline = null;
             AggregateOptions<BsonDocument> actualOptions = null;
             subject.AggregateAsync(
-                Arg.Do<IEnumerable<object>>(x => actualPipeline = x),
+                Arg.Do<IEnumerable<BsonDocument>>(x => actualPipeline = x),
                 Arg.Do<AggregateOptions<BsonDocument>>(x => actualOptions = x),
                 Arg.Any<CancellationToken>());
 

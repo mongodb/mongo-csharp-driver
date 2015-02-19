@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
@@ -34,12 +35,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the pipeline.
         /// </summary>
-        IList<object> Pipeline { get; }
-
-        /// <summary>
-        /// Gets the settings.
-        /// </summary>
-        MongoCollectionSettings Settings { get; }
+        IList<BsonDocument> Pipeline { get; }
 
         /// <summary>
         /// Appends a geoNear stage to the pipeline.
