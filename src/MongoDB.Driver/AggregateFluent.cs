@@ -114,9 +114,12 @@ namespace MongoDB.Driver
             return AppendStage(new BsonDocument("$sort", document));
         }
 
-        public IAggregateFluent<TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer)
+        public IAggregateFluent<TResult> Unwind<TResult>(FieldName<TDocument> fieldName, IBsonSerializer<TResult> resultSerializer)
         {
-            return AppendStage<TNewResult>(new BsonDocument("$unwind", fieldName), resultSerializer);
+            var renderedFieldName = Ensure.IsNotNull(fieldName, "fieldName")
+                .Render(_options.ResultSerializer, _collection.Settings.SerializerRegistry);
+
+            return AppendStage<TResult>(new BsonDocument("$unwind", "$" + renderedFieldName), resultSerializer);
         }
 
         public Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -154,7 +157,7 @@ namespace MongoDB.Driver
                 AllowDiskUse = _options.AllowDiskUse,
                 BatchSize = _options.BatchSize,
                 MaxTime = _options.MaxTime,
-                ResultSerializer = resultSerializer,
+                ResultSerializer = resultSerializer ?? _collection.Settings.SerializerRegistry.GetSerializer<TResult>(),
                 UseCursor = _options.UseCursor
             };
 

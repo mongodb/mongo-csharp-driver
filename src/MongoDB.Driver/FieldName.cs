@@ -62,6 +62,33 @@ namespace MongoDB.Driver
     /// Base class for field names.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public abstract class FieldName<TDocument>
+    {
+        /// <summary>
+        /// Renders the field to a <see cref="String"/>.
+        /// </summary>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <returns>A <see cref="String"/>.</returns>
+        public abstract string Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="FieldName{TDocument}"/>.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator FieldName<TDocument>(string fieldName)
+        {
+            return new StringFieldName<TDocument>(fieldName);
+        }
+    }
+
+    /// <summary>
+    /// Base class for field names.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TField">The type of the field.</typeparam>
     public abstract class FieldName<TDocument, TField>
     {
@@ -83,6 +110,41 @@ namespace MongoDB.Driver
         public static implicit operator FieldName<TDocument, TField>(string fieldName)
         {
             return new StringFieldName<TDocument, TField>(fieldName, null);
+        }
+    }
+
+    /// <summary>
+    /// An <see cref="Expression" /> based field.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public sealed class ExpressionFieldName<TDocument> : FieldName<TDocument>
+    {
+        private readonly Expression<Func<TDocument, object>> _expression;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExpressionFieldName{TDocument}" /> class.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        public ExpressionFieldName(Expression<Func<TDocument, object>> expression)
+        {
+            _expression = Ensure.IsNotNull(expression, "expression");
+        }
+
+        /// <summary>
+        /// Gets the expression.
+        /// </summary>
+        public Expression<Func<TDocument, object>> Expression
+        {
+            get { return _expression; }
+        }
+
+        /// <inheritdoc />
+        public override string Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var helper = new BsonSerializationInfoHelper();
+            helper.RegisterExpressionSerializer(_expression.Parameters[0], documentSerializer);
+            var serializationInfo = helper.GetSerializationInfo(_expression.Body);
+            return serializationInfo.ElementName;
         }
     }
 
@@ -119,6 +181,30 @@ namespace MongoDB.Driver
             helper.RegisterExpressionSerializer(_expression.Parameters[0], documentSerializer);
             var serializationInfo = helper.GetSerializationInfo(_expression.Body);
             return new RenderedFieldName<TField>(serializationInfo.ElementName, (IBsonSerializer<TField>)serializationInfo.Serializer);
+        }
+    }
+
+    /// <summary>
+    /// A <see cref="String" /> based field name.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public sealed class StringFieldName<TDocument> : FieldName<TDocument>
+    {
+        private readonly string _fieldName;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StringFieldName{TDocument}" /> class.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        public StringFieldName(string fieldName)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+        }
+
+        /// <inheritdoc />
+        public override string Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return _fieldName;
         }
     }
 

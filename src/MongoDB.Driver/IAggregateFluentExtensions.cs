@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Translators;
-using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
 {
@@ -215,7 +214,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Unwind<TDocument>(this IAggregateFluent<TDocument> source, string fieldName)
+        public static IAggregateFluent<BsonDocument> Unwind<TDocument>(this IAggregateFluent<TDocument> source, FieldName<TDocument> fieldName)
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(fieldName, "fieldName");
@@ -228,21 +227,16 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="source">The source.</param>
-        /// <param name="field">The field to unwind.</param>
+        /// <param name="fieldName">The field to unwind.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Unwind<TDocument>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> field)
+        public static IAggregateFluent<BsonDocument> Unwind<TDocument>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> fieldName)
         {
             Ensure.IsNotNull(source, "source");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(fieldName, "field");
 
-            var helper = new BsonSerializationInfoHelper();
-            var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
-            helper.RegisterExpressionSerializer(field.Parameters[0], serializer);
-            var serialiationInfo = helper.GetSerializationInfo(field.Body);
-
-            return source.Unwind<BsonDocument>("$" + serialiationInfo.ElementName);
+            return source.Unwind<BsonDocument>(new ExpressionFieldName<TDocument>(fieldName));
         }
 
         /// <summary>
@@ -251,23 +245,18 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the new result.</typeparam>
         /// <param name="source">The source.</param>
-        /// <param name="field">The field to unwind.</param>
+        /// <param name="fieldName">The field to unwind.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<TResult> Unwind<TDocument, TResult>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> field, IBsonSerializer<TResult> resultSerializer = null)
+        public static IAggregateFluent<TResult> Unwind<TDocument, TResult>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> fieldName, IBsonSerializer<TResult> resultSerializer = null)
         {
             Ensure.IsNotNull(source, "source");
-            Ensure.IsNotNull(field, "field");
+            Ensure.IsNotNull(fieldName, "field");
             Ensure.IsNotNull(resultSerializer, "resultSerializer");
 
-            var helper = new BsonSerializationInfoHelper();
-            var serializer = source.Options.ResultSerializer ?? source.Settings.SerializerRegistry.GetSerializer<TDocument>();
-            helper.RegisterExpressionSerializer(field.Parameters[0], serializer);
-            var serialiationInfo = helper.GetSerializationInfo(field.Body);
-
-            return source.Unwind<TResult>("$" + serialiationInfo.ElementName, resultSerializer);
+            return source.Unwind<TResult>(new ExpressionFieldName<TDocument>(fieldName), resultSerializer);
         }
 
         /// <summary>

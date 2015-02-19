@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Tests
         public void Unwind_should_generate_the_correct_unwind()
         {
             var subject = CreateSubject()
-                .Unwind("$Age");
+                .Unwind("Age");
 
             var expectedUnwind = BsonDocument.Parse("{$unwind: '$Age'}");
 
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Tests
         public void Unwind_with_expression_to_new_result_should_generate_the_correct_unwind()
         {
             var subject = CreateSubject()
-                .Unwind("$Age", BsonDocumentSerializer.Instance);
+                .Unwind("Age", BsonDocumentSerializer.Instance);
 
             var expectedUnwind = BsonDocument.Parse("{$unwind: '$Age'}");
 
