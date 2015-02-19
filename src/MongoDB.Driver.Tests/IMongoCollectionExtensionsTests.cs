@@ -256,7 +256,11 @@ namespace MongoDB.Driver.Tests
             var update = new BsonDocument();
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update);
 
-            subject.Received().FindOneAndUpdateAsync<Person>(Arg.Any<Filter<Person>>(), update, null, default(CancellationToken));
+            subject.Received().FindOneAndUpdateAsync<Person>(
+                Arg.Any<ExpressionFilter<Person>>(), 
+                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update), 
+                null, 
+                default(CancellationToken));
         }
 
         [Test]
@@ -267,7 +271,11 @@ namespace MongoDB.Driver.Tests
             var options = new FindOneAndUpdateOptions<Person, BsonDocument>();
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
 
-            subject.Received().FindOneAndUpdateAsync<BsonDocument>(Arg.Any<Filter<Person>>(), update, options, default(CancellationToken));
+            subject.Received().FindOneAndUpdateAsync<BsonDocument>(
+                Arg.Any<ExpressionFilter<Person>>(),
+                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update), 
+                options, 
+                default(CancellationToken));
         }
 
         [Test]
@@ -288,7 +296,11 @@ namespace MongoDB.Driver.Tests
             subject.UpdateManyAsync(x => x.FirstName == "Jack", update);
 
 
-            subject.Received().UpdateManyAsync(Arg.Any<Filter<Person>>(), update, null, default(CancellationToken));
+            subject.Received().UpdateManyAsync(
+                Arg.Any<ExpressionFilter<Person>>(),
+                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update), 
+                null, 
+                default(CancellationToken));
         }
 
         [Test]
@@ -298,7 +310,11 @@ namespace MongoDB.Driver.Tests
             var update = new BsonDocument();
             subject.UpdateOneAsync(x => x.FirstName == "Jack", update);
 
-            subject.Received().UpdateOneAsync(Arg.Any<Filter<Person>>(), update, null, default(CancellationToken));
+            subject.Received().UpdateOneAsync(
+                Arg.Any<ExpressionFilter<Person>>(),
+                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update), 
+                null, 
+                default(CancellationToken));
         }
 
         private bool Matches(object o, BsonDocument doc)

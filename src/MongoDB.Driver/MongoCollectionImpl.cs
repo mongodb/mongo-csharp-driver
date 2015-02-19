@@ -267,7 +267,7 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public override Task<TResult> FindOneAndUpdateAsync<TResult>(Filter<TDocument> filter, object update, FindOneAndUpdateOptions<TDocument, TResult> options, CancellationToken cancellationToken)
+        public override Task<TResult> FindOneAndUpdateAsync<TResult>(Filter<TDocument> filter, Update2<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");
@@ -278,7 +278,7 @@ namespace MongoDB.Driver
             var operation = new FindOneAndUpdateOperation<TResult>(
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
-                ConvertToBsonDocument(update),
+                update.Render(_documentSerializer, _settings.SerializerRegistry),
                 new FindAndModifyValueDeserializer<TResult>(resultSerializer),
                 _messageEncoderSettings)
             {
@@ -441,7 +441,7 @@ namespace MongoDB.Driver
                     return new UpdateRequest(
                         UpdateType.Update,
                         updateManyModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
-                        ConvertToBsonDocument(updateManyModel.Update))
+                        updateManyModel.Update.Render(_documentSerializer, _settings.SerializerRegistry))
                     {
                         CorrelationId = index,
                         IsMulti = true,
@@ -452,7 +452,7 @@ namespace MongoDB.Driver
                     return new UpdateRequest(
                         UpdateType.Update,
                         updateOneModel.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
-                        ConvertToBsonDocument(updateOneModel.Update))
+                        updateOneModel.Update.Render(_documentSerializer, _settings.SerializerRegistry))
                     {
                         CorrelationId = index,
                         IsMulti = false,

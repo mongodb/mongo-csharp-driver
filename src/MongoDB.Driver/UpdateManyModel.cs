@@ -33,7 +33,7 @@ namespace MongoDB.Driver
         // fields
         private readonly Filter<TDocument> _filter;
         private bool _isUpsert;
-        private readonly object _update;
+        private readonly Update2<TDocument> _update;
 
         // constructors
         /// <summary>
@@ -41,7 +41,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
-        public UpdateManyModel(Filter<TDocument> filter, object update)
+        public UpdateManyModel(Filter<TDocument> filter, Update2<TDocument> update)
         {
             _filter = Ensure.IsNotNull(filter, "filter");
             _update = Ensure.IsNotNull(update, "update");
@@ -68,7 +68,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the update.
         /// </summary>
-        public object Update
+        public Update2<TDocument> Update
         {
             get { return _update; }
         }

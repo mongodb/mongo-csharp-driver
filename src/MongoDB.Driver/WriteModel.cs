@@ -67,10 +67,9 @@ namespace MongoDB.Driver
 
         private static WriteModel<TDocument> ConvertUpdateRequest(UpdateRequest request)
         {
-            var update = Unwrap(request.Update);
             if(request.IsMulti)
             {
-                return new UpdateManyModel<TDocument>(UnwrapFilter(request.Filter), update)
+                return new UpdateManyModel<TDocument>(UnwrapFilter(request.Filter), UnwrapUpdate(request.Update))
                 {
                     IsUpsert = request.IsUpsert
                 };
@@ -79,7 +78,7 @@ namespace MongoDB.Driver
             var firstElement = request.Update.GetElement(0).Name;
             if(firstElement.StartsWith("$"))
             {
-                return new UpdateOneModel<TDocument>(UnwrapFilter(request.Filter), update)
+                return new UpdateOneModel<TDocument>(UnwrapFilter(request.Filter), UnwrapUpdate(request.Update))
                 {
                     IsUpsert = request.IsUpsert
                 };
@@ -111,6 +110,21 @@ namespace MongoDB.Driver
             }
 
             return new BsonDocumentFilter<TDocument>(filter);
+        }
+
+        private static Update2<TDocument> UnwrapUpdate(BsonDocument update)
+        {
+            var wrapper = update as BsonDocumentWrapper;
+            if (wrapper != null)
+            {
+                if (wrapper.Wrapped is BsonDocument)
+                {
+                    return new BsonDocumentUpdate<TDocument>((BsonDocument)wrapper.Wrapped);
+                }
+                return new ObjectUpdate<TDocument>(wrapper.Wrapped);
+            }
+
+            return new BsonDocumentUpdate<TDocument>(update);
         }
 
         private static object Unwrap(BsonDocument wrapper)

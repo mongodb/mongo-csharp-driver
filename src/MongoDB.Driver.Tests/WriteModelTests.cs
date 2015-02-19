@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Tests
             result.Should().BeOfType<UpdateOneModel<BsonDocument>>();
             var model = (UpdateOneModel<BsonDocument>)result;
             ((ObjectFilter<BsonDocument>)model.Filter).Object.Should().BeSameAs(filter);
-            model.Update.Should().BeSameAs(update);
+            ((ObjectUpdate<BsonDocument>)model.Update).Object.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }
 
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Tests
             result.Should().BeOfType<UpdateManyModel<BsonDocument>>();
             var model = (UpdateManyModel<BsonDocument>)result;
             ((BsonDocumentFilter<BsonDocument>)model.Filter).Document.Should().BeSameAs(filter);
-            model.Update.Should().BeSameAs(update);
+            ((BsonDocumentUpdate<BsonDocument>)model.Update).Document.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }
 
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Tests
             result.Should().BeOfType<UpdateManyModel<BsonDocument>>();
             var model = (UpdateManyModel<BsonDocument>)result;
             ((ObjectFilter<BsonDocument>)model.Filter).Object.Should().BeSameAs(filter);
-            model.Update.Should().BeSameAs(update);
+            ((ObjectUpdate<BsonDocument>)model.Update).Object.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }
 
