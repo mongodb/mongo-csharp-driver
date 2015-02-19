@@ -518,7 +518,7 @@ namespace MongoDB.Driver
             var filter = BsonDocument.Parse("{x:1}");
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var options = new FindOptions<BsonDocument>
+            var options = new FindOptions<BsonDocument, BsonDocument>
             {
                 AllowPartialResults = true,
                 BatchSize = 20,
@@ -564,7 +564,7 @@ namespace MongoDB.Driver
             Expression<Func<BsonDocument, bool>> filter = doc => doc["x"] == 1;
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var options = new FindOptions<BsonDocument>
+            var options = new FindOptions<BsonDocument, BsonDocument>
             {
                 AllowPartialResults = true,
                 BatchSize = 20,
@@ -610,7 +610,7 @@ namespace MongoDB.Driver
             var filter = BsonDocument.Parse("{x: 1}");
             var projection = BsonDocument.Parse("{x: 1}");
             var sort = BsonDocument.Parse("{a: -1}");
-            var options = new FindOneAndDeleteOptions<BsonDocument>()
+            var options = new FindOneAndDeleteOptions<BsonDocument, BsonDocument>()
             {
                 Projection = projection,
                 Sort = sort,
@@ -642,7 +642,7 @@ namespace MongoDB.Driver
             var replacement = BsonDocument.Parse("{a: 2}");
             var projection = BsonDocument.Parse("{x: 1}");
             var sort = BsonDocument.Parse("{a: -1}");
-            var options = new FindOneAndReplaceOptions<BsonDocument>()
+            var options = new FindOneAndReplaceOptions<BsonDocument, BsonDocument>()
             {
                 IsUpsert = isUpsert,
                 Projection = projection,
@@ -679,7 +679,7 @@ namespace MongoDB.Driver
             var update = BsonDocument.Parse("{$set: {a: 2}}");
             var projection = BsonDocument.Parse("{x: 1}");
             var sort = BsonDocument.Parse("{a: -1}");
-            var options = new FindOneAndUpdateOptions<BsonDocument>()
+            var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
             {
                 IsUpsert = isUpsert,
                 Projection = projection,

@@ -105,15 +105,16 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for finding documents.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindOptions<TResult> : FindOptionsBase
+    public class FindOptions<TDocument, TResult> : FindOptionsBase
     {
         // fields
         private int? _limit;
         private object _projection;
         private IBsonSerializer<TResult> _resultSerializer;
         private int? _skip;
-        private object _sort;
+        private Sort<TDocument> _sort;
 
         // properties
         /// <summary>
@@ -155,7 +156,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort.
         /// </summary>
-        public object Sort
+        public Sort<TDocument> Sort
         {
             get { return _sort; }
             set { _sort = value; }

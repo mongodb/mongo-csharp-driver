@@ -25,8 +25,9 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for a findAndModify command to update an object.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindOneAndUpdateOptions<TResult>
+    public class FindOneAndUpdateOptions<TDocument, TResult>
     {
         // fields
         private bool _isUpsert;
@@ -34,11 +35,11 @@ namespace MongoDB.Driver
         private object _projection;
         private IBsonSerializer<TResult> _resultSerializer;
         private ReturnDocument _returnDocument;
-        private object _sort;
+        private Sort<TDocument> _sort;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindOneAndUpdateOptions{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="FindOneAndUpdateOptions{TDocument, TResult}"/> class.
         /// </summary>
         public FindOneAndUpdateOptions()
         {
@@ -94,7 +95,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort.
         /// </summary>
-        public object Sort
+        public Sort<TDocument> Sort
         {
             get { return _sort; }
             set { _sort = value; }

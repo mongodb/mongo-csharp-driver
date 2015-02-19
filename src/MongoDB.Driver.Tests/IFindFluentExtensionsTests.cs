@@ -17,6 +17,7 @@ using System;
 using System.Linq.Expressions;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Translators;
 using NSubstitute;
@@ -58,7 +59,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: 1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -69,7 +70,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: 1, LastName: 1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -80,7 +81,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: 1, LastName: -1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -91,7 +92,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: 1, LastName: 1, Age: 1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -102,7 +103,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: -1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -113,7 +114,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: -1, LastName: 1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -124,16 +125,21 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: -1, LastName: -1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
+        }
+
+        private static void AssertSort(IFindFluent<Person, Person> subject, BsonDocument expectedSort)
+        {
+            Assert.AreEqual(expectedSort, subject.Options.Sort.Render(subject.DocumentSerializer, BsonSerializer.SerializerRegistry));
         }
 
         private IFindFluent<Person, Person> CreateSubject()
         {
             var settings = new MongoCollectionSettings();
             var collection = Substitute.For<IMongoCollection<Person>>();
+            collection.DocumentSerializer.Returns(BsonSerializer.SerializerRegistry.GetSerializer<Person>());
             collection.Settings.Returns(settings);
-            collection.DocumentSerializer.Returns(settings.SerializerRegistry.GetSerializer<Person>());
-            var options = new FindOptions<Person>();
+            var options = new FindOptions<Person, Person>();
             var subject = new FindFluent<Person, Person>(collection, new BsonDocument(), options);
 
             return subject;

@@ -12,10 +12,10 @@ namespace MongoDB.Driver
         // fields
         private readonly IReadableMongoCollection<TDocument> _collection;
         private Filter<TDocument> _filter;
-        private readonly FindOptions<TResult> _options;
+        private readonly FindOptions<TDocument, TResult> _options;
 
         // constructors
-        public FindFluent(IReadableMongoCollection<TDocument> collection, Filter<TDocument> filter, FindOptions<TResult> options)
+        public FindFluent(IReadableMongoCollection<TDocument> collection, Filter<TDocument> filter, FindOptions<TDocument, TResult> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _filter = Ensure.IsNotNull(filter, "filter");
@@ -39,7 +39,7 @@ namespace MongoDB.Driver
             set { _filter = Ensure.IsNotNull(value, "value"); }
         }
 
-        public FindOptions<TResult> Options
+        public FindOptions<TDocument, TResult> Options
         {
             get { return _options; }
         }
@@ -73,7 +73,7 @@ namespace MongoDB.Driver
 
         public IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer)
         {
-            var newOptions = new FindOptions<TNewResult>
+            var newOptions = new FindOptions<TDocument, TNewResult>
             {
                 AllowPartialResults = _options.AllowPartialResults,
                 BatchSize = _options.BatchSize,
@@ -97,7 +97,7 @@ namespace MongoDB.Driver
             return this;
         }
 
-        public IFindFluent<TDocument, TResult> Sort(object sort)
+        public IFindFluent<TDocument, TResult> Sort(Sort<TDocument> sort)
         {
             _options.Sort = sort;
             return this;

@@ -41,7 +41,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the options.
         /// </summary>
-        FindOptions<TResult> Options { get; }
+        FindOptions<TDocument, TResult> Options { get; }
 
         /// <summary>
         /// Counts the number of documents.
@@ -78,7 +78,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sort">The sort.</param>
         /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TResult> Sort(object sort);
+        IFindFluent<TDocument, TResult> Sort(Sort<TDocument> sort);
     }
 
     /// <summary>

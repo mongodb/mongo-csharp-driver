@@ -37,7 +37,7 @@ namespace MongoDB.Driver
         private MapReduceOutputOptions _outputOptions;
         private IBsonSerializer<TResult> _resultSerializer;
         private object _scope;
-        private object _sort;
+        private Sort<TDocument> _sort;
         private bool? _verbose;
 
         // properties
@@ -116,7 +116,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort.
         /// </summary>
-        public object Sort
+        public Sort<TDocument> Sort
         {
             get { return _sort; }
             set { _sort = value; }

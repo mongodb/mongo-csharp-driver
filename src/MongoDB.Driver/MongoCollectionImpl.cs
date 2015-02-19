@@ -191,11 +191,11 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, cancellationToken);
         }
 
-        public override Task<IAsyncCursor<TResult>> FindAsync<TResult>(Filter<TDocument> filter, FindOptions<TResult> options, CancellationToken cancellationToken)
+        public override Task<IAsyncCursor<TResult>> FindAsync<TResult>(Filter<TDocument> filter, FindOptions<TDocument, TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
 
-            options = options ?? new FindOptions<TResult>();
+            options = options ?? new FindOptions<TDocument, TResult>();
             var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
 
             var operation = new FindOperation<TResult>(
@@ -214,17 +214,17 @@ namespace MongoDB.Driver
                 NoCursorTimeout = options.NoCursorTimeout,
                 Projection = ConvertToBsonDocument(options.Projection),
                 Skip = options.Skip,
-                Sort = ConvertToBsonDocument(options.Sort),
+                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
 
             return ExecuteReadOperation(operation, cancellationToken);
         }
 
-        public override Task<TResult> FindOneAndDeleteAsync<TResult>(Filter<TDocument> filter, FindOneAndDeleteOptions<TResult> options, CancellationToken cancellationToken)
+        public override Task<TResult> FindOneAndDeleteAsync<TResult>(Filter<TDocument> filter, FindOneAndDeleteOptions<TDocument, TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
 
-            options = options ?? new FindOneAndDeleteOptions<TResult>();
+            options = options ?? new FindOneAndDeleteOptions<TDocument, TResult>();
             var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
 
             var operation = new FindOneAndDeleteOperation<TResult>(
@@ -235,19 +235,19 @@ namespace MongoDB.Driver
             {
                 MaxTime = options.MaxTime,
                 Projection = ConvertToBsonDocument(options.Projection),
-                Sort = ConvertToBsonDocument(options.Sort)
+                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
 
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public override Task<TResult> FindOneAndReplaceAsync<TResult>(Filter<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options, CancellationToken cancellationToken)
+        public override Task<TResult> FindOneAndReplaceAsync<TResult>(Filter<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TResult> options, CancellationToken cancellationToken)
         {
             var replacementObject = (object)replacement; // only box once if it's a struct
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(replacementObject, "replacement");
 
-            options = options ?? new FindOneAndReplaceOptions<TResult>();
+            options = options ?? new FindOneAndReplaceOptions<TDocument, TResult>();
             var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
 
             var operation = new FindOneAndReplaceOperation<TResult>(
@@ -261,18 +261,18 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 Projection = ConvertToBsonDocument(options.Projection),
                 ReturnDocument = options.ReturnDocument.ToCore(),
-                Sort = ConvertToBsonDocument(options.Sort)
+                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
 
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public override Task<TResult> FindOneAndUpdateAsync<TResult>(Filter<TDocument> filter, object update, FindOneAndUpdateOptions<TResult> options, CancellationToken cancellationToken)
+        public override Task<TResult> FindOneAndUpdateAsync<TResult>(Filter<TDocument> filter, object update, FindOneAndUpdateOptions<TDocument, TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");
 
-            options = options ?? new FindOneAndUpdateOptions<TResult>();
+            options = options ?? new FindOneAndUpdateOptions<TDocument, TResult>();
             var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
 
             var operation = new FindOneAndUpdateOperation<TResult>(
@@ -286,7 +286,7 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 Projection = ConvertToBsonDocument(options.Projection),
                 ReturnDocument = options.ReturnDocument.ToCore(),
-                Sort = ConvertToBsonDocument(options.Sort)
+                Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
 
             return ExecuteWriteOperation(operation, cancellationToken);
@@ -316,7 +316,7 @@ namespace MongoDB.Driver
                     Limit = options.Limit,
                     MaxTime = options.MaxTime,
                     Scope = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Scope),
-                    Sort = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Sort),
+                    Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),
                     Verbose = options.Verbose
                 };
 
@@ -346,7 +346,7 @@ namespace MongoDB.Driver
                     Scope = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Scope),
                     OutputMode = collectionOutputOptions.OutputMode,
                     ShardedOutput = collectionOutputOptions.Sharded,
-                    Sort = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Sort),
+                    Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),
                     Verbose = options.Verbose
                 };
 

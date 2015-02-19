@@ -25,14 +25,15 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for a findAndModify command to delete an object.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindOneAndDeleteOptions<TResult>
+    public class FindOneAndDeleteOptions<TDocument, TResult>
     {
         // fields
         private TimeSpan? _maxTime;
         private object _projection;
         private IBsonSerializer<TResult> _resultSerializer;
-        private object _sort;
+        private Sort<TDocument> _sort;
 
         // properties
         /// <summary>
@@ -65,7 +66,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort.
         /// </summary>
-        public object Sort
+        public Sort<TDocument> Sort
         {
             get { return _sort; }
             set { _sort = value; }

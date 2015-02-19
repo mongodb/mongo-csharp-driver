@@ -137,10 +137,10 @@ namespace MongoDB.Driver.Tests
                 .Skip(40);
 
             Filter<Person> actualFilter = null;
-            FindOptions<BsonDocument> actualOptions = null;
+            FindOptions<Person, BsonDocument> actualOptions = null;
             subject.FindAsync(
                 Arg.Do<Filter<Person>>(x => actualFilter = x),
-                Arg.Do<FindOptions<BsonDocument>>(x => actualOptions = x),
+                Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
                 Arg.Any<CancellationToken>());
 
             fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
@@ -185,10 +185,10 @@ namespace MongoDB.Driver.Tests
                 .Skip(40);
 
             Filter<Person> actualFilter = null;
-            FindOptions<BsonDocument> actualOptions = null;
+            FindOptions<Person, BsonDocument> actualOptions = null;
             subject.FindAsync(
                 Arg.Do<Filter<Person>>(x => actualFilter = x),
-                Arg.Do<FindOptions<BsonDocument>>(x => actualOptions = x),
+                Arg.Do<FindOptions<Person, BsonDocument>>(x => actualOptions = x),
                 Arg.Any<CancellationToken>());
 
             fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Tests
         public void FindOneAndDeleteAsync_with_an_expression_and_result_options_should_call_collection_with_the_correct_filter()
         {
             var subject = CreateSubject();
-            var options = new FindOneAndDeleteOptions<BsonDocument>();
+            var options = new FindOneAndDeleteOptions<Person, BsonDocument>();
             subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack", options);
 
             subject.Received().FindOneAndDeleteAsync<BsonDocument>(Arg.Any<Filter<Person>>(), options, default(CancellationToken));
@@ -243,7 +243,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var replacement = new Person();
-            var options = new FindOneAndReplaceOptions<BsonDocument>();
+            var options = new FindOneAndReplaceOptions<Person, BsonDocument>();
             subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement, options);
 
             subject.Received().FindOneAndReplaceAsync<BsonDocument>(Arg.Any<Filter<Person>>(), replacement, options, default(CancellationToken));
@@ -264,7 +264,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var update = new BsonDocument();
-            var options = new FindOneAndUpdateOptions<BsonDocument>();
+            var options = new FindOneAndUpdateOptions<Person, BsonDocument>();
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
 
             subject.Received().FindOneAndUpdateAsync<BsonDocument>(Arg.Any<Filter<Person>>(), update, options, default(CancellationToken));

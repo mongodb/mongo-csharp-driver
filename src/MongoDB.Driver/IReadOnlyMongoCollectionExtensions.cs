@@ -174,17 +174,17 @@ namespace MongoDB.Driver
         /// </returns>
         public static IFindFluent<TDocument, TDocument> Find<TDocument>(this IReadableMongoCollection<TDocument> collection, Filter<TDocument> filter, FindOptions options = null)
         {
-            FindOptions<TDocument> genericOptions;
+            FindOptions<TDocument, TDocument> genericOptions;
             if (options == null)
             {
-                genericOptions = new FindOptions<TDocument>
+                genericOptions = new FindOptions<TDocument, TDocument>
                 {
                     ResultSerializer = collection.DocumentSerializer
                 };
             }
             else
             {
-                genericOptions = new FindOptions<TDocument>
+                genericOptions = new FindOptions<TDocument, TDocument>
                 {
                     AllowPartialResults = options.AllowPartialResults,
                     BatchSize = options.BatchSize,

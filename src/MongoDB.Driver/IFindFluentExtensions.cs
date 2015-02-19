@@ -74,20 +74,34 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
+        /// <param name="sortBy">The sort by.</param>
+        /// <returns>The fluent find interface.</returns>
+        public static IOrderedFindFluent<TDocument, TResult> Sort<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, IMongoSortBy sortBy)
+        {
+            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(sortBy, "sortBy");
+
+            // We require an implementation of IFindFluent<TDocument, TResult> 
+            // to also implement IOrderedFindFluent<TDocument, TResult>
+            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(new ObjectSort<TDocument>(sortBy));
+        }
+
+        /// <summary>
+        /// Sorts the by.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="source">The source.</param>
         /// <param name="field">The field.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IOrderedFindFluent<TDocument, TResult> SortBy<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TResult, object>> field)
+        public static IOrderedFindFluent<TDocument, TResult> SortBy<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TDocument, object>> field)
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Options.ResultSerializer);
-            var sortDocument = new SortByBuilder<TResult>(helper).Ascending(field).ToBsonDocument();
-
             // We require an implementation of IFindFluent<TDocument, TResult> 
             // to also implement IOrderedFindFluent<TDocument, TResult>
-            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(sortDocument);
+            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Ascending));
         }
 
         /// <summary>
@@ -98,18 +112,14 @@ namespace MongoDB.Driver
         /// <param name="source">The source.</param>
         /// <param name="field">The field.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IOrderedFindFluent<TDocument, TResult> SortByDescending<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TResult, object>> field)
+        public static IOrderedFindFluent<TDocument, TResult> SortByDescending<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TDocument, object>> field)
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Options.ResultSerializer);
-            var sortDocument = new SortByBuilder<TResult>(helper).Descending(field).ToBsonDocument();
-
             // We require an implementation of IFindFluent<TDocument, TResult> 
             // to also implement IOrderedFindFluent<TDocument, TResult>
-            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(sortDocument);
+            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Descending));
         }
 
         /// <summary>
@@ -120,20 +130,14 @@ namespace MongoDB.Driver
         /// <param name="source">The source.</param>
         /// <param name="field">The field.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IOrderedFindFluent<TDocument, TResult> ThenBy<TDocument, TResult>(this IOrderedFindFluent<TDocument, TResult> source, Expression<Func<TResult, object>> field)
+        public static IOrderedFindFluent<TDocument, TResult> ThenBy<TDocument, TResult>(this IOrderedFindFluent<TDocument, TResult> source, Expression<Func<TDocument, object>> field)
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Options.ResultSerializer);
-            var sortDocument = new SortByBuilder<TResult>(helper).Ascending(field).ToBsonDocument();
-
-            // this looks sketchy, but if we get here and this isn't true, then
-            // someone is being a bad citizen.
-            var currentSort = (BsonDocument)source.Options.Sort;
-
-            currentSort.AddRange(sortDocument);
+            source.Options.Sort = new PairSort<TDocument>(
+                source.Options.Sort,
+                new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Ascending));
 
             return source;
         }
@@ -146,20 +150,14 @@ namespace MongoDB.Driver
         /// <param name="source">The source.</param>
         /// <param name="field">The field.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IOrderedFindFluent<TDocument, TResult> ThenByDescending<TDocument, TResult>(this IOrderedFindFluent<TDocument, TResult> source, Expression<Func<TResult, object>> field)
+        public static IOrderedFindFluent<TDocument, TResult> ThenByDescending<TDocument, TResult>(this IOrderedFindFluent<TDocument, TResult> source, Expression<Func<TDocument, object>> field)
         {
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], source.Options.ResultSerializer);
-            var sortDocument = new SortByBuilder<TResult>(helper).Descending(field).ToBsonDocument();
-
-            // this looks sketchy, but if we get here and this isn't true, then
-            // someone is being a bad citizen.
-            var currentSort = (BsonDocument)source.Options.Sort;
-
-            currentSort.AddRange(sortDocument);
+            source.Options.Sort = new PairSort<TDocument>(
+                source.Options.Sort,
+                new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Descending));
 
             return source;
         }
@@ -261,6 +259,24 @@ namespace MongoDB.Driver
                 {
                     return default(TResult);
                 }
+            }
+        }
+
+        private sealed class PairSort<TDocument> : Sort<TDocument>
+        {
+            private readonly Sort<TDocument> _first;
+            private readonly Sort<TDocument> _second;
+
+            public PairSort(Sort<TDocument> first, Sort<TDocument> second)
+            {
+                _first = Ensure.IsNotNull(first, "first");
+                _second = Ensure.IsNotNull(second, "second");
+            }
+
+            public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            {
+                return _first.Render(documentSerializer, serializerRegistry)
+                    .Merge(_second.Render(documentSerializer, serializerRegistry), false);
             }
         }
     }
