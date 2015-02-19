@@ -83,6 +83,7 @@
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="ConnectionMode.cs" />
     <Compile Include="Filter.cs" />
+    <Compile Include="AggregateFluentBase.cs" />
     <Compile Include="IAggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="BsonDocumentHelper.cs" />

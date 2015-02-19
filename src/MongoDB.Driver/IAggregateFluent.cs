@@ -24,6 +24,10 @@ namespace MongoDB.Driver
     /// <summary>
     /// Fluent interface for aggregate.
     /// </summary>
+    /// <remarks>
+    /// This interface is not guaranteed to remain stable. Implementors should use
+    /// <see cref="AggregateFluentBase{TDocument}" />.
+    /// </remarks>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public interface IAggregateFluent<TDocument> : IAsyncCursorSource<TDocument>
     {

@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    internal class AggregateFluent<TCollectionDocument, TDocument> : IOrderedAggregateFluent<TDocument>
+    internal class AggregateFluent<TCollectionDocument, TDocument> : AggregateFluentBase<TDocument>
     {
         // fields
         private readonly IReadOnlyMongoCollection<TCollectionDocument> _collection;
@@ -40,18 +40,18 @@ namespace MongoDB.Driver
         }
 
         // properties
-        public AggregateOptions<TDocument> Options
+        public override AggregateOptions<TDocument> Options
         {
             get { return _options; }
         }
 
-        public IList<BsonDocument> Pipeline
+        public override IList<BsonDocument> Pipeline
         {
             get { return _pipeline; }
         }
 
         // methods
-        public IAggregateFluent<TNewResult> Group<TNewResult>(Projection<TDocument, TNewResult> group)
+        public override IAggregateFluent<TNewResult> Group<TNewResult>(Projection<TDocument, TNewResult> group)
         {
             var rendered = Ensure.IsNotNull(group, "group")
                 .Render(_options.ResultSerializer, _collection.Settings.SerializerRegistry);
@@ -59,12 +59,12 @@ namespace MongoDB.Driver
             return AppendStage<TNewResult>(new BsonDocument("$group", rendered.Document), rendered.Serializer);
         }
 
-        public IAggregateFluent<TDocument> Limit(int limit)
+        public override IAggregateFluent<TDocument> Limit(int limit)
         {
             return AppendStage(new BsonDocument("$limit", limit));
         }
 
-        public IAggregateFluent<TDocument> Match(Filter<TDocument> filter)
+        public override IAggregateFluent<TDocument> Match(Filter<TDocument> filter)
         {
             var document = Ensure.IsNotNull(filter, "filter")
                 .Render(_options.ResultSerializer, _collection.Settings.SerializerRegistry);
@@ -72,13 +72,13 @@ namespace MongoDB.Driver
             return AppendStage(new BsonDocument("$match", document));
         }
 
-        public Task<IAsyncCursor<TDocument>> OutAsync(string collectionName, CancellationToken cancellationToken)
+        public override Task<IAsyncCursor<TDocument>> OutAsync(string collectionName, CancellationToken cancellationToken)
         {
             AppendStage(new BsonDocument("$out", collectionName));
             return ToCursorAsync(cancellationToken);
         }
 
-        public IAggregateFluent<TNewResult> Project<TNewResult>(Projection<TDocument, TNewResult> project)
+        public override IAggregateFluent<TNewResult> Project<TNewResult>(Projection<TDocument, TNewResult> project)
         {
             var rendered = Ensure.IsNotNull(project, "project")
                 .Render(_options.ResultSerializer, _collection.Settings.SerializerRegistry);
@@ -86,12 +86,12 @@ namespace MongoDB.Driver
             return AppendStage<TNewResult>(new BsonDocument("$project", rendered.Document), rendered.Serializer);
         }
 
-        public IAggregateFluent<TDocument> Skip(int skip)
+        public override IAggregateFluent<TDocument> Skip(int skip)
         {
             return AppendStage(new BsonDocument("$skip", skip));
         }
 
-        public IAggregateFluent<TDocument> Sort(Sort<TDocument> sort)
+        public override IAggregateFluent<TDocument> Sort(Sort<TDocument> sort)
         {
             var document = Ensure.IsNotNull(sort, "sort")
                 .Render(_options.ResultSerializer, _collection.Settings.SerializerRegistry);
@@ -99,7 +99,7 @@ namespace MongoDB.Driver
             return AppendStage(new BsonDocument("$sort", document));
         }
 
-        public IAggregateFluent<TResult> Unwind<TResult>(FieldName<TDocument> fieldName, IBsonSerializer<TResult> resultSerializer)
+        public override IAggregateFluent<TResult> Unwind<TResult>(FieldName<TDocument> fieldName, IBsonSerializer<TResult> resultSerializer)
         {
             var renderedFieldName = Ensure.IsNotNull(fieldName, "fieldName")
                 .Render(_options.ResultSerializer, _collection.Settings.SerializerRegistry);
@@ -107,7 +107,7 @@ namespace MongoDB.Driver
             return AppendStage<TResult>(new BsonDocument("$unwind", "$" + renderedFieldName), resultSerializer);
         }
 
-        public Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken)
+        public override Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken)
         {
             return _collection.AggregateAsync(_pipeline, _options, cancellationToken);
         }
