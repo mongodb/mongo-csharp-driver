@@ -38,13 +38,6 @@ namespace MongoDB.Driver
         IList<BsonDocument> Pipeline { get; }
 
         /// <summary>
-        /// Appends a geoNear stage to the pipeline.
-        /// </summary>
-        /// <param name="geoNear">The geo near options.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument> GeoNear(object geoNear);
-
-        /// <summary>
         /// Appends a group stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
@@ -83,13 +76,6 @@ namespace MongoDB.Driver
         /// The fluent aggregate interface.
         /// </returns>
         IAggregateFluent<TResult> Project<TResult>(Projection<TDocument, TResult> project);
-
-        /// <summary>
-        /// Appends a redact stage to the pipeline.
-        /// </summary>
-        /// <param name="redact">The redact expression.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument> Redact(object redact);
 
         /// <summary>
         /// Appends a skip stage to the pipeline.

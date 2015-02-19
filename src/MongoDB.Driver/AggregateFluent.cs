@@ -51,11 +51,6 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public IAggregateFluent<TDocument> GeoNear(object geoNear)
-        {
-            return AppendStage(new BsonDocument("$geoNear", ConvertToBsonDocument(geoNear)));
-        }
-
         public IAggregateFluent<TNewResult> Group<TNewResult>(Projection<TDocument, TNewResult> group)
         {
             var rendered = Ensure.IsNotNull(group, "group")
@@ -89,11 +84,6 @@ namespace MongoDB.Driver
                 .Render(_options.ResultSerializer, _collection.Settings.SerializerRegistry);
 
             return AppendStage<TNewResult>(new BsonDocument("$project", rendered.Document), rendered.Serializer);
-        }
-
-        public IAggregateFluent<TDocument> Redact(object redact)
-        {
-            return AppendStage(new BsonDocument("$redact", ConvertToBsonDocument(redact)));
         }
 
         public IAggregateFluent<TDocument> Skip(int skip)
