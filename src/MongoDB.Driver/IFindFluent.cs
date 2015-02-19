@@ -24,6 +24,10 @@ namespace MongoDB.Driver
     /// <summary>
     /// Fluent interface for find.
     /// </summary>
+    /// <remarks>
+    /// This interface is not guaranteed to remain stable. Implementors should use
+    /// <see cref="FindFluentBase{TDocument, TResult}" />.
+    /// </remarks>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public interface IFindFluent<TDocument, TResult> : IAsyncCursorSource<TResult>
