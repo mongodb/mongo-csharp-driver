@@ -15,8 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -103,12 +101,10 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject();
             subject.DistinctAsync(x => x.LastName, x => x.FirstName == "Jack");
 
-            var expectedFieldName = "LastName";
-
             subject.Received().DistinctAsync(
-                expectedFieldName,
-                Arg.Any<Filter<Person>>(),
-                Arg.Is<DistinctOptions<string>>(opt => opt.ResultSerializer != null),
+                Arg.Any<ExpressionFieldName<Person, string>>(),
+                Arg.Any<ExpressionFilter<Person>>(),
+                null,
                 default(CancellationToken));
         }
 
@@ -255,9 +251,9 @@ namespace MongoDB.Driver.Tests
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update);
 
             subject.Received().FindOneAndUpdateAsync<Person>(
-                Arg.Any<ExpressionFilter<Person>>(), 
-                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update), 
-                null, 
+                Arg.Any<ExpressionFilter<Person>>(),
+                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update),
+                null,
                 default(CancellationToken));
         }
 
@@ -271,8 +267,8 @@ namespace MongoDB.Driver.Tests
 
             subject.Received().FindOneAndUpdateAsync<BsonDocument>(
                 Arg.Any<ExpressionFilter<Person>>(),
-                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update), 
-                options, 
+                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update),
+                options,
                 default(CancellationToken));
         }
 
@@ -296,8 +292,8 @@ namespace MongoDB.Driver.Tests
 
             subject.Received().UpdateManyAsync(
                 Arg.Any<ExpressionFilter<Person>>(),
-                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update), 
-                null, 
+                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update),
+                null,
                 default(CancellationToken));
         }
 
@@ -310,8 +306,8 @@ namespace MongoDB.Driver.Tests
 
             subject.Received().UpdateOneAsync(
                 Arg.Any<ExpressionFilter<Person>>(),
-                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update), 
-                null, 
+                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update),
+                null,
                 default(CancellationToken));
         }
 

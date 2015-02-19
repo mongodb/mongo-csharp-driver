@@ -21,9 +21,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FluentAssertions.Reflection;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -313,7 +311,7 @@ namespace MongoDB.Driver
 
         [Test]
         public async Task CreateIndexAsync_should_execute_the_CreateIndexesOperation()
-         {
+        {
             var keys = new BsonDocument("x", 1);
             var weights = new BsonDocument("y", 1);
             var storageEngine = new BsonDocument("awesome", true);
@@ -466,13 +464,13 @@ namespace MongoDB.Driver
         {
             var fieldName = "a.b";
             var filter = new BsonDocument("x", 1);
-            var options = new DistinctOptions<int>
+            var options = new DistinctOptions
             {
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.DistinctAsync("a.b", filter, options, CancellationToken.None);
+            await subject.DistinctAsync<int>("a.b", filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<int>>();
 
@@ -1068,11 +1066,11 @@ namespace MongoDB.Driver
 
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.IsOrdered.Should().Be(isOrdered);
-            
+
             var actualRequests = operation.Requests.ToList();
             actualRequests.Count.Should().Be(expectedRequests.Length);
 
-            for(int i = 0; i < expectedRequests.Length; i++)
+            for (int i = 0; i < expectedRequests.Length; i++)
             {
                 expectedRequests[i].ShouldBeEquivalentTo(actualRequests[i]);
             }

@@ -25,12 +25,10 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for the distinct command.
     /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class DistinctOptions<TResult>
+    public sealed class DistinctOptions
     {
         // fields
         private TimeSpan? _maxTime;
-        private IBsonSerializer<TResult> _resultSerializer;
 
         // properties
         /// <summary>
@@ -40,15 +38,6 @@ namespace MongoDB.Driver
         {
             get { return _maxTime; }
             set { _maxTime = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the result serializer.
-        /// </summary>
-        public IBsonSerializer<TResult> ResultSerializer
-        {
-            get { return _resultSerializer; }
-            set { _resultSerializer = value; }
         }
     }
 }

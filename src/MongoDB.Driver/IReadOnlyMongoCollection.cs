@@ -66,13 +66,13 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the distinct values for a specified field.
         /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TField">The type of the result.</typeparam>
         /// <param name="fieldName">The name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, Filter<TDocument> filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldName<TDocument, TField> fieldName, Filter<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds the documents matching the filter.

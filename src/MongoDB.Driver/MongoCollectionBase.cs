@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         public abstract Task<long> CountAsync(Filter<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public abstract Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, Filter<TDocument> filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldName<TDocument, TField> fieldName, Filter<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
         public virtual async Task<DeleteResult> DeleteManyAsync(Filter<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))

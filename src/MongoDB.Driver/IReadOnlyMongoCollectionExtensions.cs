@@ -108,28 +108,24 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the result.</typeparam>
         /// <param name="collection">The collection.</param>
-        /// <param name="field">The field.</param>
+        /// <param name="fieldName">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> field, IMongoQuery filter, DistinctOptions<TField> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, Filter<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(fieldName, "fieldName");
             Ensure.IsNotNull(filter, "filter");
 
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], collection.Settings.SerializerRegistry.GetSerializer<TDocument>());
-
-            var serializationInfo = helper.GetSerializationInfo(field.Body);
-            options = options ?? new DistinctOptions<TField>();
-            if (options.ResultSerializer == null)
-            {
-                options.ResultSerializer = (IBsonSerializer<TField>)serializationInfo.Serializer;
-            }
-            return collection.DistinctAsync<TField>(serializationInfo.ElementName, new ObjectFilter<TDocument>(filter), options, cancellationToken);
+            return collection.DistinctAsync<TField>(
+                new ExpressionFieldName<TDocument, TField>(fieldName),
+                filter,
+                options,
+                cancellationToken);
         }
 
         /// <summary>
@@ -138,28 +134,102 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the result.</typeparam>
         /// <param name="collection">The collection.</param>
-        /// <param name="field">The field.</param>
+        /// <param name="fieldName">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions<TField> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, FieldName<TDocument, TField> fieldName, IMongoQuery filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(fieldName, "fieldName");
             Ensure.IsNotNull(filter, "filter");
 
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(field.Parameters[0], collection.Settings.SerializerRegistry.GetSerializer<TDocument>());
+            return collection.DistinctAsync<TField>(
+                fieldName,
+                new ObjectFilter<TDocument>(filter),
+                options,
+                cancellationToken);
+        }
 
-            var serializationInfo = helper.GetSerializationInfo(field.Body);
-            options = options ?? new DistinctOptions<TField>();
-            if (options.ResultSerializer == null)
-            {
-                options.ResultSerializer = (IBsonSerializer<TField>)serializationInfo.Serializer;
-            }
-            return collection.DistinctAsync<TField>(serializationInfo.ElementName, new ExpressionFilter<TDocument>(filter), options, cancellationToken);
+        /// <summary>
+        /// Gets the distinct values for a specified field.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="fieldName">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The distinct values for the specified field.
+        /// </returns>
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, IMongoQuery filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(fieldName, "fieldName");
+            Ensure.IsNotNull(filter, "filter");
+
+            return collection.DistinctAsync<TField>(
+                new ExpressionFieldName<TDocument, TField>(fieldName),
+                new ObjectFilter<TDocument>(filter),
+                options,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets the distinct values for a specified field.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="fieldName">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The distinct values for the specified field.
+        /// </returns>
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, FieldName<TDocument, TField> fieldName, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(fieldName, "fieldName");
+            Ensure.IsNotNull(filter, "filter");
+
+            return collection.DistinctAsync<TField>(
+                fieldName,
+                new ExpressionFilter<TDocument>(filter),
+                options,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets the distinct values for a specified field.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="fieldName">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The distinct values for the specified field.
+        /// </returns>
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(fieldName, "fieldName");
+            Ensure.IsNotNull(filter, "filter");
+
+            return collection.DistinctAsync<TField>(
+                new ExpressionFieldName<TDocument, TField>(fieldName),
+                new ExpressionFilter<TDocument>(filter),
+                options,
+                cancellationToken);
         }
 
         /// <summary>

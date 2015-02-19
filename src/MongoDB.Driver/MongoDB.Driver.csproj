@@ -140,6 +140,7 @@
     <Compile Include="CursorType.cs" />
     <Compile Include="ReturnDocument.cs" />
     <Compile Include="Projection.cs" />
+    <Compile Include="FieldName.cs" />
     <Compile Include="Sort.cs" />
     <Compile Include="Update2.cs" />
     <Compile Include="UpdateOptions.cs" />
