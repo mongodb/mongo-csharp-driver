@@ -122,6 +122,7 @@
     <Compile Include="MongoCollectionBase.cs" />
     <Compile Include="MongoDatabaseBase.cs" />
     <Compile Include="MongoIndexManagerBase.cs" />
+    <Compile Include="ReadOnlyMongoCollectionBase.cs" />
     <Compile Include="RenameCollectionOptions.cs" />
     <Compile Include="CreateCollectionOptions.cs" />
     <Compile Include="DistinctOptions.cs" />

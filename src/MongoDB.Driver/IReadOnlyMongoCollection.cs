@@ -22,8 +22,12 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// The read methods on a mongo collection.
+    /// Represents a typed readonly collection in MongoDB.
     /// </summary>
+    /// <remarks>
+    /// This interface is not guaranteed to remain stable. Implementors should use
+    /// <see cref="ReadOnlyMongoCollectionBase{TDocument}"/>.
+    /// </remarks>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public interface IReadOnlyMongoCollection<TDocument>
     {
