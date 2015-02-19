@@ -10,12 +10,12 @@ namespace MongoDB.Driver
     internal class FindFluent<TDocument, TResult> : IOrderedFindFluent<TDocument, TResult>
     {
         // fields
-        private readonly IReadableMongoCollection<TDocument> _collection;
+        private readonly IReadOnlyMongoCollection<TDocument> _collection;
         private Filter<TDocument> _filter;
         private readonly FindOptions<TDocument, TResult> _options;
 
         // constructors
-        public FindFluent(IReadableMongoCollection<TDocument> collection, Filter<TDocument> filter, FindOptions<TDocument, TResult> options)
+        public FindFluent(IReadOnlyMongoCollection<TDocument> collection, Filter<TDocument> filter, FindOptions<TDocument, TResult> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _filter = Ensure.IsNotNull(filter, "filter");

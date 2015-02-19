@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// The read methods on a mongo collection.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public interface IReadableMongoCollection<TDocument>
+    public interface IReadOnlyMongoCollection<TDocument>
     {
         /// <summary>
         /// Gets the namespace of the collection.

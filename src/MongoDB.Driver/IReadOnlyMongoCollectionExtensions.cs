@@ -27,7 +27,7 @@ using MongoDB.Driver.Linq.Utils;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Extension methods for <see cref="IReadableMongoCollection{T}"/>.
+    /// Extension methods for <see cref="IReadOnlyMongoCollection{T}"/>.
     /// </summary>
     public static class IReadOnlyMongoCollectionExtensions
     {
@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<TDocument> Aggregate<TDocument>(this IReadableMongoCollection<TDocument> collection, AggregateOptions options = null)
+        public static IAggregateFluent<TDocument> Aggregate<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, AggregateOptions options = null)
         {
             AggregateOptions<TDocument> newOptions;
             if (options == null)
@@ -75,7 +75,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The number of documents in the collection.
         /// </returns>
-        public static Task<long> CountAsync<TDocument>(this IReadableMongoCollection<TDocument> collection, IMongoQuery filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<long> CountAsync<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, IMongoQuery filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
@@ -94,7 +94,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The number of documents in the collection.
         /// </returns>
-        public static Task<long> CountAsync<TDocument>(this IReadableMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<long> CountAsync<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
@@ -115,7 +115,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, Filter<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, Filter<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(fieldName, "fieldName");
@@ -141,7 +141,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, FieldName<TDocument, TField> fieldName, IMongoQuery filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, FieldName<TDocument, TField> fieldName, IMongoQuery filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(fieldName, "fieldName");
@@ -167,7 +167,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, IMongoQuery filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, IMongoQuery filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(fieldName, "fieldName");
@@ -193,7 +193,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, FieldName<TDocument, TField> fieldName, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, FieldName<TDocument, TField> fieldName, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(fieldName, "fieldName");
@@ -219,7 +219,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadableMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(fieldName, "fieldName");
@@ -242,7 +242,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A fluent find interface.
         /// </returns>
-        public static IFindFluent<TDocument, TDocument> Find<TDocument>(this IReadableMongoCollection<TDocument> collection, Filter<TDocument> filter, FindOptions options = null)
+        public static IFindFluent<TDocument, TDocument> Find<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, Filter<TDocument> filter, FindOptions options = null)
         {
             FindOptions<TDocument, TDocument> genericOptions;
             if (options == null)

@@ -27,7 +27,7 @@ namespace MongoDB.Driver
     /// <see cref="MongoCollectionBase{TDocument}"/>.
     /// </remarks>
     /// <typeparam name="TDocument">The type of the documents stored in the collection.</typeparam>
-    public interface IMongoCollection<TDocument> : IReadableMongoCollection<TDocument>
+    public interface IMongoCollection<TDocument> : IReadOnlyMongoCollection<TDocument>
     {
         /// <summary>
         /// Gets the index manager.

@@ -27,12 +27,12 @@ namespace MongoDB.Driver
     internal class AggregateFluent<TCollectionDocument, TDocument> : IOrderedAggregateFluent<TDocument>
     {
         // fields
-        private readonly IReadableMongoCollection<TCollectionDocument> _collection;
+        private readonly IReadOnlyMongoCollection<TCollectionDocument> _collection;
         private readonly AggregateOptions<TDocument> _options;
         private readonly IList<object> _pipeline;
 
         // constructors
-        public AggregateFluent(IReadableMongoCollection<TCollectionDocument> collection, IEnumerable<object> pipeline, AggregateOptions<TDocument> options)
+        public AggregateFluent(IReadOnlyMongoCollection<TCollectionDocument> collection, IEnumerable<object> pipeline, AggregateOptions<TDocument> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
