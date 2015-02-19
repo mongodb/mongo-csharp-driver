@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,26 +43,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<TDocument> Aggregate<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, AggregateOptions options = null)
         {
-            AggregateOptions<TDocument> newOptions;
-            if (options == null)
-            {
-                newOptions = new AggregateOptions<TDocument>
-                {
-                    ResultSerializer = collection.DocumentSerializer
-                };
-            }
-            else
-            {
-                newOptions = new AggregateOptions<TDocument>
-                {
-                    AllowDiskUse = options.AllowDiskUse,
-                    BatchSize = options.BatchSize,
-                    MaxTime = options.MaxTime,
-                    ResultSerializer = collection.DocumentSerializer,
-                    UseCursor = options.UseCursor
-                };
-            }
-            return new AggregateFluent<TDocument, TDocument>(collection, new List<BsonDocument>(), newOptions);
+            return new AggregateFluent<TDocument, TDocument>(collection, Enumerable.Empty<AggregateStage>(), options ?? new AggregateOptions());
         }
 
         /// <summary>

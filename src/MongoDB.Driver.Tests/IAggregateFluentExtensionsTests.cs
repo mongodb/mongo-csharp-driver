@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedGroup = BsonDocument.Parse("{$group: {_id: '$Tags'}}");
 
-            Assert.AreEqual(expectedGroup, subject.Pipeline.Last());
+            AssertLast(subject, expectedGroup);
         }
 
         [Test]
@@ -44,9 +44,9 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject()
                 .Group(x => x.Age, g =>  new { Name = g.Select(x => x.FirstName + " " + x.LastName).First() });
 
-            var expectedProject = BsonDocument.Parse("{$group: {_id: '$Age', Name: {'$first': { '$concat': ['$FirstName', ' ', '$LastName']}}}}");
+            var expectedGroup = BsonDocument.Parse("{$group: {_id: '$Age', Name: {'$first': { '$concat': ['$FirstName', ' ', '$LastName']}}}}");
 
-            Assert.AreEqual(expectedProject, subject.Pipeline.Last());
+            AssertLast(subject, expectedGroup);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedMatch = BsonDocument.Parse("{$match: {Age: {$gt: 20}}}");
 
-            Assert.AreEqual(expectedMatch, subject.Pipeline.Last());
+            AssertLast(subject, expectedMatch);
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedProject = BsonDocument.Parse("{$project: {Awesome: '$Tags'}}");
 
-            Assert.AreEqual(expectedProject, subject.Pipeline.Last());
+            AssertLast(subject, expectedProject);
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedProject = BsonDocument.Parse("{$project: {Name: {'$concat': ['$FirstName', ' ', '$LastName']}, _id: 0}}");
 
-            Assert.AreEqual(expectedProject, subject.Pipeline.Last());
+            AssertLast(subject, expectedProject);
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{$sort: {FirstName: 1}}");
 
-            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
+            AssertLast(subject, expectedSort);
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{$sort: {FirstName: 1, LastName: 1}}");
 
-            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
+            AssertLast(subject, expectedSort);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{$sort: {FirstName: 1, LastName: -1}}");
 
-            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
+            AssertLast(subject, expectedSort);
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{$sort: {FirstName: 1, LastName: 1, Age: 1}}");
 
-            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
+            AssertLast(subject, expectedSort);
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{$sort: {FirstName: -1}}");
 
-            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
+            AssertLast(subject, expectedSort);
         }
 
         [Test]
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{$sort: {FirstName: -1, LastName: 1}}");
 
-            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
+            AssertLast(subject, expectedSort);
         }
 
         [Test]
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{$sort: {FirstName: -1, LastName: -1}}");
 
-            Assert.AreEqual(expectedSort, subject.Pipeline.Last());
+            AssertLast(subject, expectedSort);
         }
 
         [Test]
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedUnwind = BsonDocument.Parse("{$unwind: '$Age'}");
 
-            Assert.AreEqual(expectedUnwind, subject.Pipeline.Last());
+            AssertLast(subject, expectedUnwind);
         }
 
         [Test]
@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedUnwind = BsonDocument.Parse("{$unwind: '$Age'}");
 
-            Assert.AreEqual(expectedUnwind, subject.Pipeline.Last());
+            AssertLast(subject, expectedUnwind);
         }
 
         [Test]
@@ -194,8 +194,16 @@ namespace MongoDB.Driver.Tests
 
             var expectedUnwind = BsonDocument.Parse("{$unwind: '$Age'}");
 
-            Assert.AreEqual(expectedUnwind, subject.Pipeline.Last());
-            Assert.AreSame(BsonDocumentSerializer.Instance, subject.Options.ResultSerializer);
+            AssertLast(subject, expectedUnwind);
+        }
+
+        private void AssertLast<TDocument>(IAggregateFluent<TDocument> fluent, BsonDocument expectedLast)
+        {
+            var pipeline = new AggregateStagePipeline<TDocument>(fluent.Pipeline);
+            var renderedPipeline = pipeline.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
+
+            var last = renderedPipeline.Documents.Last();
+            Assert.AreEqual(expectedLast, last);
         }
 
         private IAggregateFluent<Person> CreateSubject()
@@ -204,11 +212,7 @@ namespace MongoDB.Driver.Tests
             var collection = Substitute.For<IMongoCollection<Person>>();
             collection.DocumentSerializer.Returns(settings.SerializerRegistry.GetSerializer<Person>());
             collection.Settings.Returns(settings);
-            var options = new AggregateOptions<Person>
-            {
-                ResultSerializer = collection.DocumentSerializer
-            };
-            var subject = new AggregateFluent<Person, Person>(collection, Enumerable.Empty<BsonDocument>(), options);
+            var subject = new AggregateFluent<Person, Person>(collection, Enumerable.Empty<AggregateStage>(), new AggregateOptions());
 
             return subject;
         }

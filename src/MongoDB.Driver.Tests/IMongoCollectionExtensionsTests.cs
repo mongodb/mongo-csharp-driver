@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
 
-            var expectedPipeline = new object[] 
+            Pipeline<BsonDocument> expectedPipeline = new AggregateStage[]
             { 
                 BsonDocument.Parse("{ $match: { x: 2 } }"),
                 BsonDocument.Parse("{ $project : { Age : \"$Age\", Name : { $concat : [\"$firstName\", \" \", \"$lastName\"] }, _id : 0 } }"),
@@ -51,20 +51,18 @@ namespace MongoDB.Driver.Tests
                 .Group("{ _id : \"$Age\", Name : { \"$first\" : \"$Name\" } }")
                 .Project("{ _id: 1 }");
 
-            IEnumerable<BsonDocument> actualPipeline = null;
-            AggregateOptions<BsonDocument> actualOptions = null;
+            Pipeline<BsonDocument> actualPipeline = null;
+            AggregateOptions actualOptions = null;
             subject.AggregateAsync(
-                Arg.Do<IEnumerable<BsonDocument>>(x => actualPipeline = x),
-                Arg.Do<AggregateOptions<BsonDocument>>(x => actualOptions = x),
+                Arg.Do<AggregateStagePipeline<BsonDocument>>(x => actualPipeline = x),
+                Arg.Do<AggregateOptions>(x => actualOptions = x),
                 Arg.Any<CancellationToken>());
 
             fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-            actualPipeline.Should().Equal(expectedPipeline);
             actualOptions.AllowDiskUse.Should().Be(fluent.Options.AllowDiskUse);
             actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
             actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);
-            actualOptions.ResultSerializer.Should().Be(fluent.Options.ResultSerializer);
             actualOptions.UseCursor.Should().Be(fluent.Options.UseCursor);
         }
 

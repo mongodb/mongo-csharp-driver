@@ -78,18 +78,17 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<BsonDocument> pipeline, AggregateOptions<TResult> options, CancellationToken cancellationToken)
+        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(Pipeline<TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken)
         {
-            var pipelineDocuments = Ensure.IsNotNull(pipeline, "pipeline").ToList();
+            var renderedPipeline = Ensure.IsNotNull(pipeline, "pipeline").Render(_documentSerializer, _settings.SerializerRegistry);
+            options = options ?? new AggregateOptions();
 
-            options = options ?? new AggregateOptions<TResult>();
-
-            var last = pipelineDocuments.LastOrDefault();
+            var last = renderedPipeline.Documents.LastOrDefault();
             if (last != null && last.GetElement(0).Name == "$out")
             {
                 var operation = new AggregateToCollectionOperation(
                     _collectionNamespace,
-                    pipelineDocuments,
+                    renderedPipeline.Documents,
                     _messageEncoderSettings)
                 {
                     AllowDiskUse = options.AllowDiskUse,
@@ -99,11 +98,10 @@ namespace MongoDB.Driver
                 await ExecuteWriteOperation(operation, cancellationToken).ConfigureAwait(false);
 
                 var outputCollectionName = last.GetElement(0).Value.AsString;
-                var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
 
                 var findOperation = new FindOperation<TResult>(
                     new CollectionNamespace(_collectionNamespace.DatabaseNamespace, outputCollectionName),
-                    resultSerializer,
+                    renderedPipeline.Serializer,
                     _messageEncoderSettings)
                 {
                     BatchSize = options.BatchSize,
@@ -116,8 +114,18 @@ namespace MongoDB.Driver
             }
             else
             {
-                var operation = CreateAggregateOperation<TResult>(options, pipelineDocuments);
-                return await ExecuteReadOperation(operation, cancellationToken).ConfigureAwait(false);
+                var aggregateOperation = new AggregateOperation<TResult>(
+                    _collectionNamespace,
+                    renderedPipeline.Documents,
+                    renderedPipeline.Serializer,
+                    _messageEncoderSettings)
+                {
+                    AllowDiskUse = options.AllowDiskUse,
+                    BatchSize = options.BatchSize,
+                    MaxTime = options.MaxTime,
+                    UseCursor = options.UseCursor
+                };
+                return await ExecuteReadOperation(aggregateOperation, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -490,23 +498,6 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
             }
-        }
-
-        private AggregateOperation<TResult> CreateAggregateOperation<TResult>(AggregateOptions<TResult> options, List<BsonDocument> pipeline)
-        {
-            var resultSerializer = ResolveResultSerializer(options.ResultSerializer);
-
-            return new AggregateOperation<TResult>(
-                _collectionNamespace,
-                pipeline,
-                resultSerializer,
-                _messageEncoderSettings)
-            {
-                AllowDiskUse = options.AllowDiskUse,
-                BatchSize = options.BatchSize,
-                MaxTime = options.MaxTime,
-                UseCursor = options.UseCursor
-            };
         }
 
         private IBsonSerializer<TResult> ResolveResultSerializer<TResult>(IBsonSerializer<TResult> resultSerializer)

@@ -28,10 +28,16 @@ namespace MongoDB.Driver
     public abstract class AggregateFluentBase<TDocument> : IOrderedAggregateFluent<TDocument>
     {
         /// <inheritdoc />
-        public abstract AggregateOptions<TDocument> Options { get; }
+        public abstract AggregateOptions Options { get; }
 
         /// <inheritdoc />
-        public abstract IList<BsonDocument> Pipeline { get; }
+        public abstract IList<AggregateStage> Pipeline { get; }
+
+        /// <inheritdoc />
+        public abstract IAggregateFluent<TDocument> AppendStage(AggregateStage stage);
+
+        /// <inheritdoc />
+        public abstract IAggregateFluent<TResult> AppendStage<TResult>(AggregateStage stage);
 
         /// <inheritdoc />
         public abstract IAggregateFluent<TResult> Group<TResult>(Projection<TDocument, TResult> group);

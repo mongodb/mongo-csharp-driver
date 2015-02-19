@@ -34,12 +34,26 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the options.
         /// </summary>
-        AggregateOptions<TDocument> Options { get; }
+        AggregateOptions Options { get; }
 
         /// <summary>
         /// Gets the pipeline.
         /// </summary>
-        IList<BsonDocument> Pipeline { get; }
+        IList<AggregateStage> Pipeline { get; }
+
+        /// <summary>
+        /// Appends the stage.
+        /// </summary>
+        /// <param name="stage">The stage.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TDocument> AppendStage(AggregateStage stage);
+
+        /// <summary>
+        /// Appends the stage.
+        /// </summary>
+        /// <param name="stage">The stage.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TResult> AppendStage<TResult>(AggregateStage stage);
 
         /// <summary>
         /// Appends a group stage to the pipeline.

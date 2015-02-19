@@ -37,7 +37,7 @@ namespace MongoDB.Driver
         public abstract MongoCollectionSettings Settings { get; }
 
         /// <inheritdoc />
-        public abstract Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<BsonDocument> pipeline, AggregateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(Pipeline<TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
         public abstract Task<long> CountAsync(Filter<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
