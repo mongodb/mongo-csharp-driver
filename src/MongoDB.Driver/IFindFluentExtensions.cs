@@ -95,7 +95,8 @@ namespace MongoDB.Driver
 
             // We require an implementation of IFindFluent<TDocument, TResult> 
             // to also implement IOrderedFindFluent<TDocument, TResult>
-            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Ascending));
+            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(
+                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending));
         }
 
         /// <summary>
@@ -113,7 +114,8 @@ namespace MongoDB.Driver
 
             // We require an implementation of IFindFluent<TDocument, TResult> 
             // to also implement IOrderedFindFluent<TDocument, TResult>
-            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Descending));
+            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(
+                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending));
         }
 
         /// <summary>
@@ -129,9 +131,9 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            source.Options.Sort = new PairSort<TDocument>(
+            source.Options.Sort = new CombineSort<TDocument>(new[] {
                 source.Options.Sort,
-                new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Ascending));
+                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending)});
 
             return source;
         }
@@ -149,9 +151,9 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            source.Options.Sort = new PairSort<TDocument>(
+            source.Options.Sort = new CombineSort<TDocument>(new[] {
                 source.Options.Sort,
-                new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Descending));
+                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending)});
 
             return source;
         }

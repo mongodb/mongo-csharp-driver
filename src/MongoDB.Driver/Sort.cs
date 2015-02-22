@@ -24,6 +24,21 @@ using MongoDB.Driver.Linq.Utils;
 namespace MongoDB.Driver
 {
     /// <summary>
+    /// The direction of the sort.
+    /// </summary>
+    public enum SortDirection
+    {
+        /// <summary>
+        /// Ascending.
+        /// </summary>
+        Ascending,
+        /// <summary>
+        /// Descending.
+        /// </summary>
+        Descending
+    }
+
+    /// <summary>
     /// Base class for sorts.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
@@ -95,71 +110,6 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// An <see cref="Expression"/> based sort.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class ExpressionSort<TDocument> : Sort<TDocument>
-    {
-        private readonly Direction _direction;
-        private readonly Expression<Func<TDocument, object>> _expression;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ExpressionSort{TDocument}" /> class.
-        /// </summary>
-        /// <param name="expression">The expression.</param>
-        /// <param name="direction">The direction.</param>
-        public ExpressionSort(Expression<Func<TDocument, object>> expression, Direction direction = Direction.Ascending)
-        {
-            _expression = Ensure.IsNotNull(expression, "expression");
-            _direction = direction;
-        }
-
-        /// <summary>
-        /// Gets the expression.
-        /// </summary>
-        public Expression<Func<TDocument, object>> Expression
-        {
-            get { return _expression; }
-        }
-
-        /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(_expression.Parameters[0], documentSerializer);
-            var sortByBuilder = new SortByBuilder<TDocument>(helper);
-            switch (_direction)
-            {
-                case Direction.Ascending:
-                    sortByBuilder = sortByBuilder.Ascending(_expression);
-                    break;
-                case Direction.Descending:
-                    sortByBuilder = sortByBuilder.Descending(_expression);
-                    break;
-                default:
-                    throw new MongoInternalException("Invalid Direction.");
-            }
-            var serializer = serializerRegistry.GetSerializer<IMongoSortBy>();
-            return new BsonDocumentWrapper(sortByBuilder, serializer);
-        }
-
-        /// <summary>
-        /// The direction of the sort.
-        /// </summary>
-        public enum Direction
-        {
-            /// <summary>
-            /// Ascending.
-            /// </summary>
-            Ascending,
-            /// <summary>
-            /// Descending.
-            /// </summary>
-            Descending
-        }
-    }
-
-    /// <summary>
     /// A <see cref="String" /> based sort.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
@@ -213,34 +163,6 @@ namespace MongoDB.Driver
         {
             var serializer = serializerRegistry.GetSerializer(_obj.GetType());
             return new BsonDocumentWrapper(_obj, serializer);
-        }
-    }
-
-    /// <summary>
-    /// A pair of <see cref="Sort{TDocument}"/> that are combined.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class PairSort<TDocument> : Sort<TDocument>
-    {
-        private readonly Sort<TDocument> _first;
-        private readonly Sort<TDocument> _second;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PairSort{TDocument}"/> class.
-        /// </summary>
-        /// <param name="first">The first.</param>
-        /// <param name="second">The second.</param>
-        public PairSort(Sort<TDocument> first, Sort<TDocument> second)
-        {
-            _first = Ensure.IsNotNull(first, "first");
-            _second = Ensure.IsNotNull(second, "second");
-        }
-
-        /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            return _first.Render(documentSerializer, serializerRegistry)
-                .Merge(_second.Render(documentSerializer, serializerRegistry), false);
         }
     }
 }

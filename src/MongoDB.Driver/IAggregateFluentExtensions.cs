@@ -134,7 +134,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            return (IOrderedAggregateFluent<TDocument>)source.Sort(new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Ascending));
+            return (IOrderedAggregateFluent<TDocument>)source.Sort(
+                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending));
         }
 
         /// <summary>
@@ -151,7 +152,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(source, "source");
             Ensure.IsNotNull(field, "field");
 
-            return (IOrderedAggregateFluent<TDocument>)source.Sort(new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Descending));
+            return (IOrderedAggregateFluent<TDocument>)source.Sort(
+                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending));
         }
 
         /// <summary>
@@ -178,7 +180,7 @@ namespace MongoDB.Driver
                 (s, sr) =>
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Ascending).Render(s, sr);
+                    var newSort = new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending).Render(s, sr);
                     return new RenderedPipelineStage<TDocument>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
@@ -209,7 +211,7 @@ namespace MongoDB.Driver
                 (s, sr) =>
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Descending).Render(s, sr);
+                    var newSort = new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending).Render(s, sr);
                     return new RenderedPipelineStage<TDocument>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
