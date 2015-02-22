@@ -129,6 +129,7 @@
     <Compile Include="MongoIndexManagerBase.cs" />
     <Compile Include="FindFluentBase.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="Update2Builder.cs" />
     <Compile Include="ReadOnlyMongoCollectionBase.cs" />
     <Compile Include="RenameCollectionOptions.cs" />
     <Compile Include="CreateCollectionOptions.cs" />
