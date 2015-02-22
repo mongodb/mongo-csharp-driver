@@ -61,7 +61,7 @@ namespace MongoDB.Bson.IO
         /// <param name="length">The length.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
         /// <exception cref="System.ArgumentNullException">chunks</exception>
-        internal MultiChunkBuffer(IEnumerable<IBsonChunk> chunks, int length, bool isReadOnly)
+        internal MultiChunkBuffer(IEnumerable<IBsonChunk> chunks, int length, bool isReadOnly = false)
         {
             if (chunks == null)
             {
@@ -244,45 +244,6 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void LoadFrom(Stream stream, int position, int count)
-        {
-            ThrowIfDisposed();
-            if (stream == null)
-            {
-                throw new ArgumentNullException("stream");
-            }
-            if (position < 0 || position > _length)
-            {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
-            }
-            if (count < 0)
-            {
-                throw new ArgumentException("Count is negative.", "count");
-            }
-            if (position + count > _length)
-            {
-                throw new ArgumentException("Count extends past the end of the buffer.", "count");
-            }
-            EnsureIsWritable();
-
-            while (count > 0)
-            {
-                var chunkIndex = GetChunkIndex(position);
-                var segment = _chunks[chunkIndex].Bytes;
-                var chunkOffset = position - _positions[chunkIndex];
-                var chunkRemaining = segment.Count - chunkOffset;
-                var partialCount = Math.Min(count, chunkRemaining);
-                var bytesRead = stream.Read(segment.Array, segment.Offset + chunkOffset, partialCount);
-                if (bytesRead == 0)
-                {
-                    throw new EndOfStreamException();
-                }
-                position += bytesRead;
-                count -= bytesRead;
-            }
-        }
-
-        /// <inheritdoc/>
         public void MakeReadOnly()
         {
             ThrowIfDisposed();
@@ -290,7 +251,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public byte ReadByte(int position)
+        public byte GetByte(int position)
         {
             ThrowIfDisposed();
             if (position < 0 || position > _length)
@@ -305,7 +266,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void ReadBytes(int position, byte[] destination, int offset, int count)
+        public void GetBytes(int position, byte[] destination, int offset, int count)
         {
             ThrowIfDisposed();
             if (position < 0 || position > _length)
@@ -349,7 +310,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void WriteByte(int position, byte value)
+        public void SetByte(int position, byte value)
         {
             ThrowIfDisposed();
             if (position < 0 || position > _length)
@@ -365,7 +326,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void WriteBytes(int position, byte[] source, int offset, int count)
+        public void SetBytes(int position, byte[] source, int offset, int count)
         {
             ThrowIfDisposed();
             if (position < 0 || position > _length)
@@ -405,25 +366,6 @@ namespace MongoDB.Bson.IO
                 chunkIndex += 1;
                 chunkOffset = 0;
                 offset += partialCount;
-                count -= partialCount;
-            }
-        }
-
-        /// <inheritdoc/>
-        public void WriteTo(Stream stream, int position, int count)
-        {
-            ThrowIfDisposed();
-
-            var chunkIndex = GetChunkIndex(position);
-            var chunkOffset = position - _positions[chunkIndex];
-            while (count > 0)
-            {
-                var segment = _chunks[chunkIndex].Bytes;
-                var chunkRemaining = segment.Count - chunkOffset;
-                var partialCount = Math.Min(count, chunkRemaining);
-                stream.Write(segment.Array, segment.Offset + chunkOffset, partialCount);
-                chunkIndex += 1;
-                chunkOffset = 0;
                 count -= partialCount;
             }
         }

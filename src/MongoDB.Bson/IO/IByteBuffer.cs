@@ -83,56 +83,40 @@ namespace MongoDB.Bson.IO
         IByteBuffer GetSlice(int position, int length);
 
         /// <summary>
-        /// Loads the buffer from a stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="position">The position.</param>
-        /// <param name="count">The count.</param>
-        void LoadFrom(Stream stream, int position, int count);
-
-        /// <summary>
         /// Makes this buffer read only.
         /// </summary>
         void MakeReadOnly();
 
         /// <summary>
-        /// Reads a byte.
+        /// Gets a byte.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <returns>A byte.</returns>
-        byte ReadByte(int position);
+        byte GetByte(int position);
 
         /// <summary>
-        /// Reads bytes.
+        /// Gets bytes.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <param name="destination">The destination.</param>
         /// <param name="offset">The destination offset.</param>
         /// <param name="count">The count.</param>
-        void ReadBytes(int position, byte[] destination, int offset, int count);
+        void GetBytes(int position, byte[] destination, int offset, int count);
 
         /// <summary>
-        /// Writes a byte.
+        /// Sets a byte.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <param name="value">The value.</param>
-        void WriteByte(int position, byte value);
+        void SetByte(int position, byte value);
 
         /// <summary>
-        /// Writes bytes.
+        /// Sets bytes.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <param name="source">The bytes (in the form of a byte array).</param>
+        /// <param name="source">The bytes.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="count">The count.</param>
-        void WriteBytes(int position, byte[] source, int offset, int count);
-
-        /// <summary>
-        /// Writes the contents of this buffer to a stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="position">The position.</param>
-        /// <param name="count">The count.</param>
-        void WriteTo(Stream stream, int position, int count);
+        void SetBytes(int position, byte[] source, int offset, int count);
     }
 }

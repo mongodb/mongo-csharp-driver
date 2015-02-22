@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace MongoDB.Bson.IO
 {
@@ -68,14 +69,15 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads the name.
         /// </summary>
-        /// <param name="streamReader">The stream reader.</param>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoding">The encoding.</param>
         /// <returns>
         /// The name.
         /// </returns>
-        public string Decode(BsonStreamReader streamReader)
+        public string Decode(IBsonStream stream, UTF8Encoding encoding)
         {
             BsonTrieNode<TValue> node;
-            if (_trie.TryGetNode(streamReader, out node))
+            if (_trie.TryGetNode(stream, out node))
             {
                 if (node.HasValue)
                 {
@@ -85,7 +87,7 @@ namespace MongoDB.Bson.IO
                 }
             }
 
-            return streamReader.ReadCString();
+            return stream.ReadCString(encoding);
         }
 
         /// <summary>

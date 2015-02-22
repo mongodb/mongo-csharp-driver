@@ -26,12 +26,12 @@ namespace MongoDB.Bson.Tests.IO
         public void TestAccessBackingBytes()
         {
             var backingBytes = new byte[100];
-            using (var buffer = new ByteArrayBuffer(backingBytes, 10, 80, false))
+            using (var buffer = new ByteArrayBuffer(backingBytes))
             {
                 var segment = buffer.AccessBackingBytes(20);
                 Assert.AreSame(backingBytes, segment.Array);
-                Assert.AreEqual(30, segment.Offset);
-                Assert.AreEqual(60, segment.Count);
+                Assert.AreEqual(20, segment.Offset);
+                Assert.AreEqual(80, segment.Count);
             }
         }
 
@@ -39,13 +39,13 @@ namespace MongoDB.Bson.Tests.IO
         public void TestWriteByte()
         {
             var backingBytes = new byte[100];
-            using (var buffer = new ByteArrayBuffer(backingBytes, 10, 80, false))
+            using (var buffer = new ByteArrayBuffer(backingBytes))
             {
-                Assert.AreEqual(0, backingBytes[30]);
-                Assert.AreEqual(0, backingBytes[31]);
-                buffer.WriteByte(20, 1);
-                Assert.AreEqual(1, backingBytes[30]);
-                Assert.AreEqual(0, backingBytes[31]);
+                Assert.AreEqual(0, backingBytes[20]);
+                Assert.AreEqual(0, backingBytes[21]);
+                buffer.SetByte(20, 1);
+                Assert.AreEqual(1, backingBytes[20]);
+                Assert.AreEqual(0, backingBytes[21]);
             }
         }
 
@@ -55,32 +55,15 @@ namespace MongoDB.Bson.Tests.IO
             var bytes = new[] { (byte)1, (byte)2 };
 
             var backingBytes = new byte[100];
-            using (var buffer = new ByteArrayBuffer(backingBytes, 10, 80, false))
+            using (var buffer = new ByteArrayBuffer(backingBytes))
             {
-                Assert.AreEqual(0, backingBytes[30]);
-                Assert.AreEqual(0, backingBytes[31]);
-                Assert.AreEqual(0, backingBytes[32]);
-                buffer.WriteBytes(20, bytes, 0, bytes.Length);
-                Assert.AreEqual(1, backingBytes[30]);
-                Assert.AreEqual(2, backingBytes[31]);
-                Assert.AreEqual(0, backingBytes[32]);
-            }
-        }
-
-        [Test]
-        public void TestWriteTo()
-        {
-            var backingBytes = new byte[100];
-            using (var buffer = new ByteArrayBuffer(backingBytes, 10, 80, false))
-            {
-                buffer.WriteBytes(0, new[] { (byte)1, (byte)2 }, 0, 2);
-                buffer.Length = 2;
-
-                using (var memoryStream = new MemoryStream())
-                {
-                    buffer.WriteTo(memoryStream, 0, buffer.Length);
-                    Assert.AreEqual(2, memoryStream.Length);
-                }
+                Assert.AreEqual(0, backingBytes[20]);
+                Assert.AreEqual(0, backingBytes[21]);
+                Assert.AreEqual(0, backingBytes[22]);
+                buffer.SetBytes(20, bytes, 0, bytes.Length);
+                Assert.AreEqual(1, backingBytes[20]);
+                Assert.AreEqual(2, backingBytes[21]);
+                Assert.AreEqual(0, backingBytes[22]);
             }
         }
     }

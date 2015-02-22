@@ -59,31 +59,5 @@ namespace MongoDB.Bson.IO
                 return new MultiChunkBuffer(chunks, 0, isReadOnly: false);
             }
         }
-
-        /// <summary>
-        /// Loads a byte buffer from a stream (the first 4 bytes in the stream are the length of the data).
-        /// Depending on the required capacity, either a SingleChunkBuffer or a MultiChunkBuffer will be created.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <returns>A buffer.</returns>
-        /// <exception cref="System.ArgumentNullException">stream</exception>
-        public static IByteBuffer LoadLengthPrefixedDataFrom(Stream stream)
-        {
-            if (stream == null)
-            {
-                throw new ArgumentNullException("stream");
-            }
-
-            var streamReader = new BsonStreamReader(stream, Utf8Encodings.Strict);
-            var length = streamReader.ReadInt32();
-
-            var byteBuffer = Create(BsonChunkPool.Default, length);
-            byteBuffer.Length = length;
-            byteBuffer.WriteBytes(0, BitConverter.GetBytes(length), 0, 4);
-            byteBuffer.LoadFrom(stream, 4, length - 4);
-            byteBuffer.MakeReadOnly();
-
-            return byteBuffer;
-        }
     }
 }

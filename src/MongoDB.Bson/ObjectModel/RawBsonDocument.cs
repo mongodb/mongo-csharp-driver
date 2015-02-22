@@ -59,7 +59,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         public RawBsonDocument(byte[] bytes)
-            : this(new ByteArrayBuffer(bytes, 0, bytes.Length, true))
+            : this(new ByteArrayBuffer(bytes, isReadOnly: true))
         {
         }
 

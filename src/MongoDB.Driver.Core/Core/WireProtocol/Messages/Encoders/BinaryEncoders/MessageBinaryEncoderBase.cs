@@ -46,6 +46,28 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             _encoderSettings = encoderSettings;
         }
 
+        // properties
+        /// <summary>
+        /// Gets the encoding.
+        /// </summary>
+        /// <value>
+        /// The encoding.
+        /// </value>
+        protected UTF8Encoding Encoding
+        {
+            get
+            {
+                if (_encoderSettings == null)
+                {
+                    return Utf8Encodings.Strict;
+                }
+                else
+                {
+                    return _encoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
+                }
+            }
+        }
+
         // methods
         /// <summary>
         /// Creates a binary reader for this encoder.

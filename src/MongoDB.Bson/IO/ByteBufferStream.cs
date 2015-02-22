@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO
@@ -24,7 +23,7 @@ namespace MongoDB.Bson.IO
     /// Represents a Stream backed by an IByteBuffer. Similar to MemoryStream but backed by an IByteBuffer
     /// instead of a byte array and also implements the IBsonStream interface for higher performance BSON I/O.
     /// </summary>
-    public class ByteBufferStream : Stream, IBsonStream, ISliceableStream
+    public class ByteBufferStream : Stream, IBsonStream
     {
         // private fields
         private  IByteBuffer _byteBuffer;
@@ -32,6 +31,8 @@ namespace MongoDB.Bson.IO
         private bool _disposed;
         private int _length;
         private int _position;
+        private readonly byte[] _temp = new byte[12];
+        private readonly byte[] _tempUtf8 = new byte[128];
 
         // constructors
         /// <summary>
@@ -56,48 +57,41 @@ namespace MongoDB.Bson.IO
         }
 
         // public properties
-        /// <summary>
-        /// When overridden in a derived class, gets a value indicating whether the current stream supports reading.
-        /// </summary>
-        /// <returns>true if the stream supports reading; otherwise, false.</returns>
+        /// <inheritdoc/>
+        public Stream BaseStream
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return this;
+            }
+        }
+
+        /// <inheritdoc/>
         public override bool CanRead
         {
             get { return true; }
         }
 
-        /// <summary>
-        /// When overridden in a derived class, gets a value indicating whether the current stream supports seeking.
-        /// </summary>
-        /// <returns>true if the stream supports seeking; otherwise, false.</returns>
+        /// <inheritdoc/>
         public override bool CanSeek
         {
             get { return true; }
         }
 
-        /// <summary>
-        /// Gets a value that determines whether the current stream can time out.
-        /// </summary>
-        /// <returns>A value that determines whether the current stream can time out.</returns>
+        /// <inheritdoc/>
         public override bool CanTimeout
         {
             get { return false; }
         }
 
-        /// <summary>
-        /// When overridden in a derived class, gets a value indicating whether the current stream supports writing.
-        /// </summary>
-        /// <returns>true if the stream supports writing; otherwise, false.</returns>
+        /// <inheritdoc/>
         public override bool CanWrite
         {
             get { return !_byteBuffer.IsReadOnly; }
         }
 
-        /// <summary>
-        /// Gets the capacity.
-        /// </summary>
-        /// <value>
-        /// The capacity.
-        /// </value>
+        /// <inheritdoc/>
         public int Capacity
         {
             get
@@ -107,19 +101,13 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// When overridden in a derived class, gets the length in bytes of the stream.
-        /// </summary>
-        /// <returns>A long value representing the length of the stream in bytes.</returns>
+        /// <inheritdoc/>
         public override long Length
         {
             get { return _length; }
         }
 
-        /// <summary>
-        /// When overridden in a derived class, gets or sets the position within the current stream.
-        /// </summary>
-        /// <returns>The current position within the stream.</returns>
+        /// <inheritdoc/>
         public override long Position
         {
             get { return _position; }
@@ -134,26 +122,13 @@ namespace MongoDB.Bson.IO
         }
 
         // public methods
-        /// <summary>
-        /// When overridden in a derived class, clears all buffers for this stream and causes any buffered data to be written to the underlying device.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Flush()
         {
             // do nothing
         }
 
-        /// <summary>
-        /// Gets a slice.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="length">The length.</param>
-        /// <returns>A slice.</returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside the stream.</exception>
-        /// <exception cref="System.ArgumentException">
-        /// Length is negative.;length
-        /// or
-        /// Length extends beyond the end of the stream.
-        /// </exception>
+        /// <inheritdoc/>
         public IByteBuffer GetSlice(int position, int length)
         {
             if (position < 0 || position > _length)
@@ -172,15 +147,7 @@ namespace MongoDB.Bson.IO
             return _byteBuffer.GetSlice(position, length);
         }
 
-        /// <summary>
-        /// When overridden in a derived class, reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
-        /// </summary>
-        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset" /> and (<paramref name="offset" /> + <paramref name="count" /> - 1) replaced by the bytes read from the current source.</param>
-        /// <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current stream.</param>
-        /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
-        /// <returns>
-        /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
-        /// </returns>
+        /// <inheritdoc/>
         public override int Read(byte[] buffer, int offset, int count)
         {
             if (buffer == null)
@@ -211,36 +178,23 @@ namespace MongoDB.Bson.IO
                 count = available;
             }
 
-            _byteBuffer.ReadBytes(_position, buffer, offset, count);
+            _byteBuffer.GetBytes(_position, buffer, offset, count);
             _position += count;
 
             return count;
         }
 
-        /// <summary>
-        /// Reads a byte from the stream and advances the position within the stream by one byte, or returns -1 if at the end of the stream.
-        /// </summary>
-        /// <returns>
-        /// The unsigned byte cast to an Int32, or -1 if at the end of the stream.
-        /// </returns>
+        /// <inheritdoc/>
         public override int ReadByte()
         {
             if (_position >= _length)
             {
                 return -1;
             }
-            return _byteBuffer.ReadByte(_position++);
+            return _byteBuffer.GetByte(_position++);
         }
 
-        /// <summary>
-        /// When overridden in a derived class, sets the position within the current stream.
-        /// </summary>
-        /// <param name="offset">A byte offset relative to the <paramref name="origin" /> parameter.</param>
-        /// <param name="origin">A value of type <see cref="T:System.IO.SeekOrigin" /> indicating the reference point used to obtain the new position.</param>
-        /// <returns>
-        /// The new position within the current stream.
-        /// </returns>
-        /// <exception cref="System.ArgumentException">origin</exception>
+        /// <inheritdoc/>
         public override long Seek(long offset, SeekOrigin origin)
         {
             long position;
@@ -264,10 +218,7 @@ namespace MongoDB.Bson.IO
             return position;
         }
 
-        /// <summary>
-        /// When overridden in a derived class, sets the length of the current stream.
-        /// </summary>
-        /// <param name="length">The desired length of the current stream in bytes.</param>
+        /// <inheritdoc/>
         public override void SetLength(long length)
         {
             if (length < 0)
@@ -283,12 +234,7 @@ namespace MongoDB.Bson.IO
             _length = (int)length;
         }
 
-        /// <summary>
-        /// When overridden in a derived class, writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
-        /// </summary>
-        /// <param name="buffer">An array of bytes. This method copies <paramref name="count" /> bytes from <paramref name="buffer" /> to the current stream.</param>
-        /// <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin copying bytes to the current stream.</param>
-        /// <param name="count">The number of bytes to be written to the current stream.</param>
+        /// <inheritdoc/>
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (buffer == null)
@@ -311,26 +257,20 @@ namespace MongoDB.Bson.IO
             EnsureWriteable();
 
             PrepareToWrite(count);
-            _byteBuffer.WriteBytes(_position, buffer, offset, count);
+            _byteBuffer.SetBytes(_position, buffer, offset, count);
             SetPositionAfterWrite(_position + count);
         }
 
-        /// <summary>
-        /// Writes a byte to the current position in the stream and advances the position within the stream by one byte.
-        /// </summary>
-        /// <param name="value">The byte to write to the stream.</param>
+        /// <inheritdoc/>
         public override void WriteByte(byte value)
         {
             PrepareToWrite(1);
-            _byteBuffer.WriteByte(_position, value);
+            _byteBuffer.SetByte(_position, value);
             SetPositionAfterWrite(_position + 1);
         }
 
         // protected methods
-        /// <summary>
-        /// Releases the unmanaged resources used by the <see cref="T:System.IO.Stream" /> and optionally releases the managed resources.
-        /// </summary>
-        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -385,8 +325,9 @@ namespace MongoDB.Bson.IO
 
         private byte[] ReadBytes(int count)
         {
+            ThrowIfEndOfStream(count);
             var bytes = new byte[count];
-            _byteBuffer.ReadBytes(_position, bytes, 0, count);
+            _byteBuffer.GetBytes(_position, bytes, 0, count);
             _position += count;
             return bytes;
         }
@@ -420,12 +361,20 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        // explicit interface implementations
-        /// <summary>
-        /// Reads a BSON CString from the stream.
-        /// </summary>
-        /// <returns>An ArraySegment containing the CString bytes (without the null byte).</returns>
-        ArraySegment<byte> IBsonStream.ReadBsonCStringBytes()
+        /// <inheritdoc/>
+        public string ReadCString(UTF8Encoding encoding)
+        {
+            if (encoding == null)
+            {
+                throw new ArgumentNullException("encoding");
+            }
+
+            var bytes = ReadCStringBytes();
+            return Utf8Helper.DecodeUtf8String(bytes.Array, bytes.Offset, bytes.Count, encoding);
+        }
+
+        /// <inheritdoc/>
+        public ArraySegment<byte> ReadCStringBytes()
         {
             ThrowIfDisposed();
             ThrowIfEndOfStream(1);
@@ -447,13 +396,8 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Reads a BSON double from the stream.
-        /// </summary>
-        /// <returns>
-        /// A double.
-        /// </returns>
-        double IBsonStream.ReadBsonDouble()
+        /// <inheritdoc/>
+        public double ReadDouble()
         {
             ThrowIfDisposed();
             ThrowIfEndOfStream(8);
@@ -466,19 +410,17 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = ReadBytes(8);
-                return BitConverter.ToDouble(bytes, 0);
+                this.ReadBytes(_temp, 0, 8);
+                return BitConverter.ToDouble(_temp, 0);
             }
         }
 
-        /// <summary>
-        /// Reads a 32-bit BSON integer from the stream.
-        /// </summary>
-        /// <returns>
-        /// An int.
-        /// </returns>
-        int IBsonStream.ReadBsonInt32()
+        /// <inheritdoc/>
+        public int ReadInt32()
         {
+            ThrowIfDisposed();
+            ThrowIfEndOfStream(4);
+
             var segment = _byteBuffer.AccessBackingBytes(_position);
             if (segment.Count >= 4)
             {
@@ -489,46 +431,36 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = ReadBytes(4);
-                return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+                this.ReadBytes(_temp, 0, 4);
+                return _temp[0] | (_temp[1] << 8) | (_temp[2] << 16) | (_temp[3] << 24);
             }
         }
 
-        /// <summary>
-        /// Reads a 64-bit BSON integer from the stream.
-        /// </summary>
-        /// <returns>
-        /// A long.
-        /// </returns>
-        long IBsonStream.ReadBsonInt64()
+        /// <inheritdoc/>
+        public long ReadInt64()
         {
+            ThrowIfDisposed();
+            ThrowIfEndOfStream(8);
+
             var segment = _byteBuffer.AccessBackingBytes(_position);
             if (segment.Count >= 8)
             {
                 _position += 8;
-                var bytes = segment.Array;
-                var offset = segment.Offset;
-                var lo = (uint)(bytes[offset] | (bytes[offset + 1] << 8) | (bytes[offset + 2] << 16) | (bytes[offset + 3] << 24));
-                var hi = (uint)(bytes[offset + 4] | (bytes[offset + 5] << 8) | (bytes[offset + 6] << 16) | (bytes[offset + 7] << 24));
-                return (long)(((ulong)hi << 32) | (ulong)lo);
+                return BitConverter.ToInt64(segment.Array, segment.Offset);
             }
             else
             {
-                var bytes = ReadBytes(8);
-                var lo = (uint)(bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24));
-                var hi = (uint)(bytes[4] | (bytes[5] << 8) | (bytes[6] << 16) | (bytes[7] << 24));
-                return (long)(((ulong)hi << 32) | (ulong)lo);
+                this.ReadBytes(_temp, 0, 8);
+                return BitConverter.ToInt64(_temp, 0);
             }
         }
 
-        /// <summary>
-        /// Reads a BSON ObjectId from the stream.
-        /// </summary>
-        /// <returns>
-        /// An ObjectId.
-        /// </returns>
-        ObjectId IBsonStream.ReadBsonObjectId()
+        /// <inheritdoc/>
+        public ObjectId ReadObjectId()
         {
+            ThrowIfDisposed();
+            ThrowIfEndOfStream(12);
+
             var segment = _byteBuffer.AccessBackingBytes(_position);
             if (segment.Count >= 12)
             {
@@ -537,32 +469,32 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = ReadBytes(12);
-                return new ObjectId(bytes);
+                this.ReadBytes(_temp, 0, 12);
+                return new ObjectId(_temp, 0);
             }
         }
 
-        /// <summary>
-        /// Reads a BSON string from the stream.
-        /// </summary>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns>
-        /// A string.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">encoding</exception>
-        /// <exception cref="System.FormatException">
-        /// String is missing terminating null byte.
-        /// or
-        /// String is missing terminating null byte.
-        /// </exception>
-        string IBsonStream.ReadBsonString(UTF8Encoding encoding)
+        /// <inheritdoc/>
+        public IByteBuffer ReadSlice()
+        {
+            ThrowIfDisposed();
+
+            var position = _position;
+            var length = ReadInt32();
+            Position = position + length;
+            return _byteBuffer.GetSlice(position, length);
+        }
+
+        /// <inheritdoc/>
+        public string ReadString(UTF8Encoding encoding)
         {
             if (encoding == null)
             {
                 throw new ArgumentNullException("encoding");
             }
+            ThrowIfDisposed();
 
-            var length = ((IBsonStream)this).ReadBsonInt32();
+            var length = ReadInt32();
             if (length <= 0)
             {
                 var message = string.Format("Invalid string length: {0}.", length);
@@ -572,6 +504,7 @@ namespace MongoDB.Bson.IO
             var segment = _byteBuffer.AccessBackingBytes(_position);
             if (segment.Count >= length)
             {
+                ThrowIfEndOfStream(length);
                 if (segment.Array[segment.Offset + length - 1] != 0)
                 {
                     throw new FormatException("String is missing terminating null byte.");
@@ -581,7 +514,8 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = ReadBytes(length);
+                var bytes = length <= _tempUtf8.Length ? _tempUtf8 : new byte[length];
+                this.ReadBytes(bytes, 0, length);
                 if (bytes[length - 1] != 0)
                 {
                     throw new FormatException("String is missing terminating null byte.");
@@ -590,26 +524,15 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Skips over a BSON CString leaving the stream positioned just after the terminating null byte.
-        /// </summary>
-        /// <exception cref="System.IO.EndOfStreamException"></exception>
-        void IBsonStream.SkipBsonCString()
+        /// <inheritdoc/>
+        public void SkipCString()
         {
             var nullPosition = FindNullByte();
             _position = nullPosition + 1;
         }
 
-        /// <summary>
-        /// Writes a BSON CString to the stream.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <exception cref="System.ArgumentException">
-        /// UTF8 representation of a CString cannot contain null bytes.
-        /// or
-        /// UTF8 representation of a CString cannot contain null bytes.
-        /// </exception>
-        void IBsonStream.WriteBsonCString(string value)
+        /// <inheritdoc/>
+        public void WriteCString(string value)
         {
             var maxLength = Utf8Encodings.Strict.GetMaxByteCount(value.Length) + 1;
             PrepareToWrite(maxLength);
@@ -628,54 +551,65 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = Utf8Encodings.Strict.GetBytes(value);
-                if (bytes.Contains<byte>(0))
+                byte[] bytes;
+                if (maxLength <= _tempUtf8.Length)
+                {
+                    bytes = _tempUtf8;
+                    actualLength = Utf8Encodings.Strict.GetBytes(value, 0, value.Length, bytes, 0);
+                }
+                else
+                {
+                    bytes = Utf8Encodings.Strict.GetBytes(value);
+                    actualLength = bytes.Length;
+                }
+
+                if (Array.IndexOf<byte>(bytes, 0, 0, actualLength) != -1)
                 {
                     throw new ArgumentException("UTF8 representation of a CString cannot contain null bytes.");
                 }
-                actualLength = bytes.Length;
 
-                _byteBuffer.WriteBytes(_position, bytes, 0, actualLength);
-                _byteBuffer.WriteByte(_position + actualLength, 0);
+                _byteBuffer.SetBytes(_position, bytes, 0, actualLength);
+                _byteBuffer.SetByte(_position + actualLength, 0);
             }
 
             SetPositionAfterWrite(_position + actualLength + 1);
         }
 
-        /// <summary>
-        /// Writes a BSON double to the stream.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        void IBsonStream.WriteBsonDouble(double value)
+        /// <inheritdoc/>
+        public void WriteCStringBytes(byte[] value)
         {
-            var bytes = BitConverter.GetBytes(value);
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            if (Array.IndexOf<byte>(value, 0) != -1)
+            {
+                throw new ArgumentException("UTF8 representation of a CString cannot contain null bytes.");
+            }
+
+            var length = value.Length;
+
+            PrepareToWrite(length + 1);
+
+            _byteBuffer.SetBytes(_position, value, 0, length);
+            _byteBuffer.SetByte(_position + length, 0);
+
+            SetPositionAfterWrite(_position + length + 1);
+        }
+
+        /// <inheritdoc/>
+        public void WriteDouble(double value)
+        {
             PrepareToWrite(8);
 
-            var segment = _byteBuffer.AccessBackingBytes(_position);
-            if (segment.Count >= 8)
-            {
-                segment.Array[segment.Offset] = bytes[0];
-                segment.Array[segment.Offset + 1] = bytes[1];
-                segment.Array[segment.Offset + 2] = bytes[2];
-                segment.Array[segment.Offset + 3] = bytes[3];
-                segment.Array[segment.Offset + 4] = bytes[4];
-                segment.Array[segment.Offset + 5] = bytes[5];
-                segment.Array[segment.Offset + 6] = bytes[6];
-                segment.Array[segment.Offset + 7] = bytes[7];
-            }
-            else
-            {
-                _byteBuffer.WriteBytes(_position, bytes, 0, 8);
-            }
+            var bytes = BitConverter.GetBytes(value);
+            _byteBuffer.SetBytes(_position, bytes, 0, 8);
 
             SetPositionAfterWrite(_position + 8);
         }
 
-        /// <summary>
-        /// Writes a 32-bit BSON integer to the stream.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        void IBsonStream.WriteBsonInt32(int value)
+        /// <inheritdoc/>
+        public void WriteInt32(int value)
         {
             PrepareToWrite(4);
 
@@ -689,59 +623,29 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = new byte[4];
-                bytes[0] = (byte)value;
-                bytes[1] = (byte)(value >> 8);
-                bytes[2] = (byte)(value >> 16);
-                bytes[3] = (byte)(value >> 24);
-                _byteBuffer.WriteBytes(_position, bytes, 0, 4);
+                _temp[0] = (byte)(value);
+                _temp[1] = (byte)(value >> 8);
+                _temp[2] = (byte)(value >> 16);
+                _temp[3] = (byte)(value >> 24);
+                _byteBuffer.SetBytes(_position, _temp, 0, 4);
             }
 
             SetPositionAfterWrite(_position + 4);
         }
 
-        /// <summary>
-        /// Writes a 64-bit BSON integer to the stream.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        void IBsonStream.WriteBsonInt64(long value)
+        /// <inheritdoc/>
+        public void WriteInt64(long value)
         {
             PrepareToWrite(8);
 
-            var segment = _byteBuffer.AccessBackingBytes(_position);
-            if (segment.Count >= 8)
-            {
-                segment.Array[segment.Offset] = (byte)value;
-                segment.Array[segment.Offset + 1] = (byte)(value >> 8);
-                segment.Array[segment.Offset + 2] = (byte)(value >> 16);
-                segment.Array[segment.Offset + 3] = (byte)(value >> 24);
-                segment.Array[segment.Offset + 4] = (byte)(value >> 32);
-                segment.Array[segment.Offset + 5] = (byte)(value >> 40);
-                segment.Array[segment.Offset + 6] = (byte)(value >> 48);
-                segment.Array[segment.Offset + 7] = (byte)(value >> 56);
-            }
-            else
-            {
-                var bytes = new byte[8];
-                bytes[0] = (byte)value;
-                bytes[1] = (byte)(value >> 8);
-                bytes[2] = (byte)(value >> 16);
-                bytes[3] = (byte)(value >> 24);
-                bytes[4] = (byte)(value >> 32);
-                bytes[5] = (byte)(value >> 40);
-                bytes[6] = (byte)(value >> 48);
-                bytes[7] = (byte)(value >> 56);
-                _byteBuffer.WriteBytes(_position, bytes, 0, 8);
-            }
+            var bytes = BitConverter.GetBytes(value);
+            _byteBuffer.SetBytes(_position, bytes, 0, 8);
 
             SetPositionAfterWrite(_position + 8);
         }
 
-        /// <summary>
-        /// Writes a BSON ObjectId to the stream.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        void IBsonStream.WriteBsonObjectId(ObjectId value)
+        /// <inheritdoc/>
+        public void WriteObjectId(ObjectId value)
         {
             PrepareToWrite(12);
 
@@ -753,23 +657,14 @@ namespace MongoDB.Bson.IO
             else
             {
                 var bytes = value.ToByteArray();
-                _byteBuffer.WriteBytes(_position, bytes, 0, 12);
+                _byteBuffer.SetBytes(_position, bytes, 0, 12);
             }
 
             SetPositionAfterWrite(_position + 12);
         }
 
-        /// <summary>
-        /// Writes a BSON string to the stream.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <exception cref="System.ArgumentException">
-        /// UTF8 representation of a CString cannot contain null bytes.
-        /// or
-        /// UTF8 representation of a CString cannot contain null bytes.
-        /// </exception>
-        void IBsonStream.WriteBsonString(string value, UTF8Encoding encoding)
+        /// <inheritdoc/>
+        public void WriteString(string value, UTF8Encoding encoding)
         {
             var maxLength = encoding.GetMaxByteCount(value.Length) + 5;
             PrepareToWrite(maxLength);
@@ -779,10 +674,6 @@ namespace MongoDB.Bson.IO
             if (segment.Count >= maxLength)
             {
                 actualLength = encoding.GetBytes(value, 0, value.Length, segment.Array, segment.Offset + 4);
-                if (Array.IndexOf<byte>(segment.Array, 0, segment.Offset + 4, actualLength) != -1)
-                {
-                    throw new ArgumentException("UTF8 representation of a CString cannot contain null bytes.");
-                }
 
                 var lengthPlusOne = actualLength + 1;
                 segment.Array[segment.Offset] = (byte)lengthPlusOne;
@@ -793,17 +684,23 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = encoding.GetBytes(value);
-                if (bytes.Contains<byte>(0))
+                byte[] bytes;
+                if (maxLength <= _tempUtf8.Length)
                 {
-                    throw new ArgumentException("UTF8 representation of a CString cannot contain null bytes.");
+                    bytes = _tempUtf8;
+                    actualLength = encoding.GetBytes(value, 0, value.Length, bytes, 0);
                 }
-                actualLength = bytes.Length;
+                else
+                {
+                    bytes = encoding.GetBytes(value);
+                    actualLength = bytes.Length;
+                }
+
                 var lengthPlusOneBytes = BitConverter.GetBytes(actualLength + 1);
 
-                _byteBuffer.WriteBytes(_position, lengthPlusOneBytes, 0, 4);
-                _byteBuffer.WriteBytes(_position + 4, bytes, 0, actualLength);
-                _byteBuffer.WriteByte(_position + 4 + actualLength, 0);
+                _byteBuffer.SetBytes(_position, lengthPlusOneBytes, 0, 4);
+                _byteBuffer.SetBytes(_position + 4, bytes, 0, actualLength);
+                _byteBuffer.SetByte(_position + 4 + actualLength, 0);
             }
 
             SetPositionAfterWrite(_position + actualLength + 5);

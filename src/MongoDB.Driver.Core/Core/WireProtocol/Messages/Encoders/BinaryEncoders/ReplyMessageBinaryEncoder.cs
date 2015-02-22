@@ -57,16 +57,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public ReplyMessage<TDocument> ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
-            var streamReader = binaryReader.StreamReader;
+            var stream = binaryReader.BsonStream;
 
-            streamReader.ReadInt32(); // messageSize
-            var requestId = streamReader.ReadInt32();
-            var responseTo = streamReader.ReadInt32();
-            streamReader.ReadInt32(); // opcode
-            var flags = (ResponseFlags)streamReader.ReadInt32();
-            var cursorId = streamReader.ReadInt64();
-            var startingFrom = streamReader.ReadInt32();
-            var numberReturned = streamReader.ReadInt32();
+            stream.ReadInt32(); // messageSize
+            var requestId = stream.ReadInt32();
+            var responseTo = stream.ReadInt32();
+            stream.ReadInt32(); // opcode
+            var flags = (ResponseFlags)stream.ReadInt32();
+            var cursorId = stream.ReadInt64();
+            var startingFrom = stream.ReadInt32();
+            var numberReturned = stream.ReadInt32();
             List<TDocument> documents = null;
             BsonDocument queryFailureDocument = null;
 
@@ -116,13 +116,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             Ensure.IsNotNull(message, "message");
 
             var binaryWriter = CreateBinaryWriter();
-            var streamWriter = binaryWriter.StreamWriter;
-            var startPosition = streamWriter.Position;
+            var stream = binaryWriter.BsonStream;
+            var startPosition = stream.Position;
 
-            streamWriter.WriteInt32(0); // messageSize
-            streamWriter.WriteInt32(message.RequestId);
-            streamWriter.WriteInt32(message.ResponseTo);
-            streamWriter.WriteInt32((int)Opcode.Reply);
+            stream.WriteInt32(0); // messageSize
+            stream.WriteInt32(message.RequestId);
+            stream.WriteInt32(message.ResponseTo);
+            stream.WriteInt32((int)Opcode.Reply);
 
             var flags = ResponseFlags.None;
             if (message.AwaitCapable)
@@ -137,11 +137,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 flags |= ResponseFlags.CursorNotFound;
             }
-            streamWriter.WriteInt32((int)flags);
+            stream.WriteInt32((int)flags);
 
-            streamWriter.WriteInt64(message.CursorId);
-            streamWriter.WriteInt32(message.StartingFrom);
-            streamWriter.WriteInt32(message.NumberReturned);
+            stream.WriteInt64(message.CursorId);
+            stream.WriteInt32(message.StartingFrom);
+            stream.WriteInt32(message.NumberReturned);
             if (message.QueryFailure)
             {
                 var context = BsonSerializationContext.CreateRoot(binaryWriter);
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                     _serializer.Serialize(context, doc);
                 }
             }
-            streamWriter.BackpatchSize(startPosition);
+            stream.BackpatchSize(startPosition);
         }
 
         // explicit interface implementations

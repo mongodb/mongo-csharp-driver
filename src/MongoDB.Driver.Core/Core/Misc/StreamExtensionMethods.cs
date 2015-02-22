@@ -24,21 +24,7 @@ namespace MongoDB.Driver.Core.Misc
     internal static class StreamExtensionMethods
     {
         // static methods
-        public static void FillBuffer(this Stream stream, byte[] buffer, int offset, int count)
-        {
-            while (count > 0)
-            {
-                var bytesRead = stream.Read(buffer, offset, count);
-                if (bytesRead == 0)
-                {
-                    throw new EndOfStreamException();
-                }
-                offset += bytesRead;
-                count -= bytesRead;
-            }
-        }
-
-        public static async Task FillBufferAsync(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public static async Task ReadBytesAsync(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             while (count > 0)
             {
@@ -52,7 +38,7 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static async Task FillBufferAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
+        public static async Task ReadBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
         {
             while (count > 0)
             {
@@ -68,7 +54,7 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static async Task WriteBufferAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
+        public static async Task WriteBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
         {
             while (count > 0)
             {

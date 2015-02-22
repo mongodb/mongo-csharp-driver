@@ -489,6 +489,27 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Converts the ObjectId to a byte array.
+        /// </summary>
+        /// <param name="destination">The destination.</param>
+        /// <param name="offset">The offset.</param>
+        public void ToByteArray(byte[] destination, int offset)
+        {
+            destination[offset + 0] = (byte)(_timestamp >> 24);
+            destination[offset + 1] = (byte)(_timestamp >> 16);
+            destination[offset + 2] = (byte)(_timestamp >> 8);
+            destination[offset + 3] = (byte)(_timestamp);
+            destination[offset + 4] = (byte)(_machine >> 16);
+            destination[offset + 5] = (byte)(_machine >> 8);
+            destination[offset + 6] = (byte)(_machine);
+            destination[offset + 7] = (byte)(_pid >> 8);
+            destination[offset + 8] = (byte)(_pid);
+            destination[offset + 9] = (byte)(_increment >> 16);
+            destination[offset + 10] = (byte)(_increment >> 8);
+            destination[offset + 11] = (byte)(_increment);
+        }
+
+        /// <summary>
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>

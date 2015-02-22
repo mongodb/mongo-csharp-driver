@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 namespace MongoDB.Bson.IO
 {
     /// <summary>
@@ -41,14 +42,15 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Decodes the name.
         /// </summary>
-        /// <param name="streamReader">The stream reader.</param>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoding">The encoding.</param>
         /// <returns>
         /// The name.
         /// </returns>
-        public string Decode(BsonStreamReader streamReader)
+        public string Decode(IBsonStream stream, UTF8Encoding encoding)
         {
-            var utf8 = streamReader.ReadCStringBytes();
-            return Utf8Helper.DecodeUtf8String(utf8.Array, utf8.Offset, utf8.Count, Utf8Encodings.Strict);
+            var utf8 = stream.ReadCStringBytes();
+            return Utf8Helper.DecodeUtf8String(utf8.Array, utf8.Offset, utf8.Count, encoding);
         }
 
         /// <summary>

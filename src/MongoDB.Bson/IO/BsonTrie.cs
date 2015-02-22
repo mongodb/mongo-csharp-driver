@@ -98,24 +98,24 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Tries to get the node associated with a name read from a stream.
         /// </summary>
-        /// <param name="streamReader">The stream.</param>
+        /// <param name="stream">The stream.</param>
         /// <param name="node">The node.</param>
         /// <returns>
         /// True if the node was found.
         /// If the node was found the stream is advanced over the name, otherwise
         /// the stream is repositioned to the beginning of the name.
         /// </returns>
-        public bool TryGetNode(BsonStreamReader streamReader, out BsonTrieNode<TValue> node)
+        public bool TryGetNode(IBsonStream stream, out BsonTrieNode<TValue> node)
         {
-            var position = streamReader.Position;
-            var utf8 = streamReader.ReadCStringBytes();
+            var position = stream.Position;
+            var utf8 = stream.ReadCStringBytes();
 
             if (TryGetNode(utf8, out node))
             {
                 return true;
             }
 
-            streamReader.Position = position;
+            stream.Position = position;
             return false;
         }
 

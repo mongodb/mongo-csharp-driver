@@ -58,15 +58,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public DeleteMessage ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
-            var streamReader = binaryReader.StreamReader;
+            var stream = binaryReader.BsonStream;
 
-            streamReader.ReadInt32(); // messageSize
-            var requestId = streamReader.ReadInt32();
-            streamReader.ReadInt32(); // responseTo
-            streamReader.ReadInt32(); // opcode
-            streamReader.ReadInt32(); // reserved
-            var fullCollectionName = streamReader.ReadCString();
-            var flags = (DeleteFlags)streamReader.ReadInt32();
+            stream.ReadInt32(); // messageSize
+            var requestId = stream.ReadInt32();
+            stream.ReadInt32(); // responseTo
+            stream.ReadInt32(); // opcode
+            stream.ReadInt32(); // reserved
+            var fullCollectionName = stream.ReadCString(Encoding);
+            var flags = (DeleteFlags)stream.ReadInt32();
             var context = BsonDeserializationContext.CreateRoot(binaryReader);
             var query = BsonDocumentSerializer.Instance.Deserialize(context);
 
@@ -88,19 +88,19 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             Ensure.IsNotNull(message, "message");
 
             var binaryWriter = CreateBinaryWriter();
-            var streamWriter = binaryWriter.StreamWriter;
-            var startPosition = streamWriter.Position;
+            var stream = binaryWriter.BsonStream;
+            var startPosition = stream.Position;
 
-            streamWriter.WriteInt32(0); // messageSize
-            streamWriter.WriteInt32(message.RequestId);
-            streamWriter.WriteInt32(0); // responseTo
-            streamWriter.WriteInt32((int)Opcode.Delete);
-            streamWriter.WriteInt32(0); // reserved
-            streamWriter.WriteCString(message.CollectionNamespace.FullName);
-            streamWriter.WriteInt32((int)BuildDeleteFlags(message));
+            stream.WriteInt32(0); // messageSize
+            stream.WriteInt32(message.RequestId);
+            stream.WriteInt32(0); // responseTo
+            stream.WriteInt32((int)Opcode.Delete);
+            stream.WriteInt32(0); // reserved
+            stream.WriteCString(message.CollectionNamespace.FullName);
+            stream.WriteInt32((int)BuildDeleteFlags(message));
             var context = BsonSerializationContext.CreateRoot(binaryWriter);
             BsonDocumentSerializer.Instance.Serialize(context, message.Query ?? new BsonDocument());
-            streamWriter.BackpatchSize(startPosition);
+            stream.BackpatchSize(startPosition);
         }
 
         // explicit interface implementations

@@ -49,10 +49,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private void AddDocument(State state, byte[] serializedDocument)
         {
             var binaryWriter = state.BinaryWriter;
-            var streamWriter = binaryWriter.StreamWriter;
-            streamWriter.WriteBytes(serializedDocument);
+            var stream = binaryWriter.BsonStream;
+            stream.WriteBytes(serializedDocument, 0, serializedDocument.Length);
             state.BatchCount++;
-            state.MessageSize = (int)streamWriter.Position - state.MessageStartPosition;
+            state.MessageSize = (int)stream.Position - state.MessageStartPosition;
         }
 
         private void AddDocument(State state, TDocument document)
@@ -66,11 +66,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             binaryWriter.PushElementNameValidator(elementNameValidator);
             try
             {
-                var streamWriter = binaryWriter.StreamWriter;
+                var stream = binaryWriter.BsonStream;
                 var context = BsonSerializationContext.CreateRoot(binaryWriter);
                 _serializer.Serialize(context, document);
                 state.BatchCount++;
-                state.MessageSize = (int)streamWriter.Position - state.MessageStartPosition;
+                state.MessageSize = (int)stream.Position - state.MessageStartPosition;
             }
             finally
             {
@@ -95,17 +95,17 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public InsertMessage<TDocument> ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
-            var streamReader = binaryReader.StreamReader;
-            var startPosition = streamReader.Position;
+            var stream = binaryReader.BsonStream;
+            var startPosition = stream.Position;
 
-            var messageSize = streamReader.ReadInt32();
-            var requestId = streamReader.ReadInt32();
-            streamReader.ReadInt32(); // responseTo
-            streamReader.ReadInt32(); // opcode
-            var flags = (InsertFlags)streamReader.ReadInt32();
-            var fullCollectionName = streamReader.ReadCString();
+            var messageSize = stream.ReadInt32();
+            var requestId = stream.ReadInt32();
+            stream.ReadInt32(); // responseTo
+            stream.ReadInt32(); // opcode
+            var flags = (InsertFlags)stream.ReadInt32();
+            var fullCollectionName = stream.ReadCString(Encoding);
             var documents = new List<TDocument>();
-            while (streamReader.Position < startPosition + messageSize)
+            while (stream.Position < startPosition + messageSize)
             {
                 var context = BsonDeserializationContext.CreateRoot(binaryReader);
                 var document = _serializer.Deserialize(context);
@@ -130,12 +130,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private byte[] RemoveLastDocument(State state, int documentStartPosition)
         {
             var binaryWriter = state.BinaryWriter;
-            var stream = binaryWriter.Stream;
+            var stream = binaryWriter.BsonStream;
 
             var documentSize = (int)stream.Position - documentStartPosition;
             stream.Position = documentStartPosition;
             var serializedDocument = new byte[documentSize];
-            stream.FillBuffer(serializedDocument, 0, documentSize);
+            stream.ReadBytes(serializedDocument, 0, documentSize);
             stream.Position = documentStartPosition;
             stream.SetLength(documentStartPosition);
             state.BatchCount--;
@@ -180,18 +180,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             Ensure.IsNotNull(message, "message");
 
             var binaryWriter = CreateBinaryWriter();
-            var streamWriter = binaryWriter.StreamWriter;
-            var messageStartPosition = (int)streamWriter.Position;
+            var stream = binaryWriter.BsonStream;
+            var messageStartPosition = (int)stream.Position;
             var state = new State { BinaryWriter = binaryWriter, Message = message, MessageStartPosition = messageStartPosition };
 
-            streamWriter.WriteInt32(0); // messageSize
-            streamWriter.WriteInt32(message.RequestId);
-            streamWriter.WriteInt32(0); // responseTo
-            streamWriter.WriteInt32((int)Opcode.Insert);
-            streamWriter.WriteInt32((int)BuildInsertFlags(message));
-            streamWriter.WriteCString(message.CollectionNamespace.FullName);
+            stream.WriteInt32(0); // messageSize
+            stream.WriteInt32(message.RequestId);
+            stream.WriteInt32(0); // responseTo
+            stream.WriteInt32((int)Opcode.Insert);
+            stream.WriteInt32((int)BuildInsertFlags(message));
+            stream.WriteCString(message.CollectionNamespace.FullName);
             WriteDocuments(state);
-            streamWriter.BackpatchSize(messageStartPosition);
+            stream.BackpatchSize(messageStartPosition);
         }
 
         private void WriteNextBatch(State state)
@@ -218,8 +218,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 }
 
                 var binaryWriter = state.BinaryWriter;
-                var streamWriter = binaryWriter.StreamWriter;
-                var documentStartPosition = (int)streamWriter.Position;
+                var stream = binaryWriter.BsonStream;
+                var documentStartPosition = (int)stream.Position;
                 AddDocument(state, document);
 
                 if ((state.BatchCount > message.MaxBatchCount || state.MessageSize > message.MaxMessageSize) && state.BatchCount > 1)

@@ -164,40 +164,6 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void LoadFrom(Stream stream, int position, int count)
-        {
-            ThrowIfDisposed();
-            if (stream == null)
-            {
-                throw new ArgumentNullException("stream");
-            }
-            if (position < 0 || position > _length)
-            {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
-            }
-            if (count < 0)
-            {
-                throw new ArgumentException("Count is negative.", "count");
-            }
-            if (position + count > _length)
-            {
-                throw new ArgumentException("Count extends past the end of the buffer.", "count");
-            }
-            EnsureIsWritable();
-
-            while (count > 0)
-            {
-                var bytesRead = stream.Read(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, count);
-                if (bytesRead == 0)
-                {
-                    throw new EndOfStreamException();
-                }
-                position += bytesRead;
-                count -= bytesRead;
-            }
-        }
-      
-        /// <inheritdoc/>
         public void MakeReadOnly()
         {
             ThrowIfDisposed();
@@ -205,7 +171,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public byte ReadByte(int position)
+        public byte GetByte(int position)
         {
             ThrowIfDisposed();
             if (position < 0 || position > _length)
@@ -217,7 +183,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void ReadBytes(int position, byte[] destination, int offset, int count)
+        public void GetBytes(int position, byte[] destination, int offset, int count)
         {
             ThrowIfDisposed();
             if (position < 0 || position > _length)
@@ -249,7 +215,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void WriteByte(int position, byte value)
+        public void SetByte(int position, byte value)
         {
             ThrowIfDisposed();
             if (position < 0 || position > _length)
@@ -262,7 +228,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void WriteBytes(int position, byte[] source, int offset, int count)
+        public void SetBytes(int position, byte[] source, int offset, int count)
         {
             ThrowIfDisposed();
             if (position < 0 || position > _length)
@@ -292,14 +258,6 @@ namespace MongoDB.Bson.IO
             EnsureIsWritable();
 
             Buffer.BlockCopy(source, offset, _chunk.Bytes.Array, _chunk.Bytes.Offset + position, count);
-        }
-
-        /// <inheritdoc/>
-        public void WriteTo(Stream stream, int position, int count)
-        {
-            ThrowIfDisposed();
-
-            stream.Write(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, count);
         }
 
         // private methods

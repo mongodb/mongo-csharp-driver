@@ -140,63 +140,45 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void LoadFrom(Stream stream, int position, int count)
-        {
-            EnsureValidPositionAndCount(position, count);
-            ThrowIfDisposed();
-
-            throw new NotSupportedException();
-        }
-
-        /// <inheritdoc/>
         public void MakeReadOnly()
         {
             ThrowIfDisposed();
         }
 
         /// <inheritdoc/>
-        public byte ReadByte(int position)
+        public byte GetByte(int position)
         {
             EnsureValidPosition(position);
             ThrowIfDisposed();
 
-            return _buffer.ReadByte(position + _offset);
+            return _buffer.GetByte(position + _offset);
         }
 
         /// <inheritdoc/>
-        public void ReadBytes(int position, byte[] destination, int offset, int count)
+        public void GetBytes(int position, byte[] destination, int offset, int count)
         {
             EnsureValidPositionAndCount(position, count);
             ThrowIfDisposed();
 
-            _buffer.ReadBytes(position + _offset, destination, offset, count);
+            _buffer.GetBytes(position + _offset, destination, offset, count);
         }
 
         /// <inheritdoc/>
-        public void WriteByte(int position, byte value)
+        public void SetByte(int position, byte value)
         {
             EnsureValidPosition(position);
             ThrowIfDisposed();
 
-            _buffer.WriteByte(position + _offset, value);
+            throw new NotSupportedException();
         }
 
         /// <inheritdoc/>
-        public void WriteBytes(int position, byte[] source, int offset, int count)
+        public void SetBytes(int position, byte[] source, int offset, int count)
         {
             EnsureValidPositionAndCount(position, count);
             ThrowIfDisposed();
 
-            _buffer.WriteBytes(position + _offset, source, offset, count);
-        }
-
-        /// <inheritdoc/>
-        public void WriteTo(Stream stream, int position, int count)
-        {
-            EnsureValidPositionAndCount(position, count);
-            ThrowIfDisposed();
-
-            _buffer.WriteTo(stream, position + _offset, count);
+            throw new NotSupportedException();
         }
 
         private void EnsureValidPosition(int position)

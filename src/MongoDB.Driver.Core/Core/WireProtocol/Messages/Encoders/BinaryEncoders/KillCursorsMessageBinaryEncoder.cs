@@ -45,18 +45,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public KillCursorsMessage ReadMessage()
         {
             var binaryReader = CreateBinaryReader();
-            var streamReader = binaryReader.StreamReader;
+            var stream = binaryReader.BsonStream;
 
-            streamReader.ReadInt32(); // messageSize
-            var requestId = streamReader.ReadInt32();
-            streamReader.ReadInt32(); // responseTo
-            streamReader.ReadInt32(); // opcode
-            streamReader.ReadInt32(); // reserved
-            var count = streamReader.ReadInt32();
+            stream.ReadInt32(); // messageSize
+            var requestId = stream.ReadInt32();
+            stream.ReadInt32(); // responseTo
+            stream.ReadInt32(); // opcode
+            stream.ReadInt32(); // reserved
+            var count = stream.ReadInt32();
             var cursorIds = new long[count];
             for (var i = 0; i < count; i++)
             {
-                cursorIds[i] = streamReader.ReadInt64();
+                cursorIds[i] = stream.ReadInt64();
             }
 
             return new KillCursorsMessage(
@@ -73,20 +73,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             Ensure.IsNotNull(message, "message");
 
             var binaryWriter = CreateBinaryWriter();
-            var streamWriter = binaryWriter.StreamWriter;
-            var startPosition = streamWriter.Position;
+            var stream = binaryWriter.BsonStream;
+            var startPosition = stream.Position;
 
-            streamWriter.WriteInt32(0); // messageSize
-            streamWriter.WriteInt32(message.RequestId);
-            streamWriter.WriteInt32(0); // responseTo
-            streamWriter.WriteInt32((int)Opcode.KillCursors);
-            streamWriter.WriteInt32(0); // reserved
-            streamWriter.WriteInt32(message.CursorIds.Count);
+            stream.WriteInt32(0); // messageSize
+            stream.WriteInt32(message.RequestId);
+            stream.WriteInt32(0); // responseTo
+            stream.WriteInt32((int)Opcode.KillCursors);
+            stream.WriteInt32(0); // reserved
+            stream.WriteInt32(message.CursorIds.Count);
             foreach (var cursorId in message.CursorIds)
             {
-                streamWriter.WriteInt64(cursorId);
+                stream.WriteInt64(cursorId);
             }
-            streamWriter.BackpatchSize(startPosition);
+            stream.BackpatchSize(startPosition);
         }
 
         // explicit interface implementations
