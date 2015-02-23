@@ -64,6 +64,17 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void And_with_clashing_keys_but_different_operators_should_get_merged()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var filter = subject.And(
+                subject.GreaterThan("a", 1),
+                subject.LessThan("a", 10));
+
+            Assert(filter, "{a: {$gt: 1, $lt: 10}}");
+        }
+
+        [Test]
         public void And_with_an_empty_filter()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -83,6 +94,17 @@ namespace MongoDB.Driver.Tests
                 subject.Equal("c", 3));
 
             Assert(filter, "{a: 1, b: 2, c: 3}");
+        }
+
+        [Test]
+        public void And_with_a_nested_and_and_clashing_keys()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var filter = subject.And(
+                subject.And(subject.Equal("a", 1), subject.Equal("a", 2)),
+                subject.Equal("c", 3));
+
+            Assert(filter, "{$and: [{a: 1}, {a: 2}, {c: 3}]}");
         }
 
         [Test]

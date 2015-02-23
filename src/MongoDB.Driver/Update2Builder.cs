@@ -45,8 +45,90 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class Update2Builder<TDocument>
     {
-        // TODO: AddToSet
-        // TODO: AddToSetEach
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>An add to set operator.</returns>
+        public Update2<TDocument> AddToSet<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            return new AddToSetUpdate<TDocument, TField, TItem>(
+                fieldName,
+                new[] { value });
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>An add to set operator.</returns>
+        public Update2<TDocument> AddToSet<TItem>(string fieldName, TItem value)
+        {
+            return AddToSet<IEnumerable<TItem>, TItem>(
+                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                value);
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>An add to set operator.</returns>
+        public Update2<TDocument> AddToSet<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            return AddToSet<TField, TItem>(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>An add to set operator.</returns>
+        public Update2<TDocument> AddToSetEach<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+            where TField : IEnumerable<TItem>
+        {
+            return new AddToSetUpdate<TDocument, TField, TItem>(fieldName, values);
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>An add to set operator.</returns>
+        public Update2<TDocument> AddToSetEach<TItem>(string fieldName, IEnumerable<TItem> values)
+        {
+            return AddToSetEach<IEnumerable<TItem>, TItem>(
+                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                values);
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>An add to set operator.</returns>
+        public Update2<TDocument> AddToSetEach<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+            where TField : IEnumerable<TItem>
+        {
+            return AddToSetEach(new ExpressionFieldName<TDocument, TField>(fieldName), values);
+        }
 
         /// <summary>
         /// Creates a bitwise and operator.
@@ -318,12 +400,235 @@ namespace MongoDB.Driver
             return PopLast(new ExpressionFieldName<TDocument>(fieldName));
         }
 
-        // TODO: Pull
-        // TODO: PullAll
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A pull operator.</returns>
+        public Update2<TDocument> Pull<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            return new PullOperatorUpdate<TDocument, TField, TItem>(fieldName, new [] { value });
+        }
 
-        // TODO: Push
-        // TODO: PushAll
-        // TODO: PushEach
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A pull operator.</returns>
+        public Update2<TDocument> Pull<TItem>(string fieldName, TItem value)
+        {
+            return Pull(new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName), value);
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A pull operator.</returns>
+        public Update2<TDocument> Pull<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            return Pull<TField, TItem>(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>A pull operator.</returns>
+        public Update2<TDocument> PullAll<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+            where TField : IEnumerable<TItem>
+        {
+            return new PullOperatorUpdate<TDocument, TField, TItem>(fieldName, values);
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>A pull operator.</returns>
+        public Update2<TDocument> PullAll<TItem>(string fieldName, IEnumerable<TItem> values)
+        {
+            return PullAll<IEnumerable<TItem>, TItem>(new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName), values);
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>A pull operator.</returns>
+        public Update2<TDocument> PullAll<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+            where TField : IEnumerable<TItem>
+        {
+            return PullAll(new ExpressionFieldName<TDocument, TField>(fieldName), values);
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>A pull operator.</returns>
+        public Update2<TDocument> PullFilter<TField, TItem>(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+            where TField : IEnumerable<TItem>
+        {
+            return new PullOperatorUpdate<TDocument, TField, TItem>(fieldName, filter);
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>A pull operator.</returns>
+        public Update2<TDocument> PullFilter<TItem>(string fieldName, Filter<TItem> filter)
+        {
+            return PullFilter<IEnumerable<TItem>, TItem>(new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName), filter);
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>A pull operator.</returns>
+        public Update2<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
+            where TField : IEnumerable<TItem>
+        {
+            return PullFilter(new ExpressionFieldName<TDocument, TField>(fieldName), filter);
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>A pull operator.</returns>
+        public Update2<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+            where TField : IEnumerable<TItem>
+        {
+            return PullFilter(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilter<TItem>(filter));
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A push operator.</returns>
+        public Update2<TDocument> Push<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            return new PushUpdate<TDocument, TField, TItem>(fieldName, new [] { value });
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A push operator.</returns>
+        public Update2<TDocument> Push<TItem>(string fieldName, TItem value)
+        {
+            return Push<IEnumerable<TItem>, TItem>(
+                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                value);
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A push operator.</returns>
+        public Update2<TDocument> Push<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            return Push(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <param name="slice">The slice.</param>
+        /// <param name="position">The position.</param>
+        /// <param name="sort">The sort.</param>
+        /// <returns>A push operator.</returns>
+        public Update2<TDocument> PushEach<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+            where TField : IEnumerable<TItem>
+        {
+            return new PushUpdate<TDocument, TField, TItem>(fieldName, values, slice, position, sort);
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <param name="slice">The slice.</param>
+        /// <param name="position">The position.</param>
+        /// <param name="sort">The sort.</param>
+        /// <returns>A push operator.</returns>
+        public Update2<TDocument> PushEach<TItem>(string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+        {
+            return PushEach<IEnumerable<TItem>, TItem>(
+                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                values, 
+                slice, 
+                position, 
+                sort);
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <param name="slice">The slice.</param>
+        /// <param name="position">The position.</param>
+        /// <param name="sort">The sort.</param>
+        /// <returns>A push operator.</returns>
+        public Update2<TDocument> PushEach<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+            where TField : IEnumerable<TItem>
+        {
+            return PushEach(new ExpressionFieldName<TDocument, TField>(fieldName), values, slice, position, sort);
+        }
 
         /// <summary>
         /// Creates a field renaming operator.
@@ -413,6 +718,73 @@ namespace MongoDB.Driver
         public Update2<TDocument> Unset(Expression<Func<TDocument, object>> fieldName)
         {
             return Unset(new ExpressionFieldName<TDocument>(fieldName));
+        }
+    }
+
+    /// <summary>
+    /// An add to set operator.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    /// <typeparam name="TField">The type of the field.</typeparam>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    public sealed class AddToSetUpdate<TDocument, TField, TItem> : Update2<TDocument>
+    {
+        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly List<TItem> _values;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AddToSetUpdate{TDocument, TField, TItem}" /> class.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        public AddToSetUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _values = Ensure.IsNotNull(values, "values").ToList();
+        }
+
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var arraySerializer = renderedField.Serializer as IBsonArraySerializer;
+            if (arraySerializer == null)
+            {
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                throw new InvalidOperationException(message);
+            }
+
+            var itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
+
+            var document = new BsonDocument();
+            using (var bsonWriter = new BsonDocumentWriter(document))
+            {
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("$addToSet");
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(renderedField.FieldName);
+                if (_values.Count == 1)
+                {
+                    itemSerializer.Serialize(context, _values[0]);
+                }
+                else
+                {
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteName("$each");
+                    bsonWriter.WriteStartArray();
+                    foreach(var value in _values)
+                    {
+                        itemSerializer.Serialize(context, value);
+                    }
+                    bsonWriter.WriteEndArray();
+                    bsonWriter.WriteEndDocument();
+                }
+                bsonWriter.WriteEndDocument();
+                bsonWriter.WriteEndDocument();
+            }
+
+            return document;
         }
     }
 
@@ -582,6 +954,180 @@ namespace MongoDB.Driver
                 renderedField.Serializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
+            }
+
+            return document;
+        }
+    }
+
+    /// <summary>
+    /// A pull operator.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    /// <typeparam name="TField">The type of the field.</typeparam>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    public sealed class PullOperatorUpdate<TDocument, TField, TItem> : Update2<TDocument>
+    {
+        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly Filter<TItem> _filter;
+        private readonly List<TItem> _values;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PullOperatorUpdate{TDocument, TField, TItem}" /> class.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        public PullOperatorUpdate(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _filter = Ensure.IsNotNull(filter, "filter");
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PullOperatorUpdate{TDocument, TField, TItem}" /> class.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        public PullOperatorUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _values = Ensure.IsNotNull(values, "values").ToList();
+        }
+
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var arraySerializer = renderedField.Serializer as IBsonArraySerializer;
+            if (arraySerializer == null)
+            {
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                throw new InvalidOperationException(message);
+            }
+
+            var itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
+
+            if (_filter != null)
+            {
+                var renderedFilter = _filter.Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry);
+                return new BsonDocument("$pull", new BsonDocument(renderedField.FieldName, renderedFilter));
+            }
+            else
+            {
+                var document = new BsonDocument();
+                using (var bsonWriter = new BsonDocumentWriter(document))
+                {
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteName(_values.Count == 1 ? "$pull" : "$pullAll");
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteName(renderedField.FieldName);
+                    if (_values.Count == 1)
+                    {
+                        itemSerializer.Serialize(context, _values[0]);
+                    }
+                    else
+                    {
+                        bsonWriter.WriteStartArray();
+                        foreach (var value in _values)
+                        {
+                            itemSerializer.Serialize(context, value);
+                        }
+                        bsonWriter.WriteEndArray();
+                    }
+                    bsonWriter.WriteEndDocument();
+                    bsonWriter.WriteEndDocument();
+                }
+                return document;
+            }
+        }
+    }
+
+    /// <summary>
+    /// A push operator.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    /// <typeparam name="TField">The type of the field.</typeparam>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    public sealed class PushUpdate<TDocument, TField, TItem> : Update2<TDocument>
+    {
+        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly int? _position;
+        private readonly int? _slice;
+        private Sort<TItem> _sort;
+        private readonly List<TItem> _values;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PushUpdate{TDocument, TField, TItem}" /> class.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <param name="slice">The slice.</param>
+        /// <param name="position">The position.</param>
+        /// <param name="sort">The sort.</param>
+        public PushUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _values = Ensure.IsNotNull(values, "values").ToList();
+            _slice = slice;
+            _position = position;
+            _sort = sort;
+        }
+
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var arraySerializer = renderedField.Serializer as IBsonArraySerializer;
+            if (arraySerializer == null)
+            {
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                throw new InvalidOperationException(message);
+            }
+
+            var itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
+
+            var document = new BsonDocument();
+            using (var bsonWriter = new BsonDocumentWriter(document))
+            {
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("$push");
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(renderedField.FieldName);
+                if (!_slice.HasValue && !_position.HasValue && _sort == null && _values.Count == 1)
+                {
+                    itemSerializer.Serialize(context, _values[0]);
+                }
+                else
+                {
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteName("$each");
+                    bsonWriter.WriteStartArray();
+                    foreach (var value in _values)
+                    {
+                        itemSerializer.Serialize(context, value);
+                    }
+                    bsonWriter.WriteEndArray();
+                    if(_slice.HasValue)
+                    {
+                        bsonWriter.WriteName("$slice");
+                        bsonWriter.WriteInt32(_slice.Value);
+                    }
+                    if(_position.HasValue)
+                    {
+                        bsonWriter.WriteName("$position");
+                        bsonWriter.WriteInt32(_position.Value);
+                    }
+                    bsonWriter.WriteEndDocument();
+                }
+                bsonWriter.WriteEndDocument();
+                bsonWriter.WriteEndDocument();
+            }
+
+            if(_sort != null)
+            {
+                document["$push"][renderedField.FieldName]["$sort"] = _sort.Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry);
             }
 
             return document;

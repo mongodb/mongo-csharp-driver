@@ -26,6 +26,42 @@ namespace MongoDB.Driver.Tests
     public class Update2BuilderTests
     {
         [Test]
+        public void AddToSet()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.AddToSet("a", 1), "{$addToSet: {a: 1}}");
+            Assert(subject.AddToSet<int[]>("a", new[] { 1, 2 }), "{$addToSet: {a: [1, 2]}}");
+        }
+
+        [Test]
+        public void AddToSet_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.AddToSet(x => x.FavoriteColors, "green"), "{$addToSet: {colors: 'green'}}");
+            Assert(subject.AddToSet("FavoriteColors", "green"), "{$addToSet: {FavoriteColors: 'green'}}");
+        }
+
+        [Test]
+        public void AddToSetEach()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.AddToSetEach("a", new[] { 1, 2 }), "{$addToSet: {a: {$each: [1, 2]}}}");
+            Assert(subject.AddToSetEach("a", new[] { new[] { 1, 2 }, new[] { 3, 4 } }), "{$addToSet: {a: {$each: [[1, 2], [3, 4]]}}}");
+        }
+
+        [Test]
+        public void AddToSetEach_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.AddToSetEach(x => x.FavoriteColors, new[] { "green", "violet" }), "{$addToSet: {colors: {$each: ['green', 'violet']}}}");
+            Assert(subject.AddToSetEach("FavoriteColors", new[] { "green", "violet" }), "{$addToSet: {FavoriteColors: {$each: ['green', 'violet']}}}");
+        }
+
+        [Test]
         public void BitwiseAnd()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -266,6 +302,131 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Pull()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Pull("a", 1), "{$pull: {a: 1}}");
+            Assert(subject.Pull("a", new[] { 1, 2 }), "{$pull: {a: [1, 2]}}");
+        }
+
+        [Test]
+        public void Pull_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.Pull(x => x.FavoriteColors, "green"), "{$pull: {colors: 'green'}}");
+            Assert(subject.Pull("FavoriteColors", "green"), "{$pull: {FavoriteColors: 'green'}}");
+        }
+
+        [Test]
+        public void PullAll()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.PullAll("a", new[] { 1, 2 }), "{$pullAll: {a: [1, 2]}}");
+            Assert(subject.PullAll("a", new[] { new[] { 1, 2 }, new[] { 3, 4 } }), "{$pullAll: {a: [[1, 2], [3, 4]]}}");
+        }
+
+        [Test]
+        public void PullAll_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.PullAll(x => x.FavoriteColors, new[] { "green", "violet" }), "{$pullAll: {colors: ['green', 'violet']}}");
+            Assert(subject.PullAll("FavoriteColors", new[] { "green", "violet" }), "{$pullAll: {FavoriteColors: ['green', 'violet']}}");
+        }
+
+        [Test]
+        public void PullFilter()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.PullFilter<BsonDocument>("a", "{b: {$gt: 1}}"), "{$pull: {a: {b: {$gt: 1}}}}");
+        }
+
+        [Test]
+        public void PullFilter_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.PullFilter<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{$pull: {pets: {name: 'Fluffy'}}}}");
+            Assert(subject.PullFilter<Pet[], Pet>("Pets", "{ Name: 'Fluffy'}"), "{$pull: {Pets: {Name: 'Fluffy'}}}}");
+        }
+
+        [Test]
+        public void Push()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Push("a", 1), "{$push: {a: 1}}");
+            Assert(subject.Push("a", new[] { 1, 2 }), "{$push: {a: [1, 2]}}");
+        }
+
+        [Test]
+        public void Push_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.Push(x => x.FavoriteColors, "green"), "{$push: {colors: 'green'}}");
+            Assert(subject.Push("FavoriteColors", "green"), "{$push: {FavoriteColors: 'green'}}");
+        }
+
+        [Test]
+        public void PushEach(
+            [Values(null, 10)] int? slice,
+            [Values(null, 20)] int? position,
+            [Values(null, "{b: 1}")] string sort)
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var expectedPushValue = BsonDocument.Parse("{$each: [1, 2]}");
+            if (slice.HasValue)
+            {
+                expectedPushValue.Add("$slice", slice.Value);
+            }
+            if (position.HasValue)
+            {
+                expectedPushValue.Add("$position", position.Value);
+            }
+            if (sort != null)
+            {
+                expectedPushValue.Add("$sort", BsonDocument.Parse(sort));
+            }
+
+            var expectedPush = new BsonDocument("$push", new BsonDocument("a", expectedPushValue));
+
+            Assert(subject.PushEach("a", new[] { 1, 2 }, slice, position, sort), expectedPush);
+        }
+
+        [Test]
+        public void PushEach_Typed(
+            [Values(null, 10)] int? slice,
+            [Values(null, 20)] int? position,
+            [Values(null, "{b: 1}")] string sort)
+        {
+            var subject = CreateSubject<Person>();
+
+            var expectedPushValue = BsonDocument.Parse("{$each: ['green', 'violet']}");
+            if (slice.HasValue)
+            {
+                expectedPushValue.Add("$slice", slice.Value);
+            }
+            if (position.HasValue)
+            {
+                expectedPushValue.Add("$position", position.Value);
+            }
+            if (sort != null)
+            {
+                expectedPushValue.Add("$sort", BsonDocument.Parse(sort));
+            }
+
+            var expectedPush = new BsonDocument("$push", new BsonDocument("colors", expectedPushValue));
+
+            Assert(subject.PushEach(x => x.FavoriteColors, new[] { "green", "violet" }, slice, position, sort), expectedPush);
+        }
+
+        [Test]
         public void Rename()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -333,12 +494,17 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Unset("Age"), "{$unset: {Age: 1}}");
         }
 
-        private void Assert<TDocument>(Update2<TDocument> update, string expectedJson)
+        private void Assert<TDocument>(Update2<TDocument> update, BsonDocument expected)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedUpdate = update.Render(documentSerializer, BsonSerializer.SerializerRegistry);
 
-            renderedUpdate.Should().Be(expectedJson);
+            renderedUpdate.Should().Be(expected);
+        }
+
+        private void Assert<TDocument>(Update2<TDocument> update, string expected)
+        {
+            Assert(update, BsonDocument.Parse(expected));
         }
 
         private Update2Builder<TDocument> CreateSubject<TDocument>()
@@ -359,6 +525,14 @@ namespace MongoDB.Driver.Tests
 
             [BsonElement("last_updated")]
             public DateTime LastUpdated { get; set; }
+            [BsonElement("pets")]
+            public Pet[] Pets { get; set; }
+        }
+
+        private class Pet
+        {
+            [BsonElement("name")]
+            public string Name { get; set; }
         }
     }
 }

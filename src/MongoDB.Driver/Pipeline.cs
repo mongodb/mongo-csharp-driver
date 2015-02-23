@@ -82,6 +82,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Pipeline<TDocument, TResult>(IPipelineStage[] stages)
         {
+            if (stages == null)
+            {
+                return null;
+            }
+
             return new PipelineStagePipeline<TDocument, TResult>(stages);
         }
 
@@ -94,6 +99,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Pipeline<TDocument, TResult>(List<IPipelineStage> stages)
         {
+            if (stages == null)
+            {
+                return null;
+            }
+
             return new PipelineStagePipeline<TDocument, TResult>(stages);
         }
     }

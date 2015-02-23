@@ -46,6 +46,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Filter<TDocument>(BsonDocument document)
         {
+            if (document == null)
+            {
+                return null;
+            }
+
             return new BsonDocumentFilter<TDocument>(document);
         }
 
@@ -58,6 +63,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Filter<TDocument>(Expression<Func<TDocument, bool>> predicate)
         {
+            if (predicate == null)
+            {
+                return null;
+            }
+
             return new ExpressionFilter<TDocument>(predicate);
         }
 
@@ -70,6 +80,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Filter<TDocument>(string json)
         {
+            if (json == null)
+            {
+                return null;
+            }
+
             return new JsonFilter<TDocument>(json);
         }
     }

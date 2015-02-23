@@ -137,6 +137,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator PipelineStage<TDocument, TResult>(BsonDocument document)
         {
+            if (document == null)
+            {
+                return null;
+            }
+
             return new BsonDocumentPipelineStage<TDocument, TResult>(document);
         }
 
@@ -149,6 +154,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator PipelineStage<TDocument, TResult>(string json)
         {
+            if (json == null)
+            {
+                return null;
+            }
+
             return new JsonStage<TDocument, TResult>(json);
         }
 

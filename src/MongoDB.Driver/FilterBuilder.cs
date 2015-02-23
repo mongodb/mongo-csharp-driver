@@ -880,8 +880,7 @@ namespace MongoDB.Driver
                     }
                 }
             }
-
-            if (document.ElementCount == 1 && document.GetElement(0).Name == "$and")
+            else if (document.ElementCount == 1 && document.GetElement(0).Name == "$and")
             {
                 ((BsonArray)document[0]).Add(new BsonDocument(clause));
             }

@@ -61,6 +61,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Sort<TDocument>(BsonDocument document)
         {
+            if (document == null)
+            {
+                return null;
+            }
+
             return new BsonDocumentSort<TDocument>(document);
         }
 
@@ -73,6 +78,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Sort<TDocument>(string json)
         {
+            if (json == null)
+            {
+                return null;
+            }
+
             return new JsonSort<TDocument>(json);
         }
     }

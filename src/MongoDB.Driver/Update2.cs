@@ -44,6 +44,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Update2<TDocument>(BsonDocument document)
         {
+            if (document == null)
+            {
+                return null;
+            }
+
             return new BsonDocumentUpdate<TDocument>(document);
         }
 
@@ -56,6 +61,10 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Update2<TDocument>(string json)
         {
+            if (json == null)
+            {
+                return null;
+            }
             return new JsonUpdate<TDocument>(json);
         }
     }

@@ -83,6 +83,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Projection<TDocument, TResult>(BsonDocument document)
         {
+            if (document == null)
+            {
+                return null;
+            }
+
             return new BsonDocumentProjection<TDocument, TResult>(document);
         }
 
@@ -95,6 +100,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator Projection<TDocument, TResult>(string json)
         {
+            if (json == null)
+            {
+                return null;
+            }
+
             return new JsonProjection<TDocument, TResult>(json);
         }
     }

@@ -81,6 +81,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator FieldName<TDocument>(string fieldName)
         {
+            if (fieldName == null)
+            {
+                return null;
+            }
+
             return new StringFieldName<TDocument>(fieldName);
         }
     }
@@ -109,6 +114,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator FieldName<TDocument, TField>(string fieldName)
         {
+            if (fieldName == null)
+            {
+                return null;
+            }
+
             return new StringFieldName<TDocument, TField>(fieldName, null);
         }
     }

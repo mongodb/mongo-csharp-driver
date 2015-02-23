@@ -43,6 +43,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator IndexDefinition<TDocument>(BsonDocument document)
         {
+            if (document == null)
+            {
+                return null;
+            }
+
             return new BsonDocumentIndexDefinition<TDocument>(document);
         }
 
@@ -55,6 +60,11 @@ namespace MongoDB.Driver
         /// </returns>
         public static implicit operator IndexDefinition<TDocument>(string json)
         {
+            if (json == null)
+            {
+                return null;
+            }
+
             return new JsonIndexDefinition<TDocument>(json);
         }
     }
