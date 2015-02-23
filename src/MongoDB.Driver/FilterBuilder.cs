@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace MongoDB.Driver
 {
@@ -156,7 +157,7 @@ namespace MongoDB.Driver
         /// <returns>An equality filter.</returns>
         public Filter<TDocument> Equal<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new EqualFilter<TDocument, TField>(fieldName, value);
+            return new SimpleFilter<TDocument, TField>(fieldName, value);
         }
 
         /// <summary>
@@ -193,7 +194,161 @@ namespace MongoDB.Driver
             return Exists(new ExpressionFieldName<TDocument>(fieldName), exists);
         }
 
-        // TODO: GeoIntersects
+        /// <summary>
+        /// Creates a geo intersects filter.
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="geometry">The geometry.</param>
+        /// <returns>A geo intersects filter.</returns>
+        public Filter<TDocument> GeoIntersects<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonGeometry<TCoordinates> geometry)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return new GeometryOperatorFilter<TDocument, TCoordinates>("$geoIntersects", fieldName, geometry);
+        }
+
+        /// <summary>
+        /// Creates a geo intersects filter.
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="geometry">The geometry.</param>
+        /// <returns>A geo intersects filter.</returns>
+        public Filter<TDocument> GeoIntersects<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonGeometry<TCoordinates> geometry)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return GeoIntersects(new ExpressionFieldName<TDocument>(fieldName), geometry);
+        }
+
+        /// <summary>
+        /// Creates a geo within filter.
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="geometry">The geometry.</param>
+        /// <returns>A geo within filter.</returns>
+        public Filter<TDocument> GeoWithin<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonGeometry<TCoordinates> geometry)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return new GeometryOperatorFilter<TDocument, TCoordinates>("$geoWithin", fieldName, geometry);
+        }
+
+        /// <summary>
+        /// Creates a geo within filter.
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="geometry">The geometry.</param>
+        /// <returns>A geo within filter.</returns>
+        public Filter<TDocument> GeoWithin<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonGeometry<TCoordinates> geometry)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return GeoWithin(new ExpressionFieldName<TDocument>(fieldName), geometry);
+        }
+
+        /// <summary>
+        /// Creates a geo within box filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <returns>A geo within box filter.</returns>
+        public Filter<TDocument> GeoWithinBox(FieldName<TDocument> fieldName, double x, double y)
+        {
+            return new OperatorFilter<TDocument>("$geoWithin", fieldName, new BsonDocument("$box", new BsonArray { x, y }));
+        }
+
+        /// <summary>
+        /// Creates a geo within box filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <returns>A geo within box filter.</returns>
+        public Filter<TDocument> GeoWithinBox(Expression<Func<TDocument, object>> fieldName, double x, double y)
+        {
+            return GeoWithinBox(new ExpressionFieldName<TDocument>(fieldName), x, y);
+        }
+
+        /// <summary>
+        /// Creates a geo within center filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="radius">The radius.</param>
+        /// <returns>A geo within center filter.</returns>
+        public Filter<TDocument> GeoWithinCenter(FieldName<TDocument> fieldName, double x, double y, double radius)
+        {
+            return new OperatorFilter<TDocument>("$geoWithin", fieldName, new BsonDocument("$center", new BsonArray { new BsonArray { x, y }, radius }));
+        }
+
+        /// <summary>
+        /// Creates a geo within center filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="radius">The radius.</param>
+        /// <returns>A geo within center filter.</returns>
+        public Filter<TDocument> GeoWithinCenter(Expression<Func<TDocument, object>> fieldName, double x, double y, double radius)
+        {
+            return GeoWithinCenter(new ExpressionFieldName<TDocument>(fieldName), x, y, radius);
+        }
+
+        /// <summary>
+        /// Creates a geo within center sphere filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="radius">The radius.</param>
+        /// <returns>A geo within center sphere filter.</returns>
+        public Filter<TDocument> GeoWithinCenterSphere(FieldName<TDocument> fieldName, double x, double y, double radius)
+        {
+            return new OperatorFilter<TDocument>("$geoWithin", fieldName, new BsonDocument("$centerSphere", new BsonArray { new BsonArray { x, y }, radius }));
+        }
+
+        /// <summary>
+        /// Creates a geo within center sphere filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="radius">The radius.</param>
+        /// <returns>A geo within center sphere filter.</returns>
+        public Filter<TDocument> GeoWithinCenterSphere(Expression<Func<TDocument, object>> fieldName, double x, double y, double radius)
+        {
+            return GeoWithinCenterSphere(new ExpressionFieldName<TDocument>(fieldName), x, y, radius);
+        }
+
+        /// <summary>
+        /// Creates a geo within polygon filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="points">The points.</param>
+        /// <returns>A geo within polygon filter.</returns>
+        public Filter<TDocument> GeoWithinPolygon(FieldName<TDocument> fieldName, double[,] points)
+        {
+            var arrayOfPoints = new BsonArray(points.GetLength(0));
+            for (var i = 0; i < points.GetLength(0); i++)
+            {
+                arrayOfPoints.Add(new BsonArray(2) { points[i, 0], points[i, 1] });
+            }
+
+            return new OperatorFilter<TDocument>("$geoWithin", fieldName, new BsonDocument("$polygon", arrayOfPoints));
+        }
+
+        /// <summary>
+        /// Creates a geo within polygon filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="points">The points.</param>
+        /// <returns>A geo within polygon filter.</returns>
+        public Filter<TDocument> GeoWithinPolygon(Expression<Func<TDocument, object>> fieldName, double[,] points)
+        {
+            return GeoWithinPolygon(new ExpressionFieldName<TDocument>(fieldName), points);
+        }
 
         /// <summary>
         /// Creates a greater than filter.
@@ -333,9 +488,159 @@ namespace MongoDB.Driver
             return LessThanOrEqual(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
 
-        // TODO: Modulo
+        /// <summary>
+        /// Creates a modulo filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="modulus">The modulus.</param>
+        /// <param name="remainder">The remainder.</param>
+        /// <returns>A modulo filter.</returns>
+        public Filter<TDocument> Modulo(FieldName<TDocument> fieldName, long modulus, long remainder)
+        {
+            return new OperatorFilter<TDocument>("$mod", fieldName, new BsonArray { modulus, remainder });
+        }
 
-        // TODO: Near
+        /// <summary>
+        /// Creates a modulo filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="modulus">The modulus.</param>
+        /// <param name="remainder">The remainder.</param>
+        /// <returns>A modulo filter.</returns>
+        public Filter<TDocument> Modulo(Expression<Func<TDocument, object>> fieldName, long modulus, long remainder)
+        {
+            return Modulo(new ExpressionFieldName<TDocument>(fieldName), modulus, remainder);
+        }
+
+        /// <summary>
+        /// Creates a near filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        /// <param name="minDistance">The minimum distance.</param>
+        /// <returns>A near filter.</returns>
+        public Filter<TDocument> Near(FieldName<TDocument> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
+        {
+            var document = new BsonDocument
+            {
+                { "$near", new BsonArray {x, y}},
+                { "$maxDistance", () => maxDistance.Value, maxDistance.HasValue },
+                { "$minDistance", () => minDistance.Value, minDistance.HasValue }
+            };
+
+            return new SimpleFilter<TDocument>(fieldName, document);
+        }
+
+        /// <summary>
+        /// Creates a near filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        /// <param name="minDistance">The minimum distance.</param>
+        /// <returns>A near filter.</returns>
+        public Filter<TDocument> Near(Expression<Func<TDocument, object>> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
+        {
+            return Near(new ExpressionFieldName<TDocument>(fieldName), x, y, maxDistance, minDistance);
+        }
+
+        /// <summary>
+        /// Creates a near filter.
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="point">The geometry.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        /// <param name="minDistance">The minimum distance.</param>
+        /// <returns>A near filter.</returns>
+        public Filter<TDocument> Near<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return new NearFilter<TDocument, TCoordinates>(fieldName, point, false, maxDistance, minDistance);
+        }
+
+        /// <summary>
+        /// Creates a near filter.
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="point">The geometry.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        /// <param name="minDistance">The minimum distance.</param>
+        /// <returns>A near filter.</returns>
+        public Filter<TDocument> Near<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return Near(new ExpressionFieldName<TDocument>(fieldName), point, maxDistance, minDistance);
+        }
+
+        /// <summary>
+        /// Creates a near sphere filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        /// <param name="minDistance">The minimum distance.</param>
+        /// <returns>A near sphere filter.</returns>
+        public Filter<TDocument> NearSphere(FieldName<TDocument> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
+        {
+            var document = new BsonDocument
+            {
+                { "$nearSphere", new BsonArray {x, y}},
+                { "$maxDistance", () => maxDistance.Value, maxDistance.HasValue },
+                { "$minDistance", () => minDistance.Value, minDistance.HasValue }
+            };
+
+            return new SimpleFilter<TDocument>(fieldName, document);
+        }
+
+        /// <summary>
+        /// Creates a near sphere filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        /// <param name="minDistance">The minimum distance.</param>
+        /// <returns>A near sphere filter.</returns>
+        public Filter<TDocument> NearSphere(Expression<Func<TDocument, object>> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
+        {
+            return NearSphere(new ExpressionFieldName<TDocument>(fieldName), x, y, maxDistance, minDistance);
+        }
+
+        /// <summary>
+        /// Creates a near sphere filter.
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="point">The geometry.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        /// <param name="minDistance">The minimum distance.</param>
+        /// <returns>A near sphere filter.</returns>
+        public Filter<TDocument> NearSphere<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return new NearFilter<TDocument, TCoordinates>(fieldName, point, true, maxDistance, minDistance);
+        }
+
+        /// <summary>
+        /// Creates a near sphere filter.
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="point">The geometry.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        /// <param name="minDistance">The minimum distance.</param>
+        /// <returns>A near sphere filter.</returns>
+        public Filter<TDocument> NearSphere<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return NearSphere(new ExpressionFieldName<TDocument>(fieldName), point, maxDistance, minDistance);
+        }
 
         /// <summary>
         /// Creates a not filter.
@@ -441,7 +746,7 @@ namespace MongoDB.Driver
         /// <returns>A regular expression filter.</returns>
         public Filter<TDocument> Regex(FieldName<TDocument> fieldName, BsonRegularExpression regex)
         {
-            return new EqualFilter<TDocument>(fieldName, regex);
+            return new SimpleFilter<TDocument>(fieldName, regex);
         }
 
         /// <summary>
@@ -477,9 +782,34 @@ namespace MongoDB.Driver
             return Size(new ExpressionFieldName<TDocument>(fieldName), size);
         }
 
+        /// <summary>
+        /// Creates a text filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="search">The search.</param>
+        /// <param name="language">The language.</param>
+        /// <returns>A text filter.</returns>
+        public Filter<TDocument> Text(FieldName<TDocument> fieldName, string search, string language = null)
+        {
+            var document = new BsonDocument
+            {
+                { "$search", search },
+                { "$language", language, language != null }
+            };
+            return new OperatorFilter<TDocument>("$text", fieldName, document);
+        }
 
-        // TODO: SizeGreaterThan?
-        // TODO: SizeLessThan?
+        /// <summary>
+        /// Creates a text filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="search">The search.</param>
+        /// <param name="language">The language.</param>
+        /// <returns>A text filter.</returns>
+        public Filter<TDocument> Text(Expression<Func<TDocument, object>> fieldName, string search, string language = null)
+        {
+            return Text(new ExpressionFieldName<TDocument>(fieldName), search, language);
+        }
 
         /// <summary>
         /// Creates a type filter.
@@ -502,13 +832,6 @@ namespace MongoDB.Driver
         {
             return Type(new ExpressionFieldName<TDocument>(fieldName), type);
         }
-
-        // TODO: Within
-        // TODO: WithinCircle
-        // TODO: WithinPolygon
-        // TODO: WithinRectangle
-
-        // TODO: Text
     }
 
     /// <summary>
@@ -702,52 +1025,28 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// An equality filter where the type doesn't matter.
+    /// A geometry operator filter.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class EqualFilter<TDocument> : Filter<TDocument>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+    public sealed class GeometryOperatorFilter<TDocument, TCoordinates> : Filter<TDocument>
+        where TCoordinates : GeoJsonCoordinates
     {
+        private readonly string _operatorName;
         private readonly FieldName<TDocument> _fieldName;
-        private readonly BsonValue _value;
+        private readonly GeoJsonGeometry<TCoordinates> _geometry;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EqualFilter{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="GeometryOperatorFilter{TDocument, TCoordinates}"/> class.
         /// </summary>
+        /// <param name="operatorName">Name of the operator.</param>
         /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
-        public EqualFilter(FieldName<TDocument> fieldName, BsonValue value)
+        /// <param name="geometry">The geometry.</param>
+        public GeometryOperatorFilter(string operatorName, FieldName<TDocument> fieldName, GeoJsonGeometry<TCoordinates> geometry)
         {
+            _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
-            _value = value;
-        }
-
-        /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
-            return new BsonDocument(renderedField, _value);
-        }
-    }
-
-    /// <summary>
-    /// An equality filter where the type matters.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TField">The type of the field.</typeparam>
-    public sealed class EqualFilter<TDocument, TField> : Filter<TDocument>
-    {
-        private readonly FieldName<TDocument, TField> _fieldName;
-        private readonly TField _value;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EqualFilter{TDocument, TField}"/> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
-        public EqualFilter(FieldName<TDocument, TField> fieldName, TField value)
-        {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
-            _value = value;
+            _geometry = Ensure.IsNotNull(geometry, "geometry");
         }
 
         /// <inheritdoc />
@@ -759,8 +1058,79 @@ namespace MongoDB.Driver
             {
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName(renderedField.FieldName);
-                renderedField.Serializer.Serialize(context, _value);
+                bsonWriter.WriteName(renderedField);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(_operatorName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("$geometry");
+                serializerRegistry.GetSerializer<GeoJsonGeometry<TCoordinates>>().Serialize(context, _geometry);
+                bsonWriter.WriteEndDocument();
+                bsonWriter.WriteEndDocument();
+                bsonWriter.WriteEndDocument();
+            }
+
+            return document;
+        }
+    }
+
+    /// <summary>
+    /// A near filter.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+    public sealed class NearFilter<TDocument, TCoordinates> : Filter<TDocument>
+        where TCoordinates : GeoJsonCoordinates
+    {
+        private readonly FieldName<TDocument> _fieldName;
+        private readonly GeoJsonPoint<TCoordinates> _point;
+        private readonly double? _maxDistance;
+        private readonly double? _minDistance;
+        private readonly bool _spherical;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NearFilter{TDocument, TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="point">The point.</param>
+        /// <param name="spherical">The spherical.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        /// <param name="minDistance">The minimum distance.</param>
+        public NearFilter(FieldName<TDocument> fieldName, GeoJsonPoint<TCoordinates> point, bool spherical, double? maxDistance = null, double? minDistance = null)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _point = Ensure.IsNotNull(point, "point");
+            _spherical = spherical;
+            _maxDistance = maxDistance;
+            _minDistance = minDistance;
+        }
+
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var document = new BsonDocument();
+            using (var bsonWriter = new BsonDocumentWriter(document))
+            {
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(renderedField);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(_spherical ? "$nearSphere" : "$near");
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("$geometry");
+                serializerRegistry.GetSerializer<GeoJsonPoint<TCoordinates>>().Serialize(context, _point);
+                if (_maxDistance.HasValue)
+                {
+                    bsonWriter.WriteName("$maxDistance");
+                    bsonWriter.WriteDouble(_maxDistance.Value);
+                }
+                if (_minDistance.HasValue)
+                {
+                    bsonWriter.WriteName("$minDistance");
+                    bsonWriter.WriteDouble(_minDistance.Value);
+                }
+                bsonWriter.WriteEndDocument();
+                bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
             }
 
@@ -987,6 +1357,73 @@ namespace MongoDB.Driver
                 // I'd rather be literal and let them discover the problem on their own.
                 clauses.Add(filter);
             }
+        }
+    }
+
+    /// <summary>
+    /// A simple filter where the type doesn't matter.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public sealed class SimpleFilter<TDocument> : Filter<TDocument>
+    {
+        private readonly FieldName<TDocument> _fieldName;
+        private readonly BsonValue _value;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SimpleFilter{TDocument}"/> class.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        public SimpleFilter(FieldName<TDocument> fieldName, BsonValue value)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _value = value;
+        }
+
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            return new BsonDocument(renderedField, _value);
+        }
+    }
+
+    /// <summary>
+    /// A simple filter where the type matters.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    /// <typeparam name="TField">The type of the field.</typeparam>
+    public sealed class SimpleFilter<TDocument, TField> : Filter<TDocument>
+    {
+        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly TField _value;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SimpleFilter{TDocument, TField}"/> class.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        public SimpleFilter(FieldName<TDocument, TField> fieldName, TField value)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _value = value;
+        }
+
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var document = new BsonDocument();
+            using (var bsonWriter = new BsonDocumentWriter(document))
+            {
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(renderedField.FieldName);
+                renderedField.Serializer.Serialize(context, _value);
+                bsonWriter.WriteEndDocument();
+            }
+
+            return document;
         }
     }
 }

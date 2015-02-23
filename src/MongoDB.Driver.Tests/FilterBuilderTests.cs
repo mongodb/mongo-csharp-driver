@@ -17,6 +17,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.GeoJsonObjectModel;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -135,6 +136,144 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void GeoIntersects()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var poly = GeoJson.Polygon(
+                GeoJson.Geographic(40, 18),
+                GeoJson.Geographic(40, 19),
+                GeoJson.Geographic(41, 19),
+                GeoJson.Geographic(40, 18));
+
+
+            Assert(subject.GeoIntersects("x", poly), "{x: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+        }
+
+        [Test]
+        public void GeoIntersects_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            var poly = GeoJson.Polygon(
+                GeoJson.Geographic(40, 18),
+                GeoJson.Geographic(40, 19),
+                GeoJson.Geographic(41, 19),
+                GeoJson.Geographic(40, 18));
+
+            Assert(subject.GeoIntersects(x => x.Age, poly), "{age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoIntersects("Age", poly), "{Age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+        }
+
+        [Test]
+        public void GeoIntersects_Typed_with_GeoJson()
+        {
+            var subject = CreateSubject<Person>();
+            var poly = GeoJson.Polygon(
+                GeoJson.Geographic(40, 18),
+                GeoJson.Geographic(40, 19),
+                GeoJson.Geographic(41, 19),
+                GeoJson.Geographic(40, 18));
+
+            Assert(subject.GeoIntersects(x => x.Age, poly), "{age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoIntersects("Age", poly), "{Age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+        }
+
+        [Test]
+        public void GeoWithin()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var poly = GeoJson.Polygon(
+                GeoJson.Geographic(40, 18),
+                GeoJson.Geographic(40, 19),
+                GeoJson.Geographic(41, 19),
+                GeoJson.Geographic(40, 18));
+
+
+            Assert(subject.GeoWithin("x", poly), "{x: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+        }
+
+        [Test]
+        public void GeoWithin_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            var poly = GeoJson.Polygon(
+                GeoJson.Geographic(40, 18),
+                GeoJson.Geographic(40, 19),
+                GeoJson.Geographic(41, 19),
+                GeoJson.Geographic(40, 18));
+
+            Assert(subject.GeoWithin(x => x.Age, poly), "{age: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoWithin("Age", poly), "{Age: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+        }
+
+        [Test]
+        public void GeoWithinBox()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.GeoWithinBox("x", 10, 20), "{x: {$geoWithin: {$box: [10.0, 20.0]}}}");
+        }
+
+        [Test]
+        public void GeoWithinBox_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.GeoWithinBox(x => x.Age, 10, 20), "{age: {$geoWithin: {$box: [10.0, 20.0]}}}");
+            Assert(subject.GeoWithinBox("Age", 10, 20), "{Age: {$geoWithin: {$box: [10.0, 20.0]}}}");
+        }
+
+        [Test]
+        public void GeoWithinCenter()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.GeoWithinCenter("x", 10, 20, 30), "{x: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
+        }
+
+        [Test]
+        public void GeoWithinCenter_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.GeoWithinCenter(x => x.Age, 10, 20, 30), "{age: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
+            Assert(subject.GeoWithinCenter("Age", 10, 20, 30), "{Age: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
+        }
+
+        [Test]
+        public void GeoWithinCenterSphere()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.GeoWithinCenterSphere("x", 10, 20, 30), "{x: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
+        }
+
+        [Test]
+        public void GeoWithinCenterSphere_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.GeoWithinCenterSphere(x => x.Age, 10, 20, 30), "{age: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
+            Assert(subject.GeoWithinCenterSphere("Age", 10, 20, 30), "{Age: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
+        }
+
+        [Test]
+        public void GeoWithinPolygon()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.GeoWithinPolygon("x", new[,] { { 1d, 2d }, { 3d, 4d } }), "{x: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
+        }
+
+        [Test]
+        public void GeoWithinPolygon_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.GeoWithinPolygon(x => x.Age, new[,] { { 1d, 2d }, { 3d, 4d } }), "{age: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
+            Assert(subject.GeoWithinPolygon("Age", new[,] { { 1d, 2d }, { 3d, 4d } }), "{Age: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
+        }
+
+        [Test]
         public void GreaterThan()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -212,6 +351,110 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
             Assert(subject.LessThanOrEqual(x => x.Age, 10), "{age: {$lte: 10}}");
             Assert(subject.LessThanOrEqual("Age", 10), "{Age: {$lte: 10}}");
+        }
+
+        [Test]
+        public void Modulo()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Modulo("x", 10, 4), "{x: {$mod: [NumberLong(10), NumberLong(4)]}}");
+        }
+
+        [Test]
+        public void Modulo_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.Modulo(x => x.Age, 10, 4), "{age: {$mod: [NumberLong(10), NumberLong(4)]}}");
+            Assert(subject.Modulo("Age", 10, 4), "{Age: {$mod: [NumberLong(10), NumberLong(4)]}}");
+        }
+
+        [Test]
+        public void Near(
+            [Values(null, 10d)] double? maxDistance,
+            [Values(null, 20d)] double? minDistance)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var filter = subject.Near("x", 40, 18, maxDistance, minDistance);
+
+            var expectedNear = BsonDocument.Parse("{$near: [40.0, 18.0]}");
+            if (maxDistance.HasValue)
+            {
+                expectedNear.Add("$maxDistance", maxDistance.Value);
+            }
+            if (minDistance.HasValue)
+            {
+                expectedNear.Add("$minDistance", minDistance.Value);
+            }
+            var expected = new BsonDocument("x", expectedNear);
+            Assert(filter, expected);
+        }
+
+        [Test]
+        public void Near_with_GeoJson(
+            [Values(null, 10d)] double? maxDistance,
+            [Values(null, 20d)] double? minDistance)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
+            var filter = subject.Near("x", point, maxDistance, minDistance);
+
+            var expectedNearCondition = BsonDocument.Parse("{$geometry: {type: 'Point', coordinates: [40.0, 18.0]}}");
+            if (maxDistance.HasValue)
+            {
+                expectedNearCondition.Add("$maxDistance", maxDistance.Value);
+            }
+            if (minDistance.HasValue)
+            {
+                expectedNearCondition.Add("$minDistance", minDistance.Value);
+            }
+            var expectedNear = new BsonDocument("$near", expectedNearCondition);
+            var expected = new BsonDocument("x", expectedNear);
+            Assert(filter, expected);
+        }
+
+        [Test]
+        public void NearSphere(
+            [Values(null, 10d)] double? maxDistance,
+            [Values(null, 20d)] double? minDistance)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var filter = subject.NearSphere("x", 40, 18, maxDistance, minDistance);
+
+            var expectedNear = BsonDocument.Parse("{$nearSphere: [40.0, 18.0]}");
+            if (maxDistance.HasValue)
+            {
+                expectedNear.Add("$maxDistance", maxDistance.Value);
+            }
+            if (minDistance.HasValue)
+            {
+                expectedNear.Add("$minDistance", minDistance.Value);
+            }
+            var expected = new BsonDocument("x", expectedNear);
+            Assert(filter, expected);
+        }
+
+        [Test]
+        public void NearSphere_with_GeoJson(
+            [Values(null, 10d)] double? maxDistance,
+            [Values(null, 20d)] double? minDistance)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
+            var filter = subject.NearSphere("x", point, maxDistance, minDistance);
+
+            var expectedNearCondition = BsonDocument.Parse("{$geometry: {type: 'Point', coordinates: [40.0, 18.0]}}");
+            if (maxDistance.HasValue)
+            {
+                expectedNearCondition.Add("$maxDistance", maxDistance.Value);
+            }
+            if (minDistance.HasValue)
+            {
+                expectedNearCondition.Add("$minDistance", minDistance.Value);
+            }
+            var expectedNear = new BsonDocument("$nearSphere", expectedNearCondition);
+            var expected = new BsonDocument("x", expectedNear);
+            Assert(filter, expected);
         }
 
         [Test]
@@ -386,6 +629,22 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Text()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Text("x", "funny", "en"), "{x: {$text: {$search: 'funny', $language: 'en'}}}");
+        }
+
+        [Test]
+        public void Text_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.Text(x => x.FirstName, "funny", "en"), "{fn: {$text: {$search: 'funny', $language: 'en'}}}");
+            Assert(subject.Text("FirstName", "funny", "en"), "{FirstName: {$text: {$search: 'funny', $language: 'en'}}}");
+        }
+
+        [Test]
         public void Type()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -401,12 +660,17 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Type("FirstName", BsonType.String), "{FirstName: {$type: 2}}");
         }
 
-        private void Assert<TDocument>(Filter<TDocument> filter, string expectedJson)
+        private void Assert<TDocument>(Filter<TDocument> filter, string expected)
+        {
+            Assert(filter, BsonDocument.Parse(expected));
+        }
+
+        private void Assert<TDocument>(Filter<TDocument> filter, BsonDocument expected)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedFilter = filter.Render(documentSerializer, BsonSerializer.SerializerRegistry);
 
-            renderedFilter.Should().Be(expectedJson);
+            renderedFilter.Should().Be(expected);
         }
 
         private FilterBuilder<TDocument> CreateSubject<TDocument>()
