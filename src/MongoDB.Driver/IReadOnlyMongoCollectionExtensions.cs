@@ -57,25 +57,6 @@ namespace MongoDB.Driver
         /// <returns>
         /// The number of documents in the collection.
         /// </returns>
-        public static Task<long> CountAsync<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, IMongoQuery filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, "collection");
-            Ensure.IsNotNull(filter, "filter");
-
-            return collection.CountAsync(new ObjectFilter<TDocument>(filter), options, cancellationToken);
-        }
-
-        /// <summary>
-        /// Counts the number of documents in the collection.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The number of documents in the collection.
-        /// </returns>
         public static Task<long> CountAsync<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
@@ -106,58 +87,6 @@ namespace MongoDB.Driver
             return collection.DistinctAsync<TField>(
                 new ExpressionFieldName<TDocument, TField>(fieldName),
                 filter,
-                options,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets the distinct values for a specified field.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="fieldName">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The distinct values for the specified field.
-        /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, FieldName<TDocument, TField> fieldName, IMongoQuery filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, "collection");
-            Ensure.IsNotNull(fieldName, "fieldName");
-            Ensure.IsNotNull(filter, "filter");
-
-            return collection.DistinctAsync<TField>(
-                fieldName,
-                new ObjectFilter<TDocument>(filter),
-                options,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets the distinct values for a specified field.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the result.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="fieldName">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The distinct values for the specified field.
-        /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, IMongoQuery filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, "collection");
-            Ensure.IsNotNull(fieldName, "fieldName");
-            Ensure.IsNotNull(filter, "filter");
-
-            return collection.DistinctAsync<TField>(
-                new ExpressionFieldName<TDocument, TField>(fieldName),
-                new ObjectFilter<TDocument>(filter),
                 options,
                 cancellationToken);
         }
@@ -246,24 +175,6 @@ namespace MongoDB.Driver
             }
 
             return new FindFluent<TDocument, TDocument>(collection, filter, genericOptions);
-        }
-
-        /// <summary>
-        /// Begins a fluent find interface.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>
-        /// A fluent interface.
-        /// </returns>
-        public static IFindFluent<TDocument, TDocument> Find<TDocument>(this IMongoCollection<TDocument> collection, IMongoQuery filter, FindOptions options = null)
-        {
-            Ensure.IsNotNull(collection, "collection");
-            Ensure.IsNotNull(filter, "filter");
-
-            return Find(collection, new ObjectFilter<TDocument>(filter), options);
         }
 
         /// <summary>

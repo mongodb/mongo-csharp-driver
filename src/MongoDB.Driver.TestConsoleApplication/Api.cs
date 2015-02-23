@@ -73,7 +73,7 @@ namespace MongoDB.Driver.TestConsoleApplication
                 List<BsonDocument> docs;
                 try
                 {
-                    docs = await collection.Find(Query.EQ("i", i))
+                    docs = await collection.Find(new BsonDocument("i", i))
                         .ToListAsync(_cancellationTokenSource.Token);
                 }
                 catch
