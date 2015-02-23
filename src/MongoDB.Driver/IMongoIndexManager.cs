@@ -48,27 +48,27 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an index.
         /// </summary>
-        /// <param name="keys">The keys.</param>
+        /// <param name="definition">The definition.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task CreateIndexAsync(object keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task CreateIndexAsync(IndexDefinition<TDocument> definition, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Drops an index.
+        /// </summary>
+        /// <param name="definition">The definition.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task.</returns>
+        Task DropIndexAsync(IndexDefinition<TDocument> definition, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops an index by it's name.
         /// </summary>
         /// <param name="name">The name of the index to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task DropIndexAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Drops an index.
-        /// </summary>
-        /// <param name="keys">The keys of the index to drop.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A task.</returns>
-        Task DropIndexAsync(object keys, CancellationToken cancellationToken = default(CancellationToken));
+        Task DropIndexByNameAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Gets the indexes.

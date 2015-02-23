@@ -78,6 +78,7 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="IndexDefinition.cs" />
     <Compile Include="PipelineStage.cs" />
     <Compile Include="Pipeline.cs" />
     <Compile Include="Builders\MongoQueryWrapper.cs" />

@@ -536,14 +536,14 @@ namespace MongoDB.Driver
 
             public override MongoCollectionSettings Settings
             {
-                get { return _collection.Settings; }
+                get { return _collection._settings; }
             }
 
-            public override Task CreateIndexAsync(object keys, CreateIndexOptions options, CancellationToken cancellationToken)
+            public override Task CreateIndexAsync(IndexDefinition<TDocument> definition, CreateIndexOptions options, CancellationToken cancellationToken)
             {
-                Ensure.IsNotNull(keys, "keys");
+                Ensure.IsNotNull(definition, "definition");
 
-                var keysDocument = _collection.ConvertToBsonDocument(keys);
+                var keysDocument = definition.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
 
                 options = options ?? new CreateIndexOptions();
                 var request = new CreateIndexRequest(keysDocument)
@@ -570,21 +570,21 @@ namespace MongoDB.Driver
                 return _collection.ExecuteWriteOperation(operation, cancellationToken);
             }
 
-            public override Task DropIndexAsync(string name, CancellationToken cancellationToken)
+            public override Task DropIndexAsync(IndexDefinition<TDocument> definition, CancellationToken cancellationToken)
             {
-                Ensure.IsNotNullOrEmpty(name, "name");
+                Ensure.IsNotNull(definition, "definition");
 
-                var operation = new DropIndexOperation(_collection._collectionNamespace, name, _collection._messageEncoderSettings);
+                var keysDocument = definition.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
+                var operation = new DropIndexOperation(_collection._collectionNamespace, keysDocument, _collection._messageEncoderSettings);
 
                 return _collection.ExecuteWriteOperation(operation, cancellationToken);
             }
 
-            public override Task DropIndexAsync(object keys, CancellationToken cancellationToken)
+            public override Task DropIndexByNameAsync(string name, CancellationToken cancellationToken)
             {
-                Ensure.IsNotNull(keys, "keys");
+                Ensure.IsNotNullOrEmpty(name, "name");
 
-                var keysDocument = _collection.ConvertToBsonDocument(keys);
-                var operation = new DropIndexOperation(_collection._collectionNamespace, keysDocument, _collection._messageEncoderSettings);
+                var operation = new DropIndexOperation(_collection._collectionNamespace, name, _collection._messageEncoderSettings);
 
                 return _collection.ExecuteWriteOperation(operation, cancellationToken);
             }

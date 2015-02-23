@@ -488,24 +488,10 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task DropIndexAsync_with_a_name_should_execute_the_DropIndexOperation()
+        public async Task DropIndexAsync_should_execute_the_DropIndexOperation()
         {
             var subject = CreateSubject<BsonDocument>();
-            await subject.IndexManager.DropIndexAsync("name", CancellationToken.None);
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-
-            call.Operation.Should().BeOfType<DropIndexOperation>();
-            var operation = (DropIndexOperation)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.IndexName.Should().Be("name");
-        }
-
-        [Test]
-        public async Task DropIndexAsync_with_keys_should_execute_the_DropIndexOperation()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            await subject.IndexManager.DropIndexAsync(new { A = 1, B = -1 }, CancellationToken.None);
+            await subject.IndexManager.DropIndexAsync("{A: 1, B: -1}", CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -513,6 +499,20 @@ namespace MongoDB.Driver
             var operation = (DropIndexOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.IndexName.Should().Be("A_1_B_-1");
+        }
+
+        [Test]
+        public async Task DropIndexByNameAsync_should_execute_the_DropIndexOperation()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            await subject.IndexManager.DropIndexByNameAsync("name", CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<DropIndexOperation>();
+            var operation = (DropIndexOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.IndexName.Should().Be("name");
         }
 
         [Test]
