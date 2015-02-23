@@ -58,16 +58,6 @@ namespace MongoDB.Bson.IO
 
         // public properties
         /// <inheritdoc/>
-        public Stream BaseStream
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return this;
-            }
-        }
-
-        /// <inheritdoc/>
         public override bool CanRead
         {
             get { return true; }
