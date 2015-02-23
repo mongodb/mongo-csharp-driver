@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
 
-            Pipeline<BsonDocument> expectedPipeline = new AggregateStage[]
+            var expectedPipeline = new PipelineStage<Person, BsonDocument>[]
             { 
                 BsonDocument.Parse("{ $match: { x: 2 } }"),
                 BsonDocument.Parse("{ $project : { Age : \"$Age\", Name : { $concat : [\"$firstName\", \" \", \"$lastName\"] }, _id : 0 } }"),
@@ -51,10 +51,10 @@ namespace MongoDB.Driver.Tests
                 .Group("{ _id : \"$Age\", Name : { \"$first\" : \"$Name\" } }")
                 .Project("{ _id: 1 }");
 
-            Pipeline<BsonDocument> actualPipeline = null;
+            Pipeline<Person, BsonDocument> actualPipeline = null;
             AggregateOptions actualOptions = null;
             subject.AggregateAsync(
-                Arg.Do<AggregateStagePipeline<BsonDocument>>(x => actualPipeline = x),
+                Arg.Do<PipelineStagePipeline<Person, BsonDocument>>(x => actualPipeline = x),
                 Arg.Do<AggregateOptions>(x => actualOptions = x),
                 Arg.Any<CancellationToken>());
 

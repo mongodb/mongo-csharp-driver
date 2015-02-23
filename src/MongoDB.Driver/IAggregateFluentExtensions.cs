@@ -170,16 +170,16 @@ namespace MongoDB.Driver
 
             // this looks sketchy, but if we get here and this isn't true, then
             // someone is being a bad citizen.
-            var lastStage = source.Pipeline.Last();
-            source.Pipeline.RemoveAt(source.Pipeline.Count - 1); // remove it so we can add it back
+            var lastStage = source.Stages.Last();
+            source.Stages.RemoveAt(source.Stages.Count - 1); // remove it so we can add it back
 
-            var stage = new DelegatedAggregateStage(
+            var stage = new DelegatedAggregateStage<TDocument, TDocument>(
                 "$sort",
                 (s, sr) =>
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Ascending).Render((IBsonSerializer<TDocument>)s, sr);
-                    return new RenderedAggregateStage("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
+                    var newSort = new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Ascending).Render(s, sr);
+                    return new RenderedPipelineStage<TDocument>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
             return (IOrderedAggregateFluent<TDocument>)source.AppendStage(stage);
@@ -201,16 +201,16 @@ namespace MongoDB.Driver
 
             // this looks sketchy, but if we get here and this isn't true, then
             // someone is being a bad citizen.
-            var lastStage = source.Pipeline.Last();
-            source.Pipeline.RemoveAt(source.Pipeline.Count - 1); // remove it so we can add it back
+            var lastStage = source.Stages.Last();
+            source.Stages.RemoveAt(source.Stages.Count - 1); // remove it so we can add it back
 
-            var stage = new DelegatedAggregateStage(
+            var stage = new DelegatedAggregateStage<TDocument, TDocument>(
                 "$sort",
                 (s, sr) =>
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Descending).Render((IBsonSerializer<TDocument>)s, sr);
-                    return new RenderedAggregateStage("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
+                    var newSort = new ExpressionSort<TDocument>(field, ExpressionSort<TDocument>.Direction.Descending).Render(s, sr);
+                    return new RenderedPipelineStage<TDocument>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
             return (IOrderedAggregateFluent<TDocument>)source.AppendStage(stage);

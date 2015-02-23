@@ -156,8 +156,9 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void SortByDescending_ThenByDescending_should_generate_the_correct_sort()
         {
-            var subject = CreateSubject();
-            subject.SortByDescending(x => x.FirstName).ThenByDescending(x => x.LastName);
+            var subject = CreateSubject()
+                .SortByDescending(x => x.FirstName)
+                .ThenByDescending(x => x.LastName);
 
             var expectedSort = BsonDocument.Parse("{$sort: {FirstName: -1, LastName: -1}}");
 
@@ -199,7 +200,7 @@ namespace MongoDB.Driver.Tests
 
         private void AssertLast<TDocument>(IAggregateFluent<TDocument> fluent, BsonDocument expectedLast)
         {
-            var pipeline = new AggregateStagePipeline<TDocument>(fluent.Pipeline);
+            var pipeline = new PipelineStagePipeline<Person, TDocument>(fluent.Stages);
             var renderedPipeline = pipeline.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             var last = renderedPipeline.Documents.Last();
@@ -212,7 +213,7 @@ namespace MongoDB.Driver.Tests
             var collection = Substitute.For<IMongoCollection<Person>>();
             collection.DocumentSerializer.Returns(settings.SerializerRegistry.GetSerializer<Person>());
             collection.Settings.Returns(settings);
-            var subject = new AggregateFluent<Person, Person>(collection, Enumerable.Empty<AggregateStage>(), new AggregateOptions());
+            var subject = new AggregateFluent<Person, Person>(collection, Enumerable.Empty<IPipelineStage>(), new AggregateOptions());
 
             return subject;
         }

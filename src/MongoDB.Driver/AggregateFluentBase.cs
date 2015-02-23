@@ -31,13 +31,10 @@ namespace MongoDB.Driver
         public abstract AggregateOptions Options { get; }
 
         /// <inheritdoc />
-        public abstract IList<AggregateStage> Pipeline { get; }
+        public abstract IList<IPipelineStage> Stages { get; }
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TDocument> AppendStage(AggregateStage stage);
-
-        /// <inheritdoc />
-        public abstract IAggregateFluent<TResult> AppendStage<TResult>(AggregateStage stage);
+        public abstract IAggregateFluent<TResult> AppendStage<TResult>(PipelineStage<TDocument, TResult> stage);
 
         /// <inheritdoc />
         public abstract IAggregateFluent<TResult> Group<TResult>(Projection<TDocument, TResult> group);

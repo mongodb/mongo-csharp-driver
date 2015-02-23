@@ -806,19 +806,19 @@ namespace MongoDB.Driver.Core.Linq
             result.Projection.Should().Be("{ Result : { F : \"$G.E.F\", H : \"$G.E.H\" }, _id : 0 }");
         }
 
-        private async Task<ProjectedResult<T>> Project<T>(Expression<Func<Root, T>> projector)
+        private async Task<ProjectedResult<TResult>> Project<TResult>(Expression<Func<Root, TResult>> projector)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
-            var projectionInfo = AggregateProjectionTranslator.TranslateProject<Root, T>(projector, serializer, BsonSerializer.SerializerRegistry);
+            var projectionInfo = AggregateProjectionTranslator.TranslateProject<Root, TResult>(projector, serializer, BsonSerializer.SerializerRegistry);
 
             var pipelineOperator = new BsonDocument("$project", projectionInfo.Document);
-            using (var cursor = await _collection.AggregateAsync<T>(new AggregateStagePipeline<T>(new AggregateStage[] { pipelineOperator }, projectionInfo.Serializer)))
+            using (var cursor = await _collection.AggregateAsync<TResult>(new PipelineStagePipeline<Root, TResult>(new PipelineStage<Root, TResult>[] { pipelineOperator }, projectionInfo.Serializer)))
             {
                 var list = await cursor.ToListAsync();
-                return new ProjectedResult<T>
+                return new ProjectedResult<TResult>
                 {
                     Projection = projectionInfo.Document,
-                    Value = (T)list[0]
+                    Value = (TResult)list[0]
                 };
             }
         }

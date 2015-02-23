@@ -54,7 +54,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(Pipeline<TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(Pipeline<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Counts the number of documents in the collection.

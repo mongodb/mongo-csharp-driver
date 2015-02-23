@@ -43,7 +43,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IAggregateFluent<TDocument> Aggregate<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, AggregateOptions options = null)
         {
-            return new AggregateFluent<TDocument, TDocument>(collection, Enumerable.Empty<AggregateStage>(), options ?? new AggregateOptions());
+            return new AggregateFluent<TDocument, TDocument>(collection, Enumerable.Empty<IPipelineStage>(), options ?? new AggregateOptions());
         }
 
         /// <summary>

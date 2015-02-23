@@ -30,10 +30,10 @@ namespace MongoDB.Driver
         // fields
         private readonly IReadOnlyMongoCollection<TCollectionDocument> _collection;
         private readonly AggregateOptions _options;
-        private readonly List<AggregateStage> _pipeline;
+        private readonly List<IPipelineStage> _pipeline;
 
         // constructors
-        public AggregateFluent(IReadOnlyMongoCollection<TCollectionDocument> collection, IEnumerable<AggregateStage> pipeline, AggregateOptions options)
+        public AggregateFluent(IReadOnlyMongoCollection<TCollectionDocument> collection, IEnumerable<IPipelineStage> pipeline, AggregateOptions options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _pipeline = Ensure.IsNotNull(pipeline, "pipeline").ToList();
@@ -46,80 +46,80 @@ namespace MongoDB.Driver
             get { return _options; }
         }
 
-        public override IList<AggregateStage> Pipeline
+        public override IList<IPipelineStage> Stages
         {
             get { return _pipeline; }
         }
 
         // methods
-        public override IAggregateFluent<TDocument> AppendStage(AggregateStage stage)
+        public override IAggregateFluent<TResult> AppendStage<TResult>(PipelineStage<TDocument, TResult> stage)
         {
-            _pipeline.Add(stage);
-            return this;
+            return new AggregateFluent<TCollectionDocument, TResult>(
+                _collection, 
+                _pipeline.Concat(new [] { stage }), 
+                _options);
         }
 
-        public override IAggregateFluent<TResult> AppendStage<TResult>(AggregateStage stage)
+        public override IAggregateFluent<TResult> Group<TResult>(Projection<TDocument, TResult> group)
         {
-            _pipeline.Add(stage);
-            return new AggregateFluent<TCollectionDocument, TResult>(_collection, _pipeline, _options);
-        }
-
-        public override IAggregateFluent<TNewResult> Group<TNewResult>(Projection<TDocument, TNewResult> group)
-        {
-            var stage = new DelegatedAggregateStage(
-                "$group",
+            const string stageName = "$group";
+            var stage = new DelegatedAggregateStage<TDocument, TResult>(
+                stageName,
                 (s, sr) => 
                 {
-                    var renderedProjection = group.Render((IBsonSerializer<TDocument>)s, sr);
-                    return new RenderedAggregateStage("$group", new BsonDocument("$group", renderedProjection.Document), renderedProjection.Serializer);
+                    var renderedProjection = group.Render(s, sr);
+                    return new RenderedPipelineStage<TResult>(stageName, new BsonDocument(stageName, renderedProjection.Document), renderedProjection.Serializer);
                 });
 
-            return AppendStage<TNewResult>(stage);
+            return AppendStage<TResult>(stage);
         }
 
         public override IAggregateFluent<TDocument> Limit(int limit)
         {
-            return AppendStage(new BsonDocument("$limit", limit));
+            return AppendStage<TDocument>(new BsonDocument("$limit", limit));
         }
 
         public override IAggregateFluent<TDocument> Match(Filter<TDocument> filter)
         {
-            var stage = new DelegatedAggregateStage(
-                "$match",
-                (s, sr) => new RenderedAggregateStage("$match", new BsonDocument("$match", filter.Render((IBsonSerializer<TDocument>)s, sr)), s));
+            const string stageName = "$match";
+            var stage = new DelegatedAggregateStage<TDocument, TDocument>(
+                stageName,
+                (s, sr) => new RenderedPipelineStage<TDocument>(stageName, new BsonDocument(stageName, filter.Render(s, sr)), s));
 
-            return AppendStage(stage);
+            return AppendStage<TDocument>(stage);
         }
 
         public override Task<IAsyncCursor<TDocument>> OutAsync(string collectionName, CancellationToken cancellationToken)
         {
-            AppendStage(new BsonDocument("$out", collectionName));
-            return ToCursorAsync(cancellationToken);
+            return AppendStage<TDocument>(new BsonDocument("$out", collectionName))
+                .ToCursorAsync(cancellationToken);
         }
 
-        public override IAggregateFluent<TNewResult> Project<TNewResult>(Projection<TDocument, TNewResult> project)
+        public override IAggregateFluent<TResult> Project<TResult>(Projection<TDocument, TResult> project)
         {
-            var stage = new DelegatedAggregateStage(
-                "$project",
+            const string stageName = "$project";
+            var stage = new DelegatedAggregateStage<TDocument, TResult>(
+                stageName,
                 (s, sr) =>
                 {
-                    var renderedProjection = project.Render((IBsonSerializer<TDocument>)s, sr);
-                    return new RenderedAggregateStage("$project", new BsonDocument("$project", renderedProjection.Document), renderedProjection.Serializer);
+                    var renderedProjection = project.Render(s, sr);
+                    return new RenderedPipelineStage<TResult>(stageName, new BsonDocument(stageName, renderedProjection.Document), renderedProjection.Serializer);
                 });
 
-            return AppendStage<TNewResult>(stage);
+            return AppendStage<TResult>(stage);
         }
 
         public override IAggregateFluent<TDocument> Skip(int skip)
         {
-            return AppendStage(new BsonDocument("$skip", skip));
+            return AppendStage<TDocument>(new BsonDocument("$skip", skip));
         }
 
         public override IAggregateFluent<TDocument> Sort(Sort<TDocument> sort)
         {
-            var stage = new DelegatedAggregateStage(
-                "$sort",
-                (s, sr) => new RenderedAggregateStage("$sort", new BsonDocument("$sort", sort.Render((IBsonSerializer<TDocument>)s, sr)), s));
+            const string stageName = "$sort";
+            var stage = new DelegatedAggregateStage<TDocument, TDocument>(
+                stageName,
+                (s, sr) => new RenderedPipelineStage<TDocument>(stageName, new BsonDocument(stageName, sort.Render(s, sr)), s));
 
 
             return AppendStage(stage);
@@ -127,16 +127,21 @@ namespace MongoDB.Driver
 
         public override IAggregateFluent<TResult> Unwind<TResult>(FieldName<TDocument> fieldName, IBsonSerializer<TResult> resultSerializer)
         {
-            var stage = new DelegatedAggregateStage(
-                "$unwind",
-                (s, sr) => new RenderedAggregateStage("$unwind", new BsonDocument("$unwind", "$" + fieldName.Render((IBsonSerializer<TDocument>)s, sr)), resultSerializer ?? s));
+            const string stageName = "$unwind";
+            var stage = new DelegatedAggregateStage<TDocument, TResult>(
+                stageName,
+                (s, sr) => new RenderedPipelineStage<TResult>(
+                    stageName, new BsonDocument(
+                        stageName, 
+                        "$" + fieldName.Render(s, sr)), 
+                    resultSerializer ?? (s as IBsonSerializer<TResult>) ?? sr.GetSerializer<TResult>()));
 
             return AppendStage<TResult>(stage);
         }
 
         public override Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken)
         {
-            return _collection.AggregateAsync(new AggregateStagePipeline<TDocument>(_pipeline), _options, cancellationToken);
+            return _collection.AggregateAsync(new PipelineStagePipeline<TCollectionDocument, TDocument>(_pipeline), _options, cancellationToken);
         }
 
         public override string ToString()
@@ -144,7 +149,7 @@ namespace MongoDB.Driver
             var sb = new StringBuilder("aggregate([");
             if (_pipeline.Count > 0)
             {
-                var pipeline = new AggregateStagePipeline<TDocument>(_pipeline);
+                var pipeline = new PipelineStagePipeline<TCollectionDocument, TDocument>(_pipeline);
                 var renderedPipeline = pipeline.Render(_collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
                 sb.Append(string.Join(", ", renderedPipeline.Documents.Select(x => x.ToString())));
             }

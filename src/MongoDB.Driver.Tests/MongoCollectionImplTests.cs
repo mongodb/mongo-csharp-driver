@@ -75,7 +75,10 @@ namespace MongoDB.Driver
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
         {
-            var pipeline = new [] { BsonDocument.Parse("{$match: {x: 2}}") };
+            var stages = new PipelineStage<BsonDocument, BsonDocument>[] 
+            { 
+                BsonDocument.Parse("{$match: {x: 2}}")
+            };
             var options = new AggregateOptions()
             {
                 AllowDiskUse = true,
@@ -88,7 +91,7 @@ namespace MongoDB.Driver
             _operationExecutor.EnqueueResult(fakeCursor);
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.AggregateAsync<BsonDocument>(pipeline, options, CancellationToken.None);
+            await subject.AggregateAsync<BsonDocument>(stages, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -99,14 +102,16 @@ namespace MongoDB.Driver
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.UseCursor.Should().Be(options.UseCursor);
-
-            operation.Pipeline.Should().ContainInOrder(pipeline);
         }
 
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified()
         {
-            var pipeline = new [] { BsonDocument.Parse("{$match: {x: 2}}"), BsonDocument.Parse("{$out: \"funny\"}") };
+            var stages = new PipelineStage<BsonDocument, BsonDocument>[] 
+            { 
+                BsonDocument.Parse("{$match: {x: 2}}"), 
+                BsonDocument.Parse("{$out: \"funny\"}") 
+            };
             var options = new AggregateOptions()
             {
                 AllowDiskUse = true,
@@ -116,7 +121,7 @@ namespace MongoDB.Driver
             };
 
             var subject = CreateSubject<BsonDocument>();
-            var result = await subject.AggregateAsync<BsonDocument>(pipeline, options, CancellationToken.None);
+            var result = await subject.AggregateAsync<BsonDocument>(stages, options, CancellationToken.None);
 
             _operationExecutor.QueuedCallCount.Should().Be(1);
             var writeCall = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -126,7 +131,7 @@ namespace MongoDB.Driver
             writeOperation.CollectionNamespace.FullName.Should().Be("foo.bar");
             writeOperation.AllowDiskUse.Should().Be(options.AllowDiskUse);
             writeOperation.MaxTime.Should().Be(options.MaxTime);
-            writeOperation.Pipeline.Should().BeEquivalentTo(pipeline);
+            writeOperation.Pipeline.Should().HaveCount(2);
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
