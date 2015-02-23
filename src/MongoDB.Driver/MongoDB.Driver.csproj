@@ -79,6 +79,7 @@
     </Compile>
     <Compile Include="AggregateFluent.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
+    <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="IndexDefinition.cs" />
     <Compile Include="PipelineStage.cs" />
     <Compile Include="Pipeline.cs" />
@@ -174,7 +175,6 @@
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\PushEachOptions.cs" />
-    <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonBoundingBox.cs" />

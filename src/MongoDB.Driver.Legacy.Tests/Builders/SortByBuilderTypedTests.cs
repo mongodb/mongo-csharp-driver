@@ -46,6 +46,86 @@ namespace MongoDB.Driver.Tests.Builders
         }
 
         [Test]
+        public void TestAscending1()
+        {
+            var sortBy = SortBy<Test>.Ascending(x => x.A);
+            string expected = "{ \"a\" : 1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestAscending2()
+        {
+            var sortBy = SortBy<Test>.Ascending(x => x.A, x => x.B);
+            string expected = "{ \"a\" : 1, \"b\" : 1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestAscendingAscending()
+        {
+            var sortBy = SortBy<Test>.Ascending(x => x.A).Ascending(x => x.B);
+            string expected = "{ \"a\" : 1, \"b\" : 1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestAscendingDescending()
+        {
+            var sortBy = SortBy<Test>.Ascending(x => x.A).Descending(x => x.B);
+            string expected = "{ \"a\" : 1, \"b\" : -1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestDescending1()
+        {
+            var sortBy = SortBy<Test>.Descending(x => x.A);
+            string expected = "{ \"a\" : -1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestDescending2()
+        {
+            var sortBy = SortBy<Test>.Descending(x => x.A, x => x.B);
+            string expected = "{ \"a\" : -1, \"b\" : -1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestDescendingAscending()
+        {
+            var sortBy = SortBy<Test>.Descending(x => x.A).Ascending(x => x.B);
+            string expected = "{ \"a\" : -1, \"b\" : 1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestDescendingDescending()
+        {
+            var sortBy = SortBy<Test>.Descending(x => x.A).Descending(x => x.B);
+            string expected = "{ \"a\" : -1, \"b\" : -1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestMetaTextGenerate()
+        {
+            var sortBy = SortBy<Test>.MetaTextScore(y => y.R);
+            string expected = "{ \"relevance\" : { \"$meta\" : \"textScore\" } }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestMetaTextAndOtherFields()
+        {
+            var sortBy = SortBy<Test>.MetaTextScore(y => y.R).Descending(y => y.A).Ascending(y => y.z);
+            string expected = "{ \"relevance\" : { \"$meta\" : \"textScore\" }, \"a\" : -1, \"z\" : 1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
         public void TestMetaText()
         {
             if (LegacyTestConfiguration.Server.Primary.Supports(FeatureId.TextSearchQuery))
