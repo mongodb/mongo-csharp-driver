@@ -141,7 +141,7 @@ namespace MongoDB.Driver
         {
             return new RenderedProjection<TResult>(
                 _document,
-                _resultSerializer ?? serializerRegistry.GetSerializer<TResult>());
+                _resultSerializer ?? (documentSerializer as IBsonSerializer<TResult>) ?? serializerRegistry.GetSerializer<TResult>());
         }
     }
 
@@ -220,7 +220,7 @@ namespace MongoDB.Driver
         {
             return new RenderedProjection<TResult>(
                 BsonDocument.Parse(_json),
-                _resultSerializer ?? serializerRegistry.GetSerializer<TResult>());
+                _resultSerializer ?? (documentSerializer as IBsonSerializer<TResult>) ?? serializerRegistry.GetSerializer<TResult>());
         }
     }
 
@@ -267,7 +267,7 @@ namespace MongoDB.Driver
             var serializer = serializerRegistry.GetSerializer(_obj.GetType());
             return new RenderedProjection<TResult>(
                 new BsonDocumentWrapper(_obj, serializer),
-                _resultSerializer ?? serializerRegistry.GetSerializer<TResult>());
+                _resultSerializer ?? (documentSerializer as IBsonSerializer<TResult>) ?? serializerRegistry.GetSerializer<TResult>());
         }
     }
 
@@ -302,7 +302,7 @@ namespace MongoDB.Driver
         {
             return new RenderedProjection<TResult>(
                 null,
-                _resultSerializer ?? serializerRegistry.GetSerializer<TResult>());
+                _resultSerializer ?? (documentSerializer as IBsonSerializer<TResult>) ?? serializerRegistry.GetSerializer<TResult>());
         }
     }
 }
