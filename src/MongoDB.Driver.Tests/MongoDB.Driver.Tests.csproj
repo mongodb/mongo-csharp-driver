@@ -95,7 +95,6 @@
     <Compile Include="Builders\IndexKeysBuilderTypedTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderTypedTests.cs" />
-    <Compile Include="Builders\UpdateBuilderTests.cs" />
     <Compile Include="BulkWriteErrorTests.cs" />
     <Compile Include="ProjectionBuilderTests.cs" />
     <Compile Include="SortBuilderTests.cs" />
@@ -136,7 +135,6 @@
     <Compile Include="GeoJsonObjectModel\GeoJsonPointTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonPolygonTests.cs" />
     <Compile Include="Jira\CSharp624Tests.cs" />
-    <Compile Include="Jira\CSharp779Tests.cs" />
     <Compile Include="Linq\BsonDocumentBackedClassSerializerTests.cs" />
     <Compile Include="Linq\BsonDocumentTests.cs" />
     <Compile Include="MockOperationExecutor.cs" />
@@ -154,10 +152,7 @@
     <Compile Include="SslSettingsTests.cs" />
     <Compile Include="Support\IndexMapTests.cs" />
     <Compile Include="Jira\CSharp606Tests.cs" />
-    <Compile Include="Jira\CSharp598Tests.cs" />
-    <Compile Include="Jira\CSharp532Tests.cs" />
     <Compile Include="Jira\CSharp137Tests.cs" />
-    <Compile Include="Jira\CSharp283Tests.cs" />
     <Compile Include="Jira\CSharp321Tests.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoHelperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -89,6 +89,7 @@
     <Compile Include="Jira\CSharp269Tests.cs" />
     <Compile Include="Jira\CSharp281Tests.cs" />
     <Compile Include="Jira\CSharp282Tests.cs" />
+    <Compile Include="Jira\CSharp283Tests.cs" />
     <Compile Include="Jira\CSharp290Tests.cs" />
     <Compile Include="Jira\CSharp307Tests.cs" />
     <Compile Include="Jira\CSharp325Tests.cs" />
@@ -101,13 +102,16 @@
     <Compile Include="Jira\CSharp475Tests.cs" />
     <Compile Include="Jira\CSharp522Tests.cs" />
     <Compile Include="Jira\CSharp524Tests.cs" />
+    <Compile Include="Jira\CSharp532Tests.cs" />
     <Compile Include="Jira\CSharp538Tests.cs" />
     <Compile Include="Jira\CSharp542Tests.cs" />
     <Compile Include="Jira\CSharp594Tests.cs" />
+    <Compile Include="Jira\CSharp598Tests.cs" />
     <Compile Include="Jira\CSharp613Tests.cs" />
     <Compile Include="Jira\CSharp653Tests.cs" />
     <Compile Include="Jira\CSharp714Tests.cs" />
     <Compile Include="Jira\CSharp718Tests.cs" />
+    <Compile Include="Jira\CSharp779Tests.cs" />
     <Compile Include="Jira\CSharp77Tests.cs" />
     <Compile Include="Jira\CSharp801Tests.cs" />
     <Compile Include="Jira\CSharp840Tests.cs" />

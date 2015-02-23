@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         public abstract BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="Update{TDocument}"/>.
+        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="Update2{TDocument}"/>.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <returns>
@@ -53,7 +53,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Update{TDocument}"/>.
+        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Update2{TDocument}"/>.
         /// </summary>
         /// <param name="json">The json.</param>
         /// <returns>

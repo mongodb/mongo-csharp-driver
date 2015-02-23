@@ -55,6 +55,11 @@
     <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
     <Compile Include="Builders\GroupByBuilder.cs" />
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
+    <Compile Include="Builders\MongoUpdateWrapper.cs" />
+    <Compile Include="Builders\PushEachOptions.cs" />
+    <Compile Include="Builders\SortByBuilder.cs" />
+    <Compile Include="Builders\UpdateBuilder.cs" />
+    <Compile Include="Builders\UpdateCurrentDateType.cs" />
     <Compile Include="CommandResults\CollectionStatsResult.cs" />
     <Compile Include="CommandResults\CommandResult.cs" />
     <Compile Include="CommandResults\CommandResultSerializer.cs" />
@@ -89,11 +94,14 @@
     <Compile Include="GroupArgs.cs" />
     <Compile Include="IMongoCollectionOptions.cs" />
     <Compile Include="IMongoCommand.cs" />
+    <Compile Include="IMongoFields.cs" />
     <Compile Include="IMongoGeoHaystackSearchOptions.cs" />
     <Compile Include="IMongoGeoNearOptions.cs" />
     <Compile Include="IMongoGroupBy.cs" />
     <Compile Include="IMongoIndexOptions.cs" />
     <Compile Include="IMongoScope.cs" />
+    <Compile Include="IMongoSortBy.cs" />
+    <Compile Include="IMongoUpdate.cs" />
     <Compile Include="InsertFlags.cs" />
     <Compile Include="Linq\LinqExtensionMethods.cs" />
     <Compile Include="Linq\MongoQueryable.cs" />

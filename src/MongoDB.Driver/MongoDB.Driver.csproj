@@ -78,13 +78,11 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="Builders\MongoQueryWrapper.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
-    <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="IndexDefinition.cs" />
     <Compile Include="PipelineStage.cs" />
     <Compile Include="Pipeline.cs" />
-    <Compile Include="Builders\MongoQueryWrapper.cs" />
-    <Compile Include="Builders\MongoUpdateWrapper.cs" />
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="ConnectionMode.cs" />
     <Compile Include="Filter.cs" />
@@ -95,7 +93,6 @@
     <Compile Include="IAggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="BsonDocumentHelper.cs" />
-    <Compile Include="Builders\UpdateCurrentDateType.cs" />
     <Compile Include="BulkWriteOptions.cs" />
     <Compile Include="ClusterKey.cs" />
     <Compile Include="ClusterRegistry.cs" />
@@ -174,8 +171,6 @@
     <Compile Include="Support\IndexMap.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
-    <Compile Include="Builders\PushEachOptions.cs" />
-    <Compile Include="Builders\UpdateBuilder.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonBoundingBox.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonCoordinateReferenceSystem.cs" />
@@ -236,11 +231,8 @@
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonCoordinatesSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJson2DCoordinatesSerializer.cs" />
-    <Compile Include="IMongoFields.cs" />
     <Compile Include="IMongoIndexKeys.cs" />
     <Compile Include="IMongoQuery.cs" />
-    <Compile Include="IMongoSortBy.cs" />
-    <Compile Include="IMongoUpdate.cs" />
     <Compile Include="MongoClient.cs" />
     <Compile Include="MongoClientSettings.cs" />
     <Compile Include="MongoCollectionSettings.cs" />

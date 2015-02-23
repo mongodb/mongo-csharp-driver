@@ -107,30 +107,6 @@ namespace MongoDB.Driver.Tests
         [Test]
         [TestCase(false)]
         [TestCase(true)]
-        public void Should_convert_from_UpdateRequest_to_UpdateOne_with_wrappers(bool isUpsert)
-        {
-            var filter = Query.EQ("a", 1);
-            var update = Update.Set("a", 2);
-            var request = new UpdateRequest(UpdateType.Update,
-                new BsonDocumentWrapper(filter),
-                new BsonDocumentWrapper(update))
-            {
-                IsMulti = false,
-                IsUpsert = isUpsert
-            };
-
-            var result = WriteModel<BsonDocument>.FromCore(request);
-
-            result.Should().BeOfType<UpdateOneModel<BsonDocument>>();
-            var model = (UpdateOneModel<BsonDocument>)result;
-            ((ObjectFilter<BsonDocument>)model.Filter).Object.Should().BeSameAs(filter);
-            ((ObjectUpdate<BsonDocument>)model.Update).Object.Should().BeSameAs(update);
-            model.IsUpsert.Should().Be(isUpsert);
-        }
-
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
         public void Should_convert_from_UpdateRequest_to_UpdateMany(bool isUpsert)
         {
             var filter = BsonDocument.Parse("{a:1}");
@@ -149,30 +125,6 @@ namespace MongoDB.Driver.Tests
             var model = (UpdateManyModel<BsonDocument>)result;
             ((BsonDocumentFilter<BsonDocument>)model.Filter).Document.Should().BeSameAs(filter);
             ((BsonDocumentUpdate<BsonDocument>)model.Update).Document.Should().BeSameAs(update);
-            model.IsUpsert.Should().Be(isUpsert);
-        }
-
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
-        public void Should_convert_from_UpdateRequest_to_UpdateMany_with_wrappers(bool isUpsert)
-        {
-            var filter = Query.EQ("a", 1);
-            var update = Update.Set("a", 2);
-            var request = new UpdateRequest(UpdateType.Update,
-                new BsonDocumentWrapper(filter),
-                new BsonDocumentWrapper(update))
-            {
-                IsMulti = true,
-                IsUpsert = isUpsert
-            };
-
-            var result = WriteModel<BsonDocument>.FromCore(request);
-
-            result.Should().BeOfType<UpdateManyModel<BsonDocument>>();
-            var model = (UpdateManyModel<BsonDocument>)result;
-            ((ObjectFilter<BsonDocument>)model.Filter).Object.Should().BeSameAs(filter);
-            ((ObjectUpdate<BsonDocument>)model.Update).Object.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }
 

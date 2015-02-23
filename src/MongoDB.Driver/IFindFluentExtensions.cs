@@ -68,24 +68,6 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="source">The source.</param>
-        /// <param name="sortBy">The sort by.</param>
-        /// <returns>The fluent find interface.</returns>
-        public static IOrderedFindFluent<TDocument, TResult> Sort<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, IMongoSortBy sortBy)
-        {
-            Ensure.IsNotNull(source, "source");
-            Ensure.IsNotNull(sortBy, "sortBy");
-
-            // We require an implementation of IFindFluent<TDocument, TResult> 
-            // to also implement IOrderedFindFluent<TDocument, TResult>
-            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(new ObjectSort<TDocument>(sortBy));
-        }
-
-        /// <summary>
-        /// Sorts the by.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
         /// <param name="field">The field.</param>
         /// <returns>The fluent find interface.</returns>
         public static IOrderedFindFluent<TDocument, TResult> SortBy<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TDocument, object>> field)
