@@ -50,6 +50,7 @@
     <Compile Include="AggregateArgs.cs" />
     <Compile Include="AggregateEnumerable.cs" />
     <Compile Include="Builders\CollectionOptionsBuilder.cs" />
+    <Compile Include="Builders\FieldsBuilder.cs" />
     <Compile Include="Builders\GeoHaystackSearchOptionsBuilder.cs" />
     <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
     <Compile Include="Builders\GroupByBuilder.cs" />

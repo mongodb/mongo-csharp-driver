@@ -172,7 +172,6 @@
     <Compile Include="MongoBulkWriteException.cs" />
     <Compile Include="Support\IndexMap.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
-    <Compile Include="Builders\FieldsBuilder.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\PushEachOptions.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />

@@ -41,6 +41,101 @@ namespace MongoDB.Driver.Tests.Builders
         }
 
         [Test]
+        public void TestElemMatch()
+        {
+            var fields = Fields<TestClass>.ElemMatch(tc => tc.a2, qb => qb.EQ(tc => tc.b, 10));
+            string expected = "{ \"a2\" : { \"$elemMatch\" : { \"b\" : 10 } } }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestIncludeElemMatch()
+        {
+            var fields = Fields<TestClass>.Include(tc => tc.x).ElemMatch(tc => tc.a2, qb => qb.EQ(tc => tc.b, 10));
+            string expected = "{ \"x\" : 1, \"a2\" : { \"$elemMatch\" : { \"b\" : 10 } } }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestInclude()
+        {
+            var fields = Fields<TestClass>.Include(tc => tc.a);
+            string expected = "{ \"a\" : 1 }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestExclude()
+        {
+            var fields = Fields<TestClass>.Exclude(tc => tc.a);
+            string expected = "{ \"a\" : 0 }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestSliceNameSize()
+        {
+            var fields = Fields<TestClass>.Slice(tc => tc.a, 10);
+            string expected = "{ \"a\" : { \"$slice\" : 10 } }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestSliceNameSkipLimit()
+        {
+            var fields = Fields<TestClass>.Slice(tc => tc.a, 10, 20);
+            string expected = "{ \"a\" : { \"$slice\" : [10, 20] } }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+        [Test]
+        public void TestIncludeInclude()
+        {
+            var fields = Fields<TestClass>.Include(tc => tc.x).Include(tc => tc.a);
+            string expected = "{ \"x\" : 1, \"a\" : 1 }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestIncludeExclude()
+        {
+            var fields = Fields<TestClass>.Include(tc => tc.x).Exclude(tc => tc.a);
+            string expected = "{ \"x\" : 1, \"a\" : 0 }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestIncludeSliceNameSize()
+        {
+            var fields = Fields<TestClass>.Include(tc => tc.x).Slice(tc => tc.a, 10);
+            string expected = "{ \"x\" : 1, \"a\" : { \"$slice\" : 10 } }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestIncludeSliceNameSkipLimit()
+        {
+            var fields = Fields<TestClass>.Include(tc => tc.x).Slice(tc => tc.a, 10, 20);
+            string expected = "{ \"x\" : 1, \"a\" : { \"$slice\" : [10, 20] } }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestMetaTextGenerate()
+        {
+            var fields = Fields<TestClass>.MetaTextScore(y => y.relevance);
+            string expected = "{ \"relevance\" : { \"$meta\" : \"textScore\" } }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestMetaTextIncludeExcludeGenerate()
+        {
+            var fields = Fields<TestClass>.MetaTextScore(y => y.relevance).Include(y => y.x).Exclude(y => y._id);
+            string expected = "{ \"relevance\" : { \"$meta\" : \"textScore\" }, \"x\" : 1, \"_id\" : 0 }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
         public void TestMetaText()
         {
             if (LegacyTestConfiguration.Server.Primary.Supports(FeatureId.TextSearchQuery))
