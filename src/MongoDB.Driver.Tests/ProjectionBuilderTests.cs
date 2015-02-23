@@ -50,6 +50,25 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void ElementMatch()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.ElementMatch<BsonDocument>("a", "{b: 1}"), "{a: {$elemMatch: {b: 1}}}");
+        }
+
+        [Test]
+        public void ElemMatch_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.ElementMatch<BsonDocument>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElementMatch<Pet[], Pet>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElementMatch<Pet[], Pet>(x => x.Pets, "{name: 'Fluffy'}"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElementMatch<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+        }
+
+        [Test]
         public void Exclude()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -83,6 +102,48 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Include("FirstName"), "{FirstName: 1}");
         }
 
+        [Test]
+        public void MetaTextScore()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.MetaTextScore("a"), "{a: {$meta: 'textScore'}}");
+        }
+
+        [Test]
+        public void Slice()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Slice("a", 10), "{a: {$slice: 10}}");
+        }
+
+        [Test]
+        public void Slice_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.Slice(x => x.Pets, 10), "{pets: {$slice: 10}}");
+            Assert(subject.Slice("Pets", 10), "{Pets: {$slice: 10}}");
+        }
+
+        [Test]
+        public void Slice_with_limit()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Slice("a", 10, 20), "{a: {$slice: [10, 20]}}");
+        }
+
+        [Test]
+        public void Slice_Typed_with_limit()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.Slice(x => x.Pets, 10, 20), "{pets: {$slice: [10, 20]}}");
+            Assert(subject.Slice("Pets", 10, 20), "{Pets: {$slice: [10, 20]}}");
+        }
+
         private void Assert<TDocument, TResult>(Projection<TDocument, TResult> projection, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
@@ -100,6 +161,15 @@ namespace MongoDB.Driver.Tests
         {
             [BsonElement("fn")]
             public string FirstName { get; set; }
+        
+            [BsonElement("pets")]
+            public Pet[] Pets { get; set; }
         }
+
+        private class Pet
+        {
+            [BsonElement("name")]
+            public string Name { get; set; }
+        }    
     }
 }

@@ -78,6 +78,7 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="IndexDefinition.cs" />
     <Compile Include="PipelineStage.cs" />
     <Compile Include="Pipeline.cs" />
@@ -174,7 +175,6 @@
     <Compile Include="Builders\FieldsBuilder.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\PushEachOptions.cs" />
-    <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson.cs" />
