@@ -25,6 +25,22 @@ namespace MongoDB.Driver.Tests
     public class FilterBuilderTests
     {
         [Test]
+        public void All()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.All("x", new[] { 10, 20 }), "{x: {$all: [10,20]}}");
+        }
+
+        [Test]
+        public void All_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.All(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$all: ['blue','green']}}");
+            Assert(subject.All("favColors", new[] { "blue", "green" }), "{favColors: {$all: ['blue','green']}}");
+        }
+
+        [Test]
         public void And()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -66,6 +82,24 @@ namespace MongoDB.Driver.Tests
                 subject.Equal("c", 3));
 
             Assert(filter, "{a: 1, b: 2, c: 3}");
+        }
+
+        [Test]
+        public void ElemMatch()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.ElementMatch<BsonDocument>("a", "{b: 1}"), "{a: {$elemMatch: {b: 1}}}");
+        }
+
+        [Test]
+        public void ElemMatch_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.ElementMatch<Pet[], Pet>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElementMatch<Pet[], Pet>(x => x.Pets, "{name: 'Fluffy'}"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElementMatch<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
         }
 
         [Test]
@@ -319,6 +353,54 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{$or: [{a: 1}, {b: 2}, {c: 3}]}");
         }
 
+        [Test]
+        public void Regex()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Regex("x", "/abc/"), "{x: /abc/}");
+        }
+
+        [Test]
+        public void Regex_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.Regex(x => x.FirstName, "/abc/"), "{fn: /abc/}");
+            Assert(subject.Regex("FirstName", "/abc/"), "{FirstName: /abc/}");
+        }
+
+        [Test]
+        public void Size()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Size("x", 10), "{x: {$size: 10}}");
+        }
+
+        [Test]
+        public void Size_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.Size(x => x.FavoriteColors, 10), "{colors: {$size: 10}}");
+            Assert(subject.Size("FavoriteColors", 10), "{FavoriteColors: {$size: 10}}");
+        }
+
+        [Test]
+        public void Type()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Type("x", BsonType.String), "{x: {$type: 2}}");
+        }
+
+        [Test]
+        public void Type_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.Type(x => x.FirstName, BsonType.String), "{fn: {$type: 2}}");
+            Assert(subject.Type("FirstName", BsonType.String), "{FirstName: {$type: 2}}");
+        }
+
         private void Assert<TDocument>(Filter<TDocument> filter, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
@@ -342,6 +424,15 @@ namespace MongoDB.Driver.Tests
 
             [BsonElement("age")]
             public int Age { get; set; }
+
+            [BsonElement("pets")]
+            public Pet[] Pets { get; set; }
+        }
+
+        private class Pet
+        {
+            [BsonElement("name")]
+            public string Name { get; set; }
         }
     }
 }

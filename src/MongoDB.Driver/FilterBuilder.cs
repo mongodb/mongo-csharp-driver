@@ -30,7 +30,47 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class FilterBuilder<TDocument>
     {
-        // TODO: All
+        /// <summary>
+        /// Creates an all filter.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>An all filter.</returns>
+        public Filter<TDocument> All<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+            where TField : IEnumerable<TItem>
+        {
+            return new ArrayOperatorFilter<TDocument, TField, TItem>("$all", fieldName, values);
+        }
+
+        /// <summary>
+        /// Creates an all filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>An all filter.</returns>
+        public Filter<TDocument> All<TItem>(string fieldName, IEnumerable<TItem> values)
+        {
+            return new ArrayOperatorFilter<TDocument, IEnumerable<TItem>, TItem>(
+                "$all",
+                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                values);
+        }
+
+        /// <summary>
+        /// Creates an all filter.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>An all filter.</returns>
+        public Filter<TDocument> All<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+            where TField : IEnumerable<TItem>
+        {
+            return All(new ExpressionFieldName<TDocument, TField>(fieldName), values);
+        }
 
         /// <summary>
         /// Creates an and filter.
@@ -52,7 +92,60 @@ namespace MongoDB.Driver
             return new AndFilter<TDocument>(filters);
         }
 
-        // TODO: ElementMatch
+        /// <summary>
+        /// Creates an element match filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>An element match filter.</returns>
+        public Filter<TDocument> ElementMatch<TItem>(string fieldName, Filter<TItem> filter)
+        {
+            return new ElementMatchFilter<TDocument, IEnumerable<TItem>, TItem>(
+                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                filter);
+        }
+
+        /// <summary>
+        /// Creates an element match filter.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>An element match filter.</returns>
+        public Filter<TDocument> ElementMatch<TField, TItem>(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+            where TField : IEnumerable<TItem>
+        {
+            return new ElementMatchFilter<TDocument, TField, TItem>(fieldName, filter);
+        }
+
+        /// <summary>
+        /// Creates an element match filter.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>An element match filter.</returns>
+        public Filter<TDocument> ElementMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
+            where TField : IEnumerable<TItem>
+        {
+            return ElementMatch(new ExpressionFieldName<TDocument, TField>(fieldName), filter);
+        }
+
+        /// <summary>
+        /// Creates an element match filter.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>An element match filter.</returns>
+        public Filter<TDocument> ElementMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+            where TField : IEnumerable<TItem>
+        {
+            return ElementMatch(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilter<TItem>(filter));
+        }
 
         /// <summary>
         /// Creates an equality filter.
@@ -240,8 +333,6 @@ namespace MongoDB.Driver
             return LessThanOrEqual(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
 
-        // TODO: Matches
-
         // TODO: Modulo
 
         // TODO: Near
@@ -342,11 +433,75 @@ namespace MongoDB.Driver
             return new OrFilter<TDocument>(filters);
         }
 
-        // TODO: Size
+        /// <summary>
+        /// Creates a regular expression filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="regex">The regex.</param>
+        /// <returns>A regular expression filter.</returns>
+        public Filter<TDocument> Regex(FieldName<TDocument> fieldName, BsonRegularExpression regex)
+        {
+            return new EqualFilter<TDocument>(fieldName, regex);
+        }
+
+        /// <summary>
+        /// Creates a regular expression filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="regex">The regex.</param>
+        /// <returns>A regular expression filter.</returns>
+        public Filter<TDocument> Regex(Expression<Func<TDocument, object>> fieldName, BsonRegularExpression regex)
+        {
+            return Regex(new ExpressionFieldName<TDocument>(fieldName), regex);
+        }
+
+        /// <summary>
+        /// Creates a size filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="size">The size.</param>
+        /// <returns>A size filter.</returns>
+        public Filter<TDocument> Size(FieldName<TDocument> fieldName, int size)
+        {
+            return new OperatorFilter<TDocument>("$size", fieldName, size);
+        }
+
+        /// <summary>
+        /// Creates a size filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="size">The size.</param>
+        /// <returns>A size filter.</returns>
+        public Filter<TDocument> Size(Expression<Func<TDocument, object>> fieldName, int size)
+        {
+            return Size(new ExpressionFieldName<TDocument>(fieldName), size);
+        }
+
+
         // TODO: SizeGreaterThan?
         // TODO: SizeLessThan?
 
-        // TODO: Type
+        /// <summary>
+        /// Creates a type filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>A type filter.</returns>
+        public Filter<TDocument> Type(FieldName<TDocument> fieldName, BsonType type)
+        {
+            return new OperatorFilter<TDocument>("$type", fieldName, (int)type);
+        }
+
+        /// <summary>
+        /// Creates a type filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>A type filter.</returns>
+        public Filter<TDocument> Type(Expression<Func<TDocument, object>> fieldName, BsonType type)
+        {
+            return Type(new ExpressionFieldName<TDocument>(fieldName), type);
+        }
 
         // TODO: Within
         // TODO: WithinCircle
@@ -480,7 +635,8 @@ namespace MongoDB.Driver
             var arraySerializer = renderedField.Serializer as IBsonArraySerializer;
             if (arraySerializer == null)
             {
-                throw new NotSupportedException();
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                throw new InvalidOperationException(message);
             }
             var itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
 
@@ -507,7 +663,74 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// An equality filter.
+    /// An element match filter.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    /// <typeparam name="TField">The type of the field.</typeparam>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    public sealed class ElementMatchFilter<TDocument, TField, TItem> : Filter<TDocument>
+    {
+        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly Filter<TItem> _filter;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ElementMatchFilter{TDocument, TField, TItem}" /> class.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        public ElementMatchFilter(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _filter = filter;
+        }
+
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var arraySerializer = renderedField.Serializer as IBsonArraySerializer;
+            if (arraySerializer == null)
+            {
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                throw new InvalidOperationException(message);
+            }
+            var itemSerializer = (IBsonSerializer<TItem>)arraySerializer.GetItemSerializationInfo().Serializer;
+            var renderedFilter = _filter.Render(itemSerializer, serializerRegistry);
+
+            return new BsonDocument(renderedField.FieldName, new BsonDocument("$elemMatch", renderedFilter));
+        }
+    }
+
+    /// <summary>
+    /// An equality filter where the type doesn't matter.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public sealed class EqualFilter<TDocument> : Filter<TDocument>
+    {
+        private readonly FieldName<TDocument> _fieldName;
+        private readonly BsonValue _value;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EqualFilter{TDocument}"/> class.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        public EqualFilter(FieldName<TDocument> fieldName, BsonValue value)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _value = value;
+        }
+
+        /// <inheritdoc />
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            return new BsonDocument(renderedField, _value);
+        }
+    }
+
+    /// <summary>
+    /// An equality filter where the type matters.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TField">The type of the field.</typeparam>
