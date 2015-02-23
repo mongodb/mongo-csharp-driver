@@ -198,7 +198,7 @@ namespace MongoDB.Driver
         public async Task RunCommand_should_run_a_serialized_command()
         {
             var cmd = new CountCommand { Collection = "foo" };
-            await _subject.RunCommandAsync<BsonDocument>(cmd);
+            await _subject.RunCommandAsync(new ObjectCommand<BsonDocument>(cmd));
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 

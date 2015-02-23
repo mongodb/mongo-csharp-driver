@@ -46,6 +46,6 @@ namespace MongoDB.Driver
         public abstract Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public abstract Task<TResult> RunCommandAsync<TResult>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

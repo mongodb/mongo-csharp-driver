@@ -122,24 +122,24 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public override Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(command, "command");
             readPreference = readPreference ?? ReadPreference.Primary;
 
-            var commandDocument = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, command);
-            var serializer = _settings.SerializerRegistry.GetSerializer<T>();
+            var renderedCommand = command.Render(_settings.SerializerRegistry);
+            var serializer = _settings.SerializerRegistry.GetSerializer<TResult>();
             var messageEncoderSettings = GetMessageEncoderSettings();
 
             if (readPreference == ReadPreference.Primary)
             {
-                var operation = new WriteCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
-                return ExecuteWriteOperation<T>(operation, cancellationToken);
+                var operation = new WriteCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.Serializer, messageEncoderSettings);
+                return ExecuteWriteOperation<TResult>(operation, cancellationToken);
             }
             else
             {
-                var operation = new ReadCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
-                return ExecuteReadOperation<T>(operation, readPreference, cancellationToken);
+                var operation = new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.Serializer, messageEncoderSettings);
+                return ExecuteReadOperation<TResult>(operation, readPreference, cancellationToken);
             }
         }
 

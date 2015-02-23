@@ -94,6 +94,6 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the command.
         /// </returns>
-        Task<TResult> RunCommandAsync<TResult>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }
