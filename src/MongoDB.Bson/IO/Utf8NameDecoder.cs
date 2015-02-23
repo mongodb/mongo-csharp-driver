@@ -47,7 +47,7 @@ namespace MongoDB.Bson.IO
         /// <returns>
         /// The name.
         /// </returns>
-        public string Decode(IBsonStream stream, UTF8Encoding encoding)
+        public string Decode(BsonStream stream, UTF8Encoding encoding)
         {
             var utf8 = stream.ReadCStringBytes();
             return Utf8Helper.DecodeUtf8String(utf8.Array, utf8.Offset, utf8.Count, encoding);

@@ -21,9 +21,9 @@ namespace MongoDB.Bson.IO
 {
     /// <summary>
     /// Represents a Stream backed by an IByteBuffer. Similar to MemoryStream but backed by an IByteBuffer
-    /// instead of a byte array and also implements the IBsonStream interface for higher performance BSON I/O.
+    /// instead of a byte array and also implements the BsonStream interface for higher performance BSON I/O.
     /// </summary>
-    public class ByteBufferStream : Stream, IBsonStream
+    public class ByteBufferStream : BsonStream
     {
         // private fields
         private  IByteBuffer _byteBuffer;
@@ -126,25 +126,6 @@ namespace MongoDB.Bson.IO
         public override void Flush()
         {
             // do nothing
-        }
-
-        /// <inheritdoc/>
-        public IByteBuffer GetSlice(int position, int length)
-        {
-            if (position < 0 || position > _length)
-            {
-                throw new ArgumentOutOfRangeException("position", "Position is outside the stream.");
-            }
-            if (length < 0)
-            {
-                throw new ArgumentException("Length is negative.", "length");
-            }
-            if (position + length > _length)
-            {
-                throw new ArgumentException("Length extends beyond the end of the stream.", "length");
-            }
-
-            return _byteBuffer.GetSlice(position, length);
         }
 
         /// <inheritdoc/>
@@ -362,7 +343,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public string ReadCString(UTF8Encoding encoding)
+        public override string ReadCString(UTF8Encoding encoding)
         {
             if (encoding == null)
             {
@@ -374,7 +355,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public ArraySegment<byte> ReadCStringBytes()
+        public override ArraySegment<byte> ReadCStringBytes()
         {
             ThrowIfDisposed();
             ThrowIfEndOfStream(1);
@@ -397,7 +378,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public double ReadDouble()
+        public override double ReadDouble()
         {
             ThrowIfDisposed();
             ThrowIfEndOfStream(8);
@@ -416,7 +397,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public int ReadInt32()
+        public override int ReadInt32()
         {
             ThrowIfDisposed();
             ThrowIfEndOfStream(4);
@@ -437,7 +418,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public long ReadInt64()
+        public override long ReadInt64()
         {
             ThrowIfDisposed();
             ThrowIfEndOfStream(8);
@@ -456,7 +437,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public ObjectId ReadObjectId()
+        public override ObjectId ReadObjectId()
         {
             ThrowIfDisposed();
             ThrowIfEndOfStream(12);
@@ -475,7 +456,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public IByteBuffer ReadSlice()
+        public override IByteBuffer ReadSlice()
         {
             ThrowIfDisposed();
 
@@ -486,7 +467,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public string ReadString(UTF8Encoding encoding)
+        public override string ReadString(UTF8Encoding encoding)
         {
             if (encoding == null)
             {
@@ -525,14 +506,14 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void SkipCString()
+        public override void SkipCString()
         {
             var nullPosition = FindNullByte();
             _position = nullPosition + 1;
         }
 
         /// <inheritdoc/>
-        public void WriteCString(string value)
+        public override void WriteCString(string value)
         {
             var maxLength = Utf8Encodings.Strict.GetMaxByteCount(value.Length) + 1;
             PrepareToWrite(maxLength);
@@ -576,7 +557,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void WriteCStringBytes(byte[] value)
+        public override void WriteCStringBytes(byte[] value)
         {
             if (value == null)
             {
@@ -598,7 +579,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void WriteDouble(double value)
+        public override void WriteDouble(double value)
         {
             PrepareToWrite(8);
 
@@ -609,7 +590,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void WriteInt32(int value)
+        public override void WriteInt32(int value)
         {
             PrepareToWrite(4);
 
@@ -634,7 +615,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void WriteInt64(long value)
+        public override void WriteInt64(long value)
         {
             PrepareToWrite(8);
 
@@ -645,7 +626,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void WriteObjectId(ObjectId value)
+        public override void WriteObjectId(ObjectId value)
         {
             PrepareToWrite(12);
 
@@ -664,7 +645,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void WriteString(string value, UTF8Encoding encoding)
+        public override void WriteString(string value, UTF8Encoding encoding)
         {
             var maxLength = encoding.GetMaxByteCount(value.Length) + 5;
             PrepareToWrite(maxLength);

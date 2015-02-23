@@ -105,7 +105,7 @@ namespace MongoDB.Bson.IO
         /// If the node was found the stream is advanced over the name, otherwise
         /// the stream is repositioned to the beginning of the name.
         /// </returns>
-        public bool TryGetNode(IBsonStream stream, out BsonTrieNode<TValue> node)
+        public bool TryGetNode(BsonStream stream, out BsonTrieNode<TValue> node)
         {
             var position = stream.Position;
             var utf8 = stream.ReadCStringBytes();

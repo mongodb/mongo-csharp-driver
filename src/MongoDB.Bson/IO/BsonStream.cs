@@ -14,521 +14,115 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MongoDB.Bson.IO
 {
     /// <summary>
-    /// A Stream that wraps another Stream while implementing the IBsonStream interface.
+    /// Represents a Stream has additional methods to suport reading and writing BSON values.
     /// </summary>
-    public sealed class BsonStream : Stream, IBsonStream
+    public abstract class BsonStream : Stream
     {
-        // fields
-        private bool _disposed;
-        private bool _ownsStream;
-        private readonly Stream _stream;
-        private readonly byte[] _temp = new byte[12];
-        private readonly byte[] _tempUtf8 = new byte[128];
-
-        // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonStream"/> class.
+        /// Reads a BSON CString from the stream.
         /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="ownsStream">if set to <c>true</c> [owns stream].</param>
-        /// <exception cref="System.ArgumentNullException">stream</exception>
-        public BsonStream(Stream stream, bool ownsStream = false)
-        {
-            if (stream == null)
-            {
-                throw new ArgumentNullException("stream");
-            }
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>A string.</returns>
+        public abstract string ReadCString(UTF8Encoding encoding);
 
-            _stream = stream;
-            _ownsStream = ownsStream;
-        }
+        /// <summary>
+        /// Reads a BSON CString from the stream.
+        /// </summary>
+        /// <returns>An ArraySegment containing the CString bytes (without the null byte).</returns>
+        public abstract ArraySegment<byte> ReadCStringBytes();
 
-        // properties        
-        /// <inheritdoc/>
-        public Stream BaseStream
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _stream;
-            }
-        }
+        /// <summary>
+        /// Reads a BSON double from the stream.
+        /// </summary>
+        /// <returns>A double.</returns>
+        public abstract double ReadDouble();
 
-        /// <inheritdoc/>
-        public override bool CanRead
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _stream.CanRead;
-            }
-        }
+        /// <summary>
+        /// Reads a 32-bit BSON integer from the stream.
+        /// </summary>
+        /// <returns>An int.</returns>
+        public abstract int ReadInt32();
 
-        /// <inheritdoc/>
-        public override bool CanSeek
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _stream.CanSeek;
-            }
-        }
+        /// <summary>
+        /// Reads a 64-bit BSON integer from the stream.
+        /// </summary>
+        /// <returns>A long.</returns>
+        public abstract long ReadInt64();
 
-        /// <inheritdoc/>
-        public override bool CanTimeout
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _stream.CanTimeout;
-            }
-        }
+        /// <summary>
+        /// Reads a BSON ObjectId from the stream.
+        /// </summary>
+        /// <returns>An ObjectId.</returns>
+        public abstract ObjectId ReadObjectId();
 
-        /// <inheritdoc/>
-        public override bool CanWrite
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _stream.CanWrite;
-            }
-        }
+        /// <summary>
+        /// Reads a raw length prefixed slice from the stream.
+        /// </summary>
+        /// <returns>A slice.</returns>
+        public abstract IByteBuffer ReadSlice();
 
-        /// <inheritdoc/>
-        public override long Length
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _stream.Length;
-            }
-        }
+        /// <summary>
+        /// Reads a BSON string from the stream.
+        /// </summary>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>A string.</returns>
+        public abstract string ReadString(UTF8Encoding encoding);
 
-        /// <inheritdoc/>
-        public override long Position
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _stream.Position;
-            }
-            set
-            {
-                ThrowIfDisposed();
-                _stream.Position = value;
-            }
-        }
+        /// <summary>
+        /// Skips over a BSON CString leaving the stream positioned just after the terminating null byte.
+        /// </summary>
+        public abstract void SkipCString();
 
-        /// <inheritdoc/>
-        public override int ReadTimeout
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _stream.ReadTimeout;
-            }
-            set
-            {
-                ThrowIfDisposed();
-                _stream.ReadTimeout = value;
-            }
-        }
+        /// <summary>
+        /// Writes a BSON CString to the stream.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public abstract void WriteCString(string value);
 
-        /// <inheritdoc/>
-        public override int WriteTimeout
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _stream.WriteTimeout;
-            }
-            set
-            {
-                ThrowIfDisposed();
-                _stream.WriteTimeout = value;
-            }
-        }
+        /// <summary>
+        /// Writes the CString bytes to the stream.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public abstract void WriteCStringBytes(byte[] value);
 
-        // methods
-        /// <inheritdoc/>
-        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-        {
-            ThrowIfDisposed();
-            return _stream.BeginRead(buffer, offset, count, callback, state);
-        }
+        /// <summary>
+        /// Writes a BSON double to the stream.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public abstract void WriteDouble(double value);
 
-        /// <inheritdoc/>
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-        {
-            ThrowIfDisposed();
-            return _stream.BeginWrite(buffer, offset, count, callback, state);
-        }
+        /// <summary>
+        /// Writes a 32-bit BSON integer to the stream.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public abstract void WriteInt32(int value);
 
-        /// <inheritdoc/>
-        public override void Close()
-        {
-            base.Close(); // base class will call Dispose
-        }
+        /// <summary>
+        /// Writes a 64-bit BSON integer to the stream.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public abstract void WriteInt64(long value);
 
-        /// <inheritdoc/>
-        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-            return _stream.CopyToAsync(destination, bufferSize, cancellationToken);
-        }
+        /// <summary>
+        /// Writes a BSON ObjectId to the stream.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public abstract void WriteObjectId(ObjectId value);
 
-        /// <inheritdoc/>
-        protected override void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    if (_ownsStream)
-                    {
-                        _stream.Dispose();
-                    }
-                }
-                _disposed = true;
-            }
-            base.Dispose(disposing);
-        }
-
-        /// <inheritdoc/>
-        public override int EndRead(IAsyncResult asyncResult)
-        {
-            ThrowIfDisposed();
-            return _stream.EndRead(asyncResult);
-        }
-
-        /// <inheritdoc/>
-        public override void EndWrite(IAsyncResult asyncResult)
-        {
-            ThrowIfDisposed();
-            _stream.EndWrite(asyncResult);
-        }
-
-        /// <inheritdoc/>
-        public override void Flush()
-        {
-            ThrowIfDisposed();
-            _stream.Flush();
-        }
-
-        /// <inheritdoc/>
-        public override Task FlushAsync(CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-            return _stream.FlushAsync(cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            ThrowIfDisposed();
-            return _stream.Read(buffer, offset, count);
-        }
-
-        /// <inheritdoc/>
-        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-            return _stream.ReadAsync(buffer, offset, count, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public override int ReadByte()
-        {
-            ThrowIfDisposed();
-            return _stream.ReadByte();
-        }
-
-        /// <inheritdoc/>
-        public string ReadCString(UTF8Encoding encoding)
-        {
-            if (encoding == null)
-            {
-                throw new ArgumentNullException("encoding");
-            }
-            ThrowIfDisposed();
-
-            var bytes = ReadCStringBytes();
-            return Utf8Helper.DecodeUtf8String(bytes.Array, 0, bytes.Count, encoding);
-        }
-
-        /// <inheritdoc/>
-        public ArraySegment<byte> ReadCStringBytes()
-        {
-            ThrowIfDisposed();
-
-            var memoryStream = new MemoryStream(32);
-
-            while (true)
-            {
-                var b = _stream.ReadByte();
-                if (b == -1)
-                {
-                    throw new EndOfStreamException();
-                }
-                if (b == 0)
-                {
-                    return new ArraySegment<byte>(memoryStream.GetBuffer(), 0, (int)memoryStream.Length);
-                }
-
-                memoryStream.WriteByte((byte)b);
-            }
-        }
-
-        /// <inheritdoc/>
-        public double ReadDouble()
-        {
-            ThrowIfDisposed();
-            this.ReadBytes(_temp, 0, 8);
-            return BitConverter.ToDouble(_temp, 0);
-        }
-
-        /// <inheritdoc/>
-        public int ReadInt32()
-        {
-            ThrowIfDisposed();
-            this.ReadBytes(_temp, 0, 4);
-            return _temp[0] | (_temp[1] << 8) | (_temp[2] << 16) | (_temp[3] << 24);
-        }
-
-        /// <inheritdoc/>
-        public long ReadInt64()
-        {
-            ThrowIfDisposed();
-            this.ReadBytes(_temp, 0, 8);
-            return BitConverter.ToInt64(_temp, 0);
-        }
-
-        /// <inheritdoc/>
-        public ObjectId ReadObjectId()
-        {
-            ThrowIfDisposed();
-            this.ReadBytes(_temp, 0, 12);
-            return new ObjectId(_temp, 0);
-        }
-
-        /// <inheritdoc/>
-        public IByteBuffer ReadSlice()
-        {
-            ThrowIfDisposed();
-            var position = _stream.Position;
-            var length = ReadInt32();
-            var bytes = new byte[length];
-            _stream.Position = position;
-            this.ReadBytes(bytes, 0, length);
-            return new ByteArrayBuffer(bytes, isReadOnly: true);
-        }
-
-        /// <inheritdoc/>
-        public string ReadString(UTF8Encoding encoding)
-        {
-            if (encoding == null)
-            {
-                throw new ArgumentNullException("encoding");
-            }
-            ThrowIfDisposed();
-
-            var length = ReadInt32();
-            var bytes = length <= _tempUtf8.Length ? _tempUtf8 : new byte[length];
-            this.ReadBytes(bytes, 0, length);
-            if (bytes[length - 1] != 0)
-            {
-                throw new FormatException("String is missing terminating null byte.");
-            }
-
-            return encoding.GetString(bytes, 0, length - 1);
-        }
-
-        /// <inheritdoc/>
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            ThrowIfDisposed();
-            return _stream.Seek(offset, origin);
-        }
-
-        /// <inheritdoc/>
-        public override void SetLength(long value)
-        {
-            ThrowIfDisposed();
-            _stream.SetLength(value);
-        }
-
-        /// <inheritdoc/>
-        public void SkipCString()
-        {
-            ThrowIfDisposed();
-
-            while (true)
-            {
-                var b = _stream.ReadByte();
-                if (b == -1)
-                {
-                    throw new EndOfStreamException();
-                }
-                if (b == 0)
-                {
-                    return;
-                }
-            }
-        }
-
-        /// <inheritdoc/>
-        private void ThrowIfDisposed()
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().Name);
-            }
-        }
-
-        /// <inheritdoc/>
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            ThrowIfDisposed();
-            _stream.Write(buffer, offset, count);
-        }
-
-        /// <inheritdoc/>
-        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-            return _stream.WriteAsync(buffer, offset, count, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public override void WriteByte(byte value)
-        {
-            ThrowIfDisposed();
-            _stream.WriteByte(value);
-        }
-
-        /// <inheritdoc/>
-        public void WriteCString(string value)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-            ThrowIfDisposed();
-
-            byte[] bytes;
-            int length;
-
-            var encoding = Utf8Encodings.Strict;
-            if (encoding.GetMaxByteCount(value.Length) <= _tempUtf8.Length)
-            {
-                bytes = _tempUtf8;
-                length = encoding.GetBytes(value, 0, value.Length, _tempUtf8, 0);
-            }
-            else
-            {
-                bytes = encoding.GetBytes(value);
-                length = bytes.Length;
-            }
-
-            if (Array.IndexOf<byte>(bytes, 0, 0, length) != -1)
-            {
-                throw new ArgumentException("A CString cannot contain null bytes.", "value");
-            }
-
-            _stream.Write(bytes, 0, length);
-            _stream.WriteByte(0);
-        }
-
-        /// <inheritdoc/>
-        public void WriteCStringBytes(byte[] value)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-            if (Array.IndexOf<byte>(value, 0) != -1)
-            {
-                throw new ArgumentException("A CString cannot contain null bytes.", "value");
-            }
-            ThrowIfDisposed();
-
-            this.WriteBytes(value, 0, value.Length);
-            WriteByte(0);
-        }
-
-        /// <inheritdoc/>
-        public void WriteDouble(double value)
-        {
-            ThrowIfDisposed();
-            var bytes = BitConverter.GetBytes(value);
-            _stream.Write(bytes, 0, 8);
-        }
-
-        /// <inheritdoc/>
-        public void WriteInt32(int value)
-        {
-            ThrowIfDisposed();
-            _temp[0] = (byte)(value);
-            _temp[1] = (byte)(value >> 8);
-            _temp[2] = (byte)(value >> 16);
-            _temp[3] = (byte)(value >> 24);
-            _stream.Write(_temp, 0, 4);
-        }
-
-        /// <inheritdoc/>
-        public void WriteInt64(long value)
-        {
-            ThrowIfDisposed();
-            var bytes = BitConverter.GetBytes(value);
-            _stream.Write(bytes, 0, 8);
-        }
-
-        /// <inheritdoc/>
-        public void WriteObjectId(ObjectId value)
-        {
-            ThrowIfDisposed();
-            value.ToByteArray(_temp, 0);
-            _stream.Write(_temp, 0, 12);
-        }
-
-        /// <inheritdoc/>
-        public void WriteString(string value, UTF8Encoding encoding)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-            if (encoding == null)
-            {
-                throw new ArgumentNullException("encoding");
-            }
-            ThrowIfDisposed();
-
-            byte[] bytes;
-            int length;
-
-            if (encoding.GetMaxByteCount(value.Length) <= _tempUtf8.Length)
-            {
-                bytes = _tempUtf8;
-                length = encoding.GetBytes(value, 0, value.Length, _tempUtf8, 0);
-            }
-            else
-            {
-                bytes = encoding.GetBytes(value);
-                length = bytes.Length;
-            }
-
-            WriteInt32(length + 1);
-            _stream.Write(bytes, 0, length);
-            _stream.WriteByte(0);
-        }
+        /// <summary>
+        /// Writes a BSON string to the stream.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="encoding">The encoding.</param>
+        public abstract void WriteString(string value, UTF8Encoding encoding);
     }
 }

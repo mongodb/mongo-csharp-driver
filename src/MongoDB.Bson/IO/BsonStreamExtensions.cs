@@ -23,15 +23,15 @@ using System.Threading.Tasks;
 namespace MongoDB.Bson.IO
 {
     /// <summary>
-    /// Represents extension methods on IBsonStream.
+    /// Represents extension methods on BsonStream.
     /// </summary>
-    public static class IBsonStreamExtensions
+    public static class BsonStreamExtensions
     {
         // static fields
         private static readonly bool[] __validBsonTypes = new bool[256];
 
         // static constructor
-        static IBsonStreamExtensions()
+        static BsonStreamExtensions()
         {
             foreach (BsonType bsonType in Enum.GetValues(typeof(BsonType)))
             {
@@ -45,7 +45,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="startPosition">The start position.</param>
-        public static void BackpatchSize(this IBsonStream stream, long startPosition)
+        public static void BackpatchSize(this BsonStream stream, long startPosition)
         {
             var endPosition = stream.Position;
             var size = (int)(endPosition - startPosition);
@@ -59,7 +59,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <returns>The binary sub type.</returns>
-        public static BsonBinarySubType ReadBinarySubType(this IBsonStream stream)
+        public static BsonBinarySubType ReadBinarySubType(this BsonStream stream)
         {
             var b = stream.ReadByte();
             if (b == -1)
@@ -74,7 +74,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <returns>A boolean.</returns>
-        public static bool ReadBoolean(this IBsonStream stream)
+        public static bool ReadBoolean(this BsonStream stream)
         {
             var b = stream.ReadByte();
             if (b == -1)
@@ -89,7 +89,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <returns>The BSON type.</returns>
-        public static BsonType ReadBsonType(this IBsonStream stream)
+        public static BsonType ReadBsonType(this BsonStream stream)
         {
             var b = stream.ReadByte();
             if (b == -1)
@@ -111,7 +111,7 @@ namespace MongoDB.Bson.IO
         /// <param name="buffer">The buffer.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="count">The count.</param>
-        public static void ReadBytes(this IBsonStream stream, byte[] buffer, int offset, int count)
+        public static void ReadBytes(this BsonStream stream, byte[] buffer, int offset, int count)
         {
             if (count == 1)
             {
@@ -143,7 +143,7 @@ namespace MongoDB.Bson.IO
         /// <param name="stream">The stream.</param>
         /// <param name="count">The count.</param>
         /// <returns>The bytes.</returns>
-        public static byte[] ReadBytes(this IBsonStream stream, int count)
+        public static byte[] ReadBytes(this BsonStream stream, int count)
         {
             var bytes = new byte[count];
             stream.ReadBytes(bytes, 0, count);
@@ -155,7 +155,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="value">The value.</param>
-        public static void WriteBinarySubType(this IBsonStream stream, BsonBinarySubType value)
+        public static void WriteBinarySubType(this BsonStream stream, BsonBinarySubType value)
         {
             stream.WriteByte((byte)value);
         }
@@ -165,7 +165,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="value">The value.</param>
-        public static void WriteBoolean(this IBsonStream stream, bool value)
+        public static void WriteBoolean(this BsonStream stream, bool value)
         {
             stream.WriteByte(value ? (byte)1 : (byte)0);
         }
@@ -175,7 +175,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="value">The value.</param>
-        public static void WriteBsonType(this IBsonStream stream, BsonType value)
+        public static void WriteBsonType(this BsonStream stream, BsonType value)
         {
             stream.WriteByte((byte)value);
         }
@@ -187,7 +187,7 @@ namespace MongoDB.Bson.IO
         /// <param name="buffer">The buffer.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="count">The count.</param>
-        public static void WriteBytes(this IBsonStream stream, byte[] buffer, int offset, int count)
+        public static void WriteBytes(this BsonStream stream, byte[] buffer, int offset, int count)
         {
             if (count == 1)
             {
@@ -204,7 +204,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="slice">The slice.</param>
-        public static void WriteSlice(this IBsonStream stream, IByteBuffer slice)
+        public static void WriteSlice(this BsonStream stream, IByteBuffer slice)
         {
             var position = 0;
             var count = slice.Length;

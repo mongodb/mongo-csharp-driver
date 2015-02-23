@@ -32,7 +32,7 @@ namespace MongoDB.Bson.IO
         /// <returns>
         /// The name.
         /// </returns>
-        string Decode(IBsonStream stream, UTF8Encoding encoding);
+        string Decode(BsonStream stream, UTF8Encoding encoding);
 
         /// <summary>
         /// Informs the decoder of an already decoded name (so the decoder can change state if necessary).

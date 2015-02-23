@@ -25,7 +25,7 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private readonly Stream _baseStream;
-        private readonly IBsonStream _bsonStream;
+        private readonly BsonStream _bsonStream;
         private readonly BsonBinaryReaderSettings _settings; // same value as in base class just declared as derived class
         private BsonBinaryReaderContext _context;
 
@@ -57,7 +57,7 @@ namespace MongoDB.Bson.IO
             }
 
             _baseStream = stream;
-            _bsonStream = (stream as IBsonStream) ?? new BsonStream(stream);
+            _bsonStream = (stream as BsonStream) ?? new BsonStreamAdapter(stream);
             _settings = settings; // already frozen by base class
 
             _context = new BsonBinaryReaderContext(null, ContextType.TopLevel, 0, 0);
@@ -81,7 +81,7 @@ namespace MongoDB.Bson.IO
         /// <value>
         /// The BSON stream.
         /// </value>
-        public IBsonStream BsonStream
+        public BsonStream BsonStream
         {
             get { return _bsonStream; }
         }

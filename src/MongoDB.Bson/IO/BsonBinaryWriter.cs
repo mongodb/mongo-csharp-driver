@@ -26,7 +26,7 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private readonly Stream _baseStream;
-        private readonly IBsonStream _bsonStream;
+        private readonly BsonStream _bsonStream;
         private readonly BsonBinaryWriterSettings _settings; // same value as in base class just declared as derived class
         private readonly Stack<int> _maxDocumentSizeStack = new Stack<int>();
         private BsonBinaryWriterContext _context;
@@ -59,7 +59,7 @@ namespace MongoDB.Bson.IO
             }
 
             _baseStream = stream;
-            _bsonStream = (stream as IBsonStream) ?? new BsonStream(stream);
+            _bsonStream = (stream as BsonStream) ?? new BsonStreamAdapter(stream);
             _settings = settings; // already frozen by base class
             _maxDocumentSizeStack.Push(_settings.MaxDocumentSize);
 
@@ -85,7 +85,7 @@ namespace MongoDB.Bson.IO
         /// <value>
         /// The BSON stream.
         /// </value>
-        public IBsonStream BsonStream
+        public BsonStream BsonStream
         {
             get { return _bsonStream;  }
         }

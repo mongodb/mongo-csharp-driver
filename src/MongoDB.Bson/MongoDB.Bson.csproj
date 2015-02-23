@@ -84,6 +84,7 @@
     <Compile Include="IO\BsonDocumentWriterSettings.cs" />
     <Compile Include="IO\BsonReaderSettings.cs" />
     <Compile Include="IO\BsonStream.cs" />
+    <Compile Include="IO\BsonStreamAdapter.cs" />
     <Compile Include="IO\BsonTrie.cs" />
     <Compile Include="IO\BsonWriterSettings.cs" />
     <Compile Include="IO\ByteArrayChunk.cs" />
@@ -92,7 +93,7 @@
     <Compile Include="IO\IBsonChunkSource.cs" />
     <Compile Include="IO\IBsonReader.cs" />
     <Compile Include="IO\IBsonReaderExtensions.cs" />
-    <Compile Include="IO\IBsonStreamExtensions.cs" />
+    <Compile Include="IO\BsonStreamExtensions.cs" />
     <Compile Include="IO\IBsonWriter.cs" />
     <Compile Include="IO\IBsonWriterExtensions.cs" />
     <Compile Include="IO\IElementNameValidator.cs" />
@@ -102,7 +103,6 @@
     <Compile Include="IO\ByteBufferFactory.cs" />
     <Compile Include="IO\ByteArrayBuffer.cs" />
     <Compile Include="IO\ByteBufferStream.cs" />
-    <Compile Include="IO\IBsonStream.cs" />
     <Compile Include="IO\IByteBuffer.cs" />
     <Compile Include="IO\JsonConvert.cs" />
     <Compile Include="IO\MultiChunkBuffer.cs" />
