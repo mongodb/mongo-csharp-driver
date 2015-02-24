@@ -96,12 +96,26 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an element match filter.
         /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
-        public Filter<TDocument> ElementMatch<TItem>(string fieldName, Filter<TItem> filter)
+        public Filter<TDocument> ElemMatch<TField, TItem>(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+            where TField : IEnumerable<TItem>
         {
-            return new ElementMatchFilter<TDocument, IEnumerable<TItem>, TItem>(
+            return new ElementMatchFilter<TDocument, TField, TItem>(fieldName, filter);
+        }
+
+        /// <summary>
+        /// Creates an element match filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>An element match filter.</returns>
+        public Filter<TDocument> ElemMatch<TItem>(string fieldName, Filter<TItem> filter)
+        {
+            return ElemMatch(
                 new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
                 filter);
         }
@@ -114,10 +128,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
-        public Filter<TDocument> ElementMatch<TField, TItem>(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        public Filter<TDocument> ElemMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            return new ElementMatchFilter<TDocument, TField, TItem>(fieldName, filter);
+            return ElemMatch(new ExpressionFieldName<TDocument, TField>(fieldName), filter);
         }
 
         /// <summary>
@@ -128,24 +142,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
-        public Filter<TDocument> ElementMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
+        public Filter<TDocument> ElemMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
-            return ElementMatch(new ExpressionFieldName<TDocument, TField>(fieldName), filter);
-        }
-
-        /// <summary>
-        /// Creates an element match filter.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <returns>An element match filter.</returns>
-        public Filter<TDocument> ElementMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
-            where TField : IEnumerable<TItem>
-        {
-            return ElementMatch(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilter<TItem>(filter));
+            return ElemMatch(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilter<TItem>(filter));
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An equality filter.</returns>
-        public Filter<TDocument> Equal<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public Filter<TDocument> Eq<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
             return new SimpleFilter<TDocument, TField>(fieldName, value);
         }
@@ -167,9 +167,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An equality filter.</returns>
-        public Filter<TDocument> Equal<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public Filter<TDocument> Eq<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
-            return Equal(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Eq(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
 
         /// <summary>
@@ -192,6 +192,16 @@ namespace MongoDB.Driver
         public Filter<TDocument> Exists(Expression<Func<TDocument, object>> fieldName, bool exists = true)
         {
             return Exists(new ExpressionFieldName<TDocument>(fieldName), exists);
+        }
+
+        /// <summary>
+        /// Creates a filter based on the expression.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns>An expression filter.</returns>
+        public Filter<TDocument> Expression(Expression<Func<TDocument, bool>> expression)
+        {
+            return new ExpressionFilter<TDocument>(expression);
         }
 
         /// <summary>
@@ -357,7 +367,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A greater than filter.</returns>
-        public Filter<TDocument> GreaterThan<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public Filter<TDocument> Gt<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
             return new OperatorFilter<TDocument, TField>("$gt", fieldName, value);
         }
@@ -369,9 +379,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A greater than filter.</returns>
-        public Filter<TDocument> GreaterThan<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public Filter<TDocument> Gt<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
-            return GreaterThan(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Gt(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
 
         /// <summary>
@@ -381,7 +391,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A greater than or equal filter.</returns>
-        public Filter<TDocument> GreaterThanOrEqual<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public Filter<TDocument> Gte<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
             return new OperatorFilter<TDocument, TField>("$gte", fieldName, value);
         }
@@ -393,9 +403,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A greater than or equal filter.</returns>
-        public Filter<TDocument> GreaterThanOrEqual<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public Filter<TDocument> Gte<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
-            return GreaterThanOrEqual(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Gte(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
 
         /// <summary>
@@ -447,7 +457,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A less than filter.</returns>
-        public Filter<TDocument> LessThan<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public Filter<TDocument> Lt<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
             return new OperatorFilter<TDocument, TField>("$lt", fieldName, value);
         }
@@ -459,9 +469,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A less than filter.</returns>
-        public Filter<TDocument> LessThan<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public Filter<TDocument> Lt<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
-            return LessThan(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Lt(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
 
         /// <summary>
@@ -471,7 +481,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A less than or equal filter.</returns>
-        public Filter<TDocument> LessThanOrEqual<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public Filter<TDocument> Lte<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
             return new OperatorFilter<TDocument, TField>("$lte", fieldName, value);
         }
@@ -483,9 +493,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A less than or equal filter.</returns>
-        public Filter<TDocument> LessThanOrEqual<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public Filter<TDocument> Lte<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
-            return LessThanOrEqual(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Lte(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
 
         /// <summary>
@@ -495,7 +505,7 @@ namespace MongoDB.Driver
         /// <param name="modulus">The modulus.</param>
         /// <param name="remainder">The remainder.</param>
         /// <returns>A modulo filter.</returns>
-        public Filter<TDocument> Modulo(FieldName<TDocument> fieldName, long modulus, long remainder)
+        public Filter<TDocument> Mod(FieldName<TDocument> fieldName, long modulus, long remainder)
         {
             return new OperatorFilter<TDocument>("$mod", fieldName, new BsonArray { modulus, remainder });
         }
@@ -507,9 +517,33 @@ namespace MongoDB.Driver
         /// <param name="modulus">The modulus.</param>
         /// <param name="remainder">The remainder.</param>
         /// <returns>A modulo filter.</returns>
-        public Filter<TDocument> Modulo(Expression<Func<TDocument, object>> fieldName, long modulus, long remainder)
+        public Filter<TDocument> Mod(Expression<Func<TDocument, object>> fieldName, long modulus, long remainder)
         {
-            return Modulo(new ExpressionFieldName<TDocument>(fieldName), modulus, remainder);
+            return Mod(new ExpressionFieldName<TDocument>(fieldName), modulus, remainder);
+        }
+
+        /// <summary>
+        /// Creates a not equal filter.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A not equal filter.</returns>
+        public Filter<TDocument> Ne<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        {
+            return new OperatorFilter<TDocument, TField>("$ne", fieldName, value);
+        }
+
+        /// <summary>
+        /// Creates a not equal filter.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A not equal filter.</returns>
+        public Filter<TDocument> Ne<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        {
+            return Ne(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
 
         /// <summary>
@@ -643,40 +677,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a not filter.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <returns>A not filter.</returns>
-        public Filter<TDocument> Not(Filter<TDocument> filter)
-        {
-            return new NotFilter<TDocument>(filter);
-        }
-
-        /// <summary>
-        /// Creates a not equal filter.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
-        /// <returns>A not equal filter.</returns>
-        public Filter<TDocument> NotEqual<TField>(FieldName<TDocument, TField> fieldName, TField value)
-        {
-            return new OperatorFilter<TDocument, TField>("$ne", fieldName, value);
-        }
-
-        /// <summary>
-        /// Creates a not equal filter.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
-        /// <returns>A not equal filter.</returns>
-        public Filter<TDocument> NotEqual<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
-        {
-            return NotEqual(new ExpressionFieldName<TDocument, TField>(fieldName), value);
-        }
-
-        /// <summary>
         /// Creates a not in filter.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
@@ -684,7 +684,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A not in filter.</returns>
-        public Filter<TDocument> NotIn<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public Filter<TDocument> Nin<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             return new ArrayOperatorFilter<TDocument, TField, TItem>("$nin", fieldName, values);
@@ -696,7 +696,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A not in filter.</returns>
-        public Filter<TDocument> NotIn<TItem>(string fieldName, IEnumerable<TItem> values)
+        public Filter<TDocument> Nin<TItem>(string fieldName, IEnumerable<TItem> values)
         {
             return new ArrayOperatorFilter<TDocument, IEnumerable<TItem>, TItem>(
                 "$nin",
@@ -712,10 +712,20 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A not in filter.</returns>
-        public Filter<TDocument> NotIn<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public Filter<TDocument> Nin<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            return NotIn(new ExpressionFieldName<TDocument, TField>(fieldName), values);
+            return Nin(new ExpressionFieldName<TDocument, TField>(fieldName), values);
+        }
+
+        /// <summary>
+        /// Creates a not filter.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <returns>A not filter.</returns>
+        public Filter<TDocument> Not(Filter<TDocument> filter)
+        {
+            return new NotFilter<TDocument>(filter);
         }
 
         /// <summary>
@@ -834,24 +844,15 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// An and filter.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class AndFilter<TDocument> : Filter<TDocument>
+    internal sealed class AndFilter<TDocument> : Filter<TDocument>
     {
         private readonly List<Filter<TDocument>> _filters;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AndFilter{TDocument}"/> class.
-        /// </summary>
-        /// <param name="filters">The filters.</param>
         public AndFilter(IEnumerable<Filter<TDocument>> filters)
         {
             _filters = Ensure.IsNotNull(filters, "filters").ToList();
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var document = new BsonDocument();
@@ -924,25 +925,13 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// An operator filter that renderes to an array of values.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TField">The type of the field.</typeparam>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    public sealed class ArrayOperatorFilter<TDocument, TField, TItem> : Filter<TDocument>
+    internal sealed class ArrayOperatorFilter<TDocument, TField, TItem> : Filter<TDocument>
         where TField : IEnumerable<TItem>
     {
         private string _operatorName;
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly IEnumerable<TItem> _values;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ArrayOperatorFilter{TDocument, TField, TItem}"/> class.
-        /// </summary>
-        /// <param name="operatorName">Name of the operator.</param>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="values">The value.</param>
         public ArrayOperatorFilter(string operatorName, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
@@ -950,7 +939,6 @@ namespace MongoDB.Driver
             _values = values;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -984,29 +972,17 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// An element match filter.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TField">The type of the field.</typeparam>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    public sealed class ElementMatchFilter<TDocument, TField, TItem> : Filter<TDocument>
+    internal sealed class ElementMatchFilter<TDocument, TField, TItem> : Filter<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly Filter<TItem> _filter;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ElementMatchFilter{TDocument, TField, TItem}" /> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="filter">The filter.</param>
         public ElementMatchFilter(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _filter = filter;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -1023,24 +999,13 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A geometry operator filter.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-    public sealed class GeometryOperatorFilter<TDocument, TCoordinates> : Filter<TDocument>
+    internal sealed class GeometryOperatorFilter<TDocument, TCoordinates> : Filter<TDocument>
         where TCoordinates : GeoJsonCoordinates
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument> _fieldName;
         private readonly GeoJsonGeometry<TCoordinates> _geometry;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GeometryOperatorFilter{TDocument, TCoordinates}"/> class.
-        /// </summary>
-        /// <param name="operatorName">Name of the operator.</param>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="geometry">The geometry.</param>
         public GeometryOperatorFilter(string operatorName, FieldName<TDocument> fieldName, GeoJsonGeometry<TCoordinates> geometry)
         {
             _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
@@ -1048,7 +1013,6 @@ namespace MongoDB.Driver
             _geometry = Ensure.IsNotNull(geometry, "geometry");
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -1072,12 +1036,7 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A near filter.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-    public sealed class NearFilter<TDocument, TCoordinates> : Filter<TDocument>
+    internal sealed class NearFilter<TDocument, TCoordinates> : Filter<TDocument>
         where TCoordinates : GeoJsonCoordinates
     {
         private readonly FieldName<TDocument> _fieldName;
@@ -1086,14 +1045,6 @@ namespace MongoDB.Driver
         private readonly double? _minDistance;
         private readonly bool _spherical;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NearFilter{TDocument, TCoordinates}"/> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="point">The point.</param>
-        /// <param name="spherical">The spherical.</param>
-        /// <param name="maxDistance">The maximum distance.</param>
-        /// <param name="minDistance">The minimum distance.</param>
         public NearFilter(FieldName<TDocument> fieldName, GeoJsonPoint<TCoordinates> point, bool spherical, double? maxDistance = null, double? minDistance = null)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
@@ -1103,7 +1054,6 @@ namespace MongoDB.Driver
             _minDistance = minDistance;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -1137,24 +1087,15 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A not filter.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class NotFilter<TDocument> : Filter<TDocument>
+    internal sealed class NotFilter<TDocument> : Filter<TDocument>
     {
         private readonly Filter<TDocument> _filter;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NotFilter{TDocument}"/> class.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
         public NotFilter(Filter<TDocument> filter)
         {
             _filter = Ensure.IsNotNull(filter, "filter");
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedFilter = _filter.Render(documentSerializer, serializerRegistry);
@@ -1237,22 +1178,12 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A general operator filter where the field type doesn't matter.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class OperatorFilter<TDocument> : Filter<TDocument>
+    internal sealed class OperatorFilter<TDocument> : Filter<TDocument>
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument> _fieldName;
         private readonly BsonValue _value;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OperatorFilter{TDocument}"/> class.
-        /// </summary>
-        /// <param name="operatorName">Name of the operator.</param>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
         public OperatorFilter(string operatorName, FieldName<TDocument> fieldName, BsonValue value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
@@ -1260,7 +1191,6 @@ namespace MongoDB.Driver
             _value = value;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -1268,23 +1198,12 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A general operator filter where the field type matters.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TField">The type of the field.</typeparam>
-    public sealed class OperatorFilter<TDocument, TField> : Filter<TDocument>
+    internal sealed class OperatorFilter<TDocument, TField> : Filter<TDocument>
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly TField _value;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OperatorFilter{TDocument, TField}"/> class.
-        /// </summary>
-        /// <param name="operatorName">Name of the operator.</param>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
         public OperatorFilter(string operatorName, FieldName<TDocument, TField> fieldName, TField value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
@@ -1292,7 +1211,6 @@ namespace MongoDB.Driver
             _value = value;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -1313,24 +1231,15 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// An or filter.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class OrFilter<TDocument> : Filter<TDocument>
+    internal sealed class OrFilter<TDocument> : Filter<TDocument>
     {
         private readonly List<Filter<TDocument>> _filters;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OrFilter{TDocument}"/> class.
-        /// </summary>
-        /// <param name="filters">The filters.</param>
         public OrFilter(IEnumerable<Filter<TDocument>> filters)
         {
             _filters = Ensure.IsNotNull(filters, "filters").ToList();
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var clauses = new BsonArray();
@@ -1359,27 +1268,17 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A simple filter where the type doesn't matter.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class SimpleFilter<TDocument> : Filter<TDocument>
+    internal sealed class SimpleFilter<TDocument> : Filter<TDocument>
     {
         private readonly FieldName<TDocument> _fieldName;
         private readonly BsonValue _value;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SimpleFilter{TDocument}"/> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
         public SimpleFilter(FieldName<TDocument> fieldName, BsonValue value)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _value = value;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -1387,28 +1286,17 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A simple filter where the type matters.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TField">The type of the field.</typeparam>
-    public sealed class SimpleFilter<TDocument, TField> : Filter<TDocument>
+    internal sealed class SimpleFilter<TDocument, TField> : Filter<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly TField _value;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SimpleFilter{TDocument, TField}"/> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
         public SimpleFilter(FieldName<TDocument, TField> fieldName, TField value)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _value = value;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);

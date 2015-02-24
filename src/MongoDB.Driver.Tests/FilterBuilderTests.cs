@@ -46,8 +46,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
             var filter = subject.And(
-                subject.Equal("a", 1),
-                subject.Equal("b", 2));
+                subject.Eq("a", 1),
+                subject.Eq("b", 2));
 
             Assert(filter, "{a: 1, b: 2}");
         }
@@ -57,8 +57,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
             var filter = subject.And(
-                subject.Equal("a", 1),
-                subject.Equal("a", 2));
+                subject.Eq("a", 1),
+                subject.Eq("a", 2));
 
             Assert(filter, "{$and: [{a: 1}, {a: 2}]}");
         }
@@ -68,8 +68,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
             var filter = subject.And(
-                subject.GreaterThan("a", 1),
-                subject.LessThan("a", 10));
+                subject.Gt("a", 1),
+                subject.Lt("a", 10));
 
             Assert(filter, "{a: {$gt: 1, $lt: 10}}");
         }
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
             var filter = subject.And(
                 "{}",
-                subject.Equal("a", 10));
+                subject.Eq("a", 10));
 
             Assert(filter, "{a: 10}");
         }
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
             var filter = subject.And(
                 subject.And("{a: 1}", new BsonDocument("b", 2)),
-                subject.Equal("c", 3));
+                subject.Eq("c", 3));
 
             Assert(filter, "{a: 1, b: 2, c: 3}");
         }
@@ -101,8 +101,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
             var filter = subject.And(
-                subject.And(subject.Equal("a", 1), subject.Equal("a", 2)),
-                subject.Equal("c", 3));
+                subject.And(subject.Eq("a", 1), subject.Eq("a", 2)),
+                subject.Eq("c", 3));
 
             Assert(filter, "{$and: [{a: 1}, {a: 2}, {c: 3}]}");
         }
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.ElementMatch<BsonDocument>("a", "{b: 1}"), "{a: {$elemMatch: {b: 1}}}");
+            Assert(subject.ElemMatch<BsonDocument>("a", "{b: 1}"), "{a: {$elemMatch: {b: 1}}}");
         }
 
         [Test]
@@ -120,25 +120,25 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.ElementMatch<Pet[], Pet>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
-            Assert(subject.ElementMatch<Pet[], Pet>(x => x.Pets, "{name: 'Fluffy'}"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
-            Assert(subject.ElementMatch<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Pet[], Pet>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Pet[], Pet>(x => x.Pets, "{name: 'Fluffy'}"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
         }
 
         [Test]
-        public void Equal()
+        public void Eq()
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.Equal("x", 10), "{x: 10}");
+            Assert(subject.Eq("x", 10), "{x: 10}");
         }
 
         [Test]
-        public void Equal_Typed()
+        public void Eq_Typed()
         {
             var subject = CreateSubject<Person>();
-            Assert(subject.Equal(x => x.FirstName, "Jack"), "{fn: 'Jack'}");
-            Assert(subject.Equal("FirstName", "Jim"), "{FirstName: 'Jim'}");
+            Assert(subject.Eq(x => x.FirstName, "Jack"), "{fn: 'Jack'}");
+            Assert(subject.Eq("FirstName", "Jim"), "{FirstName: 'Jim'}");
         }
 
         [Test]
@@ -158,6 +158,13 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Expression()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.Expression(x => x.FirstName == "Jack" && x.Age > 10), "{fn: 'Jack', age: {$gt: 10}}");
+        }
+
+        [Test]
         public void GeoIntersects()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -166,7 +173,6 @@ namespace MongoDB.Driver.Tests
                 GeoJson.Geographic(40, 19),
                 GeoJson.Geographic(41, 19),
                 GeoJson.Geographic(40, 18));
-
 
             Assert(subject.GeoIntersects("x", poly), "{x: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
@@ -300,15 +306,15 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.GreaterThan("x", 10), "{x: {$gt: 10}}");
+            Assert(subject.Gt("x", 10), "{x: {$gt: 10}}");
         }
 
         [Test]
         public void GreaterThan_Typed()
         {
             var subject = CreateSubject<Person>();
-            Assert(subject.GreaterThan(x => x.Age, 10), "{age: {$gt: 10}}");
-            Assert(subject.GreaterThan("Age", 10), "{Age: {$gt: 10}}");
+            Assert(subject.Gt(x => x.Age, 10), "{age: {$gt: 10}}");
+            Assert(subject.Gt("Age", 10), "{Age: {$gt: 10}}");
         }
 
         [Test]
@@ -316,15 +322,15 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.GreaterThanOrEqual("x", 10), "{x: {$gte: 10}}");
+            Assert(subject.Gte("x", 10), "{x: {$gte: 10}}");
         }
 
         [Test]
         public void GreaterThanOrEqual_Typed()
         {
             var subject = CreateSubject<Person>();
-            Assert(subject.GreaterThanOrEqual(x => x.Age, 10), "{age: {$gte: 10}}");
-            Assert(subject.GreaterThanOrEqual("Age", 10), "{Age: {$gte: 10}}");
+            Assert(subject.Gte(x => x.Age, 10), "{age: {$gte: 10}}");
+            Assert(subject.Gte("Age", 10), "{Age: {$gte: 10}}");
         }
 
         [Test]
@@ -344,51 +350,68 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void LessThan()
+        public void Lt()
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.LessThan("x", 10), "{x: {$lt: 10}}");
+            Assert(subject.Lt("x", 10), "{x: {$lt: 10}}");
         }
 
         [Test]
-        public void LessThan_Typed()
+        public void Lt_Typed()
         {
             var subject = CreateSubject<Person>();
-            Assert(subject.LessThan(x => x.Age, 10), "{age: {$lt: 10}}");
-            Assert(subject.LessThan("Age", 10), "{Age: {$lt: 10}}");
+            Assert(subject.Lt(x => x.Age, 10), "{age: {$lt: 10}}");
+            Assert(subject.Lt("Age", 10), "{Age: {$lt: 10}}");
         }
 
         [Test]
-        public void LessThanOrEqual()
+        public void Lte()
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.LessThanOrEqual("x", 10), "{x: {$lte: 10}}");
+            Assert(subject.Lte("x", 10), "{x: {$lte: 10}}");
         }
 
         [Test]
-        public void LessThanOrEqual_Typed()
+        public void Lte_Typed()
         {
             var subject = CreateSubject<Person>();
-            Assert(subject.LessThanOrEqual(x => x.Age, 10), "{age: {$lte: 10}}");
-            Assert(subject.LessThanOrEqual("Age", 10), "{Age: {$lte: 10}}");
+            Assert(subject.Lte(x => x.Age, 10), "{age: {$lte: 10}}");
+            Assert(subject.Lte("Age", 10), "{Age: {$lte: 10}}");
         }
 
         [Test]
-        public void Modulo()
+        public void Mod()
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.Modulo("x", 10, 4), "{x: {$mod: [NumberLong(10), NumberLong(4)]}}");
+            Assert(subject.Mod("x", 10, 4), "{x: {$mod: [NumberLong(10), NumberLong(4)]}}");
         }
 
         [Test]
-        public void Modulo_Typed()
+        public void Mod_Typed()
         {
             var subject = CreateSubject<Person>();
-            Assert(subject.Modulo(x => x.Age, 10, 4), "{age: {$mod: [NumberLong(10), NumberLong(4)]}}");
-            Assert(subject.Modulo("Age", 10, 4), "{Age: {$mod: [NumberLong(10), NumberLong(4)]}}");
+            Assert(subject.Mod(x => x.Age, 10, 4), "{age: {$mod: [NumberLong(10), NumberLong(4)]}}");
+            Assert(subject.Mod("Age", 10, 4), "{Age: {$mod: [NumberLong(10), NumberLong(4)]}}");
+        }
+
+
+        [Test]
+        public void Ne()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Ne("x", 10), "{x: {$ne: 10}}");
+        }
+
+        [Test]
+        public void Ne_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.Ne(x => x.Age, 10), "{age: {$ne: 10}}");
+            Assert(subject.Ne("Age", 10), "{Age: {$ne: 10}}");
         }
 
         [Test]
@@ -480,6 +503,22 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Nin()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Nin("x", new[] { 10, 20 }), "{x: {$nin: [10,20]}}");
+        }
+
+        [Test]
+        public void Nin_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.Nin(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$nin: ['blue','green']}}");
+            Assert(subject.Nin("favColors", new[] { "blue", "green" }), "{favColors: {$nin: ['blue','green']}}");
+        }
+
+        [Test]
         public void Not_with_and()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -541,7 +580,7 @@ namespace MongoDB.Driver.Tests
         public void Not_with_not_in()
         {
             var subject = CreateSubject<BsonDocument>();
-            var filter = subject.Not(subject.NotIn("a", new[] { 10, 20 }));
+            var filter = subject.Not(subject.Nin("a", new[] { 10, 20 }));
 
             Assert(filter, "{a: {$in: [10, 20]}}");
         }
@@ -562,38 +601,6 @@ namespace MongoDB.Driver.Tests
             var filter = subject.Not("{$or: [{a: 1}, {b: 2}]}");
 
             Assert(filter, "{$nor: [{a: 1}, {b: 2}]}");
-        }
-
-        [Test]
-        public void NotEqual()
-        {
-            var subject = CreateSubject<BsonDocument>();
-
-            Assert(subject.NotEqual("x", 10), "{x: {$ne: 10}}");
-        }
-
-        [Test]
-        public void NotEqual_Typed()
-        {
-            var subject = CreateSubject<Person>();
-            Assert(subject.NotEqual(x => x.Age, 10), "{age: {$ne: 10}}");
-            Assert(subject.NotEqual("Age", 10), "{Age: {$ne: 10}}");
-        }
-
-        [Test]
-        public void NotIn()
-        {
-            var subject = CreateSubject<BsonDocument>();
-
-            Assert(subject.NotIn("x", new[] { 10, 20 }), "{x: {$nin: [10,20]}}");
-        }
-
-        [Test]
-        public void NotIn_Typed()
-        {
-            var subject = CreateSubject<Person>();
-            Assert(subject.NotIn(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$nin: ['blue','green']}}");
-            Assert(subject.NotIn("favColors", new[] { "blue", "green" }), "{favColors: {$nin: ['blue','green']}}");
         }
 
         [Test]
