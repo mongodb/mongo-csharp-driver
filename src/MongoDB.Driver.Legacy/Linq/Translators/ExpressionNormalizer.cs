@@ -19,37 +19,18 @@ using System.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq
 {
-    /// <summary>
-    /// A class that normalizes C# and VB expression trees.
-    /// </summary>
-    public class ExpressionNormalizer : ExpressionVisitor
+    internal class ExpressionNormalizer : ExpressionVisitor
     {
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the ExpressionNormalizer class.
-        /// </summary>
         private ExpressionNormalizer()
         {
         }
 
-        // public methods
-        /// <summary>
-        /// Normalizes C# and VB expression trees.
-        /// </summary>
-        /// <param name="node">The expression to normalize.</param>
-        /// <returns>The normalized expression.</returns>
         public static Expression Normalize(Expression node)
         {
             var normalizer = new ExpressionNormalizer();
             return normalizer.Visit(node);
         }
 
-        // protected methods
-        /// <summary>
-        /// Visits a BinaryExpression.
-        /// </summary>
-        /// <param name="node">The BinaryExpression.</param>
-        /// <returns>The BinaryExpression (possibly modified).</returns>
         protected override Expression VisitBinary(BinaryExpression node)
         {
             node = EnsureConstantIsOnRight(node);
@@ -143,11 +124,6 @@ namespace MongoDB.Driver.Linq
             return base.VisitBinary(node);
         }
 
-        /// <summary>
-        /// Visits a UnaryExpression.
-        /// </summary>
-        /// <param name="node">The UnaryExpression.</param>
-        /// <returns>The UnaryExpression (possibly modified).</returns>
         protected override Expression VisitUnary(UnaryExpression node)
         {
             var newNode = base.VisitUnary(node);

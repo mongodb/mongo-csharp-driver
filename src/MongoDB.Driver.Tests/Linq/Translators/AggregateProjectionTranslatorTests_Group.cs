@@ -29,63 +29,11 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson;
 using MongoDB.Driver.Tests;
 
-namespace MongoDB.Driver.Core.Linq
+namespace MongoDB.Driver.Tests.Linq.Translators
 {
-    public class AggregateProjectionTranslatorTests_Group
+    [TestFixture]
+    public class AggregateProjectionTranslatorTests_Group : TranslatorTestBase
     {
-        private IMongoCollection<Root> _collection;
-
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
-        {
-            var client = DriverTestConfiguration.Client;
-            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            _collection = db.GetCollection<Root>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            db.DropCollectionAsync(_collection.CollectionNamespace.CollectionName).GetAwaiter().GetResult();
-
-            var root = new Root
-            {
-                A = "Awesome",
-                B = "Balloon",
-                C = new C
-                {
-                    D = "Dexter",
-                    E = new E
-                    {
-                        F = 11,
-                        H = 22,
-                        I = new[] { "it", "icky" }
-                    }
-                },
-                G = new[] { 
-                        new C
-                        {
-                            D = "Don't",
-                            E = new E
-                            {
-                                F = 33,
-                                H = 44,
-                                I = new [] { "ignanimous"}
-                            }
-                        },
-                        new C
-                        {
-                            D = "Dolphin",
-                            E = new E
-                            {
-                                F = 55,
-                                H = 66,
-                                I = new [] { "insecure"}
-                            }
-                        }
-                },
-                Id = 10,
-                J = new DateTime(2012, 12, 1, 13, 14, 15, 16),
-                K = true
-            };
-            _collection.InsertOneAsync(root).GetAwaiter().GetResult();
-        }
-
         [Test]
         public async Task Should_translate_using_non_anonymous_type_with_default_constructor()
         {
@@ -362,55 +310,6 @@ namespace MongoDB.Driver.Core.Linq
         {
             public BsonDocument Projection;
             public T Value;
-        }
-
-        private class RootView
-        {
-            public RootView()
-            {
-            }
-
-            public RootView(string property)
-            {
-                Property = property;
-            }
-
-            public string Property { get; set; }
-
-            public string Field = null;
-        }
-
-        private class Root
-        {
-            public int Id { get; set; }
-
-            public string A { get; set; }
-
-            public string B { get; set; }
-
-            public C C { get; set; }
-
-            public IEnumerable<C> G { get; set; }
-
-            public DateTime J { get; set; }
-
-            public bool K { get; set; }
-        }
-
-        public class C
-        {
-            public string D { get; set; }
-
-            public E E { get; set; }
-        }
-
-        public class E
-        {
-            public int F { get; set; }
-
-            public int H { get; set; }
-
-            public IEnumerable<string> I { get; set; }
         }
     }
 }

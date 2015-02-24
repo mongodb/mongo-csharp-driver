@@ -168,7 +168,7 @@ namespace MongoDB.Driver
             var operation = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
-                Hint = options.Hint is string ? BsonValue.Create((string)options.Hint) : ConvertToBsonDocument(options.Hint),
+                Hint = options.Hint,
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
                 Skip = options.Skip
@@ -263,7 +263,7 @@ namespace MongoDB.Driver
             var operation = new FindOneAndReplaceOperation<TResult>(
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
-                ConvertToBsonDocument(replacementObject),
+                new BsonDocumentWrapper(replacementObject, _documentSerializer),
                 new FindAndModifyValueDeserializer<TResult>(renderedProjection.Serializer),
                 _messageEncoderSettings)
             {
@@ -326,7 +326,7 @@ namespace MongoDB.Driver
                     JavaScriptMode = options.JavaScriptMode,
                     Limit = options.Limit,
                     MaxTime = options.MaxTime,
-                    Scope = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Scope),
+                    Scope = options.Scope,
                     Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),
                     Verbose = options.Verbose
                 };
@@ -354,7 +354,7 @@ namespace MongoDB.Driver
                     Limit = options.Limit,
                     MaxTime = options.MaxTime,
                     NonAtomicOutput = collectionOutputOptions.NonAtomic,
-                    Scope = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.Scope),
+                    Scope = options.Scope,
                     OutputMode = collectionOutputOptions.OutputMode,
                     ShardedOutput = collectionOutputOptions.Sharded,
                     Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),
@@ -474,11 +474,6 @@ namespace MongoDB.Driver
             }
         }
 
-        private BsonDocument ConvertToBsonDocument(object document)
-        {
-            return BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, document);
-        }
-
         private Task<TResult> ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
             return ExecuteReadOperation(operation, _settings.ReadPreference, cancellationToken);
@@ -559,11 +554,11 @@ namespace MongoDB.Driver
                     Min = options.Min,
                     Sparse = options.Sparse,
                     SphereIndexVersion = options.SphereIndexVersion,
-                    StorageEngine = _collection.ConvertToBsonDocument(options.StorageEngine),
+                    StorageEngine = options.StorageEngine,
                     TextIndexVersion = options.TextIndexVersion,
                     Unique = options.Unique,
                     Version = options.Version,
-                    Weights = _collection.ConvertToBsonDocument(options.Weights)
+                    Weights = options.Weights
                 };
 
                 var operation = new CreateIndexesOperation(_collection._collectionNamespace, new[] { request }, _collection._messageEncoderSettings);

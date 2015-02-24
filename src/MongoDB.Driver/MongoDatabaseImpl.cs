@@ -68,7 +68,7 @@ namespace MongoDB.Driver
                 Capped = options.Capped,
                 MaxDocuments = options.MaxDocuments,
                 MaxSize = options.MaxSize,
-                StorageEngine = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.StorageEngine),
+                StorageEngine = options.StorageEngine,
                 UsePowerOf2Sizes = options.UsePowerOf2Sizes
             };
 
@@ -100,7 +100,7 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
             {
-                Filter = options == null ? null : BsonDocumentHelper.FilterToBsonDocument<BsonDocument>(_settings.SerializerRegistry, options.Filter)
+                Filter = options == null ? null : options.Filter.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry)
             };
             return ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken);
         }

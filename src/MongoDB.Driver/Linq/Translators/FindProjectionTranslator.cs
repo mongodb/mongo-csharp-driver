@@ -35,7 +35,9 @@ namespace MongoDB.Driver.Linq.Translators
             var parameterExpression = new SerializationExpression(projector.Parameters[0], parameterSerializationInfo);
             var binder = new SerializationInfoBinder(BsonSerializer.SerializerRegistry);
             binder.RegisterParameterReplacement(projector.Parameters[0], parameterExpression);
-            var boundExpression = binder.Bind(projector.Body);
+            var normalizedBody = Normalizer.Normalize(projector.Body);
+            var evaluatedBody = PartialEvaluator.Evaluate(normalizedBody);
+            var boundExpression = binder.Bind(evaluatedBody);
             var candidateFields = FieldGatherer.Gather(boundExpression);
 
             var fields = GetUniqueFieldsByHierarchy(candidateFields);

@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         private TimeSpan? _maxTime;
         private MapReduceOutputOptions _outputOptions;
         private IBsonSerializer<TResult> _resultSerializer;
-        private object _scope;
+        private BsonDocument _scope;
         private Sort<TDocument> _sort;
         private bool? _verbose;
 
@@ -107,7 +107,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the scope.
         /// </summary>
-        public object Scope
+        public BsonDocument Scope
         {
             get { return _scope; }
             set { _scope = value; }

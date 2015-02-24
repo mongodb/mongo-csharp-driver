@@ -17,13 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Driver.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
     /// A static class with methods to partially evaluate an Expression.
     /// </summary>
-    public static class PartialEvaluator
+    internal static class PartialEvaluator
     {
         /// <summary>
         /// Performs evaluation and replacement of independent sub-trees.
@@ -43,7 +44,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>A new tree with sub-trees evaluated and replaced.</returns>
         public static Expression Evaluate(Expression expression, IQueryProvider queryProvider)
         {
-            return new SubtreeEvaluator(new Nominator(e => CanBeEvaluatedLocally(e, queryProvider)).Nominate(expression)).Evaluate(expression);
+            return new SubtreeEvaluator(new ExpressionNominator(e => CanBeEvaluatedLocally(e, queryProvider)).Nominate(expression)).Evaluate(expression);
         }
 
         private static bool CanBeEvaluatedLocally(Expression expression, IQueryProvider queryProvider)

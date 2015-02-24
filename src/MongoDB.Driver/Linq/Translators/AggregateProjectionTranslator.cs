@@ -79,10 +79,11 @@ namespace MongoDB.Driver.Linq.Translators
 
         private static Expression BindSerializationInfo(SerializationInfoBinder binder, LambdaExpression node, IBsonSerializer parameterSerializer)
         {
-            var evaluatedBody = PartialEvaluator.Evaluate(node.Body);
             var parameterSerializationInfo = new BsonSerializationInfo(null, parameterSerializer, parameterSerializer.ValueType);
             var parameterExpression = new SerializationExpression(node.Parameters[0], parameterSerializationInfo);
             binder.RegisterParameterReplacement(node.Parameters[0], parameterExpression);
+            var normalizedBody = Normalizer.Normalize(node.Body);
+            var evaluatedBody = PartialEvaluator.Evaluate(normalizedBody);
             return binder.Bind(evaluatedBody);
         }
 

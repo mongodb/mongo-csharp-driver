@@ -24,6 +24,7 @@ using MongoDB.Driver.Linq.Translators;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
+    [TestFixture]
     public class ProjectedObjectTests
     {
         [Test]

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -21,13 +22,13 @@ namespace MongoDB.Driver
     public sealed class ListCollectionsOptions
     {
         // fields
-        private object _filter;
+        private Filter<BsonDocument> _filter;
 
         // properties
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>
-        public object Filter
+        public Filter<BsonDocument> Filter
         {
             get { return _filter; }
             set { _filter = value; }

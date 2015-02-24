@@ -29,6 +29,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Linq
 {
+    [TestFixture]
     public class FindProjectionTranslatorTests
     {
         [Test]

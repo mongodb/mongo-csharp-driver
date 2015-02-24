@@ -21,7 +21,6 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
@@ -61,7 +60,7 @@ namespace MongoDB.Driver.Tests
         [TestCase(true)]
         public void Should_convert_from_UpdateRequest_to_ReplaceOne_with_BsonDocument(bool isUpsert)
         {
-            var filter = Query.EQ("a", 1);
+            var filter = new BsonDocument("a", 1);
             var replacement = BsonDocument.Parse("{a:2}");
             var request = new UpdateRequest(UpdateType.Update,
                 new BsonDocumentWrapper(filter),
@@ -75,7 +74,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<ReplaceOneModel<BsonDocument>>();
             var model = (ReplaceOneModel<BsonDocument>)result;
-            ((ObjectFilter<BsonDocument>)model.Filter).Object.Should().BeSameAs(filter);
+            ((BsonDocumentFilter<BsonDocument>)model.Filter).Document.Should().Be(filter);
             model.Replacement.Should().BeSameAs(replacement);
             model.IsUpsert.Should().Be(isUpsert);
         }
@@ -85,7 +84,7 @@ namespace MongoDB.Driver.Tests
         [TestCase(true)]
         public void Should_convert_from_UpdateRequest_to_ReplaceOne_with_Class(bool isUpsert)
         {
-            var filter = Query.EQ("a", 1);
+            var filter = new BsonDocument("a", 1);
             var replacement = new TestClass { a = 2 };
             var request = new UpdateRequest(UpdateType.Replacement,
                 new BsonDocumentWrapper(filter),
@@ -99,7 +98,7 @@ namespace MongoDB.Driver.Tests
 
             result.Should().BeOfType<ReplaceOneModel<TestClass>>();
             var model = (ReplaceOneModel<TestClass>)result;
-            ((ObjectFilter<TestClass>)model.Filter).Object.Should().BeSameAs(filter);
+            ((BsonDocumentFilter<TestClass>)model.Filter).Document.Should().Be(filter);
             model.Replacement.Should().BeSameAs(replacement);
             model.IsUpsert.Should().Be(isUpsert);
         }

@@ -57,6 +57,7 @@
     <Compile Include="Builders\IndexOptionsBuilderTypedTests.cs" />
     <Compile Include="Builders\QueryBuilderGeoJsonIntegrationTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
+    <Compile Include="Builders\QueryBuilderTypedTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTypedTests.cs" />
     <Compile Include="Builders\UpdateBuilderTests.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Jira\CSharp111Tests.cs" />
     <Compile Include="Jira\CSharp112Tests.cs" />
     <Compile Include="Jira\CSharp134Tests.cs" />
+    <Compile Include="Jira\CSharp137Tests.cs" />
     <Compile Include="Jira\CSharp140Tests.cs" />
     <Compile Include="Jira\CSharp163Tests.cs" />
     <Compile Include="Jira\CSharp172Tests.cs" />
@@ -92,6 +94,7 @@
     <Compile Include="Jira\CSharp283Tests.cs" />
     <Compile Include="Jira\CSharp290Tests.cs" />
     <Compile Include="Jira\CSharp307Tests.cs" />
+    <Compile Include="Jira\CSharp321Tests.cs" />
     <Compile Include="Jira\CSharp325Tests.cs" />
     <Compile Include="Jira\CSharp330Tests.cs" />
     <Compile Include="Jira\CSharp361Tests.cs" />
@@ -107,6 +110,7 @@
     <Compile Include="Jira\CSharp542Tests.cs" />
     <Compile Include="Jira\CSharp594Tests.cs" />
     <Compile Include="Jira\CSharp598Tests.cs" />
+    <Compile Include="Jira\CSharp606Tests.cs" />
     <Compile Include="Jira\CSharp613Tests.cs" />
     <Compile Include="Jira\CSharp653Tests.cs" />
     <Compile Include="Jira\CSharp714Tests.cs" />
@@ -128,6 +132,8 @@
     <Compile Include="GridFS\MongoGridFSSettingsTests.cs" />
     <Compile Include="GridFS\MongoGridFSStreamTests.cs" />
     <Compile Include="GridFS\MongoGridFSTests.cs" />
+    <Compile Include="Linq\BsonDocumentBackedClassSerializerTests.cs" />
+    <Compile Include="Linq\BsonDocumentTests.cs" />
     <Compile Include="Linq\ExplainTests.cs" />
     <Compile Include="Linq\MongoQueryableTests.cs" />
     <Compile Include="Linq\MongoQueryProviderTests.cs" />
@@ -137,6 +143,7 @@
     <Compile Include="Linq\SelectOfTypeTests.cs" />
     <Compile Include="Linq\SelectQueryTests.cs" />
     <Compile Include="Linq\SkipAndTakeTests.cs" />
+    <Compile Include="Linq\Utils\BsonSerializationInfoHelperTests.cs" />
     <Compile Include="Linq\WithIndexTests.cs" />
     <Compile Include="MongoClientTests.cs" />
     <Compile Include="MongoCollectionTests.cs" />

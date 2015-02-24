@@ -694,6 +694,22 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void SizeGt()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.SizeGt("x", 10), "{'x.10': {$exists: true}}");
+        }
+
+        [Test]
+        public void SizeGt_Typed()
+        {
+            var subject = CreateSubject<Person>();
+            Assert(subject.SizeGt(x => x.FavoriteColors, 10), "{'colors.10': {$exists: true}}");
+            Assert(subject.SizeGt("FavoriteColors", 10), "{'FavoriteColors.10': {$exists: true}}");
+        }
+
+        [Test]
         public void Text()
         {
             var subject = CreateSubject<BsonDocument>();

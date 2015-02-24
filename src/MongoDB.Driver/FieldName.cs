@@ -17,6 +17,8 @@ using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq.Expressions;
+using MongoDB.Driver.Linq.Processors;
 using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
@@ -151,10 +153,18 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override string Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(_expression.Parameters[0], documentSerializer);
-            var serializationInfo = helper.GetSerializationInfo(_expression.Body);
-            return serializationInfo.ElementName;
+            var binder = new SerializationInfoBinder(serializerRegistry);
+            var parameterSerializationInfo = new BsonSerializationInfo(null, documentSerializer, documentSerializer.ValueType);
+            var parameterExpression = new SerializationExpression(_expression.Parameters[0], parameterSerializationInfo);
+            binder.RegisterParameterReplacement(_expression.Parameters[0], parameterExpression);
+            var bound = binder.Bind(_expression.Body) as ISerializationExpression;
+            if(bound == null)
+            {
+                var message = string.Format("Unable to determine the serialization information for {0}.", _expression);
+                throw new InvalidOperationException(message);
+            }
+
+            return bound.SerializationInfo.ElementName;
         }
     }
 
@@ -187,10 +197,18 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldName<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(_expression.Parameters[0], documentSerializer);
-            var serializationInfo = helper.GetSerializationInfo(_expression.Body);
-            return new RenderedFieldName<TField>(serializationInfo.ElementName, (IBsonSerializer<TField>)serializationInfo.Serializer);
+            var binder = new SerializationInfoBinder(serializerRegistry);
+            var parameterSerializationInfo = new BsonSerializationInfo(null, documentSerializer, documentSerializer.ValueType);
+            var parameterExpression = new SerializationExpression(_expression.Parameters[0], parameterSerializationInfo);
+            binder.RegisterParameterReplacement(_expression.Parameters[0], parameterExpression);
+            var bound = binder.Bind(_expression.Body) as ISerializationExpression;
+            if (bound == null)
+            {
+                var message = string.Format("Unable to determine the serialization information for {0}.", _expression);
+                throw new InvalidOperationException(message);
+            }
+
+            return new RenderedFieldName<TField>(bound.SerializationInfo.ElementName, (IBsonSerializer<TField>)bound.SerializationInfo.Serializer);
         }
     }
 

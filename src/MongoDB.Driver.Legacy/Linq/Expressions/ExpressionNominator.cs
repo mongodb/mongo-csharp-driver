@@ -17,18 +17,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace MongoDB.Driver.Linq
+namespace MongoDB.Driver.Linq.Expressions
 {
     /// <summary>
     /// Performs bottom-up analysis to find maximal subtrees that satisfy a predicate.
     /// </summary>
-    class Nominator : ExpressionVisitor
+    internal class ExpressionNominator : ExpressionVisitor
     {
         Func<Expression, bool> _predicate;
         HashSet<Expression> _candidates;
         bool _isBlocked;
 
-        internal Nominator(Func<Expression, bool> predicate)
+        internal ExpressionNominator(Func<Expression, bool> predicate)
         {
             if (predicate == null)
             {

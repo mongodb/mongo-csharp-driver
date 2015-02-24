@@ -17,8 +17,11 @@ using System;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.Expressions;
+using MongoDB.Driver.Linq.Processors;
+using MongoDB.Driver.Linq.Translators;
 using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
@@ -187,11 +190,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var helper = new BsonSerializationInfoHelper();
-            helper.RegisterExpressionSerializer(_expression.Parameters[0], documentSerializer);
-            var queryBuilder = new QueryBuilder<TDocument>(helper).Where(_expression);
-            var serializer = serializerRegistry.GetSerializer<IMongoQuery>();
-            return new BsonDocumentWrapper(queryBuilder, serializer);
+            return PredicateTranslator.Translate<TDocument>(_expression, documentSerializer, serializerRegistry);
         }
     }
 

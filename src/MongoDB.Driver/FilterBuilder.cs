@@ -793,6 +793,94 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a size greater than filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="size">The size.</param>
+        /// <returns>A size greater than filter.</returns>
+        public Filter<TDocument> SizeGt(FieldName<TDocument> fieldName, int size)
+        {
+            return new ArrayIndexExistsFilter<TDocument>(fieldName, size, true);
+        }
+
+        /// <summary>
+        /// Creates a size greater than filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="size">The size.</param>
+        /// <returns>A size greater than filter.</returns>
+        public Filter<TDocument> SizeGt(Expression<Func<TDocument, object>> fieldName, int size)
+        {
+            return SizeGt(new ExpressionFieldName<TDocument>(fieldName), size);
+        }
+
+        /// <summary>
+        /// Creates a size greater than or equal filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="size">The size.</param>
+        /// <returns>A size greater than or equal filter.</returns>
+        public Filter<TDocument> SizeGte(FieldName<TDocument> fieldName, int size)
+        {
+            return new ArrayIndexExistsFilter<TDocument>(fieldName, size - 1, true);
+        }
+
+        /// <summary>
+        /// Creates a size greater than or equal filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="size">The size.</param>
+        /// <returns>A size greater than or equal filter.</returns>
+        public Filter<TDocument> SizeGte(Expression<Func<TDocument, object>> fieldName, int size)
+        {
+            return SizeGte(new ExpressionFieldName<TDocument>(fieldName), size);
+        }
+
+        /// <summary>
+        /// Creates a size less than filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="size">The size.</param>
+        /// <returns>A size less than filter.</returns>
+        public Filter<TDocument> SizeLt(FieldName<TDocument> fieldName, int size)
+        {
+            return new ArrayIndexExistsFilter<TDocument>(fieldName, size - 1, false);
+        }
+
+        /// <summary>
+        /// Creates a size less than filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="size">The size.</param>
+        /// <returns>A size less than filter.</returns>
+        public Filter<TDocument> SizeLt(Expression<Func<TDocument, object>> fieldName, int size)
+        {
+            return SizeLt(new ExpressionFieldName<TDocument>(fieldName), size);
+        }
+
+        /// <summary>
+        /// Creates a size less than or equal filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="size">The size.</param>
+        /// <returns>A size less than or equal filter.</returns>
+        public Filter<TDocument> SizeLte(FieldName<TDocument> fieldName, int size)
+        {
+            return new ArrayIndexExistsFilter<TDocument>(fieldName, size, false);
+        }
+
+        /// <summary>
+        /// Creates a size less than or equal filter.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="size">The size.</param>
+        /// <returns>A size less than or equal filter.</returns>
+        public Filter<TDocument> SizeLte(Expression<Func<TDocument, object>> fieldName, int size)
+        {
+            return SizeLte(new ExpressionFieldName<TDocument>(fieldName), size);
+        }
+
+        /// <summary>
         /// Creates a text filter.
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
@@ -1311,6 +1399,26 @@ namespace MongoDB.Driver
             }
 
             return document;
+        }
+    }
+
+    internal sealed class ArrayIndexExistsFilter<TDocument> : Filter<TDocument>
+    {
+        private readonly FieldName<TDocument> _fieldName;
+        private readonly int _index;
+        private readonly bool _exists;
+
+        public ArrayIndexExistsFilter(FieldName<TDocument> fieldName, int index, bool exists)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _index = index;
+            _exists = exists;
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry) + "." + _index;
+            return new BsonDocument(renderedField, new BsonDocument("$exists", _exists));
         }
     }
 }
