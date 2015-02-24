@@ -97,6 +97,7 @@
     <Compile Include="Builders\QueryBuilderTypedTests.cs" />
     <Compile Include="BulkWriteErrorTests.cs" />
     <Compile Include="ProjectionBuilderTests.cs" />
+    <Compile Include="IndexDefinitionBuilderTests.cs" />
     <Compile Include="SortBuilderTests.cs" />
     <Compile Include="Update2BuilderTests.cs" />
     <Compile Include="FilterBuilderTests.cs" />
