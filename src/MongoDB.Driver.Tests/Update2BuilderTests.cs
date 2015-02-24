@@ -149,6 +149,16 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Combine_with_overlapping_operators_and_duplicate_elements_using_the_plus_operator()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var update = subject.Set("a", 1) + "{$set: { b: 2}}" + new BsonDocument("$set", new BsonDocument("a", 4));
+
+            Assert(update, "{$set: {a: 4, b: 2}}");
+        }
+
+        [Test]
         public void CurrentDate()
         {
             var subject = CreateSubject<BsonDocument>();

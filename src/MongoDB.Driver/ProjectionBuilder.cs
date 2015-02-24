@@ -31,6 +31,8 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class ProjectionBuilder<TDocument>
     {
+        private static readonly ProjectionBuilder<TDocument> __instance = new ProjectionBuilder<TDocument>();
+
         /// <summary>
         /// Combines the specified projections.
         /// </summary>
@@ -128,6 +130,17 @@ namespace MongoDB.Driver
         public Projection<TDocument, BsonDocument> Exclude(Expression<Func<TDocument, object>> fieldName)
         {
             return Exclude(new ExpressionFieldName<TDocument>(fieldName));
+        }
+
+        /// <summary>
+        /// Creates a projection based on the expression.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="expression">The expression.</param>
+        /// <returns>An expression projection.</returns>
+        public Projection<TDocument, TResult> Expression<TResult>(Expression<Func<TDocument, TResult>> expression)
+        {
+            return new FindExpressionProjection<TDocument, TResult>(expression);
         }
 
         /// <summary>

@@ -67,6 +67,19 @@ namespace MongoDB.Driver
             }
             return new JsonStringUpdate<TDocument>(json);
         }
+
+        /// <summary>
+        /// Implements the operator +.
+        /// </summary>
+        /// <param name="lhs">The LHS.</param>
+        /// <param name="rhs">The RHS.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
+        public static Update2<TDocument> operator +(Update2<TDocument> lhs, Update2<TDocument> rhs)
+        {
+            return new CombineUpdate<TDocument>(new[] { lhs, rhs });
+        }
     }
 
     /// <summary>

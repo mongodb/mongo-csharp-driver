@@ -66,6 +66,16 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Combine_with_repeated_fields_using_the_plus_operator()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var sort = subject.Ascending("a") + "{b: -1}" + new BsonDocument("a", -1);
+
+            Assert(sort, "{b: -1, a: -1}");
+        }
+
+        [Test]
         public void Descending()
         {
             var subject = CreateSubject<BsonDocument>();

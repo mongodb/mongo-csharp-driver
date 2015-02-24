@@ -108,6 +108,24 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void And_with_a_nested_and_and_clashing_operators_on_the_same_key()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var filter = subject.Lt("a", 1) & subject.Lt("a", 2);
+
+            Assert(filter, "{$and: [{a: {$lt: 1}}, {a: {$lt: 2}}]}");
+        }
+
+        [Test]
+        public void And_with_a_nested_and_and_clashing_keys_using_ampersand()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var filter = subject.Eq("a", 1) & "{a: 2}" & new BsonDocument("c", 3);
+
+            Assert(filter, "{$and: [{a: 1}, {a: 2}, {c: 3}]}");
+        }
+
+        [Test]
         public void ElemMatch()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -604,6 +622,15 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Not_with_or_using_bang_operator()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var filter = !(subject.Eq("a", 1) | "{b: 2}");
+
+            Assert(filter, "{$nor: [{a: 1}, {b: 2}]}");
+        }
+
+        [Test]
         public void Or()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -621,6 +648,15 @@ namespace MongoDB.Driver.Tests
             var filter = subject.Or(
                 "{$or: [{a: 1}, {b: 2}]}",
                 new BsonDocument("c", 3));
+
+            Assert(filter, "{$or: [{a: 1}, {b: 2}, {c: 3}]}");
+        }
+
+        [Test]
+        public void Or_should_flatten_nested_ors_with_a_pipe()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var filter = subject.Eq("a", 1) | "{b: 2}" | new BsonDocument("c", 3);
 
             Assert(filter, "{$or: [{a: 1}, {b: 2}, {c: 3}]}");
         }

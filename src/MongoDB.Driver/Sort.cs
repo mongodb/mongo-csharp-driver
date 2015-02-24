@@ -85,6 +85,19 @@ namespace MongoDB.Driver
 
             return new JsonStringSort<TDocument>(json);
         }
+
+        /// <summary>
+        /// Implements the operator +.
+        /// </summary>
+        /// <param name="lhs">The LHS.</param>
+        /// <param name="rhs">The RHS.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
+        public static Sort<TDocument> operator +(Sort<TDocument> lhs, Sort<TDocument> rhs)
+        {
+            return new SortBuilder<TDocument>().Combine(lhs, rhs);
+        }
     }
 
     /// <summary>

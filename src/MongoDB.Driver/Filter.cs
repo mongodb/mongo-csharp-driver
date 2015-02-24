@@ -87,6 +87,44 @@ namespace MongoDB.Driver
 
             return new JsonStringFilter<TDocument>(json);
         }
+
+        /// <summary>
+        /// Implements the operator &amp;.
+        /// </summary>
+        /// <param name="lhs">The LHS.</param>
+        /// <param name="rhs">The RHS.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
+        public static Filter<TDocument> operator &(Filter<TDocument> lhs, Filter<TDocument> rhs)
+        {
+            return new AndFilter<TDocument>(new[] { lhs, rhs });
+        }
+
+        /// <summary>
+        /// Implements the operator |.
+        /// </summary>
+        /// <param name="lhs">The LHS.</param>
+        /// <param name="rhs">The RHS.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
+        public static Filter<TDocument> operator |(Filter<TDocument> lhs, Filter<TDocument> rhs)
+        {
+            return new OrFilter<TDocument>(new[] { lhs, rhs });
+        }
+
+        /// <summary>
+        /// Implements the operator !.
+        /// </summary>
+        /// <param name="op">The op.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
+        public static Filter<TDocument> operator !(Filter<TDocument> op)
+        {
+            return new NotFilter<TDocument>(op);
+        }
     }
 
     /// <summary>

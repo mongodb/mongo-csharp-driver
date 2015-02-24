@@ -156,19 +156,19 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A <see cref="Expression" /> based projection.
+    /// A find <see cref="Expression" /> based projection.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class ClientSideExpressionProjection<TDocument, TResult> : Projection<TDocument, TResult>
+    public sealed class FindExpressionProjection<TDocument, TResult> : Projection<TDocument, TResult>
     {
         private readonly Expression<Func<TDocument, TResult>> _expression;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClientSideExpressionProjection{TDocument, TResult}" /> class.
+        /// Initializes a new instance of the <see cref="FindExpressionProjection{TDocument, TResult}" /> class.
         /// </summary>
         /// <param name="expression">The expression.</param>
-        public ClientSideExpressionProjection(Expression<Func<TDocument, TResult>> expression)
+        public FindExpressionProjection(Expression<Func<TDocument, TResult>> expression)
         {
             _expression = Ensure.IsNotNull(expression, "expression");
         }
