@@ -55,7 +55,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Update2{TDocument}"/>.
         /// </summary>
-        /// <param name="json">The json.</param>
+        /// <param name="json">The json string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
@@ -65,7 +65,7 @@ namespace MongoDB.Driver
             {
                 return null;
             }
-            return new JsonUpdate<TDocument>(json);
+            return new JsonStringUpdate<TDocument>(json);
         }
     }
 
@@ -105,15 +105,15 @@ namespace MongoDB.Driver
     /// A <see cref="String" /> based update.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class JsonUpdate<TDocument> : Update2<TDocument>
+    public sealed class JsonStringUpdate<TDocument> : Update2<TDocument>
     {
         private readonly string _json;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonUpdate{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="JsonStringUpdate{TDocument}"/> class.
         /// </summary>
         /// <param name="json">The json.</param>
-        public JsonUpdate(string json)
+        public JsonStringUpdate(string json)
         {
             _json = Ensure.IsNotNull(json, "json");
         }

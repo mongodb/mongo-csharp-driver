@@ -72,7 +72,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Sort{TDocument}"/>.
         /// </summary>
-        /// <param name="json">The json.</param>
+        /// <param name="json">The json string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
@@ -83,7 +83,7 @@ namespace MongoDB.Driver
                 return null;
             }
 
-            return new JsonSort<TDocument>(json);
+            return new JsonStringSort<TDocument>(json);
         }
     }
 
@@ -123,15 +123,15 @@ namespace MongoDB.Driver
     /// A <see cref="String" /> based sort.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class JsonSort<TDocument> : Sort<TDocument>
+    public sealed class JsonStringSort<TDocument> : Sort<TDocument>
     {
         private readonly string _json;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonSort{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="JsonStringSort{TDocument}"/> class.
         /// </summary>
         /// <param name="json">The json.</param>
-        public JsonSort(string json)
+        public JsonStringSort(string json)
         {
             _json = Ensure.IsNotNull(json, "json");
         }

@@ -92,9 +92,9 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Projection{TDocument, TResult}"/>.
+        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="Projection{TDocument, TResult}" />.
         /// </summary>
-        /// <param name="json">The json.</param>
+        /// <param name="json">The json string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
@@ -105,7 +105,7 @@ namespace MongoDB.Driver
                 return null;
             }
 
-            return new JsonProjection<TDocument, TResult>(json);
+            return new JsonStringProjection<TDocument, TResult>(json);
         }
     }
 
@@ -193,7 +193,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class JsonProjection<TDocument, TResult> : Projection<TDocument, TResult>
+    public sealed class JsonStringProjection<TDocument, TResult> : Projection<TDocument, TResult>
     {
         private readonly string _json;
         private readonly IBsonSerializer<TResult> _resultSerializer;
@@ -203,7 +203,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="json">The json.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        public JsonProjection(string json, IBsonSerializer<TResult> resultSerializer = null)
+        public JsonStringProjection(string json, IBsonSerializer<TResult> resultSerializer = null)
         {
             _json = Ensure.IsNotNull(json, "json");
             _resultSerializer = resultSerializer;
@@ -281,33 +281,20 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A projection that simply renders to a different type without projecting anything.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class TypeChangeProjection<TDocument, TResult> : Projection<TDocument, TResult>
+    internal sealed class TypeChangeProjection<TDocument, TResult> : Projection<TDocument, TResult>
     {
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TypeChangeProjection{TDocument, TResult}"/> class.
-        /// </summary>
-        /// <param name="resultSerializer">The result serializer.</param>
         public TypeChangeProjection(IBsonSerializer<TResult> resultSerializer = null)
         {
             _resultSerializer = resultSerializer;
         }
 
-        /// <summary>
-        /// Gets the result serializer.
-        /// </summary>
         public IBsonSerializer<TResult> ResultSerializer
         {
             get { return _resultSerializer; }
         }
 
-        /// <inheritdoc />
         public override RenderedProjection<TResult> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return new RenderedProjection<TResult>(

@@ -146,9 +146,9 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="PipelineStage{TDocument, TResult}"/>.
+        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="PipelineStage{TDocument, TResult}" />.
         /// </summary>
-        /// <param name="json">The json.</param>
+        /// <param name="json">The json string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
@@ -159,7 +159,7 @@ namespace MongoDB.Driver
                 return null;
             }
 
-            return new JsonStage<TDocument, TResult>(json);
+            return new JsonStringStage<TDocument, TResult>(json);
         }
 
         /// <inheritdoc />
@@ -207,17 +207,17 @@ namespace MongoDB.Driver
     /// <summary>
     /// A <see cref="String"/> based stage.
     /// </summary>
-    public sealed class JsonStage<TDocument, TResult> : PipelineStage<TDocument, TResult>
+    public sealed class JsonStringStage<TDocument, TResult> : PipelineStage<TDocument, TResult>
     {
         private readonly BsonDocument _document;
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonStage{TDocument, TResult}"/> class.
+        /// Initializes a new instance of the <see cref="JsonStringStage{TDocument, TResult}" /> class.
         /// </summary>
         /// <param name="json">The json.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        public JsonStage(string json, IBsonSerializer<TResult> resultSerializer = null)
+        public JsonStringStage(string json, IBsonSerializer<TResult> resultSerializer = null)
         {
             _document = BsonDocument.Parse(Ensure.IsNotNull(json, "json"));
             _resultSerializer = resultSerializer;
@@ -239,32 +239,22 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A delegated aggregate stage.
-    /// </summary>
-    public sealed class DelegatedAggregateStage<TDocument, TResult> : PipelineStage<TDocument, TResult>
+    internal sealed class DelegatedAggregateStage<TDocument, TResult> : PipelineStage<TDocument, TResult>
     {
         private readonly string _stageName;
         private readonly Func<IBsonSerializer<TDocument>, IBsonSerializerRegistry, RenderedPipelineStage<TResult>> _renderer;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DelegatedAggregateStage{TDocument, TResult}"/> class.
-        /// </summary>
-        /// <param name="stageName">Name of the stage.</param>
-        /// <param name="renderer">The renderer.</param>
         public DelegatedAggregateStage(string stageName, Func<IBsonSerializer<TDocument>, IBsonSerializerRegistry, RenderedPipelineStage<TResult>> renderer)
         {
             _stageName = stageName;
             _renderer = renderer;
         }
 
-        /// <inheritdoc />
         public override string StageName
         {
             get { return _stageName; }
         }
 
-        /// <inheritdoc />
         public override RenderedPipelineStage<TResult> Render(IBsonSerializer<TDocument> serializer, IBsonSerializerRegistry serializerRegistry)
         {
             return _renderer(serializer, serializerRegistry);
