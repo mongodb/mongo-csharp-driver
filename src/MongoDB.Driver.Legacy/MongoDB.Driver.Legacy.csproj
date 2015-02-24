@@ -54,6 +54,7 @@
     <Compile Include="Builders\GeoHaystackSearchOptionsBuilder.cs" />
     <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
     <Compile Include="Builders\GroupByBuilder.cs" />
+    <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
     <Compile Include="Builders\MongoUpdateWrapper.cs" />
     <Compile Include="Builders\PushEachOptions.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="IMongoGeoHaystackSearchOptions.cs" />
     <Compile Include="IMongoGeoNearOptions.cs" />
     <Compile Include="IMongoGroupBy.cs" />
+    <Compile Include="IMongoIndexKeys.cs" />
     <Compile Include="IMongoIndexOptions.cs" />
     <Compile Include="IMongoScope.cs" />
     <Compile Include="IMongoSortBy.cs" />

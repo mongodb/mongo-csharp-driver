@@ -91,8 +91,6 @@
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Builders\IndexKeysBuilderTests.cs" />
-    <Compile Include="Builders\IndexKeysBuilderTypedTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderTypedTests.cs" />
     <Compile Include="BulkWriteErrorTests.cs" />

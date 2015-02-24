@@ -171,7 +171,6 @@
     <Compile Include="MongoBulkWriteException.cs" />
     <Compile Include="Support\IndexMap.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
-    <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonBoundingBox.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonCoordinateReferenceSystem.cs" />
@@ -232,7 +231,6 @@
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonCoordinatesSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJson2DCoordinatesSerializer.cs" />
-    <Compile Include="IMongoIndexKeys.cs" />
     <Compile Include="IMongoQuery.cs" />
     <Compile Include="MongoClient.cs" />
     <Compile Include="MongoClientSettings.cs" />
