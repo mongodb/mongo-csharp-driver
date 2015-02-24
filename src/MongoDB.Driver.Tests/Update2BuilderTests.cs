@@ -200,20 +200,20 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void Increment()
+        public void Inc()
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.Increment("a", 1), "{$inc: {a: 1}}");
+            Assert(subject.Inc("a", 1), "{$inc: {a: 1}}");
         }
 
         [Test]
-        public void Increment_Typed()
+        public void Inc_Typed()
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.Increment(x => x.Age, 1), "{$inc: {age: 1}}");
-            Assert(subject.Increment("Age", 1), "{$inc: {Age: 1}}");
+            Assert(subject.Inc(x => x.Age, 1), "{$inc: {age: 1}}");
+            Assert(subject.Inc("Age", 1), "{$inc: {Age: 1}}");
         }
 
         [Test]
@@ -251,20 +251,20 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void Multiply()
+        public void Mul()
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.Multiply("a", 2), "{$mul: {a: 2}}");
+            Assert(subject.Mul("a", 2), "{$mul: {a: 2}}");
         }
 
         [Test]
-        public void Multiply_Typed()
+        public void Mul_Typed()
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.Multiply(x => x.Age, 2), "{$mul: {age: 2}}");
-            Assert(subject.Multiply("Age", 2), "{$mul: {Age: 2}}");
+            Assert(subject.Mul(x => x.Age, 2), "{$mul: {age: 2}}");
+            Assert(subject.Mul("Age", 2), "{$mul: {Age: 2}}");
         }
 
         [Test]

@@ -271,7 +271,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An increment operator.</returns>
-        public Update2<TDocument> Increment<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public Update2<TDocument> Inc<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
             return new OperatorUpdate<TDocument, TField>("$inc", fieldName, value);
         }
@@ -283,9 +283,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An increment operator.</returns>
-        public Update2<TDocument> Increment<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public Update2<TDocument> Inc<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
-            return Increment(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Inc(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A multiply operator.</returns>
-        public Update2<TDocument> Multiply<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public Update2<TDocument> Mul<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
             return new OperatorUpdate<TDocument, TField>("$mul", fieldName, value);
         }
@@ -355,9 +355,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A multiply operator.</returns>
-        public Update2<TDocument> Multiply<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public Update2<TDocument> Mul<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
-            return Multiply(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Mul(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
 
         /// <summary>
@@ -721,29 +721,17 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// An add to set operator.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TField">The type of the field.</typeparam>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    public sealed class AddToSetUpdate<TDocument, TField, TItem> : Update2<TDocument>
+    internal sealed class AddToSetUpdate<TDocument, TField, TItem> : Update2<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly List<TItem> _values;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AddToSetUpdate{TDocument, TField, TItem}" /> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="values">The values.</param>
         public AddToSetUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _values = Ensure.IsNotNull(values, "values").ToList();
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -788,24 +776,15 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A combining update.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class CombineUpdate<TDocument> : Update2<TDocument>
+    internal sealed class CombineUpdate<TDocument> : Update2<TDocument>
     {
         private readonly List<Update2<TDocument>> _updates;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CombineUpdate{TDocument}"/> class.
-        /// </summary>
-        /// <param name="updates">The updates.</param>
         public CombineUpdate(IEnumerable<Update2<TDocument>> updates)
         {
             _updates = Ensure.IsNotNull(updates, "updates").ToList();
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var document = new BsonDocument();
@@ -832,23 +811,12 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A bitwise update operator.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TField">The type of the field.</typeparam>
-    public sealed class BitwiseOperatorUpdate<TDocument, TField> : Update2<TDocument>
+    internal sealed class BitwiseOperatorUpdate<TDocument, TField> : Update2<TDocument>
     {
         private readonly string _bitwiseOperatorName;
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly TField _value;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BitwiseOperatorUpdate{TDocument, TField}"/> class.
-        /// </summary>
-        /// <param name="bitwiseOperatorName">Name of the bitwise operator.</param>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
         public BitwiseOperatorUpdate(string bitwiseOperatorName, FieldName<TDocument, TField> fieldName, TField value)
         {
             _bitwiseOperatorName = Ensure.IsNotNull(bitwiseOperatorName, "bitwiseOperatorName");
@@ -856,7 +824,6 @@ namespace MongoDB.Driver
             _value = value;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -881,23 +848,12 @@ namespace MongoDB.Driver
         }
     }
 
-
-    /// <summary>
-    /// A general operator update where the type of field doesn't matter.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class OperatorUpdate<TDocument> : Update2<TDocument>
+    internal sealed class OperatorUpdate<TDocument> : Update2<TDocument>
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument> _fieldName;
         private readonly BsonValue _value;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OperatorUpdate{TDocument}"/> class.
-        /// </summary>
-        /// <param name="operatorName">Name of the operator.</param>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
         public OperatorUpdate(string operatorName, FieldName<TDocument> fieldName, BsonValue value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
@@ -905,7 +861,6 @@ namespace MongoDB.Driver
             _value = value;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -914,23 +869,12 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A general operator update where the type of field matters.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TField">The type of the field.</typeparam>
-    public sealed class OperatorUpdate<TDocument, TField> : Update2<TDocument>
+    internal sealed class OperatorUpdate<TDocument, TField> : Update2<TDocument>
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly TField _value;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OperatorUpdate{TDocument, TField}"/> class.
-        /// </summary>
-        /// <param name="operatorName">Name of the operator.</param>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="value">The value.</param>
         public OperatorUpdate(string operatorName, FieldName<TDocument, TField> fieldName, TField value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
@@ -938,7 +882,6 @@ namespace MongoDB.Driver
             _value = value;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -960,41 +903,24 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A pull operator.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TField">The type of the field.</typeparam>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    public sealed class PullOperatorUpdate<TDocument, TField, TItem> : Update2<TDocument>
+    internal sealed class PullOperatorUpdate<TDocument, TField, TItem> : Update2<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly Filter<TItem> _filter;
         private readonly List<TItem> _values;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PullOperatorUpdate{TDocument, TField, TItem}" /> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="filter">The filter.</param>
         public PullOperatorUpdate(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _filter = Ensure.IsNotNull(filter, "filter");
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PullOperatorUpdate{TDocument, TField, TItem}" /> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="values">The values.</param>
         public PullOperatorUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _values = Ensure.IsNotNull(values, "values").ToList();
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
@@ -1043,13 +969,7 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A push operator.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TField">The type of the field.</typeparam>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    public sealed class PushUpdate<TDocument, TField, TItem> : Update2<TDocument>
+    internal sealed class PushUpdate<TDocument, TField, TItem> : Update2<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly int? _position;
@@ -1057,14 +977,6 @@ namespace MongoDB.Driver
         private Sort<TItem> _sort;
         private readonly List<TItem> _values;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PushUpdate{TDocument, TField, TItem}" /> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="values">The values.</param>
-        /// <param name="slice">The slice.</param>
-        /// <param name="position">The position.</param>
-        /// <param name="sort">The sort.</param>
         public PushUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
@@ -1074,7 +986,6 @@ namespace MongoDB.Driver
             _sort = sort;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
