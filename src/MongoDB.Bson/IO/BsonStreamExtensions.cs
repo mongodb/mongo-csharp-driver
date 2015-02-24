@@ -47,6 +47,15 @@ namespace MongoDB.Bson.IO
         /// <param name="startPosition">The start position.</param>
         public static void BackpatchSize(this BsonStream stream, long startPosition)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (startPosition < 0 || startPosition > stream.Length)
+            {
+                throw new ArgumentOutOfRangeException("startPosition");
+            }
+
             var endPosition = stream.Position;
             var size = (int)(endPosition - startPosition);
             stream.Position = startPosition;
@@ -61,6 +70,11 @@ namespace MongoDB.Bson.IO
         /// <returns>The binary sub type.</returns>
         public static BsonBinarySubType ReadBinarySubType(this BsonStream stream)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            
             var b = stream.ReadByte();
             if (b == -1)
             {
@@ -76,6 +90,11 @@ namespace MongoDB.Bson.IO
         /// <returns>A boolean.</returns>
         public static bool ReadBoolean(this BsonStream stream)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            
             var b = stream.ReadByte();
             if (b == -1)
             {
@@ -91,6 +110,11 @@ namespace MongoDB.Bson.IO
         /// <returns>The BSON type.</returns>
         public static BsonType ReadBsonType(this BsonStream stream)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+
             var b = stream.ReadByte();
             if (b == -1)
             {
@@ -113,6 +137,23 @@ namespace MongoDB.Bson.IO
         /// <param name="count">The count.</param>
         public static void ReadBytes(this BsonStream stream, byte[] buffer, int offset, int count)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+            if (offset < 0 || offset > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("offset");
+            }
+            if (count < 0 || offset + count > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
             if (count == 1)
             {
                 var b = stream.ReadByte();
@@ -145,6 +186,15 @@ namespace MongoDB.Bson.IO
         /// <returns>The bytes.</returns>
         public static byte[] ReadBytes(this BsonStream stream, int count)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (count < 0)
+            {
+                throw new ArgumentException("count is negative.", "count");
+            }
+
             var bytes = new byte[count];
             stream.ReadBytes(bytes, 0, count);
             return bytes;
@@ -157,6 +207,11 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The value.</param>
         public static void WriteBinarySubType(this BsonStream stream, BsonBinarySubType value)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            
             stream.WriteByte((byte)value);
         }
 
@@ -167,6 +222,11 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The value.</param>
         public static void WriteBoolean(this BsonStream stream, bool value)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            
             stream.WriteByte(value ? (byte)1 : (byte)0);
         }
 
@@ -177,6 +237,11 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The value.</param>
         public static void WriteBsonType(this BsonStream stream, BsonType value)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            
             stream.WriteByte((byte)value);
         }
 
@@ -189,6 +254,23 @@ namespace MongoDB.Bson.IO
         /// <param name="count">The count.</param>
         public static void WriteBytes(this BsonStream stream, byte[] buffer, int offset, int count)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+            if (offset < 0 || offset > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("offset");
+            }
+            if (count < 0 || offset + count > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
             if (count == 1)
             {
                 stream.WriteByte(buffer[offset]);
@@ -206,6 +288,15 @@ namespace MongoDB.Bson.IO
         /// <param name="slice">The slice.</param>
         public static void WriteSlice(this BsonStream stream, IByteBuffer slice)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (slice == null)
+            {
+                throw new ArgumentNullException("slice");
+            }
+
             var position = 0;
             var count = slice.Length;
 
