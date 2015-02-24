@@ -50,11 +50,11 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void ElementMatch()
+        public void ElemMatch()
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.ElementMatch<BsonDocument>("a", "{b: 1}"), "{a: {$elemMatch: {b: 1}}}");
+            Assert(subject.ElemMatch<BsonDocument>("a", "{b: 1}"), "{a: {$elemMatch: {b: 1}}}");
         }
 
         [Test]
@@ -62,10 +62,10 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.ElementMatch<BsonDocument>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
-            Assert(subject.ElementMatch<Pet[], Pet>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
-            Assert(subject.ElementMatch<Pet[], Pet>(x => x.Pets, "{name: 'Fluffy'}"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
-            Assert(subject.ElementMatch<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<BsonDocument>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Pet[], Pet>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Pet[], Pet>(x => x.Pets, "{name: 'Fluffy'}"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
         }
 
         [Test]
