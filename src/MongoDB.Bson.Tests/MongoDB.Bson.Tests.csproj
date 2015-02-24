@@ -87,6 +87,7 @@
     <Compile Include="IO\BsonStreamExtensionsTests.cs" />
     <Compile Include="IO\BsonWriterTests.cs" />
     <Compile Include="IO\ByteArrayBufferTests.cs" />
+    <Compile Include="IO\ByteArrayChunkTests.cs" />
     <Compile Include="IO\MultiChunkBufferTests.cs" />
     <Compile Include="Jira\CSharp728Tests.cs" />
     <Compile Include="Jira\CSharp708Tests.cs" />
