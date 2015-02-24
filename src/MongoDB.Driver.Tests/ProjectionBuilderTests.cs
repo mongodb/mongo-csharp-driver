@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            var projection = subject.Combine<BsonDocument>(
+            var projection = subject.Combine(
                 subject.Include(x => x.FirstName),
                 subject.Exclude("LastName"));
 
@@ -41,10 +41,20 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            var projection = subject.Combine<BsonDocument>(
+            var projection = subject.Combine(
                 subject.Include(x => x.FirstName),
                 subject.Exclude("LastName"),
                 subject.Include("fn"));
+
+            Assert(projection, "{LastName: 0, fn: 1}");
+        }
+
+        [Test]
+        public void Combine_with_redundant_fields_using_extension_method()
+        {
+            var subject = CreateSubject<Person>();
+
+            var projection = subject.Include(x => x.FirstName).Exclude("LastName").Include("fn");
 
             Assert(projection, "{LastName: 0, fn: 1}");
         }
@@ -144,12 +154,12 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Slice("Pets", 10, 20), "{Pets: {$slice: [10, 20]}}");
         }
 
-        private void Assert<TDocument, TResult>(Projection<TDocument, TResult> projection, string expectedJson)
+        private void Assert<TDocument>(Projection<TDocument> projection, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedProjection = projection.Render(documentSerializer, BsonSerializer.SerializerRegistry);
 
-            renderedProjection.Document.Should().Be(expectedJson);
+            renderedProjection.Should().Be(expectedJson);
         }
 
         private ProjectionBuilder<TDocument> CreateSubject<TDocument>()
