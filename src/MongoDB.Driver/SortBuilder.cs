@@ -25,6 +25,93 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
+    /// Extension methods for Sort.
+    /// </summary>
+    public static class SortExtensionMethods
+    {
+        private static class BuilderCache<TDocument>
+        {
+            public static SortBuilder<TDocument> Instance = new SortBuilder<TDocument>();
+        }
+
+        /// <summary>
+        /// Creates an ascending sort.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// An ascending sort.
+        /// </returns>
+        public static Sort<TDocument> Ascending<TDocument>(this Sort<TDocument> source, FieldName<TDocument> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Ascending(fieldName));
+        }
+
+        /// <summary>
+        /// Creates an ascending sort.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// An ascending sort.
+        /// </returns>
+        public static Sort<TDocument> Ascending<TDocument>(this Sort<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Ascending(fieldName));
+        }
+
+        /// <summary>
+        /// Creates a descending sort.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// A descending sort.
+        /// </returns>
+        public static Sort<TDocument> Descending<TDocument>(this Sort<TDocument> source, FieldName<TDocument> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Descending(fieldName));
+        }
+
+        /// <summary>
+        /// Creates a descending sort.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// A descending sort.
+        /// </returns>
+        public static Sort<TDocument> Descending<TDocument>(this Sort<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Descending(fieldName));
+        }
+
+        /// <summary>
+        /// Creates a sort by the computed relevance score when using text search. The name
+        /// of the key should be the name of the projected relevence score field.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// A meta text score sort.
+        /// </returns>
+        public static Sort<TDocument> MetaTextScore<TDocument>(this Sort<TDocument> source, string fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.MetaTextScore(fieldName));
+        }
+    }
+
+    /// <summary>
     /// A builder for a <see cref="Sort{TDocument}"/>.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>

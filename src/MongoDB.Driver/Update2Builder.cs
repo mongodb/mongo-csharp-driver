@@ -25,6 +25,890 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
+    /// Extension methods for Update2.
+    /// </summary>
+    public static class Update2ExtensionMethods
+    {
+        private static class BuilderCache<TDocument>
+        {
+            public static Update2Builder<TDocument> Instance = new Update2Builder<TDocument>();
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// An add to set operator.
+        /// </returns>
+        public static Update2<TDocument> AddToSet<TDocument, TField, TItem>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.AddToSet<TField, TItem>(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// An add to set operator.
+        /// </returns>
+        public static Update2<TDocument> AddToSet<TDocument, TItem>(this Update2<TDocument> source, string fieldName, TItem value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.AddToSet<TItem>(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// An add to set operator.
+        /// </returns>
+        public static Update2<TDocument> AddToSet<TDocument, TField, TItem>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.AddToSet<TField, TItem>(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>
+        /// An add to set operator.
+        /// </returns>
+        public static Update2<TDocument> AddToSetEach<TDocument, TField, TItem>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.AddToSetEach<TField, TItem>(fieldName, values));
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>
+        /// An add to set operator.
+        /// </returns>
+        public static Update2<TDocument> AddToSetEach<TDocument, TItem>(this Update2<TDocument> source, string fieldName, IEnumerable<TItem> values)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.AddToSetEach<TItem>(fieldName, values));
+        }
+
+        /// <summary>
+        /// Creates an add to set operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>
+        /// An add to set operator.
+        /// </returns>
+        public static Update2<TDocument> AddToSetEach<TDocument, TField, TItem>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.AddToSetEach<TField, TItem>(fieldName, values));
+        }
+
+        /// <summary>
+        /// Creates a bitwise and operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A bitwise and operator.
+        /// </returns>
+        public static Update2<TDocument> BitwiseAnd<TDocument, TField>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.BitwiseAnd(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a bitwise and operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A bitwise and operator.
+        /// </returns>
+        public static Update2<TDocument> BitwiseAnd<TDocument, TField>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.BitwiseAnd(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a bitwise or operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A bitwise or operator.
+        /// </returns>
+        public static Update2<TDocument> BitwiseOr<TDocument, TField>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.BitwiseOr(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a bitwise or operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A bitwise or operator.
+        /// </returns>
+        public static Update2<TDocument> BitwiseOr<TDocument, TField>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.BitwiseOr(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a bitwise xor operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A bitwise xor operator.
+        /// </returns>
+        public static Update2<TDocument> BitwiseXor<TDocument, TField>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.BitwiseXor(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a bitwise xor operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A bitwise xor operator.
+        /// </returns>
+        public static Update2<TDocument> BitwiseXor<TDocument, TField>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.BitwiseXor(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a current date operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        /// A current date operator.
+        /// </returns>
+        public static Update2<TDocument> CurrentDate<TDocument>(this Update2<TDocument> source, FieldName<TDocument> fieldName, Update2CurrentDateType? type = null)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.CurrentDate(fieldName, type));
+        }
+
+        /// <summary>
+        /// Creates a current date operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        /// A current date operator.
+        /// </returns>
+        public static Update2<TDocument> CurrentDate<TDocument>(this Update2<TDocument> source, Expression<Func<TDocument, object>> fieldName, Update2CurrentDateType? type = null)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.CurrentDate(fieldName, type));
+        }
+
+        /// <summary>
+        /// Creates an increment operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// An increment operator.
+        /// </returns>
+        public static Update2<TDocument> Inc<TDocument, TField>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Inc(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates an increment operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// An increment operator.
+        /// </returns>
+        public static Update2<TDocument> Inc<TDocument, TField>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Inc(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a max operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A max operator.
+        /// </returns>
+        public static Update2<TDocument> Max<TDocument, TField>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Max(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a max operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A max operator.
+        /// </returns>
+        public static Update2<TDocument> Max<TDocument, TField>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Max(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a min operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A min operator.
+        /// </returns>
+        public static Update2<TDocument> Min<TDocument, TField>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Min(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a min operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A min operator.
+        /// </returns>
+        public static Update2<TDocument> Min<TDocument, TField>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Min(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a multiply operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A multiply operator.
+        /// </returns>
+        public static Update2<TDocument> Mul<TDocument, TField>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Mul(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a multiply operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A multiply operator.
+        /// </returns>
+        public static Update2<TDocument> Mul<TDocument, TField>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Mul(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a pop operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// A pop operator.
+        /// </returns>
+        public static Update2<TDocument> PopFirst<TDocument>(this Update2<TDocument> source, FieldName<TDocument> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PopFirst(fieldName));
+        }
+
+        /// <summary>
+        /// Creates a pop first operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// A pop first operator.
+        /// </returns>
+        public static Update2<TDocument> PopFirst<TDocument>(this Update2<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PopFirst(fieldName));
+        }
+
+        /// <summary>
+        /// Creates a pop operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// A pop operator.
+        /// </returns>
+        public static Update2<TDocument> PopLast<TDocument>(this Update2<TDocument> source, FieldName<TDocument> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PopLast(fieldName));
+        }
+
+        /// <summary>
+        /// Creates a pop first operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// A pop first operator.
+        /// </returns>
+        public static Update2<TDocument> PopLast<TDocument>(this Update2<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PopLast(fieldName));
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A pull operator.
+        /// </returns>
+        public static Update2<TDocument> Pull<TDocument, TField, TItem>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Pull(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A pull operator.
+        /// </returns>
+        public static Update2<TDocument> Pull<TDocument, TItem>(this Update2<TDocument> source, string fieldName, TItem value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Pull(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A pull operator.
+        /// </returns>
+        public static Update2<TDocument> Pull<TDocument, TField, TItem>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Pull(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>
+        /// A pull operator.
+        /// </returns>
+        public static Update2<TDocument> PullAll<TDocument, TField, TItem>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PullAll(fieldName, values));
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>
+        /// A pull operator.
+        /// </returns>
+        public static Update2<TDocument> PullAll<TDocument, TItem>(this Update2<TDocument> source, string fieldName, IEnumerable<TItem> values)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PullAll(fieldName, values));
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>
+        /// A pull operator.
+        /// </returns>
+        public static Update2<TDocument> PullAll<TDocument, TField, TItem>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PullAll(fieldName, values));
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>
+        /// A pull operator.
+        /// </returns>
+        public static Update2<TDocument> PullFilter<TDocument, TField, TItem>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PullFilter(fieldName, filter));
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>
+        /// A pull operator.
+        /// </returns>
+        public static Update2<TDocument> PullFilter<TDocument, TItem>(this Update2<TDocument> source, string fieldName, Filter<TItem> filter)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PullFilter(fieldName, filter));
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>
+        /// A pull operator.
+        /// </returns>
+        public static Update2<TDocument> PullFilter<TDocument, TField, TItem>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PullFilter(fieldName, filter));
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>
+        /// A pull operator.
+        /// </returns>
+        public static Update2<TDocument> PullFilter<TDocument, TField, TItem>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PullFilter(fieldName, filter));
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A push operator.
+        /// </returns>
+        public static Update2<TDocument> Push<TDocument, TField, TItem>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Push(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A push operator.
+        /// </returns>
+        public static Update2<TDocument> Push<TDocument, TItem>(this Update2<TDocument> source, string fieldName, TItem value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Push(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A push operator.
+        /// </returns>
+        public static Update2<TDocument> Push<TDocument, TField, TItem>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TItem value)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Push(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <param name="slice">The slice.</param>
+        /// <param name="position">The position.</param>
+        /// <param name="sort">The sort.</param>
+        /// <returns>
+        /// A push operator.
+        /// </returns>
+        public static Update2<TDocument> PushEach<TDocument, TField, TItem>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PushEach(fieldName, values, slice, position, sort));
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <param name="slice">The slice.</param>
+        /// <param name="position">The position.</param>
+        /// <param name="sort">The sort.</param>
+        /// <returns>
+        /// A push operator.
+        /// </returns>
+        public static Update2<TDocument> PushEach<TDocument, TItem>(this Update2<TDocument> source, string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PushEach(fieldName, values, slice, position, sort));
+        }
+
+        /// <summary>
+        /// Creates a push operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="values">The values.</param>
+        /// <param name="slice">The slice.</param>
+        /// <param name="position">The position.</param>
+        /// <param name="sort">The sort.</param>
+        /// <returns>
+        /// A push operator.
+        /// </returns>
+        public static Update2<TDocument> PushEach<TDocument, TField, TItem>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.PushEach(fieldName, values, slice, position, sort));
+        }
+
+        /// <summary>
+        /// Creates a field renaming operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="newName">The new name.</param>
+        /// <returns>
+        /// A field rename operator.
+        /// </returns>
+        public static Update2<TDocument> Rename<TDocument>(this Update2<TDocument> source, FieldName<TDocument> fieldName, string newName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Rename(fieldName, newName));
+        }
+
+        /// <summary>
+        /// Creates a field renaming operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="newName">The new name.</param>
+        /// <returns>
+        /// A field rename operator.
+        /// </returns>
+        public static Update2<TDocument> Rename<TDocument>(this Update2<TDocument> source, Expression<Func<TDocument, object>> fieldName, string newName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Rename(fieldName, newName));
+        }
+
+        /// <summary>
+        /// Creates a set operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A set operator.
+        /// </returns>
+        public static Update2<TDocument> Set<TDocument, TField>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Set(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a set operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A set operator.
+        /// </returns>
+        public static Update2<TDocument> Set<TDocument, TField>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Set(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a set on insert operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A set on insert operator.
+        /// </returns>
+        public static Update2<TDocument> SetOnInsert<TDocument, TField>(this Update2<TDocument> source, FieldName<TDocument, TField> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.SetOnInsert(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates a set on insert operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// A set on insert operator.
+        /// </returns>
+        public static Update2<TDocument> SetOnInsert<TDocument, TField>(this Update2<TDocument> source, Expression<Func<TDocument, TField>> fieldName, TField value)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.SetOnInsert(fieldName, value));
+        }
+
+        /// <summary>
+        /// Creates an unset operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// An unset operator.
+        /// </returns>
+        public static Update2<TDocument> Unset<TDocument>(this Update2<TDocument> source, FieldName<TDocument> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Unset(fieldName));
+        }
+
+        /// <summary>
+        /// Creates an unset operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// An unset operator.
+        /// </returns>
+        public static Update2<TDocument> Unset<TDocument>(this Update2<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(source, builder.Unset(fieldName));
+        }
+    }
+
+    /// <summary>
     /// The type to use for a $currentDate operator.
     /// </summary>
     public enum Update2CurrentDateType
