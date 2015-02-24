@@ -102,24 +102,15 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A combining <see cref="Sort{TDocument}"/>.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class CombineSort<TDocument> : Sort<TDocument>
+    internal sealed class CombineSort<TDocument> : Sort<TDocument>
     {
         private readonly List<Sort<TDocument>> _sorts;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CombineSort{TDocument}"/> class.
-        /// </summary>
-        /// <param name="sorts">The sorts.</param>
         public CombineSort(IEnumerable<Sort<TDocument>> sorts)
         {
             _sorts = Ensure.IsNotNull(sorts, "sorts").ToList();
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var document = new BsonDocument();
@@ -139,27 +130,17 @@ namespace MongoDB.Driver
         }
     }
 
-    /// <summary>
-    /// A directional <see cref="Sort{TDocument}"/>.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class DirectionalSort<TDocument> : Sort<TDocument>
+    internal sealed class DirectionalSort<TDocument> : Sort<TDocument>
     {
         private readonly FieldName<TDocument> _fieldName;
         private readonly SortDirection _direction;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DirectionalSort{TDocument}"/> class.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="direction">The direction.</param>
         public DirectionalSort(FieldName<TDocument> fieldName, SortDirection direction)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _direction = direction;
         }
 
-        /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
