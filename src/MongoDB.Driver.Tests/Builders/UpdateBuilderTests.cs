@@ -26,6 +26,15 @@ namespace MongoDB.Driver.Tests.Builders
     [TestFixture]
     public class UpdateBuilderTests
     {
+        private class KeyValue
+        {
+            [BsonElement("key")]
+            public string Key { get; set; }
+
+            [BsonElement("value")]
+            public string Value { get; set; }
+        }
+
         private class Test
         {
             public int Id = 0;
@@ -57,6 +66,9 @@ namespace MongoDB.Driver.Tests.Builders
 
             [BsonElement("bts")]
             public BsonTimestamp BsonTimestamp { get; set; }
+
+            [BsonElement("bag")]
+            public IEnumerable<KeyValue> DataBag { get; set; }
         }
 
         private class B
@@ -837,7 +849,7 @@ namespace MongoDB.Driver.Tests.Builders
         {
             var t = new Test { Id = 1, X = 2, Y = null, B = null };
             var update = Update.Replace(t);
-            var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null, \"dAsDateTime\" : ISODate(\"0001-01-01T00:00:00Z\"), \"dAsInt64\" : NumberLong(0), \"bdt\" : { \"_csharpnull\" : true }, \"bts\" : { \"_csharpnull\" : true } }";
+            var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null, \"dAsDateTime\" : ISODate(\"0001-01-01T00:00:00Z\"), \"dAsInt64\" : NumberLong(0), \"bdt\" : { \"_csharpnull\" : true }, \"bts\" : { \"_csharpnull\" : true }, \"bag\" : null }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -846,7 +858,7 @@ namespace MongoDB.Driver.Tests.Builders
         {
             var t = new Test { Id = 1, X = 2, Y = null, B = null };
             var update = Update<Test>.Replace(t);
-            var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null, \"dAsDateTime\" : ISODate(\"0001-01-01T00:00:00Z\"), \"dAsInt64\" : NumberLong(0), \"bdt\" : { \"_csharpnull\" : true }, \"bts\" : { \"_csharpnull\" : true } }";
+            var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null, \"dAsDateTime\" : ISODate(\"0001-01-01T00:00:00Z\"), \"dAsInt64\" : NumberLong(0), \"bdt\" : { \"_csharpnull\" : true }, \"bts\" : { \"_csharpnull\" : true }, \"bag\" : null }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -863,6 +875,14 @@ namespace MongoDB.Driver.Tests.Builders
         {
             var update = Update<Test>.Set(t => t.X, 42);
             var expected = "{ \"$set\" : { \"x\" : 42 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestSetPositional_Typed()
+        {
+            var update = Update<Test>.SetPositional(t => t.DataBag, b => b.Value, "abc");
+            var expected = "{ \"$set\" : { \"bag.$.value\" : \"abc\" } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 

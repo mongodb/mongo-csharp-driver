@@ -2233,6 +2233,24 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the value of a named element in embedded array using positional operator (see $set array.$.member)
+        /// </summary>
+        /// <param name="arrayExpression">The array expression.</param>
+        /// <param name="memberExpression">The array element member expression.</param>
+        /// <param name="value">The new value.</param>
+        /// <typeparam name="TArray">The type of the array elements.</typeparam>
+        /// <typeparam name="TMember">The type of the array element member.</typeparam>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> SetPositional<TArray, TMember>(
+            Expression<Func<TDocument, IEnumerable<TArray>>> arrayExpression,
+            Expression<Func<TArray, TMember>> memberExpression, TMember value)
+        {
+            return new UpdateBuilder<TDocument>().SetPositional(arrayExpression, memberExpression, value);
+        }
+
+        /// <summary>
         /// Sets the value of the named element to the specified value only when an insert occurs
         /// as part of an upsert operation (see $setOnInsert).
         /// </summary>
@@ -2952,6 +2970,43 @@ namespace MongoDB.Driver.Builders
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
             _updateBuilder = _updateBuilder.Set(serializationInfo.ElementName, serializedValue);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the value of a named element in embedded array using positional operator (see $set array.$.member)
+        /// </summary>
+        /// <param name="arrayExpression">The array expression.</param>
+        /// <param name="memberExpression">The array element member expression.</param>
+        /// <param name="value">The new value.</param>
+        /// <typeparam name="TArray">The type of the array elements.</typeparam>
+        /// <typeparam name="TMember">The type of the array element member.</typeparam>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> SetPositional<TArray, TMember>(
+            Expression<Func<TDocument, IEnumerable<TArray>>> arrayExpression,
+            Expression<Func<TArray, TMember>> memberExpression, TMember value)
+        {
+            if (arrayExpression == null)
+            {
+                throw new ArgumentNullException("arrayExpression");
+            }
+
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var arraySerializationInfo = _serializationInfoHelper.GetSerializationInfo(arrayExpression);
+            var memberSerializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(memberSerializationInfo, value);
+
+            var name = String.Format(
+                "{0}.$.{1}", 
+                arraySerializationInfo.ElementName,
+                memberSerializationInfo.ElementName);
+            _updateBuilder = _updateBuilder.Set(name, serializedValue);
             return this;
         }
 
