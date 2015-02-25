@@ -713,16 +713,8 @@ namespace MongoDB.Driver.Tests
         public void Text()
         {
             var subject = CreateSubject<BsonDocument>();
-
-            Assert(subject.Text("x", "funny", "en"), "{x: {$text: {$search: 'funny', $language: 'en'}}}");
-        }
-
-        [Test]
-        public void Text_Typed()
-        {
-            var subject = CreateSubject<Person>();
-            Assert(subject.Text(x => x.FirstName, "funny", "en"), "{fn: {$text: {$search: 'funny', $language: 'en'}}}");
-            Assert(subject.Text("FirstName", "funny", "en"), "{FirstName: {$text: {$search: 'funny', $language: 'en'}}}");
+            Assert(subject.Text("funny"), "{$text: {$search: 'funny'}}");
+            Assert(subject.Text("funny", "en"), "{$text: {$search: 'funny', $language: 'en'}}");
         }
 
         [Test]

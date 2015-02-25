@@ -883,30 +883,17 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a text filter.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
         /// <param name="search">The search.</param>
         /// <param name="language">The language.</param>
         /// <returns>A text filter.</returns>
-        public Filter<TDocument> Text(FieldName<TDocument> fieldName, string search, string language = null)
+        public Filter<TDocument> Text(string search, string language = null)
         {
             var document = new BsonDocument
             {
                 { "$search", search },
                 { "$language", language, language != null }
             };
-            return new OperatorFilter<TDocument>("$text", fieldName, document);
-        }
-
-        /// <summary>
-        /// Creates a text filter.
-        /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="search">The search.</param>
-        /// <param name="language">The language.</param>
-        /// <returns>A text filter.</returns>
-        public Filter<TDocument> Text(Expression<Func<TDocument, object>> fieldName, string search, string language = null)
-        {
-            return Text(new ExpressionFieldName<TDocument>(fieldName), search, language);
+            return new BsonDocumentFilter<TDocument>(new BsonDocument("$text", document));
         }
 
         /// <summary>
