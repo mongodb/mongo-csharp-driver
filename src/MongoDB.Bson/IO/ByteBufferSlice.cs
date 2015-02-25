@@ -48,18 +48,29 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentOutOfRangeException("offset");
             }
-            if (length < 0)
+            if (length < 0 || offset + length > buffer.Length)
             {
-                throw new ArgumentException("The length is negative.", "length");
-            }
-            if (offset + length > buffer.Length)
-            {
-                throw new ArgumentException("The length extends beyond the end of the buffer.", "length");
+                throw new ArgumentOutOfRangeException("length");
             }
 
             _buffer = buffer;
             _offset = offset;
             _length = length;
+        }
+
+        /// <summary>
+        /// Gets the buffer.
+        /// </summary>
+        /// <value>
+        /// The buffer.
+        /// </value>
+        public IByteBuffer Buffer
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _buffer;
+            }
         }
 
         /// <inheritdoc/>
@@ -131,21 +142,6 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public IByteBuffer GetSlice(int position, int length)
-        {
-            EnsureValidPositionAndLength(position, length);
-            ThrowIfDisposed();
-
-            return _buffer.GetSlice(position + _offset, length);
-        }
-
-        /// <inheritdoc/>
-        public void MakeReadOnly()
-        {
-            ThrowIfDisposed();
-        }
-
-        /// <inheritdoc/>
         public byte GetByte(int position)
         {
             EnsureValidPosition(position);
@@ -164,20 +160,29 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void SetByte(int position, byte value)
+        public IByteBuffer GetSlice(int position, int length)
         {
-            EnsureValidPosition(position);
+            EnsureValidPositionAndLength(position, length);
             ThrowIfDisposed();
 
+            return _buffer.GetSlice(position + _offset, length);
+        }
+
+        /// <inheritdoc/>
+        public void MakeReadOnly()
+        {
+            ThrowIfDisposed();
+        }
+
+        /// <inheritdoc/>
+        public void SetByte(int position, byte value)
+        {
             throw new NotSupportedException();
         }
 
         /// <inheritdoc/>
         public void SetBytes(int position, byte[] source, int offset, int count)
         {
-            EnsureValidPositionAndCount(position, count);
-            ThrowIfDisposed();
-
             throw new NotSupportedException();
         }
 
@@ -192,26 +197,18 @@ namespace MongoDB.Bson.IO
         private void EnsureValidPositionAndCount(int position, int count)
         {
             EnsureValidPosition(position);
-            if (count < 0)
+            if (count < 0 || position + count > _length)
             {
-                throw new ArgumentException("Count is negative.", "count");
-            }
-            if (position + count > _length)
-            {
-                throw new ArgumentException("Count extends beyond the end of the buffer.", "count");
+                throw new ArgumentOutOfRangeException("count");
             }
         }
 
         private void EnsureValidPositionAndLength(int position, int length)
         {
             EnsureValidPosition(position);
-            if (length < 0)
+            if (length < 0 || position + length > _length)
             {
-                throw new ArgumentException("Length is negative.", "length");
-            }
-            if (position + length > _length)
-            {
-                throw new ArgumentException("Length extends beyond the end of the buffer.", "length");
+                throw new ArgumentOutOfRangeException("length");
             }
         }
 
