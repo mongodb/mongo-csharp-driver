@@ -24,8 +24,30 @@ namespace MongoDB.Bson.IO
     /// </summary>
     public sealed class BsonChunkPool : IBsonChunkSource
     {
-        // private static fields
+        #region static
+        // static fields
         private static BsonChunkPool __default = new BsonChunkPool(2048, 16 * 1024); // 32MiB of 16KiB chunks
+
+        // static properties
+        /// <summary>
+        /// Gets or sets the default chunk pool.
+        /// </summary>
+        /// <value>
+        /// The default chunk pool.
+        /// </value>
+        public static BsonChunkPool Default
+        {
+            get { return __default; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                __default = value;
+            }
+        }
+        #endregion
 
         // private fields
         private Stack<ReferenceCountedChunk> _chunks = new Stack<ReferenceCountedChunk>();
@@ -42,28 +64,17 @@ namespace MongoDB.Bson.IO
         /// <param name="chunkSize">The size of each chunk.</param>
         public BsonChunkPool(int maxPoolSize, int chunkSize)
         {
+            if (maxPoolSize < 0)
+            {
+                throw new ArgumentException("maxPoolSize is less than zero.", "maxPoolSize");
+            }
+            if (chunkSize <= 0)
+            {
+                throw new ArgumentException("chunkSize is less than or equal to zero.", "chunkSize");
+            }
+
             _maxPoolSize = maxPoolSize;
             _chunkSize = chunkSize;
-        }
-
-        // public static properties
-        /// <summary>
-        /// Gets the default chunk pool.
-        /// </summary>
-        /// <value>
-        /// The default chunk pool.
-        /// </value>
-        public static BsonChunkPool Default
-        {
-            get { return __default; }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("Default");
-                }
-                __default = value;
-            }
         }
 
         // public properties
@@ -79,11 +90,31 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Gets or sets the max pool size.
+        /// Gets the maximum size of the pool.
         /// </summary>
+        /// <value>
+        /// The maximum size of the pool.
+        /// </value>
         public int MaxPoolSize
         {
             get { return _maxPoolSize; }
+        }
+
+        /// <summary>
+        /// Gets the size of the pool.
+        /// </summary>
+        /// <value>
+        /// The size of the pool.
+        /// </value>
+        public int PoolSize
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _chunks.Count;
+                }
+            }
         }
 
         // public methods
@@ -123,13 +154,16 @@ namespace MongoDB.Bson.IO
         // private methods
         private void ReleaseChunk(ReferenceCountedChunk chunk)
         {
-            lock (_lock)
+            if (!_disposed)
             {
-                if (_chunks.Count < _maxPoolSize)
+                lock (_lock)
                 {
-                    _chunks.Push(chunk);
+                    if (_chunks.Count < _maxPoolSize)
+                    {
+                        _chunks.Push(chunk);
+                    }
+                    // otherwise just let it get garbage collected
                 }
-                // otherwise just let it get garbage collected
             }
         }
 
@@ -137,7 +171,7 @@ namespace MongoDB.Bson.IO
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException(GetType().FullName);
+                throw new ObjectDisposedException(GetType().Name);
             }
         }
 
@@ -186,7 +220,7 @@ namespace MongoDB.Bson.IO
             {
                 if (_disposed)
                 {
-                    throw new ObjectDisposedException(GetType().FullName);
+                    throw new ObjectDisposedException(GetType().Name);
                 }
             }
         }

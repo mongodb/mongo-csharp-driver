@@ -83,6 +83,7 @@
     <Compile Include="BsonExtensionMethodsTests.cs" />
     <Compile Include="BsonUtilsTests.cs" />
     <Compile Include="IO\ArrayElementNameAcceleratorTests.cs" />
+    <Compile Include="IO\BsonChunkPoolTests.cs" />
     <Compile Include="IO\BsonStreamAdapterTests.cs" />
     <Compile Include="IO\BsonStreamExtensionsTests.cs" />
     <Compile Include="IO\BsonWriterTests.cs" />
