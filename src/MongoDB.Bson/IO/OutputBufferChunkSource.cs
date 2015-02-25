@@ -25,11 +25,11 @@ namespace MongoDB.Bson.IO
     {
         // constants
         const int DefaultInitialUnpooledChunkSize = 1024;
-        const int DefaultMinChunkSize = 16 * 1024;
         const int DefaultMaxChunkSize = 1 * 1024 * 1024;
+        const int DefaultMinChunkSize = 16 * 1024;
 
         // fields
-        private readonly IBsonChunkSource _chunkSource;
+        private readonly IBsonChunkSource _baseSource;
         private bool _disposed;
         private int _initialUnpooledChunkSize;
         private readonly int _maxChunkSize;
@@ -40,41 +40,98 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Initializes a new instance of the <see cref="OutputBufferChunkSource"/> class.
         /// </summary>
-        /// <param name="chunkSource">The chunk source.</param>
+        /// <param name="baseSource">The chunk source.</param>
         /// <param name="initialUnpooledChunkSize">The size of the initial unpooled chunk.</param>
         /// <param name="minChunkSize">The minimum size of a chunk.</param>
         /// <param name="maxChunkSize">The maximum size of a chunk.</param>
         public OutputBufferChunkSource(
-            IBsonChunkSource chunkSource,
+            IBsonChunkSource baseSource,
             int initialUnpooledChunkSize = DefaultInitialUnpooledChunkSize,
             int minChunkSize = DefaultMinChunkSize,
             int maxChunkSize = DefaultMaxChunkSize)
         {
-            if (chunkSource == null)
+            if (baseSource == null)
             {
-                throw new ArgumentNullException("chunkSource");
+                throw new ArgumentNullException("baseSource");
             }
             if (initialUnpooledChunkSize < 0)
             {
-                throw new ArgumentException("initialUnpooledChunkSize");
+                throw new ArgumentException("initialUnpooledChunkSize is less than zero.", "initialUnpooledChunkSize");
             }
-            if (minChunkSize <= 0 || !PowerOf2.IsPowerOf2(minChunkSize))
+            if (minChunkSize <= 0)
             {
-                throw new ArgumentException("minChunkSize");
+                throw new ArgumentException("minChunkSize is less than or equal to zero.", "minChunkSize");
             }
-            if (maxChunkSize <= 0 || !PowerOf2.IsPowerOf2(maxChunkSize))
+            if (!PowerOf2.IsPowerOf2(minChunkSize))
             {
-                throw new ArgumentException("maxChunkSize");
+                throw new ArgumentException("minChunkSize is not a power of 2.", "minChunkSize");
+            }
+            if (maxChunkSize <= 0)
+            {
+                throw new ArgumentException("maxChunkSize is less than or equal to zero.", "maxChunkSize");
+            }
+            if (!PowerOf2.IsPowerOf2(maxChunkSize))
+            {
+                throw new ArgumentException("maxChunkSize is not a power of 2.", "maxChunkSize");
             }
             if (maxChunkSize < minChunkSize)
             {
-                throw new ArgumentException("maxChunkSize");
+                throw new ArgumentException("maxChunkSize is less than minChunkSize", "maxChunkSize");
             }
 
-            _chunkSource = chunkSource;
+            _baseSource = baseSource;
             _initialUnpooledChunkSize = initialUnpooledChunkSize;
             _minChunkSize = minChunkSize;
             _maxChunkSize = maxChunkSize;
+        }
+
+        // properties
+        /// <summary>
+        /// Gets the base source.
+        /// </summary>
+        /// <value>
+        /// The base source.
+        /// </value>
+        public IBsonChunkSource BaseSource
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _baseSource;
+            }
+        }
+
+        /// <summary>
+        /// Gets the initial unpooled chunk size.
+        /// </summary>
+        /// <value>
+        /// The initial unpooled chunk size.
+        /// </value>
+        public int InitialUnpooledChunkSize
+        {
+            get { return _initialUnpooledChunkSize; }
+        }
+
+        /// <summary>
+        /// Gets the maximum size of a chunk.
+        /// </summary>
+        /// <value>
+        /// The maximum size of a chunk.
+        /// </value>
+        public int MaxChunkSize
+        {
+            get { return _maxChunkSize; }
+        }
+
+        /// <summary>
+        /// Gets the minimum size of a chunk.
+        /// </summary>
+        /// <value>
+        /// The minimum size of a chunk.
+        /// </value>
+        public int MinChunkSize
+        {
+            get { return _minChunkSize; }
         }
 
         // methods
@@ -87,9 +144,9 @@ namespace MongoDB.Bson.IO
         /// <inheritdoc/>
         public IBsonChunk GetChunk(int requestedSize)
         {
-            if (requestedSize < 0)
+            if (requestedSize <= 0)
             {
-                throw new ArgumentException("requestedSize");
+                throw new ArgumentException("requestedSize is less than or equal to zero.", "requestedSize");
             }
             ThrowIfDisposed();
 
@@ -102,7 +159,7 @@ namespace MongoDB.Bson.IO
             {
                 var powerOf2Size = PowerOf2.RoundUpToPowerOf2(_previousChunkSize + 1);
                 var chunkSize = Math.Max(Math.Min(powerOf2Size, _maxChunkSize), _minChunkSize);
-                chunk = _chunkSource.GetChunk(chunkSize);
+                chunk = _baseSource.GetChunk(chunkSize);
             }
 
             _previousChunkSize = chunk.Bytes.Count;
