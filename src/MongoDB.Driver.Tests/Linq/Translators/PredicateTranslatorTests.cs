@@ -26,12 +26,36 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
-        public void Any_with_a_predicate()
+        public void Any_with_a_predicate_on_documents()
         {
             Assert(
                 x => x.G.Any(g => g.D == "Don't" && g.E.F == 33),
                 1,
                 "{G: {$elemMatch: {D: \"Don't\", 'E.F': 33}}}");
+        }
+
+        [Test]
+        public void Any_with_a_predicate_on_scalars()
+        {
+            Assert(
+                x => x.M.Any(m => m == 5),
+                1,
+                "{M: {$elemMatch: {$eq: 5}}}");
+
+            Assert(
+                x => x.M.Any(m => m > 2),
+                1,
+                "{M: {$elemMatch: {$gt: 2}}}");
+
+            Assert(
+                x => x.M.Any(m => m > 2 && m < 6),
+                1,
+                "{M: {$elemMatch: {$gt: 2, $lt: 6}}}");
+
+            Assert(
+                x => x.C.E.I.Any(i => i.StartsWith("ick")),
+                1,
+                new BsonDocument("C.E.I", new BsonDocument("$elemMatch", new BsonDocument("$regex", new BsonRegularExpression("^ick", "s")))));
         }
 
         [Test]
@@ -397,9 +421,12 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: {$ne: 'Awesome'}}");
         }
 
-        
-
         public void Assert(Expression<Func<Root, bool>> filter, int expectedCount, string expectedFilter)
+        {
+            Assert(filter, expectedCount, BsonDocument.Parse(expectedFilter));
+        }
+
+        public void Assert(Expression<Func<Root, bool>> filter, int expectedCount, BsonDocument expectedFilter)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
             var filterDocument = PredicateTranslator.Translate(filter, serializer, BsonSerializer.SerializerRegistry);

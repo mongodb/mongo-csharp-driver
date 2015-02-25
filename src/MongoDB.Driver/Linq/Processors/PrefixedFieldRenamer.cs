@@ -45,9 +45,18 @@ namespace MongoDB.Driver.Linq.Processors
         {
             if (node.SerializationInfo.ElementName.StartsWith(_prefix))
             {
+                var name = node.SerializationInfo.ElementName;
+                if(name == _prefix)
+                {
+                    name = "";
+                }
+                else
+                {
+                    name = name.Remove(0, _prefix.Length + 1);
+                }
                 return new SerializationExpression(
                     node.Expression,
-                    node.SerializationInfo.WithNewName(node.SerializationInfo.ElementName.Remove(0, _prefix.Length + 1)));
+                    node.SerializationInfo.WithNewName(name));
             }
 
             return base.VisitSerialization(node);

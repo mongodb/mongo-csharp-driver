@@ -1074,6 +1074,47 @@ namespace MongoDB.Driver
         }
     }
 
+    internal sealed class ScalarElementMatchFilter<TDocument> : Filter<TDocument>
+    {
+        private readonly Filter<TDocument> _elementMatchFilter;
+
+        public ScalarElementMatchFilter(Filter<TDocument> elementMatchFilter)
+        {
+            _elementMatchFilter = Ensure.IsNotNull(elementMatchFilter, "elementMatchFilter");
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var document = _elementMatchFilter.Render(documentSerializer, serializerRegistry);
+
+            var elemMatch = (BsonDocument)document[0]["$elemMatch"];
+            BsonValue condition;
+            if (elemMatch.TryGetValue("", out condition))
+            {
+                elemMatch.Remove("");
+
+                if (condition is BsonDocument)
+                {
+                    var nestedDocument = (BsonDocument)condition;
+                    foreach (var element in nestedDocument)
+                    {
+                        elemMatch.Add(element);
+                    }
+                }
+                else if (condition is BsonRegularExpression)
+                {
+                    elemMatch.Add("$regex", condition);
+                }
+                else
+                {
+                    elemMatch.Add("$eq", condition);
+                }
+            }
+            
+            return document;
+        }
+    }
+
     internal sealed class GeometryOperatorFilter<TDocument, TCoordinates> : Filter<TDocument>
         where TCoordinates : GeoJsonCoordinates
     {

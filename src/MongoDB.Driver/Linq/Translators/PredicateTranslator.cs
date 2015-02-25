@@ -154,17 +154,17 @@ namespace MongoDB.Driver.Linq.Translators
                 else if (arguments.Length == 2)
                 {
                     var itemSerializationInfo = GetItemSerializationInfo("Any", serializationInfo);
-                    if (!(itemSerializationInfo.Serializer is IBsonDocumentSerializer))
-                    {
-                        var message = string.Format("Any is only support for items that serialize into documents. The current serializer is {0} and must implement {1} for participation in Any queries.",
-                            BsonUtils.GetFriendlyTypeName(itemSerializationInfo.Serializer.GetType()),
-                            BsonUtils.GetFriendlyTypeName(typeof(IBsonDocumentSerializer)));
-                        throw new NotSupportedException(message);
-                    }
+
                     var lambda = (LambdaExpression)arguments[1];
                     var body = PrefixedFieldRenamer.Rename(lambda.Body, serializationInfo.ElementName);
-                    var query = BuildFilter(body);
-                    return __builder.ElemMatch(serializationInfo.ElementName, query);
+                    var filter = __builder.ElemMatch(serializationInfo.ElementName, BuildFilter(body));
+
+                    if(!(itemSerializationInfo.Serializer is IBsonDocumentSerializer))
+                    {
+                        filter = new ScalarElementMatchFilter<BsonDocument>(filter);
+                    }
+
+                    return filter;
                 }
             }
             return null;
