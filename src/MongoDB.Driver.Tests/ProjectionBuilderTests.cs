@@ -96,6 +96,23 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void FirstElemMatch()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.ElemMatch("a"), "{'a.$': 1}");
+        }
+
+        [Test]
+        public void FirstElemMatch_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.ElemMatch(x => x.Pets), "{'pets.$': 1}");
+            Assert(subject.ElemMatch("Pets"), "{'Pets.$': 1}");
+        }
+
+        [Test]
         public void Include()
         {
             var subject = CreateSubject<BsonDocument>();

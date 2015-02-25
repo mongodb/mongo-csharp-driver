@@ -36,6 +36,36 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// The positional operator projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// A positional operator projection.
+        /// </returns>
+        public static Projection<TDocument> ElemMatch<TDocument>(this Projection<TDocument> source, FieldName<TDocument> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.ElemMatch(fieldName);
+        }
+
+        /// <summary>
+        /// The positional operator projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>
+        /// A positional operator projection.
+        /// </returns>
+        public static Projection<TDocument> ElemMatch<TDocument>(this Projection<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.ElemMatch(fieldName);
+        }
+
+        /// <summary>
         /// Creates a projection that filters the contents of an array.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
@@ -247,6 +277,26 @@ namespace MongoDB.Driver
         public Projection<TDocument> Combine(IEnumerable<Projection<TDocument>> projections)
         {
             return new CombinedProjection<TDocument>(projections);
+        }
+
+        /// <summary>
+        /// The positional operator projection.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>A positional operator projection.</returns>
+        public Projection<TDocument> ElemMatch(FieldName<TDocument> fieldName)
+        {
+            return new FirstElemProjection<TDocument>(fieldName);
+        }
+
+        /// <summary>
+        /// The positional operator projection.
+        /// </summary>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <returns>A positional operator projection.</returns>
+        public Projection<TDocument> ElemMatch(Expression<Func<TDocument, object>> fieldName)
+        {
+            return ElemMatch(new ExpressionFieldName<TDocument>(fieldName));
         }
 
         /// <summary>
@@ -468,6 +518,22 @@ namespace MongoDB.Driver
             var renderedFilter = _filter.Render(itemSerializer, serializerRegistry);
 
             return new BsonDocument(renderedField.FieldName, new BsonDocument("$elemMatch", renderedFilter));
+        }
+    }
+
+    internal sealed class FirstElemProjection<TDocument> : Projection<TDocument>
+    {
+        private readonly FieldName<TDocument> _fieldName;
+
+        public FirstElemProjection(FieldName<TDocument> fieldName)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            return new BsonDocument(renderedFieldName + ".$", 1);
         }
     }
 
