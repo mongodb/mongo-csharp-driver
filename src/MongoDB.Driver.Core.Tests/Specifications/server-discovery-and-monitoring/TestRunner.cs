@@ -203,9 +203,11 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                     {
                         var definition = ReadDefinition(path);
                         var fullName = path.Remove(0, prefix.Length);
-                        return new TestCaseData(definition)
-                            .SetName(fullName.Replace('.', '_'))
-                            .SetCategory("Specifications")
+                        var data = new TestCaseData(definition);
+                        data.Categories.Add("Specifications");
+                        data.Categories.Add("server-discovery-and-monitoring");
+                        return data
+                            .SetName(fullName.Remove(fullName.Length - 5).Replace(".", "_"))
                             .SetDescription(definition["description"].ToString());
                     });
             }
