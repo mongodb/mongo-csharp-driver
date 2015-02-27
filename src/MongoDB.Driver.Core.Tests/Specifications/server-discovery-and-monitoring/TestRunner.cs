@@ -33,11 +33,12 @@ using MongoDB.Driver.Core.Servers;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using MongoDB.Driver.Core.Clusters;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 {
     [TestFixture]
-    public class JsonPoweredTests
+    public class TestRunner
     {
         private ICluster _cluster;
         private IClusterListener _clusterListener;
@@ -131,7 +132,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             foreach (var actualServer in description.Servers)
             {
-                var expectedServer = expectedServers.Single(x => EndPointHelper.Equals(x.EndPoint, actualServer.EndPoint));
+                var expectedServer = expectedServers.Single(x => x.EndPoint.Equals(actualServer.EndPoint));
                 VerifyServer(actualServer, expectedServer.Description);
             }
         }
@@ -178,7 +179,7 @@ namespace MongoDB.Driver.Core.Clusters
         private ICluster BuildCluster(BsonDocument definition)
         {
             var connectionString = new ConnectionString((string)definition["uri"]);
-            var settings = new ClusterSettings(
+            var settings = new ClusterSettings().With(
                 endPoints: Optional.Create<IEnumerable<EndPoint>>(connectionString.Hosts),
                 connectionMode: connectionString.Connect,
                 replicaSetName: connectionString.ReplicaSet);
@@ -193,7 +194,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             public static IEnumerable<ITestCaseData> GetTestCases()
             {
-                const string prefix = "MongoDB.Driver.Core.Clusters.TestDefinitions.";
+                const string prefix = "MongoDB.Driver.Specifications.server_discovery_and_monitoring.tests.";
                 return Assembly
                     .GetExecutingAssembly()
                     .GetManifestResourceNames()
@@ -204,6 +205,7 @@ namespace MongoDB.Driver.Core.Clusters
                         var fullName = path.Remove(0, prefix.Length);
                         return new TestCaseData(definition)
                             .SetName(fullName.Replace('.', '_'))
+                            .SetCategory("Specifications")
                             .SetDescription(definition["description"].ToString());
                     });
             }

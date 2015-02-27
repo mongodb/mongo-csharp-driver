@@ -18,6 +18,9 @@ One method to convert to JSON is with
 `jsonwidget-python <http://jsonwidget.org/wiki/Jsonwidget-python>`_::
 
     pip install PyYAML urwid jsonwidget
+    make
+
+Or instead of "make":
 
     for i in `find . -iname '*.yml'`; do
         echo "${i%.*}"
@@ -81,7 +84,7 @@ without any network I/O, by parsing ismaster responses from the test file
 and passing them into the driver code. Parts of the client and monitoring
 code may need to be mocked or subclassed to achieve this. `A reference
 implementation for PyMongo 3.x is available here
-<https://github.com/mongodb/mongo-python-driver/blob/3.0-dev/test/test_cluster_spec.py>`_.
+<https://github.com/mongodb/mongo-python-driver/blob/3.0-dev/test/test_discovery_and_monitoring.py>`_.
 
 For each file, create a fresh client object initialized with the file's "uri".
 
