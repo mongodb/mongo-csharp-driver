@@ -17,23 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Helpers;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 using FluentAssertions;
-using NSubstitute;
+using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 using NUnit.Framework;
-using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Specifications.server_selection
 {
@@ -46,7 +34,7 @@ namespace MongoDB.Driver.Specifications.server_selection
             var subject = new ExponentiallyWeightedMovingAverage(0.2);
 
             var current = definition["avg_rtt_ms"];
-            if(current.ToString() != "NULL")
+            if (current.ToString() != "NULL")
             {
                 subject.AddSample(TimeSpan.FromMilliseconds(current.ToDouble())); // the first value
             }

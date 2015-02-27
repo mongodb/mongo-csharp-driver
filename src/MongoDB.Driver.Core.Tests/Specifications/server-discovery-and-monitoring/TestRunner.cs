@@ -13,27 +13,22 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
-using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 {
@@ -179,7 +174,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         private ICluster BuildCluster(BsonDocument definition)
         {
             var connectionString = new ConnectionString((string)definition["uri"]);
-            var settings = new ClusterSettings().With(
+            var settings = new ClusterSettings(
                 endPoints: Optional.Create<IEnumerable<EndPoint>>(connectionString.Hosts),
                 connectionMode: connectionString.Connect,
                 replicaSetName: connectionString.ReplicaSet);

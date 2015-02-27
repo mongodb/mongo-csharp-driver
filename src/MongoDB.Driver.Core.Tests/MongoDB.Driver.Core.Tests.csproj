@@ -143,6 +143,7 @@
     <Compile Include="Core\Clusters\SingleServerClusterTests.cs" />
     <Compile Include="SetUpFixture.cs" />
     <Compile Include="Specifications\server-discovery-and-monitoring\TestRunner.cs" />
+    <Compile Include="Specifications\server-selection\ServerSelectionTestRunner.cs" />
     <Compile Include="Specifications\server-selection\RttTestRunner.cs" />
     <Compile Include="TagSetTests.cs" />
     <Compile Include="TagTests.cs" />
