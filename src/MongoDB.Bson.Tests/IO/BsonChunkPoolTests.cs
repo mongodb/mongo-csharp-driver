@@ -81,7 +81,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void Default_set_should_have_expected_result()
+        public void Default_set_should_have_expected_effect()
         {
             var originalDefaultPool = BsonChunkPool.Default;
             try

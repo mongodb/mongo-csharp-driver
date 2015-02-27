@@ -33,10 +33,10 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Initializes a new instance of the <see cref="SingleChunkBuffer"/> class.
         /// </summary>
-        /// <param name="chunk">The chuns.</param>
         /// <param name="length">The length.</param>
+        /// <param name="chunk">The chuns.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
-        internal SingleChunkBuffer(IBsonChunk chunk, int length, bool isReadOnly)
+        internal SingleChunkBuffer(int length, IBsonChunk chunk, bool isReadOnly = false)
         {
             if (chunk == null)
             {
@@ -47,8 +47,8 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException("length");
             }
 
-            _chunk = chunk;
             _length = length;
+            _chunk = chunk;
             _isReadOnly = isReadOnly;
         }
 
@@ -137,7 +137,10 @@ namespace MongoDB.Bson.IO
         /// <inheritdoc/>
         public void EnsureCapacity(int capacity)
         {
-            throw new NotSupportedException("Capacity cannot be expanded for a SingleChunkBuffer.");
+            if (_chunk.Bytes.Count < capacity)
+            {
+                throw new NotSupportedException("Capacity cannot be expanded for a SingleChunkBuffer.");
+            }
         }
 
         /// <inheritdoc/>
@@ -158,7 +161,7 @@ namespace MongoDB.Bson.IO
             }
             EnsureIsReadOnly();
 
-            var forkedBuffer = new SingleChunkBuffer(_chunk.Fork(), _length, isReadOnly: true);
+            var forkedBuffer = new SingleChunkBuffer(_length, _chunk.Fork(), isReadOnly: true);
 
             return new ByteBufferSlice(forkedBuffer, position, length);
         }

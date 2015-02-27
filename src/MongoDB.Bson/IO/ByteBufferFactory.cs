@@ -52,11 +52,11 @@ namespace MongoDB.Bson.IO
 
             if (chunks.Count == 1)
             {
-                return new SingleChunkBuffer(chunks[0], 0, isReadOnly: false);
+                return new SingleChunkBuffer(0, chunks[0], isReadOnly: false);
             }
             else
             {
-                return new MultiChunkBuffer(chunks, 0, isReadOnly: false);
+                return new MultiChunkBuffer(0, chunks, isReadOnly: false);
             }
         }
     }

@@ -90,6 +90,7 @@
     <Compile Include="IO\ByteArrayBufferTests.cs" />
     <Compile Include="IO\ByteArrayChunkTests.cs" />
     <Compile Include="IO\ByteBufferSliceTests.cs" />
+    <Compile Include="IO\ByteBufferStreamTests.cs" />
     <Compile Include="IO\InputBufferChunkSourceTests.cs" />
     <Compile Include="IO\MultiChunkBufferTests.cs" />
     <Compile Include="IO\OutputBufferChunkSourceTests.cs" />

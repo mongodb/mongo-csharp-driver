@@ -36,17 +36,17 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">The bytes.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
         public ByteArrayBuffer(byte[] bytes, bool isReadOnly = false)
-            : this(bytes, bytes.Length, isReadOnly)
+            : this(bytes.Length, bytes, isReadOnly)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ByteArrayBuffer"/> class.
         /// </summary>
-        /// <param name="bytes">The bytes.</param>
         /// <param name="length">The length.</param>
+        /// <param name="bytes">The bytes.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
-        public ByteArrayBuffer(byte[] bytes, int length, bool isReadOnly = false)
+        public ByteArrayBuffer(int length, byte[] bytes, bool isReadOnly = false)
         {
             if (bytes == null)
             {
@@ -57,8 +57,8 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException("length");
             }
 
-            _bytes = bytes;
             _length = length;
+            _bytes = bytes;
             _isReadOnly = isReadOnly;
         }
 
@@ -197,7 +197,7 @@ namespace MongoDB.Bson.IO
             }
             EnsureIsReadOnly();
 
-            var forkedBuffer = new ByteArrayBuffer(_bytes, _length, isReadOnly: true);
+            var forkedBuffer = new ByteArrayBuffer(_length, _bytes, isReadOnly: true);
             return new ByteBufferSlice(forkedBuffer, position, length);
         }
 

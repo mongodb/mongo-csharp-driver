@@ -72,7 +72,7 @@ namespace MongoDB.Bson
             get
             {
                 ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
                 using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
                 {
                     var elementCount = 0;
@@ -99,7 +99,7 @@ namespace MongoDB.Bson
             get
             {
                 ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
                 using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
                 {
                     var context = BsonDeserializationContext.CreateRoot(bsonReader); 
@@ -124,7 +124,7 @@ namespace MongoDB.Bson
             get
             {
                 ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
                 using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
                 {
                     bsonReader.ReadStartDocument();
@@ -147,7 +147,7 @@ namespace MongoDB.Bson
             get
             {
                 ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
                 using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
                 {
                     var context = BsonDeserializationContext.CreateRoot(bsonReader);
@@ -182,7 +182,7 @@ namespace MongoDB.Bson
             get
             {
                 ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
                 using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
                 {
                     var context = BsonDeserializationContext.CreateRoot(bsonReader);
@@ -445,7 +445,7 @@ namespace MongoDB.Bson
             }
             ThrowIfDisposed();
 
-            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
                 bsonReader.ReadStartDocument();
@@ -473,7 +473,7 @@ namespace MongoDB.Bson
         public override bool ContainsValue(BsonValue value)
         {
             ThrowIfDisposed();
-            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
                 var context = BsonDeserializationContext.CreateRoot(bsonReader);
@@ -529,7 +529,7 @@ namespace MongoDB.Bson
             }
             ThrowIfDisposed();
 
-            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
                 var context = BsonDeserializationContext.CreateRoot(bsonReader);
@@ -584,7 +584,7 @@ namespace MongoDB.Bson
         public override IEnumerator<BsonElement> GetEnumerator()
         {
             ThrowIfDisposed();
-            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
                 var context = BsonDeserializationContext.CreateRoot(bsonReader);
@@ -615,7 +615,7 @@ namespace MongoDB.Bson
             }
             ThrowIfDisposed();
 
-            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
                 var context = BsonDeserializationContext.CreateRoot(bsonReader);
@@ -804,7 +804,7 @@ namespace MongoDB.Bson
         public override bool TryGetElement(string name, out BsonElement element)
         {
             ThrowIfDisposed();
-            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
                 var context = BsonDeserializationContext.CreateRoot(bsonReader);
@@ -839,7 +839,7 @@ namespace MongoDB.Bson
         public override bool TryGetValue(string name, out BsonValue value)
         {
             ThrowIfDisposed();
-            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
                 var context = BsonDeserializationContext.CreateRoot(bsonReader);

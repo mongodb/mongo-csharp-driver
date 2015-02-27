@@ -448,7 +448,7 @@ namespace MongoDB.Bson.Tests.IO
         [TestCase(BsonBinarySubType.UuidStandard, 4)]
         [TestCase(BsonBinarySubType.MD5, 5)]
         [TestCase(BsonBinarySubType.UserDefined, 0x80)]
-        public void WriteBinarySubType_should_have_expected_result(
+        public void WriteBinarySubType_should_have_expected_effect(
             BsonBinarySubType value,
             byte expectedByte)
         {
@@ -475,7 +475,7 @@ namespace MongoDB.Bson.Tests.IO
 
         [TestCase(false, 0)]
         [TestCase(true, 1)]
-        public void WriteBoolean_should_have_expected_result(
+        public void WriteBoolean_should_have_expected_effect(
             bool value,
             byte expectedByte)
         {
@@ -520,7 +520,7 @@ namespace MongoDB.Bson.Tests.IO
         [TestCase(BsonType.Int64, 0x12)]
         [TestCase(BsonType.MinKey, 0xff)]
         [TestCase(BsonType.MaxKey, 0x7f)]
-        public void WriteBsonType_should_have_expected_result(
+        public void WriteBsonType_should_have_expected_effect(
             BsonType value,
             byte expectedByte)
         {
@@ -554,7 +554,7 @@ namespace MongoDB.Bson.Tests.IO
         [TestCase(2, 0, 2)]
         [TestCase(2, 1, 1)]
         [TestCase(2, 2, 0)]
-        public void WriteBytes_should_have_expected_result(
+        public void WriteBytes_should_have_expected_effect(
             int length,
             int offset,
             int count)
@@ -650,7 +650,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void WriteSlice_should_have_expected_result(
+        public void WriteSlice_should_have_expected_effect(
             [Values(0, 1, 2, 16)]
             int length)
         {

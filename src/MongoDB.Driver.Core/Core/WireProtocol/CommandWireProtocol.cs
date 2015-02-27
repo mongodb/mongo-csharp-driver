@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     throw new MongoCommandException(connectionId, message, _command, materializedDocument);
                 }
 
-                using (var stream = new ByteBufferStream(rawDocument.Slice, ownsByteBuffer: false))
+                using (var stream = new ByteBufferStream(rawDocument.Slice, ownsBuffer: false))
                 {
                     var encoderFactory = new BinaryMessageEncoderFactory(stream, _messageEncoderSettings);
                     var encoder = (ReplyMessageBinaryEncoder<TCommandResult>)encoderFactory.GetReplyMessageEncoder<TCommandResult>(_resultSerializer);

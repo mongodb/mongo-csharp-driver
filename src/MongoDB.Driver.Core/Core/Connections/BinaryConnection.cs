@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Core.Connections
                 var outputBufferChunkSource = new OutputBufferChunkSource(BsonChunkPool.Default);
                 using (var buffer = new MultiChunkBuffer(outputBufferChunkSource))
                 {
-                    using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: false))
+                    using (var stream = new ByteBufferStream(buffer, ownsBuffer: false))
                     {
                         var encoderFactory = new BinaryMessageEncoderFactory(stream, messageEncoderSettings);
                         foreach (var message in messagesToSend)
