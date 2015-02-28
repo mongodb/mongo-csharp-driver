@@ -92,7 +92,8 @@ namespace MongoDB.Driver.Builders
             {
                 if (query == null)
                 {
-                    throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
+                    //throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
+					continue;
                 }
                 foreach (var clause in query.ToBsonDocument())
                 {
@@ -563,7 +564,8 @@ namespace MongoDB.Driver.Builders
             {
                 if (query == null)
                 {
-                    throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
+                    //throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
+					continue;
                 }
 
                 // flatten out nested $or
