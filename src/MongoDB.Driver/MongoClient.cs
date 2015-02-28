@@ -19,7 +19,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
@@ -113,16 +112,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public IMongoDatabase GetDatabase(string name)
+        public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
         {
-            var settings = new MongoDatabaseSettings();
-            return GetDatabase(name, settings);
-        }
+            settings = settings == null ?
+                new MongoDatabaseSettings() :
+                settings.Clone();
 
-        /// <inheritdoc/>
-        public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings)
-        {
-            settings = settings.Clone();
             settings.ApplyDefaultValues(_settings);
 
             return new MongoDatabaseImpl(new DatabaseNamespace(name), settings, _cluster, _operationExecutor);

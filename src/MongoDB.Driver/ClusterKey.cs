@@ -19,7 +19,7 @@ using System.Linq;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Shared;
 
-namespace MongoDB.Driver.Communication
+namespace MongoDB.Driver
 {
     internal class ClusterKey
     {

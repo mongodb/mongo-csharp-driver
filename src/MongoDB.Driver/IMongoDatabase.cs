@@ -58,17 +58,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The document type.</typeparam>
         /// <param name="name">The name of the collection.</param>
-        /// <returns>An implementation of a collection.</returns>
-        IMongoCollection<TDocument> GetCollection<TDocument>(string name);
-
-        /// <summary>
-        /// Gets a collection.
-        /// </summary>
-        /// <typeparam name="TDocument">The document type.</typeparam>
-        /// <param name="name">The name of the collection.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>An implementation of a collection.</returns>
-        IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings);
+        IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null);
 
         /// <summary>
         /// Lists all the collections on the server.
@@ -91,13 +83,13 @@ namespace MongoDB.Driver
         /// <summary>
         /// Runs a command.
         /// </summary>
-        /// <typeparam name="T">The result type of the command.</typeparam>
+        /// <typeparam name="TResult">The result type of the command.</typeparam>
         /// <param name="command">The command.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the command.
         /// </returns>
-        Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TResult> RunCommandAsync<TResult>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

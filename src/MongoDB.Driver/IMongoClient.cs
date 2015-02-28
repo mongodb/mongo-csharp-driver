@@ -49,16 +49,9 @@ namespace MongoDB.Driver
         /// Gets a database.
         /// </summary>
         /// <param name="name">The name of the database.</param>
-        /// <returns>An implementation of a database.</returns>
-        IMongoDatabase GetDatabase(string name);
-
-        /// <summary>
-        /// Gets a database.
-        /// </summary>
-        /// <param name="name">The name of the database.</param>
         /// <param name="settings">The database settings.</param>
         /// <returns>An implementation of a database.</returns>
-        IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings);
+        IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null);
 
         /// <summary>
         /// Lists the databases on the server.

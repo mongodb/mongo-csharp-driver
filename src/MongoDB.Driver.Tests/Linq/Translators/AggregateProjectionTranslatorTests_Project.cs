@@ -89,6 +89,28 @@ namespace MongoDB.Driver.Core.Linq
         }
 
         [Test]
+        public async Task Should_translate_using_non_anonymous_type_with_default_constructor()
+        {
+            var result = await Project(x => new RootView { Property = x.A, Field = x.B });
+
+            result.Projection.Should().Be("{ Property: \"$A\", Field: \"$B\", _id: 0 }");
+
+            result.Value.Property.Should().Be("Awesome");
+            result.Value.Field.Should().Be("Balloon");
+        }
+
+        [Test]
+        public async Task Should_translate_using_non_anonymous_type_with_parameterized_constructor()
+        {
+            var result = await Project(x => new RootView(x.A) { Field = x.B });
+
+            result.Projection.Should().Be("{ Field: \"$B\", Property: \"$A\", _id: 0 }");
+
+            result.Value.Property.Should().Be("Awesome");
+            result.Value.Field.Should().Be("Balloon");
+        }
+
+        [Test]
         public async Task Should_translate_add()
         {
             var result = await Project(x => new { Result = x.C.E.F + x.C.E.H });
@@ -806,6 +828,22 @@ namespace MongoDB.Driver.Core.Linq
         {
             public BsonDocument Projection;
             public T Value;
+        }
+
+        private class RootView
+        {
+            public RootView()
+            {
+            }
+
+            public RootView(string property)
+            {
+                Property = property;
+            }
+
+            public string Property { get; set; }
+
+            public string Field = null;
         }
 
         private class Root

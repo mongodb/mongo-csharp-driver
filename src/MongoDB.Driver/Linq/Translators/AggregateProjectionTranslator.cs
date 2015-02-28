@@ -19,6 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -32,11 +33,6 @@ namespace MongoDB.Driver.Linq.Translators
     {
         public static ProjectionInfo<TResult> TranslateProject<TDocument, TResult>(Expression<Func<TDocument, TResult>> projector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            if (projector.Body.NodeType != ExpressionType.New)
-            {
-                throw new NotSupportedException("Must use an anonymous type for constructing $project pipeline operators.");
-            }
-
             var binder = new SerializationInfoBinder(BsonSerializer.SerializerRegistry);
             var boundExpression = BindSerializationInfo(binder, projector, parameterSerializer);
             var projectionSerializer = (IBsonSerializer<TResult>)SerializerBuilder.Build(boundExpression, serializerRegistry);
@@ -52,11 +48,6 @@ namespace MongoDB.Driver.Linq.Translators
 
         public static ProjectionInfo<TResult> TranslateGroup<TKey, TDocument, TResult>(Expression<Func<TDocument, TKey>> idProjector, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            if (groupProjector.Body.NodeType != ExpressionType.New)
-            {
-                throw new NotSupportedException("Must use an anonymous type for constructing $group pipeline operators.");
-            }
-
             var keyBinder = new SerializationInfoBinder(serializerRegistry);
             var boundKeyExpression = BindSerializationInfo(keyBinder, idProjector, parameterSerializer);
             if (!(boundKeyExpression is ISerializationExpression))
@@ -148,6 +139,8 @@ namespace MongoDB.Driver.Linq.Translators
                         return BuildOperation((BinaryExpression)node, "$lte", false);
                     case ExpressionType.MemberAccess:
                         return BuildMemberAccess((MemberExpression)node);
+                    case ExpressionType.MemberInit:
+                        return BuildMemberInit((MemberInitExpression)node);
                     case ExpressionType.Modulo:
                         return BuildOperation((BinaryExpression)node, "$mod", false);
                     case ExpressionType.Multiply:
@@ -307,22 +300,36 @@ namespace MongoDB.Driver.Linq.Translators
                 throw new NotSupportedException(message);
             }
 
+            private BsonValue BuildMemberInit(MemberInitExpression node)
+            {
+                var mapping = ProjectionMapper.Map(node);
+                return BuildMapping(mapping);
+            }
+
             private BsonValue BuildNew(NewExpression node)
             {
+                var mapping = ProjectionMapper.Map(node);
+                return BuildMapping(mapping);
+            }
+
+            private BsonValue BuildMapping(ProjectionMapping mapping)
+            {
                 BsonDocument doc = new BsonDocument();
-                var parameters = node.Constructor.GetParameters();
                 bool hasId = false;
-                for (int i = 0; i < node.Arguments.Count; i++)
+                foreach (var memberMapping in mapping.Members)
                 {
-                    string name = parameters[i].Name;
-                    if (!hasId && node.Arguments[i] is IdExpression)
+                    var value = BuildValue(memberMapping.Expression);
+                    string name = memberMapping.Member.Name;
+                    if (!hasId && memberMapping.Expression is IdExpression)
                     {
                         name = "_id";
                         hasId = true;
+                        doc.InsertAt(0, new BsonElement(name, value));
                     }
-
-                    var value = BuildValue(node.Arguments[i]);
-                    doc.Add(name, value);
+                    else
+                    {
+                        doc.Add(name, value);
+                    }
                 }
 
                 return doc;
@@ -619,71 +626,78 @@ namespace MongoDB.Driver.Linq.Translators
                     return ((ISerializationExpression)node).SerializationInfo.Serializer;
                 }
 
-                if (node.NodeType == ExpressionType.New)
+                switch (node.NodeType)
                 {
-                    return BuildNew((NewExpression)node);
+                    case ExpressionType.MemberInit:
+                        return BuildMemberInit((MemberInitExpression)node);
+                    case ExpressionType.New:
+                        return BuildNew((NewExpression)node);
+                    default:
+                        return _serializerRegistry.GetSerializer(node.Type);
                 }
+            }
 
-                return _serializerRegistry.GetSerializer(node.Type);
+            protected IBsonSerializer BuildMemberInit(MemberInitExpression node)
+            {
+                var mapping = ProjectionMapper.Map(node);
+                return BuildProjectedSerializer(mapping);
             }
 
             protected IBsonSerializer BuildNew(NewExpression node)
             {
-                if (node.Members != null)
-                {
-                    return BuildSerializerForAnonymousType(node);
-                }
-
-                throw new NotSupportedException("Only new anomymous type expressions are allowed in $project or $group pipeline operators.");
+                var mapping = ProjectionMapper.Map(node);
+                return BuildProjectedSerializer(mapping);
             }
 
-            private IBsonSerializer BuildSerializerForAnonymousType(NewExpression node)
+            private IBsonSerializer BuildProjectedSerializer(ProjectionMapping mapping)
             {
-                // We are building a serializer specifically for an anonymous type based 
+                // We are building a serializer specifically for a projected type based
                 // on serialization information collected from other serializers.
-                // We cannot cache this because the compiler reuses the same anonymous type
-                // definition in different contexts as long as they are structurally equatable.
-                // As such, it might be that two different queries projecting the same shape
-                // might need to be deserialized differently.
-                var classMapType = typeof(BsonClassMap<>).MakeGenericType(node.Type);
+                // We cannot cache this in the serializer registry because the compiler reuses 
+                // the same anonymous type definition in different contexts as long as they 
+                // are structurally equatable. As such, it might be that two different queries 
+                // projecting the same shape might need to be deserialized differently.
+                var classMapType = typeof(BsonClassMap<>).MakeGenericType(mapping.Expression.Type);
                 BsonClassMap classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
-
-                var properties = node.Type.GetProperties();
-                var parameterToPropertyMap = from parameter in node.Constructor.GetParameters()
-                                             join property in properties on parameter.Name equals property.Name
-                                             select new { Parameter = parameter, Property = property };
-
-                foreach (var parameterToProperty in parameterToPropertyMap)
+                foreach (var memberMapping in mapping.Members)
                 {
-                    var argument = node.Arguments[parameterToProperty.Parameter.Position];
-                    var serializationExpression = argument as ISerializationExpression;
+                    var serializationExpression = memberMapping.Expression as ISerializationExpression;
                     if (serializationExpression == null)
                     {
-                        var serializer = Build(argument);
-                        var serializationInfo = new BsonSerializationInfo(parameterToProperty.Property.Name, serializer, parameterToProperty.Property.PropertyType);
+                        var serializer = Build(memberMapping.Expression);
+                        var serializationInfo = new BsonSerializationInfo(
+                            memberMapping.Member.Name,
+                            serializer,
+                            TypeHelper.GetMemberType(memberMapping.Member));
                         serializationExpression = new SerializationExpression(
-                            node.Arguments[parameterToProperty.Parameter.Position],
+                            memberMapping.Expression,
                             serializationInfo);
                     }
 
-                    var memberMap = classMap.MapMember(parameterToProperty.Property)
+                    var memberMap = classMap.MapMember(memberMapping.Member)
                         .SetSerializer(serializationExpression.SerializationInfo.Serializer)
-                        .SetElementName(parameterToProperty.Property.Name);
+                        .SetElementName(memberMapping.Member.Name);
 
                     if (classMap.IdMemberMap == null && serializationExpression is IdExpression)
                     {
                         classMap.SetIdMember(memberMap);
                     }
-
-                    //TODO: Need to set default value as well...
                 }
 
-                // Anonymous types are immutable and have all their values passed in via a ctor.
-                classMap.MapConstructor(node.Constructor, properties.Select(x => x.Name).ToArray());
-                classMap.Freeze();
+                var mappedParameters = mapping.Members
+                    .Where(x => x.Parameter != null)
+                    .OrderBy(x => x.Parameter.Position)
+                    .Select(x => x.Member)
+                    .ToList();
 
-                var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(node.Type);
-                return (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
+                if (mappedParameters.Count > 0)
+                {
+                    classMap.MapConstructor(mapping.Constructor)
+                        .SetArguments(mappedParameters);
+                }
+
+                var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(mapping.Expression.Type);
+                return (IBsonSerializer)Activator.CreateInstance(serializerType, classMap.Freeze());
             }
         }
 
@@ -720,6 +734,118 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 var suffix = elementName.Substring(_oldName.Length);
                 return _newName + suffix;
+            }
+        }
+
+        private class ProjectionMapping
+        {
+            public ConstructorInfo Constructor;
+            public Expression Expression;
+            public List<ProjectionMemberMapping> Members;
+        }
+
+        private class ProjectionMemberMapping
+        {
+            public MemberInfo Member;
+            public Expression Expression;
+            public ParameterInfo Parameter;
+        }
+
+        private class ProjectionMapper
+        {
+            public static ProjectionMapping Map(Expression node)
+            {
+                var mapper = new ProjectionMapper();
+                mapper.Visit(node);
+                return new ProjectionMapping
+                {
+                    Constructor = mapper._constructor,
+                    Expression = node,
+                    Members = mapper._mappings
+                };
+            }
+
+            private ConstructorInfo _constructor;
+            private List<ProjectionMemberMapping> _mappings;
+
+            private ProjectionMapper()
+            {
+                _mappings = new List<ProjectionMemberMapping>();
+            }
+
+            public void Visit(Expression node)
+            {
+                switch (node.NodeType)
+                {
+                    case ExpressionType.MemberInit:
+                        VisitMemberInit((MemberInitExpression)node);
+                        break;
+                    case ExpressionType.New:
+                        VisitNew((NewExpression)node);
+                        break;
+                    default:
+                        throw new NotSupportedException("Only new expressions are supported in $project and $group.");
+                }
+            }
+
+            private void VisitMemberInit(MemberInitExpression node)
+            {
+                foreach (var memberBinding in node.Bindings)
+                {
+                    var memberAssignment = memberBinding as MemberAssignment;
+                    if (memberAssignment != null)
+                    {
+                        _mappings.Add(new ProjectionMemberMapping
+                        {
+                            Expression = memberAssignment.Expression,
+                            Member = memberAssignment.Member
+                        });
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Only member assignments are supported in a new expression in $project and $group.");
+                    }
+                }
+
+                VisitNew(node.NewExpression);
+            }
+
+            private void VisitNew(NewExpression node)
+            {
+                _constructor = node.Constructor;
+
+                var type = node.Type;
+                foreach (var parameter in node.Constructor.GetParameters())
+                {
+                    MemberInfo member;
+                    if (node.Members != null)
+                    {
+                        // anonymous types will have this set...
+                        member = node.Members[parameter.Position];
+                    }
+                    else
+                    {
+                        var members = type.GetMember(
+                            parameter.Name,
+                            MemberTypes.Field | MemberTypes.Property,
+                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+
+                        if (members.Length != 1)
+                        {
+                            var message = string.Format("Could not find a member match for constructor parameter {0} on type {1}.", parameter.Name, type.Name);
+                            throw new NotSupportedException(message);
+                        }
+
+                        member = members[0];
+                    }
+
+                    _mappings.Add(new ProjectionMemberMapping
+                    {
+                        Expression = node.Arguments[parameter.Position],
+                        Member = member,
+                        Parameter = parameter
+                    });
+                }
             }
         }
 

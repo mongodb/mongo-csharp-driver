@@ -16,8 +16,36 @@
 using System;
 using MongoDB.Driver.Core.Clusters;
 
-namespace MongoDB.Driver.Communication
+namespace MongoDB.Driver
 {
+    /// <summary>
+    /// Server connection mode.
+    /// </summary>
+    [Serializable]
+    public enum ConnectionMode
+    {
+        /// <summary>
+        /// Automatically determine how to connect.
+        /// </summary>
+        Automatic,
+        /// <summary>
+        /// Connect directly to a server.
+        /// </summary>
+        Direct,
+        /// <summary>
+        /// Connect to a replica set.
+        /// </summary>
+        ReplicaSet,
+        /// <summary>
+        /// Connect to one or more shard routers.
+        /// </summary>
+        ShardRouter,
+        /// <summary>
+        /// Connect to a standalone server.
+        /// </summary>
+        Standalone
+    }
+
     internal static class ConnectionModeExtensionMethods
     {
         public static ClusterConnectionMode ToCore(this ConnectionMode value)

@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IOperationExecutor _operationExecutor;
-        private readonly IBsonSerializer<TDocument> _serializer;
+        private readonly IBsonSerializer<TDocument> _documentSerializer;
         private readonly MongoCollectionSettings _settings;
 
         // constructors
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
             _cluster = Ensure.IsNotNull(cluster, "cluster");
             _operationExecutor = Ensure.IsNotNull(operationExecutor, "operationExecutor");
 
-            _serializer = _settings.SerializerRegistry.GetSerializer<TDocument>();
+            _documentSerializer = _settings.SerializerRegistry.GetSerializer<TDocument>();
             _messageEncoderSettings = new MessageEncoderSettings
             {
                 { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
@@ -66,6 +66,11 @@ namespace MongoDB.Driver
             get { return _collectionNamespace; }
         }
 
+        public IBsonSerializer<TDocument> DocumentSerializer
+        {
+            get { return _documentSerializer; }
+        }
+
         public IMongoIndexManager<TDocument> IndexManager
         {
             get { return this; }
@@ -77,30 +82,6 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public IAggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options)
-        {
-            AggregateOptions<TDocument> newOptions;
-            if (options == null)
-            {
-                newOptions = new AggregateOptions<TDocument>
-                {
-                    ResultSerializer = _serializer
-                };
-            }
-            else
-            {
-                newOptions = new AggregateOptions<TDocument>
-                {
-                    AllowDiskUse = options.AllowDiskUse,
-                    BatchSize = options.BatchSize,
-                    MaxTime = options.MaxTime,
-                    ResultSerializer = _serializer,
-                    UseCursor = options.UseCursor
-                };
-            }
-            return new AggregateFluent<TDocument, TDocument>(this, new List<object>(), newOptions);
-        }
-
         public async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(pipeline, "pipeline");
@@ -294,33 +275,6 @@ namespace MongoDB.Driver
             var operation = new DropIndexOperation(_collectionNamespace, keysDocument, _messageEncoderSettings);
 
             return ExecuteWriteOperation(operation, cancellationToken);
-        }
-
-        public IFindFluent<TDocument, TDocument> Find(object filter, FindOptions options)
-        {
-            FindOptions<TDocument> genericOptions;
-            if (options == null)
-            {
-                genericOptions = new FindOptions<TDocument>
-                {
-                    ResultSerializer = _serializer
-                };
-            }
-            else
-            {
-                genericOptions = new FindOptions<TDocument>
-                {
-                    AllowPartialResults = options.AllowPartialResults,
-                    BatchSize = options.BatchSize,
-                    Comment = options.Comment,
-                    CursorType = options.CursorType,
-                    MaxTime = options.MaxTime,
-                    Modifiers = options.Modifiers,
-                    NoCursorTimeout = options.NoCursorTimeout,
-                    ResultSerializer = _serializer
-                };
-            }
-            return new FindFluent<TDocument, TDocument>(this, filter, genericOptions);
         }
 
         public Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options, CancellationToken cancellationToken)
@@ -626,7 +580,7 @@ namespace MongoDB.Driver
 
         private void AssignId(TDocument document)
         {
-            var idProvider = _serializer as IBsonIdProvider;
+            var idProvider = _documentSerializer as IBsonIdProvider;
             if (idProvider != null)
             {
                 object id;
@@ -650,7 +604,7 @@ namespace MongoDB.Driver
                 case WriteModelType.InsertOne:
                     var insertOneModel = (InsertOneModel<TDocument>)model;
                     AssignId(insertOneModel.Document);
-                    return new InsertRequest(new BsonDocumentWrapper(insertOneModel.Document, _serializer))
+                    return new InsertRequest(new BsonDocumentWrapper(insertOneModel.Document, _documentSerializer))
                     {
                         CorrelationId = index
                     };
@@ -673,7 +627,7 @@ namespace MongoDB.Driver
                     return new UpdateRequest(
                         UpdateType.Replacement,
                         ConvertFilterToBsonDocument(replaceOneModel.Filter),
-                        new BsonDocumentWrapper(replaceOneModel.Replacement, _serializer))
+                        new BsonDocumentWrapper(replaceOneModel.Replacement, _documentSerializer))
                     {
                         CorrelationId = index,
                         IsMulti = false,
@@ -761,9 +715,9 @@ namespace MongoDB.Driver
                 return resultSerializer;
             }
 
-            if (typeof(TResult) == typeof(TDocument) && _serializer != null)
+            if (typeof(TResult) == typeof(TDocument) && _documentSerializer != null)
             {
-                return (IBsonSerializer<TResult>)_serializer;
+                return (IBsonSerializer<TResult>)_documentSerializer;
             }
 
             return _settings.SerializerRegistry.GetSerializer<TResult>();

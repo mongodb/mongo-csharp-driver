@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Communication
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a registry of already created clusters.

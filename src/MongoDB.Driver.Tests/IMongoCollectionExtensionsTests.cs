@@ -14,8 +14,11 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
+using FluentAssertions;
 using MongoDB.Bson;
 using NSubstitute;
 using NUnit.Framework;
@@ -25,6 +28,48 @@ namespace MongoDB.Driver.Tests
     [TestFixture]
     public class IMongoCollectionExtensionsTests
     {
+        [Test]
+        public void Aggregate_should_call_collection_AggregateAsync_with_correct_options()
+        {
+            var subject = CreateSubject();
+
+            var expectedPipeline = new object[] 
+            { 
+                BsonDocument.Parse("{ $match: { x: 2 } }"),
+                BsonDocument.Parse("{ $project : { Age : \"$Age\", Name : { $concat : [\"$firstName\", \" \", \"$lastName\"] }, _id : 0 } }"),
+                BsonDocument.Parse("{ $group : { _id : \"$Age\", Name : { \"$first\" : \"$Name\" } } }"),
+                BsonDocument.Parse("{ $project : { _id: 1 } }")
+            };
+
+            var fluent = subject.Aggregate(new AggregateOptions
+            {
+                AllowDiskUse = true,
+                BatchSize = 10,
+                MaxTime = TimeSpan.FromSeconds(3),
+                UseCursor = false
+            })
+                .Match("{x: 2}")
+                .Project("{ Age : \"$Age\", Name : { $concat : [\"$firstName\", \" \", \"$lastName\"] }, _id : 0 }")
+                .Group("{ _id : \"$Age\", Name : { \"$first\" : \"$Name\" } }")
+                .Project("{ _id: 1 }");
+
+            IEnumerable<object> actualPipeline = null;
+            AggregateOptions<BsonDocument> actualOptions = null;
+            subject.AggregateAsync(
+                Arg.Do<IEnumerable<object>>(x => actualPipeline = x),
+                Arg.Do<AggregateOptions<BsonDocument>>(x => actualOptions = x),
+                Arg.Any<CancellationToken>());
+
+            fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+            actualPipeline.Should().Equal(expectedPipeline);
+            actualOptions.AllowDiskUse.Should().Be(fluent.Options.AllowDiskUse);
+            actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
+            actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);
+            actualOptions.ResultSerializer.Should().Be(fluent.Options.ResultSerializer);
+            actualOptions.UseCursor.Should().Be(fluent.Options.UseCursor);
+        }
+
         [Test]
         public void CountAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
@@ -68,12 +113,108 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Find_should_call_collection_FindAsync_with_correct_options()
+        {
+            var subject = CreateSubject();
+            var filter = BsonDocument.Parse("{x:1}");
+            var projection = BsonDocument.Parse("{y:1}");
+            var sort = BsonDocument.Parse("{a:1}");
+            var options = new FindOptions
+            {
+                AllowPartialResults = true,
+                BatchSize = 20,
+                Comment = "funny",
+                CursorType = CursorType.TailableAwait,
+                MaxTime = TimeSpan.FromSeconds(3),
+                Modifiers = BsonDocument.Parse("{$snapshot: true}"),
+                NoCursorTimeout = true
+            };
+
+            var fluent = subject.Find(filter, options)
+                .Projection<BsonDocument>(projection)
+                .Sort(sort)
+                .Limit(30)
+                .Skip(40);
+
+            object actualFilter = null;
+            FindOptions<BsonDocument> actualOptions = null;
+            subject.FindAsync(
+                Arg.Do<object>(x => actualFilter = x),
+                Arg.Do<FindOptions<BsonDocument>>(x => actualOptions = x),
+                Arg.Any<CancellationToken>());
+
+            fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+            actualFilter.Should().Be(filter);
+            actualOptions.AllowPartialResults.Should().Be(fluent.Options.AllowPartialResults);
+            actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
+            actualOptions.Comment.Should().Be(fluent.Options.Comment);
+            actualOptions.CursorType.Should().Be(fluent.Options.CursorType);
+            actualOptions.Limit.Should().Be(fluent.Options.Limit);
+            actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);
+            actualOptions.Modifiers.Should().Be(fluent.Options.Modifiers);
+            actualOptions.NoCursorTimeout.Should().Be(fluent.Options.NoCursorTimeout);
+            actualOptions.Projection.Should().Be(fluent.Options.Projection);
+            actualOptions.ResultSerializer.Should().Be(fluent.Options.ResultSerializer);
+            actualOptions.Skip.Should().Be(fluent.Options.Skip);
+            actualOptions.Sort.Should().Be(fluent.Options.Sort);
+        }
+
+        [Test]
+        public void Find_with_an_expression_should_call_collection_FindAsync_with_correct_options()
+        {
+            var subject = CreateSubject();
+            var filter = BsonDocument.Parse("{Age:1}");
+            var projection = BsonDocument.Parse("{y:1}");
+            var sort = BsonDocument.Parse("{a:1}");
+            var options = new FindOptions
+            {
+                AllowPartialResults = true,
+                BatchSize = 20,
+                Comment = "funny",
+                CursorType = CursorType.TailableAwait,
+                MaxTime = TimeSpan.FromSeconds(3),
+                Modifiers = BsonDocument.Parse("{$snapshot: true}"),
+                NoCursorTimeout = true
+            };
+
+            var fluent = subject.Find(x => x.Age == 1, options)
+                .Projection<BsonDocument>(projection)
+                .Sort(sort)
+                .Limit(30)
+                .Skip(40);
+
+            object actualFilter = null;
+            FindOptions<BsonDocument> actualOptions = null;
+            subject.FindAsync(
+                Arg.Do<object>(x => actualFilter = x),
+                Arg.Do<FindOptions<BsonDocument>>(x => actualOptions = x),
+                Arg.Any<CancellationToken>());
+
+            fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+            actualFilter.Should().BeOfType<Expression<Func<Person, bool>>>();
+            actualOptions.AllowPartialResults.Should().Be(fluent.Options.AllowPartialResults);
+            actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
+            actualOptions.Comment.Should().Be(fluent.Options.Comment);
+            actualOptions.CursorType.Should().Be(fluent.Options.CursorType);
+            actualOptions.Limit.Should().Be(fluent.Options.Limit);
+            actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);
+            actualOptions.Modifiers.Should().Be(fluent.Options.Modifiers);
+            actualOptions.NoCursorTimeout.Should().Be(fluent.Options.NoCursorTimeout);
+            actualOptions.Projection.Should().Be(fluent.Options.Projection);
+            actualOptions.ResultSerializer.Should().Be(fluent.Options.ResultSerializer);
+            actualOptions.Skip.Should().Be(fluent.Options.Skip);
+            actualOptions.Sort.Should().Be(fluent.Options.Sort);
+        }
+
+        [Test]
         public void FindOneAndDeleteAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
             var subject = CreateSubject();
             subject.FindOneAndDeleteAsync(x => x.FirstName == "Jack");
 
-            subject.Received().FindOneAndDeleteAsync(Arg.Any<object>(), null, default(CancellationToken));
+            subject.Received().FindOneAndDeleteAsync<Person>(Arg.Any<object>(), null, default(CancellationToken));
         }
 
         [Test]
@@ -93,7 +234,7 @@ namespace MongoDB.Driver.Tests
             var replacement = new Person();
             subject.FindOneAndReplaceAsync(x => x.FirstName == "Jack", replacement);
 
-            subject.Received().FindOneAndReplaceAsync(Arg.Any<object>(), replacement, null, default(CancellationToken));
+            subject.Received().FindOneAndReplaceAsync<Person>(Arg.Any<object>(), replacement, null, default(CancellationToken));
         }
 
         [Test]
@@ -114,24 +255,7 @@ namespace MongoDB.Driver.Tests
             var update = new BsonDocument();
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update);
 
-            subject.Received().FindOneAndUpdateAsync(Arg.Any<object>(), update, null, default(CancellationToken));
-        }
-
-        [Test]
-        public void FindOneAndUpdateAsync_with_an_expression_and_update_builder_should_call_collection_with_the_correct_filter()
-        {
-            var subject = CreateSubject();
-            subject.FindOneAndUpdateAsync(
-                x => x.FirstName == "Jack",
-                ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10));
-
-            var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
-
-            subject.Received().FindOneAndUpdateAsync(
-                Arg.Any<object>(),
-                Arg.Is<object>(o => Matches(o, expectedUpdate)),
-                null,
-                default(CancellationToken));
+            subject.Received().FindOneAndUpdateAsync<Person>(Arg.Any<object>(), update, null, default(CancellationToken));
         }
 
         [Test]
@@ -143,25 +267,6 @@ namespace MongoDB.Driver.Tests
             subject.FindOneAndUpdateAsync(x => x.FirstName == "Jack", update, options);
 
             subject.Received().FindOneAndUpdateAsync<BsonDocument>(Arg.Any<object>(), update, options, default(CancellationToken));
-        }
-
-        [Test]
-        public void FindOneAndUpdateAsync_with_an_expression_and_update_builder_and_result_options_should_call_collection_with_the_correct_filter()
-        {
-            var subject = CreateSubject();
-            var options = new FindOneAndUpdateOptions<BsonDocument>();
-            subject.FindOneAndUpdateAsync(
-                x => x.FirstName == "Jack",
-                ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10), 
-                options);
-
-            var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
-
-            subject.Received().FindOneAndUpdateAsync<BsonDocument>(
-                Arg.Any<object>(),
-                Arg.Is<object>(o => Matches(o, expectedUpdate)),
-                options, 
-                default(CancellationToken));
         }
 
         [Test]
@@ -186,23 +291,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void UpdateManyAsync_with_an_expression_and_update_builder_should_call_collection_with_the_correct_filter()
-        {
-            var subject = CreateSubject();
-            subject.UpdateManyAsync(
-                x => x.FirstName == "Jack",
-                ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10));
-
-            var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
-
-            subject.Received().UpdateManyAsync(
-                Arg.Any<object>(),
-                Arg.Is<object>(o => Matches(o, expectedUpdate)),
-                null,
-                default(CancellationToken));
-        }
-
-        [Test]
         public void UpdateOneAsync_with_an_expression_should_call_collection_with_the_correct_filter()
         {
             var subject = CreateSubject();
@@ -210,23 +298,6 @@ namespace MongoDB.Driver.Tests
             subject.UpdateOneAsync(x => x.FirstName == "Jack", update);
 
             subject.Received().UpdateOneAsync(Arg.Any<object>(), update, null, default(CancellationToken));
-        }
-
-        [Test]
-        public void UpdateOneAsync_with_an_expression_and_update_builder_should_call_collection_with_the_correct_filter()
-        {
-            var subject = CreateSubject();
-            subject.UpdateOneAsync(
-                x => x.FirstName == "Jack",
-                ub => ub.Set(x => x.LastName, "Frost").Inc(x => x.Age, 10));
-
-            var expectedUpdate = BsonDocument.Parse("{ $set: { LastName: \"Frost\" }, $inc: { Age: 10 }}");
-
-            subject.Received().UpdateOneAsync(
-                Arg.Any<object>(),
-                Arg.Is<object>(o => Matches(o, expectedUpdate)),
-                null,
-                default(CancellationToken));
         }
 
         private bool Matches(object o, BsonDocument doc)

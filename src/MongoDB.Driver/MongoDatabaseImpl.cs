@@ -82,17 +82,14 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public IMongoCollection<TDocument> GetCollection<TDocument>(string name)
-        {
-            return GetCollection<TDocument>(name, new MongoCollectionSettings());
-        }
-
         public IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
         {
             Ensure.IsNotNullOrEmpty(name, "name");
-            Ensure.IsNotNull(settings, "settings");
 
-            settings = settings.Clone();
+            settings = settings == null ?
+                new MongoCollectionSettings() :
+                settings.Clone();
+
             settings.ApplyDefaultValues(_settings);
 
             return new MongoCollectionImpl<TDocument>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
