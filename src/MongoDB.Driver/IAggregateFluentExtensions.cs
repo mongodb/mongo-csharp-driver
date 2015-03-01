@@ -26,267 +26,267 @@ using MongoDB.Driver.Linq.Translators;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Extension methods for <see cref="IAggregateFluent{TDocument}"/>
+    /// Extension methods for <see cref="IAggregateFluent{TResult}"/>
     /// </summary>
     public static class IAggregateFluentExtensions
     {
         /// <summary>
         /// Appends a group stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="group">The group expressions.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="group">The group projection.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Group<TDocument>(this IAggregateFluent<TDocument> source, Projection<TDocument, BsonDocument> group)
+        public static IAggregateFluent<BsonDocument> Group<TResult>(this IAggregateFluent<TResult> aggregate, Projection<TResult, BsonDocument> group)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(group, "group");
 
-            return source.Group<BsonDocument>(group);
+            return aggregate.Group<BsonDocument>(group);
         }
 
         /// <summary>
         /// Appends a group stage to the pipeline.
         /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <typeparam name="TKey">The type of the key.</typeparam>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the new result.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="idProjector">The identifier projector.</param>
-        /// <param name="groupProjector">The group projector.</param>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="id">The id.</param>
+        /// <param name="group">The group projection.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<TResult> Group<TKey, TDocument, TResult>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, TKey>> idProjector, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector)
+        public static IAggregateFluent<TNewResult> Group<TResult, TKey, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, TKey>> id, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> group)
         {
-            Ensure.IsNotNull(source, "source");
-            Ensure.IsNotNull(idProjector, "idProjector");
-            Ensure.IsNotNull(groupProjector, "groupProjector");
+            Ensure.IsNotNull(aggregate, "aggregate");
+            Ensure.IsNotNull(id, "id");
+            Ensure.IsNotNull(group, "group");
 
-            return source.Group<TResult>(new GroupExpressionProjection<TKey, TDocument, TResult>(idProjector, groupProjector));
+            return aggregate.Group<TNewResult>(new GroupExpressionProjection<TResult, TKey, TNewResult>(id, group));
         }
 
         /// <summary>
         /// Appends a match stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<TDocument> Match<TDocument>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, bool>> filter)
+        public static IAggregateFluent<TResult> Match<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, bool>> filter)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(filter, "filter");
 
-            return source.Match(new ExpressionFilter<TDocument>(filter));
+            return aggregate.Match(new ExpressionFilter<TResult>(filter));
         }
 
         /// <summary>
         /// Appends a project stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="project">The project specifications.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="projection">The projection.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Project<TDocument>(this IAggregateFluent<TDocument> source, Projection<TDocument, BsonDocument> project)
+        public static IAggregateFluent<BsonDocument> Project<TResult>(this IAggregateFluent<TResult> aggregate, Projection<TResult, BsonDocument> projection)
         {
-            Ensure.IsNotNull(source, "source");
-            Ensure.IsNotNull(project, "project");
+            Ensure.IsNotNull(aggregate, "aggregate");
+            Ensure.IsNotNull(projection, "projection");
 
-            return source.Project<BsonDocument>(project);
+            return aggregate.Project<BsonDocument>(projection);
         }
 
         /// <summary>
         /// Appends a project stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the new result.</typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="project">The project specifications.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="projection">The projection.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<TResult> Project<TDocument, TResult>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, TResult>> project)
+        public static IAggregateFluent<TNewResult> Project<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, TNewResult>> projection)
         {
-            Ensure.IsNotNull(source, "source");
-            Ensure.IsNotNull(project, "projector");
+            Ensure.IsNotNull(aggregate, "aggregate");
+            Ensure.IsNotNull(projection, "projection");
 
-            return source.Project<TResult>(new ProjectExpressionProjection<TDocument, TResult>(project));
+            return aggregate.Project<TNewResult>(new ProjectExpressionProjection<TResult, TNewResult>(projection));
         }
 
         /// <summary>
         /// Appends an ascending sort stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="field">The field to sort by.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IOrderedAggregateFluent<TDocument> SortBy<TDocument>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> field)
+        public static IOrderedAggregateFluent<TResult> SortBy<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(field, "field");
 
-            return (IOrderedAggregateFluent<TDocument>)source.Sort(
-                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending));
+            return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
+                new DirectionalSort<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Ascending));
         }
 
         /// <summary>
         /// Appends a descending sort stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="field">The field to sort by.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IOrderedAggregateFluent<TDocument> SortByDescending<TDocument>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> field)
+        public static IOrderedAggregateFluent<TResult> SortByDescending<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(field, "field");
 
-            return (IOrderedAggregateFluent<TDocument>)source.Sort(
-                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending));
+            return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
+                new DirectionalSort<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Descending));
         }
 
         /// <summary>
         /// Modifies the current sort stage by appending an ascending field specification to it.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="field">The field to sort by.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IOrderedAggregateFluent<TDocument> ThenBy<TDocument>(this IOrderedAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> field)
+        public static IOrderedAggregateFluent<TResult> ThenBy<TResult>(this IOrderedAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(field, "field");
 
             // this looks sketchy, but if we get here and this isn't true, then
             // someone is being a bad citizen.
-            var lastStage = source.Stages.Last();
-            source.Stages.RemoveAt(source.Stages.Count - 1); // remove it so we can add it back
+            var lastStage = aggregate.Stages.Last();
+            aggregate.Stages.RemoveAt(aggregate.Stages.Count - 1); // remove it so we can add it back
 
-            var stage = new DelegatedAggregateStage<TDocument, TDocument>(
+            var stage = new DelegatedPipelineStage<TResult, TResult>(
                 "$sort",
                 (s, sr) =>
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending).Render(s, sr);
-                    return new RenderedPipelineStage<TDocument>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
+                    var newSort = new DirectionalSort<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Ascending).Render(s, sr);
+                    return new RenderedPipelineStage<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
-            return (IOrderedAggregateFluent<TDocument>)source.AppendStage(stage);
+            return (IOrderedAggregateFluent<TResult>)aggregate.AppendStage(stage);
         }
 
         /// <summary>
         /// Modifies the current sort stage by appending a descending field specification to it.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="field">The field to sort by.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IOrderedAggregateFluent<TDocument> ThenByDescending<TDocument>(this IOrderedAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> field)
+        public static IOrderedAggregateFluent<TResult> ThenByDescending<TResult>(this IOrderedAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(field, "field");
 
             // this looks sketchy, but if we get here and this isn't true, then
             // someone is being a bad citizen.
-            var lastStage = source.Stages.Last();
-            source.Stages.RemoveAt(source.Stages.Count - 1); // remove it so we can add it back
+            var lastStage = aggregate.Stages.Last();
+            aggregate.Stages.RemoveAt(aggregate.Stages.Count - 1); // remove it so we can add it back
 
-            var stage = new DelegatedAggregateStage<TDocument, TDocument>(
+            var stage = new DelegatedPipelineStage<TResult, TResult>(
                 "$sort",
                 (s, sr) =>
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending).Render(s, sr);
-                    return new RenderedPipelineStage<TDocument>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
+                    var newSort = new DirectionalSort<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Descending).Render(s, sr);
+                    return new RenderedPipelineStage<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
-            return (IOrderedAggregateFluent<TDocument>)source.AppendStage(stage);
+            return (IOrderedAggregateFluent<TResult>)aggregate.AppendStage(stage);
         }
 
         /// <summary>
         /// Appends an unwind stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="fieldName">The name of the field to unwind.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Unwind<TDocument>(this IAggregateFluent<TDocument> source, FieldName<TDocument> fieldName)
+        public static IAggregateFluent<BsonDocument> Unwind<TResult>(this IAggregateFluent<TResult> aggregate, FieldName<TResult> fieldName)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(fieldName, "fieldName");
 
-            return source.Unwind<BsonDocument>(fieldName);
+            return aggregate.Unwind<BsonDocument>(fieldName);
         }
 
         /// <summary>
         /// Appends an unwind stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="fieldName">The field to unwind.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Unwind<TDocument>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        public static IAggregateFluent<BsonDocument> Unwind<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> fieldName)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(fieldName, "field");
 
-            return source.Unwind<BsonDocument>(new ExpressionFieldName<TDocument>(fieldName));
+            return aggregate.Unwind<BsonDocument>(new ExpressionFieldName<TResult>(fieldName));
         }
 
         /// <summary>
         /// Appends an unwind stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the new result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="fieldName">The field to unwind.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="newResultSerializer">The new result serializer.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<TResult> Unwind<TDocument, TResult>(this IAggregateFluent<TDocument> source, Expression<Func<TDocument, object>> fieldName, IBsonSerializer<TResult> resultSerializer = null)
+        public static IAggregateFluent<TNewResult> Unwind<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> fieldName, IBsonSerializer<TNewResult> newResultSerializer = null)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(fieldName, "field");
-            Ensure.IsNotNull(resultSerializer, "resultSerializer");
+            Ensure.IsNotNull(newResultSerializer, "newResultSerializer");
 
-            return source.Unwind<TResult>(new ExpressionFieldName<TDocument>(fieldName), resultSerializer);
+            return aggregate.Unwind<TNewResult>(new ExpressionFieldName<TResult>(fieldName), newResultSerializer);
         }
 
         /// <summary>
         /// Returns the first document of the aggregate result.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
-        public async static Task<TDocument> FirstAsync<TDocument>(this IAggregateFluent<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
+        /// <exception cref="System.InvalidOperationException">The aggregate sequence is empty.</exception>
+        public async static Task<TResult> FirstAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
 
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            using (var cursor = await aggregate.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -302,17 +302,17 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns the first document of the aggregate result, or the default value if the result set is empty.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public async static Task<TDocument> FirstOrDefaultAsync<TDocument>(this IAggregateFluent<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
+        public async static Task<TResult> FirstOrDefaultAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
 
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            using (var cursor = await aggregate.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -320,7 +320,7 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return default(TDocument);
+                    return default(TResult);
                 }
             }
         }
@@ -328,18 +328,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns the only document of the aggregate result. Throws an exception if the result set does not contain exactly one document.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        /// <exception cref="System.InvalidOperationException">The source sequence is empty.</exception>
-        public async static Task<TDocument> SingleAsync<TDocument>(this IAggregateFluent<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
+        /// <exception cref="System.InvalidOperationException">The aggregate sequence is empty.</exception>
+        public async static Task<TResult> SingleAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
 
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            using (var cursor = await aggregate.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -355,17 +355,17 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns the only document of the aggregate result, or the default value if the result set is empty. Throws an exception if the result set contains more than one document.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public async static Task<TDocument> SingleOrDefaultAsync<TDocument>(this IAggregateFluent<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
+        public async static Task<TResult> SingleOrDefaultAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(aggregate, "aggregate");
 
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            using (var cursor = await aggregate.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -373,55 +373,55 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return default(TDocument);
+                    return default(TResult);
                 }
             }
         }
 
-        private sealed class ProjectExpressionProjection<TDocument, TResult> : Projection<TDocument, TResult>
+        private sealed class ProjectExpressionProjection<TResult, TNewResult> : Projection<TResult, TNewResult>
         {
-            private readonly Expression<Func<TDocument, TResult>> _expression;
+            private readonly Expression<Func<TResult, TNewResult>> _expression;
 
-            public ProjectExpressionProjection(Expression<Func<TDocument, TResult>> expression)
+            public ProjectExpressionProjection(Expression<Func<TResult, TNewResult>> expression)
             {
                 _expression = Ensure.IsNotNull(expression, "expression");
             }
 
-            public Expression<Func<TDocument, TResult>> Expression
+            public Expression<Func<TResult, TNewResult>> Expression
             {
                 get { return _expression; }
             }
 
-            public override RenderedProjection<TResult> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            public override RenderedProjection<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
             {
-                return AggregateProjectionTranslator.TranslateProject<TDocument, TResult>(_expression, documentSerializer, serializerRegistry);
+                return AggregateProjectionTranslator.TranslateProject<TResult, TNewResult>(_expression, documentSerializer, serializerRegistry);
             }
         }
 
-        private sealed class GroupExpressionProjection<TKey, TDocument, TResult> : Projection<TDocument, TResult>
+        private sealed class GroupExpressionProjection<TResult, TKey, TNewResult> : Projection<TResult, TNewResult>
         {
-            private readonly Expression<Func<TDocument, TKey>> _idExpression;
-            private readonly Expression<Func<IGrouping<TKey, TDocument>, TResult>> _groupExpression;
+            private readonly Expression<Func<TResult, TKey>> _idExpression;
+            private readonly Expression<Func<IGrouping<TKey, TResult>, TNewResult>> _groupExpression;
 
-            public GroupExpressionProjection(Expression<Func<TDocument, TKey>> idExpression, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupExpression)
+            public GroupExpressionProjection(Expression<Func<TResult, TKey>> idExpression, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> groupExpression)
             {
                 _idExpression = Ensure.IsNotNull(idExpression, "idExpression");
                 _groupExpression = Ensure.IsNotNull(groupExpression, "groupExpression");
             }
 
-            public Expression<Func<TDocument, TKey>> IdExpression
+            public Expression<Func<TResult, TKey>> IdExpression
             {
                 get { return _idExpression; }
             }
 
-            public Expression<Func<IGrouping<TKey, TDocument>, TResult>> GroupExpression
+            public Expression<Func<IGrouping<TKey, TResult>, TNewResult>> GroupExpression
             {
                 get { return _groupExpression; }
             }
 
-            public override RenderedProjection<TResult> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            public override RenderedProjection<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
             {
-                return AggregateProjectionTranslator.TranslateGroup<TKey, TDocument, TResult>(_idExpression, _groupExpression, documentSerializer, serializerRegistry);
+                return AggregateProjectionTranslator.TranslateGroup<TKey, TResult, TNewResult>(_idExpression, _groupExpression, documentSerializer, serializerRegistry);
             }
         }
     }

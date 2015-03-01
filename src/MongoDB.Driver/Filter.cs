@@ -77,7 +77,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Filter{TDocument}"/>.
         /// </summary>
-        /// <param name="json">The json string.</param>
+        /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
@@ -88,7 +88,7 @@ namespace MongoDB.Driver
                 return null;
             }
 
-            return new JsonStringFilter<TDocument>(json);
+            return new JsonFilter<TDocument>(json);
         }
 
         /// <summary>
@@ -195,20 +195,28 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A <see cref="String" /> based filter.
+    /// A JSON <see cref="String" /> based filter.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class JsonStringFilter<TDocument> : Filter<TDocument>
+    public sealed class JsonFilter<TDocument> : Filter<TDocument>
     {
         private readonly string _json;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonStringFilter{TDocument}" /> class.
+        /// Initializes a new instance of the <see cref="JsonFilter{TDocument}" /> class.
         /// </summary>
         /// <param name="json">The json.</param>
-        public JsonStringFilter(string json)
+        public JsonFilter(string json)
         {
-            _json = Ensure.IsNotNull(json, "str");
+            _json = Ensure.IsNotNullOrEmpty(json, "json");
+        }
+
+        /// <summary>
+        /// Gets the json.
+        /// </summary>
+        public string Json
+        {
+            get { return _json; }
         }
 
         /// <inheritdoc />
@@ -219,7 +227,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A <see cref="Object" /> based filter.
+    /// An <see cref="Object" /> based filter.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class ObjectFilter<TDocument> : Filter<TDocument>

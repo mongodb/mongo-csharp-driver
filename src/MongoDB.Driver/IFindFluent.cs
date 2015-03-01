@@ -35,7 +35,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>
-        Filter<TDocument> Filter { get; set; }
+        Filter<TDocument> Filter { get; }
 
         /// <summary>
         /// Gets the options.
@@ -57,12 +57,12 @@ namespace MongoDB.Driver
         IFindFluent<TDocument, TResult> Limit(int? limit);
 
         /// <summary>
-        /// Projects the the documents.
+        /// Projects the the result.
         /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the result.</typeparam>
         /// <param name="projection">The projection.</param>
         /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TNewResult> Projection<TNewResult>(Projection<TDocument, TNewResult> projection);
+        IFindFluent<TDocument, TNewResult> Project<TNewResult>(Projection<TDocument, TNewResult> projection);
 
         /// <summary>
         /// Skips the the specified number of documents.

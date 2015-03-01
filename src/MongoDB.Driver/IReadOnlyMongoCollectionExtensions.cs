@@ -186,12 +186,12 @@ namespace MongoDB.Driver
         /// <returns>
         /// A fluent interface.
         /// </returns>
-        public static IFindFluent<TDocument, TDocument> Find<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, FindOptions options = null)
+        public static IFindFluent<TDocument, TDocument> Find<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, FindOptions options = null)
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            return Find(collection, new ExpressionFilter<TDocument>(filter), options);
+            return collection.Find(new ExpressionFilter<TDocument>(filter), options);
         }
     }
 }

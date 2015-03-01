@@ -36,224 +36,224 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// The positional operator projection.
+        /// Combines an existing projection with a positional operator projection.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// A positional operator projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument>(this Projection<TDocument> source, FieldName<TDocument> fieldName)
+        public static Projection<TDocument> FirstMatchingElement<TDocument>(this Projection<TDocument> projection, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.ElemMatch(fieldName);
+            return builder.Combine(projection, builder.FirstMatchingElement(fieldName));
         }
 
         /// <summary>
-        /// The positional operator projection.
+        /// Combines an existing projection with a positional operator projection.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// A positional operator projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument>(this Projection<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        public static Projection<TDocument> FirstMatchingElement<TDocument>(this Projection<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.ElemMatch(fieldName);
+            return builder.Combine(projection, builder.FirstMatchingElement(fieldName));
         }
 
         /// <summary>
-        /// Creates a projection that filters the contents of an array.
+        /// Combines an existing projection with a projection that filters the contents of an array.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>
-        /// An array filtering projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> source, FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> projection, FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.ElemMatch(fieldName, filter));
+            return builder.Combine(projection, builder.ElemMatch(fieldName, filter));
         }
 
         /// <summary>
-        /// Creates a projection that filters the contents of an array.
+        /// Combines an existing projection with a projection that filters the contents of an array.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>
-        /// An array filtering projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TItem>(this Projection<TDocument> source, string fieldName, Filter<TItem> filter)
+        public static Projection<TDocument> ElemMatch<TDocument, TItem>(this Projection<TDocument> projection, string fieldName, Filter<TItem> filter)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.ElemMatch(fieldName, filter));
+            return builder.Combine(projection, builder.ElemMatch(fieldName, filter));
         }
 
         /// <summary>
-        /// Creates a projection that filters the contents of an array.
+        /// Combines an existing projection with a projection that filters the contents of an array.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>
-        /// An array filtering projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> source, Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
+        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> projection, Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.ElemMatch(fieldName, filter));
+            return builder.Combine(projection, builder.ElemMatch(fieldName, filter));
         }
 
         /// <summary>
-        /// Creates a projection that filters the contents of an array.
+        /// Combines an existing projection with a projection that filters the contents of an array.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>
-        /// An array filtering projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> source, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> projection, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.ElemMatch(fieldName, filter));
+            return builder.Combine(projection, builder.ElemMatch(fieldName, filter));
         }
 
         /// <summary>
-        /// Creates a projection that excludes a field.
+        /// Combines an existing projection with a projection that excludes a field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// An exclusion projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Exclude<TDocument>(this Projection<TDocument> source, FieldName<TDocument> fieldName)
+        public static Projection<TDocument> Exclude<TDocument>(this Projection<TDocument> projection, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.Exclude(fieldName));
+            return builder.Combine(projection, builder.Exclude(fieldName));
         }
 
         /// <summary>
-        /// Creates a projection that excludes a field.
+        /// Combines an existing projection with a projection that excludes a field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// An exclusion projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Exclude<TDocument>(this Projection<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        public static Projection<TDocument> Exclude<TDocument>(this Projection<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.Exclude(fieldName));
+            return builder.Combine(projection, builder.Exclude(fieldName));
         }
 
         /// <summary>
-        /// Creates a projection that includes a field.
+        /// Combines an existing projection with a projection that includes a field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// An inclusion projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Include<TDocument>(this Projection<TDocument> source, FieldName<TDocument> fieldName)
+        public static Projection<TDocument> Include<TDocument>(this Projection<TDocument> projection, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.Include(fieldName));
+            return builder.Combine(projection, builder.Include(fieldName));
         }
 
         /// <summary>
-        /// Creates a projection that includes a field.
+        /// Combines an existing projection with a projection that includes a field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// An inclusion projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Include<TDocument>(this Projection<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        public static Projection<TDocument> Include<TDocument>(this Projection<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.Include(fieldName));
+            return builder.Combine(projection, builder.Include(fieldName));
         }
 
         /// <summary>
-        /// Creates a text score projection.
+        /// Combines an existing projection with a text score projection.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// A text score projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> MetaTextScore<TDocument>(this Projection<TDocument> source, string fieldName)
+        public static Projection<TDocument> MetaTextScore<TDocument>(this Projection<TDocument> projection, string fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.MetaTextScore(fieldName));
+            return builder.Combine(projection, builder.MetaTextScore(fieldName));
         }
 
         /// <summary>
-        /// Creates an array slice projection.
+        /// Combines an existing projection with an array slice projection.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="skip">The skip.</param>
         /// <param name="limit">The limit.</param>
         /// <returns>
-        /// An array slice projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Slice<TDocument>(this Projection<TDocument> source, FieldName<TDocument> fieldName, int skip, int? limit = null)
+        public static Projection<TDocument> Slice<TDocument>(this Projection<TDocument> projection, FieldName<TDocument> fieldName, int skip, int? limit = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.Slice(fieldName, skip, limit));
+            return builder.Combine(projection, builder.Slice(fieldName, skip, limit));
         }
 
         /// <summary>
-        /// Creates an array slice projection.
+        /// Combines an existing projection with an array slice projection.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="projection">The projection.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="skip">The skip.</param>
         /// <param name="limit">The limit.</param>
         /// <returns>
-        /// An array slice projection.
+        /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Slice<TDocument>(this Projection<TDocument> source, Expression<Func<TDocument, object>> fieldName, int skip, int? limit = null)
+        public static Projection<TDocument> Slice<TDocument>(this Projection<TDocument> projection, Expression<Func<TDocument, object>> fieldName, int skip, int? limit = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.Slice(fieldName, skip, limit));
+            return builder.Combine(projection, builder.Slice(fieldName, skip, limit));
         }
     }
 
     /// <summary>
     /// A builder for a projection.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class ProjectionBuilder<TDocument>
+    /// <typeparam name="TSource">The type of the source.</typeparam>
+    public sealed class ProjectionBuilder<TSource>
     {
         /// <summary>
         /// Combines the specified projections.
@@ -262,9 +262,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public Projection<TDocument> Combine(params Projection<TDocument>[] projections)
+        public Projection<TSource> Combine(params Projection<TSource>[] projections)
         {
-            return Combine((IEnumerable<Projection<TDocument>>)projections);
+            return Combine((IEnumerable<Projection<TSource>>)projections);
         }
 
         /// <summary>
@@ -274,29 +274,29 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public Projection<TDocument> Combine(IEnumerable<Projection<TDocument>> projections)
+        public Projection<TSource> Combine(IEnumerable<Projection<TSource>> projections)
         {
-            return new CombinedProjection<TDocument>(projections);
+            return new CombinedProjection<TSource>(projections);
         }
 
         /// <summary>
-        /// The positional operator projection.
+        /// Creates a positional operator projection.
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A positional operator projection.</returns>
-        public Projection<TDocument> ElemMatch(FieldName<TDocument> fieldName)
+        public Projection<TSource> FirstMatchingElement(FieldName<TSource> fieldName)
         {
-            return new FirstElemProjection<TDocument>(fieldName);
+            return new PositionalOperatorProjection<TSource>(fieldName);
         }
 
         /// <summary>
-        /// The positional operator projection.
+        /// Creates a positional operator projection.
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A positional operator projection.</returns>
-        public Projection<TDocument> ElemMatch(Expression<Func<TDocument, object>> fieldName)
+        public Projection<TSource> FirstMatchingElement(Expression<Func<TSource, object>> fieldName)
         {
-            return ElemMatch(new ExpressionFieldName<TDocument>(fieldName));
+            return FirstMatchingElement(new ExpressionFieldName<TSource>(fieldName));
         }
 
         /// <summary>
@@ -309,10 +309,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TDocument> ElemMatch<TField, TItem>(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        public Projection<TSource> ElemMatch<TField, TItem>(FieldName<TSource, TField> fieldName, Filter<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            return new ElementMatchProjection<TDocument, TField, TItem>(fieldName, filter);
+            return new ElementMatchProjection<TSource, TField, TItem>(fieldName, filter);
         }
 
         /// <summary>
@@ -324,10 +324,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TDocument> ElemMatch<TItem>(string fieldName, Filter<TItem> filter)
+        public Projection<TSource> ElemMatch<TItem>(string fieldName, Filter<TItem> filter)
         {
             return ElemMatch(
-                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                new StringFieldName<TSource, IEnumerable<TItem>>(fieldName),
                 filter);
         }
 
@@ -341,10 +341,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TDocument> ElemMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
+        public Projection<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> fieldName, Filter<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            return ElemMatch(new ExpressionFieldName<TDocument, TField>(fieldName), filter);
+            return ElemMatch(new ExpressionFieldName<TSource, TField>(fieldName), filter);
         }
 
         /// <summary>
@@ -357,10 +357,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TDocument> ElemMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+        public Projection<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> fieldName, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
-            return ElemMatch(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilter<TItem>(filter));
+            return ElemMatch(new ExpressionFieldName<TSource, TField>(fieldName), new ExpressionFilter<TItem>(filter));
         }
 
         /// <summary>
@@ -370,9 +370,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// An exclusion projection.
         /// </returns>
-        public Projection<TDocument> Exclude(FieldName<TDocument> fieldName)
+        public Projection<TSource> Exclude(FieldName<TSource> fieldName)
         {
-            return new SingleFieldProjection<TDocument>(fieldName, 0);
+            return new SingleFieldProjection<TSource>(fieldName, 0);
         }
 
         /// <summary>
@@ -382,9 +382,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// An exclusion projection.
         /// </returns>
-        public Projection<TDocument> Exclude(Expression<Func<TDocument, object>> fieldName)
+        public Projection<TSource> Exclude(Expression<Func<TSource, object>> fieldName)
         {
-            return Exclude(new ExpressionFieldName<TDocument>(fieldName));
+            return Exclude(new ExpressionFieldName<TSource>(fieldName));
         }
 
         /// <summary>
@@ -395,9 +395,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// An expression projection.
         /// </returns>
-        public Projection<TDocument, TResult> Expression<TResult>(Expression<Func<TDocument, TResult>> expression)
+        public Projection<TSource, TResult> Expression<TResult>(Expression<Func<TSource, TResult>> expression)
         {
-            return new FindExpressionProjection<TDocument, TResult>(expression);
+            return new FindExpressionProjection<TSource, TResult>(expression);
         }
 
         /// <summary>
@@ -407,9 +407,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// An inclusion projection.
         /// </returns>
-        public Projection<TDocument> Include(FieldName<TDocument> fieldName)
+        public Projection<TSource> Include(FieldName<TSource> fieldName)
         {
-            return new SingleFieldProjection<TDocument>(fieldName, 1);
+            return new SingleFieldProjection<TSource>(fieldName, 1);
         }
 
         /// <summary>
@@ -419,9 +419,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// An inclusion projection.
         /// </returns>
-        public Projection<TDocument> Include(Expression<Func<TDocument, object>> fieldName)
+        public Projection<TSource> Include(Expression<Func<TSource, object>> fieldName)
         {
-            return Include(new ExpressionFieldName<TDocument>(fieldName));
+            return Include(new ExpressionFieldName<TSource>(fieldName));
         }
 
         /// <summary>
@@ -431,9 +431,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// A text score projection.
         /// </returns>
-        public Projection<TDocument> MetaTextScore(string fieldName)
+        public Projection<TSource> MetaTextScore(string fieldName)
         {
-            return new SingleFieldProjection<TDocument>(fieldName, new BsonDocument("$meta", "textScore"));
+            return new SingleFieldProjection<TSource>(fieldName, new BsonDocument("$meta", "textScore"));
         }
 
         /// <summary>
@@ -445,10 +445,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array slice projection.
         /// </returns>
-        public Projection<TDocument> Slice(FieldName<TDocument> fieldName, int skip, int? limit = null)
+        public Projection<TSource> Slice(FieldName<TSource> fieldName, int skip, int? limit = null)
         {
             var value = limit.HasValue ? (BsonValue)new BsonArray { skip, limit.Value } : skip;
-            return new SingleFieldProjection<TDocument>(fieldName, new BsonDocument("$slice", value));
+            return new SingleFieldProjection<TSource>(fieldName, new BsonDocument("$slice", value));
         }
 
         /// <summary>
@@ -460,29 +460,30 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array slice projection.
         /// </returns>
-        public Projection<TDocument> Slice(Expression<Func<TDocument, object>> fieldName, int skip, int? limit = null)
+        public Projection<TSource> Slice(Expression<Func<TSource, object>> fieldName, int skip, int? limit = null)
         {
-            return Slice(new ExpressionFieldName<TDocument>(fieldName), skip, limit);
+            return Slice(new ExpressionFieldName<TSource>(fieldName), skip, limit);
         }
     }
 
-    internal sealed class CombinedProjection<TDocument> : Projection<TDocument>
+    internal sealed class CombinedProjection<TSource> : Projection<TSource>
     {
-        private readonly List<Projection<TDocument>> _projections;
+        private readonly List<Projection<TSource>> _projections;
 
-        public CombinedProjection(IEnumerable<Projection<TDocument>> projections)
+        public CombinedProjection(IEnumerable<Projection<TSource>> projections)
         {
             _projections = Ensure.IsNotNull(projections, "projections").ToList();
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var document = new BsonDocument();
-            foreach(var projection in _projections)
-            {
-                var renderedProjection = projection.Render(documentSerializer, serializerRegistry);
 
-                foreach(var element in renderedProjection.Elements)
+            foreach (var projection in _projections)
+            {
+                var renderedProjection = projection.Render(sourceSerializer, serializerRegistry);
+
+                foreach (var element in renderedProjection.Elements)
                 {
                     // last one wins
                     document.Remove(element.Name);
@@ -494,63 +495,65 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class ElementMatchProjection<TDocument, TField, TItem> : Projection<TDocument>
+    internal sealed class ElementMatchProjection<TSource, TField, TItem> : Projection<TSource>
     {
-        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly FieldName<TSource, TField> _fieldName;
         private readonly Filter<TItem> _filter;
 
-        public ElementMatchProjection(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        public ElementMatchProjection(FieldName<TSource, TField> fieldName, Filter<TItem> filter)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _filter = filter;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
-            var arraySerializer = renderedField.Serializer as IBsonArraySerializer;
+            var renderedFieldName = _fieldName.Render(sourceSerializer, serializerRegistry);
+
+            var arraySerializer = renderedFieldName.FieldSerializer as IBsonArraySerializer;
             if (arraySerializer == null)
             {
-                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedFieldName.FieldName);
                 throw new InvalidOperationException(message);
             }
             var itemSerializer = (IBsonSerializer<TItem>)arraySerializer.GetItemSerializationInfo().Serializer;
+
             var renderedFilter = _filter.Render(itemSerializer, serializerRegistry);
 
-            return new BsonDocument(renderedField.FieldName, new BsonDocument("$elemMatch", renderedFilter));
+            return new BsonDocument(renderedFieldName.FieldName, new BsonDocument("$elemMatch", renderedFilter));
         }
     }
 
-    internal sealed class FirstElemProjection<TDocument> : Projection<TDocument>
+    internal sealed class PositionalOperatorProjection<TSource> : Projection<TSource>
     {
-        private readonly FieldName<TDocument> _fieldName;
+        private readonly FieldName<TSource> _fieldName;
 
-        public FirstElemProjection(FieldName<TDocument> fieldName)
+        public PositionalOperatorProjection(FieldName<TSource> fieldName)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedFieldName = _fieldName.Render(sourceSerializer, serializerRegistry);
             return new BsonDocument(renderedFieldName + ".$", 1);
         }
     }
 
-    internal sealed class SingleFieldProjection<TDocument> : Projection<TDocument>
+    internal sealed class SingleFieldProjection<TSource> : Projection<TSource>
     {
-        private readonly FieldName<TDocument> _fieldName;
+        private readonly FieldName<TSource> _fieldName;
         private readonly BsonValue _value;
 
-        public SingleFieldProjection(FieldName<TDocument> fieldName, BsonValue value)
+        public SingleFieldProjection(FieldName<TSource> fieldName, BsonValue value)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _value = Ensure.IsNotNull(value, "value");
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedFieldName = _fieldName.Render(sourceSerializer, serializerRegistry);
             return new BsonDocument(renderedFieldName, _value);
         }
     }

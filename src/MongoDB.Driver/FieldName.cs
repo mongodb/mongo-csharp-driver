@@ -30,17 +30,17 @@ namespace MongoDB.Driver
     public sealed class RenderedFieldName<TField>
     {
         private readonly string _fieldName;
-        private readonly IBsonSerializer<TField> _serializer;
+        private readonly IBsonSerializer<TField> _fieldSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderedFieldName{TField}" /> class.
         /// </summary>
-        /// <param name="fieldName">The document.</param>
-        /// <param name="serializer">The serializer.</param>
-        public RenderedFieldName(string fieldName, IBsonSerializer<TField> serializer)
+        /// <param name="fieldName">The field name.</param>
+        /// <param name="fieldSerializer">The field serializer.</param>
+        public RenderedFieldName(string fieldName, IBsonSerializer<TField> fieldSerializer)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _fieldSerializer = Ensure.IsNotNull(fieldSerializer, "fieldSerializer");
         }
 
         /// <summary>
@@ -52,11 +52,11 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the serializer.
+        /// Gets the field serializer.
         /// </summary>
-        public IBsonSerializer<TField> Serializer
+        public IBsonSerializer<TField> FieldSerializer
         {
-            get { return _serializer; }
+            get { return _fieldSerializer; }
         }
     }
 
@@ -158,7 +158,7 @@ namespace MongoDB.Driver
             var parameterExpression = new SerializationExpression(_expression.Parameters[0], parameterSerializationInfo);
             binder.RegisterParameterReplacement(_expression.Parameters[0], parameterExpression);
             var bound = binder.Bind(_expression.Body) as ISerializationExpression;
-            if(bound == null)
+            if (bound == null)
             {
                 var message = string.Format("Unable to determine the serialization information for {0}.", _expression);
                 throw new InvalidOperationException(message);
@@ -244,17 +244,17 @@ namespace MongoDB.Driver
     public sealed class StringFieldName<TDocument, TField> : FieldName<TDocument, TField>
     {
         private readonly string _fieldName;
-        private readonly IBsonSerializer<TField> _serializer;
+        private readonly IBsonSerializer<TField> _fieldSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StringFieldName{TDocument, TField}" /> class.
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
-        /// <param name="serializer">The serializer.</param>
-        public StringFieldName(string fieldName, IBsonSerializer<TField> serializer = null)
+        /// <param name="fieldSerializer">The field serializer.</param>
+        public StringFieldName(string fieldName, IBsonSerializer<TField> fieldSerializer = null)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
-            _serializer = serializer;
+            _fieldSerializer = fieldSerializer;
         }
 
         /// <inheritdoc />
@@ -265,7 +265,7 @@ namespace MongoDB.Driver
 
             return new RenderedFieldName<TField>(
                 _fieldName,
-                _serializer ?? serializerRegistry.GetSerializer<TField>());
+                _fieldSerializer ?? serializerRegistry.GetSerializer<TField>());
         }
     }
 }

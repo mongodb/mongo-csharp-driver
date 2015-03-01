@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Linq.Translators
                     break;
                 case ExpressionType.Extension:
                     var mongoExpression = expression as MongoExpression;
-                    if(mongoExpression != null)
+                    if (mongoExpression != null)
                     {
                         switch(mongoExpression.MongoNodeType)
                         {
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Linq.Translators
                     var body = PrefixedFieldRenamer.Rename(lambda.Body, serializationInfo.ElementName);
                     var filter = __builder.ElemMatch(serializationInfo.ElementName, BuildFilter(body));
 
-                    if(!(itemSerializationInfo.Serializer is IBsonDocumentSerializer))
+                    if (!(itemSerializationInfo.Serializer is IBsonDocumentSerializer))
                     {
                         filter = new ScalarElementMatchFilter<BsonDocument>(filter);
                     }
@@ -1389,7 +1389,7 @@ namespace MongoDB.Driver.Linq.Translators
         private bool TryGetSerializationInfo(Expression expression, out BsonSerializationInfo serializationInfo)
         {
             var serializationExpression = expression as ISerializationExpression;
-            if(serializationExpression != null)
+            if (serializationExpression != null)
             {
                 serializationInfo = serializationExpression.SerializationInfo;
                 return true;
@@ -1402,7 +1402,7 @@ namespace MongoDB.Driver.Linq.Translators
         private BsonSerializationInfo GetSerializationInfo(Expression expression)
         {
             BsonSerializationInfo serializationInfo;
-            if(!TryGetSerializationInfo(expression, out serializationInfo))
+            if (!TryGetSerializationInfo(expression, out serializationInfo))
             {
                 throw new InvalidOperationException(string.Format("{0} is not supported.", expression));
             }

@@ -25,21 +25,21 @@ namespace MongoDB.Driver
     /// <summary>
     /// A rendered command.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class RenderedCommand<TDocument>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    public sealed class RenderedCommand<TResult>
     {
-        private readonly BsonDocument _command;
-        private readonly IBsonSerializer<TDocument> _serializer;
+        private readonly BsonDocument _document;
+        private readonly IBsonSerializer<TResult> _resultSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderedCommand{TDocument}" /> class.
+        /// Initializes a new instance of the <see cref="RenderedCommand{TResult}" /> class.
         /// </summary>
         /// <param name="document">The document.</param>
-        /// <param name="serializer">The serializer.</param>
-        public RenderedCommand(BsonDocument document, IBsonSerializer<TDocument> serializer)
+        /// <param name="resultSerializer">The result serializer.</param>
+        public RenderedCommand(BsonDocument document, IBsonSerializer<TResult> resultSerializer)
         {
-            _command = document;
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _document = Ensure.IsNotNull(document, "document");
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
         }
 
         /// <summary>
@@ -47,15 +47,15 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument Document
         {
-            get { return _command; }
+            get { return _document; }
         }
 
         /// <summary>
-        /// Gets the serializer.
+        /// Gets the result serializer.
         /// </summary>
-        public IBsonSerializer<TDocument> Serializer
+        public IBsonSerializer<TResult> ResultSerializer
         {
-            get { return _serializer; }
+            get { return _resultSerializer; }
         }
     }
 
@@ -69,7 +69,7 @@ namespace MongoDB.Driver
         /// Renders the command to a <see cref="RenderedCommand{TResult}" />.
         /// </summary>
         /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="BsonDocument" />.</returns>
+        /// <returns>A <see cref="RenderedCommand{TResult}" />.</returns>
         public abstract RenderedCommand<TResult> Render(IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Command{TResult}"/>.
         /// </summary>
-        /// <param name="json">The json.</param>
+        /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
@@ -143,7 +143,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A <see cref="String" /> based command.
+    /// A JSON <see cref="String" /> based command.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public sealed class JsonCommand<TResult> : Command<TResult>
@@ -158,8 +158,8 @@ namespace MongoDB.Driver
         /// <param name="resultSerializer">The result serializer.</param>
         public JsonCommand(string json, IBsonSerializer<TResult> resultSerializer = null)
         {
-            _json = Ensure.IsNotNull(json, "json");
-            _resultSerializer = resultSerializer;
+            _json = Ensure.IsNotNullOrEmpty(json, "json");
+            _resultSerializer = resultSerializer; // can be null
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A <see cref="Object" /> based command.
+    /// An <see cref="Object" /> based command.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public sealed class ObjectCommand<TResult> : Command<TResult>

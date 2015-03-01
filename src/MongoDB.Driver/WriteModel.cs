@@ -51,7 +51,7 @@ namespace MongoDB.Driver
 
         private static WriteModel<TDocument> ConvertDeleteRequest(DeleteRequest request)
         {
-            if(request.Limit == 1)
+            if (request.Limit == 1)
             {
                 return new DeleteOneModel<TDocument>(UnwrapFilter(request.Filter));
             }
@@ -67,7 +67,7 @@ namespace MongoDB.Driver
 
         private static WriteModel<TDocument> ConvertUpdateRequest(UpdateRequest request)
         {
-            if(request.IsMulti)
+            if (request.IsMulti)
             {
                 return new UpdateManyModel<TDocument>(UnwrapFilter(request.Filter), UnwrapUpdate(request.Update))
                 {
@@ -76,7 +76,7 @@ namespace MongoDB.Driver
             }
 
             var firstElement = request.Update.GetElement(0).Name;
-            if(firstElement.StartsWith("$"))
+            if (firstElement.StartsWith("$"))
             {
                 return new UpdateOneModel<TDocument>(UnwrapFilter(request.Filter), UnwrapUpdate(request.Update))
                 {
@@ -100,7 +100,7 @@ namespace MongoDB.Driver
         private static Filter<TDocument> UnwrapFilter(BsonDocument filter)
         {
             var wrapper = filter as BsonDocumentWrapper;
-            if(wrapper != null)
+            if (wrapper != null)
             {
                 if (wrapper.Wrapped is BsonDocument)
                 {

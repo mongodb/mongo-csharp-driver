@@ -1141,7 +1141,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var filterDocument = PredicateTranslator.Translate(filter, serializer, BsonSerializer.SerializerRegistry);
 
-            using (var cursor = _collection.FindAsync<BsonDocument>(filterDocument).GetAwaiter().GetResult())
+            using (var cursor = _collection.FindAsync<TDocument>(filterDocument).GetAwaiter().GetResult())
             {
                 var list = cursor.ToListAsync().GetAwaiter().GetResult();
                 filterDocument.Should().Be(expectedFilter);

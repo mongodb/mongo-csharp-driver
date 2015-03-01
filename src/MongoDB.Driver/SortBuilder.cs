@@ -27,7 +27,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Extension methods for Sort.
     /// </summary>
-    public static class SortExtensionMethods
+    public static class SortExtensions
     {
         private static class BuilderCache<TDocument>
         {
@@ -35,79 +35,79 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an ascending sort.
+        /// Combines an existing sort with an ascending field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="sort">The sort.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// An ascending sort.
+        /// A combined sort.
         /// </returns>
-        public static Sort<TDocument> Ascending<TDocument>(this Sort<TDocument> source, FieldName<TDocument> fieldName)
+        public static Sort<TDocument> Ascending<TDocument>(this Sort<TDocument> sort, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.Ascending(fieldName));
+            return builder.Combine(sort, builder.Ascending(fieldName));
         }
 
         /// <summary>
-        /// Creates an ascending sort.
+        /// Combines an existing sort with an ascending field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="sort">The sort.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// An ascending sort.
+        /// A combined sort.
         /// </returns>
-        public static Sort<TDocument> Ascending<TDocument>(this Sort<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        public static Sort<TDocument> Ascending<TDocument>(this Sort<TDocument> sort, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.Ascending(fieldName));
+            return builder.Combine(sort, builder.Ascending(fieldName));
         }
 
         /// <summary>
-        /// Creates a descending sort.
+        /// Combines an existing sort with an descending field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="sort">The sort.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// A descending sort.
+        /// A combined sort.
         /// </returns>
-        public static Sort<TDocument> Descending<TDocument>(this Sort<TDocument> source, FieldName<TDocument> fieldName)
+        public static Sort<TDocument> Descending<TDocument>(this Sort<TDocument> sort, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.Descending(fieldName));
+            return builder.Combine(sort, builder.Descending(fieldName));
         }
 
         /// <summary>
-        /// Creates a descending sort.
+        /// Combines an existing sort with an descending field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="sort">The sort.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// A descending sort.
+        /// A combined sort.
         /// </returns>
-        public static Sort<TDocument> Descending<TDocument>(this Sort<TDocument> source, Expression<Func<TDocument, object>> fieldName)
+        public static Sort<TDocument> Descending<TDocument>(this Sort<TDocument> sort, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.Descending(fieldName));
+            return builder.Combine(sort, builder.Descending(fieldName));
         }
 
         /// <summary>
-        /// Creates a sort by the computed relevance score when using text search. The name
-        /// of the key should be the name of the projected relevence score field.
+        /// Combines an existing sort with a descending sort on the computed relevance score of a text search.
+        /// The field name should be the name of the projected relevance score field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="sort">The sort.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
-        /// A meta text score sort.
+        /// A combined sort.
         /// </returns>
-        public static Sort<TDocument> MetaTextScore<TDocument>(this Sort<TDocument> source, string fieldName)
+        public static Sort<TDocument> MetaTextScore<TDocument>(this Sort<TDocument> sort, string fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(source, builder.MetaTextScore(fieldName));
+            return builder.Combine(sort, builder.MetaTextScore(fieldName));
         }
     }
 
@@ -154,7 +154,7 @@ namespace MongoDB.Driver
         /// <returns>A combined sort.</returns>
         public Sort<TDocument> Combine(IEnumerable<Sort<TDocument>> sorts)
         {
-            return new CombineSort<TDocument>(sorts);
+            return new CombinedSort<TDocument>(sorts);
         }
 
         /// <summary>
@@ -178,8 +178,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a sort by the computed relevance score when using text search. The name
-        /// of the key should be the name of the projected relevence score field.
+        /// Creates a descending sort on the computed relevance score of a text search.
+        /// The name of the key should be the name of the projected relevence score field.
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A meta text score sort.</returns>
@@ -189,11 +189,11 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class CombineSort<TDocument> : Sort<TDocument>
+    internal sealed class CombinedSort<TDocument> : Sort<TDocument>
     {
         private readonly List<Sort<TDocument>> _sorts;
 
-        public CombineSort(IEnumerable<Sort<TDocument>> sorts)
+        public CombinedSort(IEnumerable<Sort<TDocument>> sorts)
         {
             _sorts = Ensure.IsNotNull(sorts, "sorts").ToList();
         }
@@ -201,11 +201,12 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var document = new BsonDocument();
-            foreach(var sort in _sorts)
+
+            foreach (var sort in _sorts)
             {
                 var renderedSort = sort.Render(documentSerializer, serializerRegistry);
 
-                foreach(var element in renderedSort.Elements)
+                foreach (var element in renderedSort.Elements)
                 {
                     // the last sort always wins, and we need to make sure that order is preserved.
                     document.Remove(element.Name);
@@ -230,7 +231,8 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+
             BsonValue value;
             switch(_direction)
             {
@@ -244,8 +246,7 @@ namespace MongoDB.Driver
                     throw new InvalidOperationException("Unknown value for " + typeof(SortDirection) + ".");
             }
 
-            return new BsonDocument(renderedField, value);
+            return new BsonDocument(renderedFieldName, value);
         }
     }
-
 }

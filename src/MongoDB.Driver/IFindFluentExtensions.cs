@@ -30,129 +30,129 @@ namespace MongoDB.Driver
     public static class IFindFluentExtensions
     {
         /// <summary>
-        /// Projections the specified source.
+        /// Projects the result.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="find">The fluent find.</param>
         /// <param name="projection">The projection.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IFindFluent<TDocument, BsonDocument> Projection<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Projection<TDocument, BsonDocument> projection)
+        public static IFindFluent<TDocument, BsonDocument> Project<TDocument, TResult>(this IFindFluent<TDocument, TResult> find, Projection<TDocument, BsonDocument> projection)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(find, "find");
             Ensure.IsNotNull(projection, "projection");
 
-            return source.Projection<BsonDocument>(projection);
+            return find.Project<BsonDocument>(projection);
         }
 
         /// <summary>
-        /// Projections the specified source.
+        /// Projects the result.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="find">The fluent find.</param>
         /// <param name="projection">The projection.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IFindFluent<TDocument, TNewResult> Projection<TDocument, TResult, TNewResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TDocument, TNewResult>> projection)
+        public static IFindFluent<TDocument, TNewResult> Project<TDocument, TResult, TNewResult>(this IFindFluent<TDocument, TResult> find, Expression<Func<TDocument, TNewResult>> projection)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(find, "find");
             Ensure.IsNotNull(projection, "projection");
 
-            return source.Projection<TNewResult>(new FindExpressionProjection<TDocument, TNewResult>(projection));
+            return find.Project<TNewResult>(new FindExpressionProjection<TDocument, TNewResult>(projection));
         }
 
         /// <summary>
-        /// Sorts the by.
+        /// Sorts the results by an ascending field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="find">The fluent find.</param>
         /// <param name="field">The field.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IOrderedFindFluent<TDocument, TResult> SortBy<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TDocument, object>> field)
+        public static IOrderedFindFluent<TDocument, TResult> SortBy<TDocument, TResult>(this IFindFluent<TDocument, TResult> find, Expression<Func<TDocument, object>> field)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(find, "find");
             Ensure.IsNotNull(field, "field");
 
             // We require an implementation of IFindFluent<TDocument, TResult> 
             // to also implement IOrderedFindFluent<TDocument, TResult>
-            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(
+            return (IOrderedFindFluent<TDocument, TResult>)find.Sort(
                 new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending));
         }
 
         /// <summary>
-        /// Sorts the by descending.
+        /// Sorts the results by a descending field.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="find">The fluent find.</param>
         /// <param name="field">The field.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IOrderedFindFluent<TDocument, TResult> SortByDescending<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, Expression<Func<TDocument, object>> field)
+        public static IOrderedFindFluent<TDocument, TResult> SortByDescending<TDocument, TResult>(this IFindFluent<TDocument, TResult> find, Expression<Func<TDocument, object>> field)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(find, "find");
             Ensure.IsNotNull(field, "field");
 
             // We require an implementation of IFindFluent<TDocument, TResult> 
             // to also implement IOrderedFindFluent<TDocument, TResult>
-            return (IOrderedFindFluent<TDocument, TResult>)source.Sort(
+            return (IOrderedFindFluent<TDocument, TResult>)find.Sort(
                 new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending));
         }
 
         /// <summary>
-        /// Thens the by.
+        /// Adds an ascending field to the existing sort.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="find">The fluent find.</param>
         /// <param name="field">The field.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IOrderedFindFluent<TDocument, TResult> ThenBy<TDocument, TResult>(this IOrderedFindFluent<TDocument, TResult> source, Expression<Func<TDocument, object>> field)
+        public static IOrderedFindFluent<TDocument, TResult> ThenBy<TDocument, TResult>(this IOrderedFindFluent<TDocument, TResult> find, Expression<Func<TDocument, object>> field)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(find, "find");
             Ensure.IsNotNull(field, "field");
 
-            source.Options.Sort = new SortBuilder<TDocument>().Combine(
-                source.Options.Sort,
+            find.Options.Sort = new SortBuilder<TDocument>().Combine(
+                find.Options.Sort,
                 new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending));
 
-            return source;
+            return find;
         }
 
         /// <summary>
-        /// Thens the by descending.
+        /// Adds a descending field to the existing sort.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="find">The fluent find.</param>
         /// <param name="field">The field.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IOrderedFindFluent<TDocument, TResult> ThenByDescending<TDocument, TResult>(this IOrderedFindFluent<TDocument, TResult> source, Expression<Func<TDocument, object>> field)
+        public static IOrderedFindFluent<TDocument, TResult> ThenByDescending<TDocument, TResult>(this IOrderedFindFluent<TDocument, TResult> find, Expression<Func<TDocument, object>> field)
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(find, "find");
             Ensure.IsNotNull(field, "field");
 
-            source.Options.Sort = new SortBuilder<TDocument>().Combine(
-                source.Options.Sort,
+            find.Options.Sort = new SortBuilder<TDocument>().Combine(
+                find.Options.Sort,
                 new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending));
 
-            return source;
+            return find;
         }
 
         /// <summary>
-        /// Firsts the asynchronous.
+        /// Get the first result.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="find">The fluent find.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The fluent find interface.</returns>
-        public async static Task<TResult> FirstAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>A Task whose result is the first result.</returns>
+        public async static Task<TResult> FirstAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> find, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(find, "find");
 
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            using (var cursor = await find.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -166,18 +166,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Firsts the or default asynchronous.
+        /// Get the first result or null.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="find">The fluent find.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The fluent find interface.</returns>
-        public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>A Task whose result is the first result or null.</returns>
+        public async static Task<TResult> FirstOrDefaultAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> find, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(find, "find");
 
-            using (var cursor = await source.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            using (var cursor = await find.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -191,18 +191,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Singles the asynchronous.
+        /// Gets a single result.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="find">The fluent find.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The fluent find interface.</returns>
-        public async static Task<TResult> SingleAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>A Task whose result is the single result.</returns>
+        public async static Task<TResult> SingleAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> find, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(find, "find");
 
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            using (var cursor = await find.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -216,18 +216,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Singles the or default asynchronous.
+        /// Gets a single result or null.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="source">The source.</param>
+        /// <param name="find">The fluent find.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The fluent find interface.</returns>
-        public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>A Task whose result is the single result or null.</returns>
+        public async static Task<TResult> SingleOrDefaultAsync<TDocument, TResult>(this IFindFluent<TDocument, TResult> find, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Ensure.IsNotNull(source, "source");
+            Ensure.IsNotNull(find, "find");
 
-            using (var cursor = await source.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            using (var cursor = await find.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {

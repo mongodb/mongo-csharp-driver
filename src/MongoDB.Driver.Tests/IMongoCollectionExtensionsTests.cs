@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Tests
             };
 
             var fluent = subject.Find(filter, options)
-                .Projection(projection)
+                .Project(projection)
                 .Sort(sort)
                 .Limit(30)
                 .Skip(40);
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Tests
             };
 
             var fluent = subject.Find(x => x.Age == 1, options)
-                .Projection(projection)
+                .Project(projection)
                 .Sort(sort)
                 .Limit(30)
                 .Skip(40);

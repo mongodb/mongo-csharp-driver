@@ -29,10 +29,10 @@ namespace MongoDB.Driver.Tests
     public class IFindFluentExtensionsTests
     {
         [Test]
-        public void Projection_should_generate_the_correct_fields_when_a_BsonDocument_is_used()
+        public void Project_should_generate_the_correct_fields_when_a_BsonDocument_is_used()
         {
             var subject = CreateSubject()
-                .Projection(BsonDocument.Parse("{_id: 1, Tags: 1}"));
+                .Project(BsonDocument.Parse("{_id: 1, Tags: 1}"));
 
             var expectedProjection = BsonDocument.Parse("{_id: 1, Tags: 1}");
 
@@ -40,10 +40,10 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void Projection_should_generate_the_correct_fields_when_a_string_is_used()
+        public void Project_should_generate_the_correct_fields_when_a_string_is_used()
         {
             var subject = CreateSubject()
-                .Projection("{_id: 1, Tags: 1}");
+                .Project("{_id: 1, Tags: 1}");
 
             var expectedProjection = BsonDocument.Parse("{_id: 1, Tags: 1}");
 
@@ -51,10 +51,10 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void Projection_should_generate_the_correct_fields_and_assign_the_correct_result_serializer()
+        public void Project_should_generate_the_correct_fields_and_assign_the_correct_result_serializer()
         {
             var subject = CreateSubject()
-                .Projection(x => x.FirstName + " " + x.LastName);
+                .Project(x => x.FirstName + " " + x.LastName);
 
             var expectedProjection = BsonDocument.Parse("{FirstName: 1, LastName: 1, _id: 0}");
 

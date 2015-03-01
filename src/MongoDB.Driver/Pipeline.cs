@@ -24,21 +24,21 @@ namespace MongoDB.Driver
     /// <summary>
     /// A rendered pipeline.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class RenderedPipeline<TDocument>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
+    public class RenderedPipeline<TOutput>
     {
         private List<BsonDocument> _documents;
-        private IBsonSerializer<TDocument> _serializer;
+        private IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderedPipeline{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="RenderedPipeline{TOutput}"/> class.
         /// </summary>
         /// <param name="documents">The pipeline.</param>
-        /// <param name="serializer">The serializer.</param>
-        public RenderedPipeline(IEnumerable<BsonDocument> documents, IBsonSerializer<TDocument> serializer)
+        /// <param name="outputSerializer">The output serializer.</param>
+        public RenderedPipeline(IEnumerable<BsonDocument> documents, IBsonSerializer<TOutput> outputSerializer)
         {
-            _documents = Ensure.IsNotNull(documents, "pipeline").ToList();
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _documents = Ensure.IsNotNull(documents, "documents").ToList();
+            _outputSerializer = Ensure.IsNotNull(outputSerializer, "outputSerializer");
         }
 
         /// <summary>
@@ -52,89 +52,89 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the serializer.
         /// </summary>
-        public IBsonSerializer<TDocument> Serializer
+        public IBsonSerializer<TOutput> OutputSerializer
         {
-            get { return _serializer; }
+            get { return _outputSerializer; }
         }
     }
 
     /// <summary>
     /// Base class for a pipeline.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public abstract class Pipeline<TDocument, TResult>
+    /// <typeparam name="TInput">The type of the input.</typeparam>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
+    public abstract class Pipeline<TInput, TOutput>
     {
         /// <summary>
-        /// Renders the specified serializer.
+        /// Renders the pipeline.
         /// </summary>
-        /// <param name="serializer">The serializer.</param>
+        /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="RenderedPipeline{TDocument}"/></returns>
-        public abstract RenderedPipeline<TResult> Render(IBsonSerializer<TDocument> serializer, IBsonSerializerRegistry serializerRegistry);
+        /// <returns>A <see cref="RenderedPipeline{TOutput}"/></returns>
+        public abstract RenderedPipeline<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="T:IPipelineStage[]"/> to <see cref="Pipeline{TDocument, TResult}"/>.
+        /// Performs an implicit conversion from <see cref="T:IPipelineStage[]"/> to <see cref="Pipeline{TInput, TOutput}"/>.
         /// </summary>
         /// <param name="stages">The stages.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Pipeline<TDocument, TResult>(IPipelineStage[] stages)
+        public static implicit operator Pipeline<TInput, TOutput>(IPipelineStage[] stages)
         {
             if (stages == null)
             {
                 return null;
             }
 
-            return new PipelineStagePipeline<TDocument, TResult>(stages);
+            return new PipelineStagePipeline<TInput, TOutput>(stages);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="List{IPipelineStage}"/> to <see cref="Pipeline{TDocument, TResult}"/>.
+        /// Performs an implicit conversion from <see cref="List{IPipelineStage}"/> to <see cref="Pipeline{TInput, TOutput}"/>.
         /// </summary>
         /// <param name="stages">The stages.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Pipeline<TDocument, TResult>(List<IPipelineStage> stages)
+        public static implicit operator Pipeline<TInput, TOutput>(List<IPipelineStage> stages)
         {
             if (stages == null)
             {
                 return null;
             }
 
-            return new PipelineStagePipeline<TDocument, TResult>(stages);
+            return new PipelineStagePipeline<TInput, TOutput>(stages);
         }
     }
 
     /// <summary>
-    /// A pipeline composed of <see cref="PipelineStage{TDocument, TResult}" />.
+    /// A pipeline composed of instances of <see cref="IPipelineStage" />.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class PipelineStagePipeline<TDocument, TResult> : Pipeline<TDocument, TResult>
+    /// <typeparam name="TInput">The type of the input.</typeparam>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
+    public sealed class PipelineStagePipeline<TInput, TOutput> : Pipeline<TInput, TOutput>
     {
         private readonly IList<IPipelineStage> _stages;
-        private readonly IBsonSerializer<TResult> _resultSerializer;
+        private readonly IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PipelineStagePipeline{TDocument, TResult}"/> class.
+        /// Initializes a new instance of the <see cref="PipelineStagePipeline{TInput, TOutput}"/> class.
         /// </summary>
         /// <param name="stages">The stages.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        public PipelineStagePipeline(IEnumerable<IPipelineStage> stages, IBsonSerializer<TResult> resultSerializer = null)
+        /// <param name="outputSerializer">The output serializer.</param>
+        public PipelineStagePipeline(IEnumerable<IPipelineStage> stages, IBsonSerializer<TOutput> outputSerializer = null)
         {
             _stages = Ensure.IsNotNull(stages, "stages").ToList();
-            _resultSerializer = resultSerializer;
+            _outputSerializer = outputSerializer;
         }
 
         /// <summary>
         /// Gets the serializer.
         /// </summary>
-        public IBsonSerializer<TResult> Serializer
+        public IBsonSerializer<TOutput> Serializer
         {
-            get { return _resultSerializer; }
+            get { return _outputSerializer; }
         }
 
         /// <summary>
@@ -146,20 +146,21 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedPipeline<TResult> Render(IBsonSerializer<TDocument> serializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipeline<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var pipeline = new List<BsonDocument>();
-            IBsonSerializer currentSerializer = serializer;
+
+            IBsonSerializer currentSerializer = inputSerializer;
             foreach (var stage in _stages)
             {
                 var renderedStage = stage.Render(currentSerializer, serializerRegistry);
-                currentSerializer = renderedStage.Serializer;
+                currentSerializer = renderedStage.OutputSerializer;
                 pipeline.Add(renderedStage.Document);
             }
 
-            return new RenderedPipeline<TResult>(
+            return new RenderedPipeline<TOutput>(
                 pipeline,
-                _resultSerializer ?? (currentSerializer as IBsonSerializer<TResult>) ?? serializerRegistry.GetSerializer<TResult>());
+                _outputSerializer ?? (currentSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
         }
     }
 }

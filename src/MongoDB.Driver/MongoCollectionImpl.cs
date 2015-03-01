@@ -101,7 +101,7 @@ namespace MongoDB.Driver
 
                 var findOperation = new FindOperation<TResult>(
                     new CollectionNamespace(_collectionNamespace.DatabaseNamespace, outputCollectionName),
-                    renderedPipeline.Serializer,
+                    renderedPipeline.OutputSerializer,
                     _messageEncoderSettings)
                 {
                     BatchSize = options.BatchSize,
@@ -117,7 +117,7 @@ namespace MongoDB.Driver
                 var aggregateOperation = new AggregateOperation<TResult>(
                     _collectionNamespace,
                     renderedPipeline.Documents,
-                    renderedPipeline.Serializer,
+                    renderedPipeline.OutputSerializer,
                     _messageEncoderSettings)
                 {
                     AllowDiskUse = options.AllowDiskUse,
@@ -187,7 +187,7 @@ namespace MongoDB.Driver
 
             var operation = new DistinctOperation<TField>(
                 _collectionNamespace,
-                renderedFieldName.Serializer,
+                renderedFieldName.FieldSerializer,
                 renderedFieldName.FieldName,
                 _messageEncoderSettings)
             {
@@ -203,12 +203,12 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             options = options ?? new FindOptions<TDocument, TResult>();
-            var projection = options.Projection ?? new TypeProjection<TDocument, TResult>();
+            var projection = options.Projection ?? new EntireDocumentProjection<TDocument, TResult>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOperation<TResult>(
                 _collectionNamespace,
-                renderedProjection.Serializer,
+                renderedProjection.ResultSerializer,
                 _messageEncoderSettings)
             {
                 AllowPartialResults = options.AllowPartialResults,
@@ -233,13 +233,13 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             options = options ?? new FindOneAndDeleteOptions<TDocument, TResult>();
-            var projection = options.Projection ?? new TypeProjection<TDocument, TResult>();
+            var projection = options.Projection ?? new EntireDocumentProjection<TDocument, TResult>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndDeleteOperation<TResult>(
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
-                new FindAndModifyValueDeserializer<TResult>(renderedProjection.Serializer),
+                new FindAndModifyValueDeserializer<TResult>(renderedProjection.ResultSerializer),
                 _messageEncoderSettings)
             {
                 MaxTime = options.MaxTime,
@@ -257,14 +257,14 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(replacementObject, "replacement");
 
             options = options ?? new FindOneAndReplaceOptions<TDocument, TResult>();
-            var projection = options.Projection ?? new TypeProjection<TDocument, TResult>();
+            var projection = options.Projection ?? new EntireDocumentProjection<TDocument, TResult>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndReplaceOperation<TResult>(
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 new BsonDocumentWrapper(replacementObject, _documentSerializer),
-                new FindAndModifyValueDeserializer<TResult>(renderedProjection.Serializer),
+                new FindAndModifyValueDeserializer<TResult>(renderedProjection.ResultSerializer),
                 _messageEncoderSettings)
             {
                 IsUpsert = options.IsUpsert,
@@ -283,14 +283,14 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(update, "update");
 
             options = options ?? new FindOneAndUpdateOptions<TDocument, TResult>();
-            var projection = options.Projection ?? new TypeProjection<TDocument, TResult>();
+            var projection = options.Projection ?? new EntireDocumentProjection<TDocument, TResult>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndUpdateOperation<TResult>(
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 update.Render(_documentSerializer, _settings.SerializerRegistry),
-                new FindAndModifyValueDeserializer<TResult>(renderedProjection.Serializer),
+                new FindAndModifyValueDeserializer<TResult>(renderedProjection.ResultSerializer),
                 _messageEncoderSettings)
             {
                 IsUpsert = options.IsUpsert,

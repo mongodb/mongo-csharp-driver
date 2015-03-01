@@ -133,12 +133,12 @@ namespace MongoDB.Driver
 
             if (readPreference == ReadPreference.Primary)
             {
-                var operation = new WriteCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.Serializer, messageEncoderSettings);
+                var operation = new WriteCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
                 return ExecuteWriteOperation<TResult>(operation, cancellationToken);
             }
             else
             {
-                var operation = new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.Serializer, messageEncoderSettings);
+                var operation = new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
                 return ExecuteReadOperation<TResult>(operation, readPreference, cancellationToken);
             }
         }

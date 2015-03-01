@@ -71,7 +71,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Sort{TDocument}"/>.
         /// </summary>
-        /// <param name="json">The json string.</param>
+        /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
@@ -82,7 +82,7 @@ namespace MongoDB.Driver
                 return null;
             }
 
-            return new JsonStringSort<TDocument>(json);
+            return new JsonSort<TDocument>(json);
         }
 
         /// <summary>
@@ -132,20 +132,28 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A <see cref="String" /> based sort.
+    /// A JSON <see cref="String" /> based sort.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class JsonStringSort<TDocument> : Sort<TDocument>
+    public sealed class JsonSort<TDocument> : Sort<TDocument>
     {
         private readonly string _json;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonStringSort{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="JsonSort{TDocument}"/> class.
         /// </summary>
         /// <param name="json">The json.</param>
-        public JsonStringSort(string json)
+        public JsonSort(string json)
         {
-            _json = Ensure.IsNotNull(json, "json");
+            _json = Ensure.IsNotNullOrEmpty(json, "json");
+        }
+
+        /// <summary>
+        /// Gets the json.
+        /// </summary>
+        public string Json
+        {
+            get { return _json; }
         }
 
         /// <inheritdoc />
@@ -156,7 +164,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A <see cref="Object" /> based sort.
+    /// An <see cref="Object" /> based sort.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class ObjectSort<TDocument> : Sort<TDocument>

@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     public abstract class FindFluentBase<TDocument, TResult> : IOrderedFindFluent<TDocument, TResult>
     {
         /// <inheritdoc />
-        public abstract Filter<TDocument> Filter { get; set; }
+        public abstract Filter<TDocument> Filter { get; }
 
         /// <inheritdoc />
         public abstract FindOptions<TDocument, TResult> Options { get; }
@@ -38,7 +38,7 @@ namespace MongoDB.Driver
         public abstract IFindFluent<TDocument, TResult> Limit(int? limit);
 
         /// <inheritdoc />
-        public abstract IFindFluent<TDocument, TNewResult> Projection<TNewResult>(Projection<TDocument, TNewResult> projection);
+        public abstract IFindFluent<TDocument, TNewResult> Project<TNewResult>(Projection<TDocument, TNewResult> projection);
 
         /// <inheritdoc />
         public abstract IFindFluent<TDocument, TResult> Skip(int? skip);

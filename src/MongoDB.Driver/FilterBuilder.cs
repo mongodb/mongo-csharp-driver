@@ -559,7 +559,7 @@ namespace MongoDB.Driver
         {
             var document = new BsonDocument
             {
-                { "$near", new BsonArray {x, y}},
+                { "$near", new BsonArray { x, y } },
                 { "$maxDistance", () => maxDistance.Value, maxDistance.HasValue },
                 { "$minDistance", () => minDistance.Value, minDistance.HasValue }
             };
@@ -624,7 +624,7 @@ namespace MongoDB.Driver
         {
             var document = new BsonDocument
             {
-                { "$nearSphere", new BsonArray {x, y}},
+                { "$nearSphere", new BsonArray { x, y } },
                 { "$maxDistance", () => maxDistance.Value, maxDistance.HasValue },
                 { "$minDistance", () => minDistance.Value, minDistance.HasValue }
             };
@@ -931,6 +931,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var document = new BsonDocument();
+
             foreach (var filter in _filters)
             {
                 var renderedFilter = filter.Render(documentSerializer, serializerRegistry);
@@ -1003,7 +1004,7 @@ namespace MongoDB.Driver
     internal sealed class ArrayOperatorFilter<TDocument, TField, TItem> : Filter<TDocument>
         where TField : IEnumerable<TItem>
     {
-        private string _operatorName;
+        private readonly string _operatorName;
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly IEnumerable<TItem> _values;
 
@@ -1016,11 +1017,12 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
-            var arraySerializer = renderedField.Serializer as IBsonArraySerializer;
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+
+            var arraySerializer = renderedFieldName.FieldSerializer as IBsonArraySerializer;
             if (arraySerializer == null)
             {
-                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedFieldName.FieldName);
                 throw new InvalidOperationException(message);
             }
             var itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
@@ -1030,7 +1032,7 @@ namespace MongoDB.Driver
             {
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName(renderedField.FieldName);
+                bsonWriter.WriteName(renderedFieldName.FieldName);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(_operatorName);
                 bsonWriter.WriteStartArray();
@@ -1060,17 +1062,19 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
-            var arraySerializer = renderedField.Serializer as IBsonArraySerializer;
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+
+            var arraySerializer = renderedFieldName.FieldSerializer as IBsonArraySerializer;
             if (arraySerializer == null)
             {
-                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedFieldName.FieldName);
                 throw new InvalidOperationException(message);
             }
             var itemSerializer = (IBsonSerializer<TItem>)arraySerializer.GetItemSerializationInfo().Serializer;
+
             var renderedFilter = _filter.Render(itemSerializer, serializerRegistry);
 
-            return new BsonDocument(renderedField.FieldName, new BsonDocument("$elemMatch", renderedFilter));
+            return new BsonDocument(renderedFieldName.FieldName, new BsonDocument("$elemMatch", renderedFilter));
         }
     }
 
@@ -1131,13 +1135,14 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName(renderedField);
+                bsonWriter.WriteName(renderedFieldName);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(_operatorName);
                 bsonWriter.WriteStartDocument();
@@ -1172,13 +1177,14 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName(renderedField);
+                bsonWriter.WriteName(renderedFieldName);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(_spherical ? "$nearSphere" : "$near");
                 bsonWriter.WriteStartDocument();
@@ -1215,6 +1221,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedFilter = _filter.Render(documentSerializer, serializerRegistry);
+
             if (renderedFilter.ElementCount == 1)
             {
                 return NegateSingleElementFilter(renderedFilter, renderedFilter.GetElement(0));
@@ -1309,8 +1316,8 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
-            return new BsonDocument(renderedField, new BsonDocument(_operatorName, _value));
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            return new BsonDocument(renderedFieldName, new BsonDocument(_operatorName, _value));
         }
     }
 
@@ -1329,16 +1336,17 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName(renderedField.FieldName);
+                bsonWriter.WriteName(renderedFieldName.FieldName);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(_operatorName);
-                renderedField.Serializer.Serialize(context, _value);
+                renderedFieldName.FieldSerializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
             }
@@ -1359,6 +1367,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var clauses = new BsonArray();
+
             foreach (var filter in _filters)
             {
                 var renderedFilter = filter.Render(documentSerializer, serializerRegistry);
@@ -1397,8 +1406,8 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
-            return new BsonDocument(renderedField, _value);
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            return new BsonDocument(renderedFieldName, _value);
         }
     }
 
@@ -1415,14 +1424,15 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName(renderedField.FieldName);
-                renderedField.Serializer.Serialize(context, _value);
+                bsonWriter.WriteName(renderedFieldName.FieldName);
+                renderedFieldName.FieldSerializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
             }
 
@@ -1445,8 +1455,8 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedField = _fieldName.Render(documentSerializer, serializerRegistry) + "." + _index;
-            return new BsonDocument(renderedField, new BsonDocument("$exists", _exists));
+            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry) + "." + _index;
+            return new BsonDocument(renderedFieldName, new BsonDocument("$exists", _exists));
         }
     }
 }

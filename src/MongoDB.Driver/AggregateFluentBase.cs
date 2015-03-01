@@ -22,10 +22,10 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Base class for implementors of <see cref="IAggregateFluent{TDocument}" />.
+    /// Base class for implementors of <see cref="IAggregateFluent{TResult}" />.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public abstract class AggregateFluentBase<TDocument> : IOrderedAggregateFluent<TDocument>
+    /// <typeparam name="TResult">The type of the document.</typeparam>
+    public abstract class AggregateFluentBase<TResult> : IOrderedAggregateFluent<TResult>
     {
         /// <inheritdoc />
         public abstract AggregateOptions Options { get; }
@@ -34,33 +34,33 @@ namespace MongoDB.Driver
         public abstract IList<IPipelineStage> Stages { get; }
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TResult> AppendStage<TResult>(PipelineStage<TDocument, TResult> stage);
+        public abstract IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStage<TResult, TNewResult> stage);
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TResult> Group<TResult>(Projection<TDocument, TResult> group);
+        public abstract IAggregateFluent<TNewResult> Group<TNewResult>(Projection<TResult, TNewResult> group);
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TDocument> Limit(int limit);
+        public abstract IAggregateFluent<TResult> Limit(int limit);
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TDocument> Match(Filter<TDocument> filter);
+        public abstract IAggregateFluent<TResult> Match(Filter<TResult> filter);
 
         /// <inheritdoc />
-        public abstract Task<IAsyncCursor<TDocument>> OutAsync(string collectionName, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TResult> Project<TResult>(Projection<TDocument, TResult> project);
+        public abstract IAggregateFluent<TNewResult> Project<TNewResult>(Projection<TResult, TNewResult> projection);
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TDocument> Skip(int skip);
+        public abstract IAggregateFluent<TResult> Skip(int skip);
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TDocument> Sort(Sort<TDocument> sort);
+        public abstract IAggregateFluent<TResult> Sort(Sort<TResult> sort);
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TResult> Unwind<TResult>(FieldName<TDocument> fieldName, IBsonSerializer<TResult> resultSerializer = null);
+        public abstract IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldName<TResult> fieldName, IBsonSerializer<TNewResult> resultSerializer = null);
 
         /// <inheritdoc />
-        public abstract Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken);
+        public abstract Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken);
     }
 }

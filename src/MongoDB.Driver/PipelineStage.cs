@@ -26,12 +26,12 @@ namespace MongoDB.Driver
     public interface IRenderedPipelineStage
     {
         /// <summary>
-        /// Gets the name of the stage.
+        /// Gets the name of the pipeline operator.
         /// </summary>
         /// <value>
-        /// The name of the stage.
+        /// The name of the pipeline operator.
         /// </value>
-        string StageName { get; }
+        string OperatorName { get; }
 
         /// <summary>
         /// Gets the document.
@@ -39,31 +39,31 @@ namespace MongoDB.Driver
         BsonDocument Document { get; }
 
         /// <summary>
-        /// Gets the serializer.
+        /// Gets the output serializer.
         /// </summary>
-        IBsonSerializer Serializer { get; }
+        IBsonSerializer OutputSerializer { get; }
     }
 
     /// <summary>
     /// A rendered pipeline stage.
     /// </summary>
-    public class RenderedPipelineStage<TResult> : IRenderedPipelineStage
+    public class RenderedPipelineStage<TOutput> : IRenderedPipelineStage
     {
-        private string _stageName;
+        private string _operatorName;
         private BsonDocument _document;
-        private IBsonSerializer<TResult> _serializer;
+        private IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderedPipelineStage{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="RenderedPipelineStage{TOutput}"/> class.
         /// </summary>
-        /// <param name="stageName">Name of the stage.</param>
+        /// <param name="operatorName">Name of the pipeline operator.</param>
         /// <param name="document">The document.</param>
-        /// <param name="serializer">The serializer.</param>
-        public RenderedPipelineStage(string stageName, BsonDocument document, IBsonSerializer<TResult> serializer)
+        /// <param name="outputSerializer">The output serializer.</param>
+        public RenderedPipelineStage(string operatorName, BsonDocument document, IBsonSerializer<TOutput> outputSerializer)
         {
-            _stageName = Ensure.IsNotNull(stageName, "stageName");
+            _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
             _document = Ensure.IsNotNull(document, "document");
-            _serializer = Ensure.IsNotNull(serializer, "serializer");
+            _outputSerializer = Ensure.IsNotNull(outputSerializer, "outputSerializer");
         }
 
         /// <inheritdoc />
@@ -73,23 +73,23 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the serializer.
+        /// Gets the output serializer.
         /// </summary>
-        public IBsonSerializer<TResult> Serializer
+        public IBsonSerializer<TOutput> OutputSerializer
         {
-            get { return _serializer; }
+            get { return _outputSerializer; }
         }
 
         /// <inheritdoc />
-        public string StageName
+        public string OperatorName
         {
-            get { return _stageName; }
+            get { return _operatorName; }
         }
 
         /// <inheritdoc />
-        IBsonSerializer IRenderedPipelineStage.Serializer
+        IBsonSerializer IRenderedPipelineStage.OutputSerializer
         {
-            get { return _serializer; }
+            get { return _outputSerializer; }
         }
     }
 
@@ -99,165 +99,184 @@ namespace MongoDB.Driver
     public interface IPipelineStage
     {
         /// <summary>
-        /// Gets the name of the stage.
+        /// Gets the name of the pipeline operator.
         /// </summary>
-        string StageName { get; }
+        string OperatorName { get; }
 
         /// <summary>
         /// Renders the specified document serializer.
         /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>An <see cref="IRenderedPipelineStage" /></returns>
-        IRenderedPipelineStage Render(IBsonSerializer documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        IRenderedPipelineStage Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry);
     }
 
     /// <summary>
     /// Base class for pipeline stages.
     /// </summary>
-    public abstract class PipelineStage<TDocument, TResult> : IPipelineStage
+    public abstract class PipelineStage<TInput, TOutput> : IPipelineStage
     {
         /// <inheritdoc />
-        public abstract string StageName { get; }
+        public abstract string OperatorName { get; }
 
         /// <summary>
         /// Renders the specified document serializer.
         /// </summary>
-        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="RenderedPipelineStage{TResult}" /></returns>
-        public abstract RenderedPipelineStage<TResult> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        /// <returns>A <see cref="RenderedPipelineStage{TOutput}" /></returns>
+        public abstract RenderedPipelineStage<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="PipelineStage{TDocument, TResult}"/>.
+        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="PipelineStage{TInput, TOutput}"/>.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator PipelineStage<TDocument, TResult>(BsonDocument document)
+        public static implicit operator PipelineStage<TInput, TOutput>(BsonDocument document)
         {
             if (document == null)
             {
                 return null;
             }
 
-            return new BsonDocumentPipelineStage<TDocument, TResult>(document);
+            return new BsonDocumentPipelineStage<TInput, TOutput>(document);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="PipelineStage{TDocument, TResult}" />.
+        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="PipelineStage{TInput, TOutput}" />.
         /// </summary>
-        /// <param name="json">The json string.</param>
+        /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator PipelineStage<TDocument, TResult>(string json)
+        public static implicit operator PipelineStage<TInput, TOutput>(string json)
         {
             if (json == null)
             {
                 return null;
             }
 
-            return new JsonStringStage<TDocument, TResult>(json);
+            return new JsonPipelineStage<TInput, TOutput>(json);
         }
 
         /// <inheritdoc />
-        IRenderedPipelineStage IPipelineStage.Render(IBsonSerializer documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        IRenderedPipelineStage IPipelineStage.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render((IBsonSerializer<TDocument>)documentSerializer, serializerRegistry);
+            return Render((IBsonSerializer<TInput>)inputSerializer, serializerRegistry);
         }
     }
 
     /// <summary>
     /// A <see cref="BsonDocument"/> based stage.
     /// </summary>
-    public sealed class BsonDocumentPipelineStage<TDocument, TResult> : PipelineStage<TDocument, TResult>
+    public sealed class BsonDocumentPipelineStage<TInput, TOutput> : PipelineStage<TInput, TOutput>
     {
         private readonly BsonDocument _document;
-        private readonly IBsonSerializer<TResult> _resultSerializer;
+        private readonly IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentPipelineStage{TDocument, TResult}"/> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentPipelineStage{TInput, TOutput}"/> class.
         /// </summary>
         /// <param name="document">The document.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        public BsonDocumentPipelineStage(BsonDocument document, IBsonSerializer<TResult> resultSerializer = null)
+        /// <param name="outputSerializer">The output serializer.</param>
+        public BsonDocumentPipelineStage(BsonDocument document, IBsonSerializer<TOutput> outputSerializer = null)
         {
             _document = Ensure.IsNotNull(document, "document");
-            _resultSerializer = resultSerializer;
+            _outputSerializer = outputSerializer;
         }
 
         /// <inheritdoc />
-        public override string StageName
+        public override string OperatorName
         {
             get { return _document.GetElement(0).Name; }
         }
 
         /// <inheritdoc />
-        public override RenderedPipelineStage<TResult> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipelineStage<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return new RenderedPipelineStage<TResult>(
-                StageName,
+            return new RenderedPipelineStage<TOutput>(
+                OperatorName,
                 _document,
-                _resultSerializer ?? (documentSerializer as IBsonSerializer<TResult>) ?? serializerRegistry.GetSerializer<TResult>());
+                _outputSerializer ?? (inputSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
         }
     }
 
     /// <summary>
-    /// A <see cref="String"/> based stage.
+    /// A JSON <see cref="String"/> based pipeline stage.
     /// </summary>
-    public sealed class JsonStringStage<TDocument, TResult> : PipelineStage<TDocument, TResult>
+    public sealed class JsonPipelineStage<TInput, TOutput> : PipelineStage<TInput, TOutput>
     {
         private readonly BsonDocument _document;
-        private readonly IBsonSerializer<TResult> _resultSerializer;
+        private readonly string _json;
+        private readonly IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonStringStage{TDocument, TResult}" /> class.
+        /// Initializes a new instance of the <see cref="JsonPipelineStage{TInput, TOutput}" /> class.
         /// </summary>
         /// <param name="json">The json.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        public JsonStringStage(string json, IBsonSerializer<TResult> resultSerializer = null)
+        /// <param name="outputSerializer">The output serializer.</param>
+        public JsonPipelineStage(string json, IBsonSerializer<TOutput> outputSerializer = null)
         {
-            _document = BsonDocument.Parse(Ensure.IsNotNull(json, "json"));
-            _resultSerializer = resultSerializer;
+            _json = Ensure.IsNotNullOrEmpty(json, "json");
+            _outputSerializer = outputSerializer;
+
+            _document = BsonDocument.Parse(json);
+        }
+
+        /// <summary>
+        /// Gets the json.
+        /// </summary>
+        public string Json
+        {
+            get { return _json; }
         }
 
         /// <inheritdoc />
-        public override string StageName
+        public override string OperatorName
         {
             get { return _document.GetElement(0).Name; }
         }
 
-        /// <inheritdoc />
-        public override RenderedPipelineStage<TResult> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        /// <summary>
+        /// Gets the output serializer.
+        /// </summary>
+        public IBsonSerializer<TOutput> OutputSerializer
         {
-            return new RenderedPipelineStage<TResult>(
-                StageName,
-                _document,
-                _resultSerializer ?? (documentSerializer as IBsonSerializer<TResult>) ?? serializerRegistry.GetSerializer<TResult>());
+            get { return _outputSerializer; }
+        }
+
+        /// <inheritdoc />
+        public override RenderedPipelineStage<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return new RenderedPipelineStage<TOutput>(
+                OperatorName,
+                BsonDocument.Parse(_json),
+                _outputSerializer ?? (inputSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
         }
     }
 
-    internal sealed class DelegatedAggregateStage<TDocument, TResult> : PipelineStage<TDocument, TResult>
+    internal sealed class DelegatedPipelineStage<TInput, TOutput> : PipelineStage<TInput, TOutput>
     {
-        private readonly string _stageName;
-        private readonly Func<IBsonSerializer<TDocument>, IBsonSerializerRegistry, RenderedPipelineStage<TResult>> _renderer;
+        private readonly string _operatorName;
+        private readonly Func<IBsonSerializer<TInput>, IBsonSerializerRegistry, RenderedPipelineStage<TOutput>> _renderer;
 
-        public DelegatedAggregateStage(string stageName, Func<IBsonSerializer<TDocument>, IBsonSerializerRegistry, RenderedPipelineStage<TResult>> renderer)
+        public DelegatedPipelineStage(string operatorName, Func<IBsonSerializer<TInput>, IBsonSerializerRegistry, RenderedPipelineStage<TOutput>> renderer)
         {
-            _stageName = stageName;
+            _operatorName = operatorName;
             _renderer = renderer;
         }
 
-        public override string StageName
+        public override string OperatorName
         {
-            get { return _stageName; }
+            get { return _operatorName; }
         }
 
-        public override RenderedPipelineStage<TResult> Render(IBsonSerializer<TDocument> serializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipelineStage<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return _renderer(serializer, serializerRegistry);
+            return _renderer(inputSerializer, serializerRegistry);
         }
     }
 }
