@@ -95,6 +95,7 @@
     <Compile Include="Linq\Translators\LegacyPredicateTranslatorTests.cs" />
     <Compile Include="Linq\Translators\TranslatorTestBase.cs" />
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
+    <Compile Include="PipelineTests.cs" />
     <Compile Include="ProjectionBuilderTests.cs" />
     <Compile Include="IndexDefinitionBuilderTests.cs" />
     <Compile Include="SortBuilderTests.cs" />

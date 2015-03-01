@@ -195,16 +195,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a filter based on the expression.
-        /// </summary>
-        /// <param name="expression">The expression.</param>
-        /// <returns>An expression filter.</returns>
-        public Filter<TDocument> Expression(Expression<Func<TDocument, bool>> expression)
-        {
-            return new ExpressionFilter<TDocument>(expression);
-        }
-
-        /// <summary>
         /// Creates a geo intersects filter.
         /// </summary>
         /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
@@ -916,6 +906,16 @@ namespace MongoDB.Driver
         public Filter<TDocument> Type(Expression<Func<TDocument, object>> fieldName, BsonType type)
         {
             return Type(new ExpressionFieldName<TDocument>(fieldName), type);
+        }
+
+        /// <summary>
+        /// Creates a filter based on the expression.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns>An expression filter.</returns>
+        public Filter<TDocument> Where(Expression<Func<TDocument, bool>> expression)
+        {
+            return new ExpressionFilter<TDocument>(expression);
         }
     }
 

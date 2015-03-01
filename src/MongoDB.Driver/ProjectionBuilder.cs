@@ -44,10 +44,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> FirstMatchingElement<TDocument>(this Projection<TDocument> projection, FieldName<TDocument> fieldName)
+        public static Projection<TDocument> ElemMatch<TDocument>(this Projection<TDocument> projection, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(projection, builder.FirstMatchingElement(fieldName));
+            return builder.Combine(projection, builder.ElemMatch(fieldName));
         }
 
         /// <summary>
@@ -59,10 +59,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> FirstMatchingElement<TDocument>(this Projection<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
+        public static Projection<TDocument> ElemMatch<TDocument>(this Projection<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(projection, builder.FirstMatchingElement(fieldName));
+            return builder.Combine(projection, builder.ElemMatch(fieldName));
         }
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A positional operator projection.</returns>
-        public Projection<TSource> FirstMatchingElement(FieldName<TSource> fieldName)
+        public Projection<TSource> ElemMatch(FieldName<TSource> fieldName)
         {
             return new PositionalOperatorProjection<TSource>(fieldName);
         }
@@ -294,9 +294,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A positional operator projection.</returns>
-        public Projection<TSource> FirstMatchingElement(Expression<Func<TSource, object>> fieldName)
+        public Projection<TSource> ElemMatch(Expression<Func<TSource, object>> fieldName)
         {
-            return FirstMatchingElement(new ExpressionFieldName<TSource>(fieldName));
+            return ElemMatch(new ExpressionFieldName<TSource>(fieldName));
         }
 
         /// <summary>

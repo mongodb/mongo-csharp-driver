@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Tests
         public void Expression()
         {
             var subject = CreateSubject<Person>();
-            Assert(subject.Expression(x => x.FirstName == "Jack" && x.Age > 10), "{fn: 'Jack', age: {$gt: 10}}");
+            Assert(subject.Where(x => x.FirstName == "Jack" && x.Age > 10), "{fn: 'Jack', age: {$gt: 10}}");
         }
 
         [Test]

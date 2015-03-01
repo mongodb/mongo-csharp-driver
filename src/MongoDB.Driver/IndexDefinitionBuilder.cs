@@ -440,8 +440,13 @@ namespace MongoDB.Driver
 
                 foreach (var element in renderedDefinition.Elements)
                 {
-                    // the last element name always wins, and we need to make sure that order is preserved.
-                    document.Remove(element.Name);
+                    if (document.Contains(element.Name))
+                    {
+                        var message = string.Format(
+                            "The index definition contains multiple values for the field '{0}'.",
+                            element.Name);
+                        throw new MongoException(message);
+                    }
                     document.Add(element);
                 }
             }
@@ -466,7 +471,7 @@ namespace MongoDB.Driver
             var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
 
             BsonValue value;
-            switch(_direction)
+            switch (_direction)
             {
                 case SortDirection.Ascending:
                     value = 1;

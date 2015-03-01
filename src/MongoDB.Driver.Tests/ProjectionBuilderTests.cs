@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.FirstMatchingElement("a"), "{'a.$': 1}");
+            Assert(subject.ElemMatch("a"), "{'a.$': 1}");
         }
 
         [Test]
@@ -108,8 +108,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.FirstMatchingElement(x => x.Pets), "{'pets.$': 1}");
-            Assert(subject.FirstMatchingElement("Pets"), "{'Pets.$': 1}");
+            Assert(subject.ElemMatch(x => x.Pets), "{'pets.$': 1}");
+            Assert(subject.ElemMatch("Pets"), "{'Pets.$': 1}");
         }
 
         [Test]

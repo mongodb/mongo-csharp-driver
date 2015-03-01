@@ -99,9 +99,19 @@ namespace MongoDB.Driver
     public interface IPipelineStage
     {
         /// <summary>
+        /// Gets the type of the input.
+        /// </summary>
+        Type InputType { get; }
+
+        /// <summary>
         /// Gets the name of the pipeline operator.
         /// </summary>
         string OperatorName { get; }
+
+        /// <summary>
+        /// Gets the type of the output.
+        /// </summary>
+        Type OutputType { get; }
 
         /// <summary>
         /// Renders the specified document serializer.
@@ -117,8 +127,24 @@ namespace MongoDB.Driver
     /// </summary>
     public abstract class PipelineStage<TInput, TOutput> : IPipelineStage
     {
+        /// <summary>
+        /// Gets the type of the input.
+        /// </summary>
+        Type IPipelineStage.InputType
+        {
+            get { return typeof(TInput); }
+        }
+
         /// <inheritdoc />
         public abstract string OperatorName { get; }
+
+        /// <summary>
+        /// Gets the type of the output.
+        /// </summary>
+        Type IPipelineStage.OutputType
+        {
+            get { return typeof(TOutput); }
+        }
 
         /// <summary>
         /// Renders the specified document serializer.

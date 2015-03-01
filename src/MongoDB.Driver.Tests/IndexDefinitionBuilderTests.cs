@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -62,7 +63,9 @@ namespace MongoDB.Driver.Tests
                 "{a: 1, b: -1}",
                 subject.Descending("a"));
 
-            Assert(definition, "{b: -1, a: -1}");
+            Action act = () => Render(definition);
+            
+            act.ShouldThrow<MongoException>();
         }
 
         [Test]
@@ -83,11 +86,14 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            var sort = subject.Ascending("a")
-                .Descending("b")
+            var definition = subject.Ascending("a")
+                .Ascending("b")
+                .Descending("c")
                 .Descending("a");
 
-            Assert(sort, "{b: -1, a: -1}");
+            Action act = () => Render(definition);
+
+            act.ShouldThrow<MongoException>();
         }
 
         [Test]
@@ -181,10 +187,15 @@ namespace MongoDB.Driver.Tests
 
         private void Assert<TDocument>(IndexDefinition<TDocument> definition, string expectedJson)
         {
-            var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedSort = definition.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedSort = Render<TDocument>(definition);
 
             renderedSort.Should().Be(expectedJson);
+        }
+
+        private BsonDocument Render<TDocument>(IndexDefinition<TDocument> definition)
+        {
+            var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
+            return definition.Render(documentSerializer, BsonSerializer.SerializerRegistry);
         }
 
         private IndexDefinitionBuilder<TDocument> CreateSubject<TDocument>()

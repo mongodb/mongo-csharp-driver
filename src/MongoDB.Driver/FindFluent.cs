@@ -39,6 +39,7 @@ namespace MongoDB.Driver
         public override Filter<TDocument> Filter
         {
             get { return _filter; }
+            set { _filter = Ensure.IsNotNull(value, "value"); }
         }
 
         public override FindOptions<TDocument, TResult> Options

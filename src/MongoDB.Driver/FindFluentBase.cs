@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     public abstract class FindFluentBase<TDocument, TResult> : IOrderedFindFluent<TDocument, TResult>
     {
         /// <inheritdoc />
-        public abstract Filter<TDocument> Filter { get; }
+        public abstract Filter<TDocument> Filter { get; set; }
 
         /// <inheritdoc />
         public abstract FindOptions<TDocument, TResult> Options { get; }

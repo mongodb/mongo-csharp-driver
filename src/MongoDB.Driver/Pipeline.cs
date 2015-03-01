@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -125,7 +126,7 @@ namespace MongoDB.Driver
         /// <param name="outputSerializer">The output serializer.</param>
         public PipelineStagePipeline(IEnumerable<IPipelineStage> stages, IBsonSerializer<TOutput> outputSerializer = null)
         {
-            _stages = Ensure.IsNotNull(stages, "stages").ToList();
+            _stages = VerifyStages(Ensure.IsNotNull(stages, "stages").ToList());
             _outputSerializer = outputSerializer;
         }
 
@@ -161,6 +162,36 @@ namespace MongoDB.Driver
             return new RenderedPipeline<TOutput>(
                 pipeline,
                 _outputSerializer ?? (currentSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
+        }
+
+        private static List<IPipelineStage> VerifyStages(List<IPipelineStage> stages)
+        {
+            var nextInputType = typeof(TInput);
+            for (int i = 0; i < stages.Count; i++)
+            {
+                if (stages[i].InputType != nextInputType)
+                {
+                    var message = string.Format(
+                        "The input type to stage[{0}] was expected to be {1}, but was {2}.",
+                        i,
+                        nextInputType,
+                        stages[i].InputType);
+                    throw new ArgumentException(message, "stages");
+                }
+
+                nextInputType = stages[i].OutputType;
+            }
+
+            if (nextInputType != typeof(TOutput))
+            {
+                var message = string.Format(
+                    "The output type to the last stage was expected to be {1}, but was {2}.",
+                    nextInputType,
+                    stages.Last().OutputType);
+                throw new ArgumentException(message, "stages");
+            }
+
+            return stages;
         }
     }
 }
