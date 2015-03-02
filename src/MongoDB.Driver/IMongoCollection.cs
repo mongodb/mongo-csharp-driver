@@ -32,7 +32,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the index manager.
         /// </summary>
-        IMongoIndexManager<TDocument> IndexManager { get; }
+        IMongoIndexManager<TDocument> Indexes { get; }
 
         /// <summary>
         /// Performs multiple write operations.

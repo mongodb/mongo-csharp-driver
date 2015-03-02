@@ -30,7 +30,7 @@ namespace MongoDB.Driver
     public abstract class MongoCollectionBase<TDocument> : ReadOnlyMongoCollectionBase<TDocument>, IMongoCollection<TDocument>
     {
         /// <inheritdoc />
-        public abstract IMongoIndexManager<TDocument> IndexManager { get; }
+        public abstract IMongoIndexManager<TDocument> Indexes { get; }
 
         /// <inheritdoc />
         public abstract Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));

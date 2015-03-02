@@ -313,63 +313,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Skip.Should().Be(options.Skip);
         }
-
-        [Test]
-        public async Task CreateIndexAsync_should_execute_the_CreateIndexesOperation()
-        {
-            var keys = new BsonDocument("x", 1);
-            var weights = new BsonDocument("y", 1);
-            var storageEngine = new BsonDocument("awesome", true);
-            var options = new CreateIndexOptions
-            {
-                Background = true,
-                Bits = 10,
-                BucketSize = 20,
-                DefaultLanguage = "en",
-                ExpireAfter = TimeSpan.FromSeconds(20),
-                LanguageOverride = "es",
-                Max = 30,
-                Min = 40,
-                Name = "awesome",
-                Sparse = false,
-                SphereIndexVersion = 50,
-                StorageEngine = storageEngine,
-                TextIndexVersion = 60,
-                Unique = true,
-                Version = 70,
-                Weights = weights
-            };
-
-            var subject = CreateSubject<BsonDocument>();
-            await subject.IndexManager.CreateIndexAsync(keys, options, CancellationToken.None);
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-
-            call.Operation.Should().BeOfType<CreateIndexesOperation>();
-            var operation = (CreateIndexesOperation)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.Requests.Count().Should().Be(1);
-            var request = operation.Requests.Single();
-            request.AdditionalOptions.Should().BeNull();
-            request.Background.Should().Be(options.Background);
-            request.Bits.Should().Be(options.Bits);
-            request.BucketSize.Should().Be(options.BucketSize);
-            request.DefaultLanguage.Should().Be(options.DefaultLanguage);
-            request.ExpireAfter.Should().Be(options.ExpireAfter);
-            request.Keys.Should().Be(keys);
-            request.LanguageOverride.Should().Be(options.LanguageOverride);
-            request.Max.Should().Be(options.Max);
-            request.Min.Should().Be(options.Min);
-            request.Name.Should().Be(options.Name);
-            request.Sparse.Should().Be(options.Sparse);
-            request.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
-            request.StorageEngine.Should().Be(storageEngine);
-            request.TextIndexVersion.Should().Be(options.TextIndexVersion);
-            request.Unique.Should().Be(options.Unique);
-            request.Version.Should().Be(options.Version);
-            request.Weights.Should().Be(weights);
-        }
-
+        
         [Test]
         public async Task DeleteManyAsync_should_execute_the_BulkMixedOperation()
         {
@@ -485,34 +429,6 @@ namespace MongoDB.Driver
             operation.FieldName.Should().Be(fieldName);
             operation.Filter.Should().Be(filter);
             operation.MaxTime.Should().Be(options.MaxTime);
-        }
-
-        [Test]
-        public async Task DropIndexAsync_should_execute_the_DropIndexOperation()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            await subject.IndexManager.DropIndexAsync("{A: 1, B: -1}", CancellationToken.None);
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-
-            call.Operation.Should().BeOfType<DropIndexOperation>();
-            var operation = (DropIndexOperation)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.IndexName.Should().Be("A_1_B_-1");
-        }
-
-        [Test]
-        public async Task DropIndexByNameAsync_should_execute_the_DropIndexOperation()
-        {
-            var subject = CreateSubject<BsonDocument>();
-            await subject.IndexManager.DropIndexByNameAsync("name", CancellationToken.None);
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-
-            call.Operation.Should().BeOfType<DropIndexOperation>();
-            var operation = (DropIndexOperation)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.IndexName.Should().Be("name");
         }
 
         [Test]
@@ -708,11 +624,96 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
         }
 
+
         [Test]
-        public async Task GetIndexesAsync_should_execute_the_ListIndexesOperation()
+        public async Task Indexes_CreateAsync_should_execute_the_CreateIndexesOperation()
+        {
+            var keys = new BsonDocument("x", 1);
+            var weights = new BsonDocument("y", 1);
+            var storageEngine = new BsonDocument("awesome", true);
+            var options = new CreateIndexOptions
+            {
+                Background = true,
+                Bits = 10,
+                BucketSize = 20,
+                DefaultLanguage = "en",
+                ExpireAfter = TimeSpan.FromSeconds(20),
+                LanguageOverride = "es",
+                Max = 30,
+                Min = 40,
+                Name = "awesome",
+                Sparse = false,
+                SphereIndexVersion = 50,
+                StorageEngine = storageEngine,
+                TextIndexVersion = 60,
+                Unique = true,
+                Version = 70,
+                Weights = weights
+            };
+
+            var subject = CreateSubject<BsonDocument>();
+            await subject.Indexes.CreateAsync(keys, options, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<CreateIndexesOperation>();
+            var operation = (CreateIndexesOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Requests.Count().Should().Be(1);
+            var request = operation.Requests.Single();
+            request.AdditionalOptions.Should().BeNull();
+            request.Background.Should().Be(options.Background);
+            request.Bits.Should().Be(options.Bits);
+            request.BucketSize.Should().Be(options.BucketSize);
+            request.DefaultLanguage.Should().Be(options.DefaultLanguage);
+            request.ExpireAfter.Should().Be(options.ExpireAfter);
+            request.Keys.Should().Be(keys);
+            request.LanguageOverride.Should().Be(options.LanguageOverride);
+            request.Max.Should().Be(options.Max);
+            request.Min.Should().Be(options.Min);
+            request.Name.Should().Be(options.Name);
+            request.Sparse.Should().Be(options.Sparse);
+            request.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
+            request.StorageEngine.Should().Be(storageEngine);
+            request.TextIndexVersion.Should().Be(options.TextIndexVersion);
+            request.Unique.Should().Be(options.Unique);
+            request.Version.Should().Be(options.Version);
+            request.Weights.Should().Be(weights);
+        }
+
+        [Test]
+        public async Task Indexes_DropAsync_should_execute_the_DropIndexOperation()
         {
             var subject = CreateSubject<BsonDocument>();
-            await subject.IndexManager.ListIndexesAsync(CancellationToken.None);
+            await subject.Indexes.DropAsync("{A: 1, B: -1}", CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<DropIndexOperation>();
+            var operation = (DropIndexOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.IndexName.Should().Be("A_1_B_-1");
+        }
+
+        [Test]
+        public async Task Indexes_DropByNameAsync_should_execute_the_DropIndexOperation()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            await subject.Indexes.DropByNameAsync("name", CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<DropIndexOperation>();
+            var operation = (DropIndexOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.IndexName.Should().Be("name");
+        }
+
+        [Test]
+        public async Task Indexes_ListAsync_should_execute_the_ListIndexesOperation()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            await subject.Indexes.ListAsync(CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 

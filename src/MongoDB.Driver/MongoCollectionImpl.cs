@@ -67,7 +67,7 @@ namespace MongoDB.Driver
             get { return _documentSerializer; }
         }
 
-        public override IMongoIndexManager<TDocument> IndexManager
+        public override IMongoIndexManager<TDocument> Indexes
         {
             get { return new MongoIndexManager(this); }
         }
@@ -534,7 +534,7 @@ namespace MongoDB.Driver
                 get { return _collection._settings; }
             }
 
-            public override Task CreateIndexAsync(IndexDefinition<TDocument> definition, CreateIndexOptions options, CancellationToken cancellationToken)
+            public override Task CreateAsync(IndexDefinition<TDocument> definition, CreateIndexOptions options, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(definition, "definition");
 
@@ -565,7 +565,7 @@ namespace MongoDB.Driver
                 return _collection.ExecuteWriteOperation(operation, cancellationToken);
             }
 
-            public override Task DropIndexAsync(IndexDefinition<TDocument> definition, CancellationToken cancellationToken)
+            public override Task DropAsync(IndexDefinition<TDocument> definition, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(definition, "definition");
 
@@ -575,7 +575,7 @@ namespace MongoDB.Driver
                 return _collection.ExecuteWriteOperation(operation, cancellationToken);
             }
 
-            public override Task DropIndexByNameAsync(string name, CancellationToken cancellationToken)
+            public override Task DropByNameAsync(string name, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNullOrEmpty(name, "name");
 
@@ -584,7 +584,7 @@ namespace MongoDB.Driver
                 return _collection.ExecuteWriteOperation(operation, cancellationToken);
             }
 
-            public override Task<IAsyncCursor<BsonDocument>> ListIndexesAsync(CancellationToken cancellationToken = default(CancellationToken))
+            public override Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
                 var op = new ListIndexesOperation(_collection._collectionNamespace, _collection._messageEncoderSettings);
                 return _collection.ExecuteReadOperation(op, ReadPreference.Primary, cancellationToken);

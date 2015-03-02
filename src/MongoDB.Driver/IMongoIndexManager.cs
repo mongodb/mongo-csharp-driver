@@ -52,7 +52,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task CreateIndexAsync(IndexDefinition<TDocument> definition, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task CreateAsync(IndexDefinition<TDocument> definition, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Drops an index.
@@ -60,21 +60,21 @@ namespace MongoDB.Driver
         /// <param name="definition">The definition.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task DropIndexAsync(IndexDefinition<TDocument> definition, CancellationToken cancellationToken = default(CancellationToken));
+        Task DropAsync(IndexDefinition<TDocument> definition, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Drops an index by it's name.
+        /// Drops an index by its name.
         /// </summary>
         /// <param name="name">The name of the index to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task DropIndexByNameAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
+        Task DropByNameAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Gets the indexes.
+        /// Lists the indexes.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<BsonDocument>> ListIndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }
