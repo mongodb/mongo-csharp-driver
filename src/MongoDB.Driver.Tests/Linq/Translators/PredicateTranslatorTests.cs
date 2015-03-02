@@ -10,6 +10,7 @@ using MongoDB.Driver.Linq.Translators;
 using FluentAssertions;
 using NUnit.Framework;
 using System.Text.RegularExpressions;
+using MongoDB.Driver.Core;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
@@ -35,13 +36,8 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
-        public void Any_with_a_predicate_on_scalars()
+        public void Any_with_a_predicate_on_scalars_legacy()
         {
-            Assert(
-                x => x.M.Any(m => m == 5),
-                1,
-                "{M: {$elemMatch: {$eq: 5}}}");
-
             Assert(
                 x => x.M.Any(m => m > 2),
                 1,
@@ -51,6 +47,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 x => x.M.Any(m => m > 2 && m < 6),
                 1,
                 "{M: {$elemMatch: {$gt: 2, $lt: 6}}}");
+        }
+
+        [Test]
+        [RequiresServer(MinimumVersion = "2.6.0")]
+        public void Any_with_a_predicate_on_scalars()
+        {
+            Assert(
+                x => x.M.Any(m => m == 5),
+                1,
+                "{M: {$elemMatch: {$eq: 5}}}");
 
             Assert(
                 x => x.C.E.I.Any(i => i.StartsWith("ick")),
