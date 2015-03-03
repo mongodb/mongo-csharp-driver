@@ -39,7 +39,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the stages.
         /// </summary>
-        IList<IPipelineStage> Stages { get; }
+        IList<IPipelineStageDefinition> Stages { get; }
 
         /// <summary>
         /// Appends the stage to the pipeline.
@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
         /// <param name="stage">The stage.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStage<TResult, TNewResult> stage);
+        IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStageDefinition<TResult, TNewResult> stage);
 
         /// <summary>
         /// Appends a group stage to the stages.

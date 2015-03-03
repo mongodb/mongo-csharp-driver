@@ -30,10 +30,10 @@ namespace MongoDB.Driver
         // fields
         private readonly IReadOnlyMongoCollection<TDocument> _collection;
         private readonly AggregateOptions _options;
-        private readonly List<IPipelineStage> _stages;
+        private readonly List<IPipelineStageDefinition> _stages;
 
         // constructors
-        public AggregateFluent(IReadOnlyMongoCollection<TDocument> collection, IEnumerable<IPipelineStage> stages, AggregateOptions options)
+        public AggregateFluent(IReadOnlyMongoCollection<TDocument> collection, IEnumerable<IPipelineStageDefinition> stages, AggregateOptions options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _stages = Ensure.IsNotNull(stages, "stages").ToList();
@@ -46,13 +46,13 @@ namespace MongoDB.Driver
             get { return _options; }
         }
 
-        public override IList<IPipelineStage> Stages
+        public override IList<IPipelineStageDefinition> Stages
         {
             get { return _stages; }
         }
 
         // methods
-        public override IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStage<TResult, TNewResult> stage)
+        public override IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStageDefinition<TResult, TNewResult> stage)
         {
             return new AggregateFluent<TDocument, TNewResult>(
                 _collection,
@@ -63,7 +63,7 @@ namespace MongoDB.Driver
         public override IAggregateFluent<TNewResult> Group<TNewResult>(Projection<TResult, TNewResult> group)
         {
             const string operatorName = "$group";
-            var stage = new DelegatedPipelineStage<TResult, TNewResult>(
+            var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
                 operatorName,
                 (s, sr) => 
                 {
@@ -82,7 +82,7 @@ namespace MongoDB.Driver
         public override IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter)
         {
             const string operatorName = "$match";
-            var stage = new DelegatedPipelineStage<TResult, TResult>(
+            var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(
                 operatorName,
                 (s, sr) => new RenderedPipelineStage<TResult>(operatorName, new BsonDocument(operatorName, filter.Render(s, sr)), s));
 
@@ -98,7 +98,7 @@ namespace MongoDB.Driver
         public override IAggregateFluent<TNewResult> Project<TNewResult>(Projection<TResult, TNewResult> projection)
         {
             const string operatorName = "$project";
-            var stage = new DelegatedPipelineStage<TResult, TNewResult>(
+            var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
                 operatorName,
                 (s, sr) =>
                 {
@@ -117,7 +117,7 @@ namespace MongoDB.Driver
         public override IAggregateFluent<TResult> Sort(Sort<TResult> sort)
         {
             const string operatorName = "$sort";
-            var stage = new DelegatedPipelineStage<TResult, TResult>(
+            var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(
                 operatorName,
                 (s, sr) => new RenderedPipelineStage<TResult>(operatorName, new BsonDocument(operatorName, sort.Render(s, sr)), s));
 
@@ -128,7 +128,7 @@ namespace MongoDB.Driver
         public override IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldName<TResult> fieldName, IBsonSerializer<TNewResult> resultSerializer)
         {
             const string operatorName = "$unwind";
-            var stage = new DelegatedPipelineStage<TResult, TNewResult>(
+            var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
                 operatorName,
                 (s, sr) => new RenderedPipelineStage<TNewResult>(
                     operatorName, new BsonDocument(
@@ -141,7 +141,7 @@ namespace MongoDB.Driver
 
         public override Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken)
         {
-            var pipeline = new PipelineStagePipeline<TDocument, TResult>(_stages);
+            var pipeline = new PipelineStagePipelineDefinition<TDocument, TResult>(_stages);
             return _collection.AggregateAsync(pipeline, _options, cancellationToken);
         }
 
@@ -150,7 +150,7 @@ namespace MongoDB.Driver
             var sb = new StringBuilder("aggregate([");
             if (_stages.Count > 0)
             {
-                var pipeline = new PipelineStagePipeline<TDocument, TResult>(_stages);
+                var pipeline = new PipelineStagePipelineDefinition<TDocument, TResult>(_stages);
                 var renderedPipeline = pipeline.Render(_collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
                 sb.Append(string.Join(", ", renderedPipeline.Documents.Select(x => x.ToString())));
             }

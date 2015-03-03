@@ -759,7 +759,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var projectionInfo = AggregateProjectionTranslator.TranslateProject<Root, TResult>(projector, serializer, BsonSerializer.SerializerRegistry);
 
             var pipelineOperator = new BsonDocument("$project", projectionInfo.Document);
-            using (var cursor = await _collection.AggregateAsync<TResult>(new PipelineStagePipeline<Root, TResult>(new PipelineStage<Root, TResult>[] { pipelineOperator }, projectionInfo.ResultSerializer)))
+            using (var cursor = await _collection.AggregateAsync<TResult>(new PipelineStagePipelineDefinition<Root, TResult>(new PipelineStageDefinition<Root, TResult>[] { pipelineOperator }, projectionInfo.ResultSerializer)))
             {
                 var list = await cursor.ToListAsync();
                 return new ProjectedResult<TResult>

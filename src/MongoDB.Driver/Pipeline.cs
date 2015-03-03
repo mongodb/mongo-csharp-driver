@@ -64,7 +64,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TInput">The type of the input.</typeparam>
     /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public abstract class Pipeline<TInput, TOutput>
+    public abstract class PipelineDefinition<TInput, TOutput>
     {
         /// <summary>
         /// Renders the pipeline.
@@ -75,56 +75,56 @@ namespace MongoDB.Driver
         public abstract RenderedPipeline<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="T:IPipelineStage[]"/> to <see cref="Pipeline{TInput, TOutput}"/>.
+        /// Performs an implicit conversion from <see cref="T:IPipelineStage[]"/> to <see cref="PipelineDefinition{TInput, TOutput}"/>.
         /// </summary>
         /// <param name="stages">The stages.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Pipeline<TInput, TOutput>(IPipelineStage[] stages)
+        public static implicit operator PipelineDefinition<TInput, TOutput>(IPipelineStageDefinition[] stages)
         {
             if (stages == null)
             {
                 return null;
             }
 
-            return new PipelineStagePipeline<TInput, TOutput>(stages);
+            return new PipelineStagePipelineDefinition<TInput, TOutput>(stages);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="List{IPipelineStage}"/> to <see cref="Pipeline{TInput, TOutput}"/>.
+        /// Performs an implicit conversion from <see cref="List{IPipelineStage}"/> to <see cref="PipelineDefinition{TInput, TOutput}"/>.
         /// </summary>
         /// <param name="stages">The stages.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Pipeline<TInput, TOutput>(List<IPipelineStage> stages)
+        public static implicit operator PipelineDefinition<TInput, TOutput>(List<IPipelineStageDefinition> stages)
         {
             if (stages == null)
             {
                 return null;
             }
 
-            return new PipelineStagePipeline<TInput, TOutput>(stages);
+            return new PipelineStagePipelineDefinition<TInput, TOutput>(stages);
         }
     }
 
     /// <summary>
-    /// A pipeline composed of instances of <see cref="IPipelineStage" />.
+    /// A pipeline composed of instances of <see cref="IPipelineStageDefinition" />.
     /// </summary>
     /// <typeparam name="TInput">The type of the input.</typeparam>
     /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public sealed class PipelineStagePipeline<TInput, TOutput> : Pipeline<TInput, TOutput>
+    public sealed class PipelineStagePipelineDefinition<TInput, TOutput> : PipelineDefinition<TInput, TOutput>
     {
-        private readonly IList<IPipelineStage> _stages;
+        private readonly IList<IPipelineStageDefinition> _stages;
         private readonly IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PipelineStagePipeline{TInput, TOutput}"/> class.
+        /// Initializes a new instance of the <see cref="PipelineStagePipelineDefinition{TInput, TOutput}"/> class.
         /// </summary>
         /// <param name="stages">The stages.</param>
         /// <param name="outputSerializer">The output serializer.</param>
-        public PipelineStagePipeline(IEnumerable<IPipelineStage> stages, IBsonSerializer<TOutput> outputSerializer = null)
+        public PipelineStagePipelineDefinition(IEnumerable<IPipelineStageDefinition> stages, IBsonSerializer<TOutput> outputSerializer = null)
         {
             _stages = VerifyStages(Ensure.IsNotNull(stages, "stages").ToList());
             _outputSerializer = outputSerializer;
@@ -141,7 +141,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the stages.
         /// </summary>
-        public IList<IPipelineStage> Stages
+        public IList<IPipelineStageDefinition> Stages
         {
             get { return _stages; }
         }
@@ -164,7 +164,7 @@ namespace MongoDB.Driver
                 _outputSerializer ?? (currentSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
         }
 
-        private static List<IPipelineStage> VerifyStages(List<IPipelineStage> stages)
+        private static List<IPipelineStageDefinition> VerifyStages(List<IPipelineStageDefinition> stages)
         {
             var nextInputType = typeof(TInput);
             for (int i = 0; i < stages.Count; i++)

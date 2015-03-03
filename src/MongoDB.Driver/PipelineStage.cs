@@ -96,7 +96,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// A pipeline stage.
     /// </summary>
-    public interface IPipelineStage
+    public interface IPipelineStageDefinition
     {
         /// <summary>
         /// Gets the type of the input.
@@ -125,12 +125,12 @@ namespace MongoDB.Driver
     /// <summary>
     /// Base class for pipeline stages.
     /// </summary>
-    public abstract class PipelineStage<TInput, TOutput> : IPipelineStage
+    public abstract class PipelineStageDefinition<TInput, TOutput> : IPipelineStageDefinition
     {
         /// <summary>
         /// Gets the type of the input.
         /// </summary>
-        Type IPipelineStage.InputType
+        Type IPipelineStageDefinition.InputType
         {
             get { return typeof(TInput); }
         }
@@ -141,7 +141,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the type of the output.
         /// </summary>
-        Type IPipelineStage.OutputType
+        Type IPipelineStageDefinition.OutputType
         {
             get { return typeof(TOutput); }
         }
@@ -155,41 +155,41 @@ namespace MongoDB.Driver
         public abstract RenderedPipelineStage<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="PipelineStage{TInput, TOutput}"/>.
+        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="PipelineStageDefinition{TInput, TOutput}"/>.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator PipelineStage<TInput, TOutput>(BsonDocument document)
+        public static implicit operator PipelineStageDefinition<TInput, TOutput>(BsonDocument document)
         {
             if (document == null)
             {
                 return null;
             }
 
-            return new BsonDocumentPipelineStage<TInput, TOutput>(document);
+            return new BsonDocumentPipelineStageDefinition<TInput, TOutput>(document);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="PipelineStage{TInput, TOutput}" />.
+        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="PipelineStageDefinition{TInput, TOutput}" />.
         /// </summary>
         /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator PipelineStage<TInput, TOutput>(string json)
+        public static implicit operator PipelineStageDefinition<TInput, TOutput>(string json)
         {
             if (json == null)
             {
                 return null;
             }
 
-            return new JsonPipelineStage<TInput, TOutput>(json);
+            return new JsonPipelineStageDefinition<TInput, TOutput>(json);
         }
 
         /// <inheritdoc />
-        IRenderedPipelineStage IPipelineStage.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        IRenderedPipelineStage IPipelineStageDefinition.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return Render((IBsonSerializer<TInput>)inputSerializer, serializerRegistry);
         }
@@ -198,17 +198,17 @@ namespace MongoDB.Driver
     /// <summary>
     /// A <see cref="BsonDocument"/> based stage.
     /// </summary>
-    public sealed class BsonDocumentPipelineStage<TInput, TOutput> : PipelineStage<TInput, TOutput>
+    public sealed class BsonDocumentPipelineStageDefinition<TInput, TOutput> : PipelineStageDefinition<TInput, TOutput>
     {
         private readonly BsonDocument _document;
         private readonly IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentPipelineStage{TInput, TOutput}"/> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentPipelineStageDefinition{TInput, TOutput}"/> class.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <param name="outputSerializer">The output serializer.</param>
-        public BsonDocumentPipelineStage(BsonDocument document, IBsonSerializer<TOutput> outputSerializer = null)
+        public BsonDocumentPipelineStageDefinition(BsonDocument document, IBsonSerializer<TOutput> outputSerializer = null)
         {
             _document = Ensure.IsNotNull(document, "document");
             _outputSerializer = outputSerializer;
@@ -233,18 +233,18 @@ namespace MongoDB.Driver
     /// <summary>
     /// A JSON <see cref="String"/> based pipeline stage.
     /// </summary>
-    public sealed class JsonPipelineStage<TInput, TOutput> : PipelineStage<TInput, TOutput>
+    public sealed class JsonPipelineStageDefinition<TInput, TOutput> : PipelineStageDefinition<TInput, TOutput>
     {
         private readonly BsonDocument _document;
         private readonly string _json;
         private readonly IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonPipelineStage{TInput, TOutput}" /> class.
+        /// Initializes a new instance of the <see cref="JsonPipelineStageDefinition{TInput, TOutput}" /> class.
         /// </summary>
         /// <param name="json">The json.</param>
         /// <param name="outputSerializer">The output serializer.</param>
-        public JsonPipelineStage(string json, IBsonSerializer<TOutput> outputSerializer = null)
+        public JsonPipelineStageDefinition(string json, IBsonSerializer<TOutput> outputSerializer = null)
         {
             _json = Ensure.IsNotNullOrEmpty(json, "json");
             _outputSerializer = outputSerializer;
@@ -284,12 +284,12 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class DelegatedPipelineStage<TInput, TOutput> : PipelineStage<TInput, TOutput>
+    internal sealed class DelegatedPipelineStageDefinition<TInput, TOutput> : PipelineStageDefinition<TInput, TOutput>
     {
         private readonly string _operatorName;
         private readonly Func<IBsonSerializer<TInput>, IBsonSerializerRegistry, RenderedPipelineStage<TOutput>> _renderer;
 
-        public DelegatedPipelineStage(string operatorName, Func<IBsonSerializer<TInput>, IBsonSerializerRegistry, RenderedPipelineStage<TOutput>> renderer)
+        public DelegatedPipelineStageDefinition(string operatorName, Func<IBsonSerializer<TInput>, IBsonSerializerRegistry, RenderedPipelineStage<TOutput>> renderer)
         {
             _operatorName = operatorName;
             _renderer = renderer;

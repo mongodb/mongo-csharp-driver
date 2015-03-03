@@ -175,7 +175,7 @@ namespace MongoDB.Driver
             var lastStage = aggregate.Stages.Last();
             aggregate.Stages.RemoveAt(aggregate.Stages.Count - 1); // remove it so we can add it back
 
-            var stage = new DelegatedPipelineStage<TResult, TResult>(
+            var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(
                 "$sort",
                 (s, sr) =>
                 {
@@ -206,7 +206,7 @@ namespace MongoDB.Driver
             var lastStage = aggregate.Stages.Last();
             aggregate.Stages.RemoveAt(aggregate.Stages.Count - 1); // remove it so we can add it back
 
-            var stage = new DelegatedPipelineStage<TResult, TResult>(
+            var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(
                 "$sort",
                 (s, sr) =>
                 {

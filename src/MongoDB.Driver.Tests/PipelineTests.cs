@@ -28,14 +28,14 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void Constructor_should_verify_the_inputs_and_outputs_of_the_stages_and_throw_when_invalid()
         {
-            var stages = new IPipelineStage[] 
+            var stages = new IPipelineStageDefinition[] 
             {
-                new BsonDocumentPipelineStage<Person, BsonDocument>(new BsonDocument()),
-                new BsonDocumentPipelineStage<BsonDocument, Pet>(new BsonDocument()),
-                new BsonDocumentPipelineStage<BsonDocument, Person>(new BsonDocument())
+                new BsonDocumentPipelineStageDefinition<Person, BsonDocument>(new BsonDocument()),
+                new BsonDocumentPipelineStageDefinition<BsonDocument, Pet>(new BsonDocument()),
+                new BsonDocumentPipelineStageDefinition<BsonDocument, Person>(new BsonDocument())
             };
 
-            Action act = () => new PipelineStagePipeline<Person, Person>(stages);
+            Action act = () => new PipelineStagePipelineDefinition<Person, Person>(stages);
 
             act.ShouldThrow<ArgumentException>();
         }
@@ -43,14 +43,14 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void Constructor_should_verify_the_inputs_and_outputs_of_the_stages()
         {
-            var stages = new IPipelineStage[] 
+            var stages = new IPipelineStageDefinition[] 
             {
-                new BsonDocumentPipelineStage<Person, BsonDocument>(new BsonDocument()),
-                new BsonDocumentPipelineStage<BsonDocument, Pet>(new BsonDocument()),
-                new BsonDocumentPipelineStage<Pet, Person>(new BsonDocument())
+                new BsonDocumentPipelineStageDefinition<Person, BsonDocument>(new BsonDocument()),
+                new BsonDocumentPipelineStageDefinition<BsonDocument, Pet>(new BsonDocument()),
+                new BsonDocumentPipelineStageDefinition<Pet, Person>(new BsonDocument())
             };
 
-            Action act = () => new PipelineStagePipeline<Person, Person>(stages);
+            Action act = () => new PipelineStagePipelineDefinition<Person, Person>(stages);
 
             act.ShouldNotThrow<ArgumentException>();
         }

@@ -75,7 +75,7 @@ namespace MongoDB.Driver
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
         {
-            var stages = new PipelineStage<BsonDocument, BsonDocument>[] 
+            var stages = new PipelineStageDefinition<BsonDocument, BsonDocument>[] 
             { 
                 BsonDocument.Parse("{$match: {x: 2}}")
             };
@@ -107,7 +107,7 @@ namespace MongoDB.Driver
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified()
         {
-            var stages = new PipelineStage<BsonDocument, BsonDocument>[] 
+            var stages = new PipelineStageDefinition<BsonDocument, BsonDocument>[] 
             { 
                 BsonDocument.Parse("{$match: {x: 2}}"), 
                 BsonDocument.Parse("{$out: \"funny\"}") 

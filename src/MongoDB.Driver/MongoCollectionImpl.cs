@@ -78,7 +78,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(Pipeline<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken)
+        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken)
         {
             var renderedPipeline = Ensure.IsNotNull(pipeline, "pipeline").Render(_documentSerializer, _settings.SerializerRegistry);
             options = options ?? new AggregateOptions();
