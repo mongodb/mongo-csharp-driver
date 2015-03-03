@@ -152,4 +152,12 @@ namespace MongoDB.Driver
             set { _sort = value; }
         }
     }
+
+    /// <summary>
+    /// Options for finding documents.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document and the result.</typeparam>
+    public class FindOptions<TDocument> : FindOptions<TDocument, TDocument>
+    {
+    }
 }
