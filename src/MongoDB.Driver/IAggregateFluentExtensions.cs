@@ -82,7 +82,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(filter, "filter");
 
-            return aggregate.Match(new ExpressionFilter<TResult>(filter));
+            return aggregate.Match(new ExpressionFilterDefinition<TResult>(filter));
         }
 
         /// <summary>

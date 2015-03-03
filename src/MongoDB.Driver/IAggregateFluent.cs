@@ -69,7 +69,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TResult> Match(Filter<TResult> filter);
+        IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter);
 
         /// <summary>
         /// Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.

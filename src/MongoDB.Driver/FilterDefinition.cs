@@ -30,7 +30,7 @@ namespace MongoDB.Driver
     /// Base class for filters.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public abstract class Filter<TDocument>
+    public abstract class FilterDefinition<TDocument>
     {
         /// <summary>
         /// Renders the filter to a <see cref="BsonDocument"/>.
@@ -41,54 +41,54 @@ namespace MongoDB.Driver
         public abstract BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="Filter{TDocument}"/>.
+        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="FilterDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Filter<TDocument>(BsonDocument document)
+        public static implicit operator FilterDefinition<TDocument>(BsonDocument document)
         {
             if (document == null)
             {
                 return null;
             }
 
-            return new BsonDocumentFilter<TDocument>(document);
+            return new BsonDocumentFilterDefinition<TDocument>(document);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from a predicate expression to <see cref="Filter{TDocument}"/>.
+        /// Performs an implicit conversion from a predicate expression to <see cref="FilterDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="predicate">The predicate.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Filter<TDocument>(Expression<Func<TDocument, bool>> predicate)
+        public static implicit operator FilterDefinition<TDocument>(Expression<Func<TDocument, bool>> predicate)
         {
             if (predicate == null)
             {
                 return null;
             }
 
-            return new ExpressionFilter<TDocument>(predicate);
+            return new ExpressionFilterDefinition<TDocument>(predicate);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Filter{TDocument}"/>.
+        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="FilterDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Filter<TDocument>(string json)
+        public static implicit operator FilterDefinition<TDocument>(string json)
         {
             if (json == null)
             {
                 return null;
             }
 
-            return new JsonFilter<TDocument>(json);
+            return new JsonFilterDefinition<TDocument>(json);
         }
 
         /// <summary>
@@ -99,9 +99,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static Filter<TDocument> operator &(Filter<TDocument> lhs, Filter<TDocument> rhs)
+        public static FilterDefinition<TDocument> operator &(FilterDefinition<TDocument> lhs, FilterDefinition<TDocument> rhs)
         {
-            return new AndFilter<TDocument>(new[] { lhs, rhs });
+            return new AndFilterDefinition<TDocument>(new[] { lhs, rhs });
         }
 
         /// <summary>
@@ -112,9 +112,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static Filter<TDocument> operator |(Filter<TDocument> lhs, Filter<TDocument> rhs)
+        public static FilterDefinition<TDocument> operator |(FilterDefinition<TDocument> lhs, FilterDefinition<TDocument> rhs)
         {
-            return new OrFilter<TDocument>(new[] { lhs, rhs });
+            return new OrFilterDefinition<TDocument>(new[] { lhs, rhs });
         }
 
         /// <summary>
@@ -124,9 +124,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static Filter<TDocument> operator !(Filter<TDocument> op)
+        public static FilterDefinition<TDocument> operator !(FilterDefinition<TDocument> op)
         {
-            return new NotFilter<TDocument>(op);
+            return new NotFilterDefinition<TDocument>(op);
         }
     }
 
@@ -134,15 +134,15 @@ namespace MongoDB.Driver
     /// A <see cref="BsonDocument"/> based filter.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class BsonDocumentFilter<TDocument> : Filter<TDocument>
+    public sealed class BsonDocumentFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
         private readonly BsonDocument _document;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentFilter{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentFilterDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="document">The document.</param>
-        public BsonDocumentFilter(BsonDocument document)
+        public BsonDocumentFilterDefinition(BsonDocument document)
         {
             _document = Ensure.IsNotNull(document, "document");
         }
@@ -166,15 +166,15 @@ namespace MongoDB.Driver
     /// An <see cref="Expression"/> based filter.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class ExpressionFilter<TDocument> : Filter<TDocument>
+    public sealed class ExpressionFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
         private readonly Expression<Func<TDocument, bool>> _expression;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExpressionFilter{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="ExpressionFilterDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="expression">The expression.</param>
-        public ExpressionFilter(Expression<Func<TDocument, bool>> expression)
+        public ExpressionFilterDefinition(Expression<Func<TDocument, bool>> expression)
         {
             _expression = Ensure.IsNotNull(expression, "expression");
         }
@@ -198,15 +198,15 @@ namespace MongoDB.Driver
     /// A JSON <see cref="String" /> based filter.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class JsonFilter<TDocument> : Filter<TDocument>
+    public sealed class JsonFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
         private readonly string _json;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonFilter{TDocument}" /> class.
+        /// Initializes a new instance of the <see cref="JsonFilterDefinition{TDocument}" /> class.
         /// </summary>
         /// <param name="json">The json.</param>
-        public JsonFilter(string json)
+        public JsonFilterDefinition(string json)
         {
             _json = Ensure.IsNotNullOrEmpty(json, "json");
         }
@@ -230,15 +230,15 @@ namespace MongoDB.Driver
     /// An <see cref="Object" /> based filter.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class ObjectFilter<TDocument> : Filter<TDocument>
+    public sealed class ObjectFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
         private readonly object _obj;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectFilter{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="ObjectFilterDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="obj">The object.</param>
-        public ObjectFilter(object obj)
+        public ObjectFilterDefinition(object obj)
         {
             _obj = Ensure.IsNotNull(obj, "obj");
         }

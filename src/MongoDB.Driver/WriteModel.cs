@@ -97,19 +97,19 @@ namespace MongoDB.Driver
             };
         }
 
-        private static Filter<TDocument> UnwrapFilter(BsonDocument filter)
+        private static FilterDefinition<TDocument> UnwrapFilter(BsonDocument filter)
         {
             var wrapper = filter as BsonDocumentWrapper;
             if (wrapper != null)
             {
                 if (wrapper.Wrapped is BsonDocument)
                 {
-                    return new BsonDocumentFilter<TDocument>((BsonDocument)wrapper.Wrapped);
+                    return new BsonDocumentFilterDefinition<TDocument>((BsonDocument)wrapper.Wrapped);
                 }
-                return new ObjectFilter<TDocument>(wrapper.Wrapped);
+                return new ObjectFilterDefinition<TDocument>(wrapper.Wrapped);
             }
 
-            return new BsonDocumentFilter<TDocument>(filter);
+            return new BsonDocumentFilterDefinition<TDocument>(filter);
         }
 
         private static Update2<TDocument> UnwrapUpdate(BsonDocument update)

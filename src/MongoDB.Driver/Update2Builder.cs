@@ -596,7 +596,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PullFilter<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        public static Update2<TDocument> PullFilter<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -614,7 +614,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PullFilter<TDocument, TItem>(this Update2<TDocument> update, string fieldName, Filter<TItem> filter)
+        public static Update2<TDocument> PullFilter<TDocument, TItem>(this Update2<TDocument> update, string fieldName, FilterDefinition<TItem> filter)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.PullFilter(fieldName, filter));
@@ -632,7 +632,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PullFilter<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
+        public static Update2<TDocument> PullFilter<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -1372,7 +1372,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> PullFilter<TField, TItem>(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        public Update2<TDocument> PullFilter<TField, TItem>(FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             return new PullUpdate<TDocument, TField, TItem>(fieldName, filter);
@@ -1385,7 +1385,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> PullFilter<TItem>(string fieldName, Filter<TItem> filter)
+        public Update2<TDocument> PullFilter<TItem>(string fieldName, FilterDefinition<TItem> filter)
         {
             return PullFilter<IEnumerable<TItem>, TItem>(new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName), filter);
         }
@@ -1398,7 +1398,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
+        public Update2<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             return PullFilter(new ExpressionFieldName<TDocument, TField>(fieldName), filter);
@@ -1415,7 +1415,7 @@ namespace MongoDB.Driver
         public Update2<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
-            return PullFilter(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilter<TItem>(filter));
+            return PullFilter(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilterDefinition<TItem>(filter));
         }
 
         /// <summary>
@@ -1790,10 +1790,10 @@ namespace MongoDB.Driver
     internal sealed class PullUpdate<TDocument, TField, TItem> : Update2<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
-        private readonly Filter<TItem> _filter;
+        private readonly FilterDefinition<TItem> _filter;
         private readonly List<TItem> _values;
 
-        public PullUpdate(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        public PullUpdate(FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _filter = Ensure.IsNotNull(filter, "filter");

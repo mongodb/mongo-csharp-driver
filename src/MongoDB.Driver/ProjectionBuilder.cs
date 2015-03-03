@@ -77,7 +77,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> projection, FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> projection, FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -95,7 +95,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TItem>(this Projection<TDocument> projection, string fieldName, Filter<TItem> filter)
+        public static Projection<TDocument> ElemMatch<TDocument, TItem>(this Projection<TDocument> projection, string fieldName, FilterDefinition<TItem> filter)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.ElemMatch(fieldName, filter));
@@ -113,7 +113,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> projection, Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
+        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> projection, Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -309,7 +309,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TSource> ElemMatch<TField, TItem>(FieldName<TSource, TField> fieldName, Filter<TItem> filter)
+        public Projection<TSource> ElemMatch<TField, TItem>(FieldName<TSource, TField> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             return new ElementMatchProjection<TSource, TField, TItem>(fieldName, filter);
@@ -324,7 +324,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TSource> ElemMatch<TItem>(string fieldName, Filter<TItem> filter)
+        public Projection<TSource> ElemMatch<TItem>(string fieldName, FilterDefinition<TItem> filter)
         {
             return ElemMatch(
                 new StringFieldName<TSource, IEnumerable<TItem>>(fieldName),
@@ -341,7 +341,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> fieldName, Filter<TItem> filter)
+        public Projection<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             return ElemMatch(new ExpressionFieldName<TSource, TField>(fieldName), filter);
@@ -360,7 +360,7 @@ namespace MongoDB.Driver
         public Projection<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> fieldName, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
-            return ElemMatch(new ExpressionFieldName<TSource, TField>(fieldName), new ExpressionFilter<TItem>(filter));
+            return ElemMatch(new ExpressionFieldName<TSource, TField>(fieldName), new ExpressionFilterDefinition<TItem>(filter));
         }
 
         /// <summary>
@@ -498,9 +498,9 @@ namespace MongoDB.Driver
     internal sealed class ElementMatchProjection<TSource, TField, TItem> : Projection<TSource>
     {
         private readonly FieldName<TSource, TField> _fieldName;
-        private readonly Filter<TItem> _filter;
+        private readonly FilterDefinition<TItem> _filter;
 
-        public ElementMatchProjection(FieldName<TSource, TField> fieldName, Filter<TItem> filter)
+        public ElementMatchProjection(FieldName<TSource, TField> fieldName, FilterDefinition<TItem> filter)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _filter = filter;

@@ -733,12 +733,12 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Type("FirstName", BsonType.String), "{FirstName: {$type: 2}}");
         }
 
-        private void Assert<TDocument>(Filter<TDocument> filter, string expected)
+        private void Assert<TDocument>(FilterDefinition<TDocument> filter, string expected)
         {
             Assert(filter, BsonDocument.Parse(expected));
         }
 
-        private void Assert<TDocument>(Filter<TDocument> filter, BsonDocument expected)
+        private void Assert<TDocument>(FilterDefinition<TDocument> filter, BsonDocument expected)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedFilter = filter.Render(documentSerializer, BsonSerializer.SerializerRegistry);
@@ -746,9 +746,9 @@ namespace MongoDB.Driver.Tests
             renderedFilter.Should().Be(expected);
         }
 
-        private FilterBuilder<TDocument> CreateSubject<TDocument>()
+        private FilterDefinitionBuilder<TDocument> CreateSubject<TDocument>()
         {
-            return new FilterBuilder<TDocument>();
+            return new FilterDefinitionBuilder<TDocument>();
         }
 
         private class Person

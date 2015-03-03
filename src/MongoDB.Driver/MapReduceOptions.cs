@@ -29,7 +29,7 @@ namespace MongoDB.Driver
     public sealed class MapReduceOptions<TDocument, TResult>
     {
         // fields
-        private Filter<TDocument> _filter;
+        private FilterDefinition<TDocument> _filter;
         private BsonJavaScript _finalize;
         private bool? _javaScriptMode;
         private long? _limit;
@@ -44,7 +44,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>
-        public Filter<TDocument> Filter
+        public FilterDefinition<TDocument> Filter
         {
             get { return _filter; }
             set { _filter = value; }

@@ -22,13 +22,13 @@ namespace MongoDB.Driver
     public sealed class ListCollectionsOptions
     {
         // fields
-        private Filter<BsonDocument> _filter;
+        private FilterDefinition<BsonDocument> _filter;
 
         // properties
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>
-        public Filter<BsonDocument> Filter
+        public FilterDefinition<BsonDocument> Filter
         {
             get { return _filter; }
             set { _filter = value; }

@@ -61,7 +61,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            return collection.CountAsync(new ExpressionFilter<TDocument>(filter), options, cancellationToken);
+            return collection.CountAsync(new ExpressionFilterDefinition<TDocument>(filter), options, cancellationToken);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, Filter<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(fieldName, "fieldName");
@@ -111,7 +111,7 @@ namespace MongoDB.Driver
 
             return collection.DistinctAsync<TField>(
                 fieldName,
-                new ExpressionFilter<TDocument>(filter),
+                new ExpressionFilterDefinition<TDocument>(filter),
                 options,
                 cancellationToken);
         }
@@ -137,7 +137,7 @@ namespace MongoDB.Driver
 
             return collection.DistinctAsync<TField>(
                 new ExpressionFieldName<TDocument, TField>(fieldName),
-                new ExpressionFilter<TDocument>(filter),
+                new ExpressionFilterDefinition<TDocument>(filter),
                 options,
                 cancellationToken);
         }
@@ -152,7 +152,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A fluent find interface.
         /// </returns>
-        public static IFindFluent<TDocument, TDocument> Find<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, Filter<TDocument> filter, FindOptions options = null)
+        public static IFindFluent<TDocument, TDocument> Find<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, FilterDefinition<TDocument> filter, FindOptions options = null)
         {
             FindOptions<TDocument, TDocument> genericOptions;
             if (options == null)
@@ -191,7 +191,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            return collection.Find(new ExpressionFilter<TDocument>(filter), options);
+            return collection.Find(new ExpressionFilterDefinition<TDocument>(filter), options);
         }
     }
 }

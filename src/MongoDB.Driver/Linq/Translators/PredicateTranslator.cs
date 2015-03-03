@@ -31,11 +31,11 @@ using MongoDB.Driver.Linq.Expressions;
 namespace MongoDB.Driver.Linq.Translators
 {
     /// <summary>
-    /// Translates an expression tree into a <see cref="Filter{TDocument}"/>.
+    /// Translates an expression tree into a <see cref="FilterDefinition{TDocument}"/>.
     /// </summary>
     internal class PredicateTranslator
     {
-        private static readonly FilterBuilder<BsonDocument> __builder = new FilterBuilder<BsonDocument>();
+        private static readonly FilterDefinitionBuilder<BsonDocument> __builder = new FilterDefinitionBuilder<BsonDocument>();
 
         public static BsonDocument Translate<TDocument>(Expression<Func<TDocument, bool>> predicate, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
         {
@@ -53,9 +53,9 @@ namespace MongoDB.Driver.Linq.Translators
                 .Render(serializerRegistry.GetSerializer<BsonDocument>(), serializerRegistry);
         }
 
-        private Filter<BsonDocument> BuildFilter(Expression expression)
+        private FilterDefinition<BsonDocument> BuildFilter(Expression expression)
         {
-            Filter<BsonDocument> filter = null;
+            FilterDefinition<BsonDocument> filter = null;
 
             switch (expression.NodeType)
             {
@@ -124,12 +124,12 @@ namespace MongoDB.Driver.Linq.Translators
         }
 
         // private methods
-        private Filter<BsonDocument> BuildAndAlsoQuery(BinaryExpression binaryExpression)
+        private FilterDefinition<BsonDocument> BuildAndAlsoQuery(BinaryExpression binaryExpression)
         {
             return __builder.And(BuildFilter(binaryExpression.Left), BuildFilter(binaryExpression.Right));
         }
 
-        private Filter<BsonDocument> BuildAndQuery(BinaryExpression binaryExpression)
+        private FilterDefinition<BsonDocument> BuildAndQuery(BinaryExpression binaryExpression)
         {
             if (binaryExpression.Left.Type == typeof(bool) && binaryExpression.Right.Type == typeof(bool))
             {
@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildAnyQuery(MethodCallExpression methodCallExpression)
+        private FilterDefinition<BsonDocument> BuildAnyQuery(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
             {
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Linq.Translators
 
                     if (!(itemSerializationInfo.Serializer is IBsonDocumentSerializer))
                     {
-                        filter = new ScalarElementMatchFilter<BsonDocument>(filter);
+                        filter = new ScalarElementMatchFilterDefinition<BsonDocument>(filter);
                     }
 
                     return filter;
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Linq.Translators
         /// <param name="operatorType">Type of the operator.</param>
         /// <param name="constantExpression">The constant expression.</param>
         /// <returns></returns>
-        private Filter<BsonDocument> BuildArrayLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        private FilterDefinition<BsonDocument> BuildArrayLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             var allowedOperators = new[]
             {
@@ -246,7 +246,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildBooleanQuery(bool value)
+        private FilterDefinition<BsonDocument> BuildBooleanQuery(bool value)
         {
             if (value)
             {
@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Linq.Translators
             }
         }
 
-        private Filter<BsonDocument> BuildBooleanQuery(Expression expression)
+        private FilterDefinition<BsonDocument> BuildBooleanQuery(Expression expression)
         {
             if (expression.Type == typeof(bool))
             {
@@ -274,7 +274,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildComparisonQuery(BinaryExpression binaryExpression)
+        private FilterDefinition<BsonDocument> BuildComparisonQuery(BinaryExpression binaryExpression)
         {
             // the constant could be on either side
             var variableExpression = binaryExpression.Left;
@@ -331,7 +331,7 @@ namespace MongoDB.Driver.Linq.Translators
             return BuildComparisonQuery(variableExpression, operatorType, constantExpression);
         }
 
-        private Filter<BsonDocument> BuildComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        private FilterDefinition<BsonDocument> BuildComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             BsonSerializationInfo serializationInfo = null;
             var value = constantExpression.Value;
@@ -405,7 +405,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildConstantQuery(ConstantExpression constantExpression)
+        private FilterDefinition<BsonDocument> BuildConstantQuery(ConstantExpression constantExpression)
         {
             var value = constantExpression.Value;
             if (value != null && value.GetType() == typeof(bool))
@@ -416,7 +416,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildContainsKeyQuery(MethodCallExpression methodCallExpression)
+        private FilterDefinition<BsonDocument> BuildContainsKeyQuery(MethodCallExpression methodCallExpression)
         {
             var dictionaryType = methodCallExpression.Object.Type;
             var implementedInterfaces = new List<Type>(dictionaryType.GetInterfaces());
@@ -495,7 +495,7 @@ namespace MongoDB.Driver.Linq.Translators
             }
         }
 
-        private Filter<BsonDocument> BuildContainsQuery(MethodCallExpression methodCallExpression)
+        private FilterDefinition<BsonDocument> BuildContainsQuery(MethodCallExpression methodCallExpression)
         {
             // handle IDictionary Contains the same way as IDictionary<TKey, TValue> ContainsKey
             if (methodCallExpression.Object != null && typeof(IDictionary).IsAssignableFrom(methodCallExpression.Object.Type))
@@ -547,7 +547,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildEqualsQuery(MethodCallExpression methodCallExpression)
+        private FilterDefinition<BsonDocument> BuildEqualsQuery(MethodCallExpression methodCallExpression)
         {
             var arguments = methodCallExpression.Arguments.ToArray();
 
@@ -600,7 +600,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildInQuery(MethodCallExpression methodCallExpression)
+        private FilterDefinition<BsonDocument> BuildInQuery(MethodCallExpression methodCallExpression)
         {
             var methodDeclaringType = methodCallExpression.Method.DeclaringType;
             var arguments = methodCallExpression.Arguments.ToArray();
@@ -637,7 +637,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildIsMatchQuery(MethodCallExpression methodCallExpression)
+        private FilterDefinition<BsonDocument> BuildIsMatchQuery(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(Regex))
             {
@@ -687,7 +687,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildIsNullOrEmptyQuery(MethodCallExpression methodCallExpression)
+        private FilterDefinition<BsonDocument> BuildIsNullOrEmptyQuery(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(string) && methodCallExpression.Object == null)
             {
@@ -704,7 +704,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildMethodCallQuery(MethodCallExpression methodCallExpression)
+        private FilterDefinition<BsonDocument> BuildMethodCallQuery(MethodCallExpression methodCallExpression)
         {
             switch (methodCallExpression.Method.Name)
             {
@@ -721,7 +721,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildModQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        private FilterDefinition<BsonDocument> BuildModQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             if (operatorType != ExpressionType.Equal && operatorType != ExpressionType.NotEqual)
             {
@@ -756,18 +756,18 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildNotQuery(UnaryExpression unaryExpression)
+        private FilterDefinition<BsonDocument> BuildNotQuery(UnaryExpression unaryExpression)
         {
             var filter = BuildFilter(unaryExpression.Operand);
             return __builder.Not(filter);
         }
 
-        private Filter<BsonDocument> BuildOrElseQuery(BinaryExpression binaryExpression)
+        private FilterDefinition<BsonDocument> BuildOrElseQuery(BinaryExpression binaryExpression)
         {
             return __builder.Or(BuildFilter(binaryExpression.Left), BuildFilter(binaryExpression.Right));
         }
 
-        private Filter<BsonDocument> BuildOrQuery(BinaryExpression binaryExpression)
+        private FilterDefinition<BsonDocument> BuildOrQuery(BinaryExpression binaryExpression)
         {
             if (binaryExpression.Left.Type == typeof(bool) && binaryExpression.Right.Type == typeof(bool))
             {
@@ -777,7 +777,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildStringIndexOfQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        private FilterDefinition<BsonDocument> BuildStringIndexOfQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             // TODO: support other comparison operators
             if (operatorType != ExpressionType.Equal)
@@ -926,7 +926,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildStringIndexQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        private FilterDefinition<BsonDocument> BuildStringIndexQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             var unaryExpression = variableExpression as UnaryExpression;
             if (unaryExpression == null)
@@ -999,7 +999,7 @@ namespace MongoDB.Driver.Linq.Translators
             return __builder.Regex(serializationInfo.ElementName, new BsonRegularExpression(pattern, "s"));
         }
 
-        private Filter<BsonDocument> BuildStringLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        private FilterDefinition<BsonDocument> BuildStringLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             if (constantExpression.Type != typeof(int))
             {
@@ -1053,7 +1053,7 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
-        private Filter<BsonDocument> BuildStringCaseInsensitiveComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        private FilterDefinition<BsonDocument> BuildStringCaseInsensitiveComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             var methodExpression = variableExpression as MethodCallExpression;
             if (methodExpression == null)
@@ -1133,7 +1133,7 @@ namespace MongoDB.Driver.Linq.Translators
             }
         }
 
-        private Filter<BsonDocument> BuildStringQuery(MethodCallExpression methodCallExpression)
+        private FilterDefinition<BsonDocument> BuildStringQuery(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType != typeof(string))
             {
@@ -1230,7 +1230,7 @@ namespace MongoDB.Driver.Linq.Translators
             return __builder.Regex(serializationInfo.ElementName, new BsonRegularExpression(pattern, options));
         }
 
-        private Filter<BsonDocument> BuildTypeComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        private FilterDefinition<BsonDocument> BuildTypeComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             if (operatorType != ExpressionType.Equal)
             {
@@ -1277,7 +1277,7 @@ namespace MongoDB.Driver.Linq.Translators
             if (discriminator.IsBsonArray)
             {
                 var discriminatorArray = discriminator.AsBsonArray;
-                var queries = new Filter<BsonDocument>[discriminatorArray.Count + 1];
+                var queries = new FilterDefinition<BsonDocument>[discriminatorArray.Count + 1];
                 queries[0] = __builder.Size(elementName, discriminatorArray.Count);
                 for (var i = 0; i < discriminatorArray.Count; i++)
                 {
@@ -1293,7 +1293,7 @@ namespace MongoDB.Driver.Linq.Translators
             }
         }
 
-        private Filter<BsonDocument> BuildTypeIsQuery(TypeBinaryExpression typeBinaryExpression)
+        private FilterDefinition<BsonDocument> BuildTypeIsQuery(TypeBinaryExpression typeBinaryExpression)
         {
             var nominalType = typeBinaryExpression.Expression.Type;
             var actualType = typeBinaryExpression.TypeOperand;

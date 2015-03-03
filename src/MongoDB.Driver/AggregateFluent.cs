@@ -79,7 +79,7 @@ namespace MongoDB.Driver
             return AppendStage<TResult>(new BsonDocument("$limit", limit));
         }
 
-        public override IAggregateFluent<TResult> Match(Filter<TResult> filter)
+        public override IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter)
         {
             const string operatorName = "$match";
             var stage = new DelegatedPipelineStage<TResult, TResult>(

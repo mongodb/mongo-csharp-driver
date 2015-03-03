@@ -89,12 +89,12 @@
     <Compile Include="Pipeline.cs" />
     <Compile Include="BulkWriteError.cs" />
     <Compile Include="ConnectionMode.cs" />
-    <Compile Include="Filter.cs" />
+    <Compile Include="FilterDefinition.cs" />
     <Compile Include="AggregateFluentBase.cs" />
     <Compile Include="ProjectionBuilder.cs" />
     <Compile Include="IndexDefinitionBuilder.cs" />
     <Compile Include="SortBuilder.cs" />
-    <Compile Include="FilterBuilder.cs" />
+    <Compile Include="FilterDefinitionBuilder.cs" />
     <Compile Include="IAggregateFluentExtensions.cs" />
     <Compile Include="AggregateOptions.cs" />
     <Compile Include="BulkWriteOptions.cs" />

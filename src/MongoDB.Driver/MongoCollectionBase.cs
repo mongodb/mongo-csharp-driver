@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         public abstract Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public virtual async Task<DeleteResult> DeleteManyAsync(Filter<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, "filter");
 
@@ -53,7 +53,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual async Task<DeleteResult> DeleteOneAsync(Filter<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, "filter");
 
@@ -70,13 +70,13 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public abstract Task<TResult> FindOneAndDeleteAsync<TResult>(Filter<TDocument> filter, FindOneAndDeleteOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<TResult> FindOneAndDeleteAsync<TResult>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public abstract Task<TResult> FindOneAndReplaceAsync<TResult>(Filter<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<TResult> FindOneAndReplaceAsync<TResult>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public abstract Task<TResult> FindOneAndUpdateAsync<TResult>(Filter<TDocument> filter, Update2<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<TResult> FindOneAndUpdateAsync<TResult>(FilterDefinition<TDocument> filter, Update2<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
         public virtual async Task InsertOneAsync(TDocument document, CancellationToken cancellationToken = default(CancellationToken))
@@ -105,7 +105,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual async Task<ReplaceOneResult> ReplaceOneAsync(Filter<TDocument> filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull((object)replacement, "replacement");
@@ -128,7 +128,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual async Task<UpdateResult> UpdateManyAsync(Filter<TDocument> filter, Update2<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, Update2<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");
@@ -151,7 +151,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual async Task<UpdateResult> UpdateOneAsync(Filter<TDocument> filter, Update2<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, Update2<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");

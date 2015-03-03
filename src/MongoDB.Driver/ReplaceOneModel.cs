@@ -31,7 +31,7 @@ namespace MongoDB.Driver
     public sealed class ReplaceOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields
-        private readonly Filter<TDocument> _filter;
+        private readonly FilterDefinition<TDocument> _filter;
         private bool _isUpsert;
         private readonly TDocument _replacement;
 
@@ -41,7 +41,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
-        public ReplaceOneModel(Filter<TDocument> filter, TDocument replacement)
+        public ReplaceOneModel(FilterDefinition<TDocument> filter, TDocument replacement)
         {
             _filter = Ensure.IsNotNull(filter, "filter");
             _replacement = replacement;
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the filter.
         /// </summary>
-        public Filter<TDocument> Filter
+        public FilterDefinition<TDocument> Filter
         {
             get { return _filter; }
         }

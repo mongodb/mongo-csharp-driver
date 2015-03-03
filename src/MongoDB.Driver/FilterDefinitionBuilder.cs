@@ -26,10 +26,10 @@ using MongoDB.Driver.GeoJsonObjectModel;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// A builder for a <see cref="Filter{TDocument}"/>.
+    /// A builder for a <see cref="FilterDefinition{TDocument}"/>.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class FilterBuilder<TDocument>
+    public sealed class FilterDefinitionBuilder<TDocument>
     {
         /// <summary>
         /// Creates an all filter.
@@ -39,10 +39,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An all filter.</returns>
-        public Filter<TDocument> All<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> All<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            return new ArrayOperatorFilter<TDocument, TField, TItem>("$all", fieldName, values);
+            return new ArrayOperatorFilterDefinition<TDocument, TField, TItem>("$all", fieldName, values);
         }
 
         /// <summary>
@@ -51,9 +51,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An all filter.</returns>
-        public Filter<TDocument> All<TItem>(string fieldName, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> All<TItem>(string fieldName, IEnumerable<TItem> values)
         {
-            return new ArrayOperatorFilter<TDocument, IEnumerable<TItem>, TItem>(
+            return new ArrayOperatorFilterDefinition<TDocument, IEnumerable<TItem>, TItem>(
                 "$all",
                 new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
                 values);
@@ -67,7 +67,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An all filter.</returns>
-        public Filter<TDocument> All<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> All<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             return All(new ExpressionFieldName<TDocument, TField>(fieldName), values);
@@ -78,9 +78,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filters">The filters.</param>
         /// <returns>A filter.</returns>
-        public Filter<TDocument> And(params Filter<TDocument>[] filters)
+        public FilterDefinition<TDocument> And(params FilterDefinition<TDocument>[] filters)
         {
-            return And((IEnumerable<Filter<TDocument>>)filters);
+            return And((IEnumerable<FilterDefinition<TDocument>>)filters);
         }
 
         /// <summary>
@@ -88,9 +88,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filters">The filters.</param>
         /// <returns>An and filter.</returns>
-        public Filter<TDocument> And(IEnumerable<Filter<TDocument>> filters)
+        public FilterDefinition<TDocument> And(IEnumerable<FilterDefinition<TDocument>> filters)
         {
-            return new AndFilter<TDocument>(filters);
+            return new AndFilterDefinition<TDocument>(filters);
         }
 
         /// <summary>
@@ -101,10 +101,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
-        public Filter<TDocument> ElemMatch<TField, TItem>(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        public FilterDefinition<TDocument> ElemMatch<TField, TItem>(FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            return new ElementMatchFilter<TDocument, TField, TItem>(fieldName, filter);
+            return new ElementMatchFilterDefinition<TDocument, TField, TItem>(fieldName, filter);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
-        public Filter<TDocument> ElemMatch<TItem>(string fieldName, Filter<TItem> filter)
+        public FilterDefinition<TDocument> ElemMatch<TItem>(string fieldName, FilterDefinition<TItem> filter)
         {
             return ElemMatch(
                 new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
@@ -128,7 +128,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
-        public Filter<TDocument> ElemMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Filter<TItem> filter)
+        public FilterDefinition<TDocument> ElemMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             return ElemMatch(new ExpressionFieldName<TDocument, TField>(fieldName), filter);
@@ -142,10 +142,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
-        public Filter<TDocument> ElemMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+        public FilterDefinition<TDocument> ElemMatch<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
-            return ElemMatch(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilter<TItem>(filter));
+            return ElemMatch(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilterDefinition<TItem>(filter));
         }
 
         /// <summary>
@@ -155,9 +155,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An equality filter.</returns>
-        public Filter<TDocument> Eq<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public FilterDefinition<TDocument> Eq<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new SimpleFilter<TDocument, TField>(fieldName, value);
+            return new SimpleFilterDefinition<TDocument, TField>(fieldName, value);
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An equality filter.</returns>
-        public Filter<TDocument> Eq<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public FilterDefinition<TDocument> Eq<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Eq(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -178,9 +178,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="exists">if set to <c>true</c> [exists].</param>
         /// <returns>An exists filter.</returns>
-        public Filter<TDocument> Exists(FieldName<TDocument> fieldName, bool exists = true)
+        public FilterDefinition<TDocument> Exists(FieldName<TDocument> fieldName, bool exists = true)
         {
-            return new OperatorFilter<TDocument>("$exists", fieldName, exists);
+            return new OperatorFilterDefinition<TDocument>("$exists", fieldName, exists);
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="exists">if set to <c>true</c> [exists].</param>
         /// <returns>An exists filter.</returns>
-        public Filter<TDocument> Exists(Expression<Func<TDocument, object>> fieldName, bool exists = true)
+        public FilterDefinition<TDocument> Exists(Expression<Func<TDocument, object>> fieldName, bool exists = true)
         {
             return Exists(new ExpressionFieldName<TDocument>(fieldName), exists);
         }
@@ -201,10 +201,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="geometry">The geometry.</param>
         /// <returns>A geo intersects filter.</returns>
-        public Filter<TDocument> GeoIntersects<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonGeometry<TCoordinates> geometry)
+        public FilterDefinition<TDocument> GeoIntersects<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonGeometry<TCoordinates> geometry)
             where TCoordinates : GeoJsonCoordinates
         {
-            return new GeometryOperatorFilter<TDocument, TCoordinates>("$geoIntersects", fieldName, geometry);
+            return new GeometryOperatorFilterDefinition<TDocument, TCoordinates>("$geoIntersects", fieldName, geometry);
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="geometry">The geometry.</param>
         /// <returns>A geo intersects filter.</returns>
-        public Filter<TDocument> GeoIntersects<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonGeometry<TCoordinates> geometry)
+        public FilterDefinition<TDocument> GeoIntersects<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonGeometry<TCoordinates> geometry)
             where TCoordinates : GeoJsonCoordinates
         {
             return GeoIntersects(new ExpressionFieldName<TDocument>(fieldName), geometry);
@@ -227,10 +227,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="geometry">The geometry.</param>
         /// <returns>A geo within filter.</returns>
-        public Filter<TDocument> GeoWithin<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonGeometry<TCoordinates> geometry)
+        public FilterDefinition<TDocument> GeoWithin<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonGeometry<TCoordinates> geometry)
             where TCoordinates : GeoJsonCoordinates
         {
-            return new GeometryOperatorFilter<TDocument, TCoordinates>("$geoWithin", fieldName, geometry);
+            return new GeometryOperatorFilterDefinition<TDocument, TCoordinates>("$geoWithin", fieldName, geometry);
         }
 
         /// <summary>
@@ -240,7 +240,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="geometry">The geometry.</param>
         /// <returns>A geo within filter.</returns>
-        public Filter<TDocument> GeoWithin<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonGeometry<TCoordinates> geometry)
+        public FilterDefinition<TDocument> GeoWithin<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonGeometry<TCoordinates> geometry)
             where TCoordinates : GeoJsonCoordinates
         {
             return GeoWithin(new ExpressionFieldName<TDocument>(fieldName), geometry);
@@ -253,9 +253,9 @@ namespace MongoDB.Driver
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <returns>A geo within box filter.</returns>
-        public Filter<TDocument> GeoWithinBox(FieldName<TDocument> fieldName, double x, double y)
+        public FilterDefinition<TDocument> GeoWithinBox(FieldName<TDocument> fieldName, double x, double y)
         {
-            return new OperatorFilter<TDocument>("$geoWithin", fieldName, new BsonDocument("$box", new BsonArray { x, y }));
+            return new OperatorFilterDefinition<TDocument>("$geoWithin", fieldName, new BsonDocument("$box", new BsonArray { x, y }));
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace MongoDB.Driver
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <returns>A geo within box filter.</returns>
-        public Filter<TDocument> GeoWithinBox(Expression<Func<TDocument, object>> fieldName, double x, double y)
+        public FilterDefinition<TDocument> GeoWithinBox(Expression<Func<TDocument, object>> fieldName, double x, double y)
         {
             return GeoWithinBox(new ExpressionFieldName<TDocument>(fieldName), x, y);
         }
@@ -278,9 +278,9 @@ namespace MongoDB.Driver
         /// <param name="y">The y.</param>
         /// <param name="radius">The radius.</param>
         /// <returns>A geo within center filter.</returns>
-        public Filter<TDocument> GeoWithinCenter(FieldName<TDocument> fieldName, double x, double y, double radius)
+        public FilterDefinition<TDocument> GeoWithinCenter(FieldName<TDocument> fieldName, double x, double y, double radius)
         {
-            return new OperatorFilter<TDocument>("$geoWithin", fieldName, new BsonDocument("$center", new BsonArray { new BsonArray { x, y }, radius }));
+            return new OperatorFilterDefinition<TDocument>("$geoWithin", fieldName, new BsonDocument("$center", new BsonArray { new BsonArray { x, y }, radius }));
         }
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace MongoDB.Driver
         /// <param name="y">The y.</param>
         /// <param name="radius">The radius.</param>
         /// <returns>A geo within center filter.</returns>
-        public Filter<TDocument> GeoWithinCenter(Expression<Func<TDocument, object>> fieldName, double x, double y, double radius)
+        public FilterDefinition<TDocument> GeoWithinCenter(Expression<Func<TDocument, object>> fieldName, double x, double y, double radius)
         {
             return GeoWithinCenter(new ExpressionFieldName<TDocument>(fieldName), x, y, radius);
         }
@@ -304,9 +304,9 @@ namespace MongoDB.Driver
         /// <param name="y">The y.</param>
         /// <param name="radius">The radius.</param>
         /// <returns>A geo within center sphere filter.</returns>
-        public Filter<TDocument> GeoWithinCenterSphere(FieldName<TDocument> fieldName, double x, double y, double radius)
+        public FilterDefinition<TDocument> GeoWithinCenterSphere(FieldName<TDocument> fieldName, double x, double y, double radius)
         {
-            return new OperatorFilter<TDocument>("$geoWithin", fieldName, new BsonDocument("$centerSphere", new BsonArray { new BsonArray { x, y }, radius }));
+            return new OperatorFilterDefinition<TDocument>("$geoWithin", fieldName, new BsonDocument("$centerSphere", new BsonArray { new BsonArray { x, y }, radius }));
         }
 
         /// <summary>
@@ -317,7 +317,7 @@ namespace MongoDB.Driver
         /// <param name="y">The y.</param>
         /// <param name="radius">The radius.</param>
         /// <returns>A geo within center sphere filter.</returns>
-        public Filter<TDocument> GeoWithinCenterSphere(Expression<Func<TDocument, object>> fieldName, double x, double y, double radius)
+        public FilterDefinition<TDocument> GeoWithinCenterSphere(Expression<Func<TDocument, object>> fieldName, double x, double y, double radius)
         {
             return GeoWithinCenterSphere(new ExpressionFieldName<TDocument>(fieldName), x, y, radius);
         }
@@ -328,7 +328,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="points">The points.</param>
         /// <returns>A geo within polygon filter.</returns>
-        public Filter<TDocument> GeoWithinPolygon(FieldName<TDocument> fieldName, double[,] points)
+        public FilterDefinition<TDocument> GeoWithinPolygon(FieldName<TDocument> fieldName, double[,] points)
         {
             var arrayOfPoints = new BsonArray(points.GetLength(0));
             for (var i = 0; i < points.GetLength(0); i++)
@@ -336,7 +336,7 @@ namespace MongoDB.Driver
                 arrayOfPoints.Add(new BsonArray(2) { points[i, 0], points[i, 1] });
             }
 
-            return new OperatorFilter<TDocument>("$geoWithin", fieldName, new BsonDocument("$polygon", arrayOfPoints));
+            return new OperatorFilterDefinition<TDocument>("$geoWithin", fieldName, new BsonDocument("$polygon", arrayOfPoints));
         }
 
         /// <summary>
@@ -345,7 +345,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="points">The points.</param>
         /// <returns>A geo within polygon filter.</returns>
-        public Filter<TDocument> GeoWithinPolygon(Expression<Func<TDocument, object>> fieldName, double[,] points)
+        public FilterDefinition<TDocument> GeoWithinPolygon(Expression<Func<TDocument, object>> fieldName, double[,] points)
         {
             return GeoWithinPolygon(new ExpressionFieldName<TDocument>(fieldName), points);
         }
@@ -357,9 +357,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A greater than filter.</returns>
-        public Filter<TDocument> Gt<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public FilterDefinition<TDocument> Gt<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorFilter<TDocument, TField>("$gt", fieldName, value);
+            return new OperatorFilterDefinition<TDocument, TField>("$gt", fieldName, value);
         }
 
         /// <summary>
@@ -369,7 +369,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A greater than filter.</returns>
-        public Filter<TDocument> Gt<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public FilterDefinition<TDocument> Gt<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Gt(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -381,9 +381,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A greater than or equal filter.</returns>
-        public Filter<TDocument> Gte<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public FilterDefinition<TDocument> Gte<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorFilter<TDocument, TField>("$gte", fieldName, value);
+            return new OperatorFilterDefinition<TDocument, TField>("$gte", fieldName, value);
         }
 
         /// <summary>
@@ -393,7 +393,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A greater than or equal filter.</returns>
-        public Filter<TDocument> Gte<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public FilterDefinition<TDocument> Gte<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Gte(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -406,10 +406,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An in filter.</returns>
-        public Filter<TDocument> In<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> In<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            return new ArrayOperatorFilter<TDocument, TField, TItem>("$in", fieldName, values);
+            return new ArrayOperatorFilterDefinition<TDocument, TField, TItem>("$in", fieldName, values);
         }
 
         /// <summary>
@@ -418,9 +418,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An in filter.</returns>
-        public Filter<TDocument> In<TItem>(string fieldName, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> In<TItem>(string fieldName, IEnumerable<TItem> values)
         {
-            return new ArrayOperatorFilter<TDocument, IEnumerable<TItem>, TItem>(
+            return new ArrayOperatorFilterDefinition<TDocument, IEnumerable<TItem>, TItem>(
                 "$in",
                 new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
                 values);
@@ -434,7 +434,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An in filter.</returns>
-        public Filter<TDocument> In<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> In<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             return In(new ExpressionFieldName<TDocument, TField>(fieldName), values);
@@ -447,9 +447,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A less than filter.</returns>
-        public Filter<TDocument> Lt<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public FilterDefinition<TDocument> Lt<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorFilter<TDocument, TField>("$lt", fieldName, value);
+            return new OperatorFilterDefinition<TDocument, TField>("$lt", fieldName, value);
         }
 
         /// <summary>
@@ -459,7 +459,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A less than filter.</returns>
-        public Filter<TDocument> Lt<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public FilterDefinition<TDocument> Lt<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Lt(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -471,9 +471,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A less than or equal filter.</returns>
-        public Filter<TDocument> Lte<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public FilterDefinition<TDocument> Lte<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorFilter<TDocument, TField>("$lte", fieldName, value);
+            return new OperatorFilterDefinition<TDocument, TField>("$lte", fieldName, value);
         }
 
         /// <summary>
@@ -483,7 +483,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A less than or equal filter.</returns>
-        public Filter<TDocument> Lte<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public FilterDefinition<TDocument> Lte<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Lte(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -495,9 +495,9 @@ namespace MongoDB.Driver
         /// <param name="modulus">The modulus.</param>
         /// <param name="remainder">The remainder.</param>
         /// <returns>A modulo filter.</returns>
-        public Filter<TDocument> Mod(FieldName<TDocument> fieldName, long modulus, long remainder)
+        public FilterDefinition<TDocument> Mod(FieldName<TDocument> fieldName, long modulus, long remainder)
         {
-            return new OperatorFilter<TDocument>("$mod", fieldName, new BsonArray { modulus, remainder });
+            return new OperatorFilterDefinition<TDocument>("$mod", fieldName, new BsonArray { modulus, remainder });
         }
 
         /// <summary>
@@ -507,7 +507,7 @@ namespace MongoDB.Driver
         /// <param name="modulus">The modulus.</param>
         /// <param name="remainder">The remainder.</param>
         /// <returns>A modulo filter.</returns>
-        public Filter<TDocument> Mod(Expression<Func<TDocument, object>> fieldName, long modulus, long remainder)
+        public FilterDefinition<TDocument> Mod(Expression<Func<TDocument, object>> fieldName, long modulus, long remainder)
         {
             return Mod(new ExpressionFieldName<TDocument>(fieldName), modulus, remainder);
         }
@@ -519,9 +519,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A not equal filter.</returns>
-        public Filter<TDocument> Ne<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public FilterDefinition<TDocument> Ne<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorFilter<TDocument, TField>("$ne", fieldName, value);
+            return new OperatorFilterDefinition<TDocument, TField>("$ne", fieldName, value);
         }
 
         /// <summary>
@@ -531,7 +531,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A not equal filter.</returns>
-        public Filter<TDocument> Ne<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public FilterDefinition<TDocument> Ne<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Ne(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -545,7 +545,7 @@ namespace MongoDB.Driver
         /// <param name="maxDistance">The maximum distance.</param>
         /// <param name="minDistance">The minimum distance.</param>
         /// <returns>A near filter.</returns>
-        public Filter<TDocument> Near(FieldName<TDocument> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
+        public FilterDefinition<TDocument> Near(FieldName<TDocument> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
         {
             var document = new BsonDocument
             {
@@ -554,7 +554,7 @@ namespace MongoDB.Driver
                 { "$minDistance", () => minDistance.Value, minDistance.HasValue }
             };
 
-            return new SimpleFilter<TDocument>(fieldName, document);
+            return new SimpleFilterDefinition<TDocument>(fieldName, document);
         }
 
         /// <summary>
@@ -566,7 +566,7 @@ namespace MongoDB.Driver
         /// <param name="maxDistance">The maximum distance.</param>
         /// <param name="minDistance">The minimum distance.</param>
         /// <returns>A near filter.</returns>
-        public Filter<TDocument> Near(Expression<Func<TDocument, object>> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
+        public FilterDefinition<TDocument> Near(Expression<Func<TDocument, object>> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
         {
             return Near(new ExpressionFieldName<TDocument>(fieldName), x, y, maxDistance, minDistance);
         }
@@ -580,10 +580,10 @@ namespace MongoDB.Driver
         /// <param name="maxDistance">The maximum distance.</param>
         /// <param name="minDistance">The minimum distance.</param>
         /// <returns>A near filter.</returns>
-        public Filter<TDocument> Near<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
+        public FilterDefinition<TDocument> Near<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
             where TCoordinates : GeoJsonCoordinates
         {
-            return new NearFilter<TDocument, TCoordinates>(fieldName, point, false, maxDistance, minDistance);
+            return new NearFilterDefinition<TDocument, TCoordinates>(fieldName, point, false, maxDistance, minDistance);
         }
 
         /// <summary>
@@ -595,7 +595,7 @@ namespace MongoDB.Driver
         /// <param name="maxDistance">The maximum distance.</param>
         /// <param name="minDistance">The minimum distance.</param>
         /// <returns>A near filter.</returns>
-        public Filter<TDocument> Near<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
+        public FilterDefinition<TDocument> Near<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
             where TCoordinates : GeoJsonCoordinates
         {
             return Near(new ExpressionFieldName<TDocument>(fieldName), point, maxDistance, minDistance);
@@ -610,7 +610,7 @@ namespace MongoDB.Driver
         /// <param name="maxDistance">The maximum distance.</param>
         /// <param name="minDistance">The minimum distance.</param>
         /// <returns>A near sphere filter.</returns>
-        public Filter<TDocument> NearSphere(FieldName<TDocument> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
+        public FilterDefinition<TDocument> NearSphere(FieldName<TDocument> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
         {
             var document = new BsonDocument
             {
@@ -619,7 +619,7 @@ namespace MongoDB.Driver
                 { "$minDistance", () => minDistance.Value, minDistance.HasValue }
             };
 
-            return new SimpleFilter<TDocument>(fieldName, document);
+            return new SimpleFilterDefinition<TDocument>(fieldName, document);
         }
 
         /// <summary>
@@ -631,7 +631,7 @@ namespace MongoDB.Driver
         /// <param name="maxDistance">The maximum distance.</param>
         /// <param name="minDistance">The minimum distance.</param>
         /// <returns>A near sphere filter.</returns>
-        public Filter<TDocument> NearSphere(Expression<Func<TDocument, object>> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
+        public FilterDefinition<TDocument> NearSphere(Expression<Func<TDocument, object>> fieldName, double x, double y, double? maxDistance = null, double? minDistance = null)
         {
             return NearSphere(new ExpressionFieldName<TDocument>(fieldName), x, y, maxDistance, minDistance);
         }
@@ -645,10 +645,10 @@ namespace MongoDB.Driver
         /// <param name="maxDistance">The maximum distance.</param>
         /// <param name="minDistance">The minimum distance.</param>
         /// <returns>A near sphere filter.</returns>
-        public Filter<TDocument> NearSphere<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
+        public FilterDefinition<TDocument> NearSphere<TCoordinates>(FieldName<TDocument> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
             where TCoordinates : GeoJsonCoordinates
         {
-            return new NearFilter<TDocument, TCoordinates>(fieldName, point, true, maxDistance, minDistance);
+            return new NearFilterDefinition<TDocument, TCoordinates>(fieldName, point, true, maxDistance, minDistance);
         }
 
         /// <summary>
@@ -660,7 +660,7 @@ namespace MongoDB.Driver
         /// <param name="maxDistance">The maximum distance.</param>
         /// <param name="minDistance">The minimum distance.</param>
         /// <returns>A near sphere filter.</returns>
-        public Filter<TDocument> NearSphere<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
+        public FilterDefinition<TDocument> NearSphere<TCoordinates>(Expression<Func<TDocument, object>> fieldName, GeoJsonPoint<TCoordinates> point, double? maxDistance = null, double? minDistance = null)
             where TCoordinates : GeoJsonCoordinates
         {
             return NearSphere(new ExpressionFieldName<TDocument>(fieldName), point, maxDistance, minDistance);
@@ -674,10 +674,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A not in filter.</returns>
-        public Filter<TDocument> Nin<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> Nin<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            return new ArrayOperatorFilter<TDocument, TField, TItem>("$nin", fieldName, values);
+            return new ArrayOperatorFilterDefinition<TDocument, TField, TItem>("$nin", fieldName, values);
         }
 
         /// <summary>
@@ -686,9 +686,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A not in filter.</returns>
-        public Filter<TDocument> Nin<TItem>(string fieldName, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> Nin<TItem>(string fieldName, IEnumerable<TItem> values)
         {
-            return new ArrayOperatorFilter<TDocument, IEnumerable<TItem>, TItem>(
+            return new ArrayOperatorFilterDefinition<TDocument, IEnumerable<TItem>, TItem>(
                 "$nin",
                 new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
                 values);
@@ -702,7 +702,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A not in filter.</returns>
-        public Filter<TDocument> Nin<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> Nin<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             return Nin(new ExpressionFieldName<TDocument, TField>(fieldName), values);
@@ -713,9 +713,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <returns>A not filter.</returns>
-        public Filter<TDocument> Not(Filter<TDocument> filter)
+        public FilterDefinition<TDocument> Not(FilterDefinition<TDocument> filter)
         {
-            return new NotFilter<TDocument>(filter);
+            return new NotFilterDefinition<TDocument>(filter);
         }
 
         /// <summary>
@@ -723,9 +723,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filters">The filters.</param>
         /// <returns>An or filter.</returns>
-        public Filter<TDocument> Or(params Filter<TDocument>[] filters)
+        public FilterDefinition<TDocument> Or(params FilterDefinition<TDocument>[] filters)
         {
-            return Or((IEnumerable<Filter<TDocument>>)filters);
+            return Or((IEnumerable<FilterDefinition<TDocument>>)filters);
         }
 
         /// <summary>
@@ -733,9 +733,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="filters">The filters.</param>
         /// <returns>An or filter.</returns>
-        public Filter<TDocument> Or(IEnumerable<Filter<TDocument>> filters)
+        public FilterDefinition<TDocument> Or(IEnumerable<FilterDefinition<TDocument>> filters)
         {
-            return new OrFilter<TDocument>(filters);
+            return new OrFilterDefinition<TDocument>(filters);
         }
 
         /// <summary>
@@ -744,9 +744,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="regex">The regex.</param>
         /// <returns>A regular expression filter.</returns>
-        public Filter<TDocument> Regex(FieldName<TDocument> fieldName, BsonRegularExpression regex)
+        public FilterDefinition<TDocument> Regex(FieldName<TDocument> fieldName, BsonRegularExpression regex)
         {
-            return new SimpleFilter<TDocument>(fieldName, regex);
+            return new SimpleFilterDefinition<TDocument>(fieldName, regex);
         }
 
         /// <summary>
@@ -755,7 +755,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="regex">The regex.</param>
         /// <returns>A regular expression filter.</returns>
-        public Filter<TDocument> Regex(Expression<Func<TDocument, object>> fieldName, BsonRegularExpression regex)
+        public FilterDefinition<TDocument> Regex(Expression<Func<TDocument, object>> fieldName, BsonRegularExpression regex)
         {
             return Regex(new ExpressionFieldName<TDocument>(fieldName), regex);
         }
@@ -766,9 +766,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="size">The size.</param>
         /// <returns>A size filter.</returns>
-        public Filter<TDocument> Size(FieldName<TDocument> fieldName, int size)
+        public FilterDefinition<TDocument> Size(FieldName<TDocument> fieldName, int size)
         {
-            return new OperatorFilter<TDocument>("$size", fieldName, size);
+            return new OperatorFilterDefinition<TDocument>("$size", fieldName, size);
         }
 
         /// <summary>
@@ -777,7 +777,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="size">The size.</param>
         /// <returns>A size filter.</returns>
-        public Filter<TDocument> Size(Expression<Func<TDocument, object>> fieldName, int size)
+        public FilterDefinition<TDocument> Size(Expression<Func<TDocument, object>> fieldName, int size)
         {
             return Size(new ExpressionFieldName<TDocument>(fieldName), size);
         }
@@ -788,9 +788,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="size">The size.</param>
         /// <returns>A size greater than filter.</returns>
-        public Filter<TDocument> SizeGt(FieldName<TDocument> fieldName, int size)
+        public FilterDefinition<TDocument> SizeGt(FieldName<TDocument> fieldName, int size)
         {
-            return new ArrayIndexExistsFilter<TDocument>(fieldName, size, true);
+            return new ArrayIndexExistsFilterDefinition<TDocument>(fieldName, size, true);
         }
 
         /// <summary>
@@ -799,7 +799,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="size">The size.</param>
         /// <returns>A size greater than filter.</returns>
-        public Filter<TDocument> SizeGt(Expression<Func<TDocument, object>> fieldName, int size)
+        public FilterDefinition<TDocument> SizeGt(Expression<Func<TDocument, object>> fieldName, int size)
         {
             return SizeGt(new ExpressionFieldName<TDocument>(fieldName), size);
         }
@@ -810,9 +810,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="size">The size.</param>
         /// <returns>A size greater than or equal filter.</returns>
-        public Filter<TDocument> SizeGte(FieldName<TDocument> fieldName, int size)
+        public FilterDefinition<TDocument> SizeGte(FieldName<TDocument> fieldName, int size)
         {
-            return new ArrayIndexExistsFilter<TDocument>(fieldName, size - 1, true);
+            return new ArrayIndexExistsFilterDefinition<TDocument>(fieldName, size - 1, true);
         }
 
         /// <summary>
@@ -821,7 +821,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="size">The size.</param>
         /// <returns>A size greater than or equal filter.</returns>
-        public Filter<TDocument> SizeGte(Expression<Func<TDocument, object>> fieldName, int size)
+        public FilterDefinition<TDocument> SizeGte(Expression<Func<TDocument, object>> fieldName, int size)
         {
             return SizeGte(new ExpressionFieldName<TDocument>(fieldName), size);
         }
@@ -832,9 +832,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="size">The size.</param>
         /// <returns>A size less than filter.</returns>
-        public Filter<TDocument> SizeLt(FieldName<TDocument> fieldName, int size)
+        public FilterDefinition<TDocument> SizeLt(FieldName<TDocument> fieldName, int size)
         {
-            return new ArrayIndexExistsFilter<TDocument>(fieldName, size - 1, false);
+            return new ArrayIndexExistsFilterDefinition<TDocument>(fieldName, size - 1, false);
         }
 
         /// <summary>
@@ -843,7 +843,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="size">The size.</param>
         /// <returns>A size less than filter.</returns>
-        public Filter<TDocument> SizeLt(Expression<Func<TDocument, object>> fieldName, int size)
+        public FilterDefinition<TDocument> SizeLt(Expression<Func<TDocument, object>> fieldName, int size)
         {
             return SizeLt(new ExpressionFieldName<TDocument>(fieldName), size);
         }
@@ -854,9 +854,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="size">The size.</param>
         /// <returns>A size less than or equal filter.</returns>
-        public Filter<TDocument> SizeLte(FieldName<TDocument> fieldName, int size)
+        public FilterDefinition<TDocument> SizeLte(FieldName<TDocument> fieldName, int size)
         {
-            return new ArrayIndexExistsFilter<TDocument>(fieldName, size, false);
+            return new ArrayIndexExistsFilterDefinition<TDocument>(fieldName, size, false);
         }
 
         /// <summary>
@@ -865,7 +865,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="size">The size.</param>
         /// <returns>A size less than or equal filter.</returns>
-        public Filter<TDocument> SizeLte(Expression<Func<TDocument, object>> fieldName, int size)
+        public FilterDefinition<TDocument> SizeLte(Expression<Func<TDocument, object>> fieldName, int size)
         {
             return SizeLte(new ExpressionFieldName<TDocument>(fieldName), size);
         }
@@ -876,14 +876,14 @@ namespace MongoDB.Driver
         /// <param name="search">The search.</param>
         /// <param name="language">The language.</param>
         /// <returns>A text filter.</returns>
-        public Filter<TDocument> Text(string search, string language = null)
+        public FilterDefinition<TDocument> Text(string search, string language = null)
         {
             var document = new BsonDocument
             {
                 { "$search", search },
                 { "$language", language, language != null }
             };
-            return new BsonDocumentFilter<TDocument>(new BsonDocument("$text", document));
+            return new BsonDocumentFilterDefinition<TDocument>(new BsonDocument("$text", document));
         }
 
         /// <summary>
@@ -892,9 +892,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="type">The type.</param>
         /// <returns>A type filter.</returns>
-        public Filter<TDocument> Type(FieldName<TDocument> fieldName, BsonType type)
+        public FilterDefinition<TDocument> Type(FieldName<TDocument> fieldName, BsonType type)
         {
-            return new OperatorFilter<TDocument>("$type", fieldName, (int)type);
+            return new OperatorFilterDefinition<TDocument>("$type", fieldName, (int)type);
         }
 
         /// <summary>
@@ -903,7 +903,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="type">The type.</param>
         /// <returns>A type filter.</returns>
-        public Filter<TDocument> Type(Expression<Func<TDocument, object>> fieldName, BsonType type)
+        public FilterDefinition<TDocument> Type(Expression<Func<TDocument, object>> fieldName, BsonType type)
         {
             return Type(new ExpressionFieldName<TDocument>(fieldName), type);
         }
@@ -913,17 +913,17 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <returns>An expression filter.</returns>
-        public Filter<TDocument> Where(Expression<Func<TDocument, bool>> expression)
+        public FilterDefinition<TDocument> Where(Expression<Func<TDocument, bool>> expression)
         {
-            return new ExpressionFilter<TDocument>(expression);
+            return new ExpressionFilterDefinition<TDocument>(expression);
         }
     }
 
-    internal sealed class AndFilter<TDocument> : Filter<TDocument>
+    internal sealed class AndFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
-        private readonly List<Filter<TDocument>> _filters;
+        private readonly List<FilterDefinition<TDocument>> _filters;
 
-        public AndFilter(IEnumerable<Filter<TDocument>> filters)
+        public AndFilterDefinition(IEnumerable<FilterDefinition<TDocument>> filters)
         {
             _filters = Ensure.IsNotNull(filters, "filters").ToList();
         }
@@ -1001,14 +1001,14 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class ArrayOperatorFilter<TDocument, TField, TItem> : Filter<TDocument>
+    internal sealed class ArrayOperatorFilterDefinition<TDocument, TField, TItem> : FilterDefinition<TDocument>
         where TField : IEnumerable<TItem>
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly IEnumerable<TItem> _values;
 
-        public ArrayOperatorFilter(string operatorName, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public ArrayOperatorFilterDefinition(string operatorName, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
@@ -1049,12 +1049,12 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class ElementMatchFilter<TDocument, TField, TItem> : Filter<TDocument>
+    internal sealed class ElementMatchFilterDefinition<TDocument, TField, TItem> : FilterDefinition<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
-        private readonly Filter<TItem> _filter;
+        private readonly FilterDefinition<TItem> _filter;
 
-        public ElementMatchFilter(FieldName<TDocument, TField> fieldName, Filter<TItem> filter)
+        public ElementMatchFilterDefinition(FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _filter = filter;
@@ -1078,11 +1078,11 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class ScalarElementMatchFilter<TDocument> : Filter<TDocument>
+    internal sealed class ScalarElementMatchFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
-        private readonly Filter<TDocument> _elementMatchFilter;
+        private readonly FilterDefinition<TDocument> _elementMatchFilter;
 
-        public ScalarElementMatchFilter(Filter<TDocument> elementMatchFilter)
+        public ScalarElementMatchFilterDefinition(FilterDefinition<TDocument> elementMatchFilter)
         {
             _elementMatchFilter = Ensure.IsNotNull(elementMatchFilter, "elementMatchFilter");
         }
@@ -1119,14 +1119,14 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class GeometryOperatorFilter<TDocument, TCoordinates> : Filter<TDocument>
+    internal sealed class GeometryOperatorFilterDefinition<TDocument, TCoordinates> : FilterDefinition<TDocument>
         where TCoordinates : GeoJsonCoordinates
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument> _fieldName;
         private readonly GeoJsonGeometry<TCoordinates> _geometry;
 
-        public GeometryOperatorFilter(string operatorName, FieldName<TDocument> fieldName, GeoJsonGeometry<TCoordinates> geometry)
+        public GeometryOperatorFilterDefinition(string operatorName, FieldName<TDocument> fieldName, GeoJsonGeometry<TCoordinates> geometry)
         {
             _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
@@ -1157,7 +1157,7 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class NearFilter<TDocument, TCoordinates> : Filter<TDocument>
+    internal sealed class NearFilterDefinition<TDocument, TCoordinates> : FilterDefinition<TDocument>
         where TCoordinates : GeoJsonCoordinates
     {
         private readonly FieldName<TDocument> _fieldName;
@@ -1166,7 +1166,7 @@ namespace MongoDB.Driver
         private readonly double? _minDistance;
         private readonly bool _spherical;
 
-        public NearFilter(FieldName<TDocument> fieldName, GeoJsonPoint<TCoordinates> point, bool spherical, double? maxDistance = null, double? minDistance = null)
+        public NearFilterDefinition(FieldName<TDocument> fieldName, GeoJsonPoint<TCoordinates> point, bool spherical, double? maxDistance = null, double? minDistance = null)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _point = Ensure.IsNotNull(point, "point");
@@ -1209,11 +1209,11 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class NotFilter<TDocument> : Filter<TDocument>
+    internal sealed class NotFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
-        private readonly Filter<TDocument> _filter;
+        private readonly FilterDefinition<TDocument> _filter;
 
-        public NotFilter(Filter<TDocument> filter)
+        public NotFilterDefinition(FilterDefinition<TDocument> filter)
         {
             _filter = Ensure.IsNotNull(filter, "filter");
         }
@@ -1301,13 +1301,13 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class OperatorFilter<TDocument> : Filter<TDocument>
+    internal sealed class OperatorFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument> _fieldName;
         private readonly BsonValue _value;
 
-        public OperatorFilter(string operatorName, FieldName<TDocument> fieldName, BsonValue value)
+        public OperatorFilterDefinition(string operatorName, FieldName<TDocument> fieldName, BsonValue value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
@@ -1321,13 +1321,13 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class OperatorFilter<TDocument, TField> : Filter<TDocument>
+    internal sealed class OperatorFilterDefinition<TDocument, TField> : FilterDefinition<TDocument>
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly TField _value;
 
-        public OperatorFilter(string operatorName, FieldName<TDocument, TField> fieldName, TField value)
+        public OperatorFilterDefinition(string operatorName, FieldName<TDocument, TField> fieldName, TField value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
@@ -1355,11 +1355,11 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class OrFilter<TDocument> : Filter<TDocument>
+    internal sealed class OrFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
-        private readonly List<Filter<TDocument>> _filters;
+        private readonly List<FilterDefinition<TDocument>> _filters;
 
-        public OrFilter(IEnumerable<Filter<TDocument>> filters)
+        public OrFilterDefinition(IEnumerable<FilterDefinition<TDocument>> filters)
         {
             _filters = Ensure.IsNotNull(filters, "filters").ToList();
         }
@@ -1393,12 +1393,12 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class SimpleFilter<TDocument> : Filter<TDocument>
+    internal sealed class SimpleFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
         private readonly FieldName<TDocument> _fieldName;
         private readonly BsonValue _value;
 
-        public SimpleFilter(FieldName<TDocument> fieldName, BsonValue value)
+        public SimpleFilterDefinition(FieldName<TDocument> fieldName, BsonValue value)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _value = value;
@@ -1411,12 +1411,12 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class SimpleFilter<TDocument, TField> : Filter<TDocument>
+    internal sealed class SimpleFilterDefinition<TDocument, TField> : FilterDefinition<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly TField _value;
 
-        public SimpleFilter(FieldName<TDocument, TField> fieldName, TField value)
+        public SimpleFilterDefinition(FieldName<TDocument, TField> fieldName, TField value)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _value = value;
@@ -1440,13 +1440,13 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class ArrayIndexExistsFilter<TDocument> : Filter<TDocument>
+    internal sealed class ArrayIndexExistsFilterDefinition<TDocument> : FilterDefinition<TDocument>
     {
         private readonly FieldName<TDocument> _fieldName;
         private readonly int _index;
         private readonly bool _exists;
 
-        public ArrayIndexExistsFilter(FieldName<TDocument> fieldName, int index, bool exists)
+        public ArrayIndexExistsFilterDefinition(FieldName<TDocument> fieldName, int index, bool exists)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _index = index;

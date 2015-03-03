@@ -43,7 +43,7 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TResult> Limit(int limit);
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TResult> Match(Filter<TResult> filter);
+        public abstract IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter);
 
         /// <inheritdoc />
         public abstract Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken = default(CancellationToken));

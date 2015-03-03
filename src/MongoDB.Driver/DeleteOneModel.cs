@@ -31,14 +31,14 @@ namespace MongoDB.Driver
     public sealed class DeleteOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields
-        private readonly Filter<TDocument> _filter;
+        private readonly FilterDefinition<TDocument> _filter;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="DeleteOneModel{TDocument}"/> class.
         /// </summary>
         /// <param name="filter">The filter.</param>
-        public DeleteOneModel(Filter<TDocument> filter)
+        public DeleteOneModel(FilterDefinition<TDocument> filter)
         {
             _filter = Ensure.IsNotNull(filter, "filter");
         }
@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the filter.
         /// </summary>
-        public Filter<TDocument> Filter
+        public FilterDefinition<TDocument> Filter
         {
             get { return _filter; }
         }
