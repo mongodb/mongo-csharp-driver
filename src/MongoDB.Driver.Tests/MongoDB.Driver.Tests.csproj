@@ -95,12 +95,12 @@
     <Compile Include="Linq\Translators\LegacyPredicateTranslatorTests.cs" />
     <Compile Include="Linq\Translators\TranslatorTestBase.cs" />
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
-    <Compile Include="PipelineTests.cs" />
-    <Compile Include="ProjectionBuilderTests.cs" />
+    <Compile Include="PipelineDefinitionTests.cs" />
+    <Compile Include="ProjectionDefinitionBuilderTests.cs" />
     <Compile Include="IndexDefinitionBuilderTests.cs" />
-    <Compile Include="SortBuilderTests.cs" />
-    <Compile Include="Update2BuilderTests.cs" />
-    <Compile Include="FilterBuilderTests.cs" />
+    <Compile Include="SortDefinitionBuilderTests.cs" />
+    <Compile Include="UpdateDefinitionBuilderTests.cs" />
+    <Compile Include="FilterDefinitionBuilderTests.cs" />
     <Compile Include="IAggregateFluentExtensionsTests.cs" />
     <Compile Include="IFindFluentExtensionsTests.cs" />
     <Compile Include="IMongoCollectionExtensionsTests.cs" />

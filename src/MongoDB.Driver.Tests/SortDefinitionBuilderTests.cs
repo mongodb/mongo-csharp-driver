@@ -22,7 +22,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Tests
 {
     [TestFixture]
-    public class SortBuilderTests
+    public class SortDefinitionBuilderTests
     {
         [Test]
         public void Ascending()

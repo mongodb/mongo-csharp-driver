@@ -23,7 +23,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Tests
 {
     [TestFixture]
-    public class Update2BuilderTests
+    public class UpdateDefinitionBuilderTests
     {
         [Test]
         public void AddToSet()

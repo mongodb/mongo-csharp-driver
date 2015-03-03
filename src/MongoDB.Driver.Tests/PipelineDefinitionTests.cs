@@ -23,7 +23,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Tests
 {
     [TestFixture]
-    public class PipelineStagePipelineTests
+    public class PipelineStagePipelineDefinitionTests
     {
         [Test]
         public void Constructor_should_verify_the_inputs_and_outputs_of_the_stages_and_throw_when_invalid()

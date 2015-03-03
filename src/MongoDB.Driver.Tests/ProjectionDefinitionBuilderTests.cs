@@ -22,7 +22,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Tests
 {
     [TestFixture]
-    public class ProjectionBuilderTests
+    public class ProjectionDefinitionBuilderTests
     {
         [Test]
         public void Combine()
