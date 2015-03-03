@@ -92,6 +92,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BulkWriteErrorTests.cs" />
+    <Compile Include="FieldDefinitionTests.cs" />
     <Compile Include="Linq\Translators\LegacyPredicateTranslatorTests.cs" />
     <Compile Include="Linq\Translators\TranslatorTestBase.cs" />
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />

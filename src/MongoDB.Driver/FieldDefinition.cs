@@ -14,7 +14,9 @@
 */
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Expressions;
@@ -232,14 +234,11 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override string Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            BsonSerializationInfo serializationInfo;
-            var bsonDocumentSerializer = documentSerializer as IBsonDocumentSerializer;
-            if (bsonDocumentSerializer != null && bsonDocumentSerializer.TryGetMemberSerializationInfo(_fieldName, out serializationInfo))
-            {
-                return serializationInfo.ElementName;
-            }
+            string resolvedName;
+            IBsonSerializer resolvedSerializer;
+            StringFieldDefinitionHelper.Resolve<TDocument>(_fieldName, documentSerializer, out resolvedName, out resolvedSerializer);
 
-            return _fieldName;
+            return resolvedName;
         }
     }
 
@@ -267,18 +266,73 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            BsonSerializationInfo serializationInfo;
-            var bsonDocumentSerializer = documentSerializer as IBsonDocumentSerializer;
-            if (bsonDocumentSerializer != null && bsonDocumentSerializer.TryGetMemberSerializationInfo(_fieldName, out serializationInfo))
-            {
-                return new RenderedFieldDefinition<TField>(
-                    serializationInfo.ElementName,
-                    _fieldSerializer ?? (serializationInfo.Serializer as IBsonSerializer<TField>) ?? serializerRegistry.GetSerializer<TField>());
-            }
+            string resolvedName;
+            IBsonSerializer resolvedSerializer;
+            StringFieldDefinitionHelper.Resolve<TDocument>(_fieldName, documentSerializer, out resolvedName, out resolvedSerializer);
 
             return new RenderedFieldDefinition<TField>(
-                _fieldName,
-                _fieldSerializer ?? serializerRegistry.GetSerializer<TField>());
+                resolvedName,
+                _fieldSerializer ?? (resolvedSerializer as IBsonSerializer<TField>) ?? serializerRegistry.GetSerializer<TField>());
+        }
+    }
+
+    internal static class StringFieldDefinitionHelper
+    {
+        public static void Resolve<TDocument>(string fieldName, IBsonSerializer<TDocument> serializer, out string resolvedFieldName, out IBsonSerializer resolvedFieldSerializer)
+        {
+            resolvedFieldName = fieldName;
+            resolvedFieldSerializer = null;
+            var documentSerializer = serializer as IBsonDocumentSerializer;
+            if (documentSerializer == null)
+            {
+                return;
+            }
+
+            BsonSerializationInfo serializationInfo;
+
+            // first, lets try the quick and easy one, which will be a majority of cases
+            if (documentSerializer.TryGetMemberSerializationInfo(fieldName, out serializationInfo))
+            {
+                resolvedFieldName = serializationInfo.ElementName;
+                resolvedFieldSerializer = serializationInfo.Serializer;
+                return;
+            }
+
+            // now lets go and do the more difficult variant
+            var nameParts = fieldName.Split('.');
+            if (nameParts.Length <= 1)
+            {
+                // if we only have 1, then it's no different than what we did above
+                // when we found nothing.
+                return;
+            }
+
+            var currentSerializer = documentSerializer;
+            for (int i = 0; i < nameParts.Length; i++)
+            {
+                if(nameParts[i] == "$" || nameParts[i].All(char.IsDigit))
+                {
+                    continue;
+                }
+
+                if (currentSerializer == null || !currentSerializer.TryGetMemberSerializationInfo(nameParts[i], out serializationInfo))
+                {
+                    resolvedFieldSerializer = null;
+                    break;
+                }
+
+                nameParts[i] = serializationInfo.ElementName;
+                var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
+                if(arraySerializer != null)
+                {
+                    serializationInfo = arraySerializer.GetItemSerializationInfo();
+                }
+
+                resolvedFieldSerializer = serializationInfo.Serializer;
+                currentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
+            }
+
+            resolvedFieldName = string.Join(".", nameParts);
         }
     }
 }
