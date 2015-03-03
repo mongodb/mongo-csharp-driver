@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.CurrentDate("a", Update2CurrentDateType.Date), "{$currentDate: {a: {$type: 'date'}}}");
+            Assert(subject.CurrentDate("a", UpdateDefinitionCurrentDateType.Date), "{$currentDate: {a: {$type: 'date'}}}");
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.CurrentDate("a", Update2CurrentDateType.Timestamp), "{$currentDate: {a: {$type: 'timestamp'}}}");
+            Assert(subject.CurrentDate("a", UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {a: {$type: 'timestamp'}}}");
         }
 
         [Test]
@@ -206,8 +206,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.CurrentDate(x => x.LastUpdated, Update2CurrentDateType.Date), "{$currentDate: {last_updated: {$type: 'date'}}}}");
-            Assert(subject.CurrentDate("LastUpdated", Update2CurrentDateType.Date), "{$currentDate: {LastUpdated: {$type: 'date'}}}}");
+            Assert(subject.CurrentDate(x => x.LastUpdated, UpdateDefinitionCurrentDateType.Date), "{$currentDate: {last_updated: {$type: 'date'}}}}");
+            Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Date), "{$currentDate: {LastUpdated: {$type: 'date'}}}}");
         }
 
         [Test]
@@ -215,8 +215,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.CurrentDate(x => x.LastUpdated, Update2CurrentDateType.Timestamp), "{$currentDate: {last_updated: {$type: 'timestamp'}}}}");
-            Assert(subject.CurrentDate("LastUpdated", Update2CurrentDateType.Timestamp), "{$currentDate: {LastUpdated: {$type: 'timestamp'}}}}");
+            Assert(subject.CurrentDate(x => x.LastUpdated, UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {last_updated: {$type: 'timestamp'}}}}");
+            Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {LastUpdated: {$type: 'timestamp'}}}}");
         }
 
         [Test]
@@ -527,9 +527,9 @@ namespace MongoDB.Driver.Tests
             Assert(update, BsonDocument.Parse(expected));
         }
 
-        private Update2Builder<TDocument> CreateSubject<TDocument>()
+        private UpdateDefinitionBuilder<TDocument> CreateSubject<TDocument>()
         {
-            return new Update2Builder<TDocument>();
+            return new UpdateDefinitionBuilder<TDocument>();
         }
 
         private class Person

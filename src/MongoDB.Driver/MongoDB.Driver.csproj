@@ -78,6 +78,7 @@
       <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateFluent.cs" />
+    <Compile Include="Builders.cs" />
     <Compile Include="IndexDefinition.cs" />
     <Compile Include="Linq\Expressions\ISerializationExpression.cs" />
     <Compile Include="Linq\Processors\Normalizer.cs" />

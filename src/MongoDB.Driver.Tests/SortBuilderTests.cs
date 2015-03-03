@@ -120,9 +120,9 @@ namespace MongoDB.Driver.Tests
             renderedSort.Should().Be(expectedJson);
         }
 
-        private SortBuilder<TDocument> CreateSubject<TDocument>()
+        private SortDefinitionBuilder<TDocument> CreateSubject<TDocument>()
         {
-            return new SortBuilder<TDocument>();
+            return new SortDefinitionBuilder<TDocument>();
         }
 
         private class Person

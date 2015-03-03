@@ -32,7 +32,7 @@ namespace MongoDB.Driver
     {
         private static class BuilderCache<TDocument>
         {
-            public static ProjectionBuilder<TDocument> Instance = new ProjectionBuilder<TDocument>();
+            public static ProjectionDefinitionBuilder<TDocument> Instance = new ProjectionDefinitionBuilder<TDocument>();
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace MongoDB.Driver
     /// A builder for a projection.
     /// </summary>
     /// <typeparam name="TSource">The type of the source.</typeparam>
-    public sealed class ProjectionBuilder<TSource>
+    public sealed class ProjectionDefinitionBuilder<TSource>
     {
         /// <summary>
         /// Combines the specified projections.

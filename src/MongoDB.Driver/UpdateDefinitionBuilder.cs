@@ -31,7 +31,7 @@ namespace MongoDB.Driver
     {
         private static class BuilderCache<TDocument>
         {
-            public static Update2Builder<TDocument> Instance = new Update2Builder<TDocument>();
+            public static UpdateDefinitionBuilder<TDocument> Instance = new UpdateDefinitionBuilder<TDocument>();
         }
 
         /// <summary>
@@ -256,7 +256,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field, Update2CurrentDateType? type = null)
+        public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field, UpdateDefinitionCurrentDateType? type = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.CurrentDate(field, type));
@@ -272,7 +272,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field, Update2CurrentDateType? type = null)
+        public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field, UpdateDefinitionCurrentDateType? type = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.CurrentDate(field, type));
@@ -911,7 +911,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// The type to use for a $currentDate operator.
     /// </summary>
-    public enum Update2CurrentDateType
+    public enum UpdateDefinitionCurrentDateType
     {
         /// <summary>
         /// A date.
@@ -927,7 +927,7 @@ namespace MongoDB.Driver
     /// A builder for an <see cref="UpdateDefinition{TDocument}"/>.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class Update2Builder<TDocument>
+    public sealed class UpdateDefinitionBuilder<TDocument>
     {
         /// <summary>
         /// Creates an add to set operator.
@@ -1112,21 +1112,21 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="type">The type.</param>
         /// <returns>A current date operator.</returns>
-        public UpdateDefinition<TDocument> CurrentDate(FieldDefinition<TDocument> field, Update2CurrentDateType? type = null)
+        public UpdateDefinition<TDocument> CurrentDate(FieldDefinition<TDocument> field, UpdateDefinitionCurrentDateType? type = null)
         {
             BsonValue value;
             if (type.HasValue)
             {
                 switch (type.Value)
                 {
-                    case Update2CurrentDateType.Date:
+                    case UpdateDefinitionCurrentDateType.Date:
                         value = new BsonDocument("$type", "date");
                         break;
-                    case Update2CurrentDateType.Timestamp:
+                    case UpdateDefinitionCurrentDateType.Timestamp:
                         value = new BsonDocument("$type", "timestamp");
                         break;
                     default:
-                        throw new InvalidOperationException("Unknown value for " + typeof(Update2CurrentDateType));
+                        throw new InvalidOperationException("Unknown value for " + typeof(UpdateDefinitionCurrentDateType));
                 }
             }
             else
@@ -1143,7 +1143,7 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="type">The type.</param>
         /// <returns>A current date operator.</returns>
-        public UpdateDefinition<TDocument> CurrentDate(Expression<Func<TDocument, object>> field, Update2CurrentDateType? type = null)
+        public UpdateDefinition<TDocument> CurrentDate(Expression<Func<TDocument, object>> field, UpdateDefinitionCurrentDateType? type = null)
         {
             return CurrentDate(new ExpressionFieldDefinition<TDocument>(field), type);
         }

@@ -31,7 +31,7 @@ namespace MongoDB.Driver
     {
         private static class BuilderCache<TDocument>
         {
-            public static SortBuilder<TDocument> Instance = new SortBuilder<TDocument>();
+            public static SortDefinitionBuilder<TDocument> Instance = new SortDefinitionBuilder<TDocument>();
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace MongoDB.Driver
     /// A builder for a <see cref="SortDefinition{TDocument}"/>.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class SortBuilder<TDocument>
+    public sealed class SortDefinitionBuilder<TDocument>
     {
         /// <summary>
         /// Creates an ascending sort.

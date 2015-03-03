@@ -63,9 +63,9 @@ namespace MongoDB.Driver.Tests
             renderedProjection.Should().Be(expectedJson);
         }
 
-        private ProjectionBuilder<TDocument> CreateSubject<TDocument>()
+        private ProjectionDefinitionBuilder<TDocument> CreateSubject<TDocument>()
         {
-            return new ProjectionBuilder<TDocument>();
+            return new ProjectionDefinitionBuilder<TDocument>();
         }
 
         private class Person

@@ -95,7 +95,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static SortDefinition<TDocument> operator +(SortDefinition<TDocument> lhs, SortDefinition<TDocument> rhs)
         {
-            return new SortBuilder<TDocument>().Combine(lhs, rhs);
+            return new SortDefinitionBuilder<TDocument>().Combine(lhs, rhs);
         }
     }
 

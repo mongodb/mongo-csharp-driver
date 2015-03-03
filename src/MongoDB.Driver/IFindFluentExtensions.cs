@@ -113,7 +113,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(find, "find");
             Ensure.IsNotNull(field, "field");
 
-            find.Options.Sort = new SortBuilder<TDocument>().Combine(
+            find.Options.Sort = new SortDefinitionBuilder<TDocument>().Combine(
                 find.Options.Sort,
                 new DirectionalSortDefinition<TDocument>(new ExpressionFieldDefinition<TDocument>(field), SortDirection.Ascending));
 
@@ -133,7 +133,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(find, "find");
             Ensure.IsNotNull(field, "field");
 
-            find.Options.Sort = new SortBuilder<TDocument>().Combine(
+            find.Options.Sort = new SortDefinitionBuilder<TDocument>().Combine(
                 find.Options.Sort,
                 new DirectionalSortDefinition<TDocument>(new ExpressionFieldDefinition<TDocument>(field), SortDirection.Descending));
 
