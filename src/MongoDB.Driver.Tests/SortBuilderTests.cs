@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.MetaTextScore("awesome"), "{awesome: {$meta: 'textScore'}}");
         }
 
-        private void Assert<TDocument>(Sort<TDocument> sort, string expectedJson)
+        private void Assert<TDocument>(SortDefinition<TDocument> sort, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedSort = sort.Render(documentSerializer, BsonSerializer.SerializerRegistry);

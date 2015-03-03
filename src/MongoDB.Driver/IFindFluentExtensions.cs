@@ -78,7 +78,7 @@ namespace MongoDB.Driver
             // We require an implementation of IFindFluent<TDocument, TResult> 
             // to also implement IOrderedFindFluent<TDocument, TResult>
             return (IOrderedFindFluent<TDocument, TResult>)find.Sort(
-                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending));
+                new DirectionalSortDefinition<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending));
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace MongoDB.Driver
             // We require an implementation of IFindFluent<TDocument, TResult> 
             // to also implement IOrderedFindFluent<TDocument, TResult>
             return (IOrderedFindFluent<TDocument, TResult>)find.Sort(
-                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending));
+                new DirectionalSortDefinition<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending));
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace MongoDB.Driver
 
             find.Options.Sort = new SortBuilder<TDocument>().Combine(
                 find.Options.Sort,
-                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending));
+                new DirectionalSortDefinition<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Ascending));
 
             return find;
         }
@@ -135,7 +135,7 @@ namespace MongoDB.Driver
 
             find.Options.Sort = new SortBuilder<TDocument>().Combine(
                 find.Options.Sort,
-                new DirectionalSort<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending));
+                new DirectionalSortDefinition<TDocument>(new ExpressionFieldName<TDocument>(field), SortDirection.Descending));
 
             return find;
         }

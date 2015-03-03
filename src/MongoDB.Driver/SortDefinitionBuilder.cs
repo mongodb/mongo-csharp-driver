@@ -43,7 +43,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined sort.
         /// </returns>
-        public static Sort<TDocument> Ascending<TDocument>(this Sort<TDocument> sort, FieldName<TDocument> fieldName)
+        public static SortDefinition<TDocument> Ascending<TDocument>(this SortDefinition<TDocument> sort, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(sort, builder.Ascending(fieldName));
@@ -58,7 +58,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined sort.
         /// </returns>
-        public static Sort<TDocument> Ascending<TDocument>(this Sort<TDocument> sort, Expression<Func<TDocument, object>> fieldName)
+        public static SortDefinition<TDocument> Ascending<TDocument>(this SortDefinition<TDocument> sort, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(sort, builder.Ascending(fieldName));
@@ -73,7 +73,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined sort.
         /// </returns>
-        public static Sort<TDocument> Descending<TDocument>(this Sort<TDocument> sort, FieldName<TDocument> fieldName)
+        public static SortDefinition<TDocument> Descending<TDocument>(this SortDefinition<TDocument> sort, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(sort, builder.Descending(fieldName));
@@ -88,7 +88,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined sort.
         /// </returns>
-        public static Sort<TDocument> Descending<TDocument>(this Sort<TDocument> sort, Expression<Func<TDocument, object>> fieldName)
+        public static SortDefinition<TDocument> Descending<TDocument>(this SortDefinition<TDocument> sort, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(sort, builder.Descending(fieldName));
@@ -104,7 +104,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined sort.
         /// </returns>
-        public static Sort<TDocument> MetaTextScore<TDocument>(this Sort<TDocument> sort, string fieldName)
+        public static SortDefinition<TDocument> MetaTextScore<TDocument>(this SortDefinition<TDocument> sort, string fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(sort, builder.MetaTextScore(fieldName));
@@ -112,7 +112,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A builder for a <see cref="Sort{TDocument}"/>.
+    /// A builder for a <see cref="SortDefinition{TDocument}"/>.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class SortBuilder<TDocument>
@@ -122,9 +122,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>An ascending sort.</returns>
-        public Sort<TDocument> Ascending(FieldName<TDocument> fieldName)
+        public SortDefinition<TDocument> Ascending(FieldName<TDocument> fieldName)
         {
-            return new DirectionalSort<TDocument>(fieldName, SortDirection.Ascending);
+            return new DirectionalSortDefinition<TDocument>(fieldName, SortDirection.Ascending);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>An ascending sort.</returns>
-        public Sort<TDocument> Ascending(Expression<Func<TDocument, object>> fieldName)
+        public SortDefinition<TDocument> Ascending(Expression<Func<TDocument, object>> fieldName)
         {
             return Ascending(new ExpressionFieldName<TDocument>(fieldName));
         }
@@ -142,9 +142,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sorts">The sorts.</param>
         /// <returns>A combined sort.</returns>
-        public Sort<TDocument> Combine(params Sort<TDocument>[] sorts)
+        public SortDefinition<TDocument> Combine(params SortDefinition<TDocument>[] sorts)
         {
-            return Combine((IEnumerable<Sort<TDocument>>)sorts);
+            return Combine((IEnumerable<SortDefinition<TDocument>>)sorts);
         }
 
         /// <summary>
@@ -152,9 +152,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sorts">The sorts.</param>
         /// <returns>A combined sort.</returns>
-        public Sort<TDocument> Combine(IEnumerable<Sort<TDocument>> sorts)
+        public SortDefinition<TDocument> Combine(IEnumerable<SortDefinition<TDocument>> sorts)
         {
-            return new CombinedSort<TDocument>(sorts);
+            return new CombinedSortDefinition<TDocument>(sorts);
         }
 
         /// <summary>
@@ -162,9 +162,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A descending sort.</returns>
-        public Sort<TDocument> Descending(FieldName<TDocument> fieldName)
+        public SortDefinition<TDocument> Descending(FieldName<TDocument> fieldName)
         {
-            return new DirectionalSort<TDocument>(fieldName, SortDirection.Descending);
+            return new DirectionalSortDefinition<TDocument>(fieldName, SortDirection.Descending);
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A descending sort.</returns>
-        public Sort<TDocument> Descending(Expression<Func<TDocument, object>> fieldName)
+        public SortDefinition<TDocument> Descending(Expression<Func<TDocument, object>> fieldName)
         {
             return Descending(new ExpressionFieldName<TDocument>(fieldName));
         }
@@ -183,17 +183,17 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A meta text score sort.</returns>
-        public Sort<TDocument> MetaTextScore(string fieldName)
+        public SortDefinition<TDocument> MetaTextScore(string fieldName)
         {
-            return new BsonDocumentSort<TDocument>(new BsonDocument(fieldName, new BsonDocument("$meta", "textScore")));
+            return new BsonDocumentSortDefinition<TDocument>(new BsonDocument(fieldName, new BsonDocument("$meta", "textScore")));
         }
     }
 
-    internal sealed class CombinedSort<TDocument> : Sort<TDocument>
+    internal sealed class CombinedSortDefinition<TDocument> : SortDefinition<TDocument>
     {
-        private readonly List<Sort<TDocument>> _sorts;
+        private readonly List<SortDefinition<TDocument>> _sorts;
 
-        public CombinedSort(IEnumerable<Sort<TDocument>> sorts)
+        public CombinedSortDefinition(IEnumerable<SortDefinition<TDocument>> sorts)
         {
             _sorts = Ensure.IsNotNull(sorts, "sorts").ToList();
         }
@@ -218,12 +218,12 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class DirectionalSort<TDocument> : Sort<TDocument>
+    internal sealed class DirectionalSortDefinition<TDocument> : SortDefinition<TDocument>
     {
         private readonly FieldName<TDocument> _fieldName;
         private readonly SortDirection _direction;
 
-        public DirectionalSort(FieldName<TDocument> fieldName, SortDirection direction)
+        public DirectionalSortDefinition(FieldName<TDocument> fieldName, SortDirection direction)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _direction = direction;

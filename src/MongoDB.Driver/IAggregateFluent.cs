@@ -101,7 +101,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sort">The sort specification.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TResult> Sort(Sort<TResult> sort);
+        IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort);
 
         /// <summary>
         /// Appends an unwind stage to the pipeline.

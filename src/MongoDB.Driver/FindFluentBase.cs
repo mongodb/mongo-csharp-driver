@@ -44,7 +44,7 @@ namespace MongoDB.Driver
         public abstract IFindFluent<TDocument, TResult> Skip(int? skip);
 
         /// <inheritdoc />
-        public abstract IFindFluent<TDocument, TResult> Sort(Sort<TDocument> sort);
+        public abstract IFindFluent<TDocument, TResult> Sort(SortDefinition<TDocument> sort);
 
         /// <inheritdoc />
         public abstract Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken);

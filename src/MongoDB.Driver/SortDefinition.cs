@@ -41,7 +41,7 @@ namespace MongoDB.Driver
     /// Base class for sorts.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public abstract class Sort<TDocument>
+    public abstract class SortDefinition<TDocument>
     {
         /// <summary>
         /// Renders the sort to a <see cref="BsonDocument"/>.
@@ -52,37 +52,37 @@ namespace MongoDB.Driver
         public abstract BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="Sort{TDocument}"/>.
+        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="SortDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Sort<TDocument>(BsonDocument document)
+        public static implicit operator SortDefinition<TDocument>(BsonDocument document)
         {
             if (document == null)
             {
                 return null;
             }
 
-            return new BsonDocumentSort<TDocument>(document);
+            return new BsonDocumentSortDefinition<TDocument>(document);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Sort{TDocument}"/>.
+        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="SortDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Sort<TDocument>(string json)
+        public static implicit operator SortDefinition<TDocument>(string json)
         {
             if (json == null)
             {
                 return null;
             }
 
-            return new JsonSort<TDocument>(json);
+            return new JsonSortDefinition<TDocument>(json);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static Sort<TDocument> operator +(Sort<TDocument> lhs, Sort<TDocument> rhs)
+        public static SortDefinition<TDocument> operator +(SortDefinition<TDocument> lhs, SortDefinition<TDocument> rhs)
         {
             return new SortBuilder<TDocument>().Combine(lhs, rhs);
         }
@@ -103,15 +103,15 @@ namespace MongoDB.Driver
     /// A <see cref="BsonDocument"/> based sort.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class BsonDocumentSort<TDocument> : Sort<TDocument>
+    public sealed class BsonDocumentSortDefinition<TDocument> : SortDefinition<TDocument>
     {
         private readonly BsonDocument _document;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentSort{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentSortDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="document">The document.</param>
-        public BsonDocumentSort(BsonDocument document)
+        public BsonDocumentSortDefinition(BsonDocument document)
         {
             _document = Ensure.IsNotNull(document, "document");
         }
@@ -135,15 +135,15 @@ namespace MongoDB.Driver
     /// A JSON <see cref="String" /> based sort.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class JsonSort<TDocument> : Sort<TDocument>
+    public sealed class JsonSortDefinition<TDocument> : SortDefinition<TDocument>
     {
         private readonly string _json;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonSort{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="JsonSortDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="json">The json.</param>
-        public JsonSort(string json)
+        public JsonSortDefinition(string json)
         {
             _json = Ensure.IsNotNullOrEmpty(json, "json");
         }
@@ -167,15 +167,15 @@ namespace MongoDB.Driver
     /// An <see cref="Object" /> based sort.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class ObjectSort<TDocument> : Sort<TDocument>
+    public sealed class ObjectSortDefinition<TDocument> : SortDefinition<TDocument>
     {
         private readonly object _obj;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectSort{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="ObjectSortDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="obj">The object.</param>
-        public ObjectSort(object obj)
+        public ObjectSortDefinition(object obj)
         {
             _obj = Ensure.IsNotNull(obj, "obj");
         }

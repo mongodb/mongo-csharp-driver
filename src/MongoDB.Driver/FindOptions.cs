@@ -113,7 +113,7 @@ namespace MongoDB.Driver
         private int? _limit;
         private ProjectionDefinition<TDocument, TResult> _projection;
         private int? _skip;
-        private Sort<TDocument> _sort;
+        private SortDefinition<TDocument> _sort;
 
         // properties
         /// <summary>
@@ -146,7 +146,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort.
         /// </summary>
-        public Sort<TDocument> Sort
+        public SortDefinition<TDocument> Sort
         {
             get { return _sort; }
             set { _sort = value; }

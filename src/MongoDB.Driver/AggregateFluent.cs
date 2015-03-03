@@ -114,7 +114,7 @@ namespace MongoDB.Driver
             return AppendStage<TResult>(new BsonDocument("$skip", skip));
         }
 
-        public override IAggregateFluent<TResult> Sort(Sort<TResult> sort)
+        public override IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort)
         {
             const string operatorName = "$sort";
             var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(

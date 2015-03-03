@@ -335,7 +335,7 @@ namespace MongoDB.Driver
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentSort{TDocument}" /> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentSortDefinition{TDocument}" /> class.
         /// </summary>
         /// <param name="json">The json.</param>
         /// <param name="resultSerializer">The result serializer.</param>

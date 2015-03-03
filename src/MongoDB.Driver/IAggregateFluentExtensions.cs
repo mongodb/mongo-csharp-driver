@@ -135,7 +135,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
-                new DirectionalSort<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Ascending));
+                new DirectionalSortDefinition<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Ascending));
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
-                new DirectionalSort<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Descending));
+                new DirectionalSortDefinition<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Descending));
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace MongoDB.Driver
                 (s, sr) =>
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new DirectionalSort<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Ascending).Render(s, sr);
+                    var newSort = new DirectionalSortDefinition<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Ascending).Render(s, sr);
                     return new RenderedPipelineStage<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
@@ -211,7 +211,7 @@ namespace MongoDB.Driver
                 (s, sr) =>
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new DirectionalSort<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Descending).Render(s, sr);
+                    var newSort = new DirectionalSortDefinition<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Descending).Render(s, sr);
                     return new RenderedPipelineStage<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 

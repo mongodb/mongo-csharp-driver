@@ -728,7 +728,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PushEach<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+        public static Update2<TDocument> PushEach<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -749,7 +749,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PushEach<TDocument, TItem>(this Update2<TDocument> update, string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+        public static Update2<TDocument> PushEach<TDocument, TItem>(this Update2<TDocument> update, string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.PushEach(fieldName, values, slice, position, sort));
@@ -770,7 +770,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PushEach<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+        public static Update2<TDocument> PushEach<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -1471,7 +1471,7 @@ namespace MongoDB.Driver
         /// <param name="position">The position.</param>
         /// <param name="sort">The sort.</param>
         /// <returns>A push operator.</returns>
-        public Update2<TDocument> PushEach<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+        public Update2<TDocument> PushEach<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
             return new PushUpdate<TDocument, TField, TItem>(fieldName, values, slice, position, sort);
@@ -1487,7 +1487,7 @@ namespace MongoDB.Driver
         /// <param name="position">The position.</param>
         /// <param name="sort">The sort.</param>
         /// <returns>A push operator.</returns>
-        public Update2<TDocument> PushEach<TItem>(string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+        public Update2<TDocument> PushEach<TItem>(string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
             return PushEach<IEnumerable<TItem>, TItem>(
                 new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
@@ -1508,7 +1508,7 @@ namespace MongoDB.Driver
         /// <param name="position">The position.</param>
         /// <param name="sort">The sort.</param>
         /// <returns>A push operator.</returns>
-        public Update2<TDocument> PushEach<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+        public Update2<TDocument> PushEach<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
             return PushEach(new ExpressionFieldName<TDocument, TField>(fieldName), values, slice, position, sort);
@@ -1858,10 +1858,10 @@ namespace MongoDB.Driver
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly int? _position;
         private readonly int? _slice;
-        private Sort<TItem> _sort;
+        private SortDefinition<TItem> _sort;
         private readonly List<TItem> _values;
 
-        public PushUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, Sort<TItem> sort = null)
+        public PushUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _values = Ensure.IsNotNull(values, "values").ToList();

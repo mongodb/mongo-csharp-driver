@@ -76,7 +76,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sort">The sort.</param>
         /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TResult> Sort(Sort<TDocument> sort);
+        IFindFluent<TDocument, TResult> Sort(SortDefinition<TDocument> sort);
     }
 
     /// <summary>

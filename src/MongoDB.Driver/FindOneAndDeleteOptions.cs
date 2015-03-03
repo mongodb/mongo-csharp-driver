@@ -32,7 +32,7 @@ namespace MongoDB.Driver
         // fields
         private TimeSpan? _maxTime;
         private ProjectionDefinition<TDocument, TResult> _projection;
-        private Sort<TDocument> _sort;
+        private SortDefinition<TDocument> _sort;
 
         // properties
         /// <summary>
@@ -56,7 +56,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort.
         /// </summary>
-        public Sort<TDocument> Sort
+        public SortDefinition<TDocument> Sort
         {
             get { return _sort; }
             set { _sort = value; }

@@ -94,7 +94,7 @@ namespace MongoDB.Driver
             return this;
         }
 
-        public override IFindFluent<TDocument, TResult> Sort(Sort<TDocument> sort)
+        public override IFindFluent<TDocument, TResult> Sort(SortDefinition<TDocument> sort)
         {
             _options.Sort = sort;
             return this;
