@@ -14,6 +14,8 @@
 */
 
 
+using System.Collections.Generic;
+using System.Linq;
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
@@ -95,6 +97,20 @@ namespace MongoDB.Bson.Serialization.Serializers
                 memberName,
                 BsonValueSerializer.Instance,
                 typeof(BsonValue));
+        }
+
+        /// <summary>
+        /// Tries to get the serialization info for a member.
+        /// </summary>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns>
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
+        /// </returns>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            serializationInfo = GetMemberSerializationInfo(memberName);
+            return true;
         }
 
         /// <summary>

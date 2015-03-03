@@ -72,10 +72,27 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.ElemMatch<BsonDocument>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
-            Assert(subject.ElemMatch<Pet[], Pet>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
-            Assert(subject.ElemMatch<Pet[], Pet>(x => x.Pets, "{name: 'Fluffy'}"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<BsonDocument>("Pets", "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Pet[], Pet>("Pets", "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Pet[], Pet>(x => x.Pets, "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
             Assert(subject.ElemMatch<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+        }
+
+        [Test]
+        public void ElemMatch_from_filter()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.ElemMatch("a"), "{'a.$': 1}");
+        }
+
+        [Test]
+        public void ElemMatch_from_filter_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.ElemMatch(x => x.Pets), "{'pets.$': 1}");
+            Assert(subject.ElemMatch("Pets"), "{'pets.$': 1}");
         }
 
         [Test]
@@ -92,24 +109,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Exclude(x => x.FirstName), "{fn: 0}");
-            Assert(subject.Exclude("FirstName"), "{FirstName: 0}");
-        }
-
-        [Test]
-        public void FirstMatchingElement()
-        {
-            var subject = CreateSubject<BsonDocument>();
-
-            Assert(subject.ElemMatch("a"), "{'a.$': 1}");
-        }
-
-        [Test]
-        public void FirstMatchingElement_Typed()
-        {
-            var subject = CreateSubject<Person>();
-
-            Assert(subject.ElemMatch(x => x.Pets), "{'pets.$': 1}");
-            Assert(subject.ElemMatch("Pets"), "{'Pets.$': 1}");
+            Assert(subject.Exclude("FirstName"), "{fn: 0}");
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Include(x => x.FirstName), "{fn: 1}");
-            Assert(subject.Include("FirstName"), "{FirstName: 1}");
+            Assert(subject.Include("FirstName"), "{fn: 1}");
         }
 
         [Test]
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Slice(x => x.Pets, 10), "{pets: {$slice: 10}}");
-            Assert(subject.Slice("Pets", 10), "{Pets: {$slice: 10}}");
+            Assert(subject.Slice("Pets", 10), "{pets: {$slice: 10}}");
         }
 
         [Test]
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Slice(x => x.Pets, 10, 20), "{pets: {$slice: [10, 20]}}");
-            Assert(subject.Slice("Pets", 10, 20), "{Pets: {$slice: [10, 20]}}");
+            Assert(subject.Slice("Pets", 10, 20), "{pets: {$slice: [10, 20]}}");
         }
 
         private void Assert<TDocument>(ProjectionDefinition<TDocument> projection, string expectedJson)

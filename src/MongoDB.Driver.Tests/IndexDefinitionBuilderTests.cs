@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Ascending(x => x.FirstName), "{fn: 1}");
-            Assert(subject.Ascending("FirstName"), "{FirstName: 1}");
+            Assert(subject.Ascending("FirstName"), "{fn: 1}");
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Descending(x => x.FirstName), "{fn: -1}");
-            Assert(subject.Descending("FirstName"), "{FirstName: -1}");
+            Assert(subject.Descending("FirstName"), "{fn: -1}");
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Geo2D(x => x.FirstName), "{fn: '2d'}");
-            Assert(subject.Geo2D("FirstName"), "{FirstName: '2d'}");
+            Assert(subject.Geo2D("FirstName"), "{fn: '2d'}");
         }
 
         [Test]
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Tests
 
             Assert(subject.GeoHaystack(x => x.FirstName), "{fn: 'geoHaystack'}");
             Assert(subject.GeoHaystack(x => x.FirstName, x => x.LastName), "{fn: 'geoHaystack', ln: 1}");
-            Assert(subject.GeoHaystack("FirstName", "LastName"), "{FirstName: 'geoHaystack', LastName: 1}");
+            Assert(subject.GeoHaystack("FirstName", "LastName"), "{fn: 'geoHaystack', ln: 1}");
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Geo2DSphere(x => x.FirstName), "{fn: '2dsphere'}");
-            Assert(subject.Geo2DSphere("FirstName"), "{FirstName: '2dsphere'}");
+            Assert(subject.Geo2DSphere("FirstName"), "{fn: '2dsphere'}");
         }
 
         [Test]
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Text(x => x.FirstName), "{fn: 'text'}");
-            Assert(subject.Text("FirstName"), "{FirstName: 'text'}");
+            Assert(subject.Text("FirstName"), "{fn: 'text'}");
             Assert(subject.Text("$**"), "{'$**': 'text'}");
         }
 

@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Ascending(x => x.FirstName), "{fn: 1}");
-            Assert(subject.Ascending("FirstName"), "{FirstName: 1}");
+            Assert(subject.Ascending("FirstName"), "{fn: 1}");
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Descending(x => x.FirstName), "{fn: -1}");
-            Assert(subject.Descending("FirstName"), "{FirstName: -1}");
+            Assert(subject.Descending("FirstName"), "{fn: -1}");
         }
 
         [Test]

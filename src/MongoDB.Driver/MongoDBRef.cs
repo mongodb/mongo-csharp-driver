@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -163,7 +164,7 @@ namespace MongoDB.Driver
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + ((_databaseName == null) ? 0 :_databaseName.GetHashCode());
+            hash = 37 * hash + ((_databaseName == null) ? 0 : _databaseName.GetHashCode());
             hash = 37 * hash + _collectionName.GetHashCode();
             hash = 37 * hash + _id.GetHashCode();
             return hash;
@@ -224,6 +225,26 @@ namespace MongoDB.Driver
         /// <returns>The serialization info for the member.</returns>
         public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
+            BsonSerializationInfo serializationInfo;
+            if (!TryGetMemberSerializationInfo(memberName, out serializationInfo))
+            {
+                var message = string.Format("{0} is not a member of MongoDBRef.", memberName);
+                throw new ArgumentOutOfRangeException("memberName", message);
+            }
+
+            return serializationInfo;
+        }
+
+        /// <summary>
+        /// Tries to get the serialization info for a member.
+        /// </summary>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns>
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
+        /// </returns>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
             string elementName;
             IBsonSerializer serializer;
 
@@ -242,11 +263,12 @@ namespace MongoDB.Driver
                     serializer = BsonValueSerializer.Instance;
                     break;
                 default:
-                    var message = string.Format("{0} is not a member of MongoDBRef.", memberName);
-                    throw new ArgumentOutOfRangeException("memberName", message);
+                    serializationInfo = null;
+                    return false;
             }
 
-            return new BsonSerializationInfo(elementName, serializer, serializer.ValueType);
+            serializationInfo = new BsonSerializationInfo(elementName, serializer, serializer.ValueType);
+            return true;
         }
 
         // protected methods
@@ -269,8 +291,8 @@ namespace MongoDB.Driver
                 switch (flag)
                 {
                     case Flags.CollectionName: collectionName = bsonReader.ReadString(); break;
-                    case Flags.Id:  id = BsonValueSerializer.Instance.Deserialize(context); break;
-                    case Flags.DatabaseName:  databaseName = bsonReader.ReadString(); break;
+                    case Flags.Id: id = BsonValueSerializer.Instance.Deserialize(context); break;
+                    case Flags.DatabaseName: databaseName = bsonReader.ReadString(); break;
                 }
             });
 

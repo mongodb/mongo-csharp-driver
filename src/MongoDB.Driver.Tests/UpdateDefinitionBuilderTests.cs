@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.AddToSet(x => x.FavoriteColors, "green"), "{$addToSet: {colors: 'green'}}");
-            Assert(subject.AddToSet("FavoriteColors", "green"), "{$addToSet: {FavoriteColors: 'green'}}");
+            Assert(subject.AddToSet("FavoriteColors", "green"), "{$addToSet: {colors: 'green'}}");
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.AddToSetEach(x => x.FavoriteColors, new[] { "green", "violet" }), "{$addToSet: {colors: {$each: ['green', 'violet']}}}");
-            Assert(subject.AddToSetEach("FavoriteColors", new[] { "green", "violet" }), "{$addToSet: {FavoriteColors: {$each: ['green', 'violet']}}}");
+            Assert(subject.AddToSetEach("FavoriteColors", new[] { "green", "violet" }), "{$addToSet: {colors: {$each: ['green', 'violet']}}}");
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.BitwiseAnd(x => x.Age, 1), "{$bit: {age: {and: 1}}}");
-            Assert(subject.BitwiseAnd("Age", 1), "{$bit: {Age: {and: 1}}}");
+            Assert(subject.BitwiseAnd("Age", 1), "{$bit: {age: {and: 1}}}");
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.BitwiseOr(x => x.Age, 1), "{$bit: {age: {or: 1}}}");
-            Assert(subject.BitwiseOr("Age", 1), "{$bit: {Age: {or: 1}}}");
+            Assert(subject.BitwiseOr("Age", 1), "{$bit: {age: {or: 1}}}");
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.BitwiseXor(x => x.Age, 1), "{$bit: {age: {xor: 1}}}");
-            Assert(subject.BitwiseXor("Age", 1), "{$bit: {Age: {xor: 1}}}");
+            Assert(subject.BitwiseXor("Age", 1), "{$bit: {age: {xor: 1}}}");
         }
 
         [Test]
@@ -198,7 +198,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.CurrentDate(x => x.LastUpdated), "{$currentDate: {last_updated: true}}");
-            Assert(subject.CurrentDate("LastUpdated"), "{$currentDate: {LastUpdated: true}}");
+            Assert(subject.CurrentDate("LastUpdated"), "{$currentDate: {last_updated: true}}");
         }
 
         [Test]
@@ -207,7 +207,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.CurrentDate(x => x.LastUpdated, UpdateDefinitionCurrentDateType.Date), "{$currentDate: {last_updated: {$type: 'date'}}}}");
-            Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Date), "{$currentDate: {LastUpdated: {$type: 'date'}}}}");
+            Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Date), "{$currentDate: {last_updated: {$type: 'date'}}}}");
         }
 
         [Test]
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.CurrentDate(x => x.LastUpdated, UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {last_updated: {$type: 'timestamp'}}}}");
-            Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {LastUpdated: {$type: 'timestamp'}}}}");
+            Assert(subject.CurrentDate("LastUpdated", UpdateDefinitionCurrentDateType.Timestamp), "{$currentDate: {last_updated: {$type: 'timestamp'}}}}");
         }
 
         [Test]
@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Inc(x => x.Age, 1), "{$inc: {age: 1}}");
-            Assert(subject.Inc("Age", 1), "{$inc: {Age: 1}}");
+            Assert(subject.Inc("Age", 1), "{$inc: {age: 1}}");
         }
 
         [Test]
@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Max(x => x.Age, 1), "{$max: {age: 1}}");
-            Assert(subject.Max("Age", 1), "{$max: {Age: 1}}");
+            Assert(subject.Max("Age", 1), "{$max: {age: 1}}");
         }
 
         [Test]
@@ -267,7 +267,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Min(x => x.Age, 1), "{$min: {age: 1}}");
-            Assert(subject.Min("Age", 1), "{$min: {Age: 1}}");
+            Assert(subject.Min("Age", 1), "{$min: {age: 1}}");
         }
 
         [Test]
@@ -284,7 +284,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Mul(x => x.Age, 2), "{$mul: {age: 2}}");
-            Assert(subject.Mul("Age", 2), "{$mul: {Age: 2}}");
+            Assert(subject.Mul("Age", 2), "{$mul: {age: 2}}");
         }
 
         [Test]
@@ -301,7 +301,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.PopFirst(x => x.FavoriteColors), "{$pop: {colors: -1}}");
-            Assert(subject.PopFirst("FavoriteColors"), "{$pop: {FavoriteColors: -1}}");
+            Assert(subject.PopFirst("FavoriteColors"), "{$pop: {colors: -1}}");
         }
 
         [Test]
@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.PopLast(x => x.FavoriteColors), "{$pop: {colors: 1}}");
-            Assert(subject.PopLast("FavoriteColors"), "{$pop: {FavoriteColors: 1}}");
+            Assert(subject.PopLast("FavoriteColors"), "{$pop: {colors: 1}}");
         }
 
         [Test]
@@ -336,7 +336,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Pull(x => x.FavoriteColors, "green"), "{$pull: {colors: 'green'}}");
-            Assert(subject.Pull("FavoriteColors", "green"), "{$pull: {FavoriteColors: 'green'}}");
+            Assert(subject.Pull("FavoriteColors", "green"), "{$pull: {colors: 'green'}}");
         }
 
         [Test]
@@ -354,7 +354,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.PullAll(x => x.FavoriteColors, new[] { "green", "violet" }), "{$pullAll: {colors: ['green', 'violet']}}");
-            Assert(subject.PullAll("FavoriteColors", new[] { "green", "violet" }), "{$pullAll: {FavoriteColors: ['green', 'violet']}}");
+            Assert(subject.PullAll("FavoriteColors", new[] { "green", "violet" }), "{$pullAll: {colors: ['green', 'violet']}}");
         }
 
         [Test]
@@ -371,7 +371,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.PullFilter<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{$pull: {pets: {name: 'Fluffy'}}}}");
-            Assert(subject.PullFilter<Pet[], Pet>("Pets", "{ Name: 'Fluffy'}"), "{$pull: {Pets: {Name: 'Fluffy'}}}}");
+            Assert(subject.PullFilter<Pet[], Pet>("Pets", "{ Name: 'Fluffy'}"), "{$pull: {pets: {Name: 'Fluffy'}}}}");
         }
 
         [Test]
@@ -389,7 +389,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Push(x => x.FavoriteColors, "green"), "{$push: {colors: 'green'}}");
-            Assert(subject.Push("FavoriteColors", "green"), "{$push: {FavoriteColors: 'green'}}");
+            Assert(subject.Push("FavoriteColors", "green"), "{$push: {colors: 'green'}}");
         }
 
         [Test]
@@ -460,7 +460,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Rename(x => x.Age, "birthDate"), "{$rename: {age: 'birthDate'}}");
-            Assert(subject.Rename("Age", "birthDate"), "{$rename: {Age: 'birthDate'}}");
+            Assert(subject.Rename("Age", "birthDate"), "{$rename: {age: 'birthDate'}}");
         }
 
         [Test]
@@ -477,7 +477,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Set(x => x.Age, 1), "{$set: {age: 1}}");
-            Assert(subject.Set("Age", 1), "{$set: {Age: 1}}");
+            Assert(subject.Set("Age", 1), "{$set: {age: 1}}");
         }
 
         [Test]
@@ -494,7 +494,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.SetOnInsert(x => x.Age, 1), "{$setOnInsert: {age: 1}}");
-            Assert(subject.SetOnInsert("Age", 1), "{$setOnInsert: {Age: 1}}");
+            Assert(subject.SetOnInsert("Age", 1), "{$setOnInsert: {age: 1}}");
         }
 
         [Test]
@@ -511,7 +511,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.Unset(x => x.Age), "{$unset: {age: 1}}");
-            Assert(subject.Unset("Age"), "{$unset: {Age: 1}}");
+            Assert(subject.Unset("Age"), "{$unset: {age: 1}}");
         }
 
         private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected)

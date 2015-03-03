@@ -232,6 +232,13 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override string Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
+            BsonSerializationInfo serializationInfo;
+            var bsonDocumentSerializer = documentSerializer as IBsonDocumentSerializer;
+            if (bsonDocumentSerializer != null && bsonDocumentSerializer.TryGetMemberSerializationInfo(_fieldName, out serializationInfo))
+            {
+                return serializationInfo.ElementName;
+            }
+
             return _fieldName;
         }
     }
@@ -260,8 +267,14 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            // TODO: if we had reverse mapping from field name to member name, we could get the serializer
-            // because we know the type of document we are using.
+            BsonSerializationInfo serializationInfo;
+            var bsonDocumentSerializer = documentSerializer as IBsonDocumentSerializer;
+            if (bsonDocumentSerializer != null && bsonDocumentSerializer.TryGetMemberSerializationInfo(_fieldName, out serializationInfo))
+            {
+                return new RenderedFieldDefinition<TField>(
+                    serializationInfo.ElementName,
+                    _fieldSerializer ?? (serializationInfo.Serializer as IBsonSerializer<TField>) ?? serializerRegistry.GetSerializer<TField>());
+            }
 
             return new RenderedFieldDefinition<TField>(
                 _fieldName,

@@ -71,6 +71,19 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Tries to get the serialization info for a member.
+        /// </summary>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns>
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
+        /// </returns>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            return _memberSerializationInfo.TryGetValue(memberName, out serializationInfo);
+        }
+
+        /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>

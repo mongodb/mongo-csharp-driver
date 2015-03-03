@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -191,13 +193,34 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </returns>
         public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
+            BsonSerializationInfo serializationInfo;
+            if (!TryGetMemberSerializationInfo(memberName, out serializationInfo))
+            {
+                var message = string.Format("{0} is not a member of {1}.", memberName, typeof(TImplementation));
+                throw new ArgumentOutOfRangeException("memberName", message);
+            }
+
+            return serializationInfo;
+        }
+
+        /// <summary>
+        /// Tries to get the serialization info for a member.
+        /// </summary>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns>
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
+        /// </returns>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
             var documentSerializer = _implementationSerializer as IBsonDocumentSerializer;
             if (documentSerializer != null)
             {
-                return documentSerializer.GetMemberSerializationInfo(memberName);
+                return documentSerializer.TryGetMemberSerializationInfo(memberName, out serializationInfo);
             }
 
-            return null;
+            serializationInfo = null;
+            return false;
         }
 
         /// <summary>

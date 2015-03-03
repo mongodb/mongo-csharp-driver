@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.All(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$all: ['blue','green']}}");
-            Assert(subject.All("favColors", new[] { "blue", "green" }), "{favColors: {$all: ['blue','green']}}");
+            Assert(subject.All("FavoriteColors", new[] { "blue", "green" }), "{colors: {$all: ['blue','green']}}");
         }
 
         [Test]
@@ -138,8 +138,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.ElemMatch<Pet[], Pet>("Pets", "{name: 'Fluffy'}"), "{Pets: {$elemMatch: {name: 'Fluffy'}}}");
-            Assert(subject.ElemMatch<Pet[], Pet>(x => x.Pets, "{name: 'Fluffy'}"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Pet[], Pet>("Pets", "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
+            Assert(subject.ElemMatch<Pet[], Pet>(x => x.Pets, "{Name: 'Fluffy'}"), "{pets: {$elemMatch: {Name: 'Fluffy'}}}");
             Assert(subject.ElemMatch<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{pets: {$elemMatch: {name: 'Fluffy'}}}");
         }
 
@@ -156,7 +156,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Eq(x => x.FirstName, "Jack"), "{fn: 'Jack'}");
-            Assert(subject.Eq("FirstName", "Jim"), "{FirstName: 'Jim'}");
+            Assert(subject.Eq("FirstName", "Jim"), "{fn: 'Jim'}");
+            Assert(subject.Eq("firstName", "Jim"), "{firstName: 'Jim'}");
         }
 
         [Test]
@@ -172,7 +173,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Exists(x => x.FirstName), "{fn: {$exists: true}}");
-            Assert(subject.Exists("FirstName", false), "{FirstName: {$exists: false}}");
+            Assert(subject.Exists("FirstName", false), "{fn: {$exists: false}}");
         }
 
         [Test]
@@ -206,7 +207,7 @@ namespace MongoDB.Driver.Tests
                 GeoJson.Geographic(40, 18));
 
             Assert(subject.GeoIntersects(x => x.Age, poly), "{age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
-            Assert(subject.GeoIntersects("Age", poly), "{Age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoIntersects("Age", poly), "{age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
         [Test]
@@ -220,7 +221,7 @@ namespace MongoDB.Driver.Tests
                 GeoJson.Geographic(40, 18));
 
             Assert(subject.GeoIntersects(x => x.Age, poly), "{age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
-            Assert(subject.GeoIntersects("Age", poly), "{Age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoIntersects("Age", poly), "{age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
         [Test]
@@ -248,7 +249,7 @@ namespace MongoDB.Driver.Tests
                 GeoJson.Geographic(40, 18));
 
             Assert(subject.GeoWithin(x => x.Age, poly), "{age: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
-            Assert(subject.GeoWithin("Age", poly), "{Age: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoWithin("Age", poly), "{age: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
         [Test]
@@ -265,7 +266,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.GeoWithinBox(x => x.Age, 10, 20), "{age: {$geoWithin: {$box: [10.0, 20.0]}}}");
-            Assert(subject.GeoWithinBox("Age", 10, 20), "{Age: {$geoWithin: {$box: [10.0, 20.0]}}}");
+            Assert(subject.GeoWithinBox("Age", 10, 20), "{age: {$geoWithin: {$box: [10.0, 20.0]}}}");
         }
 
         [Test]
@@ -282,7 +283,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.GeoWithinCenter(x => x.Age, 10, 20, 30), "{age: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
-            Assert(subject.GeoWithinCenter("Age", 10, 20, 30), "{Age: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
+            Assert(subject.GeoWithinCenter("Age", 10, 20, 30), "{age: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
         }
 
         [Test]
@@ -299,7 +300,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.GeoWithinCenterSphere(x => x.Age, 10, 20, 30), "{age: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
-            Assert(subject.GeoWithinCenterSphere("Age", 10, 20, 30), "{Age: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
+            Assert(subject.GeoWithinCenterSphere("Age", 10, 20, 30), "{age: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
         }
 
         [Test]
@@ -316,7 +317,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
 
             Assert(subject.GeoWithinPolygon(x => x.Age, new[,] { { 1d, 2d }, { 3d, 4d } }), "{age: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
-            Assert(subject.GeoWithinPolygon("Age", new[,] { { 1d, 2d }, { 3d, 4d } }), "{Age: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
+            Assert(subject.GeoWithinPolygon("Age", new[,] { { 1d, 2d }, { 3d, 4d } }), "{age: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
         }
 
         [Test]
@@ -332,7 +333,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Gt(x => x.Age, 10), "{age: {$gt: 10}}");
-            Assert(subject.Gt("Age", 10), "{Age: {$gt: 10}}");
+            Assert(subject.Gt("Age", 10), "{age: {$gt: 10}}");
         }
 
         [Test]
@@ -348,7 +349,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Gte(x => x.Age, 10), "{age: {$gte: 10}}");
-            Assert(subject.Gte("Age", 10), "{Age: {$gte: 10}}");
+            Assert(subject.Gte("Age", 10), "{age: {$gte: 10}}");
         }
 
         [Test]
@@ -364,7 +365,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.In(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
-            Assert(subject.In("favColors", new[] { "blue", "green" }), "{favColors: {$in: ['blue','green']}}");
+            Assert(subject.In("FavoriteColors", new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
         }
 
         [Test]
@@ -380,7 +381,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Lt(x => x.Age, 10), "{age: {$lt: 10}}");
-            Assert(subject.Lt("Age", 10), "{Age: {$lt: 10}}");
+            Assert(subject.Lt("Age", 10), "{age: {$lt: 10}}");
         }
 
         [Test]
@@ -396,7 +397,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Lte(x => x.Age, 10), "{age: {$lte: 10}}");
-            Assert(subject.Lte("Age", 10), "{Age: {$lte: 10}}");
+            Assert(subject.Lte("Age", 10), "{age: {$lte: 10}}");
         }
 
         [Test]
@@ -412,7 +413,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Mod(x => x.Age, 10, 4), "{age: {$mod: [NumberLong(10), NumberLong(4)]}}");
-            Assert(subject.Mod("Age", 10, 4), "{Age: {$mod: [NumberLong(10), NumberLong(4)]}}");
+            Assert(subject.Mod("Age", 10, 4), "{age: {$mod: [NumberLong(10), NumberLong(4)]}}");
         }
 
 
@@ -429,7 +430,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Ne(x => x.Age, 10), "{age: {$ne: 10}}");
-            Assert(subject.Ne("Age", 10), "{Age: {$ne: 10}}");
+            Assert(subject.Ne("Age", 10), "{age: {$ne: 10}}");
         }
 
         [Test]
@@ -533,7 +534,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Nin(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$nin: ['blue','green']}}");
-            Assert(subject.Nin("favColors", new[] { "blue", "green" }), "{favColors: {$nin: ['blue','green']}}");
+            Assert(subject.Nin("FavoriteColors", new[] { "blue", "green" }), "{colors: {$nin: ['blue','green']}}");
         }
 
         [Test]
@@ -674,7 +675,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Regex(x => x.FirstName, "/abc/"), "{fn: /abc/}");
-            Assert(subject.Regex("FirstName", "/abc/"), "{FirstName: /abc/}");
+            Assert(subject.Regex("FirstName", "/abc/"), "{fn: /abc/}");
         }
 
         [Test]
@@ -690,7 +691,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Size(x => x.FavoriteColors, 10), "{colors: {$size: 10}}");
-            Assert(subject.Size("FavoriteColors", 10), "{FavoriteColors: {$size: 10}}");
+            Assert(subject.Size("FavoriteColors", 10), "{colors: {$size: 10}}");
         }
 
         [Test]
@@ -706,7 +707,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.SizeGt(x => x.FavoriteColors, 10), "{'colors.10': {$exists: true}}");
-            Assert(subject.SizeGt("FavoriteColors", 10), "{'FavoriteColors.10': {$exists: true}}");
+            Assert(subject.SizeGt("FavoriteColors", 10), "{'colors.10': {$exists: true}}");
         }
 
         [Test]
@@ -730,7 +731,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
             Assert(subject.Type(x => x.FirstName, BsonType.String), "{fn: {$type: 2}}");
-            Assert(subject.Type("FirstName", BsonType.String), "{FirstName: {$type: 2}}");
+            Assert(subject.Type("FirstName", BsonType.String), "{fn: {$type: 2}}");
         }
 
         private void Assert<TDocument>(FilterDefinition<TDocument> filter, string expected)
