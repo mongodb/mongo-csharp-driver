@@ -38,7 +38,7 @@ namespace MongoDB.Driver
         public abstract IFindFluent<TDocument, TResult> Limit(int? limit);
 
         /// <inheritdoc />
-        public abstract IFindFluent<TDocument, TNewResult> Project<TNewResult>(Projection<TDocument, TNewResult> projection);
+        public abstract IFindFluent<TDocument, TNewResult> Project<TNewResult>(ProjectionDefinition<TDocument, TNewResult> projection);
 
         /// <inheritdoc />
         public abstract IFindFluent<TDocument, TResult> Skip(int? skip);

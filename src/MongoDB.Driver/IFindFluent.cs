@@ -62,7 +62,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the result.</typeparam>
         /// <param name="projection">The projection.</param>
         /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TNewResult> Project<TNewResult>(Projection<TDocument, TNewResult> projection);
+        IFindFluent<TDocument, TNewResult> Project<TNewResult>(ProjectionDefinition<TDocument, TNewResult> projection);
 
         /// <summary>
         /// Skips the the specified number of documents.

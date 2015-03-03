@@ -37,7 +37,7 @@ namespace MongoDB.Driver
         /// <param name="find">The fluent find.</param>
         /// <param name="projection">The projection.</param>
         /// <returns>The fluent find interface.</returns>
-        public static IFindFluent<TDocument, BsonDocument> Project<TDocument, TResult>(this IFindFluent<TDocument, TResult> find, Projection<TDocument, BsonDocument> projection)
+        public static IFindFluent<TDocument, BsonDocument> Project<TDocument, TResult>(this IFindFluent<TDocument, TResult> find, ProjectionDefinition<TDocument, BsonDocument> projection)
         {
             Ensure.IsNotNull(find, "find");
             Ensure.IsNotNull(projection, "projection");
@@ -59,7 +59,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(find, "find");
             Ensure.IsNotNull(projection, "projection");
 
-            return find.Project<TNewResult>(new FindExpressionProjection<TDocument, TNewResult>(projection));
+            return find.Project<TNewResult>(new FindExpressionProjectionDefinition<TDocument, TNewResult>(projection));
         }
 
         /// <summary>

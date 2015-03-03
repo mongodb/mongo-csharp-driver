@@ -55,7 +55,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
         /// <param name="group">The group projection.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TNewResult> Group<TNewResult>(Projection<TResult, TNewResult> group);
+        IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group);
 
         /// <summary>
         /// Appends a limit stage to the pipeline.
@@ -87,7 +87,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        IAggregateFluent<TNewResult> Project<TNewResult>(Projection<TResult, TNewResult> projection);
+        IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection);
 
         /// <summary>
         /// Appends a skip stage to the pipeline.

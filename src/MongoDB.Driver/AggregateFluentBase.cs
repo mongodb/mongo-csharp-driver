@@ -37,7 +37,7 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStageDefinition<TResult, TNewResult> stage);
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TNewResult> Group<TNewResult>(Projection<TResult, TNewResult> group);
+        public abstract IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group);
 
         /// <inheritdoc />
         public abstract IAggregateFluent<TResult> Limit(int limit);
@@ -49,7 +49,7 @@ namespace MongoDB.Driver
         public abstract Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TNewResult> Project<TNewResult>(Projection<TResult, TNewResult> projection);
+        public abstract IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection);
 
         /// <inheritdoc />
         public abstract IAggregateFluent<TResult> Skip(int skip);

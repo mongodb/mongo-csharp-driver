@@ -203,7 +203,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             options = options ?? new FindOptions<TDocument, TResult>();
-            var projection = options.Projection ?? new EntireDocumentProjection<TDocument, TResult>();
+            var projection = options.Projection ?? new EntireDocumentProjectionDefinition<TDocument, TResult>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOperation<TResult>(
@@ -233,7 +233,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             options = options ?? new FindOneAndDeleteOptions<TDocument, TResult>();
-            var projection = options.Projection ?? new EntireDocumentProjection<TDocument, TResult>();
+            var projection = options.Projection ?? new EntireDocumentProjectionDefinition<TDocument, TResult>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndDeleteOperation<TResult>(
@@ -257,7 +257,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(replacementObject, "replacement");
 
             options = options ?? new FindOneAndReplaceOptions<TDocument, TResult>();
-            var projection = options.Projection ?? new EntireDocumentProjection<TDocument, TResult>();
+            var projection = options.Projection ?? new EntireDocumentProjectionDefinition<TDocument, TResult>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndReplaceOperation<TResult>(
@@ -283,7 +283,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(update, "update");
 
             options = options ?? new FindOneAndUpdateOptions<TDocument, TResult>();
-            var projection = options.Projection ?? new EntireDocumentProjection<TDocument, TResult>();
+            var projection = options.Projection ?? new EntireDocumentProjectionDefinition<TDocument, TResult>();
             var renderedProjection = projection.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new FindOneAndUpdateOperation<TResult>(

@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Slice("Pets", 10, 20), "{Pets: {$slice: [10, 20]}}");
         }
 
-        private void Assert<TDocument>(Projection<TDocument> projection, string expectedJson)
+        private void Assert<TDocument>(ProjectionDefinition<TDocument> projection, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedProjection = projection.Render(documentSerializer, BsonSerializer.SerializerRegistry);

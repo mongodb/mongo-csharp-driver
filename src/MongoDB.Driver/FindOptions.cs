@@ -111,7 +111,7 @@ namespace MongoDB.Driver
     {
         // fields
         private int? _limit;
-        private Projection<TDocument, TResult> _projection;
+        private ProjectionDefinition<TDocument, TResult> _projection;
         private int? _skip;
         private Sort<TDocument> _sort;
 
@@ -128,7 +128,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the projection.
         /// </summary>
-        public Projection<TDocument, TResult> Projection
+        public ProjectionDefinition<TDocument, TResult> Projection
         {
             get { return _projection; }
             set { _projection = value; }

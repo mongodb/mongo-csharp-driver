@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests
             act.ShouldNotThrow<ArgumentException>();
         }
 
-        private void Assert<TDocument>(Projection<TDocument> projection, string expectedJson)
+        private void Assert<TDocument>(ProjectionDefinition<TDocument> projection, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedProjection = projection.Render(documentSerializer, BsonSerializer.SerializerRegistry);

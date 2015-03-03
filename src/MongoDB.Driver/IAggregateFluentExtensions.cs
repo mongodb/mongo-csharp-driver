@@ -39,7 +39,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Group<TResult>(this IAggregateFluent<TResult> aggregate, Projection<TResult, BsonDocument> group)
+        public static IAggregateFluent<BsonDocument> Group<TResult>(this IAggregateFluent<TResult> aggregate, ProjectionDefinition<TResult, BsonDocument> group)
         {
             Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(group, "group");
@@ -94,7 +94,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Project<TResult>(this IAggregateFluent<TResult> aggregate, Projection<TResult, BsonDocument> projection)
+        public static IAggregateFluent<BsonDocument> Project<TResult>(this IAggregateFluent<TResult> aggregate, ProjectionDefinition<TResult, BsonDocument> projection)
         {
             Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(projection, "projection");
@@ -378,7 +378,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private sealed class ProjectExpressionProjection<TResult, TNewResult> : Projection<TResult, TNewResult>
+        private sealed class ProjectExpressionProjection<TResult, TNewResult> : ProjectionDefinition<TResult, TNewResult>
         {
             private readonly Expression<Func<TResult, TNewResult>> _expression;
 
@@ -398,7 +398,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private sealed class GroupExpressionProjection<TResult, TKey, TNewResult> : Projection<TResult, TNewResult>
+        private sealed class GroupExpressionProjection<TResult, TKey, TNewResult> : ProjectionDefinition<TResult, TNewResult>
         {
             private readonly Expression<Func<TResult, TKey>> _idExpression;
             private readonly Expression<Func<IGrouping<TKey, TResult>, TNewResult>> _groupExpression;

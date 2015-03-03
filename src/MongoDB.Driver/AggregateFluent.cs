@@ -60,7 +60,7 @@ namespace MongoDB.Driver
                 _options);
         }
 
-        public override IAggregateFluent<TNewResult> Group<TNewResult>(Projection<TResult, TNewResult> group)
+        public override IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group)
         {
             const string operatorName = "$group";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
@@ -95,7 +95,7 @@ namespace MongoDB.Driver
                 .ToCursorAsync(cancellationToken);
         }
 
-        public override IAggregateFluent<TNewResult> Project<TNewResult>(Projection<TResult, TNewResult> projection)
+        public override IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection)
         {
             const string operatorName = "$project";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(

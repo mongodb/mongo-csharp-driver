@@ -69,7 +69,7 @@ namespace MongoDB.Driver
             return this;
         }
 
-        public override IFindFluent<TDocument, TNewResult> Project<TNewResult>(Projection<TDocument, TNewResult> projection)
+        public override IFindFluent<TDocument, TNewResult> Project<TNewResult>(ProjectionDefinition<TDocument, TNewResult> projection)
         {
             var newOptions = new FindOptions<TDocument, TNewResult>
             {

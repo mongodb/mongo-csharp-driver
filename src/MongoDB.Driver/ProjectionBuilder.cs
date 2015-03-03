@@ -44,7 +44,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument>(this Projection<TDocument> projection, FieldName<TDocument> fieldName)
+        public static ProjectionDefinition<TDocument> ElemMatch<TDocument>(this ProjectionDefinition<TDocument> projection, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.ElemMatch(fieldName));
@@ -59,7 +59,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument>(this Projection<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
+        public static ProjectionDefinition<TDocument> ElemMatch<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.ElemMatch(fieldName));
@@ -77,7 +77,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> projection, FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
+        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TField, TItem>(this ProjectionDefinition<TDocument> projection, FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -95,7 +95,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TItem>(this Projection<TDocument> projection, string fieldName, FilterDefinition<TItem> filter)
+        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TItem>(this ProjectionDefinition<TDocument> projection, string fieldName, FilterDefinition<TItem> filter)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.ElemMatch(fieldName, filter));
@@ -113,7 +113,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> projection, Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
+        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TField, TItem>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -132,7 +132,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> ElemMatch<TDocument, TField, TItem>(this Projection<TDocument> projection, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TField, TItem>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -148,7 +148,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Exclude<TDocument>(this Projection<TDocument> projection, FieldName<TDocument> fieldName)
+        public static ProjectionDefinition<TDocument> Exclude<TDocument>(this ProjectionDefinition<TDocument> projection, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.Exclude(fieldName));
@@ -163,7 +163,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Exclude<TDocument>(this Projection<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
+        public static ProjectionDefinition<TDocument> Exclude<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.Exclude(fieldName));
@@ -178,7 +178,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Include<TDocument>(this Projection<TDocument> projection, FieldName<TDocument> fieldName)
+        public static ProjectionDefinition<TDocument> Include<TDocument>(this ProjectionDefinition<TDocument> projection, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.Include(fieldName));
@@ -193,7 +193,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Include<TDocument>(this Projection<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
+        public static ProjectionDefinition<TDocument> Include<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.Include(fieldName));
@@ -208,7 +208,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> MetaTextScore<TDocument>(this Projection<TDocument> projection, string fieldName)
+        public static ProjectionDefinition<TDocument> MetaTextScore<TDocument>(this ProjectionDefinition<TDocument> projection, string fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.MetaTextScore(fieldName));
@@ -225,7 +225,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Slice<TDocument>(this Projection<TDocument> projection, FieldName<TDocument> fieldName, int skip, int? limit = null)
+        public static ProjectionDefinition<TDocument> Slice<TDocument>(this ProjectionDefinition<TDocument> projection, FieldName<TDocument> fieldName, int skip, int? limit = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.Slice(fieldName, skip, limit));
@@ -242,7 +242,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static Projection<TDocument> Slice<TDocument>(this Projection<TDocument> projection, Expression<Func<TDocument, object>> fieldName, int skip, int? limit = null)
+        public static ProjectionDefinition<TDocument> Slice<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> fieldName, int skip, int? limit = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(projection, builder.Slice(fieldName, skip, limit));
@@ -262,9 +262,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public Projection<TSource> Combine(params Projection<TSource>[] projections)
+        public ProjectionDefinition<TSource> Combine(params ProjectionDefinition<TSource>[] projections)
         {
-            return Combine((IEnumerable<Projection<TSource>>)projections);
+            return Combine((IEnumerable<ProjectionDefinition<TSource>>)projections);
         }
 
         /// <summary>
@@ -274,9 +274,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public Projection<TSource> Combine(IEnumerable<Projection<TSource>> projections)
+        public ProjectionDefinition<TSource> Combine(IEnumerable<ProjectionDefinition<TSource>> projections)
         {
-            return new CombinedProjection<TSource>(projections);
+            return new CombinedProjectionDefinition<TSource>(projections);
         }
 
         /// <summary>
@@ -284,9 +284,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A positional operator projection.</returns>
-        public Projection<TSource> ElemMatch(FieldName<TSource> fieldName)
+        public ProjectionDefinition<TSource> ElemMatch(FieldName<TSource> fieldName)
         {
-            return new PositionalOperatorProjection<TSource>(fieldName);
+            return new PositionalOperatorProjectionDefinition<TSource>(fieldName);
         }
 
         /// <summary>
@@ -294,7 +294,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A positional operator projection.</returns>
-        public Projection<TSource> ElemMatch(Expression<Func<TSource, object>> fieldName)
+        public ProjectionDefinition<TSource> ElemMatch(Expression<Func<TSource, object>> fieldName)
         {
             return ElemMatch(new ExpressionFieldName<TSource>(fieldName));
         }
@@ -309,10 +309,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TSource> ElemMatch<TField, TItem>(FieldName<TSource, TField> fieldName, FilterDefinition<TItem> filter)
+        public ProjectionDefinition<TSource> ElemMatch<TField, TItem>(FieldName<TSource, TField> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            return new ElementMatchProjection<TSource, TField, TItem>(fieldName, filter);
+            return new ElementMatchProjectionDefinition<TSource, TField, TItem>(fieldName, filter);
         }
 
         /// <summary>
@@ -324,7 +324,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TSource> ElemMatch<TItem>(string fieldName, FilterDefinition<TItem> filter)
+        public ProjectionDefinition<TSource> ElemMatch<TItem>(string fieldName, FilterDefinition<TItem> filter)
         {
             return ElemMatch(
                 new StringFieldName<TSource, IEnumerable<TItem>>(fieldName),
@@ -341,7 +341,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> fieldName, FilterDefinition<TItem> filter)
+        public ProjectionDefinition<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             return ElemMatch(new ExpressionFieldName<TSource, TField>(fieldName), filter);
@@ -357,7 +357,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public Projection<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+        public ProjectionDefinition<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> fieldName, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
             return ElemMatch(new ExpressionFieldName<TSource, TField>(fieldName), new ExpressionFilterDefinition<TItem>(filter));
@@ -370,9 +370,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// An exclusion projection.
         /// </returns>
-        public Projection<TSource> Exclude(FieldName<TSource> fieldName)
+        public ProjectionDefinition<TSource> Exclude(FieldName<TSource> fieldName)
         {
-            return new SingleFieldProjection<TSource>(fieldName, 0);
+            return new SingleFieldProjectionDefinition<TSource>(fieldName, 0);
         }
 
         /// <summary>
@@ -382,7 +382,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// An exclusion projection.
         /// </returns>
-        public Projection<TSource> Exclude(Expression<Func<TSource, object>> fieldName)
+        public ProjectionDefinition<TSource> Exclude(Expression<Func<TSource, object>> fieldName)
         {
             return Exclude(new ExpressionFieldName<TSource>(fieldName));
         }
@@ -395,9 +395,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// An expression projection.
         /// </returns>
-        public Projection<TSource, TResult> Expression<TResult>(Expression<Func<TSource, TResult>> expression)
+        public ProjectionDefinition<TSource, TResult> Expression<TResult>(Expression<Func<TSource, TResult>> expression)
         {
-            return new FindExpressionProjection<TSource, TResult>(expression);
+            return new FindExpressionProjectionDefinition<TSource, TResult>(expression);
         }
 
         /// <summary>
@@ -407,9 +407,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// An inclusion projection.
         /// </returns>
-        public Projection<TSource> Include(FieldName<TSource> fieldName)
+        public ProjectionDefinition<TSource> Include(FieldName<TSource> fieldName)
         {
-            return new SingleFieldProjection<TSource>(fieldName, 1);
+            return new SingleFieldProjectionDefinition<TSource>(fieldName, 1);
         }
 
         /// <summary>
@@ -419,7 +419,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// An inclusion projection.
         /// </returns>
-        public Projection<TSource> Include(Expression<Func<TSource, object>> fieldName)
+        public ProjectionDefinition<TSource> Include(Expression<Func<TSource, object>> fieldName)
         {
             return Include(new ExpressionFieldName<TSource>(fieldName));
         }
@@ -431,9 +431,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// A text score projection.
         /// </returns>
-        public Projection<TSource> MetaTextScore(string fieldName)
+        public ProjectionDefinition<TSource> MetaTextScore(string fieldName)
         {
-            return new SingleFieldProjection<TSource>(fieldName, new BsonDocument("$meta", "textScore"));
+            return new SingleFieldProjectionDefinition<TSource>(fieldName, new BsonDocument("$meta", "textScore"));
         }
 
         /// <summary>
@@ -445,10 +445,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array slice projection.
         /// </returns>
-        public Projection<TSource> Slice(FieldName<TSource> fieldName, int skip, int? limit = null)
+        public ProjectionDefinition<TSource> Slice(FieldName<TSource> fieldName, int skip, int? limit = null)
         {
             var value = limit.HasValue ? (BsonValue)new BsonArray { skip, limit.Value } : skip;
-            return new SingleFieldProjection<TSource>(fieldName, new BsonDocument("$slice", value));
+            return new SingleFieldProjectionDefinition<TSource>(fieldName, new BsonDocument("$slice", value));
         }
 
         /// <summary>
@@ -460,17 +460,17 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array slice projection.
         /// </returns>
-        public Projection<TSource> Slice(Expression<Func<TSource, object>> fieldName, int skip, int? limit = null)
+        public ProjectionDefinition<TSource> Slice(Expression<Func<TSource, object>> fieldName, int skip, int? limit = null)
         {
             return Slice(new ExpressionFieldName<TSource>(fieldName), skip, limit);
         }
     }
 
-    internal sealed class CombinedProjection<TSource> : Projection<TSource>
+    internal sealed class CombinedProjectionDefinition<TSource> : ProjectionDefinition<TSource>
     {
-        private readonly List<Projection<TSource>> _projections;
+        private readonly List<ProjectionDefinition<TSource>> _projections;
 
-        public CombinedProjection(IEnumerable<Projection<TSource>> projections)
+        public CombinedProjectionDefinition(IEnumerable<ProjectionDefinition<TSource>> projections)
         {
             _projections = Ensure.IsNotNull(projections, "projections").ToList();
         }
@@ -495,12 +495,12 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class ElementMatchProjection<TSource, TField, TItem> : Projection<TSource>
+    internal sealed class ElementMatchProjectionDefinition<TSource, TField, TItem> : ProjectionDefinition<TSource>
     {
         private readonly FieldName<TSource, TField> _fieldName;
         private readonly FilterDefinition<TItem> _filter;
 
-        public ElementMatchProjection(FieldName<TSource, TField> fieldName, FilterDefinition<TItem> filter)
+        public ElementMatchProjectionDefinition(FieldName<TSource, TField> fieldName, FilterDefinition<TItem> filter)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _filter = filter;
@@ -524,11 +524,11 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class PositionalOperatorProjection<TSource> : Projection<TSource>
+    internal sealed class PositionalOperatorProjectionDefinition<TSource> : ProjectionDefinition<TSource>
     {
         private readonly FieldName<TSource> _fieldName;
 
-        public PositionalOperatorProjection(FieldName<TSource> fieldName)
+        public PositionalOperatorProjectionDefinition(FieldName<TSource> fieldName)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
         }
@@ -540,12 +540,12 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class SingleFieldProjection<TSource> : Projection<TSource>
+    internal sealed class SingleFieldProjectionDefinition<TSource> : ProjectionDefinition<TSource>
     {
         private readonly FieldName<TSource> _fieldName;
         private readonly BsonValue _value;
 
-        public SingleFieldProjection(FieldName<TSource> fieldName, BsonValue value)
+        public SingleFieldProjectionDefinition(FieldName<TSource> fieldName, BsonValue value)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _value = Ensure.IsNotNull(value, "value");

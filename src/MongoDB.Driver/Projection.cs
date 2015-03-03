@@ -63,7 +63,7 @@ namespace MongoDB.Driver
     /// Base class for projections whose result type is not yet known.
     /// </summary>
     /// <typeparam name="TSource">The type of the source.</typeparam>
-    public abstract class Projection<TSource>
+    public abstract class ProjectionDefinition<TSource>
     {
         /// <summary>
         /// Turns the projection into a projection whose result type is known.
@@ -71,9 +71,9 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <returns>A typed projection.</returns>
-        public virtual Projection<TSource, TResult> As<TResult>(IBsonSerializer<TResult> resultSerializer = null)
+        public virtual ProjectionDefinition<TSource, TResult> As<TResult>(IBsonSerializer<TResult> resultSerializer = null)
         {
-            return new KnownResultTypeProjectionAdapter<TSource, TResult>(this, resultSerializer);
+            return new KnownResultTypeProjectionDefinitionAdapter<TSource, TResult>(this, resultSerializer);
         }
 
         /// <summary>
@@ -85,37 +85,37 @@ namespace MongoDB.Driver
         public abstract BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="Projection{TSource}"/>.
+        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="ProjectionDefinition{TSource}"/>.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Projection<TSource>(BsonDocument document)
+        public static implicit operator ProjectionDefinition<TSource>(BsonDocument document)
         {
             if (document == null)
             {
                 return null;
             }
 
-            return new BsonDocumentProjection<TSource>(document);
+            return new BsonDocumentProjectionDefinition<TSource>(document);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="Projection{TSource, TResult}" />.
+        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="ProjectionDefinition{TSource, TResult}" />.
         /// </summary>
         /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Projection<TSource>(string json)
+        public static implicit operator ProjectionDefinition<TSource>(string json)
         {
             if (json == null)
             {
                 return null;
             }
 
-            return new JsonProjection<TSource>(json);
+            return new JsonProjectionDefinition<TSource>(json);
         }
     }
 
@@ -124,7 +124,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TSource">The type of the source.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public abstract class Projection<TSource, TResult>
+    public abstract class ProjectionDefinition<TSource, TResult>
     {
         /// <summary>
         /// Renders the projection to a <see cref="RenderedProjection{TResult}"/>.
@@ -135,49 +135,49 @@ namespace MongoDB.Driver
         public abstract RenderedProjection<TResult> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="Projection{TSource, TResult}"/>.
+        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="ProjectionDefinition{TSource, TResult}"/>.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Projection<TSource, TResult>(BsonDocument document)
+        public static implicit operator ProjectionDefinition<TSource, TResult>(BsonDocument document)
         {
             if (document == null)
             {
                 return null;
             }
 
-            return new BsonDocumentProjection<TSource, TResult>(document);
+            return new BsonDocumentProjectionDefinition<TSource, TResult>(document);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="Projection{TSource, TResult}" />.
+        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="ProjectionDefinition{TSource, TResult}" />.
         /// </summary>
         /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Projection<TSource, TResult>(string json)
+        public static implicit operator ProjectionDefinition<TSource, TResult>(string json)
         {
             if (json == null)
             {
                 return null;
             }
 
-            return new JsonProjection<TSource, TResult>(json);
+            return new JsonProjectionDefinition<TSource, TResult>(json);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="Projection{TSource}"/> to <see cref="Projection{TSource, TResult}"/>.
+        /// Performs an implicit conversion from <see cref="ProjectionDefinition{TSource}"/> to <see cref="ProjectionDefinition{TSource, TResult}"/>.
         /// </summary>
         /// <param name="projection">The projection.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Projection<TSource, TResult>(Projection<TSource> projection)
+        public static implicit operator ProjectionDefinition<TSource, TResult>(ProjectionDefinition<TSource> projection)
         {
-            return new KnownResultTypeProjectionAdapter<TSource, TResult>(projection);
+            return new KnownResultTypeProjectionDefinitionAdapter<TSource, TResult>(projection);
         }
     }
 
@@ -185,15 +185,15 @@ namespace MongoDB.Driver
     /// A <see cref="BsonDocument" /> based projection whose result type is not yet known.
     /// </summary>
     /// <typeparam name="TSource">The type of the source.</typeparam>
-    public sealed class BsonDocumentProjection<TSource> : Projection<TSource>
+    public sealed class BsonDocumentProjectionDefinition<TSource> : ProjectionDefinition<TSource>
     {
         private readonly BsonDocument _document;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentProjection{TSource}"/> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentProjectionDefinition{TSource}"/> class.
         /// </summary>
         /// <param name="document">The document.</param>
-        public BsonDocumentProjection(BsonDocument document)
+        public BsonDocumentProjectionDefinition(BsonDocument document)
         {
             _document = Ensure.IsNotNull(document, "document");
         }
@@ -218,17 +218,17 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TSource">The type of the source.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class BsonDocumentProjection<TSource, TResult> : Projection<TSource, TResult>
+    public sealed class BsonDocumentProjectionDefinition<TSource, TResult> : ProjectionDefinition<TSource, TResult>
     {
         private readonly BsonDocument _document;
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentProjection{TSource, TResult}"/> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentProjectionDefinition{TSource, TResult}"/> class.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        public BsonDocumentProjection(BsonDocument document, IBsonSerializer<TResult> resultSerializer = null)
+        public BsonDocumentProjectionDefinition(BsonDocument document, IBsonSerializer<TResult> resultSerializer = null)
         {
             _document = Ensure.IsNotNull(document, "document");
             _resultSerializer = resultSerializer;
@@ -264,15 +264,15 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TSource">The type of the source.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class FindExpressionProjection<TSource, TResult> : Projection<TSource, TResult>
+    public sealed class FindExpressionProjectionDefinition<TSource, TResult> : ProjectionDefinition<TSource, TResult>
     {
         private readonly Expression<Func<TSource, TResult>> _expression;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindExpressionProjection{TSource, TResult}" /> class.
+        /// Initializes a new instance of the <see cref="FindExpressionProjectionDefinition{TSource, TResult}" /> class.
         /// </summary>
         /// <param name="expression">The expression.</param>
-        public FindExpressionProjection(Expression<Func<TSource, TResult>> expression)
+        public FindExpressionProjectionDefinition(Expression<Func<TSource, TResult>> expression)
         {
             _expression = Ensure.IsNotNull(expression, "expression");
         }
@@ -296,15 +296,15 @@ namespace MongoDB.Driver
     /// A JSON <see cref="String" /> based projection whose result type is not yet known.
     /// </summary>
     /// <typeparam name="TSource">The type of the source.</typeparam>
-    public sealed class JsonProjection<TSource> : Projection<TSource>
+    public sealed class JsonProjectionDefinition<TSource> : ProjectionDefinition<TSource>
     {
         private readonly string _json;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonProjection{TSource}"/> class.
+        /// Initializes a new instance of the <see cref="JsonProjectionDefinition{TSource}"/> class.
         /// </summary>
         /// <param name="json">The json.</param>
-        public JsonProjection(string json)
+        public JsonProjectionDefinition(string json)
         {
             _json = Ensure.IsNotNullOrEmpty(json, "json");
         }
@@ -329,7 +329,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TSource">The type of the source.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class JsonProjection<TSource, TResult> : Projection<TSource, TResult>
+    public sealed class JsonProjectionDefinition<TSource, TResult> : ProjectionDefinition<TSource, TResult>
     {
         private readonly string _json;
         private readonly IBsonSerializer<TResult> _resultSerializer;
@@ -339,7 +339,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="json">The json.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        public JsonProjection(string json, IBsonSerializer<TResult> resultSerializer = null)
+        public JsonProjectionDefinition(string json, IBsonSerializer<TResult> resultSerializer = null)
         {
             _json = Ensure.IsNotNullOrEmpty(json, "json");
             _resultSerializer = resultSerializer;
@@ -374,15 +374,15 @@ namespace MongoDB.Driver
     /// An <see cref="Object"/> based projection whose result type is not yet known.
     /// </summary>
     /// <typeparam name="TSource">The type of the source.</typeparam>
-    public sealed class ObjectProjection<TSource> : Projection<TSource>
+    public sealed class ObjectProjectionDefinition<TSource> : ProjectionDefinition<TSource>
     {
         private readonly object _obj;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectProjection{TSource}"/> class.
+        /// Initializes a new instance of the <see cref="ObjectProjectionDefinition{TSource}"/> class.
         /// </summary>
         /// <param name="obj">The object.</param>
-        public ObjectProjection(object obj)
+        public ObjectProjectionDefinition(object obj)
         {
             _obj = Ensure.IsNotNull(obj, "obj");
         }
@@ -408,17 +408,17 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TSource">The type of the source.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public sealed class ObjectProjection<TSource, TResult> : Projection<TSource, TResult>
+    public sealed class ObjectProjectionDefinition<TSource, TResult> : ProjectionDefinition<TSource, TResult>
     {
         private readonly object _obj;
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectProjection{TSource, TResult}" /> class.
+        /// Initializes a new instance of the <see cref="ObjectProjectionDefinition{TSource, TResult}" /> class.
         /// </summary>
         /// <param name="obj">The object.</param>
         /// <param name="resultSerializer">The result serializer.</param>
-        public ObjectProjection(object obj, IBsonSerializer<TResult> resultSerializer = null)
+        public ObjectProjectionDefinition(object obj, IBsonSerializer<TResult> resultSerializer = null)
         {
             _obj = Ensure.IsNotNull(obj, "obj");
             _resultSerializer = resultSerializer;
@@ -450,18 +450,18 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class KnownResultTypeProjectionAdapter<TSource, TResult> : Projection<TSource, TResult>
+    internal sealed class KnownResultTypeProjectionDefinitionAdapter<TSource, TResult> : ProjectionDefinition<TSource, TResult>
     {
-        private readonly Projection<TSource> _projection;
+        private readonly ProjectionDefinition<TSource> _projection;
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
-        public KnownResultTypeProjectionAdapter(Projection<TSource> projection, IBsonSerializer<TResult> resultSerializer = null)
+        public KnownResultTypeProjectionDefinitionAdapter(ProjectionDefinition<TSource> projection, IBsonSerializer<TResult> resultSerializer = null)
         {
             _projection = Ensure.IsNotNull(projection, "projection");
             _resultSerializer = resultSerializer;
         }
 
-        public Projection<TSource> Projection
+        public ProjectionDefinition<TSource> Projection
         {
             get { return _projection; }
         }
@@ -480,11 +480,11 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class EntireDocumentProjection<TSource, TResult> : Projection<TSource, TResult>
+    internal sealed class EntireDocumentProjectionDefinition<TSource, TResult> : ProjectionDefinition<TSource, TResult>
     {
         private readonly IBsonSerializer<TResult> _resultSerializer;
 
-        public EntireDocumentProjection(IBsonSerializer<TResult> resultSerializer = null)
+        public EntireDocumentProjectionDefinition(IBsonSerializer<TResult> resultSerializer = null)
         {
             _resultSerializer = resultSerializer;
         }
