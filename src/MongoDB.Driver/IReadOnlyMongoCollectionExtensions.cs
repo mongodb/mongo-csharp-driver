@@ -157,11 +157,11 @@ namespace MongoDB.Driver
             FindOptions<TDocument, TDocument> genericOptions;
             if (options == null)
             {
-                genericOptions = new FindOptions<TDocument, TDocument>();
+                genericOptions = new FindOptions<TDocument>();
             }
             else
             {
-                genericOptions = new FindOptions<TDocument, TDocument>
+                genericOptions = new FindOptions<TDocument>
                 {
                     AllowPartialResults = options.AllowPartialResults,
                     BatchSize = options.BatchSize,
@@ -192,6 +192,40 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, "filter");
 
             return collection.Find(new ExpressionFilterDefinition<TDocument>(filter), options);
+        }
+
+        /// <summary>
+        /// Finds the documents matching the filter.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
+        public static Task<IAsyncCursor<TDocument>> FindAsync<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, FilterDefinition<TDocument> filter, FindOptions<TDocument, TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(filter, "filter");
+
+            return collection.FindAsync<TDocument>(filter, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Finds the documents matching the filter.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
+        public static Task<IAsyncCursor<TDocument>> FindAsync<TDocument>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, FindOptions<TDocument, TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(collection, "collection");
+            Ensure.IsNotNull(filter, "filter");
+
+            return collection.FindAsync<TDocument>(new ExpressionFilterDefinition<TDocument>(filter), options, cancellationToken);
         }
     }
 }

@@ -27,17 +27,17 @@ namespace MongoDB.Driver
     /// A rendered field name.
     /// </summary>
     /// <typeparam name="TField">The type of the field.</typeparam>
-    public sealed class RenderedField<TField>
+    public sealed class RenderedFieldDefinition<TField>
     {
         private readonly string _fieldName;
         private readonly IBsonSerializer<TField> _fieldSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderedField{TField}" /> class.
+        /// Initializes a new instance of the <see cref="RenderedFieldDefinition{TField}" /> class.
         /// </summary>
         /// <param name="fieldName">The field name.</param>
         /// <param name="fieldSerializer">The field serializer.</param>
-        public RenderedField(string fieldName, IBsonSerializer<TField> fieldSerializer)
+        public RenderedFieldDefinition(string fieldName, IBsonSerializer<TField> fieldSerializer)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _fieldSerializer = Ensure.IsNotNull(fieldSerializer, "fieldSerializer");
@@ -105,7 +105,7 @@ namespace MongoDB.Driver
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="String"/>.</returns>
-        public abstract RenderedField<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        public abstract RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="FieldDefinition{TDocument, TField}" />.
@@ -195,7 +195,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedField<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var binder = new SerializationInfoBinder(serializerRegistry);
             var parameterSerializationInfo = new BsonSerializationInfo(null, documentSerializer, documentSerializer.ValueType);
@@ -208,7 +208,7 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException(message);
             }
 
-            return new RenderedField<TField>(bound.SerializationInfo.ElementName, (IBsonSerializer<TField>)bound.SerializationInfo.Serializer);
+            return new RenderedFieldDefinition<TField>(bound.SerializationInfo.ElementName, (IBsonSerializer<TField>)bound.SerializationInfo.Serializer);
         }
     }
 
@@ -258,12 +258,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedField<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             // TODO: if we had reverse mapping from field name to member name, we could get the serializer
             // because we know the type of document we are using.
 
-            return new RenderedField<TField>(
+            return new RenderedFieldDefinition<TField>(
                 _fieldName,
                 _fieldSerializer ?? serializerRegistry.GetSerializer<TField>());
         }

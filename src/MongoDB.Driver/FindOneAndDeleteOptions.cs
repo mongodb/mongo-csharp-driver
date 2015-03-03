@@ -62,4 +62,12 @@ namespace MongoDB.Driver
             set { _sort = value; }
         }
     }
+
+    /// <summary>
+    /// Options for a findAndModify command to delete an object.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document and the result.</typeparam>
+    public class FindOneAndDeleteOptions<TDocument> : FindOneAndDeleteOptions<TDocument, TDocument>
+    {
+    }
 }

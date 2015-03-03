@@ -30,11 +30,6 @@ namespace MongoDB.Driver
     /// </summary>
     public static class ProjectionDefinitionExtensions
     {
-        private static class BuilderCache<TDocument>
-        {
-            public static ProjectionDefinitionBuilder<TDocument> Instance = new ProjectionDefinitionBuilder<TDocument>();
-        }
-
         /// <summary>
         /// Combines an existing projection with a positional operator projection.
         /// </summary>
@@ -46,7 +41,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> ElemMatch<TDocument>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.ElemMatch(field));
         }
 
@@ -61,7 +56,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> ElemMatch<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.ElemMatch(field));
         }
 
@@ -80,7 +75,7 @@ namespace MongoDB.Driver
         public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TField, TItem>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument, TField> field, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.ElemMatch(field, filter));
         }
 
@@ -97,7 +92,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TItem>(this ProjectionDefinition<TDocument> projection, string field, FilterDefinition<TItem> filter)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.ElemMatch(field, filter));
         }
 
@@ -116,7 +111,7 @@ namespace MongoDB.Driver
         public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TField, TItem>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, TField>> field, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.ElemMatch(field, filter));
         }
 
@@ -135,7 +130,7 @@ namespace MongoDB.Driver
         public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TField, TItem>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, TField>> field, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.ElemMatch(field, filter));
         }
 
@@ -150,7 +145,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> Exclude<TDocument>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.Exclude(field));
         }
 
@@ -165,7 +160,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> Exclude<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.Exclude(field));
         }
 
@@ -180,7 +175,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> Include<TDocument>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.Include(field));
         }
 
@@ -195,7 +190,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> Include<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.Include(field));
         }
 
@@ -210,7 +205,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> MetaTextScore<TDocument>(this ProjectionDefinition<TDocument> projection, string field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.MetaTextScore(field));
         }
 
@@ -227,7 +222,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> Slice<TDocument>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument> field, int skip, int? limit = null)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.Slice(field, skip, limit));
         }
 
@@ -244,7 +239,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> Slice<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> field, int skip, int? limit = null)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.Slice(field, skip, limit));
         }
     }

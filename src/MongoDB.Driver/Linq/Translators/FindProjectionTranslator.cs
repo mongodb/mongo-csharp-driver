@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal class FindProjectionTranslator : MongoExpressionVisitor
     {
-        public static RenderedProjection<TResult> Translate<TDocument, TResult>(Expression<Func<TDocument, TResult>> projector, IBsonSerializer<TDocument> parameterSerializer)
+        public static RenderedProjectionDefinition<TResult> Translate<TDocument, TResult>(Expression<Func<TDocument, TResult>> projector, IBsonSerializer<TDocument> parameterSerializer)
         {
             var parameterSerializationInfo = new BsonSerializationInfo(null, parameterSerializer, parameterSerializer.ValueType);
             var parameterExpression = new SerializationExpression(projector.Parameters[0], parameterSerializationInfo);
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Linq.Translators
                 serializer = new ProjectingDeserializer<ProjectedObject, TResult>(projectedObjectSerializer, newProjector.Compile());
             }
 
-            return new RenderedProjection<TResult>(projectionDocument, serializer);
+            return new RenderedProjectionDefinition<TResult>(projectionDocument, serializer);
         }
 
         private readonly IReadOnlyList<SerializationExpression> _fields;

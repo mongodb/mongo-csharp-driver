@@ -29,11 +29,6 @@ namespace MongoDB.Driver
     /// </summary>
     public static class SortDefinitionExtensions
     {
-        private static class BuilderCache<TDocument>
-        {
-            public static SortDefinitionBuilder<TDocument> Instance = new SortDefinitionBuilder<TDocument>();
-        }
-
         /// <summary>
         /// Combines an existing sort with an ascending field.
         /// </summary>
@@ -45,7 +40,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static SortDefinition<TDocument> Ascending<TDocument>(this SortDefinition<TDocument> sort, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Sort;
             return builder.Combine(sort, builder.Ascending(field));
         }
 
@@ -60,7 +55,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static SortDefinition<TDocument> Ascending<TDocument>(this SortDefinition<TDocument> sort, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Sort;
             return builder.Combine(sort, builder.Ascending(field));
         }
 
@@ -75,7 +70,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static SortDefinition<TDocument> Descending<TDocument>(this SortDefinition<TDocument> sort, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Sort;
             return builder.Combine(sort, builder.Descending(field));
         }
 
@@ -90,7 +85,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static SortDefinition<TDocument> Descending<TDocument>(this SortDefinition<TDocument> sort, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Sort;
             return builder.Combine(sort, builder.Descending(field));
         }
 
@@ -106,7 +101,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static SortDefinition<TDocument> MetaTextScore<TDocument>(this SortDefinition<TDocument> sort, string field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Sort;
             return builder.Combine(sort, builder.MetaTextScore(field));
         }
     }

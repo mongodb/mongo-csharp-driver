@@ -26,17 +26,17 @@ namespace MongoDB.Driver
     /// A rendered pipeline.
     /// </summary>
     /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public class RenderedPipeline<TOutput>
+    public class RenderedPipelineDefinition<TOutput>
     {
         private List<BsonDocument> _documents;
         private IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderedPipeline{TOutput}"/> class.
+        /// Initializes a new instance of the <see cref="RenderedPipelineDefinition{TOutput}"/> class.
         /// </summary>
         /// <param name="documents">The pipeline.</param>
         /// <param name="outputSerializer">The output serializer.</param>
-        public RenderedPipeline(IEnumerable<BsonDocument> documents, IBsonSerializer<TOutput> outputSerializer)
+        public RenderedPipelineDefinition(IEnumerable<BsonDocument> documents, IBsonSerializer<TOutput> outputSerializer)
         {
             _documents = Ensure.IsNotNull(documents, "documents").ToList();
             _outputSerializer = Ensure.IsNotNull(outputSerializer, "outputSerializer");
@@ -71,8 +71,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="RenderedPipeline{TOutput}"/></returns>
-        public abstract RenderedPipeline<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
+        /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
+        public abstract RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="T:IPipelineStage[]"/> to <see cref="PipelineDefinition{TInput, TOutput}"/>.
@@ -147,7 +147,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedPipeline<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var pipeline = new List<BsonDocument>();
 
@@ -159,7 +159,7 @@ namespace MongoDB.Driver
                 pipeline.Add(renderedStage.Document);
             }
 
-            return new RenderedPipeline<TOutput>(
+            return new RenderedPipelineDefinition<TOutput>(
                 pipeline,
                 _outputSerializer ?? (currentSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
         }

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal class AggregateProjectionTranslator
     {
-        public static RenderedProjection<TResult> TranslateProject<TDocument, TResult>(Expression<Func<TDocument, TResult>> projector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
+        public static RenderedProjectionDefinition<TResult> TranslateProject<TDocument, TResult>(Expression<Func<TDocument, TResult>> projector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var binder = new SerializationInfoBinder(BsonSerializer.SerializerRegistry);
             var boundExpression = BindSerializationInfo(binder, projector, parameterSerializer);
@@ -43,10 +43,10 @@ namespace MongoDB.Driver.Linq.Translators
                 projection.Add("_id", 0); // we don't want the id back unless we asked for it...
             }
 
-            return new RenderedProjection<TResult>(projection, projectionSerializer);
+            return new RenderedProjectionDefinition<TResult>(projection, projectionSerializer);
         }
 
-        public static RenderedProjection<TResult> TranslateGroup<TKey, TDocument, TResult>(Expression<Func<TDocument, TKey>> idProjector, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
+        public static RenderedProjectionDefinition<TResult> TranslateGroup<TKey, TDocument, TResult>(Expression<Func<TDocument, TKey>> idProjector, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector, IBsonSerializer<TDocument> parameterSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var keyBinder = new SerializationInfoBinder(serializerRegistry);
             var boundKeyExpression = BindSerializationInfo(keyBinder, idProjector, parameterSerializer);
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Linq.Translators
                 projection.InsertAt(0, new BsonElement("_id", idProjection));
             }
 
-            return new RenderedProjection<TResult>(projection, projectionSerializer);
+            return new RenderedProjectionDefinition<TResult>(projection, projectionSerializer);
         }
 
         private static Expression BindSerializationInfo(SerializationInfoBinder binder, LambdaExpression node, IBsonSerializer parameterSerializer)

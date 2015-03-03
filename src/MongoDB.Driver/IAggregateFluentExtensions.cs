@@ -181,7 +181,7 @@ namespace MongoDB.Driver
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
                     var newSort = new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Ascending).Render(s, sr);
-                    return new RenderedPipelineStage<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
+                    return new RenderedPipelineStageDefinition<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
             return (IOrderedAggregateFluent<TResult>)aggregate.AppendStage(stage);
@@ -212,7 +212,7 @@ namespace MongoDB.Driver
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
                     var newSort = new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Descending).Render(s, sr);
-                    return new RenderedPipelineStage<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
+                    return new RenderedPipelineStageDefinition<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
             return (IOrderedAggregateFluent<TResult>)aggregate.AppendStage(stage);
@@ -392,7 +392,7 @@ namespace MongoDB.Driver
                 get { return _expression; }
             }
 
-            public override RenderedProjection<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            public override RenderedProjectionDefinition<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
             {
                 return AggregateProjectionTranslator.TranslateProject<TResult, TNewResult>(_expression, documentSerializer, serializerRegistry);
             }
@@ -419,7 +419,7 @@ namespace MongoDB.Driver
                 get { return _groupExpression; }
             }
 
-            public override RenderedProjection<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            public override RenderedProjectionDefinition<TNewResult> Render(IBsonSerializer<TResult> documentSerializer, IBsonSerializerRegistry serializerRegistry)
             {
                 return AggregateProjectionTranslator.TranslateGroup<TKey, TResult, TNewResult>(_idExpression, _groupExpression, documentSerializer, serializerRegistry);
             }

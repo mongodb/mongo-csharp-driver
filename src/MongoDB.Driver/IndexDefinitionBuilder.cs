@@ -29,11 +29,6 @@ namespace MongoDB.Driver
     /// </summary>
     public static class IndexDefinitionExtensions
     {
-        private static class BuilderCache<TDocument>
-        {
-            public static IndexDefinitionBuilder<TDocument> Instance = new IndexDefinitionBuilder<TDocument>();
-        }
-
         /// <summary>
         /// Combines an existing index definition with an ascending index definition.
         /// </summary>
@@ -45,7 +40,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Ascending<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Ascending(field));
         }
 
@@ -60,7 +55,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Ascending<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Ascending(field));
         }
 
@@ -75,7 +70,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Descending<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Descending(field));
         }
 
@@ -90,7 +85,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Descending<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Descending(field));
         }
 
@@ -105,7 +100,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Geo2D<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Geo2D(field));
         }
 
@@ -120,7 +115,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Geo2D<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Geo2D(field));
         }
 
@@ -136,7 +131,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> GeoHaystack<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field, FieldDefinition<TDocument> additionalFieldName = null)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.GeoHaystack(field, additionalFieldName));
         }
 
@@ -152,7 +147,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> GeoHaystack<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field, Expression<Func<TDocument, object>> additionalFieldName = null)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.GeoHaystack(field, additionalFieldName));
         }
 
@@ -167,7 +162,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Geo2DSphere<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Geo2DSphere(field));
         }
 
@@ -182,7 +177,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Geo2DSphere<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Geo2DSphere(field));
         }
 
@@ -197,7 +192,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Hashed<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Hashed(field));
         }
 
@@ -212,7 +207,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Hashed<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Hashed(field));
         }
 
@@ -227,7 +222,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Text<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Text(field));
         }
 
@@ -242,7 +237,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static IndexDefinition<TDocument> Text<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Index;
             return builder.Combine(definition, builder.Text(field));
         }
     }

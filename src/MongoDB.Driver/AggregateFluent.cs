@@ -68,7 +68,7 @@ namespace MongoDB.Driver
                 (s, sr) => 
                 {
                     var renderedProjection = group.Render(s, sr);
-                    return new RenderedPipelineStage<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ResultSerializer);
+                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ResultSerializer);
                 });
 
             return AppendStage<TNewResult>(stage);
@@ -84,7 +84,7 @@ namespace MongoDB.Driver
             const string operatorName = "$match";
             var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(
                 operatorName,
-                (s, sr) => new RenderedPipelineStage<TResult>(operatorName, new BsonDocument(operatorName, filter.Render(s, sr)), s));
+                (s, sr) => new RenderedPipelineStageDefinition<TResult>(operatorName, new BsonDocument(operatorName, filter.Render(s, sr)), s));
 
             return AppendStage<TResult>(stage);
         }
@@ -103,7 +103,7 @@ namespace MongoDB.Driver
                 (s, sr) =>
                 {
                     var renderedProjection = projection.Render(s, sr);
-                    return new RenderedPipelineStage<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ResultSerializer);
+                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ResultSerializer);
                 });
 
             return AppendStage<TNewResult>(stage);
@@ -119,7 +119,7 @@ namespace MongoDB.Driver
             const string operatorName = "$sort";
             var stage = new DelegatedPipelineStageDefinition<TResult, TResult>(
                 operatorName,
-                (s, sr) => new RenderedPipelineStage<TResult>(operatorName, new BsonDocument(operatorName, sort.Render(s, sr)), s));
+                (s, sr) => new RenderedPipelineStageDefinition<TResult>(operatorName, new BsonDocument(operatorName, sort.Render(s, sr)), s));
 
 
             return AppendStage(stage);
@@ -130,7 +130,7 @@ namespace MongoDB.Driver
             const string operatorName = "$unwind";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
                 operatorName,
-                (s, sr) => new RenderedPipelineStage<TNewResult>(
+                (s, sr) => new RenderedPipelineStageDefinition<TNewResult>(
                     operatorName, new BsonDocument(
                         operatorName, 
                         "$" + field.Render(s, sr)), 

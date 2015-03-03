@@ -29,11 +29,6 @@ namespace MongoDB.Driver
     /// </summary>
     public static class UpdateDefinitionExtensions
     {
-        private static class BuilderCache<TDocument>
-        {
-            public static UpdateDefinitionBuilder<TDocument> Instance = new UpdateDefinitionBuilder<TDocument>();
-        }
-
         /// <summary>
         /// Combines an existing update with an add to set operator.
         /// </summary>
@@ -49,7 +44,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> AddToSet<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.AddToSet<TField, TItem>(field, value));
         }
 
@@ -66,7 +61,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> AddToSet<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, TItem value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.AddToSet<TItem>(field, value));
         }
 
@@ -85,7 +80,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> AddToSet<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.AddToSet<TField, TItem>(field, value));
         }
 
@@ -104,7 +99,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.AddToSetEach<TField, TItem>(field, values));
         }
 
@@ -121,7 +116,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, IEnumerable<TItem> values)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.AddToSetEach<TItem>(field, values));
         }
 
@@ -140,7 +135,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.AddToSetEach<TField, TItem>(field, values));
         }
 
@@ -157,7 +152,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> BitwiseAnd<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.BitwiseAnd(field, value));
         }
 
@@ -174,7 +169,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> BitwiseAnd<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.BitwiseAnd(field, value));
         }
 
@@ -191,7 +186,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> BitwiseOr<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.BitwiseOr(field, value));
         }
 
@@ -208,7 +203,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> BitwiseOr<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.BitwiseOr(field, value));
         }
 
@@ -225,7 +220,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> BitwiseXor<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.BitwiseXor(field, value));
         }
 
@@ -242,7 +237,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> BitwiseXor<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.BitwiseXor(field, value));
         }
 
@@ -258,7 +253,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field, UpdateDefinitionCurrentDateType? type = null)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.CurrentDate(field, type));
         }
 
@@ -274,7 +269,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field, UpdateDefinitionCurrentDateType? type = null)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.CurrentDate(field, type));
         }
 
@@ -291,7 +286,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Inc<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Inc(field, value));
         }
 
@@ -308,7 +303,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Inc<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Inc(field, value));
         }
 
@@ -325,7 +320,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Max<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Max(field, value));
         }
 
@@ -342,7 +337,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Max<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Max(field, value));
         }
 
@@ -359,7 +354,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Min<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Min(field, value));
         }
 
@@ -376,7 +371,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Min<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Min(field, value));
         }
 
@@ -393,7 +388,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Mul<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Mul(field, value));
         }
 
@@ -410,7 +405,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Mul<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Mul(field, value));
         }
 
@@ -425,7 +420,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> PopFirst<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PopFirst(field));
         }
 
@@ -440,7 +435,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> PopFirst<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PopFirst(field));
         }
 
@@ -455,7 +450,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> PopLast<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PopLast(field));
         }
 
@@ -470,7 +465,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> PopLast<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PopLast(field));
         }
 
@@ -489,7 +484,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> Pull<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Pull(field, value));
         }
 
@@ -506,7 +501,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Pull<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, TItem value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Pull(field, value));
         }
 
@@ -525,7 +520,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> Pull<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Pull(field, value));
         }
 
@@ -544,7 +539,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> PullAll<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PullAll(field, values));
         }
 
@@ -561,7 +556,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> PullAll<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, IEnumerable<TItem> values)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PullAll(field, values));
         }
 
@@ -580,7 +575,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> PullAll<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PullAll(field, values));
         }
 
@@ -599,7 +594,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PullFilter(field, filter));
         }
 
@@ -616,7 +611,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> PullFilter<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, FilterDefinition<TItem> filter)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PullFilter(field, filter));
         }
 
@@ -635,7 +630,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PullFilter(field, filter));
         }
 
@@ -654,7 +649,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PullFilter(field, filter));
         }
 
@@ -673,7 +668,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> Push<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Push(field, value));
         }
 
@@ -690,7 +685,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Push<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, TItem value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Push(field, value));
         }
 
@@ -709,7 +704,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> Push<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Push(field, value));
         }
 
@@ -731,7 +726,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> PushEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PushEach(field, values, slice, position, sort));
         }
 
@@ -751,7 +746,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> PushEach<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PushEach(field, values, slice, position, sort));
         }
 
@@ -773,7 +768,7 @@ namespace MongoDB.Driver
         public static UpdateDefinition<TDocument> PushEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.PushEach(field, values, slice, position, sort));
         }
 
@@ -789,7 +784,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Rename<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field, string newName)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Rename(field, newName));
         }
 
@@ -805,7 +800,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Rename<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field, string newName)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Rename(field, newName));
         }
 
@@ -822,7 +817,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Set<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Set(field, value));
         }
 
@@ -839,7 +834,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Set<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Set(field, value));
         }
 
@@ -856,7 +851,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> SetOnInsert<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.SetOnInsert(field, value));
         }
 
@@ -873,7 +868,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> SetOnInsert<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.SetOnInsert(field, value));
         }
 
@@ -888,7 +883,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Unset<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Unset(field));
         }
 
@@ -903,7 +898,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static UpdateDefinition<TDocument> Unset<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field)
         {
-            var builder = BuilderCache<TDocument>.Instance;
+            var builder = Builders<TDocument>.Update;
             return builder.Combine(update, builder.Unset(field));
         }
     }

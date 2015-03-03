@@ -91,4 +91,12 @@ namespace MongoDB.Driver
             set { _sort = value; }
         }
     }
+
+    /// <summary>
+    /// Options for a findAndModify command to replace an object.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document and the result.</typeparam>
+    public class FindOneAndReplaceOptions<TDocument> : FindOneAndReplaceOptions<TDocument, TDocument>
+    {
+    }
 }

@@ -91,4 +91,12 @@ namespace MongoDB.Driver
             set { _sort = value; }
         }
     }
+
+    /// <summary>
+    /// Options for a findAndModify command to update an object.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document and the result.</typeparam>
+    public class FindOneAndUpdateOptions<TDocument> : FindOneAndUpdateOptions<TDocument, TDocument>
+    {
+    }
 }
