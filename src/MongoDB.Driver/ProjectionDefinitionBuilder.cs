@@ -28,7 +28,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Extension methods for projections.
     /// </summary>
-    public static class ProjectionExtensions
+    public static class ProjectionDefinitionExtensions
     {
         private static class BuilderCache<TDocument>
         {

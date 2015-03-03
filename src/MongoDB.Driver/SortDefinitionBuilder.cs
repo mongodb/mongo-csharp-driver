@@ -25,9 +25,9 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Extension methods for Sort.
+    /// Extension methods for SortDefinition.
     /// </summary>
-    public static class SortExtensions
+    public static class SortDefinitionExtensions
     {
         private static class BuilderCache<TDocument>
         {
