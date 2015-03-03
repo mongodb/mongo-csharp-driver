@@ -39,14 +39,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Ascending<TDocument>(this IndexDefinition<TDocument> definition, FieldName<TDocument> fieldName)
+        public static IndexDefinition<TDocument> Ascending<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Ascending(fieldName));
+            return builder.Combine(definition, builder.Ascending(field));
         }
 
         /// <summary>
@@ -54,14 +54,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Ascending<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> fieldName)
+        public static IndexDefinition<TDocument> Ascending<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Ascending(fieldName));
+            return builder.Combine(definition, builder.Ascending(field));
         }
 
         /// <summary>
@@ -69,14 +69,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Descending<TDocument>(this IndexDefinition<TDocument> definition, FieldName<TDocument> fieldName)
+        public static IndexDefinition<TDocument> Descending<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Descending(fieldName));
+            return builder.Combine(definition, builder.Descending(field));
         }
 
         /// <summary>
@@ -84,14 +84,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Descending<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> fieldName)
+        public static IndexDefinition<TDocument> Descending<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Descending(fieldName));
+            return builder.Combine(definition, builder.Descending(field));
         }
 
         /// <summary>
@@ -99,14 +99,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Geo2D<TDocument>(this IndexDefinition<TDocument> definition, FieldName<TDocument> fieldName)
+        public static IndexDefinition<TDocument> Geo2D<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Geo2D(fieldName));
+            return builder.Combine(definition, builder.Geo2D(field));
         }
 
         /// <summary>
@@ -114,14 +114,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Geo2D<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> fieldName)
+        public static IndexDefinition<TDocument> Geo2D<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Geo2D(fieldName));
+            return builder.Combine(definition, builder.Geo2D(field));
         }
 
         /// <summary>
@@ -129,15 +129,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="additionalFieldName">Name of the additional field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> GeoHaystack<TDocument>(this IndexDefinition<TDocument> definition, FieldName<TDocument> fieldName, FieldName<TDocument> additionalFieldName = null)
+        public static IndexDefinition<TDocument> GeoHaystack<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field, FieldDefinition<TDocument> additionalFieldName = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.GeoHaystack(fieldName, additionalFieldName));
+            return builder.Combine(definition, builder.GeoHaystack(field, additionalFieldName));
         }
 
         /// <summary>
@@ -145,15 +145,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="additionalFieldName">Name of the additional field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> GeoHaystack<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> fieldName, Expression<Func<TDocument, object>> additionalFieldName = null)
+        public static IndexDefinition<TDocument> GeoHaystack<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field, Expression<Func<TDocument, object>> additionalFieldName = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.GeoHaystack(fieldName, additionalFieldName));
+            return builder.Combine(definition, builder.GeoHaystack(field, additionalFieldName));
         }
 
         /// <summary>
@@ -161,14 +161,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Geo2DSphere<TDocument>(this IndexDefinition<TDocument> definition, FieldName<TDocument> fieldName)
+        public static IndexDefinition<TDocument> Geo2DSphere<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Geo2DSphere(fieldName));
+            return builder.Combine(definition, builder.Geo2DSphere(field));
         }
 
         /// <summary>
@@ -176,14 +176,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Geo2DSphere<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> fieldName)
+        public static IndexDefinition<TDocument> Geo2DSphere<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Geo2DSphere(fieldName));
+            return builder.Combine(definition, builder.Geo2DSphere(field));
         }
 
         /// <summary>
@@ -191,14 +191,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Hashed<TDocument>(this IndexDefinition<TDocument> definition, FieldName<TDocument> fieldName)
+        public static IndexDefinition<TDocument> Hashed<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Hashed(fieldName));
+            return builder.Combine(definition, builder.Hashed(field));
         }
 
         /// <summary>
@@ -206,14 +206,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Hashed<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> fieldName)
+        public static IndexDefinition<TDocument> Hashed<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Hashed(fieldName));
+            return builder.Combine(definition, builder.Hashed(field));
         }
 
         /// <summary>
@@ -221,14 +221,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Text<TDocument>(this IndexDefinition<TDocument> definition, FieldName<TDocument> fieldName)
+        public static IndexDefinition<TDocument> Text<TDocument>(this IndexDefinition<TDocument> definition, FieldDefinition<TDocument> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Text(fieldName));
+            return builder.Combine(definition, builder.Text(field));
         }
 
         /// <summary>
@@ -236,14 +236,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="definition">The definition.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined index definition.
         /// </returns>
-        public static IndexDefinition<TDocument> Text<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> fieldName)
+        public static IndexDefinition<TDocument> Text<TDocument>(this IndexDefinition<TDocument> definition, Expression<Func<TDocument, object>> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(definition, builder.Text(fieldName));
+            return builder.Combine(definition, builder.Text(field));
         }
     }
 
@@ -256,21 +256,21 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an ascending index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>An ascending index definition.</returns>
-        public IndexDefinition<TDocument> Ascending(FieldName<TDocument> fieldName)
+        public IndexDefinition<TDocument> Ascending(FieldDefinition<TDocument> field)
         {
-            return new DirectionalIndexDefinition<TDocument>(fieldName, SortDirection.Ascending);
+            return new DirectionalIndexDefinition<TDocument>(field, SortDirection.Ascending);
         }
 
         /// <summary>
         /// Creates an ascending index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>An ascending index definition.</returns>
-        public IndexDefinition<TDocument> Ascending(Expression<Func<TDocument, object>> fieldName)
+        public IndexDefinition<TDocument> Ascending(Expression<Func<TDocument, object>> field)
         {
-            return Ascending(new ExpressionFieldName<TDocument>(fieldName));
+            return Ascending(new ExpressionFieldDefinition<TDocument>(field));
         }
 
         /// <summary>
@@ -296,128 +296,128 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a descending index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A descending index definition.</returns>
-        public IndexDefinition<TDocument> Descending(FieldName<TDocument> fieldName)
+        public IndexDefinition<TDocument> Descending(FieldDefinition<TDocument> field)
         {
-            return new DirectionalIndexDefinition<TDocument>(fieldName, SortDirection.Descending);
+            return new DirectionalIndexDefinition<TDocument>(field, SortDirection.Descending);
         }
 
         /// <summary>
         /// Creates a descending index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A descending index definition.</returns>
-        public IndexDefinition<TDocument> Descending(Expression<Func<TDocument, object>> fieldName)
+        public IndexDefinition<TDocument> Descending(Expression<Func<TDocument, object>> field)
         {
-            return Descending(new ExpressionFieldName<TDocument>(fieldName));
+            return Descending(new ExpressionFieldDefinition<TDocument>(field));
         }
 
         /// <summary>
         /// Creates a 2d index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A 2d index definition.</returns>
-        public IndexDefinition<TDocument> Geo2D(FieldName<TDocument> fieldName)
+        public IndexDefinition<TDocument> Geo2D(FieldDefinition<TDocument> field)
         {
-            return new SimpleIndexDefinition<TDocument>(fieldName, "2d");
+            return new SimpleIndexDefinition<TDocument>(field, "2d");
         }
 
         /// <summary>
         /// Creates a 2d index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A 2d index definition.</returns>
-        public IndexDefinition<TDocument> Geo2D(Expression<Func<TDocument, object>> fieldName)
+        public IndexDefinition<TDocument> Geo2D(Expression<Func<TDocument, object>> field)
         {
-            return Geo2D(new ExpressionFieldName<TDocument>(fieldName));
+            return Geo2D(new ExpressionFieldDefinition<TDocument>(field));
         }
 
         /// <summary>
         /// Creates a geo haystack index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="additionalFieldName">Name of the additional field.</param>
         /// <returns>
         /// A geo haystack index definition.
         /// </returns>
-        public IndexDefinition<TDocument> GeoHaystack(FieldName<TDocument> fieldName, FieldName<TDocument> additionalFieldName = null)
+        public IndexDefinition<TDocument> GeoHaystack(FieldDefinition<TDocument> field, FieldDefinition<TDocument> additionalFieldName = null)
         {
-            return new GeoHaystackIndexDefinition<TDocument>(fieldName, additionalFieldName);
+            return new GeoHaystackIndexDefinition<TDocument>(field, additionalFieldName);
         }
 
         /// <summary>
         /// Creates a geo haystack index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="additionalFieldName">Name of the additional field.</param>
         /// <returns>
         /// A geo haystack index definition.
         /// </returns>
-        public IndexDefinition<TDocument> GeoHaystack(Expression<Func<TDocument, object>> fieldName, Expression<Func<TDocument, object>> additionalFieldName = null)
+        public IndexDefinition<TDocument> GeoHaystack(Expression<Func<TDocument, object>> field, Expression<Func<TDocument, object>> additionalFieldName = null)
         {
-            FieldName<TDocument> additional = additionalFieldName == null ? null : new ExpressionFieldName<TDocument>(additionalFieldName);
-            return GeoHaystack(new ExpressionFieldName<TDocument>(fieldName), additional);
+            FieldDefinition<TDocument> additional = additionalFieldName == null ? null : new ExpressionFieldDefinition<TDocument>(additionalFieldName);
+            return GeoHaystack(new ExpressionFieldDefinition<TDocument>(field), additional);
         }
 
         /// <summary>
         /// Creates a 2dsphere index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A 2dsphere index definition.</returns>
-        public IndexDefinition<TDocument> Geo2DSphere(FieldName<TDocument> fieldName)
+        public IndexDefinition<TDocument> Geo2DSphere(FieldDefinition<TDocument> field)
         {
-            return new SimpleIndexDefinition<TDocument>(fieldName, "2dsphere");
+            return new SimpleIndexDefinition<TDocument>(field, "2dsphere");
         }
 
         /// <summary>
         /// Creates a 2dsphere index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A 2dsphere index definition.</returns>
-        public IndexDefinition<TDocument> Geo2DSphere(Expression<Func<TDocument, object>> fieldName)
+        public IndexDefinition<TDocument> Geo2DSphere(Expression<Func<TDocument, object>> field)
         {
-            return Geo2DSphere(new ExpressionFieldName<TDocument>(fieldName));
+            return Geo2DSphere(new ExpressionFieldDefinition<TDocument>(field));
         }
 
         /// <summary>
         /// Creates a hashed index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A hashed index definition.</returns>
-        public IndexDefinition<TDocument> Hashed(FieldName<TDocument> fieldName)
+        public IndexDefinition<TDocument> Hashed(FieldDefinition<TDocument> field)
         {
-            return new SimpleIndexDefinition<TDocument>(fieldName, "hashed");
+            return new SimpleIndexDefinition<TDocument>(field, "hashed");
         }
 
         /// <summary>
         /// Creates a hashed index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A hashed index definition.</returns>
-        public IndexDefinition<TDocument> Hashed(Expression<Func<TDocument, object>> fieldName)
+        public IndexDefinition<TDocument> Hashed(Expression<Func<TDocument, object>> field)
         {
-            return Hashed(new ExpressionFieldName<TDocument>(fieldName));
+            return Hashed(new ExpressionFieldDefinition<TDocument>(field));
         }
 
         /// <summary>
         /// Creates a text index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A text index definition.</returns>
-        public IndexDefinition<TDocument> Text(FieldName<TDocument> fieldName)
+        public IndexDefinition<TDocument> Text(FieldDefinition<TDocument> field)
         {
-            return new SimpleIndexDefinition<TDocument>(fieldName, "text");
+            return new SimpleIndexDefinition<TDocument>(field, "text");
         }
 
         /// <summary>
         /// Creates a text index definition.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A text index definition.</returns>
-        public IndexDefinition<TDocument> Text(Expression<Func<TDocument, object>> fieldName)
+        public IndexDefinition<TDocument> Text(Expression<Func<TDocument, object>> field)
         {
-            return Text(new ExpressionFieldName<TDocument>(fieldName));
+            return Text(new ExpressionFieldDefinition<TDocument>(field));
         }
     }
 
@@ -457,18 +457,18 @@ namespace MongoDB.Driver
 
     internal sealed class DirectionalIndexDefinition<TDocument> : IndexDefinition<TDocument>
     {
-        private readonly FieldName<TDocument> _fieldName;
+        private readonly FieldDefinition<TDocument> _field;
         private readonly SortDirection _direction;
 
-        public DirectionalIndexDefinition(FieldName<TDocument> fieldName, SortDirection direction)
+        public DirectionalIndexDefinition(FieldDefinition<TDocument> field, SortDirection direction)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _field = Ensure.IsNotNull(field, "field");
             _direction = direction;
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
             BsonValue value;
             switch (_direction)
@@ -483,26 +483,26 @@ namespace MongoDB.Driver
                     throw new InvalidOperationException("Unknown value for " + typeof(SortDirection) + ".");
             }
 
-            return new BsonDocument(renderedFieldName, value);
+            return new BsonDocument(renderedField, value);
         }
     }
 
     internal sealed class GeoHaystackIndexDefinition<TDocument> : IndexDefinition<TDocument>
     {
-        private readonly FieldName<TDocument> _fieldName;
-        private readonly FieldName<TDocument> _additionalFieldName;
+        private readonly FieldDefinition<TDocument> _field;
+        private readonly FieldDefinition<TDocument> _additionalFieldName;
 
-        public GeoHaystackIndexDefinition(FieldName<TDocument> fieldName, FieldName<TDocument> additionalFieldName = null)
+        public GeoHaystackIndexDefinition(FieldDefinition<TDocument> field, FieldDefinition<TDocument> additionalFieldName = null)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _field = Ensure.IsNotNull(field, "field");
             _additionalFieldName = additionalFieldName;
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
-            var document = new BsonDocument(renderedFieldName, "geoHaystack");
+            var document = new BsonDocument(renderedField, "geoHaystack");
             if (_additionalFieldName != null)
             {
                 var additionalFieldName = _additionalFieldName.Render(documentSerializer, serializerRegistry);
@@ -515,19 +515,19 @@ namespace MongoDB.Driver
 
     internal sealed class SimpleIndexDefinition<TDocument> : IndexDefinition<TDocument>
     {
-        private readonly FieldName<TDocument> _fieldName;
+        private readonly FieldDefinition<TDocument> _field;
         private readonly string _type;
 
-        public SimpleIndexDefinition(FieldName<TDocument> fieldName, string type)
+        public SimpleIndexDefinition(FieldDefinition<TDocument> field, string type)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _field = Ensure.IsNotNull(field, "field");
             _type = type;
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
-            return new BsonDocument(renderedFieldName, _type);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            return new BsonDocument(renderedField, _type);
         }
     }
 }

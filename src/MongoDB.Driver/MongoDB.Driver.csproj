@@ -152,7 +152,7 @@
     <Compile Include="CursorType.cs" />
     <Compile Include="ReturnDocument.cs" />
     <Compile Include="ProjectionDefinition.cs" />
-    <Compile Include="FieldName.cs" />
+    <Compile Include="FieldDefinition.cs" />
     <Compile Include="SortDefinition.cs" />
     <Compile Include="UpdateDefinition.cs" />
     <Compile Include="UpdateOptions.cs" />

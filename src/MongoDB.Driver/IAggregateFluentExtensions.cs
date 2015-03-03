@@ -135,7 +135,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
-                new DirectionalSortDefinition<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Ascending));
+                new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Ascending));
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, "field");
 
             return (IOrderedAggregateFluent<TResult>)aggregate.Sort(
-                new DirectionalSortDefinition<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Descending));
+                new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Descending));
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace MongoDB.Driver
                 (s, sr) =>
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new DirectionalSortDefinition<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Ascending).Render(s, sr);
+                    var newSort = new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Ascending).Render(s, sr);
                     return new RenderedPipelineStage<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
@@ -211,7 +211,7 @@ namespace MongoDB.Driver
                 (s, sr) =>
                 {
                     var lastSort = lastStage.Render(s, sr).Document["$sort"].AsBsonDocument;
-                    var newSort = new DirectionalSortDefinition<TResult>(new ExpressionFieldName<TResult>(field), SortDirection.Descending).Render(s, sr);
+                    var newSort = new DirectionalSortDefinition<TResult>(new ExpressionFieldDefinition<TResult>(field), SortDirection.Descending).Render(s, sr);
                     return new RenderedPipelineStage<TResult>("$sort", new BsonDocument("$sort", lastSort.Merge(newSort)), s);
                 });
 
@@ -223,16 +223,16 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="aggregate">The aggregate.</param>
-        /// <param name="fieldName">The name of the field to unwind.</param>
+        /// <param name="field">The field to unwind.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Unwind<TResult>(this IAggregateFluent<TResult> aggregate, FieldName<TResult> fieldName)
+        public static IAggregateFluent<BsonDocument> Unwind<TResult>(this IAggregateFluent<TResult> aggregate, FieldDefinition<TResult> field)
         {
             Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(fieldName, "fieldName");
+            Ensure.IsNotNull(field, "field");
 
-            return aggregate.Unwind<BsonDocument>(fieldName);
+            return aggregate.Unwind<BsonDocument>(field);
         }
 
         /// <summary>
@@ -240,16 +240,16 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="aggregate">The aggregate.</param>
-        /// <param name="fieldName">The field to unwind.</param>
+        /// <param name="field">The field to unwind.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<BsonDocument> Unwind<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> fieldName)
+        public static IAggregateFluent<BsonDocument> Unwind<TResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field)
         {
             Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(fieldName, "field");
+            Ensure.IsNotNull(field, "field");
 
-            return aggregate.Unwind<BsonDocument>(new ExpressionFieldName<TResult>(fieldName));
+            return aggregate.Unwind<BsonDocument>(new ExpressionFieldDefinition<TResult>(field));
         }
 
         /// <summary>
@@ -258,18 +258,18 @@ namespace MongoDB.Driver
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="aggregate">The aggregate.</param>
-        /// <param name="fieldName">The field to unwind.</param>
+        /// <param name="field">The field to unwind.</param>
         /// <param name="newResultSerializer">The new result serializer.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public static IAggregateFluent<TNewResult> Unwind<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> fieldName, IBsonSerializer<TNewResult> newResultSerializer = null)
+        public static IAggregateFluent<TNewResult> Unwind<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field, IBsonSerializer<TNewResult> newResultSerializer = null)
         {
             Ensure.IsNotNull(aggregate, "aggregate");
-            Ensure.IsNotNull(fieldName, "field");
+            Ensure.IsNotNull(field, "field");
             Ensure.IsNotNull(newResultSerializer, "newResultSerializer");
 
-            return aggregate.Unwind<TNewResult>(new ExpressionFieldName<TResult>(fieldName), newResultSerializer);
+            return aggregate.Unwind<TNewResult>(new ExpressionFieldDefinition<TResult>(field), newResultSerializer);
         }
 
         /// <summary>

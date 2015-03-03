@@ -107,12 +107,12 @@ namespace MongoDB.Driver
         /// Appends an unwind stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="newResultSerializer">The new result serializer.</param>
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldName<TResult> fieldName, IBsonSerializer<TNewResult> newResultSerializer = null);
+        IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, IBsonSerializer<TNewResult> newResultSerializer = null);
     }
 
     /// <summary>

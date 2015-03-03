@@ -27,17 +27,17 @@ namespace MongoDB.Driver
     /// A rendered field name.
     /// </summary>
     /// <typeparam name="TField">The type of the field.</typeparam>
-    public sealed class RenderedFieldName<TField>
+    public sealed class RenderedField<TField>
     {
         private readonly string _fieldName;
         private readonly IBsonSerializer<TField> _fieldSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderedFieldName{TField}" /> class.
+        /// Initializes a new instance of the <see cref="RenderedField{TField}" /> class.
         /// </summary>
         /// <param name="fieldName">The field name.</param>
         /// <param name="fieldSerializer">The field serializer.</param>
-        public RenderedFieldName(string fieldName, IBsonSerializer<TField> fieldSerializer)
+        public RenderedField(string fieldName, IBsonSerializer<TField> fieldSerializer)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _fieldSerializer = Ensure.IsNotNull(fieldSerializer, "fieldSerializer");
@@ -64,7 +64,7 @@ namespace MongoDB.Driver
     /// Base class for field names.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public abstract class FieldName<TDocument>
+    public abstract class FieldDefinition<TDocument>
     {
         /// <summary>
         /// Renders the field to a <see cref="String"/>.
@@ -75,20 +75,20 @@ namespace MongoDB.Driver
         public abstract string Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="FieldName{TDocument}"/>.
+        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="FieldDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator FieldName<TDocument>(string fieldName)
+        public static implicit operator FieldDefinition<TDocument>(string fieldName)
         {
             if (fieldName == null)
             {
                 return null;
             }
 
-            return new StringFieldName<TDocument>(fieldName);
+            return new StringFieldDefinition<TDocument>(fieldName);
         }
     }
 
@@ -97,7 +97,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TField">The type of the field.</typeparam>
-    public abstract class FieldName<TDocument, TField>
+    public abstract class FieldDefinition<TDocument, TField>
     {
         /// <summary>
         /// Renders the field to a <see cref="String"/>.
@@ -105,23 +105,23 @@ namespace MongoDB.Driver
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="String"/>.</returns>
-        public abstract RenderedFieldName<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        public abstract RenderedField<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="FieldName{TDocument, TField}" />.
+        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="FieldDefinition{TDocument, TField}" />.
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator FieldName<TDocument, TField>(string fieldName)
+        public static implicit operator FieldDefinition<TDocument, TField>(string fieldName)
         {
             if (fieldName == null)
             {
                 return null;
             }
 
-            return new StringFieldName<TDocument, TField>(fieldName, null);
+            return new StringFieldDefinition<TDocument, TField>(fieldName, null);
         }
     }
 
@@ -129,15 +129,15 @@ namespace MongoDB.Driver
     /// An <see cref="Expression" /> based field.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class ExpressionFieldName<TDocument> : FieldName<TDocument>
+    public sealed class ExpressionFieldDefinition<TDocument> : FieldDefinition<TDocument>
     {
         private readonly Expression<Func<TDocument, object>> _expression;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExpressionFieldName{TDocument}" /> class.
+        /// Initializes a new instance of the <see cref="ExpressionFieldDefinition{TDocument}" /> class.
         /// </summary>
         /// <param name="expression">The expression.</param>
-        public ExpressionFieldName(Expression<Func<TDocument, object>> expression)
+        public ExpressionFieldDefinition(Expression<Func<TDocument, object>> expression)
         {
             _expression = Ensure.IsNotNull(expression, "expression");
         }
@@ -173,15 +173,15 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TField">The type of the field.</typeparam>
-    public sealed class ExpressionFieldName<TDocument, TField> : FieldName<TDocument, TField>
+    public sealed class ExpressionFieldDefinition<TDocument, TField> : FieldDefinition<TDocument, TField>
     {
         private readonly Expression<Func<TDocument, TField>> _expression;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExpressionFieldName{TDocument, TField}" /> class.
+        /// Initializes a new instance of the <see cref="ExpressionFieldDefinition{TDocument, TField}" /> class.
         /// </summary>
         /// <param name="expression">The expression.</param>
-        public ExpressionFieldName(Expression<Func<TDocument, TField>> expression)
+        public ExpressionFieldDefinition(Expression<Func<TDocument, TField>> expression)
         {
             _expression = Ensure.IsNotNull(expression, "expression");
         }
@@ -195,7 +195,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedFieldName<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedField<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var binder = new SerializationInfoBinder(serializerRegistry);
             var parameterSerializationInfo = new BsonSerializationInfo(null, documentSerializer, documentSerializer.ValueType);
@@ -208,7 +208,7 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException(message);
             }
 
-            return new RenderedFieldName<TField>(bound.SerializationInfo.ElementName, (IBsonSerializer<TField>)bound.SerializationInfo.Serializer);
+            return new RenderedField<TField>(bound.SerializationInfo.ElementName, (IBsonSerializer<TField>)bound.SerializationInfo.Serializer);
         }
     }
 
@@ -216,15 +216,15 @@ namespace MongoDB.Driver
     /// A <see cref="String" /> based field name.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class StringFieldName<TDocument> : FieldName<TDocument>
+    public sealed class StringFieldDefinition<TDocument> : FieldDefinition<TDocument>
     {
         private readonly string _fieldName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StringFieldName{TDocument}" /> class.
+        /// Initializes a new instance of the <see cref="StringFieldDefinition{TDocument}" /> class.
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
-        public StringFieldName(string fieldName)
+        public StringFieldDefinition(string fieldName)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
         }
@@ -241,29 +241,29 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TField">The type of the field.</typeparam>
-    public sealed class StringFieldName<TDocument, TField> : FieldName<TDocument, TField>
+    public sealed class StringFieldDefinition<TDocument, TField> : FieldDefinition<TDocument, TField>
     {
         private readonly string _fieldName;
         private readonly IBsonSerializer<TField> _fieldSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StringFieldName{TDocument, TField}" /> class.
+        /// Initializes a new instance of the <see cref="StringFieldDefinition{TDocument, TField}" /> class.
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="fieldSerializer">The field serializer.</param>
-        public StringFieldName(string fieldName, IBsonSerializer<TField> fieldSerializer = null)
+        public StringFieldDefinition(string fieldName, IBsonSerializer<TField> fieldSerializer = null)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _fieldSerializer = fieldSerializer;
         }
 
         /// <inheritdoc />
-        public override RenderedFieldName<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedField<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             // TODO: if we had reverse mapping from field name to member name, we could get the serializer
             // because we know the type of document we are using.
 
-            return new RenderedFieldName<TField>(
+            return new RenderedField<TField>(
                 _fieldName,
                 _fieldSerializer ?? serializerRegistry.GetSerializer<TField>());
         }

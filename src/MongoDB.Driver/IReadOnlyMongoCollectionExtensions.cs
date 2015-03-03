@@ -70,21 +70,21 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the result.</typeparam>
         /// <param name="collection">The collection.</param>
-        /// <param name="fieldName">The field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
-            Ensure.IsNotNull(fieldName, "fieldName");
+            Ensure.IsNotNull(field, "field");
             Ensure.IsNotNull(filter, "filter");
 
             return collection.DistinctAsync<TField>(
-                new ExpressionFieldName<TDocument, TField>(fieldName),
+                new ExpressionFieldDefinition<TDocument, TField>(field),
                 filter,
                 options,
                 cancellationToken);
@@ -96,21 +96,21 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the result.</typeparam>
         /// <param name="collection">The collection.</param>
-        /// <param name="fieldName">The field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, FieldName<TDocument, TField> fieldName, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, FieldDefinition<TDocument, TField> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
-            Ensure.IsNotNull(fieldName, "fieldName");
+            Ensure.IsNotNull(field, "field");
             Ensure.IsNotNull(filter, "filter");
 
             return collection.DistinctAsync<TField>(
-                fieldName,
+                field,
                 new ExpressionFilterDefinition<TDocument>(filter),
                 options,
                 cancellationToken);
@@ -122,21 +122,21 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the result.</typeparam>
         /// <param name="collection">The collection.</param>
-        /// <param name="fieldName">The field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The distinct values for the specified field.
         /// </returns>
-        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncCursor<TField>> DistinctAsync<TDocument, TField>(this IReadOnlyMongoCollection<TDocument> collection, Expression<Func<TDocument, TField>> field, Expression<Func<TDocument, bool>> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
-            Ensure.IsNotNull(fieldName, "fieldName");
+            Ensure.IsNotNull(field, "field");
             Ensure.IsNotNull(filter, "filter");
 
             return collection.DistinctAsync<TField>(
-                new ExpressionFieldName<TDocument, TField>(fieldName),
+                new ExpressionFieldDefinition<TDocument, TField>(field),
                 new ExpressionFilterDefinition<TDocument>(filter),
                 options,
                 cancellationToken);

@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Tests
             subject.DistinctAsync(x => x.LastName, x => x.FirstName == "Jack");
 
             subject.Received().DistinctAsync(
-                Arg.Any<ExpressionFieldName<Person, string>>(),
+                Arg.Any<ExpressionFieldDefinition<Person, string>>(),
                 Arg.Any<ExpressionFilterDefinition<Person>>(),
                 null,
                 default(CancellationToken));

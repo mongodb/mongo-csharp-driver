@@ -41,16 +41,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> AddToSet<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> AddToSet<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.AddToSet<TField, TItem>(fieldName, value));
+            return builder.Combine(update, builder.AddToSet<TField, TItem>(field, value));
         }
 
         /// <summary>
@@ -59,15 +59,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> AddToSet<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, TItem value)
+        public static UpdateDefinition<TDocument> AddToSet<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, TItem value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.AddToSet<TItem>(fieldName, value));
+            return builder.Combine(update, builder.AddToSet<TItem>(field, value));
         }
 
         /// <summary>
@@ -77,16 +77,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> AddToSet<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> AddToSet<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.AddToSet<TField, TItem>(fieldName, value));
+            return builder.Combine(update, builder.AddToSet<TField, TItem>(field, value));
         }
 
         /// <summary>
@@ -96,16 +96,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.AddToSetEach<TField, TItem>(fieldName, values));
+            return builder.Combine(update, builder.AddToSetEach<TField, TItem>(field, values));
         }
 
         /// <summary>
@@ -114,15 +114,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, IEnumerable<TItem> values)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.AddToSetEach<TItem>(fieldName, values));
+            return builder.Combine(update, builder.AddToSetEach<TItem>(field, values));
         }
 
         /// <summary>
@@ -132,16 +132,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.AddToSetEach<TField, TItem>(fieldName, values));
+            return builder.Combine(update, builder.AddToSetEach<TField, TItem>(field, values));
         }
 
         /// <summary>
@@ -150,15 +150,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> BitwiseAnd<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseAnd<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.BitwiseAnd(fieldName, value));
+            return builder.Combine(update, builder.BitwiseAnd(field, value));
         }
 
         /// <summary>
@@ -167,15 +167,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> BitwiseAnd<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseAnd<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.BitwiseAnd(fieldName, value));
+            return builder.Combine(update, builder.BitwiseAnd(field, value));
         }
 
         /// <summary>
@@ -184,15 +184,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> BitwiseOr<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseOr<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.BitwiseOr(fieldName, value));
+            return builder.Combine(update, builder.BitwiseOr(field, value));
         }
 
         /// <summary>
@@ -201,15 +201,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> BitwiseOr<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseOr<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.BitwiseOr(fieldName, value));
+            return builder.Combine(update, builder.BitwiseOr(field, value));
         }
 
         /// <summary>
@@ -218,15 +218,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> BitwiseXor<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseXor<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.BitwiseXor(fieldName, value));
+            return builder.Combine(update, builder.BitwiseXor(field, value));
         }
 
         /// <summary>
@@ -235,15 +235,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> BitwiseXor<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseXor<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.BitwiseXor(fieldName, value));
+            return builder.Combine(update, builder.BitwiseXor(field, value));
         }
 
         /// <summary>
@@ -251,15 +251,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="type">The type.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, FieldName<TDocument> fieldName, Update2CurrentDateType? type = null)
+        public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field, Update2CurrentDateType? type = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.CurrentDate(fieldName, type));
+            return builder.Combine(update, builder.CurrentDate(field, type));
         }
 
         /// <summary>
@@ -267,15 +267,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="type">The type.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> fieldName, Update2CurrentDateType? type = null)
+        public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field, Update2CurrentDateType? type = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.CurrentDate(fieldName, type));
+            return builder.Combine(update, builder.CurrentDate(field, type));
         }
 
         /// <summary>
@@ -284,15 +284,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Inc<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Inc<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Inc(fieldName, value));
+            return builder.Combine(update, builder.Inc(field, value));
         }
 
         /// <summary>
@@ -301,15 +301,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Inc<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Inc<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Inc(fieldName, value));
+            return builder.Combine(update, builder.Inc(field, value));
         }
 
         /// <summary>
@@ -318,15 +318,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Max<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Max<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Max(fieldName, value));
+            return builder.Combine(update, builder.Max(field, value));
         }
 
         /// <summary>
@@ -335,15 +335,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Max<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Max<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Max(fieldName, value));
+            return builder.Combine(update, builder.Max(field, value));
         }
 
         /// <summary>
@@ -352,15 +352,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Min<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Min<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Min(fieldName, value));
+            return builder.Combine(update, builder.Min(field, value));
         }
 
         /// <summary>
@@ -369,15 +369,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Min<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Min<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Min(fieldName, value));
+            return builder.Combine(update, builder.Min(field, value));
         }
 
         /// <summary>
@@ -386,15 +386,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Mul<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Mul<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Mul(fieldName, value));
+            return builder.Combine(update, builder.Mul(field, value));
         }
 
         /// <summary>
@@ -403,15 +403,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Mul<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Mul<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Mul(fieldName, value));
+            return builder.Combine(update, builder.Mul(field, value));
         }
 
         /// <summary>
@@ -419,14 +419,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PopFirst<TDocument>(this UpdateDefinition<TDocument> update, FieldName<TDocument> fieldName)
+        public static UpdateDefinition<TDocument> PopFirst<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PopFirst(fieldName));
+            return builder.Combine(update, builder.PopFirst(field));
         }
 
         /// <summary>
@@ -434,14 +434,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PopFirst<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> fieldName)
+        public static UpdateDefinition<TDocument> PopFirst<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PopFirst(fieldName));
+            return builder.Combine(update, builder.PopFirst(field));
         }
 
         /// <summary>
@@ -449,14 +449,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PopLast<TDocument>(this UpdateDefinition<TDocument> update, FieldName<TDocument> fieldName)
+        public static UpdateDefinition<TDocument> PopLast<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PopLast(fieldName));
+            return builder.Combine(update, builder.PopLast(field));
         }
 
         /// <summary>
@@ -464,14 +464,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PopLast<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> fieldName)
+        public static UpdateDefinition<TDocument> PopLast<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PopLast(fieldName));
+            return builder.Combine(update, builder.PopLast(field));
         }
 
         /// <summary>
@@ -481,16 +481,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Pull<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Pull<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Pull(fieldName, value));
+            return builder.Combine(update, builder.Pull(field, value));
         }
 
         /// <summary>
@@ -499,15 +499,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Pull<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Pull<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, TItem value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Pull(fieldName, value));
+            return builder.Combine(update, builder.Pull(field, value));
         }
 
         /// <summary>
@@ -517,16 +517,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Pull<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Pull<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Pull(fieldName, value));
+            return builder.Combine(update, builder.Pull(field, value));
         }
 
         /// <summary>
@@ -536,16 +536,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PullAll<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> PullAll<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PullAll(fieldName, values));
+            return builder.Combine(update, builder.PullAll(field, values));
         }
 
         /// <summary>
@@ -554,15 +554,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PullAll<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> PullAll<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, IEnumerable<TItem> values)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PullAll(fieldName, values));
+            return builder.Combine(update, builder.PullAll(field, values));
         }
 
         /// <summary>
@@ -572,16 +572,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PullAll<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> PullAll<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PullAll(fieldName, values));
+            return builder.Combine(update, builder.PullAll(field, values));
         }
 
         /// <summary>
@@ -591,16 +591,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
+        public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PullFilter(fieldName, filter));
+            return builder.Combine(update, builder.PullFilter(field, filter));
         }
 
         /// <summary>
@@ -609,34 +609,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PullFilter<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, FilterDefinition<TItem> filter)
+        public static UpdateDefinition<TDocument> PullFilter<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, FilterDefinition<TItem> filter)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PullFilter(fieldName, filter));
-        }
-
-        /// <summary>
-        /// Combines an existing update with a pull operator.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <returns>
-        /// A combined update.
-        /// </returns>
-        public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
-            where TField : IEnumerable<TItem>
-        {
-            var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PullFilter(fieldName, filter));
+            return builder.Combine(update, builder.PullFilter(field, filter));
         }
 
         /// <summary>
@@ -646,16 +627,35 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+        public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PullFilter(fieldName, filter));
+            return builder.Combine(update, builder.PullFilter(field, filter));
+        }
+
+        /// <summary>
+        /// Combines an existing update with a pull operator.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="update">The update.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>
+        /// A combined update.
+        /// </returns>
+        public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, Expression<Func<TItem, bool>> filter)
+            where TField : IEnumerable<TItem>
+        {
+            var builder = BuilderCache<TDocument>.Instance;
+            return builder.Combine(update, builder.PullFilter(field, filter));
         }
 
         /// <summary>
@@ -665,16 +665,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Push<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Push<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Push(fieldName, value));
+            return builder.Combine(update, builder.Push(field, value));
         }
 
         /// <summary>
@@ -683,15 +683,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Push<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Push<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, TItem value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Push(fieldName, value));
+            return builder.Combine(update, builder.Push(field, value));
         }
 
         /// <summary>
@@ -701,16 +701,16 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Push<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Push<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Push(fieldName, value));
+            return builder.Combine(update, builder.Push(field, value));
         }
 
         /// <summary>
@@ -720,7 +720,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <param name="slice">The slice.</param>
         /// <param name="position">The position.</param>
@@ -728,11 +728,11 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PushEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public static UpdateDefinition<TDocument> PushEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PushEach(fieldName, values, slice, position, sort));
+            return builder.Combine(update, builder.PushEach(field, values, slice, position, sort));
         }
 
         /// <summary>
@@ -741,7 +741,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <param name="slice">The slice.</param>
         /// <param name="position">The position.</param>
@@ -749,10 +749,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PushEach<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public static UpdateDefinition<TDocument> PushEach<TDocument, TItem>(this UpdateDefinition<TDocument> update, string field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PushEach(fieldName, values, slice, position, sort));
+            return builder.Combine(update, builder.PushEach(field, values, slice, position, sort));
         }
 
         /// <summary>
@@ -762,7 +762,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <param name="slice">The slice.</param>
         /// <param name="position">The position.</param>
@@ -770,11 +770,11 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> PushEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public static UpdateDefinition<TDocument> PushEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.PushEach(fieldName, values, slice, position, sort));
+            return builder.Combine(update, builder.PushEach(field, values, slice, position, sort));
         }
 
         /// <summary>
@@ -782,15 +782,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="newName">The new name.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Rename<TDocument>(this UpdateDefinition<TDocument> update, FieldName<TDocument> fieldName, string newName)
+        public static UpdateDefinition<TDocument> Rename<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field, string newName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Rename(fieldName, newName));
+            return builder.Combine(update, builder.Rename(field, newName));
         }
 
         /// <summary>
@@ -798,15 +798,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="newName">The new name.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Rename<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> fieldName, string newName)
+        public static UpdateDefinition<TDocument> Rename<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field, string newName)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Rename(fieldName, newName));
+            return builder.Combine(update, builder.Rename(field, newName));
         }
 
         /// <summary>
@@ -815,15 +815,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Set<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Set<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Set(fieldName, value));
+            return builder.Combine(update, builder.Set(field, value));
         }
 
         /// <summary>
@@ -832,15 +832,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Set<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Set<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Set(fieldName, value));
+            return builder.Combine(update, builder.Set(field, value));
         }
 
         /// <summary>
@@ -849,15 +849,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> SetOnInsert<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> SetOnInsert<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument, TField> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.SetOnInsert(fieldName, value));
+            return builder.Combine(update, builder.SetOnInsert(field, value));
         }
 
         /// <summary>
@@ -866,15 +866,15 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> SetOnInsert<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> SetOnInsert<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> field, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.SetOnInsert(fieldName, value));
+            return builder.Combine(update, builder.SetOnInsert(field, value));
         }
 
         /// <summary>
@@ -882,14 +882,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Unset<TDocument>(this UpdateDefinition<TDocument> update, FieldName<TDocument> fieldName)
+        public static UpdateDefinition<TDocument> Unset<TDocument>(this UpdateDefinition<TDocument> update, FieldDefinition<TDocument> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Unset(fieldName));
+            return builder.Combine(update, builder.Unset(field));
         }
 
         /// <summary>
@@ -897,14 +897,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="update">The update.</param>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static UpdateDefinition<TDocument> Unset<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> fieldName)
+        public static UpdateDefinition<TDocument> Unset<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> field)
         {
             var builder = BuilderCache<TDocument>.Instance;
-            return builder.Combine(update, builder.Unset(fieldName));
+            return builder.Combine(update, builder.Unset(field));
         }
     }
 
@@ -934,14 +934,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An add to set operator.</returns>
-        public UpdateDefinition<TDocument> AddToSet<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
+        public UpdateDefinition<TDocument> AddToSet<TField, TItem>(FieldDefinition<TDocument, TField> field, TItem value)
             where TField : IEnumerable<TItem>
         {
             return new AddToSetUpdateDefinition<TDocument, TField, TItem>(
-                fieldName,
+                field,
                 new[] { value });
         }
 
@@ -949,13 +949,13 @@ namespace MongoDB.Driver
         /// Creates an add to set operator.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An add to set operator.</returns>
-        public UpdateDefinition<TDocument> AddToSet<TItem>(string fieldName, TItem value)
+        public UpdateDefinition<TDocument> AddToSet<TItem>(string field, TItem value)
         {
             return AddToSet<IEnumerable<TItem>, TItem>(
-                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field),
                 value);
         }
 
@@ -964,13 +964,13 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An add to set operator.</returns>
-        public UpdateDefinition<TDocument> AddToSet<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public UpdateDefinition<TDocument> AddToSet<TField, TItem>(Expression<Func<TDocument, TField>> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            return AddToSet<TField, TItem>(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return AddToSet<TField, TItem>(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
@@ -978,25 +978,25 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An add to set operator.</returns>
-        public UpdateDefinition<TDocument> AddToSetEach<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> AddToSetEach<TField, TItem>(FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            return new AddToSetUpdateDefinition<TDocument, TField, TItem>(fieldName, values);
+            return new AddToSetUpdateDefinition<TDocument, TField, TItem>(field, values);
         }
 
         /// <summary>
         /// Creates an add to set operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An add to set operator.</returns>
-        public UpdateDefinition<TDocument> AddToSetEach<TItem>(string fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> AddToSetEach<TItem>(string field, IEnumerable<TItem> values)
         {
             return AddToSetEach<IEnumerable<TItem>, TItem>(
-                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field),
                 values);
         }
 
@@ -1005,85 +1005,85 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An add to set operator.</returns>
-        public UpdateDefinition<TDocument> AddToSetEach<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> AddToSetEach<TField, TItem>(Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            return AddToSetEach(new ExpressionFieldName<TDocument, TField>(fieldName), values);
+            return AddToSetEach(new ExpressionFieldDefinition<TDocument, TField>(field), values);
         }
 
         /// <summary>
         /// Creates a bitwise and operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise and operator.</returns>
-        public UpdateDefinition<TDocument> BitwiseAnd<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseAnd<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
-            return new BitwiseOperatorUpdateDefinition<TDocument, TField>("and", fieldName, value);
+            return new BitwiseOperatorUpdateDefinition<TDocument, TField>("and", field, value);
         }
 
         /// <summary>
         /// Creates a bitwise and operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise and operator.</returns>
-        public UpdateDefinition<TDocument> BitwiseAnd<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseAnd<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return BitwiseAnd(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return BitwiseAnd(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
         /// Creates a bitwise or operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise or operator.</returns>
-        public UpdateDefinition<TDocument> BitwiseOr<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseOr<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
-            return new BitwiseOperatorUpdateDefinition<TDocument, TField>("or", fieldName, value);
+            return new BitwiseOperatorUpdateDefinition<TDocument, TField>("or", field, value);
         }
 
         /// <summary>
         /// Creates a bitwise or operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise or operator.</returns>
-        public UpdateDefinition<TDocument> BitwiseOr<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseOr<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return BitwiseOr(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return BitwiseOr(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
         /// Creates a bitwise xor operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise xor operator.</returns>
-        public UpdateDefinition<TDocument> BitwiseXor<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseXor<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
-            return new BitwiseOperatorUpdateDefinition<TDocument, TField>("xor", fieldName, value);
+            return new BitwiseOperatorUpdateDefinition<TDocument, TField>("xor", field, value);
         }
 
         /// <summary>
         /// Creates a bitwise xor operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise xor operator.</returns>
-        public UpdateDefinition<TDocument> BitwiseXor<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseXor<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return BitwiseXor(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return BitwiseXor(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
@@ -1109,10 +1109,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a current date operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="type">The type.</param>
         /// <returns>A current date operator.</returns>
-        public UpdateDefinition<TDocument> CurrentDate(FieldName<TDocument> fieldName, Update2CurrentDateType? type = null)
+        public UpdateDefinition<TDocument> CurrentDate(FieldDefinition<TDocument> field, Update2CurrentDateType? type = null)
         {
             BsonValue value;
             if (type.HasValue)
@@ -1134,154 +1134,154 @@ namespace MongoDB.Driver
                 value = true;
             }
 
-            return new OperatorUpdateDefinition<TDocument>("$currentDate", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument>("$currentDate", field, value);
         }
 
         /// <summary>
         /// Creates a current date operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="type">The type.</param>
         /// <returns>A current date operator.</returns>
-        public UpdateDefinition<TDocument> CurrentDate(Expression<Func<TDocument, object>> fieldName, Update2CurrentDateType? type = null)
+        public UpdateDefinition<TDocument> CurrentDate(Expression<Func<TDocument, object>> field, Update2CurrentDateType? type = null)
         {
-            return CurrentDate(new ExpressionFieldName<TDocument>(fieldName), type);
+            return CurrentDate(new ExpressionFieldDefinition<TDocument>(field), type);
         }
 
         /// <summary>
         /// Creates an increment operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An increment operator.</returns>
-        public UpdateDefinition<TDocument> Inc<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> Inc<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
-            return new OperatorUpdateDefinition<TDocument, TField>("$inc", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$inc", field, value);
         }
 
         /// <summary>
         /// Creates an increment operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An increment operator.</returns>
-        public UpdateDefinition<TDocument> Inc<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> Inc<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return Inc(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Inc(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
         /// Creates a max operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A max operator.</returns>
-        public UpdateDefinition<TDocument> Max<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> Max<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
-            return new OperatorUpdateDefinition<TDocument, TField>("$max", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$max", field, value);
         }
 
         /// <summary>
         /// Creates a max operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A max operator.</returns>
-        public UpdateDefinition<TDocument> Max<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> Max<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return Max(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Max(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
         /// Creates a min operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A min operator.</returns>
-        public UpdateDefinition<TDocument> Min<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> Min<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
-            return new OperatorUpdateDefinition<TDocument, TField>("$min", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$min", field, value);
         }
 
         /// <summary>
         /// Creates a min operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A min operator.</returns>
-        public UpdateDefinition<TDocument> Min<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> Min<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return Min(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Min(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
         /// Creates a multiply operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A multiply operator.</returns>
-        public UpdateDefinition<TDocument> Mul<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> Mul<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
-            return new OperatorUpdateDefinition<TDocument, TField>("$mul", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$mul", field, value);
         }
 
         /// <summary>
         /// Creates a multiply operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A multiply operator.</returns>
-        public UpdateDefinition<TDocument> Mul<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> Mul<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return Mul(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Mul(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
         /// Creates a pop operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A pop operator.</returns>
-        public UpdateDefinition<TDocument> PopFirst(FieldName<TDocument> fieldName)
+        public UpdateDefinition<TDocument> PopFirst(FieldDefinition<TDocument> field)
         {
-            return new OperatorUpdateDefinition<TDocument>("$pop", fieldName, -1);
+            return new OperatorUpdateDefinition<TDocument>("$pop", field, -1);
         }
 
         /// <summary>
         /// Creates a pop first operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A pop first operator.</returns>
-        public UpdateDefinition<TDocument> PopFirst(Expression<Func<TDocument, object>> fieldName)
+        public UpdateDefinition<TDocument> PopFirst(Expression<Func<TDocument, object>> field)
         {
-            return PopFirst(new ExpressionFieldName<TDocument>(fieldName));
+            return PopFirst(new ExpressionFieldDefinition<TDocument>(field));
         }
 
         /// <summary>
         /// Creates a pop operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A pop operator.</returns>
-        public UpdateDefinition<TDocument> PopLast(FieldName<TDocument> fieldName)
+        public UpdateDefinition<TDocument> PopLast(FieldDefinition<TDocument> field)
         {
-            return new OperatorUpdateDefinition<TDocument>("$pop", fieldName, 1);
+            return new OperatorUpdateDefinition<TDocument>("$pop", field, 1);
         }
 
         /// <summary>
         /// Creates a pop first operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>A pop first operator.</returns>
-        public UpdateDefinition<TDocument> PopLast(Expression<Func<TDocument, object>> fieldName)
+        public UpdateDefinition<TDocument> PopLast(Expression<Func<TDocument, object>> field)
         {
-            return PopLast(new ExpressionFieldName<TDocument>(fieldName));
+            return PopLast(new ExpressionFieldDefinition<TDocument>(field));
         }
 
         /// <summary>
@@ -1289,25 +1289,25 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A pull operator.</returns>
-        public UpdateDefinition<TDocument> Pull<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
+        public UpdateDefinition<TDocument> Pull<TField, TItem>(FieldDefinition<TDocument, TField> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            return new PullUpdateDefinition<TDocument, TField, TItem>(fieldName, new[] { value });
+            return new PullUpdateDefinition<TDocument, TField, TItem>(field, new[] { value });
         }
 
         /// <summary>
         /// Creates a pull operator.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A pull operator.</returns>
-        public UpdateDefinition<TDocument> Pull<TItem>(string fieldName, TItem value)
+        public UpdateDefinition<TDocument> Pull<TItem>(string field, TItem value)
         {
-            return Pull(new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName), value);
+            return Pull(new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field), value);
         }
 
         /// <summary>
@@ -1315,13 +1315,13 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A pull operator.</returns>
-        public UpdateDefinition<TDocument> Pull<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public UpdateDefinition<TDocument> Pull<TField, TItem>(Expression<Func<TDocument, TField>> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            return Pull<TField, TItem>(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Pull<TField, TItem>(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
@@ -1329,25 +1329,25 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A pull operator.</returns>
-        public UpdateDefinition<TDocument> PullAll<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> PullAll<TField, TItem>(FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            return new PullUpdateDefinition<TDocument, TField, TItem>(fieldName, values);
+            return new PullUpdateDefinition<TDocument, TField, TItem>(field, values);
         }
 
         /// <summary>
         /// Creates a pull operator.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A pull operator.</returns>
-        public UpdateDefinition<TDocument> PullAll<TItem>(string fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> PullAll<TItem>(string field, IEnumerable<TItem> values)
         {
-            return PullAll<IEnumerable<TItem>, TItem>(new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName), values);
+            return PullAll<IEnumerable<TItem>, TItem>(new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field), values);
         }
 
         /// <summary>
@@ -1355,13 +1355,13 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A pull operator.</returns>
-        public UpdateDefinition<TDocument> PullAll<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> PullAll<TField, TItem>(Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            return PullAll(new ExpressionFieldName<TDocument, TField>(fieldName), values);
+            return PullAll(new ExpressionFieldDefinition<TDocument, TField>(field), values);
         }
 
         /// <summary>
@@ -1369,39 +1369,25 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>A pull operator.</returns>
-        public UpdateDefinition<TDocument> PullFilter<TField, TItem>(FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
+        public UpdateDefinition<TDocument> PullFilter<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            return new PullUpdateDefinition<TDocument, TField, TItem>(fieldName, filter);
+            return new PullUpdateDefinition<TDocument, TField, TItem>(field, filter);
         }
 
         /// <summary>
         /// Creates a pull operator.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>A pull operator.</returns>
-        public UpdateDefinition<TDocument> PullFilter<TItem>(string fieldName, FilterDefinition<TItem> filter)
+        public UpdateDefinition<TDocument> PullFilter<TItem>(string field, FilterDefinition<TItem> filter)
         {
-            return PullFilter<IEnumerable<TItem>, TItem>(new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName), filter);
-        }
-
-        /// <summary>
-        /// Creates a pull operator.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <returns>A pull operator.</returns>
-        public UpdateDefinition<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
-            where TField : IEnumerable<TItem>
-        {
-            return PullFilter(new ExpressionFieldName<TDocument, TField>(fieldName), filter);
+            return PullFilter<IEnumerable<TItem>, TItem>(new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field), filter);
         }
 
         /// <summary>
@@ -1409,13 +1395,27 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>A pull operator.</returns>
-        public UpdateDefinition<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+        public UpdateDefinition<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> field, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            return PullFilter(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilterDefinition<TItem>(filter));
+            return PullFilter(new ExpressionFieldDefinition<TDocument, TField>(field), filter);
+        }
+
+        /// <summary>
+        /// Creates a pull operator.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>A pull operator.</returns>
+        public UpdateDefinition<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> field, Expression<Func<TItem, bool>> filter)
+            where TField : IEnumerable<TItem>
+        {
+            return PullFilter(new ExpressionFieldDefinition<TDocument, TField>(field), new ExpressionFilterDefinition<TItem>(filter));
         }
 
         /// <summary>
@@ -1423,26 +1423,26 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A push operator.</returns>
-        public UpdateDefinition<TDocument> Push<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
+        public UpdateDefinition<TDocument> Push<TField, TItem>(FieldDefinition<TDocument, TField> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            return new PushUpdateDefinition<TDocument, TField, TItem>(fieldName, new[] { value });
+            return new PushUpdateDefinition<TDocument, TField, TItem>(field, new[] { value });
         }
 
         /// <summary>
         /// Creates a push operator.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A push operator.</returns>
-        public UpdateDefinition<TDocument> Push<TItem>(string fieldName, TItem value)
+        public UpdateDefinition<TDocument> Push<TItem>(string field, TItem value)
         {
             return Push<IEnumerable<TItem>, TItem>(
-                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field),
                 value);
         }
 
@@ -1451,13 +1451,13 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A push operator.</returns>
-        public UpdateDefinition<TDocument> Push<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public UpdateDefinition<TDocument> Push<TField, TItem>(Expression<Func<TDocument, TField>> field, TItem value)
             where TField : IEnumerable<TItem>
         {
-            return Push(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Push(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
@@ -1465,32 +1465,32 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <param name="slice">The slice.</param>
         /// <param name="position">The position.</param>
         /// <param name="sort">The sort.</param>
         /// <returns>A push operator.</returns>
-        public UpdateDefinition<TDocument> PushEach<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public UpdateDefinition<TDocument> PushEach<TField, TItem>(FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
-            return new PushUpdateDefinition<TDocument, TField, TItem>(fieldName, values, slice, position, sort);
+            return new PushUpdateDefinition<TDocument, TField, TItem>(field, values, slice, position, sort);
         }
 
         /// <summary>
         /// Creates a push operator.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <param name="slice">The slice.</param>
         /// <param name="position">The position.</param>
         /// <param name="sort">The sort.</param>
         /// <returns>A push operator.</returns>
-        public UpdateDefinition<TDocument> PushEach<TItem>(string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public UpdateDefinition<TDocument> PushEach<TItem>(string field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
             return PushEach<IEnumerable<TItem>, TItem>(
-                new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
+                new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field),
                 values, 
                 slice, 
                 position, 
@@ -1502,128 +1502,128 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <param name="slice">The slice.</param>
         /// <param name="position">The position.</param>
         /// <param name="sort">The sort.</param>
         /// <returns>A push operator.</returns>
-        public UpdateDefinition<TDocument> PushEach<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public UpdateDefinition<TDocument> PushEach<TField, TItem>(Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
-            return PushEach(new ExpressionFieldName<TDocument, TField>(fieldName), values, slice, position, sort);
+            return PushEach(new ExpressionFieldDefinition<TDocument, TField>(field), values, slice, position, sort);
         }
 
         /// <summary>
         /// Creates a field renaming operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="newName">The new name.</param>
         /// <returns>A field rename operator.</returns>
-        public UpdateDefinition<TDocument> Rename(FieldName<TDocument> fieldName, string newName)
+        public UpdateDefinition<TDocument> Rename(FieldDefinition<TDocument> field, string newName)
         {
-            return new OperatorUpdateDefinition<TDocument>("$rename", fieldName, newName);
+            return new OperatorUpdateDefinition<TDocument>("$rename", field, newName);
         }
 
         /// <summary>
         /// Creates a field renaming operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="newName">The new name.</param>
         /// <returns>A field rename operator.</returns>
-        public UpdateDefinition<TDocument> Rename(Expression<Func<TDocument, object>> fieldName, string newName)
+        public UpdateDefinition<TDocument> Rename(Expression<Func<TDocument, object>> field, string newName)
         {
-            return Rename(new ExpressionFieldName<TDocument>(fieldName), newName);
+            return Rename(new ExpressionFieldDefinition<TDocument>(field), newName);
         }
 
         /// <summary>
         /// Creates a set operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A set operator.</returns>
-        public UpdateDefinition<TDocument> Set<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> Set<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
-            return new OperatorUpdateDefinition<TDocument, TField>("$set", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$set", field, value);
         }
 
         /// <summary>
         /// Creates a set operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A set operator.</returns>
-        public UpdateDefinition<TDocument> Set<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> Set<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return Set(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return Set(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
         /// Creates a set on insert operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A set on insert operator.</returns>
-        public UpdateDefinition<TDocument> SetOnInsert<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> SetOnInsert<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
-            return new OperatorUpdateDefinition<TDocument, TField>("$setOnInsert", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$setOnInsert", field, value);
         }
 
         /// <summary>
         /// Creates a set on insert operator.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A set on insert operator.</returns>
-        public UpdateDefinition<TDocument> SetOnInsert<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> SetOnInsert<TField>(Expression<Func<TDocument, TField>> field, TField value)
         {
-            return SetOnInsert(new ExpressionFieldName<TDocument, TField>(fieldName), value);
+            return SetOnInsert(new ExpressionFieldDefinition<TDocument, TField>(field), value);
         }
 
         /// <summary>
         /// Creates an unset operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>An unset operator.</returns>
-        public UpdateDefinition<TDocument> Unset(FieldName<TDocument> fieldName)
+        public UpdateDefinition<TDocument> Unset(FieldDefinition<TDocument> field)
         {
-            return new OperatorUpdateDefinition<TDocument>("$unset", fieldName, 1);
+            return new OperatorUpdateDefinition<TDocument>("$unset", field, 1);
         }
 
         /// <summary>
         /// Creates an unset operator.
         /// </summary>
-        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="field">The field.</param>
         /// <returns>An unset operator.</returns>
-        public UpdateDefinition<TDocument> Unset(Expression<Func<TDocument, object>> fieldName)
+        public UpdateDefinition<TDocument> Unset(Expression<Func<TDocument, object>> field)
         {
-            return Unset(new ExpressionFieldName<TDocument>(fieldName));
+            return Unset(new ExpressionFieldDefinition<TDocument>(field));
         }
     }
 
     internal sealed class AddToSetUpdateDefinition<TDocument, TField, TItem> : UpdateDefinition<TDocument>
     {
-        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly FieldDefinition<TDocument, TField> _field;
         private readonly List<TItem> _values;
 
-        public AddToSetUpdateDefinition(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public AddToSetUpdateDefinition(FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _field = Ensure.IsNotNull(field, "field");
             _values = Ensure.IsNotNull(values, "values").ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
-            var arraySerializer = renderedFieldName.FieldSerializer as IBsonArraySerializer;
+            var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
             if (arraySerializer == null)
             {
-                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedFieldName.FieldName);
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
                 throw new InvalidOperationException(message);
             }
             var itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
@@ -1635,7 +1635,7 @@ namespace MongoDB.Driver
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("$addToSet");
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName(renderedFieldName.FieldName);
+                bsonWriter.WriteName(renderedField.FieldName);
                 if (_values.Count == 1)
                 {
                     itemSerializer.Serialize(context, _values[0]);
@@ -1699,19 +1699,19 @@ namespace MongoDB.Driver
     internal sealed class BitwiseOperatorUpdateDefinition<TDocument, TField> : UpdateDefinition<TDocument>
     {
         private readonly string _operatorName;
-        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly FieldDefinition<TDocument, TField> _field;
         private readonly TField _value;
 
-        public BitwiseOperatorUpdateDefinition(string operatorName, FieldName<TDocument, TField> fieldName, TField value)
+        public BitwiseOperatorUpdateDefinition(string operatorName, FieldDefinition<TDocument, TField> field, TField value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _field = Ensure.IsNotNull(field, "field");
             _value = value;
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
@@ -1720,10 +1720,10 @@ namespace MongoDB.Driver
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("$bit");
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName(renderedFieldName.FieldName);
+                bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(_operatorName);
-                renderedFieldName.FieldSerializer.Serialize(context, _value);
+                renderedField.FieldSerializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
@@ -1736,39 +1736,39 @@ namespace MongoDB.Driver
     internal sealed class OperatorUpdateDefinition<TDocument> : UpdateDefinition<TDocument>
     {
         private readonly string _operatorName;
-        private readonly FieldName<TDocument> _fieldName;
+        private readonly FieldDefinition<TDocument> _field;
         private readonly BsonValue _value;
 
-        public OperatorUpdateDefinition(string operatorName, FieldName<TDocument> fieldName, BsonValue value)
+        public OperatorUpdateDefinition(string operatorName, FieldDefinition<TDocument> field, BsonValue value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _field = Ensure.IsNotNull(field, "field");
             _value = value;
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
-            return new BsonDocument(_operatorName, new BsonDocument(renderedFieldName, _value));
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            return new BsonDocument(_operatorName, new BsonDocument(renderedField, _value));
         }
     }
 
     internal sealed class OperatorUpdateDefinition<TDocument, TField> : UpdateDefinition<TDocument>
     {
         private readonly string _operatorName;
-        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly FieldDefinition<TDocument, TField> _field;
         private readonly TField _value;
 
-        public OperatorUpdateDefinition(string operatorName, FieldName<TDocument, TField> fieldName, TField value)
+        public OperatorUpdateDefinition(string operatorName, FieldDefinition<TDocument, TField> field, TField value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _field = Ensure.IsNotNull(field, "field");
             _value = value;
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
@@ -1777,8 +1777,8 @@ namespace MongoDB.Driver
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(_operatorName);
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName(renderedFieldName.FieldName);
-                renderedFieldName.FieldSerializer.Serialize(context, _value);
+                bsonWriter.WriteName(renderedField.FieldName);
+                renderedField.FieldSerializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
             }
@@ -1789,30 +1789,30 @@ namespace MongoDB.Driver
 
     internal sealed class PullUpdateDefinition<TDocument, TField, TItem> : UpdateDefinition<TDocument>
     {
-        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly FieldDefinition<TDocument, TField> _field;
         private readonly FilterDefinition<TItem> _filter;
         private readonly List<TItem> _values;
 
-        public PullUpdateDefinition(FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
+        public PullUpdateDefinition(FieldDefinition<TDocument, TField> field, FilterDefinition<TItem> filter)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _field = Ensure.IsNotNull(field, "field");
             _filter = Ensure.IsNotNull(filter, "filter");
         }
 
-        public PullUpdateDefinition(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public PullUpdateDefinition(FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _field = Ensure.IsNotNull(field, "field");
             _values = Ensure.IsNotNull(values, "values").ToList();
         }
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
-            var arraySerializer = renderedFieldName.FieldSerializer as IBsonArraySerializer;
+            var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
             if (arraySerializer == null)
             {
-                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedFieldName.FieldName);
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
                 throw new InvalidOperationException(message);
             }
             var itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
@@ -1820,7 +1820,7 @@ namespace MongoDB.Driver
             if (_filter != null)
             {
                 var renderedFilter = _filter.Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry);
-                return new BsonDocument("$pull", new BsonDocument(renderedFieldName.FieldName, renderedFilter));
+                return new BsonDocument("$pull", new BsonDocument(renderedField.FieldName, renderedFilter));
             }
             else
             {
@@ -1831,7 +1831,7 @@ namespace MongoDB.Driver
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteName(_values.Count == 1 ? "$pull" : "$pullAll");
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteName(renderedFieldName.FieldName);
+                    bsonWriter.WriteName(renderedField.FieldName);
                     if (_values.Count == 1)
                     {
                         itemSerializer.Serialize(context, _values[0]);
@@ -1855,15 +1855,15 @@ namespace MongoDB.Driver
 
     internal sealed class PushUpdateDefinition<TDocument, TField, TItem> : UpdateDefinition<TDocument>
     {
-        private readonly FieldName<TDocument, TField> _fieldName;
+        private readonly FieldDefinition<TDocument, TField> _field;
         private readonly int? _position;
         private readonly int? _slice;
         private SortDefinition<TItem> _sort;
         private readonly List<TItem> _values;
 
-        public PushUpdateDefinition(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public PushUpdateDefinition(FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _field = Ensure.IsNotNull(field, "field");
             _values = Ensure.IsNotNull(values, "values").ToList();
             _slice = slice;
             _position = position;
@@ -1872,12 +1872,12 @@ namespace MongoDB.Driver
 
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedFieldName = _fieldName.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
-            var arraySerializer = renderedFieldName.FieldSerializer as IBsonArraySerializer;
+            var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
             if (arraySerializer == null)
             {
-                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedFieldName.FieldName);
+                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
                 throw new InvalidOperationException(message);
             }
             var itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
@@ -1889,7 +1889,7 @@ namespace MongoDB.Driver
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("$push");
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName(renderedFieldName.FieldName);
+                bsonWriter.WriteName(renderedField.FieldName);
                 if (!_slice.HasValue && !_position.HasValue && _sort == null && _values.Count == 1)
                 {
                     itemSerializer.Serialize(context, _values[0]);
@@ -1922,7 +1922,7 @@ namespace MongoDB.Driver
 
             if (_sort != null)
             {
-                document["$push"][renderedFieldName.FieldName]["$sort"] = _sort.Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry);
+                document["$push"][renderedField.FieldName]["$sort"] = _sort.Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry);
             }
 
             return document;

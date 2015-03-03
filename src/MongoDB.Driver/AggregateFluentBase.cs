@@ -58,7 +58,7 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort);
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldName<TResult> fieldName, IBsonSerializer<TNewResult> resultSerializer = null);
+        public abstract IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, IBsonSerializer<TNewResult> resultSerializer = null);
 
         /// <inheritdoc />
         public abstract Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken);

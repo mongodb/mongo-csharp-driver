@@ -177,18 +177,18 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(operation, cancellationToken);
         }
 
-        public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldName<TDocument, TField> fieldName, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken)
+        public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(fieldName, "fieldName");
+            Ensure.IsNotNull(field, "field");
             Ensure.IsNotNull(filter, "filter");
 
             options = options ?? new DistinctOptions();
-            var renderedFieldName = fieldName.Render(_documentSerializer, _settings.SerializerRegistry);
+            var renderedField = field.Render(_documentSerializer, _settings.SerializerRegistry);
 
             var operation = new DistinctOperation<TField>(
                 _collectionNamespace,
-                renderedFieldName.FieldSerializer,
-                renderedFieldName.FieldName,
+                renderedField.FieldSerializer,
+                renderedField.FieldName,
                 _messageEncoderSettings)
             {
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
