@@ -514,7 +514,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Unset("Age"), "{$unset: {Age: 1}}");
         }
 
-        private void Assert<TDocument>(Update2<TDocument> update, BsonDocument expected)
+        private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedUpdate = update.Render(documentSerializer, BsonSerializer.SerializerRegistry);
@@ -522,7 +522,7 @@ namespace MongoDB.Driver.Tests
             renderedUpdate.Should().Be(expected);
         }
 
-        private void Assert<TDocument>(Update2<TDocument> update, string expected)
+        private void Assert<TDocument>(UpdateDefinition<TDocument> update, string expected)
         {
             Assert(update, BsonDocument.Parse(expected));
         }

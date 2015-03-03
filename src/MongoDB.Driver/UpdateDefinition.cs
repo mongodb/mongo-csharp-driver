@@ -24,7 +24,7 @@ namespace MongoDB.Driver
     /// Base class for updates.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public abstract class Update2<TDocument>
+    public abstract class UpdateDefinition<TDocument>
     {
         /// <summary>
         /// Renders the update to a <see cref="BsonDocument"/>.
@@ -35,36 +35,36 @@ namespace MongoDB.Driver
         public abstract BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="Update2{TDocument}"/>.
+        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="UpdateDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Update2<TDocument>(BsonDocument document)
+        public static implicit operator UpdateDefinition<TDocument>(BsonDocument document)
         {
             if (document == null)
             {
                 return null;
             }
 
-            return new BsonDocumentUpdate<TDocument>(document);
+            return new BsonDocumentUpdateDefinition<TDocument>(document);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Update2{TDocument}"/>.
+        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="UpdateDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Update2<TDocument>(string json)
+        public static implicit operator UpdateDefinition<TDocument>(string json)
         {
             if (json == null)
             {
                 return null;
             }
-            return new JsonUpdate<TDocument>(json);
+            return new JsonUpdateDefinition<TDocument>(json);
         }
 
         /// <summary>
@@ -75,9 +75,9 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static Update2<TDocument> operator +(Update2<TDocument> lhs, Update2<TDocument> rhs)
+        public static UpdateDefinition<TDocument> operator +(UpdateDefinition<TDocument> lhs, UpdateDefinition<TDocument> rhs)
         {
-            return new CombinedUpdate<TDocument>(new[] { lhs, rhs });
+            return new CombinedUpdateDefinition<TDocument>(new[] { lhs, rhs });
         }
     }
 
@@ -85,15 +85,15 @@ namespace MongoDB.Driver
     /// A <see cref="BsonDocument"/> based update.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class BsonDocumentUpdate<TDocument> : Update2<TDocument>
+    public sealed class BsonDocumentUpdateDefinition<TDocument> : UpdateDefinition<TDocument>
     {
         private readonly BsonDocument _document;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentUpdate{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentUpdateDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="document">The document.</param>
-        public BsonDocumentUpdate(BsonDocument document)
+        public BsonDocumentUpdateDefinition(BsonDocument document)
         {
             _document = Ensure.IsNotNull(document, "document");
         }
@@ -117,15 +117,15 @@ namespace MongoDB.Driver
     /// A JSON <see cref="String" /> based update.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class JsonUpdate<TDocument> : Update2<TDocument>
+    public sealed class JsonUpdateDefinition<TDocument> : UpdateDefinition<TDocument>
     {
         private readonly string _json;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonUpdate{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="JsonUpdateDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="json">The json.</param>
-        public JsonUpdate(string json)
+        public JsonUpdateDefinition(string json)
         {
             _json = Ensure.IsNotNullOrEmpty(json, "json");
         }
@@ -149,15 +149,15 @@ namespace MongoDB.Driver
     /// An <see cref="Object" /> based update.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class ObjectUpdate<TDocument> : Update2<TDocument>
+    public sealed class ObjectUpdateDefinition<TDocument> : UpdateDefinition<TDocument>
     {
         private readonly object _obj;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectUpdate{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="ObjectUpdateDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="obj">The object.</param>
-        public ObjectUpdate(object obj)
+        public ObjectUpdateDefinition(object obj)
         {
             _obj = Ensure.IsNotNull(obj, "obj");
         }

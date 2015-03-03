@@ -99,7 +99,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        Task<TResult> FindOneAndUpdateAsync<TResult>(FilterDefinition<TDocument> filter, Update2<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TResult> FindOneAndUpdateAsync<TResult>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts a single document.
@@ -145,7 +145,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, Update2<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates a single document.
@@ -157,7 +157,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, Update2<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Returns a new collection with a different read preference.

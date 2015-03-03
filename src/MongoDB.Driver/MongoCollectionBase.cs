@@ -76,7 +76,7 @@ namespace MongoDB.Driver
         public abstract Task<TResult> FindOneAndReplaceAsync<TResult>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public abstract Task<TResult> FindOneAndUpdateAsync<TResult>(FilterDefinition<TDocument> filter, Update2<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task<TResult> FindOneAndUpdateAsync<TResult>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
         public virtual async Task InsertOneAsync(TDocument document, CancellationToken cancellationToken = default(CancellationToken))
@@ -128,7 +128,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual async Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, Update2<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");
@@ -151,7 +151,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual async Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, Update2<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");

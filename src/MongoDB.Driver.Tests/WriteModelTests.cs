@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Tests
             result.Should().BeOfType<UpdateManyModel<BsonDocument>>();
             var model = (UpdateManyModel<BsonDocument>)result;
             ((BsonDocumentFilterDefinition<BsonDocument>)model.Filter).Document.Should().BeSameAs(filter);
-            ((BsonDocumentUpdate<BsonDocument>)model.Update).Document.Should().BeSameAs(update);
+            ((BsonDocumentUpdateDefinition<BsonDocument>)model.Update).Document.Should().BeSameAs(update);
             model.IsUpsert.Should().Be(isUpsert);
         }
 

@@ -132,7 +132,7 @@
     <Compile Include="MongoIndexManagerBase.cs" />
     <Compile Include="FindFluentBase.cs" />
     <Compile Include="Command.cs" />
-    <Compile Include="Update2Builder.cs" />
+    <Compile Include="UpdateDefinitionBuilder.cs" />
     <Compile Include="ReadOnlyMongoCollectionBase.cs" />
     <Compile Include="RenameCollectionOptions.cs" />
     <Compile Include="CreateCollectionOptions.cs" />
@@ -154,7 +154,7 @@
     <Compile Include="ProjectionDefinition.cs" />
     <Compile Include="FieldName.cs" />
     <Compile Include="SortDefinition.cs" />
-    <Compile Include="Update2.cs" />
+    <Compile Include="UpdateDefinition.cs" />
     <Compile Include="UpdateOptions.cs" />
     <Compile Include="UpdateOneModel.cs" />
     <Compile Include="UpdateManyModel.cs" />

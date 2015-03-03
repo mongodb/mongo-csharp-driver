@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Tests
 
             subject.Received().FindOneAndUpdateAsync<Person>(
                 Arg.Any<ExpressionFilterDefinition<Person>>(),
-                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update),
+                Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
                 null,
                 default(CancellationToken));
         }
@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Tests
 
             subject.Received().FindOneAndUpdateAsync<BsonDocument>(
                 Arg.Any<ExpressionFilterDefinition<Person>>(),
-                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update),
+                Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
                 options,
                 default(CancellationToken));
         }
@@ -290,7 +290,7 @@ namespace MongoDB.Driver.Tests
 
             subject.Received().UpdateManyAsync(
                 Arg.Any<ExpressionFilterDefinition<Person>>(),
-                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update),
+                Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
                 null,
                 default(CancellationToken));
         }
@@ -304,7 +304,7 @@ namespace MongoDB.Driver.Tests
 
             subject.Received().UpdateOneAsync(
                 Arg.Any<ExpressionFilterDefinition<Person>>(),
-                Arg.Is<BsonDocumentUpdate<Person>>(x => x.Document == update),
+                Arg.Is<BsonDocumentUpdateDefinition<Person>>(x => x.Document == update),
                 null,
                 default(CancellationToken));
         }

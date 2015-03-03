@@ -25,9 +25,9 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Extension methods for Update2.
+    /// Extension methods for UpdateDefinition.
     /// </summary>
-    public static class Update2Extensions
+    public static class UpdateDefinitionExtensions
     {
         private static class BuilderCache<TDocument>
         {
@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> AddToSet<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> AddToSet<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -64,7 +64,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> AddToSet<TDocument, TItem>(this Update2<TDocument> update, string fieldName, TItem value)
+        public static UpdateDefinition<TDocument> AddToSet<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, TItem value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.AddToSet<TItem>(fieldName, value));
@@ -82,7 +82,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> AddToSet<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> AddToSet<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -101,7 +101,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> AddToSetEach<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -119,7 +119,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> AddToSetEach<TDocument, TItem>(this Update2<TDocument> update, string fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, IEnumerable<TItem> values)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.AddToSetEach<TItem>(fieldName, values));
@@ -137,7 +137,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> AddToSetEach<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> AddToSetEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -155,7 +155,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> BitwiseAnd<TDocument, TField>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseAnd<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.BitwiseAnd(fieldName, value));
@@ -172,7 +172,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> BitwiseAnd<TDocument, TField>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseAnd<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.BitwiseAnd(fieldName, value));
@@ -189,7 +189,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> BitwiseOr<TDocument, TField>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseOr<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.BitwiseOr(fieldName, value));
@@ -206,7 +206,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> BitwiseOr<TDocument, TField>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseOr<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.BitwiseOr(fieldName, value));
@@ -223,7 +223,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> BitwiseXor<TDocument, TField>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseXor<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.BitwiseXor(fieldName, value));
@@ -240,7 +240,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> BitwiseXor<TDocument, TField>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> BitwiseXor<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.BitwiseXor(fieldName, value));
@@ -256,7 +256,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> CurrentDate<TDocument>(this Update2<TDocument> update, FieldName<TDocument> fieldName, Update2CurrentDateType? type = null)
+        public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, FieldName<TDocument> fieldName, Update2CurrentDateType? type = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.CurrentDate(fieldName, type));
@@ -272,7 +272,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> CurrentDate<TDocument>(this Update2<TDocument> update, Expression<Func<TDocument, object>> fieldName, Update2CurrentDateType? type = null)
+        public static UpdateDefinition<TDocument> CurrentDate<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> fieldName, Update2CurrentDateType? type = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.CurrentDate(fieldName, type));
@@ -289,7 +289,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Inc<TDocument, TField>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Inc<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Inc(fieldName, value));
@@ -306,7 +306,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Inc<TDocument, TField>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Inc<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Inc(fieldName, value));
@@ -323,7 +323,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Max<TDocument, TField>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Max<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Max(fieldName, value));
@@ -340,7 +340,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Max<TDocument, TField>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Max<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Max(fieldName, value));
@@ -357,7 +357,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Min<TDocument, TField>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Min<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Min(fieldName, value));
@@ -374,7 +374,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Min<TDocument, TField>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Min<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Min(fieldName, value));
@@ -391,7 +391,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Mul<TDocument, TField>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Mul<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Mul(fieldName, value));
@@ -408,7 +408,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Mul<TDocument, TField>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Mul<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Mul(fieldName, value));
@@ -423,7 +423,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PopFirst<TDocument>(this Update2<TDocument> update, FieldName<TDocument> fieldName)
+        public static UpdateDefinition<TDocument> PopFirst<TDocument>(this UpdateDefinition<TDocument> update, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.PopFirst(fieldName));
@@ -438,7 +438,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PopFirst<TDocument>(this Update2<TDocument> update, Expression<Func<TDocument, object>> fieldName)
+        public static UpdateDefinition<TDocument> PopFirst<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.PopFirst(fieldName));
@@ -453,7 +453,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PopLast<TDocument>(this Update2<TDocument> update, FieldName<TDocument> fieldName)
+        public static UpdateDefinition<TDocument> PopLast<TDocument>(this UpdateDefinition<TDocument> update, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.PopLast(fieldName));
@@ -468,7 +468,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PopLast<TDocument>(this Update2<TDocument> update, Expression<Func<TDocument, object>> fieldName)
+        public static UpdateDefinition<TDocument> PopLast<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.PopLast(fieldName));
@@ -486,7 +486,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Pull<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Pull<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -504,7 +504,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Pull<TDocument, TItem>(this Update2<TDocument> update, string fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Pull<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, TItem value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Pull(fieldName, value));
@@ -522,7 +522,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Pull<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Pull<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -541,7 +541,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PullAll<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> PullAll<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -559,7 +559,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PullAll<TDocument, TItem>(this Update2<TDocument> update, string fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> PullAll<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, IEnumerable<TItem> values)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.PullAll(fieldName, values));
@@ -577,7 +577,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PullAll<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public static UpdateDefinition<TDocument> PullAll<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -596,7 +596,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PullFilter<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
+        public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -614,7 +614,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PullFilter<TDocument, TItem>(this Update2<TDocument> update, string fieldName, FilterDefinition<TItem> filter)
+        public static UpdateDefinition<TDocument> PullFilter<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, FilterDefinition<TItem> filter)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.PullFilter(fieldName, filter));
@@ -632,7 +632,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PullFilter<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
+        public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -651,7 +651,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PullFilter<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+        public static UpdateDefinition<TDocument> PullFilter<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -670,7 +670,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Push<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Push<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -688,7 +688,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Push<TDocument, TItem>(this Update2<TDocument> update, string fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Push<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, TItem value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Push(fieldName, value));
@@ -706,7 +706,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Push<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public static UpdateDefinition<TDocument> Push<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -728,7 +728,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PushEach<TDocument, TField, TItem>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public static UpdateDefinition<TDocument> PushEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -749,7 +749,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PushEach<TDocument, TItem>(this Update2<TDocument> update, string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public static UpdateDefinition<TDocument> PushEach<TDocument, TItem>(this UpdateDefinition<TDocument> update, string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.PushEach(fieldName, values, slice, position, sort));
@@ -770,7 +770,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> PushEach<TDocument, TField, TItem>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public static UpdateDefinition<TDocument> PushEach<TDocument, TField, TItem>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
             var builder = BuilderCache<TDocument>.Instance;
@@ -787,7 +787,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Rename<TDocument>(this Update2<TDocument> update, FieldName<TDocument> fieldName, string newName)
+        public static UpdateDefinition<TDocument> Rename<TDocument>(this UpdateDefinition<TDocument> update, FieldName<TDocument> fieldName, string newName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Rename(fieldName, newName));
@@ -803,7 +803,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Rename<TDocument>(this Update2<TDocument> update, Expression<Func<TDocument, object>> fieldName, string newName)
+        public static UpdateDefinition<TDocument> Rename<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> fieldName, string newName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Rename(fieldName, newName));
@@ -820,7 +820,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Set<TDocument, TField>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Set<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Set(fieldName, value));
@@ -837,7 +837,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Set<TDocument, TField>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> Set<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Set(fieldName, value));
@@ -854,7 +854,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> SetOnInsert<TDocument, TField>(this Update2<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
+        public static UpdateDefinition<TDocument> SetOnInsert<TDocument, TField>(this UpdateDefinition<TDocument> update, FieldName<TDocument, TField> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.SetOnInsert(fieldName, value));
@@ -871,7 +871,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> SetOnInsert<TDocument, TField>(this Update2<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
+        public static UpdateDefinition<TDocument> SetOnInsert<TDocument, TField>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.SetOnInsert(fieldName, value));
@@ -886,7 +886,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Unset<TDocument>(this Update2<TDocument> update, FieldName<TDocument> fieldName)
+        public static UpdateDefinition<TDocument> Unset<TDocument>(this UpdateDefinition<TDocument> update, FieldName<TDocument> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Unset(fieldName));
@@ -901,7 +901,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined update.
         /// </returns>
-        public static Update2<TDocument> Unset<TDocument>(this Update2<TDocument> update, Expression<Func<TDocument, object>> fieldName)
+        public static UpdateDefinition<TDocument> Unset<TDocument>(this UpdateDefinition<TDocument> update, Expression<Func<TDocument, object>> fieldName)
         {
             var builder = BuilderCache<TDocument>.Instance;
             return builder.Combine(update, builder.Unset(fieldName));
@@ -924,7 +924,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A builder for an <see cref="Update2{TDocument}"/>.
+    /// A builder for an <see cref="UpdateDefinition{TDocument}"/>.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class Update2Builder<TDocument>
@@ -937,10 +937,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An add to set operator.</returns>
-        public Update2<TDocument> AddToSet<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
+        public UpdateDefinition<TDocument> AddToSet<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
-            return new AddToSetUpdate<TDocument, TField, TItem>(
+            return new AddToSetUpdateDefinition<TDocument, TField, TItem>(
                 fieldName,
                 new[] { value });
         }
@@ -952,7 +952,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An add to set operator.</returns>
-        public Update2<TDocument> AddToSet<TItem>(string fieldName, TItem value)
+        public UpdateDefinition<TDocument> AddToSet<TItem>(string fieldName, TItem value)
         {
             return AddToSet<IEnumerable<TItem>, TItem>(
                 new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
@@ -967,7 +967,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An add to set operator.</returns>
-        public Update2<TDocument> AddToSet<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public UpdateDefinition<TDocument> AddToSet<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
             return AddToSet<TField, TItem>(new ExpressionFieldName<TDocument, TField>(fieldName), value);
@@ -981,10 +981,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An add to set operator.</returns>
-        public Update2<TDocument> AddToSetEach<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> AddToSetEach<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            return new AddToSetUpdate<TDocument, TField, TItem>(fieldName, values);
+            return new AddToSetUpdateDefinition<TDocument, TField, TItem>(fieldName, values);
         }
 
         /// <summary>
@@ -993,7 +993,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An add to set operator.</returns>
-        public Update2<TDocument> AddToSetEach<TItem>(string fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> AddToSetEach<TItem>(string fieldName, IEnumerable<TItem> values)
         {
             return AddToSetEach<IEnumerable<TItem>, TItem>(
                 new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
@@ -1008,7 +1008,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An add to set operator.</returns>
-        public Update2<TDocument> AddToSetEach<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> AddToSetEach<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             return AddToSetEach(new ExpressionFieldName<TDocument, TField>(fieldName), values);
@@ -1021,9 +1021,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise and operator.</returns>
-        public Update2<TDocument> BitwiseAnd<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseAnd<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new BitwiseOperatorUpdate<TDocument, TField>("and", fieldName, value);
+            return new BitwiseOperatorUpdateDefinition<TDocument, TField>("and", fieldName, value);
         }
 
         /// <summary>
@@ -1033,7 +1033,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise and operator.</returns>
-        public Update2<TDocument> BitwiseAnd<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseAnd<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return BitwiseAnd(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -1045,9 +1045,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise or operator.</returns>
-        public Update2<TDocument> BitwiseOr<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseOr<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new BitwiseOperatorUpdate<TDocument, TField>("or", fieldName, value);
+            return new BitwiseOperatorUpdateDefinition<TDocument, TField>("or", fieldName, value);
         }
 
         /// <summary>
@@ -1057,7 +1057,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise or operator.</returns>
-        public Update2<TDocument> BitwiseOr<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseOr<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return BitwiseOr(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -1069,9 +1069,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise xor operator.</returns>
-        public Update2<TDocument> BitwiseXor<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseXor<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new BitwiseOperatorUpdate<TDocument, TField>("xor", fieldName, value);
+            return new BitwiseOperatorUpdateDefinition<TDocument, TField>("xor", fieldName, value);
         }
 
         /// <summary>
@@ -1081,7 +1081,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A bitwise xor operator.</returns>
-        public Update2<TDocument> BitwiseXor<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> BitwiseXor<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return BitwiseXor(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -1091,9 +1091,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="updates">The updates.</param>
         /// <returns>A combined update.</returns>
-        public Update2<TDocument> Combine(params Update2<TDocument>[] updates)
+        public UpdateDefinition<TDocument> Combine(params UpdateDefinition<TDocument>[] updates)
         {
-            return Combine((IEnumerable<Update2<TDocument>>)updates);
+            return Combine((IEnumerable<UpdateDefinition<TDocument>>)updates);
         }
 
         /// <summary>
@@ -1101,9 +1101,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="updates">The updates.</param>
         /// <returns>A combined update.</returns>
-        public Update2<TDocument> Combine(IEnumerable<Update2<TDocument>> updates)
+        public UpdateDefinition<TDocument> Combine(IEnumerable<UpdateDefinition<TDocument>> updates)
         {
-            return new CombinedUpdate<TDocument>(updates);
+            return new CombinedUpdateDefinition<TDocument>(updates);
         }
 
         /// <summary>
@@ -1112,7 +1112,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="type">The type.</param>
         /// <returns>A current date operator.</returns>
-        public Update2<TDocument> CurrentDate(FieldName<TDocument> fieldName, Update2CurrentDateType? type = null)
+        public UpdateDefinition<TDocument> CurrentDate(FieldName<TDocument> fieldName, Update2CurrentDateType? type = null)
         {
             BsonValue value;
             if (type.HasValue)
@@ -1134,7 +1134,7 @@ namespace MongoDB.Driver
                 value = true;
             }
 
-            return new OperatorUpdate<TDocument>("$currentDate", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument>("$currentDate", fieldName, value);
         }
 
         /// <summary>
@@ -1143,7 +1143,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="type">The type.</param>
         /// <returns>A current date operator.</returns>
-        public Update2<TDocument> CurrentDate(Expression<Func<TDocument, object>> fieldName, Update2CurrentDateType? type = null)
+        public UpdateDefinition<TDocument> CurrentDate(Expression<Func<TDocument, object>> fieldName, Update2CurrentDateType? type = null)
         {
             return CurrentDate(new ExpressionFieldName<TDocument>(fieldName), type);
         }
@@ -1155,9 +1155,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An increment operator.</returns>
-        public Update2<TDocument> Inc<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> Inc<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorUpdate<TDocument, TField>("$inc", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$inc", fieldName, value);
         }
 
         /// <summary>
@@ -1167,7 +1167,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>An increment operator.</returns>
-        public Update2<TDocument> Inc<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> Inc<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Inc(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -1179,9 +1179,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A max operator.</returns>
-        public Update2<TDocument> Max<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> Max<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorUpdate<TDocument, TField>("$max", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$max", fieldName, value);
         }
 
         /// <summary>
@@ -1191,7 +1191,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A max operator.</returns>
-        public Update2<TDocument> Max<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> Max<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Max(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -1203,9 +1203,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A min operator.</returns>
-        public Update2<TDocument> Min<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> Min<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorUpdate<TDocument, TField>("$min", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$min", fieldName, value);
         }
 
         /// <summary>
@@ -1215,7 +1215,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A min operator.</returns>
-        public Update2<TDocument> Min<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> Min<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Min(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -1227,9 +1227,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A multiply operator.</returns>
-        public Update2<TDocument> Mul<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> Mul<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorUpdate<TDocument, TField>("$mul", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$mul", fieldName, value);
         }
 
         /// <summary>
@@ -1239,7 +1239,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A multiply operator.</returns>
-        public Update2<TDocument> Mul<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> Mul<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Mul(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -1249,9 +1249,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A pop operator.</returns>
-        public Update2<TDocument> PopFirst(FieldName<TDocument> fieldName)
+        public UpdateDefinition<TDocument> PopFirst(FieldName<TDocument> fieldName)
         {
-            return new OperatorUpdate<TDocument>("$pop", fieldName, -1);
+            return new OperatorUpdateDefinition<TDocument>("$pop", fieldName, -1);
         }
 
         /// <summary>
@@ -1259,7 +1259,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A pop first operator.</returns>
-        public Update2<TDocument> PopFirst(Expression<Func<TDocument, object>> fieldName)
+        public UpdateDefinition<TDocument> PopFirst(Expression<Func<TDocument, object>> fieldName)
         {
             return PopFirst(new ExpressionFieldName<TDocument>(fieldName));
         }
@@ -1269,9 +1269,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A pop operator.</returns>
-        public Update2<TDocument> PopLast(FieldName<TDocument> fieldName)
+        public UpdateDefinition<TDocument> PopLast(FieldName<TDocument> fieldName)
         {
-            return new OperatorUpdate<TDocument>("$pop", fieldName, 1);
+            return new OperatorUpdateDefinition<TDocument>("$pop", fieldName, 1);
         }
 
         /// <summary>
@@ -1279,7 +1279,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>A pop first operator.</returns>
-        public Update2<TDocument> PopLast(Expression<Func<TDocument, object>> fieldName)
+        public UpdateDefinition<TDocument> PopLast(Expression<Func<TDocument, object>> fieldName)
         {
             return PopLast(new ExpressionFieldName<TDocument>(fieldName));
         }
@@ -1292,10 +1292,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> Pull<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
+        public UpdateDefinition<TDocument> Pull<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
-            return new PullUpdate<TDocument, TField, TItem>(fieldName, new[] { value });
+            return new PullUpdateDefinition<TDocument, TField, TItem>(fieldName, new[] { value });
         }
 
         /// <summary>
@@ -1305,7 +1305,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> Pull<TItem>(string fieldName, TItem value)
+        public UpdateDefinition<TDocument> Pull<TItem>(string fieldName, TItem value)
         {
             return Pull(new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName), value);
         }
@@ -1318,7 +1318,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> Pull<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public UpdateDefinition<TDocument> Pull<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
             return Pull<TField, TItem>(new ExpressionFieldName<TDocument, TField>(fieldName), value);
@@ -1332,10 +1332,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> PullAll<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> PullAll<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
-            return new PullUpdate<TDocument, TField, TItem>(fieldName, values);
+            return new PullUpdateDefinition<TDocument, TField, TItem>(fieldName, values);
         }
 
         /// <summary>
@@ -1345,7 +1345,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> PullAll<TItem>(string fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> PullAll<TItem>(string fieldName, IEnumerable<TItem> values)
         {
             return PullAll<IEnumerable<TItem>, TItem>(new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName), values);
         }
@@ -1358,7 +1358,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> PullAll<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
+        public UpdateDefinition<TDocument> PullAll<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values)
             where TField : IEnumerable<TItem>
         {
             return PullAll(new ExpressionFieldName<TDocument, TField>(fieldName), values);
@@ -1372,10 +1372,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> PullFilter<TField, TItem>(FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
+        public UpdateDefinition<TDocument> PullFilter<TField, TItem>(FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
-            return new PullUpdate<TDocument, TField, TItem>(fieldName, filter);
+            return new PullUpdateDefinition<TDocument, TField, TItem>(fieldName, filter);
         }
 
         /// <summary>
@@ -1385,7 +1385,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> PullFilter<TItem>(string fieldName, FilterDefinition<TItem> filter)
+        public UpdateDefinition<TDocument> PullFilter<TItem>(string fieldName, FilterDefinition<TItem> filter)
         {
             return PullFilter<IEnumerable<TItem>, TItem>(new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName), filter);
         }
@@ -1398,7 +1398,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
+        public UpdateDefinition<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, FilterDefinition<TItem> filter)
             where TField : IEnumerable<TItem>
         {
             return PullFilter(new ExpressionFieldName<TDocument, TField>(fieldName), filter);
@@ -1412,7 +1412,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>A pull operator.</returns>
-        public Update2<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
+        public UpdateDefinition<TDocument> PullFilter<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, Expression<Func<TItem, bool>> filter)
             where TField : IEnumerable<TItem>
         {
             return PullFilter(new ExpressionFieldName<TDocument, TField>(fieldName), new ExpressionFilterDefinition<TItem>(filter));
@@ -1426,10 +1426,10 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A push operator.</returns>
-        public Update2<TDocument> Push<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
+        public UpdateDefinition<TDocument> Push<TField, TItem>(FieldName<TDocument, TField> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
-            return new PushUpdate<TDocument, TField, TItem>(fieldName, new[] { value });
+            return new PushUpdateDefinition<TDocument, TField, TItem>(fieldName, new[] { value });
         }
 
         /// <summary>
@@ -1439,7 +1439,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A push operator.</returns>
-        public Update2<TDocument> Push<TItem>(string fieldName, TItem value)
+        public UpdateDefinition<TDocument> Push<TItem>(string fieldName, TItem value)
         {
             return Push<IEnumerable<TItem>, TItem>(
                 new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
@@ -1454,7 +1454,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A push operator.</returns>
-        public Update2<TDocument> Push<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
+        public UpdateDefinition<TDocument> Push<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, TItem value)
             where TField : IEnumerable<TItem>
         {
             return Push(new ExpressionFieldName<TDocument, TField>(fieldName), value);
@@ -1471,10 +1471,10 @@ namespace MongoDB.Driver
         /// <param name="position">The position.</param>
         /// <param name="sort">The sort.</param>
         /// <returns>A push operator.</returns>
-        public Update2<TDocument> PushEach<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public UpdateDefinition<TDocument> PushEach<TField, TItem>(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
-            return new PushUpdate<TDocument, TField, TItem>(fieldName, values, slice, position, sort);
+            return new PushUpdateDefinition<TDocument, TField, TItem>(fieldName, values, slice, position, sort);
         }
 
         /// <summary>
@@ -1487,7 +1487,7 @@ namespace MongoDB.Driver
         /// <param name="position">The position.</param>
         /// <param name="sort">The sort.</param>
         /// <returns>A push operator.</returns>
-        public Update2<TDocument> PushEach<TItem>(string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public UpdateDefinition<TDocument> PushEach<TItem>(string fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
             return PushEach<IEnumerable<TItem>, TItem>(
                 new StringFieldName<TDocument, IEnumerable<TItem>>(fieldName),
@@ -1508,7 +1508,7 @@ namespace MongoDB.Driver
         /// <param name="position">The position.</param>
         /// <param name="sort">The sort.</param>
         /// <returns>A push operator.</returns>
-        public Update2<TDocument> PushEach<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public UpdateDefinition<TDocument> PushEach<TField, TItem>(Expression<Func<TDocument, TField>> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
             where TField : IEnumerable<TItem>
         {
             return PushEach(new ExpressionFieldName<TDocument, TField>(fieldName), values, slice, position, sort);
@@ -1520,9 +1520,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="newName">The new name.</param>
         /// <returns>A field rename operator.</returns>
-        public Update2<TDocument> Rename(FieldName<TDocument> fieldName, string newName)
+        public UpdateDefinition<TDocument> Rename(FieldName<TDocument> fieldName, string newName)
         {
-            return new OperatorUpdate<TDocument>("$rename", fieldName, newName);
+            return new OperatorUpdateDefinition<TDocument>("$rename", fieldName, newName);
         }
 
         /// <summary>
@@ -1531,7 +1531,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="newName">The new name.</param>
         /// <returns>A field rename operator.</returns>
-        public Update2<TDocument> Rename(Expression<Func<TDocument, object>> fieldName, string newName)
+        public UpdateDefinition<TDocument> Rename(Expression<Func<TDocument, object>> fieldName, string newName)
         {
             return Rename(new ExpressionFieldName<TDocument>(fieldName), newName);
         }
@@ -1543,9 +1543,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A set operator.</returns>
-        public Update2<TDocument> Set<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> Set<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorUpdate<TDocument, TField>("$set", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$set", fieldName, value);
         }
 
         /// <summary>
@@ -1555,7 +1555,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A set operator.</returns>
-        public Update2<TDocument> Set<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> Set<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return Set(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -1567,9 +1567,9 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A set on insert operator.</returns>
-        public Update2<TDocument> SetOnInsert<TField>(FieldName<TDocument, TField> fieldName, TField value)
+        public UpdateDefinition<TDocument> SetOnInsert<TField>(FieldName<TDocument, TField> fieldName, TField value)
         {
-            return new OperatorUpdate<TDocument, TField>("$setOnInsert", fieldName, value);
+            return new OperatorUpdateDefinition<TDocument, TField>("$setOnInsert", fieldName, value);
         }
 
         /// <summary>
@@ -1579,7 +1579,7 @@ namespace MongoDB.Driver
         /// <param name="fieldName">Name of the field.</param>
         /// <param name="value">The value.</param>
         /// <returns>A set on insert operator.</returns>
-        public Update2<TDocument> SetOnInsert<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
+        public UpdateDefinition<TDocument> SetOnInsert<TField>(Expression<Func<TDocument, TField>> fieldName, TField value)
         {
             return SetOnInsert(new ExpressionFieldName<TDocument, TField>(fieldName), value);
         }
@@ -1589,9 +1589,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>An unset operator.</returns>
-        public Update2<TDocument> Unset(FieldName<TDocument> fieldName)
+        public UpdateDefinition<TDocument> Unset(FieldName<TDocument> fieldName)
         {
-            return new OperatorUpdate<TDocument>("$unset", fieldName, 1);
+            return new OperatorUpdateDefinition<TDocument>("$unset", fieldName, 1);
         }
 
         /// <summary>
@@ -1599,18 +1599,18 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>An unset operator.</returns>
-        public Update2<TDocument> Unset(Expression<Func<TDocument, object>> fieldName)
+        public UpdateDefinition<TDocument> Unset(Expression<Func<TDocument, object>> fieldName)
         {
             return Unset(new ExpressionFieldName<TDocument>(fieldName));
         }
     }
 
-    internal sealed class AddToSetUpdate<TDocument, TField, TItem> : Update2<TDocument>
+    internal sealed class AddToSetUpdateDefinition<TDocument, TField, TItem> : UpdateDefinition<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly List<TItem> _values;
 
-        public AddToSetUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public AddToSetUpdateDefinition(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _values = Ensure.IsNotNull(values, "values").ToList();
@@ -1660,11 +1660,11 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class CombinedUpdate<TDocument> : Update2<TDocument>
+    internal sealed class CombinedUpdateDefinition<TDocument> : UpdateDefinition<TDocument>
     {
-        private readonly List<Update2<TDocument>> _updates;
+        private readonly List<UpdateDefinition<TDocument>> _updates;
 
-        public CombinedUpdate(IEnumerable<Update2<TDocument>> updates)
+        public CombinedUpdateDefinition(IEnumerable<UpdateDefinition<TDocument>> updates)
         {
             _updates = Ensure.IsNotNull(updates, "updates").ToList();
         }
@@ -1696,13 +1696,13 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class BitwiseOperatorUpdate<TDocument, TField> : Update2<TDocument>
+    internal sealed class BitwiseOperatorUpdateDefinition<TDocument, TField> : UpdateDefinition<TDocument>
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly TField _value;
 
-        public BitwiseOperatorUpdate(string operatorName, FieldName<TDocument, TField> fieldName, TField value)
+        public BitwiseOperatorUpdateDefinition(string operatorName, FieldName<TDocument, TField> fieldName, TField value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
@@ -1733,13 +1733,13 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class OperatorUpdate<TDocument> : Update2<TDocument>
+    internal sealed class OperatorUpdateDefinition<TDocument> : UpdateDefinition<TDocument>
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument> _fieldName;
         private readonly BsonValue _value;
 
-        public OperatorUpdate(string operatorName, FieldName<TDocument> fieldName, BsonValue value)
+        public OperatorUpdateDefinition(string operatorName, FieldName<TDocument> fieldName, BsonValue value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
@@ -1753,13 +1753,13 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class OperatorUpdate<TDocument, TField> : Update2<TDocument>
+    internal sealed class OperatorUpdateDefinition<TDocument, TField> : UpdateDefinition<TDocument>
     {
         private readonly string _operatorName;
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly TField _value;
 
-        public OperatorUpdate(string operatorName, FieldName<TDocument, TField> fieldName, TField value)
+        public OperatorUpdateDefinition(string operatorName, FieldName<TDocument, TField> fieldName, TField value)
         {
             _operatorName = Ensure.IsNotNull(operatorName, "operatorName");
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
@@ -1787,19 +1787,19 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class PullUpdate<TDocument, TField, TItem> : Update2<TDocument>
+    internal sealed class PullUpdateDefinition<TDocument, TField, TItem> : UpdateDefinition<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly FilterDefinition<TItem> _filter;
         private readonly List<TItem> _values;
 
-        public PullUpdate(FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
+        public PullUpdateDefinition(FieldName<TDocument, TField> fieldName, FilterDefinition<TItem> filter)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _filter = Ensure.IsNotNull(filter, "filter");
         }
 
-        public PullUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
+        public PullUpdateDefinition(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _values = Ensure.IsNotNull(values, "values").ToList();
@@ -1853,7 +1853,7 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class PushUpdate<TDocument, TField, TItem> : Update2<TDocument>
+    internal sealed class PushUpdateDefinition<TDocument, TField, TItem> : UpdateDefinition<TDocument>
     {
         private readonly FieldName<TDocument, TField> _fieldName;
         private readonly int? _position;
@@ -1861,7 +1861,7 @@ namespace MongoDB.Driver
         private SortDefinition<TItem> _sort;
         private readonly List<TItem> _values;
 
-        public PushUpdate(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
+        public PushUpdateDefinition(FieldName<TDocument, TField> fieldName, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)
         {
             _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
             _values = Ensure.IsNotNull(values, "values").ToList();

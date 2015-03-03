@@ -112,19 +112,19 @@ namespace MongoDB.Driver
             return new BsonDocumentFilterDefinition<TDocument>(filter);
         }
 
-        private static Update2<TDocument> UnwrapUpdate(BsonDocument update)
+        private static UpdateDefinition<TDocument> UnwrapUpdate(BsonDocument update)
         {
             var wrapper = update as BsonDocumentWrapper;
             if (wrapper != null)
             {
                 if (wrapper.Wrapped is BsonDocument)
                 {
-                    return new BsonDocumentUpdate<TDocument>((BsonDocument)wrapper.Wrapped);
+                    return new BsonDocumentUpdateDefinition<TDocument>((BsonDocument)wrapper.Wrapped);
                 }
-                return new ObjectUpdate<TDocument>(wrapper.Wrapped);
+                return new ObjectUpdateDefinition<TDocument>(wrapper.Wrapped);
             }
 
-            return new BsonDocumentUpdate<TDocument>(update);
+            return new BsonDocumentUpdateDefinition<TDocument>(update);
         }
 
         private static object Unwrap(BsonDocument wrapper)

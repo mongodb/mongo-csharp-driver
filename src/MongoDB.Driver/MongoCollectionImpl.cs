@@ -277,7 +277,7 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public override Task<TResult> FindOneAndUpdateAsync<TResult>(FilterDefinition<TDocument> filter, Update2<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options, CancellationToken cancellationToken)
+        public override Task<TResult> FindOneAndUpdateAsync<TResult>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(filter, "filter");
             Ensure.IsNotNull(update, "update");
