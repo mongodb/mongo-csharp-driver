@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Connections
         private DateTime _openedAtUtc;
         private readonly object _openLock = new object();
         private Task _openTask;
-        private readonly AsyncQueue<OutboundQueueEntry> _outboundQueue;
+        private readonly SemaphoreSlim _sendLock;
         private readonly ConnectionSettings _settings;
         private readonly InterlockedInt32 _state;
         private Stream _stream;
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.Connections
 
             _connectionId = new ConnectionId(serverId);
             _inboundDropbox = new AsyncDropbox<int, IByteBuffer>();
-            _outboundQueue = new AsyncQueue<OutboundQueueEntry>();
+            _sendLock = new SemaphoreSlim(1);
             _state = new InterlockedInt32(State.Initial);
         }
 
@@ -125,11 +125,6 @@ namespace MongoDB.Driver.Core.Connections
         {
             if (_state.TryChange(State.Open, State.Failed))
             {
-                foreach (var entry in _outboundQueue.DequeueAll())
-                {
-                    entry.TaskCompletionSource.TrySetException(new MongoMessageNotSentException(_connectionId));
-                }
-
                 foreach (var awaiter in _inboundDropbox.RemoveAllAwaiters())
                 {
                     awaiter.TrySetException(exception);
@@ -161,6 +156,8 @@ namespace MongoDB.Driver.Core.Connections
 
                     _backgroundTaskCancellationTokenSource.Cancel();
                     _backgroundTaskCancellationTokenSource.Dispose();
+                    _sendLock.Dispose();
+
                     if (_stream != null)
                     {
                         try
@@ -306,46 +303,31 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async Task SendBackgroundTask()
+        private async Task SendBufferAsync(IByteBuffer buffer, CancellationToken cancellationToken)
         {
-            while (!_backgroundTaskCancellationToken.IsCancellationRequested)
+            await _sendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
             {
+                if (_state.Value == State.Failed)
+                {
+                    throw new MongoMessageNotSentException(_connectionId);
+                }
+
                 try
                 {
-                    var entry = await _outboundQueue.DequeueAsync(_backgroundTaskCancellationToken).ConfigureAwait(false);
-
-                    // Before we might blow up the stream, let's see if we have been
-                    // asked to cancel. No reason to do work on the stream if the user
-                    // no longer cares.
-                    if (entry.CancellationToken.IsCancellationRequested)
-                    {
-                        entry.TaskCompletionSource.TrySetCanceled();
-                        continue;
-                    }
-
-                    try
-                    {
-                        // Don't use the entry's cancellation token because once we
-                        // start writing the message, we don't want to stop arbitrarily
-                        // and render the connection unusable at the whim of a user.
-                        await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, _backgroundTaskCancellationToken).ConfigureAwait(false);
-                        _lastUsedAtUtc = DateTime.UtcNow;
-                        entry.TaskCompletionSource.TrySetResult(true);
-                    }
-                    catch (Exception ex)
-                    {
-                        // We have to kill the connection off here because we may have
-                        // partially written the bytes to the stream, leaving it
-                        // unusable.
-                        ConnectionFailed(ex);
-                        entry.TaskCompletionSource.TrySetException(ex);
-                        return;
-                    }
+                    // don't use the caller's cancellationToken because once we start writing a message we have to write the whole thing
+                    await _stream.WriteBufferAsync(buffer, 0, buffer.Length, _backgroundTaskCancellationToken).ConfigureAwait(false);
+                    _lastUsedAtUtc = DateTime.UtcNow;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // ignore this exception
+                    ConnectionFailed(ex);
+                    throw;
                 }
+            }
+            finally
+            {
+                _sendLock.Release();
             }
         }
 
@@ -387,9 +369,7 @@ namespace MongoDB.Driver.Core.Connections
                     }
 
                     var stopwatch = Stopwatch.StartNew();
-                    var entry = new OutboundQueueEntry(buffer, cancellationToken);
-                    _outboundQueue.Enqueue(entry);
-                    await entry.Task.ConfigureAwait(false);
+                    await SendBufferAsync(buffer, cancellationToken);
                     stopwatch.Stop();
 
                     if (_listener != null)
@@ -411,7 +391,6 @@ namespace MongoDB.Driver.Core.Connections
 
         private void StartBackgroundTasks()
         {
-            SendBackgroundTask().ConfigureAwait(false);
             ReceiveBackgroundTask().ConfigureAwait(false);
         }
 
@@ -445,43 +424,6 @@ namespace MongoDB.Driver.Core.Connections
             public static int Open = 3;
             public static int Failed = 4;
             public static int Disposed = 5;
-        }
-
-        private class OutboundQueueEntry
-        {
-            // fields
-            private readonly IByteBuffer _buffer;
-            private readonly CancellationToken _cancellationToken;
-            private readonly TaskCompletionSource<bool> _taskCompletionSource;
-
-            // constructors
-            public OutboundQueueEntry(IByteBuffer buffer, CancellationToken cancellationToken)
-            {
-                _buffer = buffer;
-                _cancellationToken = cancellationToken;
-                _taskCompletionSource = new TaskCompletionSource<bool>();
-            }
-
-            // properties
-            public CancellationToken CancellationToken
-            {
-                get { return _cancellationToken; }
-            }
-
-            public IByteBuffer Buffer
-            {
-                get { return _buffer; }
-            }
-
-            public Task Task
-            {
-                get { return _taskCompletionSource.Task; }
-            }
-
-            public TaskCompletionSource<bool> TaskCompletionSource
-            {
-                get { return _taskCompletionSource; }
-            }
         }
     }
 }
