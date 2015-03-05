@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Linq.Processors
                         var index = (int)indexExpression.Value;
                         var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
                         itemSerializationInfo = new BsonSerializationInfo(
-                            index.ToString(),
+                            index >= 0 ? index.ToString() : "$",
                             itemSerializationInfo.Serializer,
                             itemSerializationInfo.NominalType);
 
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Linq.Processors
                         var index = (int)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
                         var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
                         itemSerializationInfo = new BsonSerializationInfo(
-                            index.ToString(),
+                            index >= 0 ? index.ToString() : "$",
                             itemSerializationInfo.Serializer,
                             itemSerializationInfo.NominalType);
 
@@ -252,29 +252,48 @@ namespace MongoDB.Driver.Linq.Processors
             }
 
             var indexExpression = (ConstantExpression)node.Arguments[0];
-            var indexName = indexExpression.Value.ToString();
-            if (indexExpression.Type == typeof(int) ||
-                indexExpression.Type == typeof(uint) ||
-                indexExpression.Type == typeof(long) ||
-                indexExpression.Type == typeof(ulong))
+            var index = indexExpression.Value;
+            switch (Type.GetTypeCode(index.GetType()))
             {
-                var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
-                if (arraySerializer != null)
-                {
-                    var itemSerializationInfo = arraySerializer.GetItemSerializationInfo().WithNewName(indexName);
-                    var serializationInfo = serializationExpression.SerializationInfo.Merge(itemSerializationInfo);
-                    return new SerializationExpression(methodCallExpression, serializationInfo);
-                }
-            }
-            else if (indexExpression.Type == typeof(string))
-            {
-                var documentSerializer = serializationExpression.SerializationInfo.Serializer as IBsonDocumentSerializer;
-                if (documentSerializer != null)
-                {
-                    var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(indexName);
-                    var serializationInfo = serializationExpression.SerializationInfo.Merge(memberSerializationInfo);
-                    return new SerializationExpression(methodCallExpression, serializationInfo);
-                }
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                    var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
+                    if (arraySerializer != null)
+                    {
+                        string name;
+                        switch (Type.GetTypeCode(indexExpression.Type))
+                        {
+                            case TypeCode.Int16:
+                                name = (short)index >= 0 ? index.ToString() : "$";
+                                break;
+                            case TypeCode.Int32:
+                                name = (int)index >= 0 ? index.ToString() : "$";
+                                break;
+                            case TypeCode.Int64:
+                                name = (long)index >= 0 ? index.ToString() : "$";
+                                break;
+                            default:
+                                name = index.ToString();
+                                break;
+                        }
+                        var itemSerializationInfo = arraySerializer.GetItemSerializationInfo().WithNewName(name);
+                        var serializationInfo = serializationExpression.SerializationInfo.Merge(itemSerializationInfo);
+                        return new SerializationExpression(methodCallExpression, serializationInfo);
+                    }
+                    break;
+                case TypeCode.String:
+                    var documentSerializer = serializationExpression.SerializationInfo.Serializer as IBsonDocumentSerializer;
+                    if (documentSerializer != null)
+                    {
+                        var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(index.ToString());
+                        var serializationInfo = serializationExpression.SerializationInfo.Merge(memberSerializationInfo);
+                        return new SerializationExpression(methodCallExpression, serializationInfo);
+                    }
+                    break;
             }
 
             return newNode;

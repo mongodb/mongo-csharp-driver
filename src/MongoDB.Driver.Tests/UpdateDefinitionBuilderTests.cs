@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -237,6 +239,28 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Indexed_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.Set(x => x.FavoriteColors[2], "yellow"), "{$set: {'colors.2': 'yellow'}}");
+            Assert(subject.Set(x => x.Pets[2].Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
+            Assert(subject.Set(x => x.Pets.ElementAt(2).Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
+        }
+
+        [Test]
+        public void Indexed_Positional_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+#pragma warning disable
+            Assert(subject.Set(x => x.FavoriteColors[-1], "yellow"), "{$set: {'colors.$': 'yellow'}}");
+#pragma warning restore
+            Assert(subject.Set(x => x.Pets[-1].Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}");
+            Assert(subject.Set(x => x.Pets.ElementAt(-1).Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}");
+        }
+
+        [Test]
         public void Max()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -370,7 +394,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.PullFilter<Pet[], Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{$pull: {pets: {name: 'Fluffy'}}}}");
+            Assert(subject.PullFilter<List<Pet>, Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{$pull: {pets: {name: 'Fluffy'}}}}");
             Assert(subject.PullFilter<Pet[], Pet>("Pets", "{ Name: 'Fluffy'}"), "{$pull: {pets: {Name: 'Fluffy'}}}}");
         }
 
@@ -545,8 +569,9 @@ namespace MongoDB.Driver.Tests
 
             [BsonElement("last_updated")]
             public DateTime LastUpdated { get; set; }
+
             [BsonElement("pets")]
-            public Pet[] Pets { get; set; }
+            public List<Pet> Pets { get; set; }
         }
 
         private class Pet

@@ -31,36 +31,6 @@ namespace MongoDB.Driver
     public static class ProjectionDefinitionExtensions
     {
         /// <summary>
-        /// Combines an existing projection with a positional operator projection.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="projection">The projection.</param>
-        /// <param name="field">The field.</param>
-        /// <returns>
-        /// A combined projection.
-        /// </returns>
-        public static ProjectionDefinition<TDocument> ElemMatch<TDocument>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument> field)
-        {
-            var builder = Builders<TDocument>.Projection;
-            return builder.Combine(projection, builder.ElemMatch(field));
-        }
-
-        /// <summary>
-        /// Combines an existing projection with a positional operator projection.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="projection">The projection.</param>
-        /// <param name="field">The field.</param>
-        /// <returns>
-        /// A combined projection.
-        /// </returns>
-        public static ProjectionDefinition<TDocument> ElemMatch<TDocument>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, object>> field)
-        {
-            var builder = Builders<TDocument>.Projection;
-            return builder.Combine(projection, builder.ElemMatch(field));
-        }
-
-        /// <summary>
         /// Combines an existing projection with a projection that filters the contents of an array.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
@@ -272,26 +242,6 @@ namespace MongoDB.Driver
         public ProjectionDefinition<TSource> Combine(IEnumerable<ProjectionDefinition<TSource>> projections)
         {
             return new CombinedProjectionDefinition<TSource>(projections);
-        }
-
-        /// <summary>
-        /// Creates a positional operator projection.
-        /// </summary>
-        /// <param name="field">The field.</param>
-        /// <returns>A positional operator projection.</returns>
-        public ProjectionDefinition<TSource> ElemMatch(FieldDefinition<TSource> field)
-        {
-            return new PositionalOperatorProjectionDefinition<TSource>(field);
-        }
-
-        /// <summary>
-        /// Creates a positional operator projection.
-        /// </summary>
-        /// <param name="field">The field.</param>
-        /// <returns>A positional operator projection.</returns>
-        public ProjectionDefinition<TSource> ElemMatch(Expression<Func<TSource, object>> field)
-        {
-            return ElemMatch(new ExpressionFieldDefinition<TSource>(field));
         }
 
         /// <summary>
