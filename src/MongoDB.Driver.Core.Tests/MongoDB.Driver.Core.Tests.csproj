@@ -100,7 +100,6 @@
     <Compile Include="MongoServerExceptionTests.cs" />
     <Compile Include="MongoWaitQueueFullExceptionTests.cs" />
     <Compile Include="MongoWriteConcernExceptionTests.cs" />
-    <Compile Include="Core\Async\AsyncDropboxTests.cs" />
     <Compile Include="Core\Authentication\AuthenticationHelperTests.cs" />
     <Compile Include="Core\Bindings\ReadBindingHandleTests.cs" />
     <Compile Include="Core\Bindings\ReadWriteBindingHandleTests.cs" />

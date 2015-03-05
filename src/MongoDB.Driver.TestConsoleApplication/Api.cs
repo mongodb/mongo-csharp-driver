@@ -36,6 +36,7 @@ namespace MongoDB.Driver.TestConsoleApplication
         {
             var settings = new MongoClientSettings();
             settings.ClusterConfigurator = configurator;
+            settings.OperationTimeout = TimeSpan.FromSeconds(5);
 
             var client = new MongoClient(settings);
 

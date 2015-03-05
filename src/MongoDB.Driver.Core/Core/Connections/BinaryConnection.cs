@@ -23,7 +23,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -45,13 +44,13 @@ namespace MongoDB.Driver.Core.Connections
         private ConnectionId _connectionId;
         private readonly IConnectionInitializer _connectionInitializer;
         private EndPoint _endPoint;
-        private readonly AsyncDropbox<int, IByteBuffer> _inboundDropbox;
         private ConnectionDescription _description;
         private DateTime _lastUsedAtUtc;
         private readonly IConnectionListener _listener;
         private DateTime _openedAtUtc;
         private readonly object _openLock = new object();
         private Task _openTask;
+        private readonly ReceiveCoordinator _receiveCoordinator;
         private readonly SemaphoreSlim _sendLock;
         private readonly ConnectionSettings _settings;
         private readonly InterlockedInt32 _state;
@@ -72,7 +71,7 @@ namespace MongoDB.Driver.Core.Connections
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
 
             _connectionId = new ConnectionId(serverId);
-            _inboundDropbox = new AsyncDropbox<int, IByteBuffer>();
+            _receiveCoordinator = new ReceiveCoordinator();
             _sendLock = new SemaphoreSlim(1);
             _state = new InterlockedInt32(State.Initial);
         }
@@ -125,11 +124,6 @@ namespace MongoDB.Driver.Core.Connections
         {
             if (_state.TryChange(State.Open, State.Failed))
             {
-                foreach (var awaiter in _inboundDropbox.RemoveAllAwaiters())
-                {
-                    awaiter.TrySetException(exception);
-                }
-
                 if (_listener != null)
                 {
                     _listener.ConnectionFailed(new ConnectionFailedEvent(_connectionId, exception));
@@ -206,7 +200,6 @@ namespace MongoDB.Driver.Core.Connections
                 var stopwatch = Stopwatch.StartNew();
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
                 _state.TryChange(State.Initializing);
-                StartBackgroundTasks();
                 _description = await _connectionInitializer.InitializeConnectionAsync(this, cancellationToken).ConfigureAwait(false);
                 stopwatch.Stop();
                 _connectionId = _description.ConnectionId;
@@ -231,29 +224,62 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async Task ReceiveBackgroundTask()
+        private async Task<IByteBuffer> ReceiveBufferAsync()
         {
-            while (!_backgroundTaskCancellationToken.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    var messageSizeBytes = new byte[4];
-                    await _stream.FillBufferAsync(messageSizeBytes, 0, 4, _backgroundTaskCancellationToken).ConfigureAwait(false);
-                    var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
-                    var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, messageSize);
-                    buffer.WriteBytes(0, messageSizeBytes, 0, 4);
-                    await _stream.FillBufferAsync(buffer, 4, messageSize - 4, _backgroundTaskCancellationToken).ConfigureAwait(false);
-                    _lastUsedAtUtc = DateTime.UtcNow;
-                    var responseToBytes = new byte[4];
-                    buffer.ReadBytes(8, responseToBytes, 0, 4);
-                    var responseTo = BitConverter.ToInt32(responseToBytes, 0);
-                    _inboundDropbox.Post(responseTo, buffer);
-                }
-                catch (Exception ex)
-                {
-                    ConnectionFailed(ex);
-                    return;
-                }
+                var messageSizeBytes = new byte[4];
+                await _stream.FillBufferAsync(messageSizeBytes, 0, 4, _backgroundTaskCancellationToken).ConfigureAwait(false);
+                var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
+                var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, messageSize);
+                buffer.WriteBytes(0, messageSizeBytes, 0, 4);
+                await _stream.FillBufferAsync(buffer, 4, messageSize - 4, _backgroundTaskCancellationToken).ConfigureAwait(false);
+                _lastUsedAtUtc = DateTime.UtcNow;
+                return buffer;
+            }
+            catch (Exception ex)
+            {
+                ConnectionFailed(ex);
+                throw;
+            }
+        }
+
+        private async Task<IByteBuffer> ReceiveBufferAsync(int responseTo, CancellationToken cancellationToken)
+        {
+            var instructions = await _receiveCoordinator.GetInstructionsAsync(responseTo, cancellationToken).ConfigureAwait(false);
+            switch (instructions.Action)
+            {
+                case ReceiveCoordinatorAction.ReturnBuffer:
+                    return instructions.Buffer;
+
+                case ReceiveCoordinatorAction.AssumeReceiverRole:
+                    try
+                    {
+                        while (true)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            var buffer = await ReceiveBufferAsync().ConfigureAwait(false);
+                            var segment = buffer.AccessBackingBytes(8);
+                            var receivedResponseTo = BitConverter.ToInt32(segment.Array, segment.Offset);
+
+                            if (receivedResponseTo == responseTo)
+                            {
+                                return buffer;
+                            }
+                            else
+                            {
+                                _receiveCoordinator.DispatchBuffer(receivedResponseTo, buffer);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        _receiveCoordinator.RelinquishReceiverRole();
+                    }
+
+                default:
+                    throw new MongoInternalException("Invalid ReceiveCoordinatorAction.");
             }
         }
 
@@ -274,14 +300,18 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 var stopwatch = Stopwatch.StartNew();
-                var buffer = await _inboundDropbox.ReceiveAsync(responseTo, cancellationToken).ConfigureAwait(false);
-                int length = buffer.Length;
                 ReplyMessage<TDocument> reply;
-                using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: true))
+                int length;
+                using (var buffer = await ReceiveBufferAsync(responseTo, cancellationToken).ConfigureAwait(false))
                 {
-                    var encoderFactory = new BinaryMessageEncoderFactory(stream, messageEncoderSettings);
-                    var encoder = encoderFactory.GetReplyMessageEncoder<TDocument>(serializer);
-                    reply = (ReplyMessage<TDocument>)encoder.ReadMessage();
+                    cancellationToken.ThrowIfCancellationRequested();
+                    length = buffer.Length;
+                    using (var stream = new ByteBufferStream(buffer))
+                    {
+                        var encoderFactory = new BinaryMessageEncoderFactory(stream, messageEncoderSettings);
+                        var encoder = encoderFactory.GetReplyMessageEncoder<TDocument>(serializer);
+                        reply = (ReplyMessage<TDocument>)encoder.ReadMessage();
+                    }
                 }
                 stopwatch.Stop();
 
@@ -369,7 +399,7 @@ namespace MongoDB.Driver.Core.Connections
                     }
 
                     var stopwatch = Stopwatch.StartNew();
-                    await SendBufferAsync(buffer, cancellationToken);
+                    await SendBufferAsync(buffer, cancellationToken).ConfigureAwait(false);
                     stopwatch.Stop();
 
                     if (_listener != null)
@@ -387,11 +417,6 @@ namespace MongoDB.Driver.Core.Connections
 
                 throw;
             }
-        }
-
-        private void StartBackgroundTasks()
-        {
-            ReceiveBackgroundTask().ConfigureAwait(false);
         }
 
         private void ThrowIfDisposed()
@@ -424,6 +449,119 @@ namespace MongoDB.Driver.Core.Connections
             public static int Open = 3;
             public static int Failed = 4;
             public static int Disposed = 5;
+        }
+
+        private enum ReceiveCoordinatorAction
+        {
+            ReturnBuffer,
+            AssumeReceiverRole
+        }
+
+        private struct ReceiveCoordinatorInstructions
+        {
+            public ReceiveCoordinatorAction Action;
+            public IByteBuffer Buffer;
+        }
+
+        private class ReceiveCoordinator
+        {
+            private readonly Dictionary<int, TaskCompletionSource<ReceiveCoordinatorInstructions>> _awaiters = new Dictionary<int, TaskCompletionSource<ReceiveCoordinatorInstructions>>();
+            private readonly Dictionary<int, IByteBuffer> _buffers = new Dictionary<int, IByteBuffer>();
+            private readonly object _lock = new object();
+            private bool _receiverRoleAssigned;
+
+            public void DispatchBuffer(int responseTo, IByteBuffer buffer)
+            {
+                TaskCompletionSource<ReceiveCoordinatorInstructions> awaiter = null;
+
+                lock (_lock)
+                {
+                    if (_awaiters.TryGetValue(responseTo, out awaiter))
+                    {
+                        _awaiters.Remove(responseTo);
+                    }
+                    else
+                    {
+                        _buffers.Add(responseTo, buffer);
+                    }
+                }
+
+                if (awaiter != null)
+                {
+                    var instructions = new ReceiveCoordinatorInstructions
+                    {
+                        Action = ReceiveCoordinatorAction.ReturnBuffer,
+                        Buffer = buffer
+                    };
+                    if (!awaiter.TrySetResult(instructions))
+                    {
+                        buffer.Dispose();
+                    }
+                }
+            }
+
+            public async Task<ReceiveCoordinatorInstructions> GetInstructionsAsync(int responseTo, CancellationToken cancellationToken)
+            {
+                TaskCompletionSource<ReceiveCoordinatorInstructions> awaiter;
+
+                lock (_lock)
+                {
+                    ReceiveCoordinatorInstructions instructions;
+
+                    IByteBuffer buffer;
+                    if (_buffers.TryGetValue(responseTo, out buffer))
+                    {
+                        _buffers.Remove(responseTo);
+                        instructions = new ReceiveCoordinatorInstructions
+                        {
+                            Action = ReceiveCoordinatorAction.ReturnBuffer,
+                            Buffer = buffer
+                        };
+                        return instructions;
+                    }
+                    else if (_receiverRoleAssigned)
+                    {
+                        awaiter = new TaskCompletionSource<ReceiveCoordinatorInstructions>();
+                        _awaiters.Add(responseTo, awaiter);
+                    }
+                    else
+                    {
+                        _receiverRoleAssigned = true;
+                        instructions = new ReceiveCoordinatorInstructions { Action = ReceiveCoordinatorAction.AssumeReceiverRole };
+                        return instructions;
+                    }
+                }
+
+                using (cancellationToken.Register(() => awaiter.TrySetCanceled(), useSynchronizationContext: false))
+                {
+                    return await awaiter.Task.ConfigureAwait(false);
+                }
+            }
+
+            public void RelinquishReceiverRole()
+            {
+                TaskCompletionSource<ReceiveCoordinatorInstructions> awaiter = null;
+
+                lock (_lock)
+                {
+                    if (_awaiters.Count > 0)
+                    {
+                        var pair = _awaiters.First();
+                        _awaiters.Remove(pair.Key);
+                        awaiter = pair.Value;
+                    }
+                    else
+                    {
+                        _receiverRoleAssigned = false;
+                    }
+                }
+
+                if (awaiter != null)
+                {
+                    var instructions = new ReceiveCoordinatorInstructions { Action = ReceiveCoordinatorAction.AssumeReceiverRole };
+                    awaiter.TrySetResult(instructions);
+                }
+            }
         }
     }
 }
