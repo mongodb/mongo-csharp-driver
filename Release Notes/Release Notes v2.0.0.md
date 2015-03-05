@@ -1,7 +1,9 @@
-C#/.NET Driver Version 2.0.0 Release Notes
+C#/.NET Driver Version 2.0.0-beta3 Release Notes
 ==========================================
 
-This is a major release which supports all MongoDB server versions since 2.2.
+(Preliminary)
+
+This is a major release which supports all MongoDB server versions since 2.4.
 
 An online version of these release notes is available at:
 
@@ -52,6 +54,7 @@ Because of our async nature, we have rebuilt our entire API. The new API is acce
 		.Match(x => x.FirstName == "Jack")
 		.GroupBy(x => x.LastName, g => new { _id = g.Key, TotalAge = g.Sum(x => x.Age)})
 		.ToListAsync();
+
 - Support for dynamic.
 	var person = new ExpandoObject();
 	person.FirstName = "Jane";
@@ -79,8 +82,7 @@ are some that may affect a greater number of people:
 
 - .NET 3.5 and .NET 4.0 are no longer supported. If you still must use these platforms, then the 1.x series of the driver will continue to be developed.
 
-- The nuget package mongocsharpdriver has been deprecated. In its place are 3 new nuget packages, MongoDB.Bson, MongoDB.Driver.Core, and MongoDB.Driver.
-MongoDB.Driver is the replacement for mongocsharpdriver.
+- The nuget package mongocsharpdriver now includes the legacy driver. It includes 3 new nuget packages, MongoDB.Bson, MongoDB.Driver.Core, and MongoDB.Driver. MongoDB.Driver is the replacement for mongocsharpdriver.
 
 - We are no longer strong naming (CSHARP-616) our assemblies. Our previous strong naming was signed with a key in our public repository. This did 
 nothing other than satisfy certain tools. If you need MongoDB assemblies to be strongly named, it is relatively straight-forward to build the
@@ -93,15 +95,10 @@ assemblies yourself.
 - MongoServer is a deprecated class. Anyone using MongoClient.GetServer() will encounter a deprecation warning and, depending on how your build is
 setup, may receive an error. It is still safe to use this API until your code is ported to the new API.
 
-- Improved the BsonSerializer infrastructure (CSHARP-933). Anyone who has written a custom serializer will be affected by this. The changes are minor,
-but were necessary to support dynamic serializers as well as offering great speed improvements and memory management.
+- Improved the BsonSerializer infrastructure (CSHARP-933). Anyone who has written a custom serializer will be affected by this. The changes are minor, but were necessary to support dynamic serializers as well as offering great speed improvements and memory management.
 
 - ReadPreference(CSHARP-1043) and WriteConcern(CSHARP-1044) were rewritten. These classes are now immutable. Any current application
 code that sets values on these classes will no longer function. Instead, you should use the With method to alter a ReadPreference or WriteConcern.
 	var writeConcern = myCurrentWriteConcern.With(journal: true);
 
-- Dynamic DictionaryRepresentation (CSHARP-939) has been removed. Its intent was to store, in some manner, anything in a .NET dictionary. In practice,
-this leads to the same values getting stored in different ways depending on factors such as a "." inside the key name. We made the decision to eliminate
-this variability. This means that documents that used to serialize correctly may start throwing a BsonSerializationException with a message indicating
-the key must be a valid string. CSHARP-1165 has a solution to this problem. It should be noted that we will continue to read these disparate 
-representations without error.
+- Dynamic DictionaryRepresentation (CSHARP-939) has been removed. Its intent was to store, in some manner, anything in a .NET dictionary. In practice, this leads to the same values getting stored in different ways depending on factors such as a "." inside the key name. We made the decision to eliminate this variability. This means that documents that used to serialize correctly may start throwing a BsonSerializationException with a message indicating the key must be a valid string. CSHARP-1165 has a solution to this problem. It should be noted that we will continue to read these disparate representations without error.
