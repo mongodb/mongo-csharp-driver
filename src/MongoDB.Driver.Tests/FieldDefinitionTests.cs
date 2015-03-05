@@ -55,11 +55,11 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void Should_resolve_from_a_BsonDocumentSerializer_with_dots()
         {
-            var subject = new StringFieldDefinition<BsonDocument, BsonValue>("test.one");
+            var subject = new StringFieldDefinition<BsonDocument, BsonValue>("test.one.two.three");
 
             var renderedField = subject.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
 
-            renderedField.FieldName.Should().Be("test.one");
+            renderedField.FieldName.Should().Be("test.one.two.three");
             renderedField.FieldSerializer.Should().BeOfType<BsonValueSerializer>();
         }
 
@@ -108,6 +108,17 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Should_resolve_array_name_with_multiple_dots()
+        {
+            var subject = new StringFieldDefinition<Person, string>("Pets.Name.First");
+
+            var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
+
+            renderedField.FieldName.Should().Be("pets.name.fn");
+            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+        }
+
+        [Test]
         public void Should_resolve_array_name_with_single_digit_indexer()
         {
             var subject = new StringFieldDefinition<Person, string>("Pets.3.Type");
@@ -140,6 +151,17 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
+        [Test]
+        public void Should_resolve_array_name_with_positional_operator_with_multiple_dots()
+        {
+            var subject = new StringFieldDefinition<Person, string>("Pets.$.Name.Last");
+
+            var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
+
+            renderedField.FieldName.Should().Be("pets.$.name.ln");
+            renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
+        }
+
         private class Person
         {
             [BsonElement("name")]
@@ -161,6 +183,9 @@ namespace MongoDB.Driver.Tests
         {
             [BsonElement("type")]
             public string Type { get; set; }
+
+            [BsonElement("name")]
+            public Name Name { get; set; }
         }
     }
 }

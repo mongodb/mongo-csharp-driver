@@ -18,6 +18,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors;
@@ -288,6 +289,12 @@ namespace MongoDB.Driver
                 return;
             }
 
+            // shortcut BsonDocumentSerializer since it is so common
+            if(serializer.GetType() == typeof(BsonDocumentSerializer))
+            {
+                return;
+            }
+
             BsonSerializationInfo serializationInfo;
 
             // first, lets try the quick and easy one, which will be a majority of cases
@@ -307,29 +314,48 @@ namespace MongoDB.Driver
                 return;
             }
 
-            var currentSerializer = documentSerializer;
+            IBsonArraySerializer arraySerializer;
+            resolvedFieldSerializer = documentSerializer;
             for (int i = 0; i < nameParts.Length; i++)
             {
                 if(nameParts[i] == "$" || nameParts[i].All(char.IsDigit))
                 {
-                    continue;
-                }
+                    arraySerializer = resolvedFieldSerializer as IBsonArraySerializer;
+                    if (arraySerializer != null)
+                    {
+                        serializationInfo = arraySerializer.GetItemSerializationInfo();
+                        resolvedFieldSerializer = serializationInfo.Serializer;
+                        continue;
+                    }
 
-                if (currentSerializer == null || !currentSerializer.TryGetMemberSerializationInfo(nameParts[i], out serializationInfo))
-                {
                     resolvedFieldSerializer = null;
                     break;
                 }
 
-                nameParts[i] = serializationInfo.ElementName;
-                var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
-                if(arraySerializer != null)
+                documentSerializer = resolvedFieldSerializer as IBsonDocumentSerializer;
+                if (documentSerializer == null || !documentSerializer.TryGetMemberSerializationInfo(nameParts[i], out serializationInfo))
                 {
-                    serializationInfo = arraySerializer.GetItemSerializationInfo();
+                    // need to check if this is an any element array match
+                    arraySerializer = resolvedFieldSerializer as IBsonArraySerializer;
+                    if (arraySerializer != null)
+                    {
+                        serializationInfo = arraySerializer.GetItemSerializationInfo();
+                        documentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
+                        if(documentSerializer == null || !documentSerializer.TryGetMemberSerializationInfo(nameParts[i], out serializationInfo))
+                        {
+                            resolvedFieldSerializer = null;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        resolvedFieldSerializer = null;
+                        break;
+                    }
                 }
 
+                nameParts[i] = serializationInfo.ElementName;
                 resolvedFieldSerializer = serializationInfo.Serializer;
-                currentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
             }
 
             resolvedFieldName = string.Join(".", nameParts);
