@@ -89,6 +89,7 @@
     <Compile Include="IO\BsonWriterTests.cs" />
     <Compile Include="IO\ByteArrayBufferTests.cs" />
     <Compile Include="IO\ByteArrayChunkTests.cs" />
+    <Compile Include="IO\ByteBufferFactoryTests.cs" />
     <Compile Include="IO\ByteBufferSliceTests.cs" />
     <Compile Include="IO\ByteBufferStreamTests.cs" />
     <Compile Include="IO\InputBufferChunkSourceTests.cs" />

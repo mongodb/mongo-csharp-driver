@@ -26,7 +26,7 @@ namespace MongoDB.Bson.IO
     {
         #region static
         // static fields
-        private static BsonChunkPool __default = new BsonChunkPool(2048, 16 * 1024); // 32MiB of 16KiB chunks
+        private static BsonChunkPool __default = new BsonChunkPool(8192, 64 * 1024); // 512MiB of 64KiB chunks
 
         // static properties
         /// <summary>
