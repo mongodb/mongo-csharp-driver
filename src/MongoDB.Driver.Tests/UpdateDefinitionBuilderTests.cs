@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.AddToSet("a", 1), "{$addToSet: {a: 1}}");
-            Assert(subject.AddToSet<int[]>("a", new[] { 1, 2 }), "{$addToSet: {a: [1, 2]}}");
+            Assert(subject.AddToSet("a", new[] { 1, 2 }), "{$addToSet: {a: [1, 2]}}");
         }
 
         [Test]
@@ -394,8 +394,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.PullFilter<List<Pet>, Pet>(x => x.Pets, x => x.Name == "Fluffy"), "{$pull: {pets: {name: 'Fluffy'}}}}");
-            Assert(subject.PullFilter<Pet[], Pet>("Pets", "{ Name: 'Fluffy'}"), "{$pull: {pets: {Name: 'Fluffy'}}}}");
+            Assert(subject.PullFilter(x => x.Pets, x => x.Name == "Fluffy"), "{$pull: {pets: {name: 'Fluffy'}}}}");
+            Assert(subject.PullFilter<Pet>("Pets", "{ Name: 'Fluffy'}"), "{$pull: {pets: {Name: 'Fluffy'}}}}");
         }
 
         [Test]
@@ -569,7 +569,6 @@ namespace MongoDB.Driver.Tests
 
             [BsonElement("last_updated")]
             public DateTime LastUpdated { get; set; }
-
             [BsonElement("pets")]
             public List<Pet> Pets { get; set; }
         }

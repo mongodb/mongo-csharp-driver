@@ -34,43 +34,25 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an all filter.
         /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An all filter.</returns>
-        public FilterDefinition<TDocument> All<TField, TItem>(FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
-            where TField : IEnumerable<TItem>
+        public FilterDefinition<TDocument> All<TItem>(FieldDefinition<TDocument> field, IEnumerable<TItem> values)
         {
-            return new ArrayOperatorFilterDefinition<TDocument, TField, TItem>("$all", field, values);
+            return new ArrayOperatorFilterDefinition<TDocument, TItem>("$all", field, values);
         }
 
         /// <summary>
         /// Creates an all filter.
         /// </summary>
-        /// <param name="field">The field.</param>
-        /// <param name="values">The values.</param>
-        /// <returns>An all filter.</returns>
-        public FilterDefinition<TDocument> All<TItem>(string field, IEnumerable<TItem> values)
-        {
-            return new ArrayOperatorFilterDefinition<TDocument, IEnumerable<TItem>, TItem>(
-                "$all",
-                new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field),
-                values);
-        }
-
-        /// <summary>
-        /// Creates an all filter.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An all filter.</returns>
-        public FilterDefinition<TDocument> All<TField, TItem>(Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values)
-            where TField : IEnumerable<TItem>
+        public FilterDefinition<TDocument> All<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, IEnumerable<TItem> values)
         {
-            return All(new ExpressionFieldDefinition<TDocument, TField>(field), values);
+            return All(new ExpressionFieldDefinition<TDocument>(field), values);
         }
 
         /// <summary>
@@ -96,56 +78,37 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an element match filter.
         /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
-        public FilterDefinition<TDocument> ElemMatch<TField, TItem>(FieldDefinition<TDocument, TField> field, FilterDefinition<TItem> filter)
-            where TField : IEnumerable<TItem>
+        public FilterDefinition<TDocument> ElemMatch<TItem>(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
         {
-            return new ElementMatchFilterDefinition<TDocument, TField, TItem>(field, filter);
+            return new ElementMatchFilterDefinition<TDocument, TItem>(field, filter);
         }
 
         /// <summary>
         /// Creates an element match filter.
         /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
-        public FilterDefinition<TDocument> ElemMatch<TItem>(string field, FilterDefinition<TItem> filter)
+        public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, FilterDefinition<TItem> filter)
         {
-            return ElemMatch(
-                new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field),
-                filter);
+            return ElemMatch(new ExpressionFieldDefinition<TDocument>(field), filter);
         }
 
         /// <summary>
         /// Creates an element match filter.
         /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
-        public FilterDefinition<TDocument> ElemMatch<TField, TItem>(Expression<Func<TDocument, TField>> field, FilterDefinition<TItem> filter)
-            where TField : IEnumerable<TItem>
+        public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, Expression<Func<TItem, bool>> filter)
         {
-            return ElemMatch(new ExpressionFieldDefinition<TDocument, TField>(field), filter);
-        }
-
-        /// <summary>
-        /// Creates an element match filter.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="field">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <returns>An element match filter.</returns>
-        public FilterDefinition<TDocument> ElemMatch<TField, TItem>(Expression<Func<TDocument, TField>> field, Expression<Func<TItem, bool>> filter)
-            where TField : IEnumerable<TItem>
-        {
-            return ElemMatch(new ExpressionFieldDefinition<TDocument, TField>(field), new ExpressionFilterDefinition<TItem>(filter));
+            return ElemMatch(new ExpressionFieldDefinition<TDocument>(field), new ExpressionFilterDefinition<TItem>(filter));
         }
 
         /// <summary>
@@ -401,43 +364,25 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an in filter.
         /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An in filter.</returns>
-        public FilterDefinition<TDocument> In<TField, TItem>(FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
-            where TField : IEnumerable<TItem>
+        public FilterDefinition<TDocument> In<TItem>(FieldDefinition<TDocument> field, IEnumerable<TItem> values)
         {
-            return new ArrayOperatorFilterDefinition<TDocument, TField, TItem>("$in", field, values);
+            return new ArrayOperatorFilterDefinition<TDocument, TItem>("$in", field, values);
         }
 
         /// <summary>
         /// Creates an in filter.
         /// </summary>
-        /// <param name="field">The field.</param>
-        /// <param name="values">The values.</param>
-        /// <returns>An in filter.</returns>
-        public FilterDefinition<TDocument> In<TItem>(string field, IEnumerable<TItem> values)
-        {
-            return new ArrayOperatorFilterDefinition<TDocument, IEnumerable<TItem>, TItem>(
-                "$in",
-                new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field),
-                values);
-        }
-
-        /// <summary>
-        /// Creates an in filter.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An in filter.</returns>
-        public FilterDefinition<TDocument> In<TField, TItem>(Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values)
-            where TField : IEnumerable<TItem>
+        public FilterDefinition<TDocument> In<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, IEnumerable<TItem> values)
         {
-            return In(new ExpressionFieldDefinition<TDocument, TField>(field), values);
+            return In(new ExpressionFieldDefinition<TDocument>(field), values);
         }
 
         /// <summary>
@@ -669,43 +614,25 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a not in filter.
         /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A not in filter.</returns>
-        public FilterDefinition<TDocument> Nin<TField, TItem>(FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
-            where TField : IEnumerable<TItem>
+        public FilterDefinition<TDocument> Nin<TItem>(FieldDefinition<TDocument> field, IEnumerable<TItem> values)
         {
-            return new ArrayOperatorFilterDefinition<TDocument, TField, TItem>("$nin", field, values);
+            return new ArrayOperatorFilterDefinition<TDocument, TItem>("$nin", field, values);
         }
 
         /// <summary>
         /// Creates a not in filter.
         /// </summary>
-        /// <param name="field">The field.</param>
-        /// <param name="values">The values.</param>
-        /// <returns>A not in filter.</returns>
-        public FilterDefinition<TDocument> Nin<TItem>(string field, IEnumerable<TItem> values)
-        {
-            return new ArrayOperatorFilterDefinition<TDocument, IEnumerable<TItem>, TItem>(
-                "$nin",
-                new StringFieldDefinition<TDocument, IEnumerable<TItem>>(field),
-                values);
-        }
-
-        /// <summary>
-        /// Creates a not in filter.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A not in filter.</returns>
-        public FilterDefinition<TDocument> Nin<TField, TItem>(Expression<Func<TDocument, TField>> field, IEnumerable<TItem> values)
-            where TField : IEnumerable<TItem>
+        public FilterDefinition<TDocument> Nin<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, IEnumerable<TItem> values)
         {
-            return Nin(new ExpressionFieldDefinition<TDocument, TField>(field), values);
+            return Nin(new ExpressionFieldDefinition<TDocument>(field), values);
         }
 
         /// <summary>
@@ -1001,14 +928,13 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class ArrayOperatorFilterDefinition<TDocument, TField, TItem> : FilterDefinition<TDocument>
-        where TField : IEnumerable<TItem>
+    internal sealed class ArrayOperatorFilterDefinition<TDocument, TItem> : FilterDefinition<TDocument>
     {
         private readonly string _operatorName;
-        private readonly FieldDefinition<TDocument, TField> _field;
+        private readonly FieldDefinition<TDocument> _field;
         private readonly IEnumerable<TItem> _values;
 
-        public ArrayOperatorFilterDefinition(string operatorName, FieldDefinition<TDocument, TField> field, IEnumerable<TItem> values)
+        public ArrayOperatorFilterDefinition(string operatorName, FieldDefinition<TDocument> field, IEnumerable<TItem> values)
         {
             _operatorName = Ensure.IsNotNull(operatorName, operatorName);
             _field = Ensure.IsNotNull(field, "field");
@@ -1019,13 +945,21 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
-            var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
-            if (arraySerializer == null)
+            IBsonSerializer itemSerializer;
+            if (renderedField.FieldSerializer != null)
             {
-                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
-                throw new InvalidOperationException(message);
+                var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
+                if (arraySerializer == null)
+                {
+                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                    throw new InvalidOperationException(message);
+                }
+                itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
             }
-            var itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
+            else
+            {
+                itemSerializer = serializerRegistry.GetSerializer<TItem>();
+            }
 
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
@@ -1049,12 +983,12 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class ElementMatchFilterDefinition<TDocument, TField, TItem> : FilterDefinition<TDocument>
+    internal sealed class ElementMatchFilterDefinition<TDocument, TItem> : FilterDefinition<TDocument>
     {
-        private readonly FieldDefinition<TDocument, TField> _field;
+        private readonly FieldDefinition<TDocument> _field;
         private readonly FilterDefinition<TItem> _filter;
 
-        public ElementMatchFilterDefinition(FieldDefinition<TDocument, TField> field, FilterDefinition<TItem> filter)
+        public ElementMatchFilterDefinition(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
         {
             _field = Ensure.IsNotNull(field, "field");
             _filter = filter;
@@ -1064,13 +998,21 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
-            var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
-            if (arraySerializer == null)
+            IBsonSerializer<TItem> itemSerializer;
+            if (renderedField.FieldSerializer != null)
             {
-                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
-                throw new InvalidOperationException(message);
+                var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
+                if (arraySerializer == null)
+                {
+                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                    throw new InvalidOperationException(message);
+                }
+                itemSerializer = (IBsonSerializer<TItem>)arraySerializer.GetItemSerializationInfo().Serializer;
             }
-            var itemSerializer = (IBsonSerializer<TItem>)arraySerializer.GetItemSerializationInfo().Serializer;
+            else
+            {
+                itemSerializer = serializerRegistry.GetSerializer<TItem>();
+            }
 
             var renderedFilter = _filter.Render(itemSerializer, serializerRegistry);
 
@@ -1114,7 +1056,7 @@ namespace MongoDB.Driver
                     elemMatch.Add("$eq", condition);
                 }
             }
-            
+
             return document;
         }
     }

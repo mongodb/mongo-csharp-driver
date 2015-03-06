@@ -18,9 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -34,7 +32,6 @@ namespace MongoDB.Driver
         /// Combines an existing projection with a projection that filters the contents of an array.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="projection">The projection.</param>
         /// <param name="field">The field.</param>
@@ -42,8 +39,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TField, TItem>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument, TField> field, FilterDefinition<TItem> filter)
-            where TField : IEnumerable<TItem>
+        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TItem>(this ProjectionDefinition<TDocument> projection, FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
         {
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.ElemMatch(field, filter));
@@ -60,7 +56,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TItem>(this ProjectionDefinition<TDocument> projection, string field, FilterDefinition<TItem> filter)
+        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TItem>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, IEnumerable<TItem>>> field, FilterDefinition<TItem> filter)
         {
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.ElemMatch(field, filter));
@@ -70,7 +66,6 @@ namespace MongoDB.Driver
         /// Combines an existing projection with a projection that filters the contents of an array.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="projection">The projection.</param>
         /// <param name="field">The field.</param>
@@ -78,27 +73,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A combined projection.
         /// </returns>
-        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TField, TItem>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, TField>> field, FilterDefinition<TItem> filter)
-            where TField : IEnumerable<TItem>
-        {
-            var builder = Builders<TDocument>.Projection;
-            return builder.Combine(projection, builder.ElemMatch(field, filter));
-        }
-
-        /// <summary>
-        /// Combines an existing projection with a projection that filters the contents of an array.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="projection">The projection.</param>
-        /// <param name="field">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <returns>
-        /// A combined projection.
-        /// </returns>
-        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TField, TItem>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, TField>> field, Expression<Func<TItem, bool>> filter)
-            where TField : IEnumerable<TItem>
+        public static ProjectionDefinition<TDocument> ElemMatch<TDocument, TItem>(this ProjectionDefinition<TDocument> projection, Expression<Func<TDocument, IEnumerable<TItem>>> field, Expression<Func<TItem, bool>> filter)
         {
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.ElemMatch(field, filter));
@@ -247,17 +222,15 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a projection that filters the contents of an array.
         /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public ProjectionDefinition<TSource> ElemMatch<TField, TItem>(FieldDefinition<TSource, TField> field, FilterDefinition<TItem> filter)
-            where TField : IEnumerable<TItem>
+        public ProjectionDefinition<TSource> ElemMatch<TItem>(FieldDefinition<TSource> field, FilterDefinition<TItem> filter)
         {
-            return new ElementMatchProjectionDefinition<TSource, TField, TItem>(field, filter);
+            return new ElementMatchProjectionDefinition<TSource, TItem>(field, filter);
         }
 
         /// <summary>
@@ -269,43 +242,23 @@ namespace MongoDB.Driver
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public ProjectionDefinition<TSource> ElemMatch<TItem>(string field, FilterDefinition<TItem> filter)
+        public ProjectionDefinition<TSource> ElemMatch<TItem>(Expression<Func<TSource, IEnumerable<TItem>>> field, FilterDefinition<TItem> filter)
         {
-            return ElemMatch(
-                new StringFieldDefinition<TSource, IEnumerable<TItem>>(field),
-                filter);
+            return ElemMatch(new ExpressionFieldDefinition<TSource>(field), filter);
         }
 
         /// <summary>
         /// Creates a projection that filters the contents of an array.
         /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <returns>
         /// An array filtering projection.
         /// </returns>
-        public ProjectionDefinition<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> field, FilterDefinition<TItem> filter)
-            where TField : IEnumerable<TItem>
+        public ProjectionDefinition<TSource> ElemMatch<TItem>(Expression<Func<TSource, IEnumerable<TItem>>> field, Expression<Func<TItem, bool>> filter)
         {
-            return ElemMatch(new ExpressionFieldDefinition<TSource, TField>(field), filter);
-        }
-
-        /// <summary>
-        /// Creates a projection that filters the contents of an array.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <typeparam name="TItem">The type of the item.</typeparam>
-        /// <param name="field">The field.</param>
-        /// <param name="filter">The filter.</param>
-        /// <returns>
-        /// An array filtering projection.
-        /// </returns>
-        public ProjectionDefinition<TSource> ElemMatch<TField, TItem>(Expression<Func<TSource, TField>> field, Expression<Func<TItem, bool>> filter)
-            where TField : IEnumerable<TItem>
-        {
-            return ElemMatch(new ExpressionFieldDefinition<TSource, TField>(field), new ExpressionFilterDefinition<TItem>(filter));
+            return ElemMatch(new ExpressionFieldDefinition<TSource>(field), new ExpressionFilterDefinition<TItem>(filter));
         }
 
         /// <summary>
@@ -440,12 +393,12 @@ namespace MongoDB.Driver
         }
     }
 
-    internal sealed class ElementMatchProjectionDefinition<TSource, TField, TItem> : ProjectionDefinition<TSource>
+    internal sealed class ElementMatchProjectionDefinition<TSource, TItem> : ProjectionDefinition<TSource>
     {
-        private readonly FieldDefinition<TSource, TField> _field;
+        private readonly FieldDefinition<TSource> _field;
         private readonly FilterDefinition<TItem> _filter;
 
-        public ElementMatchProjectionDefinition(FieldDefinition<TSource, TField> field, FilterDefinition<TItem> filter)
+        public ElementMatchProjectionDefinition(FieldDefinition<TSource> field, FilterDefinition<TItem> filter)
         {
             _field = Ensure.IsNotNull(field, "field");
             _filter = filter;
@@ -455,13 +408,21 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(sourceSerializer, serializerRegistry);
 
-            var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
-            if (arraySerializer == null)
+            IBsonSerializer<TItem> itemSerializer;
+            if (renderedField.FieldSerializer != null)
             {
-                var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
-                throw new InvalidOperationException(message);
+                var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
+                if (arraySerializer == null)
+                {
+                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                    throw new InvalidOperationException(message);
+                }
+                itemSerializer = (IBsonSerializer<TItem>)arraySerializer.GetItemSerializationInfo().Serializer;
             }
-            var itemSerializer = (IBsonSerializer<TItem>)arraySerializer.GetItemSerializationInfo().Serializer;
+            else
+            {
+                itemSerializer = serializerRegistry.GetSerializer<TItem>();
+            }
 
             var renderedFilter = _filter.Render(itemSerializer, serializerRegistry);
 
