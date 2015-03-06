@@ -241,7 +241,7 @@ namespace MongoDB.Driver
                     throw new InvalidOperationException("Unknown value for " + typeof(SortDirection) + ".");
             }
 
-            return new BsonDocument(renderedField, value);
+            return new BsonDocument(renderedField.FieldName, value);
         }
     }
 }

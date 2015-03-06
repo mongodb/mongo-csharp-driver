@@ -133,7 +133,7 @@ namespace MongoDB.Driver
                 (s, sr) => new RenderedPipelineStageDefinition<TNewResult>(
                     operatorName, new BsonDocument(
                         operatorName, 
-                        "$" + field.Render(s, sr)), 
+                        "$" + field.Render(s, sr).FieldName),
                     resultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>()));
 
             return AppendStage<TNewResult>(stage);

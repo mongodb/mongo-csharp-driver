@@ -481,7 +481,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _field.Render(sourceSerializer, serializerRegistry);
-            return new BsonDocument(renderedField + ".$", 1);
+            return new BsonDocument(renderedField.FieldName + ".$", 1);
         }
     }
 
@@ -499,7 +499,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _field.Render(sourceSerializer, serializerRegistry);
-            return new BsonDocument(renderedField, _value);
+            return new BsonDocument(renderedField.FieldName, _value);
         }
     }
 }

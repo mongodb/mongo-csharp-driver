@@ -27,7 +27,43 @@ using MongoDB.Driver.Linq.Utils;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// A rendered field name.
+    /// A rendered field.
+    /// </summary>
+    public sealed class RenderedFieldDefinition
+    {
+        private readonly string _fieldName;
+        private readonly IBsonSerializer _fieldSerializer;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenderedFieldDefinition{TField}" /> class.
+        /// </summary>
+        /// <param name="fieldName">The field name.</param>
+        /// <param name="fieldSerializer">The field serializer.</param>
+        public RenderedFieldDefinition(string fieldName, IBsonSerializer fieldSerializer = null)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, "fieldName");
+            _fieldSerializer = fieldSerializer;
+        }
+
+        /// <summary>
+        /// Gets the field name.
+        /// </summary>
+        public string FieldName
+        {
+            get { return _fieldName; }
+        }
+
+        /// <summary>
+        /// Gets the field serializer.
+        /// </summary>
+        public IBsonSerializer FieldSerializer
+        {
+            get { return _fieldSerializer; }
+        }
+    }
+
+    /// <summary>
+    /// A rendered field.
     /// </summary>
     /// <typeparam name="TField">The type of the field.</typeparam>
     public sealed class RenderedFieldDefinition<TField>
@@ -75,7 +111,7 @@ namespace MongoDB.Driver
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="String"/>.</returns>
-        public abstract string Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        public abstract RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="FieldDefinition{TDocument}"/>.
@@ -134,27 +170,37 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class ExpressionFieldDefinition<TDocument> : FieldDefinition<TDocument>
     {
-        private readonly Expression<Func<TDocument, object>> _expression;
+        private readonly LambdaExpression _expression;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExpressionFieldDefinition{TDocument}" /> class.
         /// </summary>
         /// <param name="expression">The expression.</param>
-        public ExpressionFieldDefinition(Expression<Func<TDocument, object>> expression)
+        public ExpressionFieldDefinition(LambdaExpression expression)
         {
             _expression = Ensure.IsNotNull(expression, "expression");
+
+            if(expression.Parameters.Count != 1)
+            {
+                throw new ArgumentException("Only a single parameter lambda expression is allowed.", "expression");
+            }
+            if(expression.Parameters[0].Type != typeof(TDocument))
+            {
+                var message = string.Format("The lambda expression parameter must be of type {0}.", typeof(TDocument));
+                throw new ArgumentException(message);
+            }
         }
 
         /// <summary>
         /// Gets the expression.
         /// </summary>
-        public Expression<Func<TDocument, object>> Expression
+        public LambdaExpression Expression
         {
             get { return _expression; }
         }
 
         /// <inheritdoc />
-        public override string Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var binder = new SerializationInfoBinder(serializerRegistry);
             var parameterSerializationInfo = new BsonSerializationInfo(null, documentSerializer, documentSerializer.ValueType);
@@ -167,7 +213,7 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException(message);
             }
 
-            return bound.SerializationInfo.ElementName;
+            return new RenderedFieldDefinition(bound.SerializationInfo.ElementName, bound.SerializationInfo.Serializer);
         }
     }
 
@@ -233,13 +279,13 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override string Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             string resolvedName;
             IBsonSerializer resolvedSerializer;
             StringFieldDefinitionHelper.Resolve<TDocument>(_fieldName, documentSerializer, out resolvedName, out resolvedSerializer);
 
-            return resolvedName;
+            return new RenderedFieldDefinition(resolvedName, resolvedSerializer);
         }
     }
 

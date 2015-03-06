@@ -1744,7 +1744,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
-            return new BsonDocument(_operatorName, new BsonDocument(renderedField, _value));
+            return new BsonDocument(_operatorName, new BsonDocument(renderedField.FieldName, _value));
         }
     }
 

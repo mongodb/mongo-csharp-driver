@@ -478,7 +478,7 @@ namespace MongoDB.Driver
                     throw new InvalidOperationException("Unknown value for " + typeof(SortDirection) + ".");
             }
 
-            return new BsonDocument(renderedField, value);
+            return new BsonDocument(renderedField.FieldName, value);
         }
     }
 
@@ -497,11 +497,11 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
 
-            var document = new BsonDocument(renderedField, "geoHaystack");
+            var document = new BsonDocument(renderedField.FieldName, "geoHaystack");
             if (_additionalFieldName != null)
             {
-                var additionalFieldName = _additionalFieldName.Render(documentSerializer, serializerRegistry);
-                document.Add(additionalFieldName, 1);
+                var additionalRenderedField = _additionalFieldName.Render(documentSerializer, serializerRegistry);
+                document.Add(additionalRenderedField.FieldName, 1);
             }
 
             return document;
@@ -522,7 +522,7 @@ namespace MongoDB.Driver
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
-            return new BsonDocument(renderedField, _type);
+            return new BsonDocument(renderedField.FieldName, _type);
         }
     }
 }
