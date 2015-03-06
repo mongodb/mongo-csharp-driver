@@ -19,30 +19,26 @@ namespace MongoDB.Shared
 {
     internal static class PowerOf2
     {
-        public static bool IsPowerOf2(int x)
+        public static bool IsPowerOf2(int n)
         {
-            return x == RoundUpToPowerOf2(x);
+            return n == RoundUpToPowerOf2(n);
         }
 
-        public static int RoundUpToPowerOf2(int x)
+        public static int RoundUpToPowerOf2(int n)
         {
-            if (x < 0)
+            if (n < 0 || n > 0x40000000)
             {
-                throw new ArgumentException("x is negative.", "x");
-            }
-            if (x > 0x40000000)
-            {
-                throw new ArgumentException("x is greater than 0x40000000.", "x");
+                throw new ArgumentOutOfRangeException("n");
             }
 
             // see: Hacker's Delight, by Henry S. Warren
-            x = x - 1;
-            x = x | (x >> 1);
-            x = x | (x >> 2);
-            x = x | (x >> 4);
-            x = x | (x >> 8);
-            x = x | (x >> 16);
-            return x + 1;
+            n = n - 1;
+            n = n | (n >> 1);
+            n = n | (n >> 2);
+            n = n | (n >> 4);
+            n = n | (n >> 8);
+            n = n | (n >> 16);
+            return n + 1;
         }
     }
 }
