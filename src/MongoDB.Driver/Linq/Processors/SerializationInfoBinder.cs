@@ -179,8 +179,17 @@ namespace MongoDB.Driver.Linq.Processors
                 var serializationExpression = unaryExpression.Operand as ISerializationExpression;
                 if (serializationExpression != null)
                 {
-                    var serializer = _serializerRegistry.GetSerializer(node.Type);
-                    var serializationInfo = new BsonSerializationInfo(serializationExpression.SerializationInfo.ElementName, serializer, node.Type);
+                    BsonSerializationInfo serializationInfo;
+                    if (!unaryExpression.Type.IsAssignableFrom(unaryExpression.Operand.Type))
+                    {
+                        // only lookup a new serializer if the cast is "unnecessary"
+                        var serializer = _serializerRegistry.GetSerializer(node.Type);
+                        serializationInfo = new BsonSerializationInfo(serializationExpression.SerializationInfo.ElementName, serializer, node.Type);
+                    }
+                    else
+                    {
+                        serializationInfo = serializationExpression.SerializationInfo;
+                    }
                     return new SerializationExpression(unaryExpression, serializationInfo);
                 }
             }

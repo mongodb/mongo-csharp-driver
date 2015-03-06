@@ -427,6 +427,34 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 "{A: {$ne: 'Awesome'}}");
         }
 
+        [Test]
+        public async Task Binding_through_an_unnecessary_conversion()
+        {
+            var root = await Find(_collection, 10);
+
+            root.Should().NotBeNull();
+            root.A.Should().Be("Awesome");
+        }
+
+        [Test]
+        public async Task Binding_through_an_unnecessary_conversion_with_a_builder()
+        {
+            var root = await FindWithBuilder(_collection, 10);
+
+            root.Should().NotBeNull();
+            root.A.Should().Be("Awesome");
+        }
+
+        private Task<T> Find<T>(IMongoCollection<T> collection, int id) where T : IRoot
+        {
+            return collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        }
+
+        private Task<T> FindWithBuilder<T>(IMongoCollection<T> collection, int id) where T : IRoot
+        {
+            return collection.Find(Builders<T>.Filter.Eq(x => x.Id, id)).FirstOrDefaultAsync();
+        }
+
         public void Assert(Expression<Func<Root, bool>> filter, int expectedCount, string expectedFilter)
         {
             Assert(filter, expectedCount, BsonDocument.Parse(expectedFilter));
