@@ -113,7 +113,8 @@ namespace MongoDB.Bson.IO
             EnsureValidPosition(position);
             ThrowIfDisposed();
 
-            return _buffer.AccessBackingBytes(position + _offset);
+            var segment = _buffer.AccessBackingBytes(position + _offset);
+            return new ArraySegment<byte>(segment.Array, segment.Offset, _length - position);
         }
 
         /// <inheritdoc/>

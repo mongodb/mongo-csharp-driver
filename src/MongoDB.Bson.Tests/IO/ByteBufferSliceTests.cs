@@ -30,14 +30,26 @@ namespace MongoDB.Bson.Tests.IO
     public class ByteBufferSliceTests
     {
         [Test]
-        public void AccessBackingBytes_should_adjust_position()
+        public void AccessBackingBytes_should_adjust_count()
         {
-            var subject = CreateSubjectWithFakeBuffer();
-            var buffer = subject.Buffer;
+            var bytes = new byte[4];
+            var buffer = new ByteArrayBuffer(bytes, isReadOnly: true);
+            var subject = new ByteBufferSlice(buffer, 1, 2);
 
             var result = subject.AccessBackingBytes(0);
 
-            buffer.Received(1).AccessBackingBytes(1);
+            result.Count.Should().Be(2); // not 3
+        }
+
+        [Test]
+        public void AccessBackingBytes_should_adjust_position()
+        {
+            var subject = CreateSubjectWithFakeBuffer();
+            subject.Buffer.AccessBackingBytes(1).Returns(new ArraySegment<byte>(new byte[3], 1, 2));
+
+            var result = subject.AccessBackingBytes(0);
+
+            subject.Buffer.Received(1).AccessBackingBytes(1);
         }
 
         [Test]

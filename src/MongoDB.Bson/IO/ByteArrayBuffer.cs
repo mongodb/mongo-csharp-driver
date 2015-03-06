@@ -14,20 +14,20 @@
 */
 
 using System;
-using System.IO;
+using MongoDB.Shared;
 
 namespace MongoDB.Bson.IO
 {
     /// <summary>
     /// An IByteBuffer that is backed by a contiguous byte array.
     /// </summary>
-    public class ByteArrayBuffer : IByteBuffer
+    public sealed class ByteArrayBuffer : IByteBuffer
     {
         // private fields
-        private bool _disposed;
         private byte[] _bytes;
-        private int _length;
+        private bool _disposed;
         private bool _isReadOnly;
+        private int _length;
 
         // constructors
         /// <summary>
@@ -36,17 +36,17 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">The bytes.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
         public ByteArrayBuffer(byte[] bytes, bool isReadOnly = false)
-            : this(bytes.Length, bytes, isReadOnly)
+            : this(bytes, bytes == null ? 0 : bytes.Length, isReadOnly)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ByteArrayBuffer"/> class.
         /// </summary>
-        /// <param name="length">The length.</param>
         /// <param name="bytes">The bytes.</param>
+        /// <param name="length">The length.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
-        public ByteArrayBuffer(int length, byte[] bytes, bool isReadOnly = false)
+        public ByteArrayBuffer(byte[] bytes, int length, bool isReadOnly = false)
         {
             if (bytes == null)
             {
@@ -94,30 +94,14 @@ namespace MongoDB.Bson.IO
             set
             {
                 ThrowIfDisposed();
-                if (value < 0)
+                if (value < 0 || value > _bytes.Length)
                 {
-                    throw new ArgumentException("Length is negative.", "value");
-                }
-                if (value > _bytes.Length)
-                {
-                    throw new ArgumentException("Length extends beyond the end of the buffer.", "value");
+                    throw new ArgumentOutOfRangeException("value");
                 }
                 EnsureIsWritable();
 
                 _length = value;
             }
-        }
-
-        // protected properties
-        /// <summary>
-        /// Gets a value indicating whether this <see cref="ByteArrayBuffer"/> is disposed.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if disposed; otherwise, <c>false</c>.
-        /// </value>
-        protected bool Disposed
-        {
-            get { return _disposed; }
         }
 
         // public methods
@@ -127,7 +111,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
 
             return new ArraySegment<byte>(_bytes, position, _length - position);
@@ -139,16 +123,13 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
-            if (count < 0)
+            if (count < 0 || position + count > _length)
             {
-                throw new ArgumentException("Count is negative.", "count");
+                throw new ArgumentOutOfRangeException("count");
             }
-            if (position + count > _length)
-            {
-                throw new ArgumentException("Count extends past the end of the buffer.", "count");
-            }
+            EnsureIsWritable();
 
             Array.Clear(_bytes, position, count);
         }
@@ -156,7 +137,7 @@ namespace MongoDB.Bson.IO
         /// <inheritdoc/>
         public void Dispose()
         {
-            Dispose(true);
+            _disposed = true;
             GC.SuppressFinalize(this);
         }
 
@@ -167,45 +148,14 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentException("Capacity is negative.", "capacity");
             }
+            ThrowIfDisposed();
+            EnsureIsWritable();
 
             if (capacity > _bytes.Length)
             {
-                var powerOf2 = 32;
-                while (powerOf2 < capacity)
-                {
-                    powerOf2 <<= 1;
-                }
+                var powerOf2 = Math.Max(32, PowerOf2.RoundUpToPowerOf2(capacity));
                 SetCapacity(powerOf2);
             }
-        }
-
-        /// <inheritdoc/>
-        public virtual IByteBuffer GetSlice(int position, int length)
-        {
-            ThrowIfDisposed();
-            if (position < 0 || position > _length)
-            {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
-            }
-            if (length < 0)
-            {
-                throw new ArgumentException("Length is negative.", "length");
-            }
-            if (position + length > _length)
-            {
-                throw new ArgumentException("Length extends past the end of the buffer.", "length");
-            }
-            EnsureIsReadOnly();
-
-            var forkedBuffer = new ByteArrayBuffer(_length, _bytes, isReadOnly: true);
-            return new ByteBufferSlice(forkedBuffer, position, length);
-        }
-
-        /// <inheritdoc/>
-        public void MakeReadOnly()
-        {
-            ThrowIfDisposed();
-            _isReadOnly = true;
         }
 
         /// <inheritdoc/>
@@ -214,7 +164,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
 
             return _bytes[position];
@@ -226,30 +176,47 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
             if (destination == null)
             {
                 throw new ArgumentNullException("destination");
             }
-            if (offset < 0)
+            if (offset < 0 || offset > destination.Length)
             {
-                throw new ArgumentException("Offset is negative.", "offset");
+                throw new ArgumentOutOfRangeException("offset");
             }
-            if (count < 0)
+            if (count < 0 || position + count > _length || offset + count > destination.Length)
             {
-                throw new ArgumentException("Count is negative.", "count");
-            }
-            if (position + count > _length)
-            {
-                throw new ArgumentException("Count extends past the end of the buffer.", "count");
-            }
-            if (offset + count > destination.Length)
-            {
-                throw new ArgumentException("Count extends past the end of the destination.", "count");
+                throw new ArgumentOutOfRangeException("count");
             }
 
             Buffer.BlockCopy(_bytes, position, destination, offset, count);
+        }
+
+        /// <inheritdoc/>
+        public IByteBuffer GetSlice(int position, int length)
+        {
+            ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position");
+            }
+            if (length < 0 || position + length > _length)
+            {
+                throw new ArgumentOutOfRangeException("length");
+            }
+            EnsureIsReadOnly();
+
+            var forkedBuffer = new ByteArrayBuffer(_bytes, _length, isReadOnly: true);
+            return new ByteBufferSlice(forkedBuffer, position, length);
+        }
+
+        /// <inheritdoc/>
+        public void MakeReadOnly()
+        {
+            ThrowIfDisposed();
+            _isReadOnly = true;
         }
 
         /// <inheritdoc/>
@@ -258,7 +225,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
             EnsureIsWritable();
 
@@ -271,7 +238,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
             if (source == null)
             {
@@ -279,41 +246,19 @@ namespace MongoDB.Bson.IO
             }
             if (offset < 0 || offset > source.Length)
             {
-                throw new ArgumentOutOfRangeException("offset", "Offset is outside of the source.");
+                throw new ArgumentOutOfRangeException("offset");
             }
-            if (count < 0)
+            if (count < 0 || position + count > _length || offset + count > source.Length)
             {
-                throw new ArgumentException("Count is negative.", "count");
-            }
-            if (position + count > _length)
-            {
-                throw new ArgumentException("Count extends past the end of the buffer.", "count");
-            }
-            if (offset + count > source.Length)
-            {
-                throw new ArgumentException("Count extends past the end of the source.", "count");
+                throw new ArgumentOutOfRangeException("count");
             }
             EnsureIsWritable();
 
             Buffer.BlockCopy(source, offset, _bytes, position, count);
         }
 
-        // protected methods
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            // subclasses override this method if they have anything to Dispose
-            _disposed = true;
-        }
-
-        /// <summary>
-        /// Ensures the buffer is read only.
-        /// </summary>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer is not read only.</exception>
-        protected void EnsureIsReadOnly()
+        // private methods
+        private void EnsureIsReadOnly()
         {
             if (!_isReadOnly)
             {
@@ -322,11 +267,7 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Ensures the buffer is writable.
-        /// </summary>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer is not writable.</exception>
-        protected void EnsureIsWritable()
+        private void EnsureIsWritable()
         {
             if (_isReadOnly)
             {
@@ -335,25 +276,20 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// Throws if disposed.
-        /// </summary>
-        /// <exception cref="System.ObjectDisposedException"></exception>
-        protected void ThrowIfDisposed()
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().Name);
-            }
-        }
-
-        // private methods
         private void SetCapacity(int capacity)
         {
             var oldBytes = _bytes;
             _bytes = new byte[capacity];
             var bytesToCopy = capacity < oldBytes.Length ? capacity : oldBytes.Length;
             Buffer.BlockCopy(oldBytes, 0, _bytes, 0, bytesToCopy);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
         }
     }
 }
