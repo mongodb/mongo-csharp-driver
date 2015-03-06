@@ -76,8 +76,8 @@ namespace MongoDB.Bson.Tests.IO
         {
             var result = BsonChunkPool.Default;
 
-            result.ChunkSize.Should().Be(16 * 1024);
-            result.MaxPoolSize.Should().Be(2048);
+            result.ChunkSize.Should().Be(64 * 1024);
+            result.MaxPoolSize.Should().Be(8192);
         }
 
         [Test]

@@ -26,6 +26,23 @@ namespace MongoDB.Driver.Core.Misc
         // static methods
         public static async Task ReadBytesAsync(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+            if (offset < 0 || offset > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("offset");
+            }
+            if (count < 0 || offset + count > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
             while (count > 0)
             {
                 var bytesRead = await stream.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
@@ -40,6 +57,23 @@ namespace MongoDB.Driver.Core.Misc
 
         public static async Task ReadBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+            if (offset < 0 || offset > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("offset");
+            }
+            if (count < 0 || offset + count > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
             while (count > 0)
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
@@ -56,10 +90,27 @@ namespace MongoDB.Driver.Core.Misc
 
         public static async Task WriteBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+            if (offset < 0 || offset > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("offset");
+            }
+            if (count < 0 || offset + count > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
             while (count > 0)
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
-                var bytesToWrite = Math.Min(count, backingBytes.Count - backingBytes.Offset);
+                var bytesToWrite = Math.Min(count, backingBytes.Count);
                 await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite, cancellationToken).ConfigureAwait(false);
                 offset += bytesToWrite;
                 count -= bytesToWrite;
