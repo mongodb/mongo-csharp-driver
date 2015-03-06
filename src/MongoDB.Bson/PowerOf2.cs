@@ -15,7 +15,7 @@
 
 using System;
 
-namespace MongoDB.Shared
+namespace MongoDB.Bson
 {
     internal static class PowerOf2
     {

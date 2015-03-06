@@ -241,7 +241,7 @@
     <Compile Include="Serialization\Serializers\SerializeInterfaceTests.cs" />
     <Compile Include="Serialization\IdGenerators\IdGeneratorsTests.cs" />
     <Compile Include="Serialization\Serializers\VersionSerializerTests.cs" />
-    <Compile Include="Shared\PowerOf2Tests.cs" />
+    <Compile Include="PowerOf2Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

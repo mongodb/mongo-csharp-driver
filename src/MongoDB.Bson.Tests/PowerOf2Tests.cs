@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace MongoDB.Shared.Tests
+namespace MongoDB.Bson.Tests
 {
     [TestFixture]
     public class PowerOf2Tests

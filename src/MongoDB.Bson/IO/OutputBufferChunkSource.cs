@@ -14,7 +14,6 @@
 */
 
 using System;
-using MongoDB.Shared;
 
 namespace MongoDB.Bson.IO
 {

@@ -73,9 +73,6 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Hasher.cs</Link>
     </Compile>
-    <Compile Include="..\MongoDB.Shared\PowerOf2.cs">
-      <Link>PowerOf2.cs</Link>
-    </Compile>
     <Compile Include="BsonExtensionMethods.cs" />
     <Compile Include="Exceptions\DuplicateBsonMemberMapAttributeException.cs" />
     <Compile Include="IO\ArrayElementNameAccelerator.cs" />
@@ -124,6 +121,7 @@
     <Compile Include="ObjectModel\MaterializedOnDemandBsonDocument.cs" />
     <Compile Include="ObjectModel\RawBsonArray.cs" />
     <Compile Include="ObjectModel\RawBsonDocument.cs" />
+    <Compile Include="PowerOf2.cs" />
     <Compile Include="Serialization\AttributedSerializationProvider.cs" />
     <Compile Include="Serialization\Attributes\BsonConstructorAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonDateTimeOptionsAttribute.cs" />
