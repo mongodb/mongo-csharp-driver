@@ -107,6 +107,78 @@ namespace MongoDB.Driver
 
             return new PipelineStagePipelineDefinition<TInput, TOutput>(stages);
         }
+
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="T:BsonDocument[]"/> to <see cref="PipelineDefinition{TInput, TOutput}"/>.
+        /// </summary>
+        /// <param name="stages">The stages.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator PipelineDefinition<TInput, TOutput>(BsonDocument[] stages)
+        {
+            if (stages == null)
+            {
+                return null;
+            }
+
+            return new BsonDocumentPipelineDefinition<TInput, TOutput>(stages);
+        }
+
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="List{BsonDocument}"/> to <see cref="PipelineDefinition{TInput, TOutput}"/>.
+        /// </summary>
+        /// <param name="stages">The stages.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator PipelineDefinition<TInput, TOutput>(List<BsonDocument> stages)
+        {
+            if (stages == null)
+            {
+                return null;
+            }
+
+            return new BsonDocumentPipelineDefinition<TInput, TOutput>(stages);
+        }
+    }
+
+    /// <summary>
+    /// A pipeline composed of instances of <see cref="BsonDocument"/>.
+    /// </summary>
+    /// <typeparam name="TInput">The type of the input.</typeparam>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
+    public sealed class BsonDocumentPipelineDefinition<TInput, TOutput> : PipelineDefinition<TInput, TOutput>
+    {
+        private readonly IBsonSerializer<TOutput> _outputSerializer;
+        private readonly List<BsonDocument> _stages;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BsonDocumentPipelineDefinition{TInput, TOutput}"/> class.
+        /// </summary>
+        /// <param name="stages">The stages.</param>
+        /// <param name="outputSerializer">The output serializer.</param>
+        public BsonDocumentPipelineDefinition(IEnumerable<BsonDocument> stages, IBsonSerializer<TOutput> outputSerializer = null)
+        {
+            _stages = Ensure.IsNotNull(stages, "stages").ToList();
+            _outputSerializer = outputSerializer;
+        }
+
+        /// <summary>
+        /// Gets the stages.
+        /// </summary>
+        public IList<BsonDocument> Stages
+        {
+            get { return _stages; }
+        }
+
+        /// <inheritdoc />
+        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return new RenderedPipelineDefinition<TOutput>(
+                _stages,
+                _outputSerializer ?? (inputSerializer as IBsonSerializer<TOutput>) ?? serializerRegistry.GetSerializer<TOutput>());
+        }
     }
 
     /// <summary>
