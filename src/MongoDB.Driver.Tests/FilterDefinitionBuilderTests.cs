@@ -149,6 +149,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.Eq("x", 10), "{x: 10}");
+            Assert(subject.AnyEq("x", 10), "{x: 10}");
         }
 
         [Test]
@@ -158,6 +159,11 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Eq(x => x.FirstName, "Jack"), "{fn: 'Jack'}");
             Assert(subject.Eq("FirstName", "Jim"), "{fn: 'Jim'}");
             Assert(subject.Eq("firstName", "Jim"), "{firstName: 'Jim'}");
+            Assert(subject.Eq(x => x.FavoriteColors, new[] { "yellow", "green" }), "{colors: ['yellow', 'green']}");
+            Assert(subject.Eq("FavoriteColors", new[] { "yellow", "green" }), "{colors: ['yellow', 'green']}");
+
+            Assert(subject.AnyEq(x => x.FavoriteColors, "yellow"), "{colors: 'yellow'}");
+            Assert(subject.AnyEq("FavoriteColors", "yellow"), "{colors: 'yellow'}");
         }
 
         [Test]
@@ -326,6 +332,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.Gt("x", 10), "{x: {$gt: 10}}");
+            Assert(subject.AnyGt("x", 10), "{x: {$gt: 10}}");
         }
 
         [Test]
@@ -334,6 +341,9 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
             Assert(subject.Gt(x => x.Age, 10), "{age: {$gt: 10}}");
             Assert(subject.Gt("Age", 10), "{age: {$gt: 10}}");
+
+            Assert(subject.AnyGt(x => x.FavoriteColors, "green"), "{colors: {$gt: 'green'}}");
+            Assert(subject.AnyGt("FavoriteColors", "green"), "{colors: {$gt: 'green'}}");
         }
 
         [Test]
@@ -342,6 +352,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.Gte("x", 10), "{x: {$gte: 10}}");
+            Assert(subject.AnyGte("x", 10), "{x: {$gte: 10}}");
         }
 
         [Test]
@@ -350,6 +361,9 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
             Assert(subject.Gte(x => x.Age, 10), "{age: {$gte: 10}}");
             Assert(subject.Gte("Age", 10), "{age: {$gte: 10}}");
+
+            Assert(subject.AnyGte(x => x.FavoriteColors, "green"), "{colors: {$gte: 'green'}}");
+            Assert(subject.AnyGte("FavoriteColors", "green"), "{colors: {$gte: 'green'}}");
         }
 
         [Test]
@@ -358,14 +372,18 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.In("x", new[] { 10, 20 }), "{x: {$in: [10,20]}}");
+            Assert(subject.AnyIn("x", new[] { 10, 20 }), "{x: {$in: [10,20]}}");
         }
 
         [Test]
         public void In_Typed()
         {
             var subject = CreateSubject<Person>();
-            Assert(subject.In(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
-            Assert(subject.In("FavoriteColors", new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
+            Assert(subject.In(x => x.Age, new[] { 10, 20 }), "{age: {$in: [10, 20]}}");
+            Assert(subject.In("Age", new[] { 10, 20 }), "{age: {$in: [10, 20]}}");
+
+            Assert(subject.AnyIn(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
+            Assert(subject.AnyIn("FavoriteColors", new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
         }
 
         [Test]
@@ -374,6 +392,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.Lt("x", 10), "{x: {$lt: 10}}");
+            Assert(subject.AnyLt("x", 10), "{x: {$lt: 10}}");
         }
 
         [Test]
@@ -382,6 +401,9 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
             Assert(subject.Lt(x => x.Age, 10), "{age: {$lt: 10}}");
             Assert(subject.Lt("Age", 10), "{age: {$lt: 10}}");
+
+            Assert(subject.AnyLt(x => x.FavoriteColors, "green"), "{colors: {$lt: 'green'}}");
+            Assert(subject.AnyLt("FavoriteColors", "green"), "{colors: {$lt: 'green'}}");
         }
 
         [Test]
@@ -390,6 +412,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.Lte("x", 10), "{x: {$lte: 10}}");
+            Assert(subject.AnyLte("x", 10), "{x: {$lte: 10}}");
         }
 
         [Test]
@@ -398,6 +421,9 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
             Assert(subject.Lte(x => x.Age, 10), "{age: {$lte: 10}}");
             Assert(subject.Lte("Age", 10), "{age: {$lte: 10}}");
+
+            Assert(subject.AnyLte(x => x.FavoriteColors, "green"), "{colors: {$lte: 'green'}}");
+            Assert(subject.AnyLte("FavoriteColors", "green"), "{colors: {$lte: 'green'}}");
         }
 
         [Test]
@@ -414,8 +440,10 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
             Assert(subject.Mod(x => x.Age, 10, 4), "{age: {$mod: [NumberLong(10), NumberLong(4)]}}");
             Assert(subject.Mod("Age", 10, 4), "{age: {$mod: [NumberLong(10), NumberLong(4)]}}");
-        }
 
+            Assert(subject.Mod(x => x.FavoriteColors, 10, 4), "{colors: {$mod: [NumberLong(10), NumberLong(4)]}}");
+            Assert(subject.Mod("FavoriteColors", 10, 4), "{colors: {$mod: [NumberLong(10), NumberLong(4)]}}");
+        }
 
         [Test]
         public void Ne()
@@ -423,6 +451,7 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.Ne("x", 10), "{x: {$ne: 10}}");
+            Assert(subject.AnyNe("x", 10), "{x: {$ne: 10}}");
         }
 
         [Test]
@@ -431,6 +460,9 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
             Assert(subject.Ne(x => x.Age, 10), "{age: {$ne: 10}}");
             Assert(subject.Ne("Age", 10), "{age: {$ne: 10}}");
+
+            Assert(subject.AnyNe(x => x.FavoriteColors, "green"), "{colors: {$ne: 'green'}}");
+            Assert(subject.AnyNe("FavoriteColors", "green"), "{colors: {$ne: 'green'}}");
         }
 
         [Test]
@@ -527,14 +559,18 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.Nin("x", new[] { 10, 20 }), "{x: {$nin: [10,20]}}");
+            Assert(subject.AnyNin("x", new[] { 10, 20 }), "{x: {$nin: [10,20]}}");
         }
 
         [Test]
         public void Nin_Typed()
         {
             var subject = CreateSubject<Person>();
-            Assert(subject.Nin(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$nin: ['blue','green']}}");
-            Assert(subject.Nin("FavoriteColors", new[] { "blue", "green" }), "{colors: {$nin: ['blue','green']}}");
+            Assert(subject.Nin(x => x.Age, new[] { 10, 20 }), "{age: {$nin: [10, 20]}}");
+            Assert(subject.Nin("Age", new[] { 10, 20 }), "{age: {$nin: [10, 20]}}");
+
+            Assert(subject.AnyNin(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$nin: ['blue','green']}}");
+            Assert(subject.AnyNin("FavoriteColors", new[] { "blue", "green" }), "{colors: {$nin: ['blue','green']}}");
         }
 
         [Test]
@@ -599,7 +635,7 @@ namespace MongoDB.Driver.Tests
         public void Not_with_not_in()
         {
             var subject = CreateSubject<BsonDocument>();
-            var filter = subject.Not(subject.Nin("a", new[] { 10, 20 }));
+            var filter = subject.Not(subject.AnyNin("a", new[] { 10, 20 }));
 
             Assert(filter, "{a: {$in: [10, 20]}}");
         }
@@ -676,6 +712,9 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<Person>();
             Assert(subject.Regex(x => x.FirstName, "/abc/"), "{fn: /abc/}");
             Assert(subject.Regex("FirstName", "/abc/"), "{fn: /abc/}");
+
+            Assert(subject.Regex(x => x.FavoriteColors, "/abc/"), "{colors: /abc/}");
+            Assert(subject.Regex("FavoriteColors", "/abc/"), "{colors: /abc/}");
         }
 
         [Test]

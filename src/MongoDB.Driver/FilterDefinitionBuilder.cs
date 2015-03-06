@@ -76,6 +76,213 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates an equality filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>An equality filter.</returns>
+        public FilterDefinition<TDocument> AnyEq<TItem>(FieldDefinition<TDocument> field, TItem value)
+        {
+            return new ArrayAsSingleItemSimpleFilterDefinition<TDocument, TItem>(field, value);
+        }
+
+        /// <summary>
+        /// Creates an equality filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>An equality filter.</returns>
+        public FilterDefinition<TDocument> AnyEq<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, TItem value)
+        {
+            return AnyEq(new ExpressionFieldDefinition<TDocument>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a greater than filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than filter.</returns>
+        public FilterDefinition<TDocument> AnyGt<TItem>(FieldDefinition<TDocument> field, TItem value)
+        {
+            return new ArrayAsSingleItemOperatorFilterDefinition<TDocument, TItem>(
+                "$gt",
+                field,
+                value);
+        }
+
+        /// <summary>
+        /// Creates a greater than filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than filter.</returns>
+        public FilterDefinition<TDocument> AnyGt<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, TItem value)
+        {
+            return AnyGt(new ExpressionFieldDefinition<TDocument>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a greater than or equal filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than or equal filter.</returns>
+        public FilterDefinition<TDocument> AnyGte<TItem>(FieldDefinition<TDocument> field, TItem value)
+        {
+            return new ArrayAsSingleItemOperatorFilterDefinition<TDocument, TItem>(
+                "$gte",
+                field,
+                value);
+        }
+
+        /// <summary>
+        /// Creates a greater than or equal filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A greater than or equal filter.</returns>
+        public FilterDefinition<TDocument> AnyGte<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, TItem value)
+        {
+            return AnyGte(new ExpressionFieldDefinition<TDocument>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a less than filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than filter.</returns>
+        public FilterDefinition<TDocument> AnyLt<TItem>(FieldDefinition<TDocument> field, TItem value)
+        {
+            return new ArrayAsSingleItemOperatorFilterDefinition<TDocument, TItem>(
+                "$lt",
+                field,
+                value);
+        }
+
+        /// <summary>
+        /// Creates a less than filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than filter.</returns>
+        public FilterDefinition<TDocument> AnyLt<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, TItem value)
+        {
+            return AnyLt(new ExpressionFieldDefinition<TDocument>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a less than or equal filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than or equal filter.</returns>
+        public FilterDefinition<TDocument> AnyLte<TItem>(FieldDefinition<TDocument> field, TItem value)
+        {
+            return new ArrayAsSingleItemOperatorFilterDefinition<TDocument, TItem>(
+                "$lte",
+                field,
+                value);
+        }
+
+        /// <summary>
+        /// Creates a less than or equal filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A less than or equal filter.</returns>
+        public FilterDefinition<TDocument> AnyLte<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, TItem value)
+        {
+            return AnyLte(new ExpressionFieldDefinition<TDocument>(field), value);
+        }
+
+        /// <summary>
+        /// Creates an in filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>An in filter.</returns>
+        public FilterDefinition<TDocument> AnyIn<TItem>(FieldDefinition<TDocument> field, IEnumerable<TItem> values)
+        {
+            return new ArrayOperatorFilterDefinition<TDocument, TItem>("$in", field, values);
+        }
+
+        /// <summary>
+        /// Creates an in filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>An in filter.</returns>
+        public FilterDefinition<TDocument> AnyIn<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, IEnumerable<TItem> values)
+        {
+            return AnyIn(new ExpressionFieldDefinition<TDocument>(field), values);
+        }
+
+        /// <summary>
+        /// Creates a not equal filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A not equal filter.</returns>
+        public FilterDefinition<TDocument> AnyNe<TItem>(FieldDefinition<TDocument> field, TItem value)
+        {
+            return new ArrayAsSingleItemOperatorFilterDefinition<TDocument, TItem>(
+                "$ne",
+                field,
+                value);
+        }
+
+        /// <summary>
+        /// Creates a not equal filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A not equal filter.</returns>
+        public FilterDefinition<TDocument> AnyNe<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, TItem value)
+        {
+            return AnyNe(new ExpressionFieldDefinition<TDocument>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a not in filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>A not in filter.</returns>
+        public FilterDefinition<TDocument> AnyNin<TItem>(FieldDefinition<TDocument> field, IEnumerable<TItem> values)
+        {
+            return new ArrayOperatorFilterDefinition<TDocument, TItem>("$nin", field, values);
+        }
+
+        /// <summary>
+        /// Creates a not in filter.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>A not in filter.</returns>
+        public FilterDefinition<TDocument> AnyNin<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, IEnumerable<TItem> values)
+        {
+            return AnyNin(new ExpressionFieldDefinition<TDocument>(field), values);
+        }
+
+        /// <summary>
         /// Creates an element match filter.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
@@ -364,25 +571,25 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an in filter.
         /// </summary>
-        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An in filter.</returns>
-        public FilterDefinition<TDocument> In<TItem>(FieldDefinition<TDocument> field, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> In<TField>(FieldDefinition<TDocument, TField> field, IEnumerable<TField> values)
         {
-            return new ArrayOperatorFilterDefinition<TDocument, TItem>("$in", field, values);
+            return new SingleItemAsArrayOperatorFilterDefinition<TDocument, TField>("$in", field, values);
         }
 
         /// <summary>
         /// Creates an in filter.
         /// </summary>
-        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>An in filter.</returns>
-        public FilterDefinition<TDocument> In<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> In<TField>(Expression<Func<TDocument, TField>> field, IEnumerable<TField> values)
         {
-            return In(new ExpressionFieldDefinition<TDocument>(field), values);
+            return In(new ExpressionFieldDefinition<TDocument, TField>(field), values);
         }
 
         /// <summary>
@@ -614,25 +821,28 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a not in filter.
         /// </summary>
-        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A not in filter.</returns>
-        public FilterDefinition<TDocument> Nin<TItem>(FieldDefinition<TDocument> field, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> Nin<TField>(FieldDefinition<TDocument, TField> field, IEnumerable<TField> values)
         {
-            return new ArrayOperatorFilterDefinition<TDocument, TItem>("$nin", field, values);
+            return new SingleItemAsArrayOperatorFilterDefinition<TDocument, TField>(
+                "$nin",
+                field,
+                values);
         }
 
         /// <summary>
         /// Creates a not in filter.
         /// </summary>
-        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
         /// <returns>A not in filter.</returns>
-        public FilterDefinition<TDocument> Nin<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, IEnumerable<TItem> values)
+        public FilterDefinition<TDocument> Nin<TField>(Expression<Func<TDocument, TField>> field, IEnumerable<TField> values)
         {
-            return Nin(new ExpressionFieldDefinition<TDocument>(field), values);
+            return Nin(new ExpressionFieldDefinition<TDocument, TField>(field), values);
         }
 
         /// <summary>
@@ -1375,6 +1585,140 @@ namespace MongoDB.Driver
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 renderedField.FieldSerializer.Serialize(context, _value);
+                bsonWriter.WriteEndDocument();
+            }
+
+            return document;
+        }
+    }
+
+    internal sealed class SingleItemAsArrayOperatorFilterDefinition<TDocument, TField> : FilterDefinition<TDocument>
+    {
+        private readonly string _operatorName;
+        private readonly FieldDefinition<TDocument, TField> _field;
+        private readonly IEnumerable<TField> _values;
+
+        public SingleItemAsArrayOperatorFilterDefinition(string operatorName, FieldDefinition<TDocument, TField> field, IEnumerable<TField> values)
+        {
+            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _field = Ensure.IsNotNull(field, "field");
+            _values = Ensure.IsNotNull(values, "values");
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+
+            var document = new BsonDocument();
+            using (var bsonWriter = new BsonDocumentWriter(document))
+            {
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(renderedField.FieldName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(_operatorName);
+                bsonWriter.WriteStartArray();
+                foreach (var value in _values)
+                {
+                    renderedField.FieldSerializer.Serialize(context, value);
+                }
+                bsonWriter.WriteEndArray();
+                bsonWriter.WriteEndDocument();
+                bsonWriter.WriteEndDocument();
+            }
+
+            return document;
+        }
+    }
+
+    internal sealed class ArrayAsSingleItemOperatorFilterDefinition<TDocument, TItem> : FilterDefinition<TDocument>
+    {
+        private readonly string _operatorName;
+        private readonly FieldDefinition<TDocument> _field;
+        private readonly TItem _value;
+
+        public ArrayAsSingleItemOperatorFilterDefinition(string operatorName, FieldDefinition<TDocument> field, TItem value)
+        {
+            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _field = Ensure.IsNotNull(field, "field");
+            _value = value;
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+
+            IBsonSerializer itemSerializer;
+            if (renderedField.FieldSerializer != null)
+            {
+                var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
+                if (arraySerializer == null)
+                {
+                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                    throw new InvalidOperationException(message);
+                }
+                itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
+            }
+            else
+            {
+                itemSerializer = serializerRegistry.GetSerializer<TItem>();
+            }
+
+            var document = new BsonDocument();
+            using (var bsonWriter = new BsonDocumentWriter(document))
+            {
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(renderedField.FieldName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(_operatorName);
+                itemSerializer.Serialize(context, _value);
+                bsonWriter.WriteEndDocument();
+                bsonWriter.WriteEndDocument();
+            }
+
+            return document;
+        }
+    }
+
+    internal sealed class ArrayAsSingleItemSimpleFilterDefinition<TDocument, TItem> : FilterDefinition<TDocument>
+    {
+        private readonly FieldDefinition<TDocument> _field;
+        private readonly TItem _value;
+
+        public ArrayAsSingleItemSimpleFilterDefinition(FieldDefinition<TDocument> field, TItem value)
+        {
+            _field = Ensure.IsNotNull(field, "field");
+            _value = value;
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+
+            IBsonSerializer<TItem> itemSerializer;
+            if (renderedField.FieldSerializer != null)
+            {
+                var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
+                if (arraySerializer == null)
+                {
+                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                    throw new InvalidOperationException(message);
+                }
+                itemSerializer = (IBsonSerializer<TItem>)arraySerializer.GetItemSerializationInfo().Serializer;
+            }
+            else
+            {
+                itemSerializer = serializerRegistry.GetSerializer<TItem>();
+            }
+
+            var document = new BsonDocument();
+            using (var bsonWriter = new BsonDocumentWriter(document))
+            {
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(renderedField.FieldName);
+                itemSerializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
             }
 
