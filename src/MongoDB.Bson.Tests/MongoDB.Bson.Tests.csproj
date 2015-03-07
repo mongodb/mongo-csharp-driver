@@ -95,6 +95,7 @@
     <Compile Include="IO\InputBufferChunkSourceTests.cs" />
     <Compile Include="IO\MultiChunkBufferTests.cs" />
     <Compile Include="IO\OutputBufferChunkSourceTests.cs" />
+    <Compile Include="IO\SingleChunkBufferTests.cs" />
     <Compile Include="Jira\CSharp728Tests.cs" />
     <Compile Include="Jira\CSharp708Tests.cs" />
     <Compile Include="Jira\CSharp476Tests.cs" />

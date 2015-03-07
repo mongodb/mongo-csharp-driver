@@ -25,9 +25,9 @@ namespace MongoDB.Bson.IO
         #region static
         private static byte[] CreateByteArray(int size)
         {
-            if (size <= 0)
+            if (size < 0)
             {
-                throw new ArgumentException("Size is less than or equal to zero.", "size");
+                throw new ArgumentException("Size is less than zero.", "size");
             }
             return new byte[size];
         }
@@ -57,10 +57,6 @@ namespace MongoDB.Bson.IO
             if (bytes == null)
             {
                 throw new ArgumentNullException("bytes");
-            }
-            if (bytes.Length == 0)
-            {
-                throw new ArgumentException("The byte array is empty.", "bytes");
             }
             _bytes = bytes;
         }

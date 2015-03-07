@@ -1006,9 +1006,9 @@ namespace MongoDB.Bson.Tests.IO
         public void Write_should_ensure_capacity()
         {
             var subject = CreateSubject();
-            var capacity = 0;
-            subject.Buffer.Capacity.Returns(x => capacity);
-            subject.Buffer.When(x => x.EnsureCapacity(Arg.Any<int>())).Do(x => capacity = (int)x[0]);
+            var requiredCapacity = 0;
+            subject.Buffer.Capacity.Returns(x => requiredCapacity);
+            subject.Buffer.When(x => x.EnsureCapacity(Arg.Any<int>())).Do(x => requiredCapacity = (int)x[0]);
             subject.Position = 1;
 
             subject.Write(new byte[3], 1, 2);
@@ -1456,7 +1456,7 @@ namespace MongoDB.Bson.Tests.IO
             if (chunks.Count() == 1)
             {
                 var chunk = chunks.First();
-                buffer = new SingleChunkBuffer(length, chunk);
+                buffer = new SingleChunkBuffer(chunk, length);
             }
             else
             {

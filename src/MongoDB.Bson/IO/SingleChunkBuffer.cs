@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.IO;
 
 namespace MongoDB.Bson.IO
 {
@@ -33,10 +32,10 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Initializes a new instance of the <see cref="SingleChunkBuffer"/> class.
         /// </summary>
-        /// <param name="length">The length.</param>
         /// <param name="chunk">The chuns.</param>
+        /// <param name="length">The length.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
-        internal SingleChunkBuffer(int length, IBsonChunk chunk, bool isReadOnly = false)
+        internal SingleChunkBuffer(IBsonChunk chunk, int length, bool isReadOnly = false)
         {
             if (chunk == null)
             {
@@ -47,8 +46,8 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException("length");
             }
 
-            _length = length;
             _chunk = chunk;
+            _length = length;
             _isReadOnly = isReadOnly;
         }
 
@@ -86,7 +85,7 @@ namespace MongoDB.Bson.IO
                 ThrowIfDisposed();
                 if (value < 0 || value > _chunk.Bytes.Count)
                 {
-                    throw new ArgumentOutOfRangeException("Length");
+                    throw new ArgumentOutOfRangeException("value");
                 }
                 EnsureIsWritable();
 
@@ -101,10 +100,10 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
 
-            return new ArraySegment<byte>(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, _chunk.Bytes.Count - position);
+            return new ArraySegment<byte>(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, _length - position);
         }
 
         /// <inheritdoc/>
@@ -113,12 +112,13 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
-            if (position + count > _length)
+            if (count < 0 || position + count > _length)
             {
-                throw new ArgumentException("Count extends beyond the end of the buffer.", "count");
+                throw new ArgumentOutOfRangeException("count");
             }
+            EnsureIsWritable();
 
             Array.Clear(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, count);
         }
@@ -135,42 +135,12 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void EnsureCapacity(int capacity)
+        public void EnsureCapacity(int requiredCapacity)
         {
-            if (_chunk.Bytes.Count < capacity)
+            if (_chunk.Bytes.Count < requiredCapacity)
             {
                 throw new NotSupportedException("Capacity cannot be expanded for a SingleChunkBuffer.");
             }
-        }
-
-        /// <inheritdoc/>
-        public IByteBuffer GetSlice(int position, int length)
-        {
-            ThrowIfDisposed();
-            if (position < 0 || position > _length)
-            {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
-            }
-            if (length < 0)
-            {
-                throw new ArgumentException("Length is negative.", "length");
-            }
-            if (position + length > _length)
-            {
-                throw new ArgumentException("Length extends past the end of the buffer.", "length");
-            }
-            EnsureIsReadOnly();
-
-            var forkedBuffer = new SingleChunkBuffer(_length, _chunk.Fork(), isReadOnly: true);
-
-            return new ByteBufferSlice(forkedBuffer, position, length);
-        }
-
-        /// <inheritdoc/>
-        public void MakeReadOnly()
-        {
-            ThrowIfDisposed();
-            _isReadOnly = true;
         }
 
         /// <inheritdoc/>
@@ -179,7 +149,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
 
             return _chunk.Bytes.Array[_chunk.Bytes.Offset + position];
@@ -191,30 +161,47 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
             if (destination == null)
             {
                 throw new ArgumentNullException("destination");
             }
-            if (offset < 0)
+            if (offset < 0 || offset > destination.Length)
             {
-                throw new ArgumentException("Offset is negative.", "offset");
+                throw new ArgumentOutOfRangeException("offset");
             }
-            if (count < 0)
+            if (count < 0 || position + count > _length || offset + count > destination.Length)
             {
-                throw new ArgumentException("Count is negative.", "count");
-            }
-            if (position + count > _length)
-            {
-                throw new ArgumentException("Count extends past the end of the buffer.", "count");
-            }
-            if (offset + count > destination.Length)
-            {
-                throw new ArgumentException("Count extends past the end of the destination.", "count");
+                throw new ArgumentOutOfRangeException("count");
             }
 
             Buffer.BlockCopy(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, destination, offset, count);
+        }
+
+        /// <inheritdoc/>
+        public IByteBuffer GetSlice(int position, int length)
+        {
+            ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position");
+            }
+            if (length < 0 || position + length > _length)
+            {
+                throw new ArgumentOutOfRangeException("length");
+            }
+            EnsureIsReadOnly();
+
+            var forkedBuffer = new SingleChunkBuffer(_chunk.Fork(), _length, isReadOnly: true);
+            return new ByteBufferSlice(forkedBuffer, position, length);
+        }
+
+        /// <inheritdoc/>
+        public void MakeReadOnly()
+        {
+            ThrowIfDisposed();
+            _isReadOnly = true;
         }
 
         /// <inheritdoc/>
@@ -223,7 +210,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
             EnsureIsWritable();
 
@@ -236,7 +223,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+                throw new ArgumentOutOfRangeException("position");
             }
             if (source == null)
             {
@@ -244,19 +231,11 @@ namespace MongoDB.Bson.IO
             }
             if (offset < 0 || offset > source.Length)
             {
-                throw new ArgumentOutOfRangeException("offset", "Offset is outside of the source.");
+                throw new ArgumentOutOfRangeException("offset");
             }
-            if (count < 0)
+            if (count < 0 || position + count > _length || offset + count > source.Length)
             {
-                throw new ArgumentException("Count is negative.", "count");
-            }
-            if (position + count > _length)
-            {
-                throw new ArgumentException("Count extends past the end of the buffer.", "count");
-            }
-            if (offset + count > source.Length)
-            {
-                throw new ArgumentException("Count extends past the end of the source.", "count");
+                throw new ArgumentOutOfRangeException("count");
             }
             EnsureIsWritable();
 

@@ -187,11 +187,11 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void EnsureCapacity(int capacity)
+        public void EnsureCapacity(int requiredCapacity)
         {
-            if (_capacity < capacity)
+            if (_capacity < requiredCapacity)
             {
-                ExpandCapacity(capacity);
+                ExpandCapacity(requiredCapacity);
             }
         }
 
@@ -220,7 +220,7 @@ namespace MongoDB.Bson.IO
             if (firstChunkIndex == lastChunkIndex)
             {
                 var forkedChunk = _chunks[firstChunkIndex].Fork();
-                forkedBuffer = new SingleChunkBuffer(forkedChunk.Bytes.Count, forkedChunk, isReadOnly: true);
+                forkedBuffer = new SingleChunkBuffer(forkedChunk, forkedChunk.Bytes.Count, isReadOnly: true);
             }
             else
             {
@@ -377,16 +377,16 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        private void ExpandCapacity(int targetCapacity)
+        private void ExpandCapacity(int requiredCapacity)
         {
             if (_chunkSource == null)
             {
                 throw new InvalidOperationException("Capacity cannot be expanded because this buffer was created without specifying a chunk source.");
             }
 
-            while (_capacity < targetCapacity)
+            while (_capacity < requiredCapacity)
             {
-                var chunk = _chunkSource.GetChunk(targetCapacity);
+                var chunk = _chunkSource.GetChunk(requiredCapacity);
                 _chunks.Add(chunk);
                 _capacity += chunk.Bytes.Count;
                 _positions.Add(_capacity);

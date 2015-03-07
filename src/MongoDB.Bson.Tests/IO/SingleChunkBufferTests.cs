@@ -14,16 +14,20 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace MongoDB.Bson.Tests.IO
 {
     [TestFixture]
-    public class ByteArrayBufferTests
+    public class SingleChunkBufferTests
     {
         [TestCase(0, 0)]
         [TestCase(1, 1)]
@@ -31,8 +35,7 @@ namespace MongoDB.Bson.Tests.IO
         public void AccessBackingBytes_should_return_expected_result_for_length(int length, int expectedCount)
         {
             var bytes = new byte[2];
-            var subject = CreateSubject(bytes);
-            subject.Length = length;
+            var subject = CreateSubject(bytes, length);
 
             var result = subject.AccessBackingBytes(0);
 
@@ -75,7 +78,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.AccessBackingBytes(0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [TestCase(false, 2)]
@@ -96,7 +99,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => { var _ = subject.Capacity; };
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [TestCase(1, new byte[] { 1, 0, 3 })]
@@ -156,7 +159,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Clear(0, 0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [Test]
@@ -170,65 +173,41 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void constructor_with_bytes_and_length_should_initialize_subject(
-            [Values(0, 1)]
+        public void constructor_should_initialize_instance(
+            [Values(1, 2)]
             int length,
             [Values(false, true)]
             bool isReadOnly)
         {
-            var bytes = new byte[1];
+            var chunk = CreateFakeChunk(length);
 
-            var subject = new ByteArrayBuffer(bytes, length, isReadOnly);
+            var subject = new SingleChunkBuffer(chunk, length, isReadOnly);
 
             var reflector = new Reflector(subject);
             subject.IsReadOnly.Should().Be(isReadOnly);
             subject.Length.Should().Be(length);
-            reflector._bytes.Should().BeSameAs(bytes);
+            reflector._chunk.Should().BeSameAs(chunk);
             reflector._disposed.Should().BeFalse();
         }
 
         [Test]
-        public void constructor_with_bytes_and_length_should_throw_when_bytes_is_null()
+        public void constructor_should_throw_when_chunk_is_null()
         {
-            Action action = () => new ByteArrayBuffer(null, 0);
+            Action action = () => new SingleChunkBuffer(null, 0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("bytes");
+            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("chunk");
         }
 
-        [TestCase(0, -1)]
-        [TestCase(0, 1)]
-        [TestCase(1, 2)]
-        public void constructor_with_bytes_and_length_should_throw_when_length_is_invalid(int size, int length)
+        [Test]
+        public void constructor_should_throw_when_length_is_invalid(
+            [Values(-1, 3)]
+            int length)
         {
-            var bytes = new byte[size];
+            var chunk = CreateFakeChunk(2);
 
-            Action action = () => new ByteArrayBuffer(bytes, length);
+            Action action = () => new SingleChunkBuffer(chunk, length);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("length");
-        }
-
-        [Test]
-        public void constructor_with_bytes_should_initialize_subject(
-            [Values(false, true)]
-            bool isReadOnly)
-        {
-            var bytes = new byte[1];
-
-            var subject = new ByteArrayBuffer(bytes, isReadOnly);
-
-            var reflector = new Reflector(subject);
-            subject.IsReadOnly.Should().Be(isReadOnly);
-            subject.Length.Should().Be(bytes.Length);
-            reflector._bytes.Should().BeSameAs(bytes);
-            reflector._disposed.Should().BeFalse();
-        }
-
-        [Test]
-        public void constructor_with_bytes_should_throw_when_bytes_is_null()
-        {
-            Action action = () => new ByteArrayBuffer(null);
-
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("bytes");
         }
 
         [Test]
@@ -251,54 +230,26 @@ namespace MongoDB.Bson.Tests.IO
             reflector._disposed.Should().BeTrue();
         }
 
-        [TestCase(0, 1, 32)]
-        [TestCase(0, 31, 32)]
-        [TestCase(0, 32, 32)]
-        [TestCase(0, 33, 64)]
-        [TestCase(0, 63, 64)]
-        [TestCase(0, 64, 64)]
-        [TestCase(0, 65, 128)]
-        public void EnsureCapacity_should_have_expected_effect(int size, int requiredCapacity, int expectedCapacity)
+        [Test]
+        public void EnsureCapacity_should_do_nothing_when_requiredCapacity_is_less_than_or_equal_to_capacity(
+            [Values(0, 1, 2)]
+            int requiredCapacity)
         {
-            var bytes = Enumerable.Range(1, size).Select(n => (byte)n).ToArray();
-            var subject = CreateSubject(bytes);
+            var subject = CreateSubject(2);
 
             subject.EnsureCapacity(requiredCapacity);
 
-            var reflector = new Reflector(subject);
-            subject.Capacity.Should().Be(expectedCapacity);
-            reflector._bytes.Take(size).Should().Equal(bytes);
-            reflector._bytes.Skip(size).Should().Equal(Enumerable.Repeat<byte>(0, expectedCapacity - size));
+            subject.Capacity.Should().Be(2);
         }
 
         [Test]
-        public void EnsureCapacity_should_throw_when_requiredCapacity_is_invalid()
+        public void EnsureCapacity_should_throw_when_requiredCapacity_is_greater_than_capacity()
         {
-            var subject = CreateSubject();
+            var subject = CreateSubject(2);
 
-            Action action = () => subject.EnsureCapacity(-1);
+            Action action = () => subject.EnsureCapacity(3);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("requiredCapacity");
-        }
-
-        [Test]
-        public void EnsureCapacity_should_throw_when_subject_is_disposed()
-        {
-            var subject = CreateDisposedSubject();
-
-            Action action = () => subject.EnsureCapacity(0);
-
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
-        }
-
-        [Test]
-        public void EnsureCapacity_should_throw_when_subject_is_read_only()
-        {
-            var subject = CreateSubject(isReadOnly: true);
-
-            Action action = () => subject.EnsureCapacity(0);
-
-            action.ShouldThrow<InvalidOperationException>();
+            action.ShouldThrow<NotSupportedException>();
         }
 
         [TestCase(1, 2)]
@@ -332,7 +283,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetByte(0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [TestCase(0, new byte[] { 0, 0 })]
@@ -447,7 +398,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetBytes(0, destination, 0, 0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [TestCase(0, 2)]
@@ -521,7 +472,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetSlice(0, 0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [Test]
@@ -553,7 +504,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => { var _ = subject.IsReadOnly; };
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [Test]
@@ -575,7 +526,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => { var _ = subject.Length; };
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [Test]
@@ -620,7 +571,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Length = 0;
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [Test]
@@ -642,7 +593,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.MakeReadOnly();
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [TestCase(1, new byte[] { 0, 1, 0 })]
@@ -676,7 +627,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.SetByte(0, 0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [Test]
@@ -798,7 +749,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.SetBytes(0, source, 0, 0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
         [Test]
@@ -813,40 +764,49 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         // helper methods
-        private ByteArrayBuffer CreateDisposedSubject()
+        private SingleChunkBuffer CreateDisposedSubject()
         {
             var subject = CreateSubject();
             subject.Dispose();
             return subject;
         }
 
-        private ByteArrayBuffer CreateSubject(byte[] bytes, int? length = null, bool isReadOnly = false)
-        {
-            return new ByteArrayBuffer(bytes, length ?? bytes.Length, isReadOnly);
-        }
-
-        private ByteArrayBuffer CreateSubject(int size = 0, int? length = null, bool isReadOnly = false)
+        private IBsonChunk CreateFakeChunk(int size, int? length = null)
         {
             var bytes = new byte[size];
-            return new ByteArrayBuffer(bytes, length ?? size, isReadOnly);
+            var chunk = Substitute.For<IBsonChunk>();
+            chunk.Bytes.Returns(new ArraySegment<byte>(bytes, 0, length ?? size));
+            return chunk;
+        }
+
+        private SingleChunkBuffer CreateSubject(byte[] bytes, int? length = null, bool isReadOnly = false)
+        {
+            var chunk = new ByteArrayChunk(bytes);
+            return new SingleChunkBuffer(chunk, length ?? bytes.Length, isReadOnly);
+        }
+
+        private SingleChunkBuffer CreateSubject(int size = 0, int? length = null, bool isReadOnly = false)
+        {
+            var chunk = new ByteArrayChunk(size);
+            return new SingleChunkBuffer(chunk, length ?? size, isReadOnly);
         }
 
         // nested types
         private class Reflector
         {
-            private readonly ByteArrayBuffer _instance;
+            private readonly SingleChunkBuffer _instance;
 
-            public Reflector(ByteArrayBuffer instance)
+            public Reflector(SingleChunkBuffer instance)
             {
                 _instance = instance;
             }
 
-            public byte[] _bytes
+            public IBsonChunk _chunk
             {
                 get
                 {
-                    var field = typeof(ByteArrayBuffer).GetField("_bytes", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (byte[])field.GetValue(_instance);
+                    var field = typeof(SingleChunkBuffer).GetField("_chunk", BindingFlags.NonPublic | BindingFlags.Instance);
+                    return (IBsonChunk)field.GetValue(_instance);
                 }
             }
 
@@ -854,7 +814,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 get
                 {
-                    var field = typeof(ByteArrayBuffer).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var field = typeof(SingleChunkBuffer).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
                     return (bool)field.GetValue(_instance);
                 }
             }

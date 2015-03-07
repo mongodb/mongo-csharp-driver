@@ -137,7 +137,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void EnsureCapacity(int capacity)
+        public void EnsureCapacity(int requiredCapacity)
         {
             throw new NotSupportedException();
         }

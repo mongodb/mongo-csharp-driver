@@ -14,11 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using NUnit.Framework;
@@ -69,14 +65,6 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void constructor_with_bytes_should_throw_when_bytes_is_empty()
-        {
-            Action action = () => new ByteArrayChunk(new byte[0]);
-
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("bytes");
-        }
-
-        [Test]
         public void constructor_with_bytes_should_throw_when_bytes_is_null()
         {
             Action action = () => new ByteArrayChunk(null);
@@ -98,11 +86,9 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void constructor_with_size_should_throw_when_size_is_less_than_or_equal_to_zero(
-            [Values(-1, 0)]
-            int size)
+        public void constructor_with_size_should_throw_when_size_is_less_than_zero()
         {
-            Action action = () => new ByteArrayChunk(size);
+            Action action = () => new ByteArrayChunk(-1);
 
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("size");
         }
