@@ -135,9 +135,14 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void EnsureCapacity(int requiredCapacity)
+        public void EnsureCapacity(int minimumCapacity)
         {
-            if (_chunk.Bytes.Count < requiredCapacity)
+            if (minimumCapacity < 0)
+            {
+                throw new ArgumentOutOfRangeException("minimumCapacity");
+            }
+
+            if (_chunk.Bytes.Count < minimumCapacity)
             {
                 throw new NotSupportedException("Capacity cannot be expanded for a SingleChunkBuffer.");
             }

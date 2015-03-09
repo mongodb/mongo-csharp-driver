@@ -102,18 +102,6 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
         }
 
-        [TestCase(1, new byte[] { 1, 0, 3 })]
-        [TestCase(2, new byte[] { 1, 2, 0 })]
-        public void Clear_should_have_expected_effect_for_position(int position, byte[] expectedBytes)
-        {
-            var bytes = new byte[] { 1, 2, 3 };
-            var subject = CreateSubject(bytes);
-
-            subject.Clear(position, 1);
-
-            bytes.Should().Equal(expectedBytes);
-        }
-
         [TestCase(0, new byte[] { 1, 2 })]
         [TestCase(1, new byte[] { 0, 2 })]
         [TestCase(2, new byte[] { 0, 0 })]
@@ -123,6 +111,18 @@ namespace MongoDB.Bson.Tests.IO
             var subject = CreateSubject(bytes);
 
             subject.Clear(0, count);
+
+            bytes.Should().Equal(expectedBytes);
+        }
+
+        [TestCase(1, new byte[] { 1, 0, 3 })]
+        [TestCase(2, new byte[] { 1, 2, 0 })]
+        public void Clear_should_have_expected_effect_for_position(int position, byte[] expectedBytes)
+        {
+            var bytes = new byte[] { 1, 2, 3 };
+            var subject = CreateSubject(bytes);
+
+            subject.Clear(position, 1);
 
             bytes.Should().Equal(expectedBytes);
         }
@@ -231,25 +231,35 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void EnsureCapacity_should_do_nothing_when_requiredCapacity_is_less_than_or_equal_to_capacity(
+        public void EnsureCapacity_should_do_nothing_when_minimumCapacity_is_less_than_or_equal_to_capacity(
             [Values(0, 1, 2)]
-            int requiredCapacity)
+            int minimumCapacity)
         {
             var subject = CreateSubject(2);
 
-            subject.EnsureCapacity(requiredCapacity);
+            subject.EnsureCapacity(minimumCapacity);
 
             subject.Capacity.Should().Be(2);
         }
 
         [Test]
-        public void EnsureCapacity_should_throw_when_requiredCapacity_is_greater_than_capacity()
+        public void EnsureCapacity_should_throw_when_minimumCapacity_is_greater_than_capacity()
         {
             var subject = CreateSubject(2);
 
             Action action = () => subject.EnsureCapacity(3);
 
             action.ShouldThrow<NotSupportedException>();
+        }
+
+        [Test]
+        public void EnsureCapacity_should_throw_when_minimumCapacity_is_invalid()
+        {
+            var subject = CreateSubject(2);
+
+            Action action = () => subject.EnsureCapacity(-1);
+
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("minimumCapacity");
         }
 
         [TestCase(1, 2)]

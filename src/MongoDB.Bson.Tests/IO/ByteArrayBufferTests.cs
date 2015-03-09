@@ -258,12 +258,12 @@ namespace MongoDB.Bson.Tests.IO
         [TestCase(0, 63, 64)]
         [TestCase(0, 64, 64)]
         [TestCase(0, 65, 128)]
-        public void EnsureCapacity_should_have_expected_effect(int size, int requiredCapacity, int expectedCapacity)
+        public void EnsureCapacity_should_have_expected_effect(int size, int minimumCapacity, int expectedCapacity)
         {
             var bytes = Enumerable.Range(1, size).Select(n => (byte)n).ToArray();
             var subject = CreateSubject(bytes);
 
-            subject.EnsureCapacity(requiredCapacity);
+            subject.EnsureCapacity(minimumCapacity);
 
             var reflector = new Reflector(subject);
             subject.Capacity.Should().Be(expectedCapacity);
@@ -272,13 +272,13 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void EnsureCapacity_should_throw_when_requiredCapacity_is_invalid()
+        public void EnsureCapacity_should_throw_when_minimumCapacity_is_invalid()
         {
             var subject = CreateSubject();
 
             Action action = () => subject.EnsureCapacity(-1);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("requiredCapacity");
+            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("minimumCapacity");
         }
 
         [Test]

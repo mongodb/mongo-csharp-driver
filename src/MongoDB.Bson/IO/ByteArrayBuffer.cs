@@ -141,18 +141,18 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public void EnsureCapacity(int requiredCapacity)
+        public void EnsureCapacity(int minimumCapacity)
         {
-            if (requiredCapacity < 0)
+            if (minimumCapacity < 0)
             {
-                throw new ArgumentOutOfRangeException("requiredCapacity");
+                throw new ArgumentOutOfRangeException("minimumCapacity");
             }
             ThrowIfDisposed();
             EnsureIsWritable();
 
-            if (requiredCapacity > _bytes.Length)
+            if (minimumCapacity > _bytes.Length)
             {
-                var powerOf2 = Math.Max(32, PowerOf2.RoundUpToPowerOf2(requiredCapacity));
+                var powerOf2 = Math.Max(32, PowerOf2.RoundUpToPowerOf2(minimumCapacity));
                 SetCapacity(powerOf2);
             }
         }

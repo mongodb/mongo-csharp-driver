@@ -68,11 +68,11 @@ namespace MongoDB.Bson.IO
         void Clear(int position, int count);
 
         /// <summary>
-        /// Ensure that the buffer has at least the required capacity. Depending on the buffer allocation strategy
-        /// calling this method may result in a higher capacity than required (but never lower).
+        /// Ensure that the buffer has a minimum capacity. Depending on the buffer allocation strategy
+        /// calling this method may result in a higher capacity than the minimum (but never lower).
         /// </summary>
-        /// <param name="requiredCapacity">The required capacity.</param>
-        void EnsureCapacity(int requiredCapacity);
+        /// <param name="minimumCapacity">The minimum capacity.</param>
+        void EnsureCapacity(int minimumCapacity);
 
         /// <summary>
         /// Gets a slice of this buffer.

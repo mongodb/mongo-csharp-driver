@@ -28,24 +28,24 @@ namespace MongoDB.Bson.IO
         /// Creates a buffer of the specified length. Depending on the length, either a SingleChunkBuffer or a MultiChunkBuffer will be created.
         /// </summary>
         /// <param name="chunkSource">The chunk pool.</param>
-        /// <param name="requiredCapacity">The required capacity.</param>
-        /// <returns>A buffer with at least the required capacity.</returns>
-        public static IByteBuffer Create(IBsonChunkSource chunkSource, int requiredCapacity)
+        /// <param name="minimumCapacity">The minimum capacity.</param>
+        /// <returns>A buffer with at least the minimum capacity.</returns>
+        public static IByteBuffer Create(IBsonChunkSource chunkSource, int minimumCapacity)
         {
             if (chunkSource == null)
             {
                 throw new ArgumentNullException("chunkSource");
             }
-            if (requiredCapacity <= 0)
+            if (minimumCapacity <= 0)
             {
-                throw new ArgumentOutOfRangeException("requiredCapacity");
+                throw new ArgumentOutOfRangeException("minimumCapacity");
             }
 
             var capacity = 0;
             var chunks = new List<IBsonChunk>();
-            while (capacity < requiredCapacity)
+            while (capacity < minimumCapacity)
             {
-                var chunk = chunkSource.GetChunk(requiredCapacity - capacity);
+                var chunk = chunkSource.GetChunk(minimumCapacity - capacity);
                 chunks.Add(chunk);
                 capacity += chunk.Bytes.Count;
             }
@@ -56,7 +56,7 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                return new MultiChunkBuffer(0, chunks, isReadOnly: false);
+                return new MultiChunkBuffer(chunks, 0, isReadOnly: false);
             }
         }
     }

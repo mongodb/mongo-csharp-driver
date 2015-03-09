@@ -31,23 +31,23 @@ namespace MongoDB.Bson.Tests.IO
         [Test]
         public void Create_should_return_expected_result(
             [Values(1, 63, 64, 65, 128)]
-            int requiredCapacity)
+            int minimumCapacity)
         {
             var chunkSource = new BsonChunkPool(1, 64);
 
-            var result = ByteBufferFactory.Create(chunkSource, requiredCapacity);
+            var result = ByteBufferFactory.Create(chunkSource, minimumCapacity);
 
-            result.Capacity.Should().BeGreaterOrEqualTo(requiredCapacity);
+            result.Capacity.Should().BeGreaterOrEqualTo(minimumCapacity);
         }
 
         [Test]
         public void Create_should_return_SingleChunkBuffer_when_a_single_chunk_is_sufficient(
             [Values(1, 63, 64)]
-            int requiredCapacity)
+            int minimumCapacity)
         {
             var chunkSource = new BsonChunkPool(1, 64);
 
-            var result = ByteBufferFactory.Create(chunkSource, requiredCapacity);
+            var result = ByteBufferFactory.Create(chunkSource, minimumCapacity);
 
             result.Should().BeOfType<SingleChunkBuffer>();
         }
@@ -55,11 +55,11 @@ namespace MongoDB.Bson.Tests.IO
         [Test]
         public void Create_should_return_MultiChunkBuffer_when_multiple_chunks_are_required(
             [Values(65, 128)]
-            int requiredCapacity)
+            int minimumCapacity)
         {
             var chunkSource = new BsonChunkPool(1, 64);
 
-            var result = ByteBufferFactory.Create(chunkSource, requiredCapacity);
+            var result = ByteBufferFactory.Create(chunkSource, minimumCapacity);
 
             result.Should().BeOfType<MultiChunkBuffer>();
         }
@@ -73,15 +73,15 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void Create_should_throw_when_requiredCapacity_is_invalid(
+        public void Create_should_throw_when_minimumCapacity_is_invalid(
             [Values(-1, 0)]
-            int requiredCapacity)
+            int minimumCapacity)
         {
             var chunkSource = Substitute.For<IBsonChunkSource>();
 
-            Action action = () => ByteBufferFactory.Create(chunkSource, requiredCapacity);
+            Action action = () => ByteBufferFactory.Create(chunkSource, minimumCapacity);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("requiredCapacity");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("minimumCapacity");
         }
     }
 }
