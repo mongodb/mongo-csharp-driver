@@ -325,7 +325,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 Action action = () => stream.ReadBytes(buffer, offset, count);
 
-                action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("count");
+                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
             }
         }
 
@@ -343,7 +343,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 Action action = () => stream.ReadBytes(buffer, offset, count);
 
-                action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("count");
+                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
             }
         }
 
@@ -361,7 +361,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 Action action = () => stream.ReadBytes(buffer, count, 0);
 
-                action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("offset");
+                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
             }
         }
 
@@ -412,7 +412,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 Action action = () => stream.ReadBytes(-1);
 
-                action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("count");
+                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
             }
         }
 

@@ -275,8 +275,7 @@ namespace MongoDB.Bson.IO
                 var endPosition = memoryStream.Position;
                 bsonWriter.WriteEndDocument();
 
-                var bytes = memoryStream.ToArray();
-                var buffer = new ByteArrayBuffer(bytes, isReadOnly: true);
+                var buffer = new ByteArrayBuffer(memoryStream.GetBuffer(), (int)memoryStream.Length, isReadOnly: true);
                 return new ByteBufferSlice(buffer, (int)startPosition, (int)(endPosition - startPosition));
             }
         }

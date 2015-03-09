@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
         {
             if (size < 0)
             {
-                throw new ArgumentException("Size is less than zero.", "size");
+                throw new ArgumentOutOfRangeException("size");
             }
             return new byte[size];
         }

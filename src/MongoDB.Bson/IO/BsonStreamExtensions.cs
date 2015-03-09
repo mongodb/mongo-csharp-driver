@@ -192,7 +192,7 @@ namespace MongoDB.Bson.IO
             }
             if (count < 0)
             {
-                throw new ArgumentException("count is negative.", "count");
+                throw new ArgumentOutOfRangeException("count");
             }
 
             var bytes = new byte[count];

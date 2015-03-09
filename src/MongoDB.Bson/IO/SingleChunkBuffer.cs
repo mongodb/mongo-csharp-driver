@@ -141,6 +141,8 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentOutOfRangeException("minimumCapacity");
             }
+            ThrowIfDisposed();
+            EnsureIsWritable();
 
             if (_chunk.Bytes.Count < minimumCapacity)
             {

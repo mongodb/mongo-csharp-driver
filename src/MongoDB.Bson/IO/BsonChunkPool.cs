@@ -66,11 +66,11 @@ namespace MongoDB.Bson.IO
         {
             if (maxPoolSize < 0)
             {
-                throw new ArgumentException("maxPoolSize is less than zero.", "maxPoolSize");
+                throw new ArgumentOutOfRangeException("maxPoolSize");
             }
             if (chunkSize <= 0)
             {
-                throw new ArgumentException("chunkSize is less than or equal to zero.", "chunkSize");
+                throw new ArgumentOutOfRangeException("chunkSize");
             }
 
             _maxPoolSize = maxPoolSize;

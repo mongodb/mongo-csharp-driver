@@ -124,7 +124,7 @@ namespace MongoDB.Bson.IO
             {
                 if (value < 0)
                 {
-                    throw new ArgumentException("Position is negative.", "value");
+                    throw new ArgumentOutOfRangeException("value");
                 }
                 ThrowIfDisposed();
                 _position = (int)value;

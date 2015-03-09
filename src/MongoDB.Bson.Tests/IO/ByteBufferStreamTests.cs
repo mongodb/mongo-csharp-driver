@@ -271,7 +271,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Position = -1;
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("value");
         }
 
         [Test]

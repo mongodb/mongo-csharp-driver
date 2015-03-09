@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new BsonChunkPool(1, chunkSize);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("chunkSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("chunkSize");
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new BsonChunkPool(-1, 16);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxPoolSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxPoolSize");
         }
 
         [Test]

@@ -31,8 +31,7 @@ namespace MongoDB.Bson.Tests.IO
         public void AccessBackingBytes_should_return_expected_result_for_length(int length, int expectedCount)
         {
             var bytes = new byte[2];
-            var subject = CreateSubject(bytes);
-            subject.Length = length;
+            var subject = CreateSubject(bytes, length);
 
             var result = subject.AccessBackingBytes(0);
 
@@ -99,18 +98,6 @@ namespace MongoDB.Bson.Tests.IO
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
         }
 
-        [TestCase(1, new byte[] { 1, 0, 3 })]
-        [TestCase(2, new byte[] { 1, 2, 0 })]
-        public void Clear_should_have_expected_effect_for_position(int position, byte[] expectedBytes)
-        {
-            var bytes = new byte[] { 1, 2, 3 };
-            var subject = CreateSubject(bytes);
-
-            subject.Clear(position, 1);
-
-            bytes.Should().Equal(expectedBytes);
-        }
-
         [TestCase(0, new byte[] { 1, 2 })]
         [TestCase(1, new byte[] { 0, 2 })]
         [TestCase(2, new byte[] { 0, 0 })]
@@ -120,6 +107,18 @@ namespace MongoDB.Bson.Tests.IO
             var subject = CreateSubject(bytes);
 
             subject.Clear(0, count);
+
+            bytes.Should().Equal(expectedBytes);
+        }
+
+        [TestCase(1, new byte[] { 1, 0, 3 })]
+        [TestCase(2, new byte[] { 1, 2, 0 })]
+        public void Clear_should_have_expected_effect_for_position(int position, byte[] expectedBytes)
+        {
+            var bytes = new byte[] { 1, 2, 3 };
+            var subject = CreateSubject(bytes);
+
+            subject.Clear(position, 1);
 
             bytes.Should().Equal(expectedBytes);
         }
@@ -278,7 +277,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.EnsureCapacity(-1);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("minimumCapacity");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("minimumCapacity");
         }
 
         [Test]

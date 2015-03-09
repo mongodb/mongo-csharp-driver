@@ -90,7 +90,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new ByteArrayChunk(-1);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("size");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("size");
         }
 
         [Test]

@@ -79,7 +79,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new InputBufferChunkSource(BsonChunkPool.Default, maxChunkSize: -1);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxChunkSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxChunkSize");
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new InputBufferChunkSource(BsonChunkPool.Default, maxUnpooledChunkSize: -1);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxUnpooledChunkSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxUnpooledChunkSize");
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new InputBufferChunkSource(BsonChunkPool.Default, minChunkSize: -1);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("minChunkSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("minChunkSize");
         }
 
         [Test]
@@ -230,7 +230,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetChunk(requestedSize);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("requestedSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("requestedSize");
         }
 
         [Test]

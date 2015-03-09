@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Core.Connections
                 await _stream.ReadBytesAsync(messageSizeBytes, 0, 4, _backgroundTaskCancellationToken).ConfigureAwait(false);
                 var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
-                var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize); // will be Disposed by dropbox
+                var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
                 await _stream.ReadBytesAsync(buffer, 4, messageSize - 4, _backgroundTaskCancellationToken).ConfigureAwait(false);

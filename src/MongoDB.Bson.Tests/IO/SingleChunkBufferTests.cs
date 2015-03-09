@@ -173,7 +173,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void constructor_should_initialize_instance(
+        public void constructor_should_initialize_subject(
             [Values(1, 2)]
             int length,
             [Values(false, true)]
@@ -260,6 +260,26 @@ namespace MongoDB.Bson.Tests.IO
             Action action = () => subject.EnsureCapacity(-1);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("minimumCapacity");
+        }
+
+        [Test]
+        public void EnsureCapacity_should_throw_when_subject_is_disposed()
+        {
+            var subject = CreateDisposedSubject();
+
+            Action action = () => subject.EnsureCapacity(1);
+
+            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("SingleChunkBuffer");
+        }
+
+        [Test]
+        public void EnsureCapacity_should_throw_when_subject_is_read_only()
+        {
+            var subject = CreateSubject(isReadOnly: true);
+
+            Action action = () => subject.EnsureCapacity(0);
+
+            action.ShouldThrow<InvalidOperationException>();
         }
 
         [TestCase(1, 2)]

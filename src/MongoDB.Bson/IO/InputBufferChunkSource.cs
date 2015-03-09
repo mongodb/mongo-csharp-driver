@@ -54,21 +54,21 @@ namespace MongoDB.Bson.IO
             }
             if (maxUnpooledChunkSize < 0)
             {
-                throw new ArgumentException("maxUnpooledChunkSize is negative.", "maxUnpooledChunkSize");
+                throw new ArgumentOutOfRangeException("maxUnpooledChunkSize");
             }
             if (minChunkSize <= 0)
             {
-                throw new ArgumentException("minChunkSize is less than or equal to zero.", "minChunkSize");
+                throw new ArgumentOutOfRangeException("minChunkSize");
+            }
+            if (maxChunkSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException("maxChunkSize");
             }
             if (!PowerOf2.IsPowerOf2(minChunkSize))
             {
                 throw new ArgumentException("minChunkSize is not a power of 2.", "minChunkSize");
             }
-            if (maxChunkSize <= 0 || !PowerOf2.IsPowerOf2(maxChunkSize))
-            {
-                throw new ArgumentException("maxChunkSize is less than or equal to zero.", "maxChunkSize");
-            }
-            if (maxChunkSize <= 0 || !PowerOf2.IsPowerOf2(maxChunkSize))
+            if (!PowerOf2.IsPowerOf2(maxChunkSize))
             {
                 throw new ArgumentException("maxChunkSize is not a power of 2.", "maxChunkSize");
             }
@@ -144,7 +144,7 @@ namespace MongoDB.Bson.IO
         {
             if (requestedSize <= 0)
             {
-                throw new ArgumentException("requestedSize is less than or equal to zero.", "requestedSize");
+                throw new ArgumentOutOfRangeException("requestedSize");
             }
             ThrowIfDisposed();
 
