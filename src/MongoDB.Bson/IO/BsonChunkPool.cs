@@ -54,26 +54,26 @@ namespace MongoDB.Bson.IO
         private readonly int _chunkSize;
         private bool _disposed;
         private readonly object _lock = new object();
-        private readonly int _maxPoolSize;
+        private readonly int _maxChunkCount;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="BsonChunkPool"/> class.
         /// </summary>
-        /// <param name="maxPoolSize">The maximum number of chunks to keep in the pool.</param>
+        /// <param name="maxChunkCount">The maximum number of chunks to keep in the pool.</param>
         /// <param name="chunkSize">The size of each chunk.</param>
-        public BsonChunkPool(int maxPoolSize, int chunkSize)
+        public BsonChunkPool(int maxChunkCount, int chunkSize)
         {
-            if (maxPoolSize < 0)
+            if (maxChunkCount < 0)
             {
-                throw new ArgumentOutOfRangeException("maxPoolSize");
+                throw new ArgumentOutOfRangeException("maxChunkCount");
             }
             if (chunkSize <= 0)
             {
                 throw new ArgumentOutOfRangeException("chunkSize");
             }
 
-            _maxPoolSize = maxPoolSize;
+            _maxChunkCount = maxChunkCount;
             _chunkSize = chunkSize;
         }
 
@@ -95,9 +95,9 @@ namespace MongoDB.Bson.IO
         /// <value>
         /// The maximum size of the pool.
         /// </value>
-        public int MaxPoolSize
+        public int MaxChunkCount
         {
-            get { return _maxPoolSize; }
+            get { return _maxChunkCount; }
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace MongoDB.Bson.IO
         /// <value>
         /// The size of the pool.
         /// </value>
-        public int PoolSize
+        public int ChunkCount
         {
             get
             {
@@ -158,7 +158,7 @@ namespace MongoDB.Bson.IO
             {
                 lock (_lock)
                 {
-                    if (_chunks.Count < _maxPoolSize)
+                    if (_chunks.Count < _maxChunkCount)
                     {
                         _chunks.Push(chunk);
                     }

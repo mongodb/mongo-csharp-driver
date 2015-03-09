@@ -42,13 +42,13 @@ namespace MongoDB.Bson.Tests.IO
         [Test]
         public void constructor_should_initialize_subject()
         {
-            var maxPoolSize = 1;
+            var maxChunkCount = 1;
             var chunkSize = 16;
 
-            var subject = new BsonChunkPool(maxPoolSize, chunkSize);
+            var subject = new BsonChunkPool(maxChunkCount, chunkSize);
 
             var reflector = new Reflector(subject);
-            subject.MaxPoolSize.Should().Be(maxPoolSize);
+            subject.MaxChunkCount.Should().Be(maxChunkCount);
             subject.ChunkSize.Should().Be(chunkSize);
             reflector._disposed.Should().BeFalse();
         }
@@ -64,11 +64,11 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void constructor_should_throw_whenMaxPoolSize_is_less_than_zero()
+        public void constructor_should_throw_when_MaxChunkCount_is_less_than_zero()
         {
             Action action = () => new BsonChunkPool(-1, 16);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxPoolSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxChunkCount");
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace MongoDB.Bson.Tests.IO
             var result = BsonChunkPool.Default;
 
             result.ChunkSize.Should().Be(64 * 1024);
-            result.MaxPoolSize.Should().Be(8192);
+            result.MaxChunkCount.Should().Be(8192);
         }
 
         [Test]
@@ -166,11 +166,11 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void MaxPoolSize_get_should_return_expected_result()
+        public void MaxChunkCount_get_should_return_expected_result()
         {
             var subject = new BsonChunkPool(1, 16);
 
-            var result = subject.MaxPoolSize;
+            var result = subject.MaxChunkCount;
 
             result.Should().Be(1);
         }
@@ -254,7 +254,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            pool.PoolSize.Should().Be(1);
+            pool.ChunkCount.Should().Be(1);
         }
 
         [Test]
@@ -284,11 +284,11 @@ namespace MongoDB.Bson.Tests.IO
 
             foreach (var handle in handles)
             {
-                pool.PoolSize.Should().Be(0);
+                pool.ChunkCount.Should().Be(0);
                 handle.Dispose();
             }
 
-            pool.PoolSize.Should().Be(1);
+            pool.ChunkCount.Should().Be(1);
         }
 
         [Test]
