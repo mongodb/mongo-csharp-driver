@@ -32,7 +32,7 @@ namespace MongoDB.Driver
     public sealed class FilterDefinitionBuilder<TDocument>
     {
         /// <summary>
-        /// Creates an all filter.
+        /// Creates an all filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -44,7 +44,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an all filter.
+        /// Creates an all filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -76,7 +76,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an equality filter.
+        /// Creates an equality filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -88,7 +88,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an equality filter.
+        /// Creates an equality filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -100,7 +100,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a greater than filter.
+        /// Creates a greater than filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -115,7 +115,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a greater than filter.
+        /// Creates a greater than filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -127,7 +127,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a greater than or equal filter.
+        /// Creates a greater than or equal filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -142,7 +142,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a greater than or equal filter.
+        /// Creates a greater than or equal filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -154,7 +154,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a less than filter.
+        /// Creates a less than filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -169,7 +169,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a less than filter.
+        /// Creates a less than filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -181,7 +181,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a less than or equal filter.
+        /// Creates a less than or equal filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -196,7 +196,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a less than or equal filter.
+        /// Creates a less than or equal filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -208,7 +208,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an in filter.
+        /// Creates an in filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -220,7 +220,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an in filter.
+        /// Creates an in filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -232,7 +232,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a not equal filter.
+        /// Creates a not equal filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -247,7 +247,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a not equal filter.
+        /// Creates a not equal filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -259,7 +259,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a not in filter.
+        /// Creates a not in filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -271,7 +271,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a not in filter.
+        /// Creates a not in filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -283,7 +283,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an element match filter.
+        /// Creates an element match filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -295,7 +295,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an element match filter.
+        /// Creates an element match filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
@@ -307,7 +307,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an element match filter.
+        /// Creates an element match filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>

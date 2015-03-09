@@ -16,13 +16,11 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors;
-using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
 {
@@ -180,14 +178,14 @@ namespace MongoDB.Driver
         {
             _expression = Ensure.IsNotNull(expression, "expression");
 
-            if(expression.Parameters.Count != 1)
+            if (expression.Parameters.Count != 1)
             {
                 throw new ArgumentException("Only a single parameter lambda expression is allowed.", "expression");
             }
-            if(expression.Parameters[0].Type != typeof(TDocument))
+            if (expression.Parameters[0].Type != typeof(TDocument))
             {
                 var message = string.Format("The lambda expression parameter must be of type {0}.", typeof(TDocument));
-                throw new ArgumentException(message);
+                throw new ArgumentException(message, "expression");
             }
         }
 
@@ -336,7 +334,7 @@ namespace MongoDB.Driver
             }
 
             // shortcut BsonDocumentSerializer since it is so common
-            if(serializer.GetType() == typeof(BsonDocumentSerializer))
+            if (serializer.GetType() == typeof(BsonDocumentSerializer))
             {
                 return;
             }
@@ -364,7 +362,7 @@ namespace MongoDB.Driver
             resolvedFieldSerializer = documentSerializer;
             for (int i = 0; i < nameParts.Length; i++)
             {
-                if(nameParts[i] == "$" || nameParts[i].All(char.IsDigit))
+                if (nameParts[i] == "$" || nameParts[i].All(char.IsDigit))
                 {
                     arraySerializer = resolvedFieldSerializer as IBsonArraySerializer;
                     if (arraySerializer != null)
@@ -387,7 +385,7 @@ namespace MongoDB.Driver
                     {
                         serializationInfo = arraySerializer.GetItemSerializationInfo();
                         documentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
-                        if(documentSerializer == null || !documentSerializer.TryGetMemberSerializationInfo(nameParts[i], out serializationInfo))
+                        if (documentSerializer == null || !documentSerializer.TryGetMemberSerializationInfo(nameParts[i], out serializationInfo))
                         {
                             resolvedFieldSerializer = null;
                             break;
