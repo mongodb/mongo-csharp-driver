@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return new ReplaceOneResult.Acknowledged(expectedResult["matchedCount"].ToInt64(), modifiedCount, upsertedId);
         }
 
-        protected override Task<ReplaceOneResult> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection)
+        protected override Task<ReplaceOneResult> ExecuteAndGetResultAsync(IMongoCollection<BsonDocument> collection)
         {
             return collection.ReplaceOneAsync(_filter, _replacement, _options);
         }
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             }
         }
 
-        protected override async Task VerifyCollection(IMongoCollection<BsonDocument> collection, BsonArray expectedData)
+        protected override async Task VerifyCollectionAsync(IMongoCollection<BsonDocument> collection, BsonArray expectedData)
         {
             var data = await collection.Find("{}").ToListAsync();
 

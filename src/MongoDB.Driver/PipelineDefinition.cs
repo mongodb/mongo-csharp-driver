@@ -122,7 +122,7 @@ namespace MongoDB.Driver
                 return null;
             }
 
-            return new BsonDocumentPipelineDefinition<TInput, TOutput>(stages);
+            return new BsonDocumentStagePipelineDefinition<TInput, TOutput>(stages);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace MongoDB.Driver
                 return null;
             }
 
-            return new BsonDocumentPipelineDefinition<TInput, TOutput>(stages);
+            return new BsonDocumentStagePipelineDefinition<TInput, TOutput>(stages);
         }
     }
 
@@ -148,17 +148,17 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TInput">The type of the input.</typeparam>
     /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public sealed class BsonDocumentPipelineDefinition<TInput, TOutput> : PipelineDefinition<TInput, TOutput>
+    public sealed class BsonDocumentStagePipelineDefinition<TInput, TOutput> : PipelineDefinition<TInput, TOutput>
     {
         private readonly IBsonSerializer<TOutput> _outputSerializer;
         private readonly List<BsonDocument> _stages;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentPipelineDefinition{TInput, TOutput}"/> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentStagePipelineDefinition{TInput, TOutput}"/> class.
         /// </summary>
         /// <param name="stages">The stages.</param>
         /// <param name="outputSerializer">The output serializer.</param>
-        public BsonDocumentPipelineDefinition(IEnumerable<BsonDocument> stages, IBsonSerializer<TOutput> outputSerializer = null)
+        public BsonDocumentStagePipelineDefinition(IEnumerable<BsonDocument> stages, IBsonSerializer<TOutput> outputSerializer = null)
         {
             _stages = Ensure.IsNotNull(stages, "stages").ToList();
             _outputSerializer = outputSerializer;

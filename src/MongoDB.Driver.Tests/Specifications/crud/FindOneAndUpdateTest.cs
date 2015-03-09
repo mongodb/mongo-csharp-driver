@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return (BsonDocument)expectedResult;
         }
 
-        protected override Task<BsonDocument> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection)
+        protected override Task<BsonDocument> ExecuteAndGetResultAsync(IMongoCollection<BsonDocument> collection)
         {
             return collection.FindOneAndUpdateAsync(_filter, _update, _options);
         }

@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
     {
         bool CanExecute(ClusterDescription clusterDescription, BsonDocument arguments, out string reason);
 
-        Task Execute(ClusterDescription clusterDescription, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument arguments, BsonDocument outcome);
+        Task ExecuteAsync(ClusterDescription clusterDescription, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument arguments, BsonDocument outcome);
     }
 
     public abstract class CrudOperationTestBase : ICrudOperationTest
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return true;
         }
 
-        public async Task Execute(ClusterDescription clusterDescription, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument arguments, BsonDocument outcome)
+        public async Task ExecuteAsync(ClusterDescription clusterDescription, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument arguments, BsonDocument outcome)
         {
             ClusterDescription = clusterDescription;
 
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 }
             }
 
-            await Execute(collection, outcome);
+            await ExecuteAsync(collection, outcome);
 
             if (outcome.Contains("collection"))
             {
@@ -60,15 +60,15 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 {
                     collectionToVerify = database.GetCollection<BsonDocument>(outcome["collection"]["name"].ToString());
                 }
-                await VerifyCollection(collectionToVerify, (BsonArray)outcome["collection"]["data"]);
+                await VerifyCollectionAsync(collectionToVerify, (BsonArray)outcome["collection"]["data"]);
             }
         }
 
         protected abstract bool TrySetArgument(string name, BsonValue value);
 
-        protected abstract Task Execute(IMongoCollection<BsonDocument> collection, BsonDocument outcome);
+        protected abstract Task ExecuteAsync(IMongoCollection<BsonDocument> collection, BsonDocument outcome);
 
-        protected virtual async Task VerifyCollection(IMongoCollection<BsonDocument> collection, BsonArray expectedData)
+        protected virtual async Task VerifyCollectionAsync(IMongoCollection<BsonDocument> collection, BsonArray expectedData)
         {
             var data = await collection.Find("{}").ToListAsync();
             data.Should().BeEquivalentTo(expectedData);
@@ -77,16 +77,16 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
     public abstract class CrudOperationWithResultTestBase<TResult> : CrudOperationTestBase
     {
-        protected async sealed override Task Execute(IMongoCollection<BsonDocument> collection, BsonDocument outcome)
+        protected async sealed override Task ExecuteAsync(IMongoCollection<BsonDocument> collection, BsonDocument outcome)
         {
-            var actualResult = await ExecuteAndGetResult(collection);
+            var actualResult = await ExecuteAndGetResultAsync(collection);
             var expectedResult = ConvertExpectedResult(outcome["result"]);
             VerifyResult(actualResult, expectedResult);
         }
 
         protected abstract TResult ConvertExpectedResult(BsonValue expectedResult);
 
-        protected abstract Task<TResult> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection);
+        protected abstract Task<TResult> ExecuteAndGetResultAsync(IMongoCollection<BsonDocument> collection);
 
         protected abstract void VerifyResult(TResult actualResult, TResult expectedResult);
     }

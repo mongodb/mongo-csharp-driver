@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return ((BsonArray)expectedResult).Select(x => x.ToBsonDocument()).ToList();
         }
 
-        protected override async Task<List<BsonDocument>> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection)
+        protected override async Task<List<BsonDocument>> ExecuteAndGetResultAsync(IMongoCollection<BsonDocument> collection)
         {
             using (var cursor = await collection.FindAsync(_filter, _options))
             {

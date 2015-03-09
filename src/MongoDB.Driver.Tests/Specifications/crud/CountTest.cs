@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return expectedResult.ToInt64();
         }
 
-        protected override Task<long> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection)
+        protected override Task<long> ExecuteAndGetResultAsync(IMongoCollection<BsonDocument> collection)
         {
             return collection.CountAsync(_filter, _options);
         }

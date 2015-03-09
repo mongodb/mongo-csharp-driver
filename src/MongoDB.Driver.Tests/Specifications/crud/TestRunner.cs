@@ -52,20 +52,20 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         }
 
         [TestCaseSource(typeof(TestCaseFactory), "GetTestCases")]
-        public async Task RunTestDefinition(IEnumerable<BsonDocument> data, BsonDocument definition)
+        public async Task RunTestDefinitionAsync(IEnumerable<BsonDocument> data, BsonDocument definition)
         {
             var database = DriverTestConfiguration.Client
                 .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database
                 .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
-            await collection.DeleteManyAsync("{}");
+            await database.DropCollectionAsync(collection.CollectionNamespace.CollectionName);
             await collection.InsertManyAsync(data);
 
-            await InvokeOperation(database, collection, (BsonDocument)definition["operation"], (BsonDocument)definition["outcome"]);
+            await ExecuteOperationAsync(database, collection, (BsonDocument)definition["operation"], (BsonDocument)definition["outcome"]);
         }
 
-        private Task InvokeOperation(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome)
+        private Task ExecuteOperationAsync(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome)
         {
             var name = (string)operation["name"];
             Func<ICrudOperationTest> factory;
@@ -77,13 +77,13 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             var arguments = (BsonDocument)operation.GetValue("arguments", new BsonDocument());
             var test = factory();
             string reason;
-            if(!test.CanExecute(DriverTestConfiguration.Client.Cluster.Description, arguments, out reason))
+            if (!test.CanExecute(DriverTestConfiguration.Client.Cluster.Description, arguments, out reason))
             {
                 Assert.Ignore(reason);
                 return Task.FromResult(false);
             }
 
-            return factory().Execute(DriverTestConfiguration.Client.Cluster.Description, database, collection, arguments, outcome);
+            return factory().ExecuteAsync(DriverTestConfiguration.Client.Cluster.Description, database, collection, arguments, outcome);
         }
 
         private static class TestCaseFactory

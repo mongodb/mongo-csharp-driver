@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return (BsonDocument)expectedResult;
         }
 
-        protected override Task<BsonDocument> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection)
+        protected override Task<BsonDocument> ExecuteAndGetResultAsync(IMongoCollection<BsonDocument> collection)
         {
             return collection.FindOneAndReplaceAsync(_filter, _replacement, _options);
         }
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             actualResult.Should().Be(expectedResult);
         }
 
-        protected override async Task VerifyCollection(IMongoCollection<BsonDocument> collection, BsonArray expectedData)
+        protected override async Task VerifyCollectionAsync(IMongoCollection<BsonDocument> collection, BsonArray expectedData)
         {
             var data = await collection.Find("{}").ToListAsync();
 
