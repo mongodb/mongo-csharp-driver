@@ -27,8 +27,6 @@ namespace MongoDB.Driver
     [TestFixture]
     public class WriteConcernTests
     {
-        private static readonly WriteConcern __default = new WriteConcern();
-
         [Test]
         public void Acknowledged_should_return_expected_result()
         {

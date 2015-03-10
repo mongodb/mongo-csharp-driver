@@ -361,7 +361,7 @@ namespace MongoDB.Driver
                     Verbose = options.Verbose
                 };
 
-                var result = await ExecuteWriteOperation(operation, cancellationToken);
+                await ExecuteWriteOperation(operation, cancellationToken);
 
                 var findOperation = new FindOperation<TResult>(
                     outputCollectionNamespace,

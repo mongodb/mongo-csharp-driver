@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly BsonJavaScript _mapFunction = "map";
         private CollectionNamespace _outputCollectionNamespace;
-        private readonly BsonDocument _query = new BsonDocument("query", 1);
         private readonly BsonJavaScript _reduceFunction = "reduce";
 
         // setup methods
@@ -158,6 +157,18 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
 
+		[Test]
+		public void Filter_should_get_and_set_value()
+		{
+			var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+			var value = new BsonDocument("_id", 1);
+
+			subject.Filter = value;
+			var result = subject.Filter;
+
+			result.Should().Be(value);
+		}
+			
         [Test]
         public void NonAtomicOutput_should_get_and_set_value()
         {

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq.Translators
 
         public override ProjectedObject Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var type = context.Reader.GetCurrentBsonType();
+            context.Reader.GetCurrentBsonType();
             var obj = ReadDocument(context, null, null, new ProjectedObject());
             return obj;
         }
@@ -83,12 +83,11 @@ namespace MongoDB.Driver.Linq.Translators
             BsonType bsonType;
             while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
             {
-                var currentBsonType = bsonReader.GetCurrentBsonType();
-                if (currentBsonType == BsonType.Document)
+				if (bsonType == BsonType.Document)
                 {
                     array.Add(ReadDocument(context, currentKey, null, new ProjectedObject()));
                 }
-                else if (currentBsonType == BsonType.Array)
+				else if (bsonType == BsonType.Array)
                 {
                     array.Add(ReadArray(context, currentKey));
                 }
@@ -120,13 +119,12 @@ namespace MongoDB.Driver.Linq.Translators
                 }
                 else
                 {
-                    var nestedBsonType = bsonReader.GetCurrentBsonType();
-                    if (bsonType == BsonType.Document)
+					if (bsonType == BsonType.Document)
                     {
                         // we are going to read nested documents into the same documentStore to keep them flat, optimized for lookup
                         ReadDocument(context, newCurrentKey, newScopeKey, currentObject);
                     }
-                    else if (bsonType == BsonType.Array)
+					else if (bsonType == BsonType.Array)
                     {
                         currentObject.Add(name, ReadArray(context, newCurrentKey));
                     }

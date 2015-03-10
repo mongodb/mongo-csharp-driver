@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Tests.IO
             var subject = CreateSubjectWithFakeBuffer();
             subject.Buffer.AccessBackingBytes(1).Returns(new ArraySegment<byte>(new byte[3], 1, 2));
 
-            var result = subject.AccessBackingBytes(0);
+            subject.AccessBackingBytes(0);
 
             subject.Buffer.Received(1).AccessBackingBytes(1);
         }
@@ -248,7 +248,7 @@ namespace MongoDB.Bson.Tests.IO
             var subject = CreateSubjectWithFakeBuffer();
             var buffer = subject.Buffer;
 
-            var result = subject.GetByte(0);
+            subject.GetByte(0);
 
             buffer.Received(1).GetByte(1);
         }

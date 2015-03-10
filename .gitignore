@@ -15,6 +15,9 @@ codereview.rc
 # GhostDoc artifacts
 CSharpDriver.sln.GhostDoc.xml
 
+# Mac OS artifacts
+.DS_Store
+
 # MonoDevelop artifacts
 *.pidb
 *.userprefs

@@ -215,7 +215,7 @@ namespace MongoDB.Bson.Tests.IO
             var subject = new InputBufferChunkSource(baseSource, maxUnpooledChunkSize: 0, minChunkSize: 4, maxChunkSize: 16);
             baseSource.GetChunk(Arg.Any<int>()).Returns(Substitute.For<IBsonChunk>());
 
-            var chunk = subject.GetChunk(requestedSize);
+            subject.GetChunk(requestedSize);
 
             baseSource.Received(1).GetChunk(roundedSize);
         }

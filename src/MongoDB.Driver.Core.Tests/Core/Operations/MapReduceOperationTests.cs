@@ -74,7 +74,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             await EnsureTestDataAsync();
 
-            var query = new BsonDocument();
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, mapFunction, reduceFunction, _resultSerializer, _messageEncoderSettings);

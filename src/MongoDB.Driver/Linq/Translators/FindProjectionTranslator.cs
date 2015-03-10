@@ -112,11 +112,6 @@ namespace MongoDB.Driver.Linq.Translators
                 var nestedParameter = Expression.Parameter(_replacementParameter.Type, selector.Parameters[0].Name);
                 var nestedBody = new ProjectedObjectFieldReplacer().Replace(selector.Body, source.SerializationInfo.ElementName, nestedParameter);
 
-                var newSelector = Expression.Lambda(
-                    Expression.GetFuncType(nestedParameter.Type, nestedBody.Type),
-                    nestedBody,
-                    nestedParameter);
-
                 var newSourceType = typeof(IEnumerable<>).MakeGenericType(nestedParameter.Type);
                 var newSource =
                     Expression.Call(

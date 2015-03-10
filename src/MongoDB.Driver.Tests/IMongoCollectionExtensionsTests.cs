@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
 
-            var expectedPipeline = new PipelineStageDefinition<Person, BsonDocument>[]
+            var expectedPipeline = new BsonDocument[]
             { 
                 BsonDocument.Parse("{ $match: { x: 2 } }"),
                 BsonDocument.Parse("{ $project : { Age : \"$Age\", Name : { $concat : [\"$firstName\", \" \", \"$lastName\"] }, _id : 0 } }"),
@@ -60,6 +60,9 @@ namespace MongoDB.Driver.Tests
 
             fluent.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
 
+			var inputSerializer = subject.DocumentSerializer;
+			var serializerRegistry = subject.Settings.SerializerRegistry;
+			actualPipeline.Render(inputSerializer, serializerRegistry).Documents.Should().Equal(expectedPipeline);
             actualOptions.AllowDiskUse.Should().Be(fluent.Options.AllowDiskUse);
             actualOptions.BatchSize.Should().Be(fluent.Options.BatchSize);
             actualOptions.MaxTime.Should().Be(fluent.Options.MaxTime);

@@ -305,15 +305,11 @@ namespace MongoDB.Bson.Tests
             Assert.IsFalse(a == c);
             Assert.IsFalse(a == d);
             Assert.IsFalse(c == d);
-            Assert.IsFalse(a == null);
-            Assert.IsFalse(null == a);
 
             Assert.IsFalse(a != b);
             Assert.IsTrue(a != c);
             Assert.IsTrue(a != d);
             Assert.IsTrue(c != d);
-            Assert.IsTrue(a != null);
-            Assert.IsTrue(null != a);
         }
 
         [Test]

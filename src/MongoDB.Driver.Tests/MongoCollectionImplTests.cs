@@ -814,16 +814,14 @@ namespace MongoDB.Driver
                 Sort = sort,
                 Verbose = true
             };
-
             var subject = CreateSubject<BsonDocument>();
-            var result = await subject.MapReduceAsync("map", "reduce", options);
+
+            await subject.MapReduceAsync("map", "reduce", options);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
-
             call.Operation.Should().BeOfType<MapReduceOperation<BsonDocument>>();
             var operation = (MapReduceOperation<BsonDocument>)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-
             operation.Filter.Should().Be(filter);
             operation.FinalizeFunction.Should().Be(options.Finalize);
             operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
@@ -855,16 +853,14 @@ namespace MongoDB.Driver
                 Sort = sort,
                 Verbose = true
             };
-
             var subject = CreateSubject<BsonDocument>();
-            var result = await subject.MapReduceAsync("map", "reduce", options);
+
+			await subject.MapReduceAsync("map", "reduce", options);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
-
             call.Operation.Should().BeOfType<MapReduceOutputToCollectionOperation>();
             var operation = (MapReduceOutputToCollectionOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-
             operation.Filter.Should().Be(filter);
             operation.FinalizeFunction.Should().Be(options.Finalize);
             operation.JavaScriptMode.Should().Be(options.JavaScriptMode);

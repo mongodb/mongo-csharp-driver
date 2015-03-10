@@ -128,7 +128,6 @@ namespace MongoDB.Driver
             readPreference = readPreference ?? ReadPreference.Primary;
 
             var renderedCommand = command.Render(_settings.SerializerRegistry);
-            var serializer = _settings.SerializerRegistry.GetSerializer<TResult>();
             var messageEncoderSettings = GetMessageEncoderSettings();
 
             if (readPreference == ReadPreference.Primary)

@@ -28,7 +28,6 @@ namespace MongoDB.Driver
     {
         #region static
         // static fields
-        private static readonly IReadOnlyList<TagSet> __noTagSets = new TagSet[0];
         private static readonly ReadPreference __nearest = new ReadPreference(ReadPreferenceMode.Nearest);
         private static readonly ReadPreference __primary = new ReadPreference(ReadPreferenceMode.Primary);
         private static readonly ReadPreference __primaryPreferred = new ReadPreference(ReadPreferenceMode.PrimaryPreferred);

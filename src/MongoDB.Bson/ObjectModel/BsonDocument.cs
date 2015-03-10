@@ -376,11 +376,6 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public virtual BsonDocument Add(BsonElement element)
         {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
-
             var isDuplicate = IndexOfName(element.Name) != -1;
             if (isDuplicate && !_allowDuplicateNames)
             {
@@ -963,10 +958,6 @@ namespace MongoDB.Bson
         /// <param name="element">The element.</param>
         public virtual void InsertAt(int index, BsonElement element)
         {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
             var isDuplicate = IndexOfName(element.Name) != -1;
             if (isDuplicate && !_allowDuplicateNames)
             {
@@ -1072,11 +1063,6 @@ namespace MongoDB.Bson
         /// <param name="element">The element to remove.</param>
         public virtual void RemoveElement(BsonElement element)
         {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
-
             if (_elements.Remove(element))
             {
                 RebuildIndexes();
@@ -1127,11 +1113,6 @@ namespace MongoDB.Bson
         /// <returns>The document.</returns>
         public virtual BsonDocument SetElement(int index, BsonElement element)
         {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
-
             var oldName = _elements[index].Name;
             _elements[index] = element;
 
@@ -1150,10 +1131,6 @@ namespace MongoDB.Bson
         /// <returns>The document.</returns>
         public virtual BsonDocument SetElement(BsonElement element)
         {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
             var index = IndexOfName(element.Name);
             if (index != -1)
             {

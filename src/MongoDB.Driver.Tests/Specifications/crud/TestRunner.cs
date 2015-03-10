@@ -102,7 +102,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
                         return ((BsonArray)doc["tests"]).Select(def =>
                         {
-                            var fullName = path.Remove(0, prefix.Length);
                             var testCase = new TestCaseData(data, (BsonDocument)def);
                             testCase.Categories.Add("Specifications");
                             testCase.Categories.Add("crud");

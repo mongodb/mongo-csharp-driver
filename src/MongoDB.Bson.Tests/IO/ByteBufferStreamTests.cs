@@ -734,7 +734,7 @@ namespace MongoDB.Bson.Tests.IO
             var subject = new ByteBufferStream(buffer);
             var expectedPosition = length;
 
-            var result = subject.ReadSlice();
+            subject.ReadSlice();
 
             subject.Position.Should().Be(expectedPosition);
             subject.Buffer.Received(1).GetSlice(0, bytes.Length);
