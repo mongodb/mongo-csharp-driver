@@ -287,7 +287,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             var bytes = Enumerable.Range(0, length).Select(n => (byte)n).ToArray();
 
-			using (var memoryStream = new MemoryStream(bytes))
+            using (var memoryStream = new MemoryStream(bytes))
             using (var stream = new BsonStreamAdapter(memoryStream))
             {
                 var buffer = new byte[length + 1];

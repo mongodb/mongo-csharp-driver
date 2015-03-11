@@ -157,17 +157,17 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
 
-		[Test]
-		public void Filter_should_get_and_set_value()
-		{
-			var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
-			var value = new BsonDocument("_id", 1);
+        [Test]
+        public void Filter_should_get_and_set_value()
+        {
+            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+            var value = new BsonDocument("_id", 1);
 
-			subject.Filter = value;
-			var result = subject.Filter;
+            subject.Filter = value;
+            var result = subject.Filter;
 
-			result.Should().Be(value);
-		}
+            result.Should().Be(value);
+        }
 			
         [Test]
         public void NonAtomicOutput_should_get_and_set_value()

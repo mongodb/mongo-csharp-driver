@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq.Utils
         public bool TryGetSerializationInfo(Expression node, out BsonSerializationInfo serializationInfo)
         {
             var evaluatedNode = PartialEvaluator.Evaluate(node);
-			return BsonSerializationInfoFinder.TryGetSerializationInfo(evaluatedNode, _serializationInfoCache, out serializationInfo);
+            return BsonSerializationInfoFinder.TryGetSerializationInfo(evaluatedNode, _serializationInfoCache, out serializationInfo);
         }
 
         /// <summary>

@@ -855,7 +855,7 @@ namespace MongoDB.Driver
             };
             var subject = CreateSubject<BsonDocument>();
 
-			await subject.MapReduceAsync("map", "reduce", options);
+            await subject.MapReduceAsync("map", "reduce", options);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             call.Operation.Should().BeOfType<MapReduceOutputToCollectionOperation>();
