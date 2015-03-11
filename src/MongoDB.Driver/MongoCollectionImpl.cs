@@ -534,11 +534,11 @@ namespace MongoDB.Driver
                 get { return _collection._settings; }
             }
 
-            public override Task CreateAsync(IndexDefinition<TDocument> definition, CreateIndexOptions options, CancellationToken cancellationToken)
+            public override Task CreateAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options, CancellationToken cancellationToken)
             {
-                Ensure.IsNotNull(definition, "definition");
+                Ensure.IsNotNull(keys, "keys");
 
-                var keysDocument = definition.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
+                var keysDocument = keys.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
 
                 options = options ?? new CreateIndexOptions();
                 var request = new CreateIndexRequest(keysDocument)
@@ -565,11 +565,11 @@ namespace MongoDB.Driver
                 return _collection.ExecuteWriteOperation(operation, cancellationToken);
             }
 
-            public override Task DropAsync(IndexDefinition<TDocument> definition, CancellationToken cancellationToken)
+            public override Task DropAsync(IndexKeysDefinition<TDocument> keys, CancellationToken cancellationToken)
             {
-                Ensure.IsNotNull(definition, "definition");
+                Ensure.IsNotNull(keys, "keys");
 
-                var keysDocument = definition.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
+                var keysDocument = keys.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
                 var operation = new DropIndexOperation(_collection._collectionNamespace, keysDocument, _collection._messageEncoderSettings);
 
                 return _collection.ExecuteWriteOperation(operation, cancellationToken);

@@ -22,7 +22,7 @@ namespace MongoDB.Driver
     public static class Builders<TDocument>
     {
         private static FilterDefinitionBuilder<TDocument> __filter = new FilterDefinitionBuilder<TDocument>();
-        private static IndexDefinitionBuilder<TDocument> __index = new IndexDefinitionBuilder<TDocument>();
+        private static IndexKeysDefinitionBuilder<TDocument> __index = new IndexKeysDefinitionBuilder<TDocument>();
         private static ProjectionDefinitionBuilder<TDocument> __projection = new ProjectionDefinitionBuilder<TDocument>();
         private static SortDefinitionBuilder<TDocument> __sort = new SortDefinitionBuilder<TDocument>();
         private static UpdateDefinitionBuilder<TDocument> __update = new UpdateDefinitionBuilder<TDocument>();
@@ -36,9 +36,9 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets an <see cref="IndexDefinitionBuilder{TDocument}"/>.
+        /// Gets an <see cref="IndexKeysDefinitionBuilder{TDocument}"/>.
         /// </summary>
-        public static IndexDefinitionBuilder<TDocument> Index
+        public static IndexKeysDefinitionBuilder<TDocument> IndexKeys
         {
             get { return __index; }
         }

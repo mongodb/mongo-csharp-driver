@@ -23,7 +23,7 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Tests
 {
     [TestFixture]
-    public class IndexDefinitionBuilderTests
+    public class IndexKeysDefinitionBuilderTests
     {
         [Test]
         public void Ascending()
@@ -47,11 +47,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            var definition = subject.Combine(
+            var result = subject.Combine(
                 "{a: 1, b: -1}",
                 subject.Descending("c"));
 
-            Assert(definition, "{a: 1, b: -1, c: -1}");
+            Assert(result, "{a: 1, b: -1, c: -1}");
         }
 
         [Test]
@@ -59,11 +59,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            var definition = subject.Combine(
+            var combined = subject.Combine(
                 "{a: 1, b: -1}",
                 subject.Descending("a"));
 
-            Action act = () => Render(definition);
+            Action act = () => Render(combined);
             
             act.ShouldThrow<MongoException>();
         }
@@ -73,12 +73,12 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            var definition = subject.Combine(
+            var result = subject.Combine(
                 subject.Text("a"),
                 subject.Text("b"),
                 subject.Text("c"));
 
-            Assert(definition, "{a: 'text', b: 'text', c: 'text'}");
+            Assert(result, "{a: 'text', b: 'text', c: 'text'}");
         }
 
         [Test]
@@ -86,12 +86,12 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            var definition = subject.Ascending("a")
+            var result = subject.Ascending("a")
                 .Ascending("b")
                 .Descending("c")
                 .Descending("a");
 
-            Action act = () => Render(definition);
+            Action act = () => Render(result);
 
             act.ShouldThrow<MongoException>();
         }
@@ -185,22 +185,22 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Text("$**"), "{'$**': 'text'}");
         }
 
-        private void Assert<TDocument>(IndexDefinition<TDocument> definition, string expectedJson)
+        private void Assert<TDocument>(IndexKeysDefinition<TDocument> keys, string expectedJson)
         {
-            var renderedSort = Render<TDocument>(definition);
+            var renderedSort = Render<TDocument>(keys);
 
             renderedSort.Should().Be(expectedJson);
         }
 
-        private BsonDocument Render<TDocument>(IndexDefinition<TDocument> definition)
+        private BsonDocument Render<TDocument>(IndexKeysDefinition<TDocument> keys)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            return definition.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            return keys.Render(documentSerializer, BsonSerializer.SerializerRegistry);
         }
 
-        private IndexDefinitionBuilder<TDocument> CreateSubject<TDocument>()
+        private IndexKeysDefinitionBuilder<TDocument> CreateSubject<TDocument>()
         {
-            return new IndexDefinitionBuilder<TDocument>();
+            return new IndexKeysDefinitionBuilder<TDocument>();
         }
 
         private class Person

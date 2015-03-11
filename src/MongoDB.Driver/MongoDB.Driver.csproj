@@ -79,7 +79,7 @@
     </Compile>
     <Compile Include="AggregateFluent.cs" />
     <Compile Include="Builders.cs" />
-    <Compile Include="IndexDefinition.cs" />
+    <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="Linq\Expressions\ISerializationExpression.cs" />
     <Compile Include="Linq\Processors\Normalizer.cs" />
     <Compile Include="Linq\Expressions\Nominator.cs" />
@@ -93,7 +93,7 @@
     <Compile Include="FilterDefinition.cs" />
     <Compile Include="AggregateFluentBase.cs" />
     <Compile Include="ProjectionDefinitionBuilder.cs" />
-    <Compile Include="IndexDefinitionBuilder.cs" />
+    <Compile Include="IndexKeysDefinitionBuilder.cs" />
     <Compile Include="SortDefinitionBuilder.cs" />
     <Compile Include="FilterDefinitionBuilder.cs" />
     <Compile Include="IAggregateFluentExtensions.cs" />

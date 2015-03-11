@@ -21,13 +21,13 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Base class for an index definition.
+    /// Base class for an index keys definition.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public abstract class IndexDefinition<TDocument>
+    public abstract class IndexKeysDefinition<TDocument>
     {
         /// <summary>
-        /// Renders the indexes to a <see cref="BsonDocument"/>.
+        /// Renders the index keys definition to a <see cref="BsonDocument"/>.
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
@@ -35,53 +35,53 @@ namespace MongoDB.Driver
         public abstract BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="IndexDefinition{TDocument}"/>.
+        /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="IndexKeysDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator IndexDefinition<TDocument>(BsonDocument document)
+        public static implicit operator IndexKeysDefinition<TDocument>(BsonDocument document)
         {
             if (document == null)
             {
                 return null;
             }
 
-            return new BsonDocumentIndexDefinition<TDocument>(document);
+            return new BsonDocumentIndexKeysDefinition<TDocument>(document);
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="IndexDefinition{TDocument}" />.
+        /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="IndexKeysDefinition{TDocument}" />.
         /// </summary>
         /// <param name="json">The JSON string.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator IndexDefinition<TDocument>(string json)
+        public static implicit operator IndexKeysDefinition<TDocument>(string json)
         {
             if (json == null)
             {
                 return null;
             }
 
-            return new JsonIndexDefinition<TDocument>(json);
+            return new JsonIndexKeysDefinition<TDocument>(json);
         }
     }
 
     /// <summary>
-    /// A <see cref="BsonDocument"/> based index definition.
+    /// A <see cref="BsonDocument"/> based index keys definition.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class BsonDocumentIndexDefinition<TDocument> : IndexDefinition<TDocument>
+    public sealed class BsonDocumentIndexKeysDefinition<TDocument> : IndexKeysDefinition<TDocument>
     {
         private readonly BsonDocument _document;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentIndexDefinition{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentIndexKeysDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="document">The document.</param>
-        public BsonDocumentIndexDefinition(BsonDocument document)
+        public BsonDocumentIndexKeysDefinition(BsonDocument document)
         {
             _document = Ensure.IsNotNull(document, "document");
         }
@@ -102,18 +102,18 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// A JSON <see cref="String" /> based index definition.
+    /// A JSON <see cref="String" /> based index keys definition.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class JsonIndexDefinition<TDocument> : IndexDefinition<TDocument>
+    public sealed class JsonIndexKeysDefinition<TDocument> : IndexKeysDefinition<TDocument>
     {
         private readonly string _json;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonIndexDefinition{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="JsonIndexKeysDefinition{TDocument}"/> class.
         /// </summary>
         /// <param name="json">The json.</param>
-        public JsonIndexDefinition(string json)
+        public JsonIndexKeysDefinition(string json)
         {
             _json = Ensure.IsNotNull(json, "json");
         }

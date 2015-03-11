@@ -98,7 +98,7 @@
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
     <Compile Include="PipelineDefinitionTests.cs" />
     <Compile Include="ProjectionDefinitionBuilderTests.cs" />
-    <Compile Include="IndexDefinitionBuilderTests.cs" />
+    <Compile Include="IndexKeysDefinitionBuilderTests.cs" />
     <Compile Include="SortDefinitionBuilderTests.cs" />
     <Compile Include="UpdateDefinitionBuilderTests.cs" />
     <Compile Include="FilterDefinitionBuilderTests.cs" />
