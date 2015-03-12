@@ -42,6 +42,21 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
+        public void AccessBackingBytes_should_adjust_count_when_multiple_chunks_are_present()
+        {
+            var arrays = new[] { new byte[] { 1, 2 }, new byte[] { 3, 4 } };
+            var chunks = arrays.Select(a => new ByteArrayChunk(a));
+            var buffer = new MultiChunkBuffer(chunks, isReadOnly: true);
+            var subject = new ByteBufferSlice(buffer, 1, 2);
+
+            var result = subject.AccessBackingBytes(0);
+
+            result.Array.Should().BeSameAs(arrays[0]);
+            result.Offset.Should().Be(1);
+            result.Count.Should().Be(1); // not 2 or 3
+        }
+
+        [Test]
         public void AccessBackingBytes_should_adjust_position()
         {
             var subject = CreateSubjectWithFakeBuffer();

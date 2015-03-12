@@ -114,7 +114,8 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
 
             var segment = _buffer.AccessBackingBytes(position + _offset);
-            return new ArraySegment<byte>(segment.Array, segment.Offset, _length - position);
+            var count = Math.Min(segment.Count, _length - position);
+            return new ArraySegment<byte>(segment.Array, segment.Offset, count);
         }
 
         /// <inheritdoc/>
