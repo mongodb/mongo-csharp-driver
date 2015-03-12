@@ -36,9 +36,11 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            var cursor = await collection.Indexes.ListAsync();
-            var indexes = await cursor.ToListAsync();
-            indexes.Should().Contain(index => index["name"] == "cuisine_1");
+            using (var cursor = await collection.Indexes.ListAsync())
+            {
+                var indexes = await cursor.ToListAsync();
+                indexes.Should().Contain(index => index["name"] == "cuisine_1");
+            }
             // @results: end
 
             // @end: single-field-index
@@ -56,9 +58,11 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            var cursor = await collection.Indexes.ListAsync();
-            var indexes = await cursor.ToListAsync();
-            indexes.Should().Contain(index => index["name"] == "cuisine_1_address.zipcode_1");
+            using (var cursor = await collection.Indexes.ListAsync())
+            {
+                var indexes = await cursor.ToListAsync();
+                indexes.Should().Contain(index => index["name"] == "cuisine_1_address.zipcode_1");
+            }
             // @results: end
 
             // @end: create-compound-index

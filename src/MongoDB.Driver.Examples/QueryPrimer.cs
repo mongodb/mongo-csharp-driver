@@ -49,9 +49,8 @@ namespace MongoDB.Driver.Examples
             // @begin: logical-and
             // @code: start
             var collection = _database.GetCollection<BsonDocument>("restaurants");
-            var filter = Builders<BsonDocument>.Filter.And(
-                Builders<BsonDocument>.Filter.Eq("cuisine", "Italian"),
-                Builders<BsonDocument>.Filter.Eq("address.zipcode", "10075"));
+            var builder = Builders<BsonDocument>.Filter;
+            var filter = builder.Eq("cuisine", "Italian") & builder.Eq("address.zipcode", "10075");
             var result = await collection.Find(filter).ToListAsync();
             // @code: end
 
@@ -68,9 +67,8 @@ namespace MongoDB.Driver.Examples
             // @begin: logical-or
             // @code: start
             var collection = _database.GetCollection<BsonDocument>("restaurants");
-            var filter = Builders<BsonDocument>.Filter.Or(
-                Builders<BsonDocument>.Filter.Eq("cuisine", "Italian"),
-                Builders<BsonDocument>.Filter.Eq("address.zipcode", "10075"));
+            var builder = Builders<BsonDocument>.Filter;
+            var filter = builder.Eq("cuisine", "Italian") | builder.Eq("address.zipcode", "10075");
             var result = await collection.Find(filter).ToListAsync();
             // @code: end
 

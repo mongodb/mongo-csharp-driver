@@ -40,7 +40,11 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.ModifiedCount.Should().Be(1);
+            result.MatchedCount.Should().Be(1);
+            if (result.IsModifiedCountAvailable)
+            {
+                result.ModifiedCount.Should().Be(1);
+            }
             // @results: end
 
             // @end: update-top-level-fields
@@ -59,7 +63,11 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.ModifiedCount.Should().Be(1);
+            result.MatchedCount.Should().Be(1);
+            if (result.IsModifiedCountAvailable)
+            {
+                result.ModifiedCount.Should().Be(1);
+            }
             // @results: end
 
             // @end: update-embedded-field
@@ -81,7 +89,10 @@ namespace MongoDB.Driver.Examples
 
             // @results: start
             result.MatchedCount.Should().Be(433);
-            result.ModifiedCount.Should().Be(433);
+            if (result.IsModifiedCountAvailable)
+            {
+                result.ModifiedCount.Should().Be(433);
+            }
             // @results: end
 
             // @end: update-multiple-documents

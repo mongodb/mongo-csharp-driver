@@ -69,9 +69,11 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            var cursor = await _database.ListCollectionsAsync();
-            var collections = await cursor.ToListAsync();
-            collections.Should().NotContain(document => document["name"] == "restaurants");
+            using (var cursor = await _database.ListCollectionsAsync())
+            {
+                var collections = await cursor.ToListAsync();
+                collections.Should().NotContain(document => document["name"] == "restaurants");
+            }
             // @results: end
 
             // @end: drop-collection
