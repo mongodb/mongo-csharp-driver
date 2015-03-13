@@ -346,7 +346,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_state.Value == State.Failed)
                 {
-                    throw new MongoConnectionFailedException(_connectionId);
+                    throw new MongoConnectionClosedException(_connectionId);
                 }
 
                 try
@@ -440,7 +440,7 @@ namespace MongoDB.Driver.Core.Connections
             ThrowIfDisposed();
             if (_state.Value == State.Failed)
             {
-                throw new MongoConnectionFailedException(_connectionId);
+                throw new MongoConnectionClosedException(_connectionId);
             }
             if (_state.Value != State.Open && _state.Value != State.Initializing)
             {

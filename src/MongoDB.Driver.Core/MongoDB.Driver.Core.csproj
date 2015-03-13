@@ -256,7 +256,7 @@
     <Compile Include="Core\Configuration\TcpStreamSettings.cs" />
     <Compile Include="Core\Configuration\ConnectionString.cs" />
     <Compile Include="MongoConfigurationException.cs" />
-    <Compile Include="MongoConnectionFailedException.cs" />
+    <Compile Include="MongoConnectionClosedException.cs" />
     <Compile Include="Core\Misc\Range.cs" />
     <Compile Include="Core\Misc\ToStringComparer.cs" />
     <Compile Include="Core\Misc\IdGenerator.cs" />

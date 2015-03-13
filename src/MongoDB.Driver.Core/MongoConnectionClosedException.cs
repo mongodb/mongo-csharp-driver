@@ -23,24 +23,24 @@ namespace MongoDB.Driver
     /// Represents a MongoDB connection failed exception.
     /// </summary>
     [Serializable]
-    public class MongoConnectionFailedException : MongoConnectionException
+    public class MongoConnectionClosedException : MongoConnectionException
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="MongoConnectionFailedException"/> class.
+        /// Initializes a new instance of the <see cref="MongoConnectionClosedException"/> class.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
-        public MongoConnectionFailedException(ConnectionId connectionId)
-            : base(connectionId, "The connection failed while we were waiting our turn to use it.")
+        public MongoConnectionClosedException(ConnectionId connectionId)
+            : base(connectionId, "The connection was closed while we were waiting our turn to use it.")
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MongoConnectionFailedException"/> class.
+        /// Initializes a new instance of the <see cref="MongoConnectionClosedException"/> class.
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        protected MongoConnectionFailedException(SerializationInfo info, StreamingContext context)
+        protected MongoConnectionClosedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

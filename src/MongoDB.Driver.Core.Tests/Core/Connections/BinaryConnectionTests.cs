@@ -293,7 +293,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Test]
-        public async Task ReceiveMessageAsync_should_throw_MongoConnectionFailedException_when_connection_has_failed()
+        public async Task ReceiveMessageAsync_should_throw_MongoConnectionClosedException_when_connection_has_failed()
         {
             using (var stream = Substitute.For<Stream>())
             {
@@ -322,7 +322,7 @@ namespace MongoDB.Driver.Core.Connections
                 var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
 
                 Func<Task> act2 = () => task2;
-                act2.ShouldThrow<MongoConnectionFailedException>()
+                act2.ShouldThrow<MongoConnectionClosedException>()
                     .And.ConnectionId.Should().Be(_subject.ConnectionId);
 
                 _listener.ReceivedWithAnyArgs().ConnectionBeforeReceivingMessage(default(ConnectionBeforeReceivingMessageEvent));
@@ -383,7 +383,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Test]
-        public async Task SendMessageAsync_should_throw_MongoConnectionFailedException_for_queued_tasks()
+        public async Task SendMessageAsync_should_throw_MongoConnectionClosedException_for_waiting_tasks()
         {
             using (var stream = Substitute.For<Stream>())
             {
@@ -414,7 +414,7 @@ namespace MongoDB.Driver.Core.Connections
                     .And.ConnectionId.Should().Be(_subject.ConnectionId);
 
                 Func<Task> act2 = () => task2;
-                act2.ShouldThrow<MongoConnectionFailedException>();
+                act2.ShouldThrow<MongoConnectionClosedException>();
 
                 _listener.ReceivedWithAnyArgs().ConnectionBeforeSendingMessages(default(ConnectionBeforeSendingMessagesEvent));
                 _listener.ReceivedWithAnyArgs().ConnectionErrorSendingMessages(default(ConnectionErrorSendingMessagesEvent));

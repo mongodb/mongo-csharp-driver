@@ -33,24 +33,24 @@ namespace MongoDB.Driver
         [Test]
         public void constructor_should_initialize_subject()
         {
-            var subject = new MongoConnectionFailedException(_connectionId);
+            var subject = new MongoConnectionClosedException(_connectionId);
 
             subject.ConnectionId.Should().BeSameAs(_connectionId);
             subject.InnerException.Should().BeNull();
-            subject.Message.Should().BeSameAs("The connection failed while we were waiting our turn to use it.");
+            subject.Message.Should().BeSameAs("The connection was closed while we were waiting our turn to use it.");
         }
 
         [Test]
         public void Serialization_should_work()
         {
-            var subject = new MongoConnectionFailedException(_connectionId);
+            var subject = new MongoConnectionClosedException(_connectionId);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
-                var rehydrated = (MongoConnectionFailedException)formatter.Deserialize(stream);
+                var rehydrated = (MongoConnectionClosedException)formatter.Deserialize(stream);
 
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.InnerException.Should().BeNull();
