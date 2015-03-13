@@ -31,14 +31,16 @@ namespace MongoDB.Driver
     internal sealed class MongoDatabaseImpl : MongoDatabaseBase
     {
         // fields
+        private readonly IMongoClient _client;
         private readonly ICluster _cluster;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoDatabaseSettings _settings;
 
         // constructors
-        public MongoDatabaseImpl(DatabaseNamespace databaseNamespace, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
+        public MongoDatabaseImpl(IMongoClient client, DatabaseNamespace databaseNamespace, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
+            _client = Ensure.IsNotNull(client, "client");
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _settings = Ensure.IsNotNull(settings, "settings").Freeze();
             _cluster = Ensure.IsNotNull(cluster, "cluster");
@@ -46,6 +48,11 @@ namespace MongoDB.Driver
         }
 
         // properties
+        public override IMongoClient Client
+        {
+            get { return _client; }
+        }
+
         public override DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
@@ -92,7 +99,7 @@ namespace MongoDB.Driver
 
             settings.ApplyDefaultValues(_settings);
 
-            return new MongoCollectionImpl<TDocument>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
+            return new MongoCollectionImpl<TDocument>(this, new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
         public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)

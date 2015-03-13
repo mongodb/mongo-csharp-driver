@@ -27,13 +27,31 @@ namespace MongoDB.Driver
     /// Base class for implementors of <see cref="IMongoCollection{TDocument}"/>.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public abstract class MongoCollectionBase<TDocument> : ReadOnlyMongoCollectionBase<TDocument>, IMongoCollection<TDocument>
+    public abstract class MongoCollectionBase<TDocument> : IMongoCollection<TDocument>
     {
+        /// <inheritdoc />
+        public abstract CollectionNamespace CollectionNamespace { get; }
+
+        /// <inheritdoc />
+        public abstract IMongoDatabase Database { get; }
+
+        /// <inheritdoc />
+        public abstract IBsonSerializer<TDocument> DocumentSerializer { get; }
+
         /// <inheritdoc />
         public abstract IMongoIndexManager<TDocument> Indexes { get; }
 
         /// <inheritdoc />
+        public abstract MongoCollectionSettings Settings { get; }
+
+        /// <inheritdoc />
+        public abstract Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <inheritdoc />
         public abstract Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <inheritdoc />
+        public abstract Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
         public virtual async Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
@@ -70,6 +88,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public abstract Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <inheritdoc />
+        public abstract Task<IAsyncCursor<TResult>> FindAsync<TResult>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <inheritdoc />
         public abstract Task<TResult> FindOneAndDeleteAsync<TResult>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
@@ -103,6 +127,9 @@ namespace MongoDB.Driver
             BulkWriteOptions bulkWriteOptions = options == null ? null : new BulkWriteOptions { IsOrdered = options.IsOrdered };
             return BulkWriteAsync(models, bulkWriteOptions, cancellationToken);
         }
+
+        /// <inheritdoc />
+        public abstract Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
         public virtual async Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))

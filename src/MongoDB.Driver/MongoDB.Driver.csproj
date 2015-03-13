@@ -107,11 +107,9 @@
     <Compile Include="IFindFluent.cs" />
     <Compile Include="IFindFluentExtensions.cs" />
     <Compile Include="IInheritableMongoClientSettings.cs" />
-    <Compile Include="IReadOnlyMongoCollectionExtensions.cs" />
     <Compile Include="IMongoCollectionExtensions.cs" />
     <Compile Include="IMongoIndexManager.cs" />
     <Compile Include="InsertManyOptions.cs" />
-    <Compile Include="IReadOnlyMongoCollection.cs" />
     <Compile Include="Linq\Expressions\AggregationExpression.cs" />
     <Compile Include="Linq\Expressions\AggregationType.cs" />
     <Compile Include="Linq\Expressions\SerializationExpression.cs" />
@@ -134,7 +132,6 @@
     <Compile Include="FindFluentBase.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="UpdateDefinitionBuilder.cs" />
-    <Compile Include="ReadOnlyMongoCollectionBase.cs" />
     <Compile Include="RenameCollectionOptions.cs" />
     <Compile Include="CreateCollectionOptions.cs" />
     <Compile Include="DistinctOptions.cs" />

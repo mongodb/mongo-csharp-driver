@@ -25,6 +25,9 @@ namespace MongoDB.Driver
     public abstract class MongoDatabaseBase : IMongoDatabase
     {
         /// <inheritdoc />
+        public abstract IMongoClient Client { get; }
+
+        /// <inheritdoc />
         public abstract DatabaseNamespace DatabaseNamespace { get; }
 
         /// <inheritdoc />

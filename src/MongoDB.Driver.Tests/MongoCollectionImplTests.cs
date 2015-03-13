@@ -52,6 +52,7 @@ namespace MongoDB.Driver
             settings.ApplyDefaultValues(dbSettings);
 
             return new MongoCollectionImpl<TDocument>(
+                Substitute.For<IMongoDatabase>(),
                 new CollectionNamespace("foo", "bar"),
                 settings,
                 Substitute.For<ICluster>(),
@@ -63,6 +64,12 @@ namespace MongoDB.Driver
         {
             var subject = CreateSubject<BsonDocument>();
             subject.CollectionNamespace.CollectionName.Should().Be("bar");
+        }
+
+        public void Database_should_be_set()
+        {
+            var subject = CreateSubject<BsonDateTime>();
+            subject.Database.Should().NotBeNull();
         }
 
         [Test]

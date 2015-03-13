@@ -41,10 +41,17 @@ namespace MongoDB.Driver
             settings.ApplyDefaultValues(new MongoClientSettings());
             _operationExecutor = new MockOperationExecutor();
             _subject = new MongoDatabaseImpl(
+                Substitute.For<IMongoClient>(),
                 new DatabaseNamespace("foo"),
                 settings,
                 Substitute.For<ICluster>(),
                 _operationExecutor);
+        }
+
+        [Test]
+        public void Client_should_be_set()
+        {
+            _subject.Client.Should().NotBeNull();
         }
 
         [Test]

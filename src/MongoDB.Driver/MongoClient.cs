@@ -120,7 +120,7 @@ namespace MongoDB.Driver
 
             settings.ApplyDefaultValues(_settings);
 
-            return new MongoDatabaseImpl(new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
+            return new MongoDatabaseImpl(this, new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
         }
 
         /// <inheritdoc/>

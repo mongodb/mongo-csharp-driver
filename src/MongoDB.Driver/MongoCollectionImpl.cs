@@ -34,14 +34,16 @@ namespace MongoDB.Driver
         // fields
         private readonly ICluster _cluster;
         private readonly CollectionNamespace _collectionNamespace;
+        private readonly IMongoDatabase _database;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IOperationExecutor _operationExecutor;
         private readonly IBsonSerializer<TDocument> _documentSerializer;
         private readonly MongoCollectionSettings _settings;
 
         // constructors
-        public MongoCollectionImpl(CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
+        public MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
+            _database = Ensure.IsNotNull(database, "database");
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _settings = Ensure.IsNotNull(settings, "settings").Freeze();
             _cluster = Ensure.IsNotNull(cluster, "cluster");
@@ -60,6 +62,11 @@ namespace MongoDB.Driver
         public override CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        public override IMongoDatabase Database
+        {
+            get { return _database; }
         }
 
         public override IBsonSerializer<TDocument> DocumentSerializer
@@ -382,14 +389,14 @@ namespace MongoDB.Driver
         {
             var newSettings = _settings.Clone();
             newSettings.ReadPreference = readPreference;
-            return new MongoCollectionImpl<TDocument>(_collectionNamespace, newSettings, _cluster, _operationExecutor);
+            return new MongoCollectionImpl<TDocument>(_database, _collectionNamespace, newSettings, _cluster, _operationExecutor);
         }
 
         public override IMongoCollection<TDocument> WithWriteConcern(WriteConcern writeConcern)
         {
             var newSettings = _settings.Clone();
             newSettings.WriteConcern = writeConcern;
-            return new MongoCollectionImpl<TDocument>(_collectionNamespace, newSettings, _cluster, _operationExecutor);
+            return new MongoCollectionImpl<TDocument>(_database, _collectionNamespace, newSettings, _cluster, _operationExecutor);
         }
 
         private void AssignId(TDocument document)

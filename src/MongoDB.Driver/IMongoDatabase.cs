@@ -31,6 +31,11 @@ namespace MongoDB.Driver
     public interface IMongoDatabase
     {
         /// <summary>
+        /// Gets the client.
+        /// </summary>
+        IMongoClient Client { get; }
+
+        /// <summary>
         /// Gets the namespace of the database.
         /// </summary>
         DatabaseNamespace DatabaseNamespace { get; }
