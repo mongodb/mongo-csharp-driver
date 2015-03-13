@@ -84,19 +84,6 @@ namespace MongoDB.Driver
 
             return new JsonSortDefinition<TDocument>(json);
         }
-
-        /// <summary>
-        /// Implements the operator +.
-        /// </summary>
-        /// <param name="lhs">The LHS.</param>
-        /// <param name="rhs">The RHS.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
-        public static SortDefinition<TDocument> operator +(SortDefinition<TDocument> lhs, SortDefinition<TDocument> rhs)
-        {
-            return new SortDefinitionBuilder<TDocument>().Combine(lhs, rhs);
-        }
     }
 
     /// <summary>

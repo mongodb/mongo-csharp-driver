@@ -66,19 +66,6 @@ namespace MongoDB.Driver
             }
             return new JsonUpdateDefinition<TDocument>(json);
         }
-
-        /// <summary>
-        /// Implements the operator +.
-        /// </summary>
-        /// <param name="lhs">The LHS.</param>
-        /// <param name="rhs">The RHS.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
-        public static UpdateDefinition<TDocument> operator +(UpdateDefinition<TDocument> lhs, UpdateDefinition<TDocument> rhs)
-        {
-            return new CombinedUpdateDefinition<TDocument>(new[] { lhs, rhs });
-        }
     }
 
     /// <summary>
