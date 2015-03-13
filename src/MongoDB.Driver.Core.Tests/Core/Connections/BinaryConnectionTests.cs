@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -98,9 +97,11 @@ namespace MongoDB.Driver.Core.Connections
             _connectionInitializer.InitializeConnectionAsync(null, CancellationToken.None)
                 .ReturnsForAnyArgs(result.Task);
 
-            Action act = () => _subject.OpenAsync(CancellationToken.None).Wait();
+            Func<Task> act = () => _subject.OpenAsync(CancellationToken.None);
 
-            act.ShouldThrow<SocketException>();
+            act.ShouldThrow<MongoConnectionException>()
+                .WithInnerException<SocketException>()
+                .And.ConnectionId.Should().Be(_subject.ConnectionId);
 
             _listener.ReceivedWithAnyArgs().ConnectionBeforeOpening(default(ConnectionBeforeOpeningEvent));
             _listener.ReceivedWithAnyArgs().ConnectionErrorOpening(default(ConnectionErrorOpeningEvent));
@@ -254,7 +255,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Test]
-        public void ReceiveMessageAsync_should_throw_network_exception_to_all_awaiters()
+        public async Task ReceiveMessageAsync_should_throw_network_exception_to_all_awaiters()
         {
             using (var stream = Substitute.For<Stream>())
             {
@@ -269,18 +270,22 @@ namespace MongoDB.Driver.Core.Connections
                 stream.WriteAsync(null, 0, 0, CancellationToken.None)
                     .ReturnsForAnyArgs(writeTcs.Task);
 
-                _subject.OpenAsync(CancellationToken.None).Wait();
+                await _subject.OpenAsync(CancellationToken.None);
 
                 var task1 = _subject.ReceiveMessageAsync<BsonDocument>(1, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
                 var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
 
                 readTcs.SetException(new SocketException());
 
-                Action act1 = () => task1.GetAwaiter().GetResult();
-                act1.ShouldThrow<SocketException>();
+                Func<Task> act1 = () => task1;
+                act1.ShouldThrow<MongoConnectionException>()
+                    .WithInnerException<SocketException>()
+                    .And.ConnectionId.Should().Be(_subject.ConnectionId);
 
-                Action act2 = () => task2.GetAwaiter().GetResult();
-                act2.ShouldThrow<SocketException>();
+                Func<Task> act2 = () => task2;
+                act2.ShouldThrow<MongoConnectionException>()
+                    .WithInnerException<SocketException>()
+                    .And.ConnectionId.Should().Be(_subject.ConnectionId);
 
                 _listener.ReceivedWithAnyArgs(2).ConnectionBeforeReceivingMessage(default(ConnectionBeforeReceivingMessageEvent));
                 _listener.ReceivedWithAnyArgs(2).ConnectionErrorReceivingMessage(default(ConnectionErrorReceivingMessageEvent));
@@ -288,7 +293,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Test]
-        public void ReceiveMessageAsync_should_throw_ConnectionFailedException_when_connection_has_failed()
+        public async Task ReceiveMessageAsync_should_throw_MongoConnectionFailedException_when_connection_has_failed()
         {
             using (var stream = Substitute.For<Stream>())
             {
@@ -303,19 +308,22 @@ namespace MongoDB.Driver.Core.Connections
                 stream.WriteAsync(null, 0, 0, CancellationToken.None)
                     .ReturnsForAnyArgs(writeTcs.Task);
 
-                _subject.OpenAsync(CancellationToken.None).Wait();
+                await _subject.OpenAsync(CancellationToken.None);
 
                 var task1 = _subject.ReceiveMessageAsync<BsonDocument>(1, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
 
                 readTcs.SetException(new SocketException());
 
-                Action act1 = () => task1.GetAwaiter().GetResult();
-                act1.ShouldThrow<SocketException>();
+                Func<Task> act1 = () => task1;
+                act1.ShouldThrow<MongoConnectionException>()
+                    .WithInnerException<SocketException>()
+                    .And.ConnectionId.Should().Be(_subject.ConnectionId);
 
                 var task2 = _subject.ReceiveMessageAsync<BsonDocument>(2, BsonDocumentSerializer.Instance, _messageEncoderSettings, CancellationToken.None);
 
-                Action act2 = () => task2.GetAwaiter().GetResult();
-                act2.ShouldThrow<MongoConnectionException>();
+                Func<Task> act2 = () => task2;
+                act2.ShouldThrow<MongoConnectionFailedException>()
+                    .And.ConnectionId.Should().Be(_subject.ConnectionId);
 
                 _listener.ReceivedWithAnyArgs().ConnectionBeforeReceivingMessage(default(ConnectionBeforeReceivingMessageEvent));
                 _listener.ReceivedWithAnyArgs().ConnectionErrorReceivingMessage(default(ConnectionErrorReceivingMessageEvent));
@@ -375,7 +383,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Test]
-        public void SendMessageAsync_should_throw_MessageNotSentException_for_queued_messages()
+        public async Task SendMessageAsync_should_throw_MongoConnectionFailedException_for_queued_tasks()
         {
             using (var stream = Substitute.For<Stream>())
             {
@@ -390,7 +398,7 @@ namespace MongoDB.Driver.Core.Connections
                 stream.WriteAsync(null, 0, 0, CancellationToken.None)
                     .ReturnsForAnyArgs(writeTcs.Task);
 
-                _subject.OpenAsync(CancellationToken.None).Wait();
+                await _subject.OpenAsync(CancellationToken.None);
 
                 var message1 = new KillCursorsMessage(1, new[] { 1L });
                 var task1 = _subject.SendMessageAsync(message1, _messageEncoderSettings, CancellationToken.None);
@@ -400,11 +408,13 @@ namespace MongoDB.Driver.Core.Connections
 
                 writeTcs.SetException(new SocketException());
 
-                Action act1 = () => task1.GetAwaiter().GetResult();
-                act1.ShouldThrow<SocketException>();
+                Func<Task> act1 = () => task1;
+                act1.ShouldThrow<MongoConnectionException>()
+                    .WithInnerException<SocketException>()
+                    .And.ConnectionId.Should().Be(_subject.ConnectionId);
 
-                Action act2 = () => task2.GetAwaiter().GetResult();
-                act2.ShouldThrow<MongoMessageNotSentException>();
+                Func<Task> act2 = () => task2;
+                act2.ShouldThrow<MongoConnectionFailedException>();
 
                 _listener.ReceivedWithAnyArgs().ConnectionBeforeSendingMessages(default(ConnectionBeforeSendingMessagesEvent));
                 _listener.ReceivedWithAnyArgs().ConnectionErrorSendingMessages(default(ConnectionErrorSendingMessagesEvent));

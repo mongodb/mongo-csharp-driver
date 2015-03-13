@@ -26,31 +26,31 @@ using NUnit.Framework;
 namespace MongoDB.Driver
 {
     [TestFixture]
-    public class MongoMessageNotSentExceptionTests
+    public class MongoConnectionFailedExceptionTests
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
 
         [Test]
         public void constructor_should_initialize_subject()
         {
-            var subject = new MongoMessageNotSentException(_connectionId);
+            var subject = new MongoConnectionFailedException(_connectionId);
 
             subject.ConnectionId.Should().BeSameAs(_connectionId);
             subject.InnerException.Should().BeNull();
-            subject.Message.Should().BeSameAs("Message not sent.");
+            subject.Message.Should().BeSameAs("The connection failed while we were waiting our turn to use it.");
         }
 
         [Test]
         public void Serialization_should_work()
         {
-            var subject = new MongoMessageNotSentException(_connectionId);
+            var subject = new MongoConnectionFailedException(_connectionId);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
-                var rehydrated = (MongoMessageNotSentException)formatter.Deserialize(stream);
+                var rehydrated = (MongoConnectionFailedException)formatter.Deserialize(stream);
 
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.InnerException.Should().BeNull();

@@ -214,13 +214,15 @@ namespace MongoDB.Driver.Core.Connections
             {
                 _state.TryChange(State.Failed);
 
+                var wrappedException =  new MongoConnectionException(_connectionId, "An exception occurred while opening a connection to the server.", ex);
+
                 if (_listener != null)
                 {
-                    _listener.ConnectionErrorOpening(new ConnectionErrorOpeningEvent(_connectionId, _settings, ex));
-                    _listener.ConnectionFailed(new ConnectionFailedEvent(_connectionId, ex));
+                    _listener.ConnectionErrorOpening(new ConnectionErrorOpeningEvent(_connectionId, _settings, wrappedException));
+                    _listener.ConnectionFailed(new ConnectionFailedEvent(_connectionId, wrappedException));
                 }
 
-                throw;
+                throw wrappedException;
             }
         }
 
@@ -242,8 +244,9 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                ConnectionFailed(ex);
-                throw;
+                var wrappedException = new MongoConnectionException(_connectionId, "An exception occurred while receiving a message from the server.", ex);
+                ConnectionFailed(wrappedException);
+                throw wrappedException;
             }
         }
 
@@ -343,7 +346,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_state.Value == State.Failed)
                 {
-                    throw new MongoMessageNotSentException(_connectionId);
+                    throw new MongoConnectionFailedException(_connectionId);
                 }
 
                 try
@@ -354,8 +357,9 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch (Exception ex)
                 {
-                    ConnectionFailed(ex);
-                    throw;
+                    var wrappedException = new MongoConnectionException(_connectionId, "An exception occurred while sending a message to the server.", ex);
+                    ConnectionFailed(wrappedException);
+                    throw wrappedException;
                 }
             }
             finally
@@ -436,7 +440,7 @@ namespace MongoDB.Driver.Core.Connections
             ThrowIfDisposed();
             if (_state.Value == State.Failed)
             {
-                throw new MongoConnectionException(_connectionId, "Connection failed.");
+                throw new MongoConnectionFailedException(_connectionId);
             }
             if (_state.Value != State.Open && _state.Value != State.Initializing)
             {

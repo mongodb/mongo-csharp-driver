@@ -95,7 +95,7 @@
     <Compile Include="MongoExecutionTimeoutExceptionTests.cs" />
     <Compile Include="MongoIncompatibleDriverExceptionTests.cs" />
     <Compile Include="MongoInternalExceptionTests.cs" />
-    <Compile Include="MongoMessageNotSentExceptionTests.cs" />
+    <Compile Include="MongoConnectionFailedExceptionTests.cs" />
     <Compile Include="MongoNodeIsRecoveringExceptionTests.cs" />
     <Compile Include="MongoNotPrimaryExceptionTests.cs" />
     <Compile Include="MongoServerExceptionTests.cs" />
