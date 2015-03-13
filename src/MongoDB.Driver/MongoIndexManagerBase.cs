@@ -35,13 +35,13 @@ namespace MongoDB.Driver
         public abstract MongoCollectionSettings Settings { get; }
 
         /// <inheritdoc />
-        public abstract Task CreateAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public abstract Task DropAsync(IndexKeysDefinition<TDocument> keys, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task DropAllAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public abstract Task DropByNameAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task DropOneAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
         public abstract Task<IAsyncCursor<Bson.BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken));

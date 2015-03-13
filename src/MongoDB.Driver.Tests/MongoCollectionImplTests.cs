@@ -659,7 +659,7 @@ namespace MongoDB.Driver
             };
 
             var subject = CreateSubject<BsonDocument>();
-            await subject.Indexes.CreateAsync(keys, options, CancellationToken.None);
+            await subject.Indexes.CreateOneAsync(keys, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -689,24 +689,24 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task Indexes_DropAsync_should_execute_the_DropIndexOperation()
+        public async Task Indexes_DropAllAsync_should_execute_the_DropIndexOperation()
         {
             var subject = CreateSubject<BsonDocument>();
-            await subject.Indexes.DropAsync("{A: 1, B: -1}", CancellationToken.None);
+            await subject.Indexes.DropAllAsync(CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
             call.Operation.Should().BeOfType<DropIndexOperation>();
             var operation = (DropIndexOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.IndexName.Should().Be("A_1_B_-1");
+            operation.IndexName.Should().Be("*");
         }
 
         [Test]
-        public async Task Indexes_DropByNameAsync_should_execute_the_DropIndexOperation()
+        public async Task Indexes_DropOneAsync_should_execute_the_DropIndexOperation()
         {
             var subject = CreateSubject<BsonDocument>();
-            await subject.Indexes.DropByNameAsync("name", CancellationToken.None);
+            await subject.Indexes.DropOneAsync("name", CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -714,6 +714,15 @@ namespace MongoDB.Driver
             var operation = (DropIndexOperation)call.Operation;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.IndexName.Should().Be("name");
+        }
+
+        [Test]
+        public void Indexes_DropOneAsync_should_throw_an_exception_if_an_asterick_is_used()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            Func<Task> act = () => subject.Indexes.DropOneAsync("*", CancellationToken.None);
+
+            act.ShouldThrow<ArgumentException>();
         }
 
         [Test]

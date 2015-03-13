@@ -541,7 +541,7 @@ namespace MongoDB.Driver
                 get { return _collection._settings; }
             }
 
-            public override Task CreateAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options, CancellationToken cancellationToken)
+            public override Task CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(keys, "keys");
 
@@ -572,19 +572,20 @@ namespace MongoDB.Driver
                 return _collection.ExecuteWriteOperation(operation, cancellationToken);
             }
 
-            public override Task DropAsync(IndexKeysDefinition<TDocument> keys, CancellationToken cancellationToken)
+            public override Task DropAllAsync(CancellationToken cancellationToken)
             {
-                Ensure.IsNotNull(keys, "keys");
-
-                var keysDocument = keys.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
-                var operation = new DropIndexOperation(_collection._collectionNamespace, keysDocument, _collection._messageEncoderSettings);
+                var operation = new DropIndexOperation(_collection._collectionNamespace, "*", _collection._messageEncoderSettings);
 
                 return _collection.ExecuteWriteOperation(operation, cancellationToken);
             }
 
-            public override Task DropByNameAsync(string name, CancellationToken cancellationToken)
+            public override Task DropOneAsync(string name, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNullOrEmpty(name, "name");
+                if (name == "*")
+                {
+                    throw new ArgumentException("Cannot specify '*' for the index name. Use DropAllAsync to drop all indexes.", "name");
+                }
 
                 var operation = new DropIndexOperation(_collection._collectionNamespace, name, _collection._messageEncoderSettings);
 

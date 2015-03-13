@@ -52,23 +52,22 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task CreateAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Drops an index.
+        /// Drops all the indexes.
         /// </summary>
-        /// <param name="keys">The keys.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task DropAsync(IndexKeysDefinition<TDocument> keys, CancellationToken cancellationToken = default(CancellationToken));
+        Task DropAllAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Drops an index by its name.
         /// </summary>
-        /// <param name="name">The name of the index to drop.</param>
+        /// <param name="name">The name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task DropByNameAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
+        Task DropOneAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Lists the indexes.
