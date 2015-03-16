@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.Misc
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents helper methods for use with the <see cref="Optional{T}"/> struct.

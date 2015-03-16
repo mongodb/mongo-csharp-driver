@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Specifications.server_selection
                     throw new NotSupportedException("Unknown read preference mode: " + readPreferenceDescription["mode"]);
             }
 
-            return readPreference.With(tagSets: Optional.Enumerable(tagSets));
+            return readPreference.With(tagSets: tagSets);
         }
 
         private ClusterDescription BuildClusterDescription(BsonDocument topologyDescription)

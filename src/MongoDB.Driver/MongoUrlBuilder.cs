@@ -561,7 +561,7 @@ namespace MongoDB.Driver
                 {
                     throw new MongoConfigurationException("ReadPreferenceMode is required when using tag sets.");
                 }
-                _readPreference = _readPreference.With(tagSets: Optional.Enumerable(connectionString.ReadPreferenceTags));
+                _readPreference = _readPreference.With(tagSets: connectionString.ReadPreferenceTags);
             }
 
             _replicaSetName = connectionString.ReplicaSet;

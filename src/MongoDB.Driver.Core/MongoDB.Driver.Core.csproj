@@ -123,7 +123,7 @@
     <Compile Include="Core\Events\ConnectionBeforeClosingEvent.cs" />
     <Compile Include="Core\Events\ConnectionFailedEvent.cs" />
     <Compile Include="Core\Misc\ExceptionMapper.cs" />
-    <Compile Include="Core\Misc\Optional.cs" />
+    <Compile Include="Optional.cs" />
     <Compile Include="Core\Misc\ReferenceCounted.cs" />
     <Compile Include="Core\Bindings\WritableServerBinding.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />

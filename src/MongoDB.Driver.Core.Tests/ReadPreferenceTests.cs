@@ -26,8 +26,6 @@ namespace MongoDB.Driver
     [TestFixture]
     public class ReadPreferenceTests
     {
-        private static readonly ReadPreference __defaults = new ReadPreference();
-
         [Test]
         public void constructor_should_throw_when_mode_is_primary_and_tagSets_is_not_empty()
         {
@@ -39,11 +37,12 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public void constructor_should_throw_when_tagSets_is_null()
+        public void constructor_should_initialize_instance_when_tagSets_is_null()
         {
-            Action action = () => new ReadPreference(ReadPreferenceMode.Primary, null);
+            var result = new ReadPreference(ReadPreferenceMode.Secondary, null);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("tagSets");
+            result.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Secondary);
+            result.TagSets.Should().BeEmpty();
         }
 
         [Test]
@@ -54,22 +53,13 @@ namespace MongoDB.Driver
             var result = new ReadPreference(mode: mode);
 
             result.ReadPreferenceMode.Should().Be(mode);
-            result.TagSets.Should().Equal(__defaults.TagSets);
-        }
-
-        [Test]
-        public void constructor_with_no_arguments_should_initialize_instance()
-        {
-            var result = new ReadPreference();
-
-            result.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Primary);
-            result.TagSets.Count.Should().Be(0);
+            result.TagSets.Should().BeEmpty();
         }
 
         [Test]
         public void constructor_with_tagSets_should_initialize_instance()
         {
-            var mode = ReadPreferenceMode.Secondary; // can't use tagSets with default mode Primary
+            var mode = ReadPreferenceMode.Secondary; // can't use tagSets with mode Primary
             var tagSets = new[] { new TagSet(new[] { new Tag("name", "value") }) };
 
             var result = new ReadPreference(mode: mode, tagSets: tagSets);

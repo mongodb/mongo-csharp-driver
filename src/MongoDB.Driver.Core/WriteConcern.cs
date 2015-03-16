@@ -15,9 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
@@ -125,7 +122,7 @@ namespace MongoDB.Driver
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
             Optional<bool?> fsync = default(Optional<bool?>),
             Optional<bool?> journal = default(Optional<bool?>))
-            : this((WValue)Ensure.IsGreaterThanOrEqualToZero(w, "w"), wTimeout, fsync, journal)
+            : this(new WCount(Ensure.IsGreaterThanOrEqualToZero(w, "w")), wTimeout, fsync, journal)
         {
         }
 
@@ -141,7 +138,7 @@ namespace MongoDB.Driver
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
             Optional<bool?> fsync = default(Optional<bool?>),
             Optional<bool?> journal = default(Optional<bool?>))
-            : this((WValue)Ensure.IsNotNullOrEmpty(mode, "mode"), wTimeout, fsync, journal)
+            : this(new WMode(Ensure.IsNotNullOrEmpty(mode, "mode")), wTimeout, fsync, journal)
         {
         }
 
