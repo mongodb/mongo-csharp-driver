@@ -200,8 +200,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
 
-            var defaultCursorValue = serverVersion >= __version26;
-            if (_useCursor.GetValueOrDefault(defaultCursorValue))
+            if (serverVersion >= __version26 && _useCursor.GetValueOrDefault(true))
             {
                 command["cursor"] = new BsonDocument
                 {
@@ -213,7 +212,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, BsonDocument command, AggregateResult result)
         {
-            if (_useCursor.GetValueOrDefault(true))
+            if (channelSource.ServerDescription.Version >= __version26 && _useCursor.GetValueOrDefault(true))
             {
                 return CreateCursorFromCursorResult(channelSource, command, result);
             }
