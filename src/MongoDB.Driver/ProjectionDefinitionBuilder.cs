@@ -288,14 +288,14 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a projection based on the expression.
         /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TProjection">The type of the result.</typeparam>
         /// <param name="expression">The expression.</param>
         /// <returns>
         /// An expression projection.
         /// </returns>
-        public ProjectionDefinition<TSource, TResult> Expression<TResult>(Expression<Func<TSource, TResult>> expression)
+        public ProjectionDefinition<TSource, TProjection> Expression<TProjection>(Expression<Func<TSource, TProjection>> expression)
         {
-            return new FindExpressionProjectionDefinition<TSource, TResult>(expression);
+            return new FindExpressionProjectionDefinition<TSource, TProjection>(expression);
         }
 
         /// <summary>

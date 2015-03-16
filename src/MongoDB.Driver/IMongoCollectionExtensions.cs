@@ -302,7 +302,7 @@ namespace MongoDB.Driver
         /// Finds a single document and deletes it atomically.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
@@ -310,12 +310,12 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        public static Task<TResult> FindOneAndDeleteAsync<TDocument, TResult>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, FindOneAndDeleteOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TProjection> FindOneAndDeleteAsync<TDocument, TProjection>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            return collection.FindOneAndDeleteAsync<TResult>(new ExpressionFilterDefinition<TDocument>(filter), options, cancellationToken);
+            return collection.FindOneAndDeleteAsync<TProjection>(new ExpressionFilterDefinition<TDocument>(filter), options, cancellationToken);
         }
 
         /// <summary>
@@ -362,7 +362,7 @@ namespace MongoDB.Driver
         /// Finds a single document and replaces it atomically.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
@@ -371,12 +371,12 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        public static Task<TResult> FindOneAndReplaceAsync<TDocument, TResult>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TProjection> FindOneAndReplaceAsync<TDocument, TProjection>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");
 
-            return collection.FindOneAndReplaceAsync<TResult>(filter, replacement, options, cancellationToken);
+            return collection.FindOneAndReplaceAsync<TProjection>(filter, replacement, options, cancellationToken);
         }
 
         /// <summary>
@@ -431,7 +431,7 @@ namespace MongoDB.Driver
         /// Finds a single document and updates it atomically.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
@@ -440,7 +440,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        public static Task<TResult> FindOneAndUpdateAsync<TDocument, TResult>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TProjection> FindOneAndUpdateAsync<TDocument, TProjection>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, "collection");
             Ensure.IsNotNull(filter, "filter");

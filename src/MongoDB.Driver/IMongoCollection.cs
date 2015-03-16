@@ -120,29 +120,29 @@ namespace MongoDB.Driver
         /// <summary>
         /// Finds the documents matching the filter.
         /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> FindAsync<TResult>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.
         /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The returned document.
         /// </returns>
-        Task<TResult> FindOneAndDeleteAsync<TResult>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and replaces it atomically.
         /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
         /// <param name="options">The options.</param>
@@ -150,12 +150,12 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        Task<TResult> FindOneAndReplaceAsync<TResult>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and updates it atomically.
         /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
         /// <param name="options">The options.</param>
@@ -163,7 +163,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        Task<TResult> FindOneAndUpdateAsync<TResult>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts a single document.

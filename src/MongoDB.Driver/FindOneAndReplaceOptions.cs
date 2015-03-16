@@ -26,19 +26,19 @@ namespace MongoDB.Driver
     /// Options for a findAndModify command to replace an object.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindOneAndReplaceOptions<TDocument, TResult>
+    /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+    public class FindOneAndReplaceOptions<TDocument, TProjection>
     {
         // fields
         private bool _isUpsert;
         private TimeSpan? _maxTime;
-        private ProjectionDefinition<TDocument, TResult> _projection;
+        private ProjectionDefinition<TDocument, TProjection> _projection;
         private ReturnDocument _returnDocument;
         private SortDefinition<TDocument> _sort;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindOneAndReplaceOptions{TDocument, TResult}"/> class.
+        /// Initializes a new instance of the <see cref="FindOneAndReplaceOptions{TDocument, TProjection}"/> class.
         /// </summary>
         public FindOneAndReplaceOptions()
         {
@@ -67,7 +67,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the projection.
         /// </summary>
-        public ProjectionDefinition<TDocument, TResult> Projection
+        public ProjectionDefinition<TDocument, TProjection> Projection
         {
             get { return _projection; }
             set { _projection = value; }

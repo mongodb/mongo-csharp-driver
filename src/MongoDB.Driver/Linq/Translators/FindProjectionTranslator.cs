@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal class FindProjectionTranslator : MongoExpressionVisitor
     {
-        public static RenderedProjectionDefinition<TResult> Translate<TDocument, TResult>(Expression<Func<TDocument, TResult>> projector, IBsonSerializer<TDocument> parameterSerializer)
+        public static RenderedProjectionDefinition<TProjection> Translate<TDocument, TProjection>(Expression<Func<TDocument, TProjection>> projector, IBsonSerializer<TDocument> parameterSerializer)
         {
             var parameterSerializationInfo = new BsonSerializationInfo(null, parameterSerializer, parameterSerializer.ValueType);
             var parameterExpression = new SerializationExpression(projector.Parameters[0], parameterSerializationInfo);
@@ -47,25 +47,25 @@ namespace MongoDB.Driver.Linq.Translators
             var replacementParameter = Expression.Parameter(typeof(ProjectedObject), "document");
 
             var translator = new FindProjectionTranslator(projector.Parameters[0], replacementParameter, fields);
-            var newProjector = Expression.Lambda<Func<ProjectedObject, TResult>>(
+            var newProjector = Expression.Lambda<Func<ProjectedObject, TProjection>>(
                 translator.Visit(boundExpression),
                 replacementParameter);
 
             BsonDocument projectionDocument;
-            IBsonSerializer<TResult> serializer;
+            IBsonSerializer<TProjection> serializer;
             if (translator._fullDocument)
             {
                 projectionDocument = null;
-                serializer = new ProjectingDeserializer<TDocument, TResult>(parameterSerializer, projector.Compile());
+                serializer = new ProjectingDeserializer<TDocument, TProjection>(parameterSerializer, projector.Compile());
             }
             else
             {
                 projectionDocument = GetProjectionDocument(serializationInfo);
                 var projectedObjectSerializer = new ProjectedObjectDeserializer(serializationInfo);
-                serializer = new ProjectingDeserializer<ProjectedObject, TResult>(projectedObjectSerializer, newProjector.Compile());
+                serializer = new ProjectingDeserializer<ProjectedObject, TProjection>(projectedObjectSerializer, newProjector.Compile());
             }
 
-            return new RenderedProjectionDefinition<TResult>(projectionDocument, serializer);
+            return new RenderedProjectionDefinition<TProjection>(projectionDocument, serializer);
         }
 
         private readonly IReadOnlyList<SerializationExpression> _fields;
