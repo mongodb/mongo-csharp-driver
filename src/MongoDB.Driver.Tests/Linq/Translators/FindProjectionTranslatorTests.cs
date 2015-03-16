@@ -246,7 +246,7 @@ namespace MongoDB.Driver.Core.Linq
                 return new ProjectedResult<T>
                 {
                     Projection = projectionInfo.Document,
-                    Value = projectionInfo.ResultSerializer.Deserialize(context)
+                    Value = projectionInfo.ProjectionSerializer.Deserialize(context)
                 };
             }
         }

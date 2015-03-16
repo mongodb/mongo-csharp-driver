@@ -215,7 +215,7 @@ namespace MongoDB.Driver
 
             var operation = new FindOperation<TProjection>(
                 _collectionNamespace,
-                renderedProjection.ResultSerializer,
+                renderedProjection.ProjectionSerializer,
                 _messageEncoderSettings)
             {
                 AllowPartialResults = options.AllowPartialResults,
@@ -246,7 +246,7 @@ namespace MongoDB.Driver
             var operation = new FindOneAndDeleteOperation<TProjection>(
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
-                new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ResultSerializer),
+                new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
             {
                 MaxTime = options.MaxTime,
@@ -271,7 +271,7 @@ namespace MongoDB.Driver
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 new BsonDocumentWrapper(replacementObject, _documentSerializer),
-                new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ResultSerializer),
+                new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
             {
                 IsUpsert = options.IsUpsert,
@@ -297,7 +297,7 @@ namespace MongoDB.Driver
                 _collectionNamespace,
                 filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 update.Render(_documentSerializer, _settings.SerializerRegistry),
-                new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ResultSerializer),
+                new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
             {
                 IsUpsert = options.IsUpsert,

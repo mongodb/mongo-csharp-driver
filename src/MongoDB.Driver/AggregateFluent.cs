@@ -68,7 +68,7 @@ namespace MongoDB.Driver
                 (s, sr) => 
                 {
                     var renderedProjection = group.Render(s, sr);
-                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ResultSerializer);
+                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ProjectionSerializer);
                 });
 
             return AppendStage<TNewResult>(stage);
@@ -103,7 +103,7 @@ namespace MongoDB.Driver
                 (s, sr) =>
                 {
                     var renderedProjection = projection.Render(s, sr);
-                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ResultSerializer);
+                    return new RenderedPipelineStageDefinition<TNewResult>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ProjectionSerializer);
                 });
 
             return AppendStage<TNewResult>(stage);
