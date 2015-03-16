@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             return new ClusterSettings(
                 connectionMode: connectionMode.WithDefault(_connectionMode),
-                endPoints: Optional.Create(endPoints.WithDefault(_endPoints)),
+                endPoints: Optional.Enumerable(endPoints.WithDefault(_endPoints)),
                 maxServerSelectionWaitQueueSize: maxServerSelectionWaitQueueSize.WithDefault(_maxServerSelectionWaitQueueSize),
                 replicaSetName: replicaSetName.WithDefault(_replicaSetName),
                 serverSelectionTimeout: serverSelectionTimeout.WithDefault(_serverSelectionTimeout),

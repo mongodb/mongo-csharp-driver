@@ -39,6 +39,17 @@ namespace MongoDB.Driver.Core.Misc
         {
             return new Optional<T>(value);
         }
+
+        /// <summary>
+        /// Creates an instance of an optional parameter with an enumerable value.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the items of the optional paramater.</typeparam>
+        /// <param name="value">The value.</param>
+        /// <returns>An instance of an optional parameter with an enumerable value.</returns>
+        public static Optional<IEnumerable<TItem>> Enumerable<TItem>(IEnumerable<TItem> value)
+        {
+            return new Optional<IEnumerable<TItem>>(value);
+        }
     }
 
     /// <summary>

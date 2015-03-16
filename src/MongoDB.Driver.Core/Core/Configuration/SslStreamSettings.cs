@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             return new SslStreamSettings(
                 checkCertificateRevocation: checkCertificateRevocation.WithDefault(_checkCertificateRevocation),
-                clientCertificates: Optional.Create(clientCertificates.WithDefault(_clientCertificates)),
+                clientCertificates: Optional.Enumerable(clientCertificates.WithDefault(_clientCertificates)),
                 clientCertificateSelectionCallback: clientCertificateSelectionCallback.WithDefault(_clientCertificateSelectionCallback),
                 enabledProtocols: enabledProtocols.WithDefault(_enabledSslProtocols),
                 serverCertificateValidationCallback: serverCertificateValidationCallback.WithDefault(_serverCertificateValidationCallback));

@@ -184,7 +184,7 @@ namespace MongoDB.Driver
         {
             return new ReadPreference(
                 mode.WithDefault(_mode),
-                Optional.Create(tagSets.WithDefault(_tagSets)));
+                Optional.Enumerable(tagSets.WithDefault(_tagSets)));
         }
     }
 }

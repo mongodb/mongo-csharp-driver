@@ -82,7 +82,7 @@ namespace MongoDB.Driver
             var endPoints = clusterKey.Servers.Select(s => (EndPoint)new DnsEndPoint(s.Host, s.Port));
             return settings.With(
                 connectionMode: clusterKey.ConnectionMode.ToCore(),
-                endPoints: Optional.Create(endPoints),
+                endPoints: Optional.Enumerable(endPoints),
                 replicaSetName: clusterKey.ReplicaSetName,
                 postServerSelector: new LatencyLimitingServerSelector(clusterKey.LocalThreshold));
         }
@@ -101,7 +101,7 @@ namespace MongoDB.Driver
         {
             var authenticators = clusterKey.Credentials.Select(c => c.ToAuthenticator());
             return settings.With(
-                authenticators: Optional.Create(authenticators),
+                authenticators: Optional.Enumerable(authenticators),
                 maxIdleTime: clusterKey.MaxConnectionIdleTime,
                 maxLifeTime: clusterKey.MaxConnectionLifeTime);
         }
@@ -126,7 +126,7 @@ namespace MongoDB.Driver
                 }
 
                 return settings.With(
-                    clientCertificates: Optional.Create(sslSettings.ClientCertificates ?? Enumerable.Empty<X509Certificate>()),
+                    clientCertificates: Optional.Enumerable(sslSettings.ClientCertificates ?? Enumerable.Empty<X509Certificate>()),
                     checkCertificateRevocation: sslSettings.CheckCertificateRevocation,
                     clientCertificateSelectionCallback: sslSettings.ClientCertificateSelectionCallback,
                     enabledProtocols: sslSettings.EnabledSslProtocols,

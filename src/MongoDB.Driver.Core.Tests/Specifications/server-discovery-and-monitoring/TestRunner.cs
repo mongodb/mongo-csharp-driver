@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         {
             var connectionString = new ConnectionString((string)definition["uri"]);
             var settings = new ClusterSettings(
-                endPoints: Optional.Create<IEnumerable<EndPoint>>(connectionString.Hosts),
+                endPoints: Optional.Enumerable(connectionString.Hosts),
                 connectionMode: connectionString.Connect,
                 replicaSetName: connectionString.ReplicaSet);
 

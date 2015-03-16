@@ -125,7 +125,7 @@ namespace MongoDB.Driver
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
             Optional<bool?> fsync = default(Optional<bool?>),
             Optional<bool?> journal = default(Optional<bool?>))
-            : this(new Optional<WValue>(Ensure.IsGreaterThanOrEqualToZero(w, "w")), wTimeout, fsync, journal)
+            : this((WValue)Ensure.IsGreaterThanOrEqualToZero(w, "w"), wTimeout, fsync, journal)
         {
         }
 
@@ -141,7 +141,7 @@ namespace MongoDB.Driver
             Optional<TimeSpan?> wTimeout = default(Optional<TimeSpan?>),
             Optional<bool?> fsync = default(Optional<bool?>),
             Optional<bool?> journal = default(Optional<bool?>))
-            : this(new Optional<WValue>(Ensure.IsNotNullOrEmpty(mode, "mode")), wTimeout, fsync, journal)
+            : this((WValue)Ensure.IsNotNullOrEmpty(mode, "mode"), wTimeout, fsync, journal)
         {
         }
 

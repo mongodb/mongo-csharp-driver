@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.Configuration
             // Cluster
             if (connectionString.Hosts.Count > 0)
             {
-                builder = builder.ConfigureCluster(s => s.With(endPoints: Optional.Create<IEnumerable<EndPoint>>(connectionString.Hosts)));
+                builder = builder.ConfigureCluster(s => s.With(endPoints: Optional.Enumerable(connectionString.Hosts)));
             }
             if (connectionString.ReplicaSet != null)
             {
