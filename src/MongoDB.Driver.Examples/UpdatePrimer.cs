@@ -80,18 +80,19 @@ namespace MongoDB.Driver.Examples
             // @begin: update-multiple-documents
             // @code: start
             var collection = _database.GetCollection<BsonDocument>("restaurants");
-            var filter = Builders<BsonDocument>.Filter.Eq("address.zipcode", "10016");
+            var builder = Builders<BsonDocument>.Filter;
+            var filter = builder.Eq("address.zipcode", "10016") & builder.Eq("cuisine", "Other");
             var update = Builders<BsonDocument>.Update
-                .Set("borough", "Midtown")
+                .Set("cuisine", "Category To Be Determined")
                 .CurrentDate("lastModified");
             var result = await collection.UpdateManyAsync(filter, update);
             // @code: end
 
             // @results: start
-            result.MatchedCount.Should().Be(433);
+            result.MatchedCount.Should().Be(20);
             if (result.IsModifiedCountAvailable)
             {
-                result.ModifiedCount.Should().Be(433);
+                result.ModifiedCount.Should().Be(20);
             }
             // @results: end
 
