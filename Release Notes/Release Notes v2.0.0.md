@@ -1,4 +1,4 @@
-C#/.NET Driver Version 2.0.0-rc1 Release Notes
+C#/.NET Driver Version 2.0.0-rc0 Release Notes
 ==============================================
 
 (Preliminary)
