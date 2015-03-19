@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Examples on MongoDB .NET Driver</title>
+    <link>http://localhost:1313/mongo-csharp-driver/2.0/examples/</link>
+    <description>Recent content in Examples on MongoDB .NET Driver</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 17 Mar 2015 15:36:56 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/mongo-csharp-driver/2.0/examples/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Examples</title>
+      <link>http://localhost:1313/mongo-csharp-driver/2.0/examples/</link>
+      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
+      
+      <guid>http://localhost:1313/mongo-csharp-driver/2.0/examples/</guid>
+      <description>
+
+&lt;h2 id=&#34;examples:d680e8a854a7cbad6d490c445cba2eba&#34;&gt;Examples&lt;/h2&gt;
+
+&lt;p&gt;A number of examples have been compiled to show a more thorough usage of certain features and how they interact.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/examples/import_export/&#34;&gt;Importing and Exporting&lt;/a&gt;: Sample implementations of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/program/mongoimport/
+&#34;&gt;mongoimport&lt;/a&gt; and &lt;a href=&#34;http://docs.mongodb.org/manual/reference/program/mongoexport/
+&#34;&gt;mongoexport&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Import and Export</title>
+      <link>http://localhost:1313/mongo-csharp-driver/2.0/examples/import_export/</link>
+      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
+      
+      <guid>http://localhost:1313/mongo-csharp-driver/2.0/examples/import_export/</guid>
+      <description>
+
+&lt;h2 id=&#34;rewriting-mongoimport-and-mongoexport:ab44c56621a04c5cb0b008fe55298cd7&#34;&gt;Rewriting MongoImport and MongoExport&lt;/h2&gt;
+
+&lt;p&gt;The .NET BSON library supports reading and writing JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
+&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriter.htm
+&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; classes. Both of these also handle both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
+&#34;&gt;MongoDB Extended JSON&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Neither of these implementations are the most performant solutions, but they illustrate using multiple features of the driver together.&lt;/p&gt;
+
+&lt;h2 id=&#34;importing:ab44c56621a04c5cb0b008fe55298cd7&#34;&gt;Importing&lt;/h2&gt;
+
+&lt;p&gt;The below program will import all documents from a file with one document per line into the collection.&lt;/p&gt;
+
+&lt;p&gt;Given the file&amp;rsquo;s contents:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And the program:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string inputFileName; // initialize from to the input file
+IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to write to.
+
+using (var streamReader = new StreamReader(inputFileName))
+using (var jsonReader = new JsonReader(streamReader))
+{
+    while (!jsonReader.IsAtEndOfFile())
+    {
+        var context = BsonDeserializationContext.CreateRoot(jsonReader);
+        var doc = collection.DocumentSerializer.Deserialize(context);
+        await collection.InsertOneAsync(doc);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;exporting:ab44c56621a04c5cb0b008fe55298cd7&#34;&gt;Exporting&lt;/h2&gt;
+
+&lt;p&gt;The below program will export all documents from a collection to a file with one document per line.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string outputFileName; // initialize from to the output file
+IMongoCollection&amp;lt;BsonDocument&amp;gt; collection; // initialize to the collection to read from
+
+using (var streamWriter = new StreamWriter(outputFileName))
+{
+    await col.Find(new BsonDocument())
+        .ForEachAsync(doc =&amp;gt; streamWriter.WriteLine(doc.ToString()));
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The result file should look like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306a2dfd32ffd580e323&amp;quot;), &amp;quot;x&amp;quot; : 1.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306c2dfd32ffd580e324&amp;quot;), &amp;quot;x&amp;quot; : 2.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;5513306e2dfd32ffd580e325&amp;quot;), &amp;quot;x&amp;quot; : 3.0 }
+{ &amp;quot;_id&amp;quot; : ObjectId(&amp;quot;551330712dfd32ffd580e326&amp;quot;), &amp;quot;x&amp;quot; : 4.0 }
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

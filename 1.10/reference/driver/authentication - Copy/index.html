@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="http://localhost:1313/mongo-csharp-driver/2.0/img/favicon.png">
+
+    <title>Authentication</title>
+
+    <link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/css/bootstrap-custom.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/tipsy.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="http://localhost:1313/mongo-csharp-driver/2.0/lib/highlight/styles/default.css" />
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="http://localhost:1313/mongo-csharp-driver/2.0">
+        <img src="http://localhost:1313/mongo-csharp-driver/2.0/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved">Community</a>
+  <a href="http://blog.mongodb.org">Blog</a>
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="http://localhost:1313/mongo-csharp-driver/2.0">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="">2.0</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+    
+    
+      
+      
+      
+        
+      
+    
+    
+  
+  
+
+
+        
+      
+    
+      
+      
+        
+      
+    
+      
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.0/getting_started/" class="">
+      <i class='fa fa-road'></i>
+      <span>Getting Started</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/getting_started/connecting/">
+        <i class='fa'></i>
+        Connecting to the Server
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/getting_started/reading_and_writing/">
+        <i class='fa'></i>
+        Reading and Writing
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.0/what_is_new/" class="">
+      <i class='fa'></i>
+      <span>What&#39;s New</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/upgrading/">
+        <i class='fa'></i>
+        Upgrading
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l1  current">
+  <a href="/mongo-csharp-driver/2.0/reference/" class="">
+      <i class='fa fa-book'></i>
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-down"></span>
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.0/reference/bson/" class="">
+      <i class='fa'></i>
+      <span>BSON</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/bson/">
+        <i class='fa'></i>
+        Reading and Writing BSON/JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/bson_document/">
+        <i class='fa'></i>
+        BsonDocument
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/serialization/">
+        <i class='fa'></i>
+        Serialization
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/" class="">
+      <i class='fa'></i>
+      <span>Mapping Classes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/polymorphism/">
+        <i class='fa'></i>
+        Polymorphism
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/conventions/">
+        <i class='fa'></i>
+        Conventions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/schema_changes/">
+        <i class='fa'></i>
+        Handling Schema Changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l2  current">
+  <a href="/mongo-csharp-driver/2.0/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/connecting/">
+        <i class='fa'></i>
+        Connecting
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/authentication%20-%20Copy/">
+        <i class='fa'></i>
+        Authentication
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.0/reference/driver/definitions/" class="">
+      <i class='fa'></i>
+      <span>Definitions and Builders</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/expressions/">
+        <i class='fa'></i>
+        Expressions
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.0/reference/driver/crud/" class="">
+      <i class='fa'></i>
+      <span>CRUD Operations</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/crud/reading/">
+        <i class='fa'></i>
+        Reading
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.0/reference/driver/crud/writing/">
+        <i class='fa'></i>
+        Writing
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/reference/driver_core/">
+        <i class='fa'></i>
+        Driver Core
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.0/examples/" class="">
+      <i class='fa'></i>
+      <span>Examples</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.0/examples/import_export/">
+        <i class='fa'></i>
+        Import and Export
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.0/issues_help/">
+        <i class='fa fa-life-ring'></i>
+        Issues &amp; Help
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+
+
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+  
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/docs/content/reference%5cdriver%5cauthentication%20-%20Copy.md" target="_blank" title="Edit reference\driver\authentication - Copy.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  
+  <li><a href="/mongo-csharp-driver/2.0/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.0/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
+  <li>Authentication</li>
+</ul>
+</div>
+
+
+
+
+<h2 id="authentication:7cffaff79d53494460ee12ac55d69c66">Authentication</h2>
+
+<p>The .NET driver supports all <a href="http://docs.mongodb.org/manual/core/authentication/
+">MongoDB authentication mechanisms</a> including those in the <a href="http://docs.mongodb.org/manual/administration/install-enterprise/
+">Enterprise Edition</a>.</p>
+
+<p>Authentication credentials are created by the application as instances of <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoCredential.htm
+"><code>MongoCredential</code></a> which includes static factory methods for each of the supported authentication mechanisms. A list of these instances must be passed to the driver using the <code>MongoClient</code> constructor that takes a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
+"><code>MongoClientSettings</code></a>. When only one credential is necessary, it is possible to specify via the <a href="/mongo-csharp-driver/2.0/getting_started/connecting/#connection-string:d67a243cdf521fafcb45cf3f560d3e12">connection string</a>.</p>
+
+<h3 id="default:7cffaff79d53494460ee12ac55d69c66">Default</h3>
+
+<p>MongoDB 3.0 changed the default authentication mechanism from <a href="http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication">MONGODB-CR</a> to <a href="http://docs.mongodb.org/manual/core/authentication/#scram-sha-1-authentication">SCRAM-SHA-1</a>. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.</p>
+
+<pre><code class="language-csharp">var credential = MongoCredential.CreateCredential(databaseName, username, password);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username:password@myserver/databaseName
+</code></pre>
+
+<p>This is the recommended approach as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, even after <a href="http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram">upgrading the authentication schema</a>.</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+The databaseName part of the connection string indicates which database the credentials are located in. See the <a href="/mongo-csharp-driver/2.0/getting_started/connecting/#connection-string:d67a243cdf521fafcb45cf3f560d3e12">connection string section</a> for more information on connection strings.
+</div>
+</p>
+
+<h3 id="x-509-authentication:7cffaff79d53494460ee12ac55d69c66">x.509 Authentication</h3>
+
+<p>The <a href="http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication">x.509</a> mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of SSL connections with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:</p>
+
+<pre><code class="language-csharp">var credential = MongoCredential.CreateX509Credential(username);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username@myserver/?authMechanism=MONGODB-X509
+</code></pre>
+
+<p>Even when using the connection string to provide the credential, the certificate must still be provided via code. This certificate can be pulled out of the trust stores on the box, or from a file. However, to be used with client authentication, the <a href="https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate.aspx">X509Certificate</a> provided to the driver must contain the <a href="https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx">PrivateKey</a>.</p>
+
+<pre><code class="language-csharp">var cert = new X509Certificate2(&quot;client.pfx&quot;, &quot;mySuperSecretPassword&quot;);
+
+var settings = new MongoClientSettings
+{
+    Credentials = new[] 
+    {
+        MongoCredential.CreateMongoX509Credential(&quot;CN=client,OU=user,O=organization,L=Some City,ST=Some State,C=Some Country&quot;)
+    },
+    SslSettings = new SslSettings
+    {
+        ClientCertificates = new[] { cert },
+    },
+    UseSsl = true
+};
+</code></pre>
+
+<h3 id="gssapi-kerberos:7cffaff79d53494460ee12ac55d69c66">GSSAPI/Kerberos</h3>
+
+<p><a href="http://www.mongodb.com/products/mongodb-enterprise">MongoDB Enterprise</a> supports authentication using <a href="http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication">Kerberos/GSSAPI</a>. To create a Kerberos/GSSAPI credential, use the following method:</p>
+
+<pre><code class="language-csharp">var credential = MongoCredential.CreateGssapiCredential(username, password);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username%40REALM.com:password@myserver/?authMechanism=GSSAPI
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+Note that the username will need to have a REALM associated with it. When used in a connection string, <code>%40</code> is the escape character for the <code>@</code> symbol.
+</div>
+</p>
+
+<p>If the process owner running your application is the same as the user needing authentication, you can omit the password:</p>
+
+<pre><code class="language-csharp">var credential = MongoCredential.CreateGssapiCredential(username);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI
+</code></pre>
+
+<p>Depending on the kerberos setup, it may be required to specify some additional properties. These may be specified in the connection string or via code.</p>
+
+<ul>
+<li><p><strong>CANONICALIZE_HOST_NAME</strong></p>
+
+<p>Uses the DNS server to retrieve the fully qualified domain name (FQDN) of the host.</p>
+
+<pre><code class="language-csharp">credential = credential.WithMechanismProperty(&quot;CANONICALIZE_HOST_NAME&quot;, &quot;true&quot;);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username@myserver/?authMechanism=GSSAPI&amp;authMechanismProperties=CANONICALIZE_HOSTNAME:true
+</code></pre></li>
+
+<li><p><strong>REALM</strong></p>
+
+<p>This is used when the user&rsquo;s realm is different from the service&rsquo;s realm.</p>
+
+<pre><code class="language-csharp">credential = credential.WithMechanismProperty(&quot;REALM&quot;, &quot;otherrealm&quot;);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;authMechanismProperties=REALM:otherrealm
+</code></pre></li>
+
+<li><p><strong>SERVICE_NAME</strong></p>
+
+<p>This is used when the service&rsquo;s name is different that the default <code>mongodb</code>.</p>
+
+<pre><code class="language-csharp">credential = credential.WithMechanismProperty(&quot;SERVICE_NAME&quot;, &quot;othername&quot;);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;authMechanismProperties=SERVICE_NAME:othername
+</code></pre></li>
+</ul>
+
+<p>In addition, it is possible to use multiple authentication mechanism properties either via code or in the connection string. In code, call <code>WithMechanismProperty</code> multiple times. In the connection string, separate the entries with a <code>,</code> (comma).</p>
+
+<pre><code>mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;authMechanismProperties=SERVICE_NAME:othername,REALM:otherrealm
+</code></pre>
+
+<h3 id="ldap-plain:7cffaff79d53494460ee12ac55d69c66">LDAP (PLAIN)</h3>
+
+<p><a href="http://www.mongodb.com/products/mongodb-enterprise">MongoDB Enterprise</a> supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:</p>
+
+<pre><code class="language-csharp">var credential = MongoCredential.CreatePlainCredential(&quot;$external&quot;, username, password);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username:password@myserver/?authSource=$external&amp;authMechanism=PLAIN
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+Note that the method refers to the plain authentication mechanism instead of LDAP because technically the driver is authenticating via the PLAIN SASL mechanism. This means that your credentials are in plain text on the wire. Therefore, PLAIN should only be used in conjunction with SSL.
+</div>
+</p>
+
+
+
+
+
+
+<div id="btnv">
+  
+  <div class="pull-left">
+  <a class="navigation prev" href="/mongo-csharp-driver/2.0/reference/driver/connecting/">
+      <i class="fa fa-long-arrow-left"> </i> Connecting
+  </a>
+  </div>
+  
+  
+  <div class="pull-right">
+  <a class="navigation next" href="/mongo-csharp-driver/2.0/reference/driver/definitions/">
+    Definitions and Builders <i class="fa fa-long-arrow-right"> </i>
+  </a>
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#authentication:7cffaff79d53494460ee12ac55d69c66">Authentication</a>
+<ul>
+<li><a href="#default:7cffaff79d53494460ee12ac55d69c66">Default</a></li>
+<li><a href="#x-509-authentication:7cffaff79d53494460ee12ac55d69c66">x.509 Authentication</a></li>
+<li><a href="#gssapi-kerberos:7cffaff79d53494460ee12ac55d69c66">GSSAPI/Kerberos</a></li>
+<li><a href="#ldap-plain:7cffaff79d53494460ee12ac55d69c66">LDAP (PLAIN)</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "http://localhost:1313/mongo-csharp-driver/2.0",
+   VERSION:     "",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true,
+  };
+</script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/jquery.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/underscore.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/doctools.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/lib/bootstrap.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/lib/jquery.tipsy.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/navbar.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="http://localhost:1313/mongo-csharp-driver/2.0/js/scripts.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+<script>document.write('<script src="http://'
+        + (location.host || 'localhost').split(':')[0]
+		+ ':1313/livereload.js?mindelay=10"></'
+        + 'script>')</script></body>
+</html>
+

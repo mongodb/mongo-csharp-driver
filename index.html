@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="/mongo-csharp-driver/img/favicon.png">
+
+    <title>MongoDB .NET Driver</title>
+
+    <link rel="stylesheet" href="/mongo-csharp-driver/s/lib/bootstrap.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/s/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/s/lib/highlight/styles/vs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/s/lib/bootstrap-select/bootstrap-select.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/s/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/s/css/frontpage.css" type="text/css" />
+
+  </head>
+
+  <body>
+  
+  <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    
+    <div class="logo pull-left">
+      <a href="/mongo-csharp-driver">
+        <img src="/mongo-csharp-driver/s/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved">Community</a>
+  <a href="http://blog.mongodb.org">Blog</a>
+</div>
+</div>
+
+  </div>
+</header>
+
+  
+
+  <div id="hero" class="jumbotron">
+  <div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <h2>MongoDB .NET Driver</h2>
+      <p>
+        The next generation .NET driver for MongoDB
+      </p>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+  </div>
+</div>
+
+
+  
+  <div class="container" id="mainContent">
+    <div class="row">
+      <div class="col-md-8">
+        <h2>Introduction</h2>
+
+<p>
+  The official MongoDB .NET Driver provides asynchronous interaction with MongoDB.
+  Powering the drivers is a Core library and a BSON library.
+</p>
+
+
+        <h2>Features</h2>
+
+<dl>
+  <dt>Driver</dt>
+  <dd>A completely async driver to talk with MongoDB.</dd>
+  <dt>Core driver</dt>
+  <dd>The MongoDB Driver is built on top of a new Core library which anyone can use to build alternative or experimental high-level APIs.</dd>
+  <dt>BSON Library</dt>
+  <dd>A standalone BSON library, with a serialization infrastructure that you can use to build high-performance serializers.</dd>
+</dl>
+
+        <h2 id="quickStart">Quick Start</h2>
+
+<p>
+  The recommended way to get started using one of the drivers in your project is with a dependency management system.
+  Select the driver, version and dependency management system below and the snippet can be copied and pasted into your build.
+</p>
+<p>
+  Alternatively, head over to our documentation to learn more about getting started with .NET and MongoDB.
+</p>
+
+
+
+
+<div id="downloadWidget">
+  <div class="container">
+    <div class="row downloadForm">
+      <form>
+        <div class="col-xs-5 col-lg-4 col-lg-push-2 ">
+      
+      
+      
+        <select class="driverPicker">
+          
+          
+          <option value="0" data-versions="2.0.0">.NET Driver</option>
+          
+          
+          
+          <option value="1" data-versions="2.0.0">.NET Core Driver</option>
+          
+          
+          
+          <option value="2" data-versions="2.0.0">.NET BSON Library</option>
+          
+          
+          
+          <option value="3" data-versions="2.0.0,1.10.0">.NET Legacy Driver</option>
+          
+          
+        </select>
+      
+      </div>
+    <div class="col-xs-5 col-lg-4 col-lg-push-2 ">
+    
+    
+    
+      <select class="releasePicker">
+        
+        <option value="0">2.0.0</option>
+        
+        
+        <option value="1"disabled="disabled">1.10.0</option>
+        
+        
+      </select>
+    
+    </div>
+    <div class="col-lg-2 col-lg-push-2 ">
+    <input type="checkbox" checked class="distroPicker" data-toggle="toggle" data-on="Nuget" data-off="Paket" data-offstyle="success">
+    </div>
+  </form>
+  <div class="hidden-md hidden-sm hidden-xs col-lg-2 col-lg-pull-10 downloadLink">
+  <a id="downloadLink" href="https://github.com/mongodb/mongo-csharp-driver/releases/download/v2.0.0/CSharpDriver-2.0.0.zip" class="btn btn-dark btn-download" target="_blank">Download</a>
+  </div>
+  </div>
+
+  <div class="row">
+  <div class="clipboard" title="copy">
+  <button class="btn btn-dark"><i class="fa fa-clipboard fa-2"></i></button>
+  </div>
+  
+  
+  
+    
+    
+      
+      
+        
+        
+          
+          
+          
+          
+          
+<div id="nuget-0-0" class="download ">
+<pre><code>&lt;packages&gt;
+    &lt;package id="MongoDB.Driver" version="2.0.0" /&gt;
+    &lt;package id="MongoDB.Driver.Core" version="2.0.0" /&gt;
+    &lt;package id="MongoDB.Bson" version="2.0.0" /&gt;
+&lt;/packages&gt;
+</code></pre>
+</div>
+<div id="paket-0-0" class="download hidden">
+<pre><code>source https://nuget.org/api/v2
+
+nuget MongoDB.Driver ~> 2.0.0
+</code></pre>
+</div>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <div id="driver-0" class="download description">
+            <p>The driver.</p>
+
+          </div>
+          
+      
+      
+      
+        
+        
+          
+          
+          
+          
+          
+<div id="nuget-0-1" class="download  hidden">
+<pre><code>&lt;packages&gt;
+    &lt;package id="MongoDB.Driver.Core" version="2.0.0" /&gt;
+    &lt;package id="MongoDB.Bson" version="2.0.0" /&gt;
+&lt;/packages&gt;
+</code></pre>
+</div>
+<div id="paket-0-1" class="download hidden">
+<pre><code>source https://nuget.org/api/v2
+
+nuget MongoDB.Driver.Core ~> 2.0.0
+</code></pre>
+</div>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <div id="driver-1" class="download description hidden">
+            <p>The core driver.</p>
+
+          </div>
+          
+      
+      
+      
+        
+        
+          
+          
+          
+          
+          
+<div id="nuget-0-2" class="download  hidden">
+<pre><code>&lt;packages&gt;
+    &lt;package id="MongoDB.Bson" version="2.0.0" /&gt;
+&lt;/packages&gt;
+</code></pre>
+</div>
+<div id="paket-0-2" class="download hidden">
+<pre><code>source https://nuget.org/api/v2
+
+nuget MongoDB.Bson ~> 2.0.0
+</code></pre>
+</div>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <div id="driver-2" class="download description hidden">
+            <p>The BSON library.</p>
+
+          </div>
+          
+      
+      
+      
+        
+        
+          
+          
+          
+          
+          
+<div id="nuget-0-3" class="download  hidden">
+<pre><code>&lt;packages&gt;
+    &lt;package id="mongocsharpdriver" version="2.0.0" /&gt;
+    &lt;package id="MongoDB.Driver" version="2.0.0" /&gt;
+    &lt;package id="MongoDB.Driver.Core" version="2.0.0" /&gt;
+    &lt;package id="MongoDB.Bson" version="2.0.0" /&gt;
+&lt;/packages&gt;
+</code></pre>
+</div>
+<div id="paket-0-3" class="download hidden">
+<pre><code>source https://nuget.org/api/v2
+
+nuget mongocsharpdriver ~> 2.0.0
+</code></pre>
+</div>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+<div id="nuget-1-3" class="download  hidden">
+<pre><code>&lt;packages&gt;
+    &lt;package id="mongocsharpdriver" version="1.10.0" /&gt;
+&lt;/packages&gt;
+</code></pre>
+</div>
+<div id="paket-1-3" class="download hidden">
+<pre><code>source https://nuget.org/api/v2
+
+nuget mongocsharpdriver ~> 1.10.0
+</code></pre>
+</div>
+          
+          
+          
+          
+          
+          
+          <div id="driver-3" class="download description hidden">
+            <p>The legacy driver.</p>
+
+          </div>
+          
+      
+      
+    </div>
+    </div>
+  </div>
+
+      </div>
+      <div class="col-md-4">
+        
+<section id="releases">
+  <h2>Releases</h2>
+  <table class="table table-striped">
+    <thead><tr><th>Release</th><th>Documentation</th></tr></thead>
+    <tbody>
+    
+      <tr>
+        <th class="rc">2.0.0</th>
+        <td><a href="http://mongodb.github.io/mongo-csharp-driver/2.0/" class="reference">Reference</a> &#124; <a href="http://api.mongodb.org/csharp/2.0">API</a></td>
+      </tr>
+    
+      <tr>
+        <th class="current">1.10.0</th>
+        <td><a href="http://mongodb.github.io/mongo-csharp-driver/1.10" class="reference">Reference</a> &#124; <a href="http://api.mongodb.org/csharp/1.10">API</a></td>
+      </tr>
+    
+  </tbody>
+  </table>
+</section>
+
+
+        <section id="universityPromo">
+<h3><span>MongoDB University</span></h3>
+
+<h4>M101N: MongoDB for .NET Developers</h4>
+<p>Learn everything you need to know to get started building a MongoDB-based app. From basic installation, JSON, schema design, querying, insertion of data, indexing and working with the .NET driver.
+</p>
+<p>
+<a href="https://university.mongodb.com/courses/M101N/about" target="_blank" class="btn btn-success btn-mongo">Learn More</a>
+</p>
+</section>
+
+     </div>
+    </div>
+  </div>
+  
+
+  
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="footer">
+  <div class="copyright">
+    <p>Copyright © 2015 <a class="smalltext" href="http://www.mongodb.com">MongoDB, Inc</a>.
+      Licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/ ">Creative Commons</a>.
+      MongoDB, Mongo, and the leaf logo are registered trademarks of <a class="smalltext" href="http://www.mongodb.com">MongoDB, Inc</a>.
+      </p>
+  </div>
+</div>
+
+      </div>
+    </div>
+  </div>
+  
+
+
+
+<script type="text/javascript" src="/mongo-csharp-driver/s/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/s/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/s/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/s/lib/bootstrap-select/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/s/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/s/lib/zeroclipboard/ZeroClipboard.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/s/js/frontpage.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-MNSSXD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MNSSXD');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+</body>
+</html>
