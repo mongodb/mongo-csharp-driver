@@ -53,7 +53,7 @@ namespace MongoDB.Driver
         public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            while (await _wrapped.MoveNextAsync(cancellationToken))
+            while (await _wrapped.MoveNextAsync(cancellationToken).ConfigureAwait(false))
             {
                 _current = _transformer(_wrapped.Current).ToList();
                 if (_current.Count > 0)

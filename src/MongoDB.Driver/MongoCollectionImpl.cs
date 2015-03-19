@@ -338,7 +338,7 @@ namespace MongoDB.Driver
                     Verbose = options.Verbose
                 };
 
-                return await ExecuteReadOperation(operation, cancellationToken);
+                return await ExecuteReadOperation(operation, cancellationToken).ConfigureAwait(false);
             }
             else
             {
@@ -368,7 +368,7 @@ namespace MongoDB.Driver
                     Verbose = options.Verbose
                 };
 
-                await ExecuteWriteOperation(operation, cancellationToken);
+                await ExecuteWriteOperation(operation, cancellationToken).ConfigureAwait(false);
 
                 var findOperation = new FindOperation<TResult>(
                     outputCollectionNamespace,
