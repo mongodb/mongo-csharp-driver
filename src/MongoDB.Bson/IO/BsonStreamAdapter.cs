@@ -52,7 +52,12 @@ namespace MongoDB.Bson.IO
         }
 
         // properties        
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the base stream.
+        /// </summary>
+        /// <value>
+        /// The base stream.
+        /// </value>
         public Stream BaseStream
         {
             get

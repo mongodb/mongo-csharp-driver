@@ -26,6 +26,8 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the options for a map-reduce operation.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
     public sealed class MapReduceOptions<TDocument, TResult>
     {
         // fields
