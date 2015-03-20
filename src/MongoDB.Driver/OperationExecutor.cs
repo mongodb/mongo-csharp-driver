@@ -26,48 +26,14 @@ namespace MongoDB.Driver
 {
     internal sealed class OperationExecutor : IOperationExecutor
     {
-        public async Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
-            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
-            {
-                cancellationTokenSource.CancelAfter(timeout);
-                try
-                {
-                    return await operation.ExecuteAsync(binding, cancellationTokenSource.Token).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException ex)
-                {
-                    if (cancellationTokenSource.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
-                    {
-                        var msg = string.Format("Operation timed out after {0}.", timeout);
-                        throw new TimeoutException(msg, ex);
-                    }
-
-                    throw;
-                }
-            }
+            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
         {
-            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
-            {
-                cancellationTokenSource.CancelAfter(timeout);
-                try
-                {
-                    return await operation.ExecuteAsync(binding, cancellationTokenSource.Token).ConfigureAwait(false);
-                }
-                catch(OperationCanceledException ex)
-                {
-                    if (cancellationTokenSource.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
-                    {
-                        var msg = string.Format("Operation timed out after {0}.", timeout);
-                        throw new TimeoutException(msg, ex);
-                    }
-
-                    throw;
-                }
-            }
+            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
     }
 }

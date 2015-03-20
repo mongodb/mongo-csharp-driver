@@ -28,7 +28,6 @@ namespace MongoDB.Driver
     {
         // private fields
         private Setting<GuidRepresentation> _guidRepresentation;
-        private Setting<TimeSpan> _operationTimeout;
         private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
         private Setting<WriteConcern> _writeConcern;
@@ -67,19 +66,6 @@ namespace MongoDB.Driver
         public bool IsFrozen
         {
             get { return _isFrozen; }
-        }
-
-        /// <summary>
-        /// Gets or sets the operation timeout.
-        /// </summary>
-        public TimeSpan OperationTimeout
-        {
-            get { return _operationTimeout.Value; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                _operationTimeout.Value = value;
-            }
         }
 
         /// <summary>
@@ -159,7 +145,6 @@ namespace MongoDB.Driver
         {
             var clone = new MongoDatabaseSettings();
             clone._guidRepresentation = _guidRepresentation.Clone();
-            clone._operationTimeout = _operationTimeout.Clone();
             clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
             clone._writeConcern = _writeConcern.Clone();
@@ -189,7 +174,6 @@ namespace MongoDB.Driver
                 {
                     return
                         _guidRepresentation.Value == rhs._guidRepresentation.Value &&
-                        _operationTimeout.Value == rhs._operationTimeout.Value &&
                         object.Equals(_readEncoding, rhs._readEncoding) &&
                         _readPreference.Value == rhs._readPreference.Value &&
                         _writeConcern.Value == rhs._writeConcern.Value &&
@@ -243,7 +227,6 @@ namespace MongoDB.Driver
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
-            hash = 37 * hash + _operationTimeout.Value.GetHashCode();
             hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.GetHashCode());
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
             hash = 37 * hash + ((_writeConcern.Value == null) ? 0 : _writeConcern.Value.GetHashCode());
@@ -264,7 +247,6 @@ namespace MongoDB.Driver
 
             var parts = new List<string>();
             parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation.Value));
-            parts.Add(string.Format("OperationTimeout={0}", _operationTimeout.Value));
             if (_readEncoding.HasBeenSet)
             {
                 parts.Add(string.Format("ReadEncoding={0}", (_readEncoding.Value == null) ? "null" : "UTF8Encoding"));
@@ -284,10 +266,6 @@ namespace MongoDB.Driver
             if (!_guidRepresentation.HasBeenSet)
             {
                 GuidRepresentation = clientSettings.GuidRepresentation;
-            }
-            if (!_operationTimeout.HasBeenSet)
-            {
-                OperationTimeout = clientSettings.OperationTimeout;
             }
             if (!_readEncoding.HasBeenSet)
             {

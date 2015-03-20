@@ -55,18 +55,17 @@ namespace MongoDB.Driver.Tests
             _results.Enqueue(tcs.Task);
         }
 
-        public Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
             _calls.Enqueue(new ReadCall<TResult>
             {
                 Binding = binding,
                 Operation = operation,
-                Timeout = timeout,
                 CancellationToken = cancellationToken
             });
 
             var result = Task.FromResult<TResult>(default(TResult));
-            if(_results.Count > 0)
+            if (_results.Count > 0)
             {
                 result = (Task<TResult>)_results.Dequeue();
             }
@@ -74,13 +73,12 @@ namespace MongoDB.Driver.Tests
             return result;
         }
 
-        public Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
         {
             _calls.Enqueue(new WriteCall<TResult>
             {
                 Binding = binding,
                 Operation = operation,
-                Timeout = timeout,
                 CancellationToken = cancellationToken
             });
 
@@ -95,14 +93,14 @@ namespace MongoDB.Driver.Tests
 
         public ReadCall<TResult> GetReadCall<TResult>()
         {
-            if(_calls.Count == 0)
+            if (_calls.Count == 0)
             {
                 throw new InvalidOperationException("No read operation was executed.");
             }
 
             var call = _calls.Dequeue();
             var readCall = call as ReadCall<TResult>;
-            if(readCall == null)
+            if (readCall == null)
             {
                 throw new InvalidOperationException(string.Format("Expected a call of type {0} but had {1}.", typeof(ReadCall<TResult>), call.GetType()));
             }
@@ -112,14 +110,14 @@ namespace MongoDB.Driver.Tests
 
         public WriteCall<TResult> GetWriteCall<TResult>()
         {
-            if(_calls.Count == 0)
+            if (_calls.Count == 0)
             {
                 throw new InvalidOperationException("No read operation was executed.");
             }
 
             var call = _calls.Dequeue();
             var writeCall = call as WriteCall<TResult>;
-            if(writeCall == null)
+            if (writeCall == null)
             {
                 throw new InvalidOperationException(string.Format("Expected a call of type {0} but had {1}.", typeof(WriteCall<TResult>), call.GetType()));
             }
@@ -131,7 +129,6 @@ namespace MongoDB.Driver.Tests
         {
             public IReadBinding Binding { get; set; }
             public IReadOperation<TResult> Operation { get; set; }
-            public TimeSpan Timeout { get; set; }
             public CancellationToken CancellationToken { get; set; }
         }
 
@@ -139,7 +136,6 @@ namespace MongoDB.Driver.Tests
         {
             public IWriteBinding Binding { get; set; }
             public IWriteOperation<TResult> Operation { get; set; }
-            public TimeSpan Timeout { get; set; }
             public CancellationToken CancellationToken { get; set; }
         }
     }
