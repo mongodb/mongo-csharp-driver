@@ -108,12 +108,6 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
-            if (arraySerializer == null)
-            {
-                return null;
-            }
-
             var indexEpression = node.Right as ConstantExpression;
             if (indexEpression == null)
             {
@@ -121,7 +115,13 @@ namespace MongoDB.Driver.Linq.Utils
             }
             var index = Convert.ToInt32(indexEpression.Value);
 
-            var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
+            var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
+            BsonSerializationInfo itemSerializationInfo;
+            if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+            {
+                return null;
+            }
+
             itemSerializationInfo = new BsonSerializationInfo(
                 index.ToString(),
                 itemSerializationInfo.Serializer,
@@ -256,10 +256,9 @@ namespace MongoDB.Driver.Linq.Utils
                 indexExpression.Type == typeof(ulong))
             {
                 var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
-                if (arraySerializer != null)
+                BsonSerializationInfo itemSerializationInfo;
+                if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
-
                     itemSerializationInfo = new BsonSerializationInfo(
                         indexName,
                         itemSerializationInfo.Serializer,
@@ -293,13 +292,13 @@ namespace MongoDB.Driver.Linq.Utils
             }
 
             var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
-            if (arraySerializer == null)
+            BsonSerializationInfo itemSerializationInfo;
+            if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
             {
                 return null;
             }
 
             var index = (int)((ConstantExpression)node.Arguments[1]).Value;
-            var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
             itemSerializationInfo = new BsonSerializationInfo(
                 index.ToString(),
                 itemSerializationInfo.Serializer,

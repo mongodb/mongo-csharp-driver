@@ -110,13 +110,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
+        /// Tries to get the serialization info for the individual items of the array.
         /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns>
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
+        /// </returns>
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
-            string elementName = null;
-            return new BsonSerializationInfo(elementName, _itemSerializer, _itemSerializer.ValueType);
+            serializationInfo = new BsonSerializationInfo(null, _itemSerializer, _itemSerializer.ValueType);
+            return true;
         }
 
         /// <summary>
@@ -275,13 +278,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
+        /// Tries to get the serialization info for the individual items of the array.
         /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns>
+        /// The serialization info for the items.
+        /// </returns>
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
-            string elementName = null;
-            return new BsonSerializationInfo(elementName, _itemSerializer, _itemSerializer.ValueType);
+            serializationInfo = new BsonSerializationInfo(null, _itemSerializer, _itemSerializer.ValueType);
+            return true;
         }
 
         /// <summary>

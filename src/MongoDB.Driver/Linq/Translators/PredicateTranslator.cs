@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Linq.Translators
                     var mongoExpression = expression as MongoExpression;
                     if (mongoExpression != null)
                     {
-                        switch(mongoExpression.MongoNodeType)
+                        switch (mongoExpression.MongoNodeType)
                         {
                             case MongoExpressionType.Serialization:
                                 if (mongoExpression.Type == typeof(bool))
@@ -1413,12 +1413,13 @@ namespace MongoDB.Driver.Linq.Translators
         private BsonSerializationInfo GetItemSerializationInfo(string methodName, BsonSerializationInfo info)
         {
             var arraySerializer = info.Serializer as IBsonArraySerializer;
-            if (arraySerializer == null)
+            BsonSerializationInfo itemSerializationInfo;
+            if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
             {
                 throw new InvalidOperationException(string.Format("{0} must have a serializer that supports retrieving item serialization info.", methodName));
             }
 
-            return arraySerializer.GetItemSerializationInfo();
+            return itemSerializationInfo;
         }
     }
 }

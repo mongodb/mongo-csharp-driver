@@ -133,14 +133,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Gets the serialization info for individual items of the array.
+        /// Tries to get the serialization info for the individual items of the array.
         /// </summary>
+        /// <param name="serializationInfo">The serialization information.</param>
         /// <returns>
         /// The serialization info for the items.
         /// </returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
-            return BsonValueSerializer.Instance.GetItemSerializationInfo();
+            return BsonValueSerializer.Instance.TryGetItemSerializationInfo(out serializationInfo);
         }
 
         /// <summary>
@@ -175,14 +176,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Gets the serialization info for individual items of the array.
+        /// Tries to get the serialization info for the individual items of the array.
         /// </summary>
+        /// <param name="serializationInfo">The serialization information.</param>
         /// <returns>
-        /// The serialization info for the items.
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
         /// </returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
-            return BsonValueSerializer.Instance.GetItemSerializationInfo();
+            return BsonValueSerializer.Instance.TryGetItemSerializationInfo(out serializationInfo);
         }
     }
 

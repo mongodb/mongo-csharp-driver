@@ -21,9 +21,12 @@ namespace MongoDB.Bson.Serialization
     public interface IBsonArraySerializer : IBsonSerializer
     {
         /// <summary>
-        /// Gets the serialization info for individual items of the array.
+        /// Tries to get the serialization info for the individual items of the array.
         /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        BsonSerializationInfo GetItemSerializationInfo();
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns>
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
+        ///</returns>
+        bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo);
     }
 }

@@ -66,10 +66,13 @@ namespace MongoDB.Driver.Linq.Processors
                 {
                     var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
                     var indexExpression = binary.Right as ConstantExpression;
-                    if (arraySerializer != null && indexExpression != null && indexExpression.Type == typeof(int))
+                    BsonSerializationInfo itemSerializationInfo;
+                    if (arraySerializer != null
+                        && indexExpression != null
+                        && indexExpression.Type == typeof(int)
+                        && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                     {
                         var index = (int)indexExpression.Value;
-                        var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
                         itemSerializationInfo = new BsonSerializationInfo(
                             index >= 0 ? index.ToString() : "$",
                             itemSerializationInfo.Serializer,
@@ -214,10 +217,10 @@ namespace MongoDB.Driver.Linq.Processors
                 if (serializationExpression != null)
                 {
                     var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
-                    if (arraySerializer != null)
+                    BsonSerializationInfo itemSerializationInfo;
+                    if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                     {
                         var index = (int)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-                        var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
                         itemSerializationInfo = new BsonSerializationInfo(
                             index >= 0 ? index.ToString() : "$",
                             itemSerializationInfo.Serializer,
@@ -262,7 +265,8 @@ namespace MongoDB.Driver.Linq.Processors
                 case TypeCode.UInt32:
                 case TypeCode.UInt64:
                     var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
-                    if (arraySerializer != null)
+                    BsonSerializationInfo itemSerializationInfo;
+                    if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                     {
                         string name;
                         switch (Type.GetTypeCode(indexExpression.Type))
@@ -280,8 +284,7 @@ namespace MongoDB.Driver.Linq.Processors
                                 name = index.ToString();
                                 break;
                         }
-                        var itemSerializationInfo = arraySerializer.GetItemSerializationInfo().WithNewName(name);
-                        var serializationInfo = serializationExpression.SerializationInfo.Merge(itemSerializationInfo);
+                        var serializationInfo = serializationExpression.SerializationInfo.Merge(itemSerializationInfo.WithNewName(name));
                         return new SerializationExpression(methodCallExpression, serializationInfo);
                     }
                     break;
@@ -296,7 +299,7 @@ namespace MongoDB.Driver.Linq.Processors
                     break;
             }
 
-            return newNode;
+            return node; // return the original node because we can't translate this expression.
         }
 
         private Expression BindTwoArgumentLinqMethodWithSelector(MethodCallExpression node)
@@ -310,9 +313,9 @@ namespace MongoDB.Driver.Linq.Processors
             if (serializationExpression != null)
             {
                 var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
-                if (arraySerializer != null)
+                BsonSerializationInfo itemSerializationInfo;
+                if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
                     var lambda = (LambdaExpression)node.Arguments[1];
                     RegisterParameterReplacement(
                         lambda.Parameters[0],

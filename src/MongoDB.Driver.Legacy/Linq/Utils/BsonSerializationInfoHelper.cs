@@ -89,13 +89,9 @@ namespace MongoDB.Driver.Linq.Utils
         {
             itemSerializationInfo = null;
             var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
-            if (arraySerializer != null)
+            if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
             {
-                itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
-                if (itemSerializationInfo != null)
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;
