@@ -159,7 +159,12 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(node.Member.Name);
+            BsonSerializationInfo memberSerializationInfo;
+            if (!documentSerializer.TryGetMemberSerializationInfo(node.Member.Name, out memberSerializationInfo))
+            {
+                var message = string.Format("The member {0} does not exist.", node.Member.Name);
+                throw new ArgumentOutOfRangeException("memberName", message);
+            }
             return CombineSerializationInfo(serializationInfo, memberSerializationInfo);
         }
 
@@ -245,7 +250,7 @@ namespace MongoDB.Driver.Linq.Utils
             }
 
             var indexName = indexExpression.Value.ToString();
-            if (indexExpression.Type == typeof(int) || 
+            if (indexExpression.Type == typeof(int) ||
                 indexExpression.Type == typeof(uint) ||
                 indexExpression.Type == typeof(long) ||
                 indexExpression.Type == typeof(ulong))
@@ -265,9 +270,9 @@ namespace MongoDB.Driver.Linq.Utils
             }
 
             var documentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
-            if (documentSerializer != null)
+            BsonSerializationInfo memberSerializationInfo;
+            if (documentSerializer != null && documentSerializer.TryGetMemberSerializationInfo(indexName, out memberSerializationInfo))
             {
-                var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(indexName);
                 return CombineSerializationInfo(serializationInfo, memberSerializationInfo);
             }
 

@@ -39,18 +39,6 @@ namespace MongoDB.Driver.Linq.Translators
             return obj;
         }
 
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
-        {
-            BsonSerializationInfo found;
-            if (_deserializationMap.TryGetValue(memberName, out found))
-            {
-                return found;
-            }
-
-            // TODO: this is the wrong exception type, but it's what is used in BsonClassMapSerializer
-            throw new ArgumentOutOfRangeException("memberName", "No member found by the name of " + memberName);
-        }
-
         /// <summary>
         /// Tries to get the serialization info for a member.
         /// </summary>

@@ -144,18 +144,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Gets the serialization info for a member.
-        /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>
-        /// The serialization info for the member.
-        /// </returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
-        {
-            return BsonValueSerializer.Instance.GetMemberSerializationInfo(memberName);
-        }
-
-        /// <summary>
         /// Tries to get the serialization info for a member.
         /// </summary>
         /// <param name="memberName">Name of the member.</param>
@@ -213,18 +201,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         public BsonValueCSharpNullDocumentSerializer(IBsonSerializer<TBsonValue> wrappedSerializer)
             : base(wrappedSerializer)
         {
-        }
-
-        /// <summary>
-        /// Gets the serialization info for a member.
-        /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>
-        /// The serialization info for the member.
-        /// </returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
-        {
-            return BsonValueSerializer.Instance.GetMemberSerializationInfo(memberName);
         }
 
         /// <summary>

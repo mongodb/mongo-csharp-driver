@@ -106,9 +106,9 @@ namespace MongoDB.Driver.Linq.Processors
                 if (serializationExpression != null)
                 {
                     var documentSerializer = serializationExpression.SerializationInfo.Serializer as IBsonDocumentSerializer;
-                    if (documentSerializer != null)
+                    BsonSerializationInfo memberSerializationInfo;
+                    if (documentSerializer != null && documentSerializer.TryGetMemberSerializationInfo(node.Member.Name, out memberSerializationInfo))
                     {
-                        var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(node.Member.Name);
                         var serializationInfo = serializationExpression.SerializationInfo.Merge(memberSerializationInfo);
                         return new SerializationExpression(mex, serializationInfo);
                     }
@@ -287,9 +287,9 @@ namespace MongoDB.Driver.Linq.Processors
                     break;
                 case TypeCode.String:
                     var documentSerializer = serializationExpression.SerializationInfo.Serializer as IBsonDocumentSerializer;
-                    if (documentSerializer != null)
+                    BsonSerializationInfo memberSerializationInfo;
+                    if (documentSerializer != null && documentSerializer.TryGetMemberSerializationInfo(index.ToString(), out memberSerializationInfo))
                     {
-                        var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(index.ToString());
                         var serializationInfo = serializationExpression.SerializationInfo.Merge(memberSerializationInfo);
                         return new SerializationExpression(methodCallExpression, serializationInfo);
                     }

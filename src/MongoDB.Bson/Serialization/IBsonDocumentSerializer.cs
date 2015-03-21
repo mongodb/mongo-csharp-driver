@@ -22,13 +22,6 @@ namespace MongoDB.Bson.Serialization
     public interface IBsonDocumentSerializer : IBsonSerializer
     {
         /// <summary>
-        /// Gets the serialization info for a member.
-        /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>The serialization info for the member.</returns>
-        BsonSerializationInfo GetMemberSerializationInfo(string memberName);
-
-        /// <summary>
         /// Tries to get the serialization info for a member.
         /// </summary>
         /// <param name="memberName">Name of the member.</param>

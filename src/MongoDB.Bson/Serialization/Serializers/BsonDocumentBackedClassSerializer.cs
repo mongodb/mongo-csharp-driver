@@ -52,25 +52,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets the serialization info for a member.
-        /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>
-        /// The serialization info for the member.
-        /// </returns>
-        public virtual BsonSerializationInfo GetMemberSerializationInfo(string memberName)
-        {
-            BsonSerializationInfo info;
-            if (!_memberSerializationInfo.TryGetValue(memberName, out info))
-            {
-                var message = string.Format("{0} is not a member of {1}.", memberName, typeof(TClass));
-                throw new ArgumentOutOfRangeException("memberName", message);
-            }
-
-            return info;
-        }
-
-        /// <summary>
         /// Tries to get the serialization info for a member.
         /// </summary>
         /// <param name="memberName">Name of the member.</param>
@@ -78,7 +59,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>
         ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
         /// </returns>
-        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        public virtual bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
             return _memberSerializationInfo.TryGetValue(memberName, out serializationInfo);
         }

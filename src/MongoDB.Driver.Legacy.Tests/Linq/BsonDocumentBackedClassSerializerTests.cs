@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Tests.Linq
         [Test]
         public void TestThrowsExceptionWhenMemberDoesNotExistAndIsNotDynamic()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => Query<TestDocument>.Where(x => x["ThrowMe"] == 42));
+            Assert.Throws<NotSupportedException>(() => Query<TestDocument>.Where(x => x["ThrowMe"] == 42));
         }
 
         public enum KnownPropertyNames
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Tests.Linq
             {
                 get
                 {
-                    switch(name)
+                    switch (name)
                     {
                         case KnownPropertyNames.Name:
                             return this["Name"];
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Tests.Linq
                 this.RegisterMember("Colors2", "colors2", listSerializer);
             }
 
-            public override BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+            public override bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
             {
                 // Dynamic members are allowed in a TestDocument if 
                 // they start with Dynamic- or are an ObjectId.
@@ -173,20 +173,22 @@ namespace MongoDB.Driver.Tests.Linq
                 ObjectId objectId;
                 if (memberName.StartsWith("Dynamic-"))
                 {
-                    return new BsonSerializationInfo(
+                    serializationInfo = new BsonSerializationInfo(
                         memberName,
                         BsonValueSerializer.Instance,
                         typeof(BsonValue));
+                    return true;
                 }
                 else if (ObjectId.TryParse(memberName, out objectId))
                 {
-                    return new BsonSerializationInfo(
+                    serializationInfo = new BsonSerializationInfo(
                         memberName,
                         BsonValueSerializer.Instance,
                         typeof(BsonValue));
+                    return true;
                 }
 
-                return base.GetMemberSerializationInfo(memberName);
+                return base.TryGetMemberSerializationInfo(memberName, out serializationInfo);
             }
 
             protected override TestDocument CreateInstance(BsonDocument backingDocument)
