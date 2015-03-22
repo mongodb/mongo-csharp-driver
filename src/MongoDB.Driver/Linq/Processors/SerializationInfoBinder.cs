@@ -67,10 +67,10 @@ namespace MongoDB.Driver.Linq.Processors
                     var arraySerializer = serializationExpression.SerializationInfo.Serializer as IBsonArraySerializer;
                     var indexExpression = binary.Right as ConstantExpression;
                     BsonSerializationInfo itemSerializationInfo;
-                    if (arraySerializer != null
-                        && indexExpression != null
-                        && indexExpression.Type == typeof(int)
-                        && arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+                    if (arraySerializer != null &&
+                        indexExpression != null &&
+                        indexExpression.Type == typeof(int) &&
+                        arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                     {
                         var index = (int)indexExpression.Value;
                         itemSerializationInfo = new BsonSerializationInfo(
