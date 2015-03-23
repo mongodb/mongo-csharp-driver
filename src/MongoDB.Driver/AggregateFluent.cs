@@ -125,7 +125,7 @@ namespace MongoDB.Driver
             return AppendStage(stage);
         }
 
-        public override IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, IBsonSerializer<TNewResult> resultSerializer)
+        public override IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, IBsonSerializer<TNewResult> newResultSerializer)
         {
             const string operatorName = "$unwind";
             var stage = new DelegatedPipelineStageDefinition<TResult, TNewResult>(
@@ -134,7 +134,7 @@ namespace MongoDB.Driver
                     operatorName, new BsonDocument(
                         operatorName, 
                         "$" + field.Render(s, sr).FieldName),
-                    resultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>()));
+                    newResultSerializer ?? (s as IBsonSerializer<TNewResult>) ?? sr.GetSerializer<TNewResult>()));
 
             return AppendStage<TNewResult>(stage);
         }

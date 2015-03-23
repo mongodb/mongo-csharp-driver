@@ -168,39 +168,22 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Gets the serialization info for individual items of the array.
+        /// Tries to get the serialization info for the individual items of the array.
         /// </summary>
+        /// <param name="serializationInfo">The serialization information.</param>
         /// <returns>
-        /// The serialization info for the items.
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
         /// </returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
             var arraySerializer = _implementationSerializer as IBsonArraySerializer;
             if (arraySerializer != null)
             {
-                return arraySerializer.GetItemSerializationInfo();
+                return arraySerializer.TryGetItemSerializationInfo(out serializationInfo);
             }
 
-            return null;
-        }
-
-        /// <summary>
-        /// Gets the serialization info for a member.
-        /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>
-        /// The serialization info for the member.
-        /// </returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
-        {
-            BsonSerializationInfo serializationInfo;
-            if (!TryGetMemberSerializationInfo(memberName, out serializationInfo))
-            {
-                var message = string.Format("{0} is not a member of {1}.", memberName, typeof(TImplementation));
-                throw new ArgumentOutOfRangeException("memberName", message);
-            }
-
-            return serializationInfo;
+            serializationInfo = null;
+            return false;
         }
 
         /// <summary>

@@ -1159,12 +1159,13 @@ namespace MongoDB.Driver
             if (renderedField.FieldSerializer != null)
             {
                 var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
-                if (arraySerializer == null)
+                BsonSerializationInfo itemSerializationInfo;
+                if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
                     throw new InvalidOperationException(message);
                 }
-                itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
+                itemSerializer = itemSerializationInfo.Serializer;
             }
             else
             {
@@ -1212,12 +1213,13 @@ namespace MongoDB.Driver
             if (renderedField.FieldSerializer != null)
             {
                 var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
-                if (arraySerializer == null)
+                BsonSerializationInfo itemSerializationInfo;
+                if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
                     throw new InvalidOperationException(message);
                 }
-                itemSerializer = (IBsonSerializer<TItem>)arraySerializer.GetItemSerializationInfo().Serializer;
+                itemSerializer = (IBsonSerializer<TItem>)itemSerializationInfo.Serializer;
             }
             else
             {
@@ -1652,12 +1654,13 @@ namespace MongoDB.Driver
             if (renderedField.FieldSerializer != null)
             {
                 var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
-                if (arraySerializer == null)
+                BsonSerializationInfo itemSerializationInfo;
+                if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
                     throw new InvalidOperationException(message);
                 }
-                itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
+                itemSerializer = itemSerializationInfo.Serializer;
             }
             else
             {
@@ -1700,12 +1703,13 @@ namespace MongoDB.Driver
             if (renderedField.FieldSerializer != null)
             {
                 var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
-                if (arraySerializer == null)
+                BsonSerializationInfo itemSerializationInfo;
+                if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer.", renderedField.FieldName);
+                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
                     throw new InvalidOperationException(message);
                 }
-                itemSerializer = (IBsonSerializer<TItem>)arraySerializer.GetItemSerializationInfo().Serializer;
+                itemSerializer = (IBsonSerializer<TItem>)itemSerializationInfo.Serializer;
             }
             else
             {

@@ -365,9 +365,8 @@ namespace MongoDB.Driver
                 if (nameParts[i] == "$" || nameParts[i].All(char.IsDigit))
                 {
                     arraySerializer = resolvedFieldSerializer as IBsonArraySerializer;
-                    if (arraySerializer != null)
+                    if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out serializationInfo))
                     {
-                        serializationInfo = arraySerializer.GetItemSerializationInfo();
                         resolvedFieldSerializer = serializationInfo.Serializer;
                         continue;
                     }
@@ -381,9 +380,8 @@ namespace MongoDB.Driver
                 {
                     // need to check if this is an any element array match
                     arraySerializer = resolvedFieldSerializer as IBsonArraySerializer;
-                    if (arraySerializer != null)
+                    if (arraySerializer != null && arraySerializer.TryGetItemSerializationInfo(out serializationInfo))
                     {
-                        serializationInfo = arraySerializer.GetItemSerializationInfo();
                         documentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
                         if (documentSerializer == null || !documentSerializer.TryGetMemberSerializationInfo(nameParts[i], out serializationInfo))
                         {

@@ -50,8 +50,11 @@ namespace MongoDB.Driver
         // methods
         public override Task<long> CountAsync(CancellationToken cancellationToken)
         {
-            BsonValue hint;
-            _options.Modifiers.TryGetValue("$hint", out hint);
+            BsonValue hint = null;
+            if (_options.Modifiers != null)
+            {
+                _options.Modifiers.TryGetValue("$hint", out hint);
+            }
             var options = new CountOptions
             {
                 Hint = hint,

@@ -501,7 +501,6 @@ namespace MongoDB.Driver
             serverSettings.MaxConnectionLifeTime = clientSettings.MaxConnectionLifeTime;
             serverSettings.MaxConnectionPoolSize = clientSettings.MaxConnectionPoolSize;
             serverSettings.MinConnectionPoolSize = clientSettings.MinConnectionPoolSize;
-            serverSettings.OperationTimeout = clientSettings.OperationTimeout;
             serverSettings.ReadEncoding = clientSettings.ReadEncoding;
             serverSettings.ReadPreference = clientSettings.ReadPreference;
             serverSettings.ReplicaSetName = clientSettings.ReplicaSetName;

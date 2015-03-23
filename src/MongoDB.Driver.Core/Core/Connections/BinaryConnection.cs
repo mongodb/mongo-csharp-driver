@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 _state.TryChange(State.Failed);
 
-                var wrappedException =  new MongoConnectionException(_connectionId, "An exception occurred while opening a connection to the server.", ex);
+                var wrappedException =  WrapException(ex, "opening a connection to the server");
 
                 if (_listener != null)
                 {
@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                var wrappedException = new MongoConnectionException(_connectionId, "An exception occurred while receiving a message from the server.", ex);
+                var wrappedException = WrapException(ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException);
                 throw wrappedException;
             }
@@ -357,7 +357,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch (Exception ex)
                 {
-                    var wrappedException = new MongoConnectionException(_connectionId, "An exception occurred while sending a message to the server.", ex);
+                    var wrappedException = WrapException(ex, "sending a message to the server");
                     ConnectionFailed(wrappedException);
                     throw wrappedException;
                 }
@@ -445,6 +445,19 @@ namespace MongoDB.Driver.Core.Connections
             if (_state.Value != State.Open && _state.Value != State.Initializing)
             {
                 throw new InvalidOperationException("The connection must be opened before it can be used.");
+            }
+        }
+
+        private Exception WrapException(Exception ex, string action)
+        {
+            if (ex is ThreadAbortException || ex is StackOverflowException || ex is OutOfMemoryException)
+            {
+                return ex;
+            }
+            else
+            {
+                var message = string.Format("An exception occurred while {0}.", action);
+                return new MongoConnectionException(_connectionId, message, ex);
             }
         }
 

@@ -75,7 +75,7 @@ namespace MongoDB.Driver
         public abstract RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="T:IPipelineStage[]"/> to <see cref="PipelineDefinition{TInput, TOutput}"/>.
+        /// Performs an implicit conversion from <see cref="IPipelineStageDefinition"/>[] to <see cref="PipelineDefinition{TInput, TOutput}"/>.
         /// </summary>
         /// <param name="stages">The stages.</param>
         /// <returns>
@@ -109,7 +109,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="T:BsonDocument[]"/> to <see cref="PipelineDefinition{TInput, TOutput}"/>.
+        /// Performs an implicit conversion from <see cref="BsonDocument"/>[] to <see cref="PipelineDefinition{TInput, TOutput}"/>.
         /// </summary>
         /// <param name="stages">The stages.</param>
         /// <returns>

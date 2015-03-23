@@ -114,28 +114,6 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void Capacity_get_should_call_buffer()
-        {
-            var subject = CreateSubject();
-            subject.Buffer.Capacity.Returns(1);
-
-            var result = subject.Capacity;
-
-            result.Should().Be(1);
-            var temp = subject.Buffer.Received(1).Capacity;
-        }
-
-        [Test]
-        public void Capacity_get_should_throw_when_subject_is_disposed()
-        {
-            var subject = CreateDisposedSubject();
-
-            Action action = () => { var _ = subject.Capacity; };
-
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteBufferStream");
-        }
-
-        [Test]
         public void constructor_should_initialize_subject(
             [Values(false, true)]
             bool ownsBuffer)
@@ -914,29 +892,41 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
-        public void SetLength_should_have_expected_effect(
+        public void SetLength_should_set_length(
             [Values(0, 1, 2, 3)]
             long length)
         {
             var subject = CreateSubject();
-            subject.Buffer.Capacity.Returns(3);
 
             subject.SetLength(length);
 
             subject.Length.Should().Be(length);
+            subject.Buffer.Received(1).EnsureCapacity((int)length);
+        }
+
+        [Test]
+        public void SetLength_should_set_position_when_position_is_greater_than_new_length(
+            [Values(0, 1, 2, 3)]
+            long length)
+        {
+            var subject = CreateSubject();
+            subject.Position = length + 1;
+
+            subject.SetLength(length);
+
+            subject.Position.Should().Be(length);
         }
 
         [Test]
         public void SetLength_should_throw_when_length_is_out_of_range(
-            [Values(-1, 4)]
+            [Values(-1, (long)int.MaxValue + 1)]
             long length)
         {
             var subject = CreateSubject();
-            subject.Buffer.Capacity.Returns(3);
 
             Action action = () => subject.SetLength(length);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("length");
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("value");
         }
 
         [Test]

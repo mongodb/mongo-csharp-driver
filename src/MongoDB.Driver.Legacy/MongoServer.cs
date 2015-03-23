@@ -43,7 +43,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a MongoServer object using this client's settings.
         /// </summary>
-        /// <returns>A MongoServer.</returns>
+        /// <param name="client">The client.</param>
+        /// <returns>
+        /// A MongoServer.
+        /// </returns>
         [Obsolete("Use the new API instead.")]
         public static MongoServer GetServer(this MongoClient client)
         {

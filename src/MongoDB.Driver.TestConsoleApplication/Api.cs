@@ -36,7 +36,6 @@ namespace MongoDB.Driver.TestConsoleApplication
         {
             var settings = new MongoClientSettings();
             settings.ClusterConfigurator = configurator;
-            settings.OperationTimeout = TimeSpan.FromSeconds(5);
 
             var client = new MongoClient(settings);
 
@@ -68,7 +67,7 @@ namespace MongoDB.Driver.TestConsoleApplication
         private async Task DoWork(IMongoCollection<BsonDocument> collection)
         {
             var rand = new Random();
-            while(!_cancellationTokenSource.IsCancellationRequested)
+            while (!_cancellationTokenSource.IsCancellationRequested)
             {
                 var i = rand.Next(0, 10000);
                 List<BsonDocument> docs;
@@ -83,7 +82,7 @@ namespace MongoDB.Driver.TestConsoleApplication
                     continue;
                 }
 
-                if(docs.Count == 0)
+                if (docs.Count == 0)
                 {
                     try
                     {

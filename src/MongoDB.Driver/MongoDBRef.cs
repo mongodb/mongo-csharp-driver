@@ -219,23 +219,6 @@ namespace MongoDB.Driver
 
         // public methods
         /// <summary>
-        /// Gets the serialization info for a member.
-        /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>The serialization info for the member.</returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
-        {
-            BsonSerializationInfo serializationInfo;
-            if (!TryGetMemberSerializationInfo(memberName, out serializationInfo))
-            {
-                var message = string.Format("{0} is not a member of MongoDBRef.", memberName);
-                throw new ArgumentOutOfRangeException("memberName", message);
-            }
-
-            return serializationInfo;
-        }
-
-        /// <summary>
         /// Tries to get the serialization info for a member.
         /// </summary>
         /// <param name="memberName">Name of the member.</param>

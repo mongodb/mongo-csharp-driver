@@ -93,16 +93,6 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public int Capacity
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _buffer.Capacity;
-            }
-        }
-
-        /// <inheritdoc/>
         public override long Length
         {
             get
@@ -211,16 +201,21 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
-        public override void SetLength(long length)
+        public override void SetLength(long value)
         {
-            if (length < 0 || length > Capacity)
+            if (value < 0 || value > int.MaxValue)
             {
-                throw new ArgumentOutOfRangeException("length");
+                throw new ArgumentOutOfRangeException("value");
             }
             ThrowIfDisposed();
-            EnsureWriteable();          
+            EnsureWriteable();
 
-            _length = (int)length;
+            _buffer.EnsureCapacity((int)value);
+            _length = (int)value;
+            if (_position > _length)
+            {
+                _position = _length;
+            }
         }
 
         /// <inheritdoc/>

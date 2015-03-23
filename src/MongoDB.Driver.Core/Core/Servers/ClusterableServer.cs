@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Servers
     {
         #region static
         // static fields
-        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(10);
+        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(500);
         private static readonly List<Type> __invalidatingExceptions = new List<Type>
         {
             typeof(MongoNotPrimaryException),

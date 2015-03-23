@@ -22,7 +22,6 @@ namespace MongoDB.Driver
     internal interface IInheritableMongoClientSettings
     {
         GuidRepresentation GuidRepresentation { get; }
-        TimeSpan OperationTimeout { get; }
         UTF8Encoding ReadEncoding { get; }
         ReadPreference ReadPreference { get; }
         WriteConcern WriteConcern { get; }

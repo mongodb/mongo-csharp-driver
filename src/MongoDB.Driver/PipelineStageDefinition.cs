@@ -47,6 +47,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// A rendered pipeline stage.
     /// </summary>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
     public class RenderedPipelineStageDefinition<TOutput> : IRenderedPipelineStageDefinition
     {
         private string _operatorName;
@@ -125,6 +126,8 @@ namespace MongoDB.Driver
     /// <summary>
     /// Base class for pipeline stages.
     /// </summary>
+    /// <typeparam name="TInput">The type of the input.</typeparam>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
     public abstract class PipelineStageDefinition<TInput, TOutput> : IPipelineStageDefinition
     {
         /// <summary>
@@ -198,6 +201,8 @@ namespace MongoDB.Driver
     /// <summary>
     /// A <see cref="BsonDocument"/> based stage.
     /// </summary>
+    /// <typeparam name="TInput">The type of the input.</typeparam>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
     public sealed class BsonDocumentPipelineStageDefinition<TInput, TOutput> : PipelineStageDefinition<TInput, TOutput>
     {
         private readonly BsonDocument _document;
@@ -233,6 +238,8 @@ namespace MongoDB.Driver
     /// <summary>
     /// A JSON <see cref="String"/> based pipeline stage.
     /// </summary>
+    /// <typeparam name="TInput">The type of the input.</typeparam>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
     public sealed class JsonPipelineStageDefinition<TInput, TOutput> : PipelineStageDefinition<TInput, TOutput>
     {
         private readonly BsonDocument _document;
