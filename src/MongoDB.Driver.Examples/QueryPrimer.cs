@@ -33,11 +33,23 @@ namespace MongoDB.Driver.Examples
             // @code: start
             var collection = _database.GetCollection<BsonDocument>("restaurants");
             var filter = new BsonDocument();
-            var result = await collection.Find(filter).ToListAsync();
+            var count = 0;
+            using (var cursor = await collection.FindAsync(filter))
+            {
+                while (await cursor.MoveNextAsync())
+                {
+                    var batch = cursor.Current;
+                    foreach (var document in batch)
+                    {
+                        // process document
+                        count++;
+                    }
+                }
+            }
             // @code: end
 
             // @results: start
-            result.Count().Should().Be(25359);
+            count.Should().Be(25359);
             // @results: end
 
             // @end: query-all
