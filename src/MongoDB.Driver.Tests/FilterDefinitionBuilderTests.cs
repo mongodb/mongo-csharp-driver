@@ -212,8 +212,8 @@ namespace MongoDB.Driver.Tests
                 GeoJson.Geographic(41, 19),
                 GeoJson.Geographic(40, 18));
 
-            Assert(subject.GeoIntersects(x => x.Age, poly), "{age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
-            Assert(subject.GeoIntersects("Age", poly), "{age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoIntersects(x => x.Location, poly), "{loc: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoIntersects("Location", poly), "{loc: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
         [Test]
@@ -226,8 +226,8 @@ namespace MongoDB.Driver.Tests
                 GeoJson.Geographic(41, 19),
                 GeoJson.Geographic(40, 18));
 
-            Assert(subject.GeoIntersects(x => x.Age, poly), "{age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
-            Assert(subject.GeoIntersects("Age", poly), "{age: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoIntersects(x => x.Location, poly), "{loc: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoIntersects("Location", poly), "{loc: {$geoIntersects: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
         [Test]
@@ -254,8 +254,8 @@ namespace MongoDB.Driver.Tests
                 GeoJson.Geographic(41, 19),
                 GeoJson.Geographic(40, 18));
 
-            Assert(subject.GeoWithin(x => x.Age, poly), "{age: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
-            Assert(subject.GeoWithin("Age", poly), "{age: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoWithin(x => x.Location, poly), "{loc: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
+            Assert(subject.GeoWithin("Location", poly), "{loc: {$geoWithin: {$geometry: {type: 'Polygon', coordinates: [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]]}}}}");
         }
 
         [Test]
@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.GeoWithinBox("x", 10, 20), "{x: {$geoWithin: {$box: [10.0, 20.0]}}}");
+            Assert(subject.GeoWithinBox("x", 10, 20, 30, 40), "{x: {$geoWithin: {$box: [[10.0, 20.0], [30.0, 40.0]]}}}");
         }
 
         [Test]
@@ -271,8 +271,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.GeoWithinBox(x => x.Age, 10, 20), "{age: {$geoWithin: {$box: [10.0, 20.0]}}}");
-            Assert(subject.GeoWithinBox("Age", 10, 20), "{age: {$geoWithin: {$box: [10.0, 20.0]}}}");
+            Assert(subject.GeoWithinBox(x => x.Location, 10, 20, 30, 40), "{loc: {$geoWithin: {$box: [[10.0, 20.0], [30.0, 40.0]]}}}");
+            Assert(subject.GeoWithinBox("Location", 10, 20, 30, 40), "{loc: {$geoWithin: {$box: [[10.0, 20.0], [30.0, 40.0]]}}}");
         }
 
         [Test]
@@ -288,8 +288,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.GeoWithinCenter(x => x.Age, 10, 20, 30), "{age: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
-            Assert(subject.GeoWithinCenter("Age", 10, 20, 30), "{age: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
+            Assert(subject.GeoWithinCenter(x => x.Location, 10, 20, 30), "{loc: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
+            Assert(subject.GeoWithinCenter("Location", 10, 20, 30), "{loc: {$geoWithin: {$center: [[10.0, 20.0], 30.0]}}}");
         }
 
         [Test]
@@ -305,8 +305,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.GeoWithinCenterSphere(x => x.Age, 10, 20, 30), "{age: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
-            Assert(subject.GeoWithinCenterSphere("Age", 10, 20, 30), "{age: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
+            Assert(subject.GeoWithinCenterSphere(x => x.Location, 10, 20, 30), "{loc: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
+            Assert(subject.GeoWithinCenterSphere("Location", 10, 20, 30), "{loc: {$geoWithin: {$centerSphere: [[10.0, 20.0], 30.0]}}}");
         }
 
         [Test]
@@ -322,8 +322,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.GeoWithinPolygon(x => x.Age, new[,] { { 1d, 2d }, { 3d, 4d } }), "{age: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
-            Assert(subject.GeoWithinPolygon("Age", new[,] { { 1d, 2d }, { 3d, 4d } }), "{age: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
+            Assert(subject.GeoWithinPolygon(x => x.Location, new[,] { { 1d, 2d }, { 3d, 4d } }), "{loc: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
+            Assert(subject.GeoWithinPolygon("Location", new[,] { { 1d, 2d }, { 3d, 4d } }), "{loc: {$geoWithin: {$polygon: [[1.0, 2.0], [3.0, 4.0]]}}}");
         }
 
         [Test]
@@ -804,6 +804,9 @@ namespace MongoDB.Driver.Tests
 
             [BsonElement("pets")]
             public Pet[] Pets { get; set; }
+
+            [BsonElement("loc")]
+            public int[] Location { get; set; }
         }
 
         private class Pet

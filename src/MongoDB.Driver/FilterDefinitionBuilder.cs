@@ -420,24 +420,36 @@ namespace MongoDB.Driver
         /// Creates a geo within box filter.
         /// </summary>
         /// <param name="field">The field.</param>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
+        /// <param name="lowerLeftX">The lower left x.</param>
+        /// <param name="lowerLeftY">The lower left y.</param>
+        /// <param name="upperRightX">The upper right x.</param>
+        /// <param name="upperRightY">The upper right y.</param>
         /// <returns>A geo within box filter.</returns>
-        public FilterDefinition<TDocument> GeoWithinBox(FieldDefinition<TDocument> field, double x, double y)
+        public FilterDefinition<TDocument> GeoWithinBox(FieldDefinition<TDocument> field, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY)
         {
-            return new OperatorFilterDefinition<TDocument>("$geoWithin", field, new BsonDocument("$box", new BsonArray { x, y }));
+            return new OperatorFilterDefinition<TDocument>(
+                "$geoWithin",
+                field,
+                new BsonDocument("$box",
+                    new BsonArray
+                    {
+                        new BsonArray { lowerLeftX, lowerLeftY },
+                        new BsonArray { upperRightX, upperRightY }
+                    }));
         }
 
         /// <summary>
         /// Creates a geo within box filter.
         /// </summary>
         /// <param name="field">The field.</param>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
+        /// <param name="lowerLeftX">The lower left x.</param>
+        /// <param name="lowerLeftY">The lower left y.</param>
+        /// <param name="upperRightX">The upper right x.</param>
+        /// <param name="upperRightY">The upper right y.</param>
         /// <returns>A geo within box filter.</returns>
-        public FilterDefinition<TDocument> GeoWithinBox(Expression<Func<TDocument, object>> field, double x, double y)
+        public FilterDefinition<TDocument> GeoWithinBox(Expression<Func<TDocument, object>> field, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY)
         {
-            return GeoWithinBox(new ExpressionFieldDefinition<TDocument>(field), x, y);
+            return GeoWithinBox(new ExpressionFieldDefinition<TDocument>(field), lowerLeftX, lowerLeftY, upperRightX, upperRightY);
         }
 
         /// <summary>
