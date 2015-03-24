@@ -267,7 +267,6 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, "aggregate");
             Ensure.IsNotNull(field, "field");
-            Ensure.IsNotNull(newResultSerializer, "newResultSerializer");
 
             return aggregate.Unwind<TNewResult>(new ExpressionFieldDefinition<TResult>(field), newResultSerializer);
         }

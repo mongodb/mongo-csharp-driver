@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests
         public void Group_should_generate_the_correct_document_using_expressions()
         {
             var subject = CreateSubject()
-                .Group(x => x.Age, g =>  new { Name = g.Select(x => x.FirstName + " " + x.LastName).First() });
+                .Group(x => x.Age, g => new { Name = g.Select(x => x.FirstName + " " + x.LastName).First() });
 
             var expectedGroup = BsonDocument.Parse("{$group: {_id: '$Age', Name: {'$first': { '$concat': ['$FirstName', ' ', '$LastName']}}}}");
 
@@ -177,6 +177,17 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Unwind_with_expression_to_new_result_should_generate_the_correct_unwind()
+        {
+            var subject = CreateSubject()
+                .Unwind<Person, BsonDocument>(x => x.Age);
+
+            var expectedUnwind = BsonDocument.Parse("{$unwind: '$Age'}");
+
+            AssertLast(subject, expectedUnwind);
+        }
+
+        [Test]
         public void Unwind_should_generate_the_correct_unwind()
         {
             var subject = CreateSubject()
@@ -188,7 +199,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void Unwind_with_expression_to_new_result_should_generate_the_correct_unwind()
+        public void Unwind_to_new_result_with_a_serializer_should_generate_the_correct_unwind()
         {
             var subject = CreateSubject()
                 .Unwind("Age", BsonDocumentSerializer.Instance);
