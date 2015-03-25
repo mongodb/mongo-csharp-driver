@@ -21,4 +21,5 @@ using System.Security;
 [assembly: AssemblyVersion("0.0.*")]
 [assembly: AssemblyInformationalVersion("unofficial")]
 [assembly: AssemblyFileVersion("0.0.0.0")]
+[assembly: AssemblyMetadata("githash", "none")]
 [assembly: AssemblyConfiguration("Debug")]

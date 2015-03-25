@@ -82,21 +82,17 @@ Target "OutputVersion" (fun _ ->
 )
 
 Target "AssemblyInfo" (fun _ ->
-    let commitish = Git.Information.getCurrentSHA1 baseDir
-    let commitDate = 
-        let dt = Git.CommandHelper.runSimpleGitCommand baseDir "log -1 --date=iso --pretty=format:%ad"
-        System.DateTime.Parse(dt).ToString("yyyy-MM-dd HH:mm:ss")
-    
-    let info = "{ version: '" + version + "', semver: '" + semVersion.ToString() + "', commit: '" + commitish + "', commitDate: '" + commitDate + "' }"
+    let githash = Git.Information.getCurrentSHA1 baseDir
     
     ActivateFinalTarget "Teardown"
     ReplaceAssemblyInfoVersions (fun p ->
         { p with
             OutputFileName = asmFile
             AssemblyVersion = version
-            AssemblyInformationalVersion = info
+            AssemblyInformationalVersion = semVersion
             AssemblyFileVersion = version
-            AssemblyConfiguration = config })
+            AssemblyConfiguration = config
+            AssemblyMetadata = ["githash", githash]})
 )
 
 Target "Build" (fun _ ->
