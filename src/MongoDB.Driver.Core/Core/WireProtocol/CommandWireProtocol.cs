@@ -93,8 +93,9 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var message = CreateMessage();
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            var reply = await connection.ReceiveMessageAsync<RawBsonDocument>(message.RequestId, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            return ProcessReply(connection.ConnectionId, reply);
+            var encoderSelector = new ReplyMessageEncoderSelector<RawBsonDocument>(RawBsonDocumentSerializer.Instance);
+            var reply = await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+            return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]

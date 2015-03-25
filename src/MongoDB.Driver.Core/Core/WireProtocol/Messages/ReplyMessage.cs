@@ -28,17 +28,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
     /// <summary>
-    /// Represents the non-generic base class for a Reply message.
-    /// </summary>
-    public abstract class ReplyMessage : MongoDBMessage
-    {
-    }
-
-    /// <summary>
     /// Represents a Reply message.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class ReplyMessage<TDocument> : ReplyMessage
+    public class ReplyMessage<TDocument> : ResponseMessage
     {
         // fields
         private readonly bool _awaitCapable;
@@ -48,8 +41,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly int _numberReturned;
         private readonly bool _queryFailure;
         private readonly BsonDocument _queryFailureDocument;
-        private readonly int _requestId;
-        private readonly int _responseTo;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly int _startingFrom;
 
@@ -80,6 +71,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             int responseTo,
             IBsonSerializer<TDocument> serializer,
             int startingFrom)
+            : base(requestId, responseTo)
         {
             if (documents == null && queryFailureDocument == null && !cursorNotFound)
             {
@@ -96,8 +88,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             _numberReturned = numberReturned;
             _queryFailure = queryFailure;
             _queryFailureDocument = queryFailureDocument; // can be null
-            _requestId = requestId;
-            _responseTo = responseTo;
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _startingFrom = startingFrom;
         }
@@ -178,28 +168,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public BsonDocument QueryFailureDocument
         {
             get { return _queryFailureDocument; }
-        }
-
-        /// <summary>
-        /// Gets the request identifier.
-        /// </summary>
-        /// <value>
-        /// The request identifier.
-        /// </value>
-        public int RequestId
-        {
-            get { return _requestId; }
-        }
-
-        /// <summary>
-        /// Gets the identifier of the message this is a response to.
-        /// </summary>
-        /// <value>
-        /// The identifier of the message this is a response to.
-        /// </value>
-        public int ResponseTo
-        {
-            get { return _responseTo; }
         }
 
         /// <summary>

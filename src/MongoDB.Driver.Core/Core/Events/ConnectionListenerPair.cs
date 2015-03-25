@@ -117,10 +117,10 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <inheritdoc/>
-        public void ConnectionAfterReceivingMessage<TDocument>(ConnectionAfterReceivingMessageEvent<TDocument> @event)
+        public void ConnectionAfterReceivingMessage(ConnectionAfterReceivingMessageEvent @event)
         {
-            _first.ConnectionAfterReceivingMessage<TDocument>(@event);
-            _second.ConnectionAfterReceivingMessage<TDocument>(@event);
+            _first.ConnectionAfterReceivingMessage(@event);
+            _second.ConnectionAfterReceivingMessage(@event);
         }
 
         /// <inheritdoc/>

@@ -123,6 +123,9 @@
     <Compile Include="Core\Events\ConnectionBeforeClosingEvent.cs" />
     <Compile Include="Core\Events\ConnectionFailedEvent.cs" />
     <Compile Include="Core\Misc\ExceptionMapper.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\IMessageEncoderSelector.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\ReplyMessageEncoderSelector.cs" />
+    <Compile Include="Core\WireProtocol\Messages\ResponseMessage.cs" />
     <Compile Include="Optional.cs" />
     <Compile Include="Core\Misc\ReferenceCounted.cs" />
     <Compile Include="Core\Bindings\WritableServerBinding.cs" />

@@ -475,9 +475,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _connection.OpenAsync(cancellationToken);
             }
 
-            public Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
-                return _connection.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, cancellationToken);
+                return _connection.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
             }
 
             public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
@@ -548,10 +548,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _reference.Instance.OpenAsync(cancellationToken);
             }
 
-            public Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, cancellationToken);
+                return _reference.Instance.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
             }
 
             public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)

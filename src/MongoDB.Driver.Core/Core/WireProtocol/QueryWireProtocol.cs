@@ -96,8 +96,9 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var message = CreateMessage();
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            var reply = await connection.ReceiveMessageAsync<TDocument>(message.RequestId, _serializer, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            return ProcessReply(connection.ConnectionId, reply);
+            var encoderSelector = new ReplyMessageEncoderSelector<TDocument>(_serializer);
+            var reply = await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+            return ProcessReply(connection.ConnectionId, (ReplyMessage<TDocument>)reply);
         }
 
         private CursorBatch<TDocument> ProcessReply(ConnectionId connectionId, ReplyMessage<TDocument> reply)

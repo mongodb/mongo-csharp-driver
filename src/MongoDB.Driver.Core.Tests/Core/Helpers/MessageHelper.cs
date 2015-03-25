@@ -118,14 +118,14 @@ namespace MongoDB.Driver.Core.Helpers
             return TranslateMessagesToBsonDocuments(TranslateBytesToRequests(bytes));
         }
 
-        public static void WriteRepliesToStream(Stream stream, IEnumerable<ReplyMessage> replies)
+        public static void WriteResponsesToStream(Stream stream, IEnumerable<ResponseMessage> responses)
         {
             var startPosition = stream.Position;
-            foreach (var reply in replies)
+            foreach (var response in responses)
             {
                 var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = reply.GetEncoder(encoderFactory);
-                encoder.WriteMessage(reply);
+                var encoder = response.GetEncoder(encoderFactory);
+                encoder.WriteMessage(response);
             }
             stream.Position = startPosition;
         }

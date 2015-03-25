@@ -203,12 +203,12 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void ConnectionAfterReceivingMessage<TDocument>(ConnectionAfterReceivingMessageEvent<TDocument> @event)
+        public void ConnectionAfterReceivingMessage(ConnectionAfterReceivingMessageEvent @event)
         {
             ConnectionPerformanceRecorder recorder;
             if (_connectionRecorders.TryGetValue(@event.ConnectionId, out recorder))
             {
-                recorder.MessageReceived(@event.ReplyMessage.ResponseTo, @event.Length);
+                recorder.MessageReceived(@event.ReceivedMessage.ResponseTo, @event.Length);
             }
         }
 

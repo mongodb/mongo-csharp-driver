@@ -289,13 +289,13 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(
+        public async Task<ResponseMessage> ReceiveMessageAsync(
             int responseTo,
-            IBsonSerializer<TDocument> serializer,
+            IMessageEncoderSelector encoderSelector,
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(serializer, "serializer");
+            Ensure.IsNotNull(encoderSelector, "encoderSelector");
             ThrowIfDisposedOrNotOpen();
 
             try
@@ -306,7 +306,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 var stopwatch = Stopwatch.StartNew();
-                ReplyMessage<TDocument> reply;
+                ResponseMessage reply;
                 int length;
                 using (var buffer = await ReceiveBufferAsync(responseTo, cancellationToken).ConfigureAwait(false))
                 {
@@ -315,15 +315,15 @@ namespace MongoDB.Driver.Core.Connections
                     using (var stream = new ByteBufferStream(buffer))
                     {
                         var encoderFactory = new BinaryMessageEncoderFactory(stream, messageEncoderSettings);
-                        var encoder = encoderFactory.GetReplyMessageEncoder<TDocument>(serializer);
-                        reply = (ReplyMessage<TDocument>)encoder.ReadMessage();
+                        var encoder = encoderSelector.GetEncoder(encoderFactory);
+                        reply = (ResponseMessage)encoder.ReadMessage();
                     }
                 }
                 stopwatch.Stop();
 
                 if (_listener != null)
                 {
-                    _listener.ConnectionAfterReceivingMessage<TDocument>(new ConnectionAfterReceivingMessageEvent<TDocument>(_connectionId, reply, length, stopwatch.Elapsed));
+                    _listener.ConnectionAfterReceivingMessage(new ConnectionAfterReceivingMessageEvent(_connectionId, reply, length, stopwatch.Elapsed));
                 }
 
                 return reply;
