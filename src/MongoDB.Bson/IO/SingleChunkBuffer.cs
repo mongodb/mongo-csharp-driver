@@ -35,7 +35,7 @@ namespace MongoDB.Bson.IO
         /// <param name="chunk">The chuns.</param>
         /// <param name="length">The length.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
-        internal SingleChunkBuffer(IBsonChunk chunk, int length, bool isReadOnly = false)
+        public SingleChunkBuffer(IBsonChunk chunk, int length, bool isReadOnly = false)
         {
             if (chunk == null)
             {
@@ -103,7 +103,8 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException("position");
             }
 
-            return new ArraySegment<byte>(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, _length - position);
+            var segment = _chunk.Bytes;
+            return new ArraySegment<byte>(segment.Array, segment.Offset + position, _length - position);
         }
 
         /// <inheritdoc/>
@@ -120,7 +121,8 @@ namespace MongoDB.Bson.IO
             }
             EnsureIsWritable();
 
-            Array.Clear(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, count);
+            var segment = _chunk.Bytes;
+            Array.Clear(segment.Array, segment.Offset + position, count);
         }
 
         /// <inheritdoc/>
@@ -159,7 +161,8 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException("position");
             }
 
-            return _chunk.Bytes.Array[_chunk.Bytes.Offset + position];
+            var segment = _chunk.Bytes;
+            return segment.Array[segment.Offset + position];
         }
 
         /// <inheritdoc/>
@@ -183,7 +186,8 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException("count");
             }
 
-            Buffer.BlockCopy(_chunk.Bytes.Array, _chunk.Bytes.Offset + position, destination, offset, count);
+            var segment = _chunk.Bytes;
+            Buffer.BlockCopy(segment.Array, segment.Offset + position, destination, offset, count);
         }
 
         /// <inheritdoc/>
@@ -221,7 +225,8 @@ namespace MongoDB.Bson.IO
             }
             EnsureIsWritable();
 
-            _chunk.Bytes.Array[_chunk.Bytes.Offset + position] = value;
+            var segment = _chunk.Bytes;
+            segment.Array[segment.Offset + position] = value;
         }
 
         /// <inheritdoc/>
@@ -246,7 +251,8 @@ namespace MongoDB.Bson.IO
             }
             EnsureIsWritable();
 
-            Buffer.BlockCopy(source, offset, _chunk.Bytes.Array, _chunk.Bytes.Offset + position, count);
+            var segment = _chunk.Bytes;
+            Buffer.BlockCopy(source, offset, segment.Array, segment.Offset + position, count);
         }
 
         // private methods

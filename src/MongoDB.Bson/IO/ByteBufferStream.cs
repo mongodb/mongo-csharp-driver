@@ -361,19 +361,19 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             ThrowIfEndOfStream(1);
 
-            var startPosition = _position;
-            var nullPosition = FindNullByte();
-            var length = nullPosition - startPosition;
-
-            var segment = _buffer.AccessBackingBytes(startPosition);
-            if (segment.Count >= length)
+            var segment = _buffer.AccessBackingBytes(_position);
+            var index = Array.IndexOf<byte>(segment.Array, 0, segment.Offset, segment.Count);
+            if (index != -1)
             {
-                _position = nullPosition + 1; // advance over null byte
+                var length = index - segment.Offset;
+                _position += length + 1; // advance over the null byte
                 return new ArraySegment<byte>(segment.Array, segment.Offset, length); // without the null byte
             }
             else
             {
-                var cstring = ReadBytes(length + 1); // read null byte also
+                var nullPosition = FindNullByte();
+                var length = nullPosition - _position;
+                var cstring = ReadBytes(length + 1); // advance over the null byte
                 return new ArraySegment<byte>(cstring, 0, length); // without the null byte
             }
         }
