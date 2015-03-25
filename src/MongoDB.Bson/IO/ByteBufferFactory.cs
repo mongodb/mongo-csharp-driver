@@ -52,7 +52,19 @@ namespace MongoDB.Bson.IO
 
             if (chunks.Count == 1)
             {
-                return new SingleChunkBuffer(chunks[0], 0, isReadOnly: false);
+                var chunk = chunks[0];
+
+                ByteArrayChunk byteArrayChunk;
+                if ((byteArrayChunk = chunk as ByteArrayChunk) != null)
+                {
+                    var segment = byteArrayChunk.Bytes;
+                    if (segment.Offset == 0)
+                    {
+                        return new ByteArrayBuffer(segment.Array, segment.Count, isReadOnly: false);
+                    }
+                }
+
+                return new SingleChunkBuffer(chunk, 0, isReadOnly: false);
             }
             else
             {
