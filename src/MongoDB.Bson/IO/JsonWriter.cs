@@ -717,7 +717,7 @@ namespace MongoDB.Bson.IO
 
         private BsonWriterState GetNextState()
         {
-            if (_context.ContextType == ContextType.Array)
+            if (_context.ContextType == ContextType.Array || _context.ContextType == ContextType.TopLevel)
             {
                 return BsonWriterState.Value;
             }

@@ -20,6 +20,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace MongoDB.Bson.Tests.IO
@@ -27,6 +28,36 @@ namespace MongoDB.Bson.Tests.IO
     [TestFixture]
     public class BsonBinaryReaderTests
     {
+        [Test]
+        public void BsonBinaryReader_should_support_reading_multiple_documents(
+            [Range(0, 3)]
+            int numberOfDocuments)
+        {
+            var document = new BsonDocument("x", 1);
+            var bson = document.ToBson();
+            var input = Enumerable.Repeat(bson, numberOfDocuments).Aggregate(Enumerable.Empty<byte>(), (a, b) => a.Concat(b)).ToArray();
+            var expectedResult = Enumerable.Repeat(document, numberOfDocuments);
+
+            using (var stream = new MemoryStream(input))
+            using (var binaryReader = new BsonBinaryReader(stream))
+            {
+                var result = new List<BsonDocument>();
+
+                while (!binaryReader.IsAtEndOfFile())
+                {
+                    binaryReader.ReadStartDocument();
+                    var name = binaryReader.ReadName();
+                    var value = binaryReader.ReadInt32();
+                    binaryReader.ReadEndDocument();
+
+                    var resultDocument = new BsonDocument(name, value);
+                    result.Add(resultDocument);
+                }
+
+                result.Should().Equal(expectedResult);
+            }
+        }
+
         [Test]
         public void TestHelloWorld()
         {

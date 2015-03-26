@@ -124,7 +124,7 @@ namespace MongoDB.Bson.IO
         /// <returns>The current BsonType.</returns>
         public BsonType GetCurrentBsonType()
         {
-            if (_state == BsonReaderState.Initial || _state == BsonReaderState.Done || _state == BsonReaderState.ScopeDocument || _state == BsonReaderState.Type)
+            if (_state == BsonReaderState.Initial || _state == BsonReaderState.ScopeDocument || _state == BsonReaderState.Type)
             {
                 ReadBsonType();
             }
