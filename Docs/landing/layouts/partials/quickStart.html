@@ -1,0 +1,97 @@
+<h2 id="quickStart">Quick Start</h2>
+
+<p>
+  The recommended way to get started using one of the drivers in your project is with a dependency management system.
+  Select the driver, version and dependency management system below and the snippet can be copied and pasted into your build.
+</p>
+<p>
+  Alternatively, head over to our documentation to learn more about getting started with .NET and MongoDB.
+</p>
+
+{{ range where $.Site.Data.releases.versions "version" $.Site.Data.releases.current  }}{{ $.Scratch.Set "qs.currentReleasedVersion" . }}{{end }}
+{{$currentReleasedVersion := $.Scratch.Get "qs.currentReleasedVersion"}}
+
+<div id="downloadWidget">
+  <div class="container">
+    <div class="row downloadForm">
+      <form>
+        <div class="col-xs-5 col-lg-4 col-lg-push-2 ">
+      {{ $.Scratch.Set "qs.pos" 0 }}
+      {{ $.Scratch.Set "qs.firstDriver" false }}
+      {{ with $.Site.Data.releases.drivers }}
+        <select class="driverPicker">
+          {{ range . }}
+          {{ if eq ($.Scratch.Get "qs.firstDriver") false }}{{ $.Scratch.Set "qs.firstDriver" . }}{{end}}
+          <option value="{{$.Scratch.Get "qs.pos"}}" data-versions="{{.versions}}">{{.name}}</option>
+          {{ $.Scratch.Add "qs.pos" 1 }}
+          {{ end }}
+        </select>
+      {{ end }}
+      </div>
+    <div class="col-xs-5 col-lg-4 col-lg-push-2 ">
+    {{ $.Scratch.Set "qs.pos" 0 }}
+    {{ $firstDriver := $.Scratch.Get "qs.firstDriver"}}
+    {{ with $.Site.Data.releases.versions }}
+      <select class="releasePicker">
+        {{ range . }}
+        <option value="{{$.Scratch.Get "qs.pos"}}"{{ if eq (in .version $firstDriver.versions) false }}disabled="disabled"{{end}}>{{.version}}</option>
+        {{ $.Scratch.Add "qs.pos" 1 }}
+        {{ end }}
+      </select>
+    {{ end }}
+    </div>
+    <div class="col-lg-2 col-lg-push-2 ">
+    <input type="checkbox" checked class="distroPicker" data-toggle="toggle" data-on="Nuget" data-off="Paket" data-offstyle="success">
+    </div>
+  </form>
+  <div class="hidden-md hidden-sm hidden-xs col-lg-2 col-lg-pull-10 downloadLink">
+  <a id="downloadLink" href="https://github.com/mongodb/mongo-csharp-driver/releases/download/v{{$currentReleasedVersion.version}}/CSharpDriver-{{$currentReleasedVersion.version}}.zip" class="btn btn-dark btn-download" target="_blank">Download</a>
+  </div>
+  </div>
+
+  <div class="row">
+  <div class="clipboard" title="copy">
+  <button class="btn btn-dark"><i class="fa fa-clipboard fa-2"></i></button>
+  </div>
+  {{ $currentNode := . }}
+  {{ $.Scratch.Set "qs.firstDriver" true }}
+  {{ with $currentNode.Site.Data.releases.drivers }}
+    {{ $.Scratch.Set "qs.driverPos" 0 }}
+    {{ range . }}
+      {{ $currentDriver := . }}
+      {{ with $.Site.Data.releases.versions }}
+        {{ $.Scratch.Set "qs.versionPos" 0 }}
+        {{ range . }}
+          {{ $currentVersion := . }}
+          {{ $firstDriver := $.Scratch.Get "qs.firstDriver"}}
+          {{ $driverPos := $.Scratch.Get "qs.driverPos" }}
+          {{ $versionPos := $.Scratch.Get "qs.versionPos" }}
+          {{ if in $currentDriver.versions $currentVersion.version }}
+<div id="nuget-{{$versionPos}}-{{$driverPos}}" class="download {{if ne $firstDriver true}} hidden{{end}}">
+<pre><code>&lt;packages&gt;
+    &lt;package id="{{$currentDriver.package}}" version="{{$currentVersion.version}}" /&gt;
+{{ range $currentNode.Site.Data.releases.drivers }}{{ if and (in $currentDriver.dependencies .name) (in .versions $currentVersion.version) }}    &lt;package id="{{ .package }}" version="{{$currentVersion.version}}" /&gt;
+{{ end }}{{ end }}&lt;/packages&gt;
+</code></pre>
+</div>
+<div id="paket-{{$versionPos}}-{{$driverPos}}" class="download hidden">
+<pre><code>source https://nuget.org/api/v2
+
+nuget {{$currentDriver.package}} ~> {{$currentVersion.version}}
+</code></pre>
+</div>
+          {{ $.Scratch.Set "qs.firstDriver" false }}
+          {{ $.Scratch.Add "qs.versionPos" 1 }}
+          {{ end }}
+          {{ end }}
+          {{ end }}
+          {{ $driverPos := $.Scratch.Get "qs.driverPos" }}
+          <div id="driver-{{$driverPos}}" class="download description{{if ne $driverPos 0}} hidden{{end}}">
+            {{$currentDriver.description | markdownify}}
+          </div>
+          {{ $.Scratch.Add "qs.driverPos" 1 }}
+      {{ end }}
+      {{ end }}
+    </div>
+    </div>
+  </div>
