@@ -1,0 +1,16 @@
+baseurl = "/mongo-csharp-driver/"
+languageCode = "en-us"
+title = "MongoDB .NET Driver"
+canonifyurls = false
+githubRepo = "mongo-csharp-driver"
+
+[params.authors]
+  [params.authors.Derek]
+    "firstName"  = "Derek"
+    "lastName"   = "Perkins"
+  [params.authors.Joe]
+    "firstName"  = "Joe"
+    "lastName"   = "Bergevin"
+  [params.authors.Tanner]
+    "firstName"  = "Tanner"
+    "lastName"   = "Linsley"

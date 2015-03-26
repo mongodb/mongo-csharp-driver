@@ -1,0 +1,6 @@
+githubRepo = "mongo-csharp-driver"
+githubBranch = "master"
+apiUrl = "http://api.mongodb.org/csharp/2.0.0/html"
+googleAnalytics = false
+currentVersion = "2.0"
+driverVersions = ["2.0"]
