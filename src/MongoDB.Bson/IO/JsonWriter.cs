@@ -655,7 +655,6 @@ namespace MongoDB.Bson.IO
                     Close();
                 }
                 catch { } // ignore exceptions
-                _textWriter.Dispose();
             }
             base.Dispose(disposing);
         }
