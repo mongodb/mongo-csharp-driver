@@ -42,11 +42,13 @@ namespace MongoDB.Bson.Tests.IO
         [Test]
         public void JsonWriter_should_support_writing_multiple_documents(
             [Range(0, 3)]
-            int numberOfDocuments)
+            int numberOfDocuments,
+            [Values("", " ", "\r\n")]
+            string documentSeparator)
         {
             var document = new BsonDocument("x", 1);
             var json = document.ToJson();
-            var expectedResult = Enumerable.Repeat(json, numberOfDocuments).Aggregate("", (a, j) => a + j);
+            var expectedResult = Enumerable.Repeat(json, numberOfDocuments).Aggregate("", (a, j) => a + j + documentSeparator);
 
             using (var stringWriter = new StringWriter())
             using (var jsonWriter = new JsonWriter(stringWriter))
@@ -57,6 +59,7 @@ namespace MongoDB.Bson.Tests.IO
                     jsonWriter.WriteName("x");
                     jsonWriter.WriteInt32(1);
                     jsonWriter.WriteEndDocument();
+                    jsonWriter.BaseTextWriter.Write(documentSeparator);
                 }
 
                 var result = stringWriter.ToString();

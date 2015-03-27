@@ -61,6 +61,18 @@ namespace MongoDB.Bson.IO
             State = BsonWriterState.Initial;
         }
 
+        // public properties
+        /// <summary>
+        /// Gets the base TextWriter.
+        /// </summary>
+        /// <value>
+        /// The base TextWriter.
+        /// </value>
+        public TextWriter BaseTextWriter
+        {
+            get { return _textWriter; }
+        }
+
         // public methods
         /// <summary>
         /// Closes the writer.
