@@ -56,7 +56,7 @@ var fieldName = GetFieldName<Person>(x => x.FirstName);
 fieldName.Should().Be("fn");
 ```
 
-In the same way, since we know the type of document, `Person` in this case, we can also translate fields names provided as a string. U
+In the same way, since we know the type of document, `Person` in this case, we can also translate fields names provided as a string.
 
 ```csharp
 // method definition
@@ -172,7 +172,7 @@ var filter = Builders<Post>.Filter.AnyEq(x => x.Tags, "mongodb");
 
 ## Pipelines
 
-A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a [`List<BsonDocument>`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`List<IPipelineStageDefinition>`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}) , and a [`IPipelineStageDefinition[]`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}).
+A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a [`List<BsonDocument>`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`BsonDocument[]`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`List<IPipelineStageDefinition>`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}) , and a [`IPipelineStageDefinition[]`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}).
 
 For example:
 
@@ -189,16 +189,16 @@ PipelineDefinition pipeline = new BsonDocument[]
 
 ## Projections
 
-There are two forms of a projection definition, one with a typed result ([`ProjectionDefinition<TDocument, TProjection>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_2" >}})) and one without ([`ProjectionDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_1" >}})). The latter, while implicitly convertible to the first, is merely used as a building block. The [high-level APIs]({{< relref "reference\driver\crud\index.md" >}}) that take a projection will always take the former. This is because, when determining how to handle a projection client-side, it is not enough to know what fields and transformations will take place. It also requires that we know how to interpret the projected shape as a .NET type. Since the driver allows you to work with custom classes, it is imperative that any projection also include the "interpretation instructions" for projecting into a custom class.
+There are two forms of a projection definition, one where the type of the projection is known ([`ProjectionDefinition<TDocument, TProjection>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_2" >}})) and one where the type of the projection is not yet known ([`ProjectionDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_1" >}})). The latter, while implicitly convertible to the first, is merely used as a building block. The [high-level APIs]({{< relref "reference\driver\crud\index.md" >}}) that take a projection will always take the former. This is because, when determining how to handle a projection client-side, it is not enough to know what fields and transformations will take place. It also requires that we know how to interpret the projected shape as a .NET type. Since the driver allows you to work with custom classes, it is imperative that any projection also include the "interpretation instructions" for projecting into a custom class.
 
 ### Projection Definition Builder 
 
 _See the [tests]({{< srcref "MongoDB.Driver.Tests/ProjectionDefinitionBuilderTests.cs" >}}) for examples._
 
-The [`ProjectionDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinitionBuilder_1" >}}) exists to make it easier to build up projections in MongoDB's syntax. To render the projection `{x: 1, y: 1, _id: 0}`, the following should be done:
+The [`ProjectionDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinitionBuilder_1" >}}) exists to make it easier to build up projections in MongoDB's syntax. To render the projection `{ x: 1, y: 1, _id: 0 }`, the following should be done:
 
 ```csharp
-var projection = Builder<BsonDocument>.Projection.Include("x").Include("y").Exclude("_id");
+var projection = Builders<BsonDocument>.Projection.Include("x").Include("y").Exclude("_id");
 ```
 
 Using the `Widget` class:
@@ -219,22 +219,22 @@ class Widget
 We can render the same projection in a couple of ways:
 
 ```csharp
-var projection = Builder<Widget>.Projection.Include("X").Include("Y").Exclude("Id");
+var projection = Builders<Widget>.Projection.Include("X").Include("Y").Exclude("Id");
 
 // or
 
-var projection = Builder<Widget>.Projection.Include("x").Include("y").Exclude("_id");
+var projection = Builders<Widget>.Projection.Include("x").Include("y").Exclude("_id");
 
 // or
 
-var projection = Builder<Widget>.Projection.Include(x => x.X).Include(x => x.Y).Exclude(x => x.Id);
+var projection = Builders<Widget>.Projection.Include(x => x.X).Include(x => x.Y).Exclude(x => x.Id);
 
 // or
 
 var projection = Builders<Widget>.Projection.Expression(x => new { X = x.X, Y = x.Y });
 ```
 
-This last projection where we've used the [`Expression`]({{< apiref "M_MongoDB_Driver_ProjectionDefinitionBuilder_1_Expression" >}}) method is subtley different as is explained below and its return type is a ([`ProjectionDefinition<TDocument, TProjection>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_2" >}})) as opposed to the others which return a ([`ProjectionDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_1" >}})).
+This last projection where we've used the [`Expression`]({{< apiref "M_MongoDB_Driver_ProjectionDefinitionBuilder_1_Expression" >}}) method is subtly different as is explained below, and its return type is a ([`ProjectionDefinition<TDocument, TProjection>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_2" >}})) as opposed to the others which return a ([`ProjectionDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_1" >}})).
 
 
 #### Lambda Expressions
@@ -265,7 +265,7 @@ class Widget
 }
 ```
 
-The following lambda expressions will all result in the projection `{x: 1, y: 1, _id: 0}`. This is because we inspect the expression tree to discover all the fields that are used and tell the server to include them. We then run the lambda expression client-side. As such, Find projections support virtually the entire breadth of the C# language.
+The following lambda expressions will all result in the projection `{ x: 1, y: 1, _id: 0 }`. This is because we inspect the expression tree to discover all the fields that are used and tell the server to include them. We then run the lambda expression client-side. As such, Find projections support virtually the entire breadth of the C# language.
 
 ```csharp
 var projection = Builders<Widget>.Projection.Expression(x => new { X = x.X, Y = x.Y });
@@ -303,11 +303,11 @@ A projection is also used when performing grouping in the [Aggregation Framework
 BsonDocument Sort(SortDefinition<BsonDocument> filter);
 
 // invocation
-var doc = Sort("{x: 1}");
-doc.ToJson().Should().Be("{x: 1}");
+var doc = Sort("{ x: 1 }");
+doc.ToJson().Should().Be("{x : 1 }");
 
 var doc = Sort(new BsonDocument("x", 1));
-doc.ToJson().Should().Be("{x: 1}");
+doc.ToJson().Should().Be("{ x: 1 }");
 ```
 
 ### Sort Definition Builder 
@@ -361,11 +361,11 @@ var sort = builder.Ascending("x").Descending("y");
 BsonDocument Update(UpdateDefinition<BsonDocument> filter);
 
 // invocation
-var doc = Update("{$set: {x: 1}}");
-doc.ToJson().Should().Be("{$set: {x: 1}}");
+var doc = Update("{ $set: { x: 1 } }");
+doc.ToJson().Should().Be("{ $set: { x: 1 } }");
 
 var doc = Sort(new BsonDocument("$set", new BsonDocument("x", 1)));
-doc.ToJson().Should().Be("{$set: {x: 1}}");
+doc.ToJson().Should().Be("{ $set: { x: 1 } }");
 ```
 
 ### Update Definition Builder 
@@ -374,7 +374,7 @@ _See the [tests]({{< srcref "MongoDB.Driver.Tests/UpdateDefinitionBuilderTests.c
 
 The [`UpdateDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_UpdateDefinitionBuilder_1" >}}) provides a nice API for building the [MongoDB update specification]({{< docsref "reference/operator/update/" >}}).
 
-For example, to build up the update `{$set: {x: 1, y: 3}, $inc: {z: 1}}`, do the following:
+For example, to build up the update `{ $set: { x: 1, y: 3 }, $inc: { z: 1 } }`, do the following:
 
 ```csharp
 var builder = Builders<BsonDocument>.Update;

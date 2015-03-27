@@ -83,11 +83,11 @@ BsonClassMap.RegisterClassMap<Tiger>();
 Normally a discriminator is simply the name of the class (although it could be different if you are using a custom discriminator convention or have explicitly specified a discriminator for a class). So a collection containing a mix of different type of Animal documents might look like:
 
 ```json
-{ _t : "Animal", ... }
-{ _t : "Cat", ... }
-{ _t : "Dog", ... }
-{ _t : "Lion", ... }
-{ _t : "Tiger", ... }
+{ _id: ..., _t: "Animal", ... }
+{ _id: ..., _t: "Cat", ... }
+{ _id: ..., _t: "Dog", ... }
+{ _id: ..., _t: "Lion", ... }
+{ _id: ..., _t: "Tiger", ... }
 ```
 
 Sometimes it can be helpful to record a hierarchy of discriminator values, one for each level of the hierarchy. To do this, you must first mark a base class as being the root of a hierarchy, and then the default [`HierarchicalDiscriminatorConvention`]({{< apiref "T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention" >}}) will automatically record discriminators as array values instead.
@@ -120,11 +120,11 @@ BsonClassMap.RegisterClassMap<Tiger>();
 Now that you have identified Animal as a root class, the discriminator values will look a little bit different:
 
 ```json
-{ _t : "Animal", ... }
-{ _t : ["Animal", "Cat"], ... }
-{ _t : ["Animal", "Dog"], ... }
-{ _t : ["Animal", "Cat", "Lion"], ... }
-{ _t : ["Animal", "Cat", "Tiger"], ... }
+{ _id: ..., _t: "Animal", ... }
+{ _id: ..., _t: ["Animal", "Cat"], ... }
+{ _id: ..., _t: ["Animal", "Dog"], ... }
+{ _id: ..., _t: ["Animal", "Cat", "Lion"], ... }
+{ _id: ..., _t: ["Animal", "Cat", "Tiger"], ... }
 ```
 
 The main reason you might choose to use hierarchical discriminators is because it makes it possibly to query for all instances of any class in the hierarchy. For example, to read all the `Cat` documents we can use the following filter.

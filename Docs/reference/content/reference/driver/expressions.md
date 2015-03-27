@@ -43,7 +43,13 @@ See the [MongoDB documentation]({{< docsref "reference/operator/query/#compariso
 #### $eq
 
 ```csharp
-Find(p => p.Name == "Jack") // => { Name: 'Jack' }
+Find(p => p.Name == "Jack")
+```
+
+becomes:
+
+```json
+{ Name: 'Jack' }
 ```
 
 {{% note %}}This is the short form for equality. Depending on context, this might generate `{ Name: { $eq: 'Jack' } }`.{{% /note %}}
@@ -282,7 +288,7 @@ Find(x => x.FavoriteNumbers.Length != 3);
 Find(x => x.FavoriteNumbers.Any());
 ```
 ```json
-{ FavoriteNumbers: { $ne, null, $not: { $size: 0 } } }
+{ FavoriteNumbers: { $ne: null, $not: { $size: 0 } } }
 ```
 ---
 ```csharp

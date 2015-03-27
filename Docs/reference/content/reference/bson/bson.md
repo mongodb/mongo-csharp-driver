@@ -56,7 +56,7 @@ The [`IBsonWriter`]({{< apiref "T_MongoDB_Bson_IO_IBsonWriter" >}}) interface co
 
 ### BSON
 
-[`BsonBinaryWriter`]({{< apiref "T_MongoDB_Bson_IO_BsonBinaryWriter" >}}) is for reading binary BSON. For example, to write the document `{ a: 1 }` to a BSON file:
+[`BsonBinaryWriter`]({{< apiref "T_MongoDB_Bson_IO_BsonBinaryWriter" >}}) is for writing binary BSON. For example, to write the document `{ a: 1 }` to a BSON file:
 
 ```csharp
 string outputFileName; // initialize to the file to write to.

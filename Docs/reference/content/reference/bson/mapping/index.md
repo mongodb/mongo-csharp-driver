@@ -141,7 +141,7 @@ If your class implements [`ISupportInitialize`]({{< msdnref "system.componentmod
 
 ## Creation Customization
 
-By default, classes must contain a zero-argument constructor that will be used to instantiate the class to hydrate. However, it is possible to configure a constructor whose arguments are correlated with mapped properties or fields. There are a couple of ways to do this.
+By default, classes must contain a no-argument constructor that will be used to instantiate the class to rehydrate. However, it is possible to configure a constructor whose arguments are correlated with mapped properties or fields. There are a couple of ways to do this.
 
 Using an expression, you can instruct the driver to use a creator map as follows:
 
@@ -188,7 +188,7 @@ public class Person
 
 By default, a convention runs on every CreatorMap with no mapped arguments and attempts to correlate the names of the constructor arguments with the names of mapped members. If your names differ in more than just case, there are overloads of BsonConstructor which can be used to explicity tell the driver which members to use.
 
-When more than 1 constructor is found, we will use the most parameters fulfilled strategy to identify the best match. For example:
+When more than one constructor is found, we will use the constructor that has the most matching parameters. For example:
 
 ```csharp
 public class Person
@@ -211,7 +211,7 @@ public class Person
 }
 ```
 
-If the document in the database has a BirthDate element, we will choose to use the constructor with 3 parameters because it is more specific.
+If the document in the database has a BirthDate element, we will choose to use the constructor with three parameters because it is more specific.
 
 ## Member Customization
 
@@ -320,7 +320,7 @@ BsonClassMap.RegisterClassMap<MyClass>(cm =>
 
 #### Id Generators
 
-When you Insert a document, the driver checks to see if the `Id` member has been assigned a value and, if not, generates a new unique value for it. Since the `Id` member can be of any type, the driver requires the help of an [`IIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IIdGenerator" >}}) to check whether the `Id` has a value assigned to it and to generate a new value if necessary. The driver has the following id generators built-in:
+When you Insert a document, the driver checks to see if the `Id` member has been assigned a value and, if not, generates a new unique value for it. Since the `Id` member can be of any type, the driver requires the help of an [`IIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IIdGenerator" >}}) to check whether the `Id` has a value assigned to it and to generate a new value if necessary. The driver has the following Id generators built-in:
 
 - [`ObjectIdGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator" >}})
 - [`StringObjectIdGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator" >}})
@@ -330,15 +330,14 @@ When you Insert a document, the driver checks to see if the `Id` member has been
 - [`ZeroIdChecker<T>`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_ZeroIdChecker_1" >}})
 - [`BsonObjectIdGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_BsonObjectIdGenerator" >}})
 
-Some of these id generators are used automatically for commonly used `Id` types:
+Some of these Id generators are used automatically for commonly used `Id` types:
 
 - [`GuidGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator" >}}) is used for a [`Guid`]({{< msdnref "system.guid" >}})
 - [`ObjectIdGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator" >}}) is used for an [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}})
 - [`StringObjectIdGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator" >}}) is used for a [`string`]({{< msdnref "system.string" >}}) represented externally as [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}})
 
-To specify the id generator via an attribute:
+To specify the Id generator via an attribute:
 
-```csharp
 ```csharp
 public class MyClass 
 {
@@ -480,7 +479,7 @@ BsonClassMap.RegisterClassMap<Employee>(cm =>
 
 ### Specifying the Serializer
 
-There are times when a specific serializer needs to be used rather than letting the Bson library choose. This can be done using a [`BsonSerializerAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_BsonSerializerAttribute" >}}):
+There are times when a specific serializer needs to be used rather than letting the BSON library choose. This can be done using a [`BsonSerializerAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_BsonSerializerAttribute" >}}):
 
 ```csharp
 public class MyClass 
@@ -535,7 +534,7 @@ BsonClassMap.RegisterClassMap<MyClass>(cm =>
 
 Here we are specifying that the `DateOfBirth` value holds a date only (so the TimeOfDay component will be zero). Additionally, because this is a date only, no timezone conversions at all will be performed. The `AppointmentTime` value is in local time and will be converted to UTC when it is serialized and converted back to local time when it is deserialized.
 
-{{% note %}}DateTime's in MongoDB are always saved as UTC.{{% /note %}}
+{{% note %}}DateTime values in MongoDB are always saved as UTC.{{% /note %}}
 
 
 #### Dictionary Serialization Options
@@ -558,7 +557,7 @@ When done via code, a [`DictionaryInterfaceImplementerSerializer`]({{< apiref "T
 BsonClassMap.RegisterClassMap<C>(cm => 
 {
     cm.AutoMap();
-    cm.MapMember(c => c.Values).SetSerializer(new DictionaryInterfaceImplementerSerializer(DictionaryRepresentation.ArrayOfDocuments));
+    cm.MapMember(c => c.Values).SetSerializer(new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(DictionaryRepresentation.ArrayOfDocuments));
 });
 ```
 
@@ -566,7 +565,7 @@ The 3 options in the [`DictionaryRepresentation`]({{< apiref "T_MongoDB_Bson_Ser
 
 - `Document`: A dictionary represented as a Document will be stored as a BsonDocument, and each entry in the dictionary will be represented by a BsonElement with the name equal to the key of the dictionary entry and the value equal to the value of the dictionary entry. This representation can only be used when all the keys in a dictionary are strings that are valid element names.
 
-- `ArrayOfArray`: A dictionary represented as an ArrayOfArrays will be stored as a BsonArray of key/value pairs, where each key/value pair is stored as a nested two-element BsonArray where the two elements are the key and the value of the dictionary entry. This representation can be used even when the keys of the dictionary are not strings. This representation is very general and compact, and is the default representation when Document does not apply. One problem with this representation is that it is difficult to write queries against it, which motivated the introduction in the 1.2 version of the driver of the ArrayOfDocuments representation.
+- `ArrayOfArrays`: A dictionary represented as an ArrayOfArrays will be stored as a BsonArray of key/value pairs, where each key/value pair is stored as a nested two-element BsonArray where the two elements are the key and the value of the dictionary entry. This representation can be used even when the keys of the dictionary are not strings. This representation is very general and compact, and is the default representation when Document does not apply. One problem with this representation is that it is difficult to write queries against it, which motivated the introduction in the 1.2 version of the driver of the ArrayOfDocuments representation.
 
 - `ArrayOfDocuments`: A dictionary represented as an ArrayOfDocuments will be stored as a BsonArray of key/value pairs, where each key/value pair is stored as a nested two-element BsonDocument of the form { k : key, v : value }. This representation is just as general as the ArrayOfArrays representation, but because the keys and values are tagged with element names it is much easier to write queries against it. For backward compatibility reasons this is not the default representation.
 
@@ -622,8 +621,8 @@ BsonClassMap.RegisterClassMap<Employee>(cm =>
 
 It is possible to implement custom attributes to contribute to the serialization infrastructure. There are 3 interfaces you might want to implement:
 
-- [`IBsonClassMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_IBsonClassMapAttribute" >}}) is used to contribue to a class map.
-- [`IBsonMemberMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_IBsonMemberMapAttribute" >}}) is used to contribue to a member map.
-- [`IBsonCreatorMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_IBsonCreatorMapAttribute" >}}) is used to contribue to a creator map.
+- [`IBsonClassMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_IBsonClassMapAttribute" >}}) is used to contribute to a class map.
+- [`IBsonMemberMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_IBsonMemberMapAttribute" >}}) is used to contribute to a member map.
+- [`IBsonCreatorMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_IBsonCreatorMapAttribute" >}}) is used to contribute to a creator map.
 
 All the provided attributes implement one or more of these interfaces, so they are good examples of how these interfaces function.

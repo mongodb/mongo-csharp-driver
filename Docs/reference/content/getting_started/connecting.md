@@ -33,7 +33,7 @@ This will retrieve a reference to the database named "test" in MongoDB. There is
 
 ## Collection
 
-From here, you'll need to retrieve a reference to an [`IMongoCollection<TDocument>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}}) instance, where `TDocument` is the type of document with which to work. Most likely, this will be either a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}) or a custom class of your own. You would use a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}) when the data you are working with is so free form that it would be difficult or impossible to define domain classes for it or because you want to handle the mapping yourself. 
+From here, you'll need to retrieve a reference to an [`IMongoCollection<TDocument>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}}) instance, where `TDocument` is the type of document with which to work. This will be either a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}) or a custom class of your own. You would use a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}) when the data you are working with is so free form that it would be difficult or impossible to define domain classes for it or because you want to handle the mapping yourself. 
 
 One constraint on your custom class is that it must contain an `Id` field. You can read more about customizing classes in the [reference guide]({{< relref "reference\bson\mapping\index.md" >}}).
 

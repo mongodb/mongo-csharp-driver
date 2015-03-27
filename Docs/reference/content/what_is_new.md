@@ -27,7 +27,7 @@ All new applications should utilize the New API.
 
 Because of our async nature, we have rebuilt our entire API. The new API is accessible via MongoClient.GetDatabase. 
 
-- Interfaces are used (`IMongoClient`, `IMongoDatabase`, `IMongoCollection<TDocument>` to support easier testing.
+- Interfaces are used (`IMongoClient`, `IMongoDatabase`, `IMongoCollection<TDocument>`) to support easier testing.
 - A fluent Find API is available with full support for expression trees including projections.
 
 	``` csharp
@@ -61,7 +61,7 @@ Because of our async nature, we have rebuilt our entire API. The new API is acce
 
 ## Experimental Features
 
-We've also include some experimental features which are subject to change. These are both based on the Listener API
+We've also include some experimental features which are subject to change. These are both based on the Listener API.
 
 
 ### Logging

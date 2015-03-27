@@ -69,7 +69,7 @@ public class MyClass : ISupportInitialize
     void ISupportInitialize.EndInit() 
     {
         object nameValue;
-        if(!ExtraElements.TryGetValue("Name", out nameValue)) {
+        if (!ExtraElements.TryGetValue("Name", out nameValue)) {
             return;
         }
 

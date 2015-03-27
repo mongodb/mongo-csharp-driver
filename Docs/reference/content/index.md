@@ -12,7 +12,7 @@ The [Getting Started]({{< relref "getting_started\index.md" >}}) guide contains 
 
 ## What's new in 2.0
 
-The [What's New]({{< relref "what_is_new.md" >}}) contains the major new features of the driver, the largest of which is full async support.
+The [What's New]({{< relref "what_is_new.md" >}}) contains the major new features of the driver, the most important of which is full async support.
 
 
 ## Upgrading

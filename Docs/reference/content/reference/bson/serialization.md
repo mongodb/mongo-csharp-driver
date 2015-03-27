@@ -132,7 +132,7 @@ There are some opt-in interfaces that allow the driver to utilize your custom se
 
 #### IBsonIdProvider
 
-If your class is used as a root document, you should implement the IBsonIdProvider interface in order for "Inserting" the document to function best, especially if the class your serializer is for uses an id type other than [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}}).
+If your class is used as a root document, you should implement the IBsonIdProvider interface in order for "Inserting" the document to function best, especially if the class your serializer is for uses an Id type other than [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}}).
 
 
 #### IBsonDocumentSerializer

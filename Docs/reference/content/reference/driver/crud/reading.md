@@ -45,7 +45,7 @@ using (var cursor = await collection.Find(filter).ToCursorAsync())
 }
 ```
 
-{{% note %}}It is imperative that the cursor get disposed once you are finished with it to ensure that resource on the server are cleaned up.{{% /note %}}
+{{% note %}}It is imperative that the cursor get disposed once you are finished with it to ensure that resources on the server are cleaned up.{{% /note %}}
 
 Some options are available in the optional [`FindOptions`]({{< apiref "T_MongoDB_Driver_FindOptions" >}}) parameter such as setting maxTimeMS, a batch size, or a comment. Others are available as part of the fluent interface such as skip, limit, and sort.
 
@@ -55,7 +55,7 @@ var options = new FindOptions
 {
 	MaxTime = TimeSpan.FromMilliseconds(20)
 };
-using (var cursor = await collection.Find(filter, options).Skip(10).Limit(20))
+using (var cursor = await collection.Find(filter, options).Skip(10).Limit(20).ToCursorAsync())
 {
 	// etc...
 }
@@ -66,7 +66,7 @@ using (var cursor = await collection.Find(filter, options).Skip(10).Limit(20))
 
 ### Iteration
 
-Other methods of iteration other than using a cursor directly are available.
+Other methods of iteration besides using a cursor directly are available.
 
 First, `ToListAsync` is available. This is useful when the list will be small or you simply need them all as a list. If you are returning a large number of documents, then memory should be considered a factor.
 
@@ -84,7 +84,15 @@ await collection.Find(filter)
 	.ForEachAsync(doc => Console.WriteLine(doc));
 ```
 
-{{% note %}}Neither of these methods require you to dispose of the cursor. That will be handled for you automatically.{{% /note %}}
+To avoid blocking while processing each document you can use an async lambda:
+
+```csharp
+await collection.Find(filter)
+	.Skip(10)
+	.ForEachAsync(async (doc) => await Console.WriteLineAsync(doc));
+```
+
+{{% note %}}These iteration methods don't require you to dispose of the cursor. That will be handled for you automatically.{{% /note %}}
 
 ### Single Results
 

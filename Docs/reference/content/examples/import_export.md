@@ -10,7 +10,7 @@ title = "Import and Export"
 
 ## Rewriting MongoImport and MongoExport
 
-The .NET Bson library supports reading and writing JSON documents with the [`JsonReader`]({{< apiref "T_MongoDB_Bson_IO_JsonReader" >}}) and [`JsonWriter`]({{< apiref "T_MongoDB_Bson_IO_JsonWriter" >}}) classes. Both of these also handle both flavors of [MongoDB Extended JSON]({{< docsref "reference/mongodb-extended-json/" >}}).
+The .NET BSON library supports reading and writing JSON documents with the [`JsonReader`]({{< apiref "T_MongoDB_Bson_IO_JsonReader" >}}) and [`JsonWriter`]({{< apiref "T_MongoDB_Bson_IO_JsonWriter" >}}) classes. Both of these also handle both flavors of [MongoDB Extended JSON]({{< docsref "reference/mongodb-extended-json/" >}}).
 
 Neither of these implementations are the most performant solutions, but they illustrate using multiple features of the driver together.
 
