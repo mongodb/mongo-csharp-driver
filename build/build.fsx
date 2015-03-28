@@ -23,15 +23,20 @@ let semVersion =
     | "" -> baseVersion
     | _ -> baseVersion + "-" + preRelease
 
+let shortVersion = semVersion.Substring(0, 3) // this works assuming we don't have double digits
+
 let baseDir = currentDirectory
 let buildDir = baseDir @@ "build"
+let landingDocsDir = baseDir @@ "docs" @@ "landing"
+let refDocsDir = baseDir @@ "docs" @@ "reference"
 let srcDir = baseDir @@ "src"
 let toolsDir = baseDir @@ "tools"
+
 let artifactsDir = baseDir @@ "artifacts"
 let binDir = artifactsDir @@ "bin"
 let binDir45 = binDir @@ "net45"
 let testResultsDir = artifactsDir @@ "test_results"
-let docsDir = artifactsDir @@ "docs"
+let tempDir = artifactsDir @@ "tmp"
 
 let slnFile = 
     match isMono with
@@ -39,7 +44,7 @@ let slnFile =
     | false -> srcDir @@ "CSharpDriver.sln"
 
 let asmFile = srcDir @@ "MongoDB.Shared" @@ "GlobalAssemblyInfo.cs"
-let docsFile = baseDir @@ "Docs" @@ "Api" @@ "CSharpDriverDocs.shfbproj"
+let apiDocsFile = baseDir @@ "Docs" @@ "Api" @@ "CSharpDriverDocs.shfbproj"
 let installerFile = baseDir @@ "Installer" @@ "CSharpDriverInstaller.wixproj"
 let versionFile = artifactsDir @@ "version.txt"
 
@@ -55,8 +60,9 @@ let licenseFile = baseDir @@ "License.txt"
 let releaseNotesFile = baseDir @@ "Release Notes" @@ "Release Notes v" + baseVersion + ".md"
 
 let versionArtifactFile = artifactsDir @@ "version.txt"
-let docsArtifactFile = artifactsDir @@ "CSharpDriver-" + semVersion + ".chm"
-let docsArtifactZipFile = artifactsDir @@ "CSharpDriverDocs-" + semVersion + "-html.zip"
+let apiDocsArtifactFile = artifactsDir @@ "CSharpDriver-" + semVersion + ".chm"
+let apiDocsArtifactZipFile = artifactsDir @@ "ApiDocs-" + semVersion + "-html.zip"
+let refDocsArtifactZipFile = artifactsDir @@ "RefDocs-" + semVersion + "-html.zip"
 let zipArtifactFile = artifactsDir @@ "CSharpDriver-" + semVersion + ".zip"
 
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some(Minimal) }
@@ -131,11 +137,37 @@ Target "Test" (fun _ ->
             })
 )
 
-Target "Docs" (fun _ ->
-    DeleteFile docsArtifactFile
-    DeleteFile docsArtifactZipFile
-    ensureDirectory docsDir
-    CleanDir docsDir
+Target "RefDocs" (fun _ ->
+  DeleteFile refDocsArtifactZipFile
+  ensureDirectory tempDir
+  CleanDir tempDir
+
+  let landingResult =
+    ExecProcess (fun info ->
+      info.FileName <- "hugo.exe"
+      info.WorkingDirectory <- landingDocsDir
+    )(TimeSpan.FromMinutes 1.0)
+
+  let refResult = 
+    ExecProcess (fun info ->
+      info.FileName <- "hugo.exe"
+      info.WorkingDirectory <- refDocsDir
+    )(TimeSpan.FromMinutes 1.0)
+
+  CopyDir tempDir (landingDocsDir @@ "public") (fun _ -> true)
+  CopyDir (tempDir @@ shortVersion) (refDocsDir @@ "public") (fun _ -> true)
+
+  !! (tempDir @@ "**/**.*")
+    |> CreateZip tempDir refDocsArtifactZipFile "" DefaultZipLevel false
+
+  DeleteDir tempDir
+)
+
+Target "ApiDocs" (fun _ ->
+    DeleteFile apiDocsArtifactFile
+    DeleteFile apiDocsArtifactZipFile
+    ensureDirectory tempDir
+    CleanDir tempDir
 
     let preliminary =
         match preRelease with
@@ -143,28 +175,28 @@ Target "Docs" (fun _ ->
         | _ -> "True"
 
     let properties = ["Configuration", config
-                      "OutputPath", docsDir
+                      "OutputPath", tempDir
                       "CleanIntermediate", "True"
                       "Preliminary", preliminary
                       "HelpFileVersion", version]
 
-    [docsFile]
+    [apiDocsFile]
         |> MSBuild binDir45 "" properties
         |> Log "Docs: "
 
-    Rename docsArtifactFile (docsDir @@ "CSharpDriverDocs.chm")
-    Rename (docsDir @@ "index.html") (docsDir @@ "Index.html")
+    Rename apiDocsArtifactFile (tempDir @@ "CSharpDriverDocs.chm")
+    Rename (tempDir @@ "index.html") (tempDir @@ "Index.html")
 
-    !! (docsDir @@ "**/**.*")
-        |> CreateZip docsDir docsArtifactZipFile "" DefaultZipLevel false
+    !! (tempDir @@ "**/**.*")
+        |> CreateZip tempDir apiDocsArtifactZipFile "" DefaultZipLevel false
 
-    DeleteDir docsDir
+    DeleteDir tempDir
 )
 
 Target "Zip" (fun _ ->
     DeleteFile zipArtifactFile
 
-    checkFileExists docsArtifactFile
+    checkFileExists apiDocsArtifactFile
     checkFileExists licenseFile
     checkFileExists releaseNotesFile
 
@@ -183,7 +215,7 @@ Target "Zip" (fun _ ->
           binDir45 @@ "MongoDB.Driver.Legacy.xml"
           licenseFile
           releaseNotesFile 
-          docsArtifactFile ]
+          apiDocsArtifactFile ]
 
     files
         |> CreateZip artifactsDir zipArtifactFile "" DefaultZipLevel true
@@ -238,12 +270,17 @@ FinalTarget "Teardown" (fun _ ->
 
 
 Target "NoOp" DoNothing
+Target "Docs" DoNothing
 Target "Package" DoNothing
 Target "Publish" DoNothing
 
 "Clean"
     ==> "AssemblyInfo"
     ==> "Build"
+
+"RefDocs"
+    ==> "ApiDocs"
+    ==> "Docs"
 
 "Docs"
     ==> "Zip"
