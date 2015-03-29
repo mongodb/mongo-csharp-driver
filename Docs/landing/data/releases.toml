@@ -15,7 +15,7 @@ current = "2.0.0-rc0"
   name = ".NET Driver"
   package = "MongoDB.Driver"
   description = "The driver."
-  dependencies = ".NET Core Driver,.NET Bson Library"
+  dependencies = ".NET Core Driver,.NET BSON Library"
   versions = "2.0.0-rc0"
 
 [[drivers]]
