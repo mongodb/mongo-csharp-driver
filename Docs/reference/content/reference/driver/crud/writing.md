@@ -44,7 +44,7 @@ var result = await collection.ReplaceOneAsync(
 	replacement: newDoc);
 ```
 
-{{% note %}}`_id` values in MongoDB documents are immutable. If you specify an `_id` in the replacement document, it must match the `_id` of the existing document.{{% /note %}}
+{{% note class="important" %}}`_id` values in MongoDB documents are immutable. If you specify an `_id` in the replacement document, it must match the `_id` of the existing document.{{% /note %}}
 
 When using a [MongoDB update specification]({{< docsref "reference/operator/update/" >}}), the [`UpdateOneAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync" >}}) and [`UpdateManyAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync" >}}) methods are available.
 

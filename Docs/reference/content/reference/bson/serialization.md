@@ -16,7 +16,7 @@ Serialization is the process of mapping an object to and from a BSON document. T
 
 ## Serializer Registry
 
-The serializer registry contains all the [`IBsonSerializers`]({{< apiref "T_MongoDB_Bson_Serialization_IBsonSerializer" >}}) that have been registered. It can be accessed via the [`SerializerRegistry`]({{< apiref "P_MongoDB_Bson_BsonSerializer_SerializerRegistry" >}}) property of the static class [`BsonSerializer`]({{< apiref "MongoDB_Bson_BsonSerializer" >}}). 
+The serializer registry contains all the [`IBsonSerializers`]({{< apiref "T_MongoDB_Bson_Serialization_IBsonSerializer" >}}) that have been registered. It can be accessed via the [`SerializerRegistry`]({{< apiref "P_MongoDB_Bson_Serialization_BsonSerializer_SerializerRegistry" >}}) property of the static class [`BsonSerializer`]({{< apiref "T_MongoDB_Bson_Serialization_BsonSerializer" >}}). 
 
 {{% note %}}This is a global registry. Currently, you cannot use multiple registries in a single application.{{% /note %}}
 
@@ -28,7 +28,7 @@ The [serializer registry]({{< relref "#serializer-registry" >}}) is powered by a
 
 ### Implementation
 
-To implement an [`IBsonSerializationProvider`]({{< apiref "T_MongoDB_Bson_Serialization_IBsonSerializationProvider" >}}), create a class that implements the interface and register it using the [`RegisterSerializationProvider`]({{< apiref "T_MongoDB_Bson_BsonSerializer_RegisterSerializationProvider" >}}) method.
+To implement an [`IBsonSerializationProvider`]({{< apiref "T_MongoDB_Bson_Serialization_IBsonSerializationProvider" >}}), create a class that implements the interface and register it using the [`RegisterSerializationProvider`]({{< apiref "M_MongoDB_Bson_Serialization_BsonSerializer_RegisterSerializationProvider" >}}) method.
 
 ```csharp
 class MyProvider : IBsonSerializationProvider
@@ -67,7 +67,7 @@ using (var reader = new JsonReader(jsonString))
 
 {{% note class="warning" %}}Writing custom serializers to handle both normal cases and edge cases can be very tricky.{{% /note %}}
 
-To implement a custom [`IBsonSerializer`]({{< apiref "T_MongoDB_Bson_Serialization_IBsonSerializer" >}}), it is best to inherit from [`SerializerBase<T>`]({{< apiref "T_MongoDB_Bson_Serialization_Serializers_SerializerBase_1" >}}) and override the [`Deserializer`]({{< apiref "M_MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Deserialize" >}}) and [`Serialize`]({{< apiref "M_MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Serialize" >}}) methods.
+To implement a custom [`IBsonSerializer`]({{< apiref "T_MongoDB_Bson_Serialization_IBsonSerializer" >}}), it is best to inherit from [`SerializerBase<T>`]({{< apiref "T_MongoDB_Bson_Serialization_Serializers_SerializerBase_1" >}}) and override the [`Deserialize`]({{< apiref "M_MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Deserialize" >}}) and [`Serialize`]({{< apiref "M_MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Serialize" >}}) methods.
 
 For example, it implement a serializer that reads an [`Int32`]({{< msdnref "system.int32" >}}):
 
@@ -122,7 +122,7 @@ Notice that we are testing the current BsonType while reading and making decisio
 
 {{% note %}}The built-in [`Int32Serializer`]({{< apiref "T_MongoDB_Bson_Serialization_Serializers_Int32Serializer" >}}) accounts for this as well as other such items.{{% /note %}}
 
-You can register your serializer using the [`RegisterSerializer`]({{< apiref "T_MongoDB_Bson_BsonSerializer_RegisterSerializer" >}}) or implement a [serialization provider]({{< relref "#serialization-provider" >}}).
+You can register your serializer using the [`RegisterSerializer`]({{< apiref "M_MongoDB_Bson_Serialization_BsonSerializer_RegisterSerializer" >}}) or implement a [serialization provider]({{< relref "#serialization-provider" >}}).
 
 
 ### Opt-in Interfaces

@@ -29,7 +29,7 @@ var count = await collection.CountAsync(new BsonDocument());
 
 ## Finding Documents
 
-Finding all the documents in a collection is done with an empty filter and the method [`Find`]({{< apiref "M_MongoDB_Driver_IMongoCollectionExtensions_Find" >}}). Once we have a cursor (of type [`IAsyncCursor<TDocument>`]({{< apiref "T_MongoDB_Driver_IAsyncCursor_1" >}})), we can iterate it like we manually iterate an [`IEnumerable<TDocument>`]({{< msdnref "9eekhta0" >}}).
+Finding all the documents in a collection is done with an empty filter and the method [`Find`]({{< apiref "M_MongoDB_Driver_IMongoCollectionExtensions_Find__1" >}}). Once we have a cursor (of type [`IAsyncCursor<TDocument>`]({{< apiref "T_MongoDB_Driver_IAsyncCursor_1" >}})), we can iterate it like we manually iterate an [`IEnumerable<TDocument>`]({{< msdnref "9eekhta0" >}}).
 
 ```csharp
 var filter = new BsonDocument();

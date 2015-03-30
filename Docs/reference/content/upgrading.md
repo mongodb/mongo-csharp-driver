@@ -21,7 +21,7 @@ As 2.0 is a major revision, there are some breaking changes when coming from the
 
 ## Packaging
 
-- The nuget package `mongocsharpdriver` now includes the legacy driver. It depends on 3 new nuget packages, `MongoDB.Bson`, `MongoDB.Driver.Core`, and `MongoDB.Driver`. `MongoDB.Driver` is the replacement for `mongocsharpdriver`.
+- The nuget package [mongocsharpdriver](http://nuget.org/packages/mongocsharpdriver) now includes the legacy driver. It depends on 3 new nuget packages, [MongoDB.Bson](http://nuget.org/packages/MongoDB.Bson), [MongoDB.Driver.Core](http://nuget.org/packages/MongoDB.Driver.Core), and [MongoDB.Driver](http://nuget.org/packages/MongoDB.Driver). [MongoDB.Driver](http://nuget.org/packages/MongoDB.Driver) is the replacement for [mongocsharpdriver](http://nuget.org/packages/mongocsharpdriver).
 - [CSHARP-616](https://jira.mongodb.org/browse/CSHARP-616): We are no longer strong naming  our assemblies. Our previous strong naming was signed with a key in our public repository. This did nothing other than satisfy certain tools. If you need MongoDB assemblies to be strongly named, it is relatively straight-forward to build the assemblies yourself.
 
 
@@ -34,7 +34,7 @@ As 2.0 is a major revision, there are some breaking changes when coming from the
 
 ## Driver
 - [CSHARP-979](https://jira.mongodb.org/browse/CSHARP-979): `MongoConnectionStringBuilder` has been removed. Use the documented mongodb connection string format and/or `MongoUrlBuilder`.
-- `MongoServer` is a deprecated class. Anyone using `MongoClient.GetServer()` will encounter a deprecation warning and, depending on how your build is setup, may receive an error. It is still safe to use this API until your code is ported to the new API. *Note that this API requires the use of the `mongocsharpdriver package` which includes the legacy API.
+- `MongoServer` is a deprecated class. Anyone using `MongoClient.GetServer()` will encounter a deprecation warning and, depending on how your build is setup, may receive an error. It is still safe to use this API until your code is ported to the new API. *Note that this API requires the use of the [mongocsharpdriver](http://nuget.org/packages/mongocsharpdriver) to include the legacy API.
 - [CSHARP-1043](https://jira.mongodb.org/browse/CSHARP-1043) and [CSHARP-1044](https://jira.mongodb.org/browse/CSHARP-1044): `ReadPreference` and `WriteConcern` were rewritten. These classes are now immutable. Any current application code that sets values on these classes will no longer function. Instead, you should use the With method to alter a `ReadPreference` or `WriteConcern`.
 	
 	``` csharp

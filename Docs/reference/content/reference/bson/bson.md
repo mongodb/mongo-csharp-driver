@@ -92,12 +92,12 @@ using (var writer = new JsonWriter(output))
 
 [`JsonWriter`]({{< apiref "T_MongoDB_Bson_IO_JsonWriter" >}}) supports writing strict JSON as well as both flavors of [MongoDB Extended JSON]({{< docsref "reference/mongodb-extended-json/" >}}). This, and other things, can be customized with the [`JsonWriterSettings`]({{< apiref "T_MongoDB_Bson_IO_JsonWriterSettings" >}}) class.
 
-For instance, to write in a format for the [MongoDB Shell](http://docs.mongodb.org/manual/administration/scripting/), you can set the [`OutputMode`]({{< apiref "M_MongoDB_Bson_IO_JsonWriterSettings_OutputMode" >}}) to `Shell` and also set the [`Version`]({{< apiref "M_MongoDB_Bson_IO_JsonWriterSettings_Version" >}}) to the desired shell version.
+For instance, to write in a format for the [MongoDB Shell](http://docs.mongodb.org/manual/administration/scripting/), you can set the [`OutputMode`]({{< apiref "P_MongoDB_Bson_IO_JsonWriterSettings_OutputMode" >}}) to `Shell` and also set the [`ShellVersion`]({{< apiref "P_MongoDB_Bson_IO_JsonWriterSettings_ShellVersion" >}}) to the desired shell version.
 
 ```csharp
 var settings = new JsonWriterSettings
 {
 	OutputMode = JsonOutputMode.Shell,
-	Version = new Version(3.0) // target the syntax of MongoDB 3.0
+	ShellVersion = new Version(3.0) // target the syntax of MongoDB 3.0
 };
 ```
