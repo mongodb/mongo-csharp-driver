@@ -8,7 +8,7 @@ current = "2.0.0-rc0"
 [[versions]]
   version = "1.10.0"
   status = "current"
-  docs = "http://docs.mongodb.org/ecosystem/drivers/csharp/"
+  docs = "http://mongodb.github.io/mongo-csharp-driver/1.10"
   api = "http://api.mongodb.org/csharp/1.10"
 
 [[drivers]]
