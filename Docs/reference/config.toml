@@ -1,0 +1,13 @@
+baseurl = "/mongo-java-driver/3.0"
+languageCode = "en-us"
+title = "MongoDB Java Driver"
+theme = "mongodb"
+canonifyurls = false
+
+# Example custom menu Item (Useful for linking to API docs)
+# [[menu.main]]
+#     name = "Issues & Help"
+#     pre = "<i class='fa fa-life-ring'></i>"
+#     weight = 100
+#     identifier = "help"
+#     url = "https://jira.mongodb.org/browse/JAVA"
