@@ -1,6 +1,6 @@
-githubRepo = "mongo-java-driver"
+githubRepo = "mongo-csharp-driver"
 githubBranch = "master"
-currentVersion = "3.0"
-driverVersions = ["3.0"]
+currentVersion = "1.10"
+driverVersions = ["1.10"]
 highlightTheme = "idea.css"
-apiUrl = "http://api.mongodb.org/java/3.0/"
+apiUrl = "http://api.mongodb.org/csharp/1.10/"

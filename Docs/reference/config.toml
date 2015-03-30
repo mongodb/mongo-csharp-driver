@@ -1,6 +1,6 @@
-baseurl = "/mongo-java-driver/3.0"
+baseurl = "/mongo-csharp-driver/1.x"
 languageCode = "en-us"
-title = "MongoDB Java Driver"
+title = "MongoDB CSharp Driver"
 theme = "mongodb"
 canonifyurls = false
 
@@ -10,4 +10,4 @@ canonifyurls = false
 #     pre = "<i class='fa fa-life-ring'></i>"
 #     weight = 100
 #     identifier = "help"
-#     url = "https://jira.mongodb.org/browse/JAVA"
+#     url = "https://jira.mongodb.org/browse/CSHARP"
