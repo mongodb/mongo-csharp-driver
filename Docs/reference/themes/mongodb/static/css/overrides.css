@@ -76,7 +76,15 @@
   text-transform: uppercase;
 }
 
+a code {
+  color: #006cbc;
+}
+
 code {
-  background-color: #ddd;
+  background-color: #f5f6f7;
   color: #494747;
+}
+
+a code {
+  color: #006cbc;
 }
