@@ -320,7 +320,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Skip.Should().Be(options.Skip);
         }
-        
+
         [Test]
         public async Task DeleteManyAsync_should_execute_the_BulkMixedOperation()
         {
@@ -686,6 +686,7 @@ namespace MongoDB.Driver
             request.Unique.Should().Be(options.Unique);
             request.Version.Should().Be(options.Version);
             request.Weights.Should().Be(weights);
+            request.GetIndexName().Should().Be(options.Name);
         }
 
         [Test]

@@ -272,15 +272,24 @@ namespace MongoDB.Driver.Core.Operations
             set { _weights = value; }
         }
 
+        // publuc methods
+        /// <summary>
+        /// Gets the name of the index.
+        /// </summary>
+        /// <returns>The name of the index.</returns>
+        public string GetIndexName()
+        {
+            var additionalOptionsName = _additionalOptions == null ? null : (string)_additionalOptions.GetValue("name", null);
+            return _name ?? additionalOptionsName ?? IndexNameHelper.GetIndexName(_keys);
+        }
+
         // methods
         internal BsonDocument CreateIndexDocument()
         {
-            var additionalOptionsName = _additionalOptions == null ? null : _additionalOptions.GetValue("name", null);
-            var name = _name ?? additionalOptionsName ?? IndexNameHelper.GetIndexName(_keys);
             var document = new BsonDocument
             {
                 { "key", _keys },
-                { "name", name },
+                { "name", GetIndexName() },
                 { "background", () => _background.Value, _background.HasValue },
                 { "bits", () => _bits.Value, _bits.HasValue },
                 { "bucketSize", () => _bucketSize.Value, _bucketSize.HasValue },

@@ -541,7 +541,7 @@ namespace MongoDB.Driver
                 get { return _collection._settings; }
             }
 
-            public override Task CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options, CancellationToken cancellationToken)
+            public override async Task<string> CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(keys, "keys");
 
@@ -569,7 +569,8 @@ namespace MongoDB.Driver
                 };
 
                 var operation = new CreateIndexesOperation(_collection._collectionNamespace, new[] { request }, _collection._messageEncoderSettings);
-                return _collection.ExecuteWriteOperation(operation, cancellationToken);
+                await _collection.ExecuteWriteOperation(operation, cancellationToken);
+                return request.GetIndexName();
             }
 
             public override Task DropAllAsync(CancellationToken cancellationToken)
