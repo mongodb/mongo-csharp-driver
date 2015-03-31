@@ -18,22 +18,22 @@
   {{ $.Scratch.Set "menu.Item.L0" $menuItem }}
 
   {{ if $menuItemL1 }}
-    {{ if eq $menuItemL1.Name $menuItem.Parent }}
+    {{ if eq $menuItemL1.Identifier $menuItem.Parent }}
     {{ $.Scratch.Set "menu.Item.L1" $menuItemL1 }}
     {{ if $menuItemL2 }}
-      {{ if eq $menuItemL2.Name $menuItemL1.Parent }}
+      {{ if eq $menuItemL2.Identifier $menuItemL1.Parent }}
       {{ $.Scratch.Set "menu.Item.L2" $menuItemL2 }}
       {{ if $menuItemL3 }}
-        {{ if eq $menuItemL3.Name $menuItemL2.Parent }}
+        {{ if eq $menuItemL3.Identifier $menuItemL2.Parent }}
         {{ $.Scratch.Set "menu.Item.L3" $menuItemL3 }}
         {{ if $menuItemL4 }}
-          {{ if eq $menuItemL4.Name $menuItemL3.Parent }}
+          {{ if eq $menuItemL4.Identifier $menuItemL3.Parent }}
           {{ $.Scratch.Set "menu.Item.L4" $menuItemL4 }}
           {{ if $menuItemL5 }}
-            {{ if eq $menuItemL5.Name $menuItemL4.Parent }}
+            {{ if eq $menuItemL5.Identifier $menuItemL4.Parent }}
             {{ $.Scratch.Set "menu.Item.L5" $menuItemL5 }}
             {{ if $menuItemL6 }}
-              {{ if eq $menuItemL6.Name $menuItemL5.Parent }}
+              {{ if eq $menuItemL6.Identifier $menuItemL5.Parent }}
               {{ $.Scratch.Set "menu.Item.L6" $menuItemL6 }}
             {{end}}
             {{end}}
