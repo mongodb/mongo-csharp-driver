@@ -20,7 +20,7 @@ let version = baseVersion + "." + buildNumber
 let semVersion = 
     match preRelease with
     | "build" | "local" -> baseVersion + "-" + preRelease + "-" + buildNumber.PadLeft(4, '0')
-    | "" -> baseVersion
+    | "#release#" -> baseVersion
     | _ -> baseVersion + "-" + preRelease
 
 let shortVersion = semVersion.Substring(0, 3) // this works assuming we don't have double digits
