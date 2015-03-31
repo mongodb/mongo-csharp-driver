@@ -569,7 +569,7 @@ namespace MongoDB.Driver
                 };
 
                 var operation = new CreateIndexesOperation(_collection._collectionNamespace, new[] { request }, _collection._messageEncoderSettings);
-                await _collection.ExecuteWriteOperation(operation, cancellationToken);
+                await _collection.ExecuteWriteOperation(operation, cancellationToken).ConfigureAwait(false);
                 return request.GetIndexName();
             }
 
