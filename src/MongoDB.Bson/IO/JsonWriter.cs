@@ -61,6 +61,18 @@ namespace MongoDB.Bson.IO
             State = BsonWriterState.Initial;
         }
 
+        // public properties
+        /// <summary>
+        /// Gets the base TextWriter.
+        /// </summary>
+        /// <value>
+        /// The base TextWriter.
+        /// </value>
+        public TextWriter BaseTextWriter
+        {
+            get { return _textWriter; }
+        }
+
         // public methods
         /// <summary>
         /// Closes the writer.
@@ -655,7 +667,6 @@ namespace MongoDB.Bson.IO
                     Close();
                 }
                 catch { } // ignore exceptions
-                _textWriter.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -718,7 +729,7 @@ namespace MongoDB.Bson.IO
 
         private BsonWriterState GetNextState()
         {
-            if (_context.ContextType == ContextType.Array)
+            if (_context.ContextType == ContextType.Array || _context.ContextType == ContextType.TopLevel)
             {
                 return BsonWriterState.Value;
             }

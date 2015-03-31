@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Core.Operations
             private void AddRequest(BsonSerializationContext context, IByteBuffer overflow)
             {
                 var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
-                var stream = bsonBinaryWriter.Stream;
+                var stream = bsonBinaryWriter.BsonStream;
                 _lastRequestPosition = (int)stream.Position;
                 bsonBinaryWriter.WriteRawBsonDocument(overflow);
                 _batchCount++;
@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Core.Operations
             private void AddRequest(BsonSerializationContext context, WriteRequest request)
             {
                 var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
-                var stream = bsonBinaryWriter.Stream;
+                var stream = bsonBinaryWriter.BsonStream;
                 _lastRequestPosition = (int)stream.Position;
                 SerializeRequest(context, request);
                 _batchCount++;
@@ -299,11 +299,11 @@ namespace MongoDB.Driver.Core.Operations
             private IByteBuffer RemoveLastRequest(BsonSerializationContext context)
             {
                 var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
-                var stream = bsonBinaryWriter.Stream;
+                var stream = bsonBinaryWriter.BsonStream;
                 var lastRequestLength = (int)stream.Position - _lastRequestPosition;
                 stream.Position = _lastRequestPosition;
                 var lastRequest = new byte[lastRequestLength];
-                stream.FillBuffer(lastRequest, 0, lastRequestLength);
+                stream.ReadBytes(lastRequest, 0, lastRequestLength);
                 stream.Position = _lastRequestPosition;
                 stream.SetLength(_lastRequestPosition);
                 _batchCount--;
@@ -314,7 +314,9 @@ namespace MongoDB.Driver.Core.Operations
                     throw new MongoInternalException("Expected overflow item to be a BsonDocument.");
                 }
                 var sliceOffset = Array.IndexOf<byte>(lastRequest, 0) + 1; // skip over type and array index
-                return new ByteArrayBuffer(lastRequest, sliceOffset, lastRequest.Length - sliceOffset, true);
+
+                var buffer = new ByteArrayBuffer(lastRequest, isReadOnly: true);
+                return new ByteBufferSlice(buffer, sliceOffset, lastRequest.Length - sliceOffset);
             }
 
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, BatchableSource<WriteRequest> requestSource)
@@ -334,7 +336,7 @@ namespace MongoDB.Driver.Core.Operations
                 var batch = new List<WriteRequest>();
 
                 var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
-                _batchStartPosition = (int)bsonBinaryWriter.Stream.Position;
+                _batchStartPosition = (int)bsonBinaryWriter.BsonStream.Position;
 
                 var overflow = requestSource.StartBatch();
                 if (overflow != null)
@@ -366,7 +368,7 @@ namespace MongoDB.Driver.Core.Operations
             private void SerializeSingleBatch(BsonSerializationContext context, BatchableSource<WriteRequest> requestSource)
             {
                 var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
-                _batchStartPosition = (int)bsonBinaryWriter.Stream.Position;
+                _batchStartPosition = (int)bsonBinaryWriter.BsonStream.Position;
 
                 // always go one document too far so that we can set IsDone as early as possible
                 foreach (var request in requestSource.Batch)

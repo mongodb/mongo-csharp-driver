@@ -58,7 +58,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         public LazyBsonDocument(byte[] bytes)
-            : this(new ByteArrayBuffer(bytes, 0, bytes.Length, true))
+            : this(new ByteArrayBuffer(bytes, isReadOnly: true))
         {
         }
 
@@ -181,7 +181,7 @@ namespace MongoDB.Bson
         {
             var elements = new List<BsonElement>();
 
-            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
                 var context = BsonDeserializationContext.CreateRoot(bsonReader);

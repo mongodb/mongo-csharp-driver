@@ -29,14 +29,16 @@ namespace MongoDB.Driver.Linq.Translators
 {
     internal class FindProjectionTranslator : MongoExpressionVisitor
     {
-        public static ProjectionInfo<TResult> Translate<TDocument, TResult>(Expression<Func<TDocument, TResult>> projector, IBsonSerializer<TDocument> parameterSerializer)
+        public static RenderedProjectionDefinition<TProjection> Translate<TDocument, TProjection>(Expression<Func<TDocument, TProjection>> projector, IBsonSerializer<TDocument> parameterSerializer)
         {
             var parameterSerializationInfo = new BsonSerializationInfo(null, parameterSerializer, parameterSerializer.ValueType);
-            var parameterExpression = new DocumentExpression(projector.Parameters[0], parameterSerializationInfo);
+            var parameterExpression = new SerializationExpression(projector.Parameters[0], parameterSerializationInfo);
             var binder = new SerializationInfoBinder(BsonSerializer.SerializerRegistry);
             binder.RegisterParameterReplacement(projector.Parameters[0], parameterExpression);
-            var boundExpression = binder.Bind(projector.Body);
-            var candidateFields = FieldExpressionGatherer.Gather(boundExpression);
+            var normalizedBody = Normalizer.Normalize(projector.Body);
+            var evaluatedBody = PartialEvaluator.Evaluate(normalizedBody);
+            var boundExpression = binder.Bind(evaluatedBody);
+            var candidateFields = FieldGatherer.Gather(boundExpression);
 
             var fields = GetUniqueFieldsByHierarchy(candidateFields);
 
@@ -45,45 +47,40 @@ namespace MongoDB.Driver.Linq.Translators
             var replacementParameter = Expression.Parameter(typeof(ProjectedObject), "document");
 
             var translator = new FindProjectionTranslator(projector.Parameters[0], replacementParameter, fields);
-            var newProjector = Expression.Lambda<Func<ProjectedObject, TResult>>(
+            var newProjector = Expression.Lambda<Func<ProjectedObject, TProjection>>(
                 translator.Visit(boundExpression),
                 replacementParameter);
 
             BsonDocument projectionDocument;
-            IBsonSerializer<TResult> serializer;
+            IBsonSerializer<TProjection> serializer;
             if (translator._fullDocument)
             {
                 projectionDocument = null;
-                serializer = new ProjectingDeserializer<TDocument, TResult>(parameterSerializer, projector.Compile());
+                serializer = new ProjectingDeserializer<TDocument, TProjection>(parameterSerializer, projector.Compile());
             }
             else
             {
                 projectionDocument = GetProjectionDocument(serializationInfo);
                 var projectedObjectSerializer = new ProjectedObjectDeserializer(serializationInfo);
-                serializer = new ProjectingDeserializer<ProjectedObject, TResult>(projectedObjectSerializer, newProjector.Compile());
+                serializer = new ProjectingDeserializer<ProjectedObject, TProjection>(projectedObjectSerializer, newProjector.Compile());
             }
 
-            return new ProjectionInfo<TResult>(projectionDocument, serializer);
+            return new RenderedProjectionDefinition<TProjection>(projectionDocument, serializer);
         }
 
-        private readonly IReadOnlyList<FieldExpression> _fields;
+        private readonly IReadOnlyList<SerializationExpression> _fields;
         private bool _fullDocument;
         private readonly ParameterExpression _originalParameter;
         private readonly ParameterExpression _replacementParameter;
 
-        private FindProjectionTranslator(ParameterExpression originalParameter, ParameterExpression replacementParameter, IReadOnlyList<FieldExpression> fields)
+        private FindProjectionTranslator(ParameterExpression originalParameter, ParameterExpression replacementParameter, IReadOnlyList<SerializationExpression> fields)
         {
             _originalParameter = originalParameter;
             _replacementParameter = replacementParameter;
             _fields = fields;
         }
 
-        protected override Expression VisitDocument(DocumentExpression node)
-        {
-            return Visit(node.Expression);
-        }
-
-        protected override Expression VisitField(FieldExpression node)
+        protected override Expression VisitSerialization(SerializationExpression node)
         {
             if (!_fields.Any(x => x.SerializationInfo.ElementName == node.SerializationInfo.ElementName
                 && x.SerializationInfo.NominalType.Equals(node.SerializationInfo.NominalType)))
@@ -106,7 +103,7 @@ namespace MongoDB.Driver.Linq.Translators
                 return base.VisitMethodCall(node);
             }
 
-            var source = node.Arguments[0] as FieldExpression;
+            var source = node.Arguments[0] as SerializationExpression;
             if (source != null && !_fields.Any(x => x.SerializationInfo.ElementName == source.SerializationInfo.ElementName))
             {
                 // We are projecting off an embedded array, but we have selected the entire
@@ -114,11 +111,6 @@ namespace MongoDB.Driver.Linq.Translators
                 var selector = (LambdaExpression)Visit((LambdaExpression)node.Arguments[1]);
                 var nestedParameter = Expression.Parameter(_replacementParameter.Type, selector.Parameters[0].Name);
                 var nestedBody = new ProjectedObjectFieldReplacer().Replace(selector.Body, source.SerializationInfo.ElementName, nestedParameter);
-
-                var newSelector = Expression.Lambda(
-                    Expression.GetFuncType(nestedParameter.Type, nestedBody.Type),
-                    nestedBody,
-                    nestedParameter);
 
                 var newSourceType = typeof(IEnumerable<>).MakeGenericType(nestedParameter.Type);
                 var newSource =
@@ -179,7 +171,7 @@ namespace MongoDB.Driver.Linq.Translators
             return document;
         }
 
-        private static IReadOnlyList<FieldExpression> GetUniqueFieldsByHierarchy(IEnumerable<FieldExpression> usedFields)
+        private static IReadOnlyList<SerializationExpression> GetUniqueFieldsByHierarchy(IEnumerable<SerializationExpression> usedFields)
         {
             // we want to leave out subelements when the parent element exists
             // for instance, if we have asked for both "d" and "d.e", we only want to send { "d" : 1 } to the server
@@ -187,9 +179,9 @@ namespace MongoDB.Driver.Linq.Translators
             // 2) order them by their element name in ascending order
             // 3) if any groups are prefixed by the current groups element, then skip it.
 
-            var uniqueFields = new List<FieldExpression>();
+            var uniqueFields = new List<SerializationExpression>();
             var skippedFields = new List<string>();
-            var referenceGroups = new Queue<IGrouping<string, FieldExpression>>(usedFields.GroupBy(x => x.SerializationInfo.ElementName).OrderBy(x => x.Key));
+            var referenceGroups = new Queue<IGrouping<string, SerializationExpression>>(usedFields.GroupBy(x => x.SerializationInfo.ElementName).OrderBy(x => x.Key));
             while (referenceGroups.Count > 0)
             {
                 var referenceGroup = referenceGroups.Dequeue();

@@ -41,10 +41,17 @@ namespace MongoDB.Driver
             settings.ApplyDefaultValues(new MongoClientSettings());
             _operationExecutor = new MockOperationExecutor();
             _subject = new MongoDatabaseImpl(
+                Substitute.For<IMongoClient>(),
                 new DatabaseNamespace("foo"),
                 settings,
                 Substitute.For<ICluster>(),
                 _operationExecutor);
+        }
+
+        [Test]
+        public void Client_should_be_set()
+        {
+            _subject.Client.Should().NotBeNull();
         }
 
         [Test]
@@ -198,7 +205,7 @@ namespace MongoDB.Driver
         public async Task RunCommand_should_run_a_serialized_command()
         {
             var cmd = new CountCommand { Collection = "foo" };
-            await _subject.RunCommandAsync<BsonDocument>(cmd);
+            await _subject.RunCommandAsync(new ObjectCommand<BsonDocument>(cmd));
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 

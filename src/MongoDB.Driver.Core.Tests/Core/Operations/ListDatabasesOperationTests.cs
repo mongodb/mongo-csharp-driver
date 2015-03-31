@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
         // setup methods
         public override void TestFixtureSetUp()
         {
-            _databaseNamespace = SuiteConfiguration.GetDatabaseNamespaceForTestFixture();
+            _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
         }
 
         // test methods
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer]
         public async Task ExecuteAsync_should_return_expected_result()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var subject = new ListDatabasesOperation(_messageEncoderSettings);
                 EnsureDatabaseExists(binding);

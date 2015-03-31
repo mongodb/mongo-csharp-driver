@@ -24,13 +24,13 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a base class for map reduce operations.
+    /// Represents a base class for map-reduce operations.
     /// </summary>
     public abstract class MapReduceOperationBase
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly BsonDocument _filter;
+        private BsonDocument _filter;
         private BsonJavaScript _finalizeFunction;
         private bool? _javaScriptMode;
         private long? _limit;
@@ -49,14 +49,12 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="mapFunction">The map function.</param>
         /// <param name="reduceFunction">The reduce function.</param>
-        /// <param name="filter">The filter.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        protected MapReduceOperationBase(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument filter, MessageEncoderSettings messageEncoderSettings)
+        protected MapReduceOperationBase(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, "collectionNamespace");
             _mapFunction = Ensure.IsNotNull(mapFunction, "mapFunction");
             _reduceFunction = Ensure.IsNotNull(reduceFunction, "reduceFunction");
-            _filter = Ensure.IsNotNull(filter, "filter");
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, "messageEncoderSettings");
         }
 
@@ -73,7 +71,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets the filter.
+        /// Gets or sets the filter.
         /// </summary>
         /// <value>
         /// The filter.
@@ -81,6 +79,7 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Filter
         {
             get { return _filter; }
+            set { _filter = value; }
         }
 
         /// <summary>
@@ -101,7 +100,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// <remarks>
         /// Setting this value to true can result in faster execution, but requires more memory on the server, and if
-        /// there are too many emitted objects the map reduce operation may fail.
+        /// there are too many emitted objects the map-reduce operation may fail.
         /// </remarks>
         ///   <c>true</c> if objects emitted by the map function remain as JavaScript objects; otherwise, <c>false</c>.
         /// </value>

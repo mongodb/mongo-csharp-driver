@@ -2,13 +2,13 @@
 <package>
   <metadata>
     <id>mongocsharpdriver</id>
-    <title>(Deprecated) Official C# driver for MongoDB</title>
+    <title>(Legacy) Official C# driver for MongoDB</title>
     <version>@build.number@</version>
     <authors>MongoDB, Inc.</authors>
     <owners>rstam, craiggwilson</owners>
     <iconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>This package has been deprecated. The new package name is MongoDB.Driver.</description>
+    <description>This package contains the legacy driver. The new driver's package name is MongoDB.Driver.</description>
     <projectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <tags></tags>
@@ -16,5 +16,11 @@
     @dependencies@
   </metadata>
   <files>
+    <file src="artifacts\bin\net45\MongoDB.Driver.Legacy.dll" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.Legacy.pdb" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.Legacy.xml" target="lib\net45" />
+    <file src="License.rtf" target ="" />
+    <file src="src\MongoDB.Driver.Legacy\**\*.cs" target="src\MongoDB.Driver.Legacy" />
+    <file src="src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />
   </files>
 </package> 

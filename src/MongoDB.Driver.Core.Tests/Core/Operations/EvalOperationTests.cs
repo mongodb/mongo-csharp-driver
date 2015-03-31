@@ -33,8 +33,8 @@ namespace MongoDB.Driver.Core.Operations
         [SetUp]
         public void Setup()
         {
-            _databaseNamespace = SuiteConfiguration.DatabaseNamespace;
-            _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
+            _databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
+            _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
         [Test]
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new EvalOperation(_databaseNamespace, function, _messageEncoderSettings);
 
             BsonValue result;
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Args = new BsonValue[] { 1 };
 
             BsonValue result;
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Core.Operations
         [Test]
         public void ExecuteAsync_should_return_expected_result_when_maxTime_is_provided()
         {
-            if (SuiteConfiguration.ServerVersion >= new SemanticVersion(2, 6, 0))
+            if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(2, 6, 0))
             {
                 // TODO: implement EvalOperation MaxTime test
             }
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.NoLock = true;
 
             BsonValue result;
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }

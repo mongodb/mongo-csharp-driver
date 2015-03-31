@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using MongoDB.Bson.IO;
@@ -304,11 +303,14 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets the serialization info for a member.
+        /// Tries to get the serialization info for a member.
         /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>The serialization info for the member.</returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns>
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
+        /// </returns>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
             foreach (var memberMap in _classMap.AllMemberMaps)
             {
@@ -317,15 +319,13 @@ namespace MongoDB.Bson.Serialization
                     var elementName = memberMap.ElementName;
                     var serializer = memberMap.GetSerializer();
                     var nominalType = memberMap.MemberType;
-                    return new BsonSerializationInfo(elementName, serializer, serializer.ValueType);
+                    serializationInfo = new BsonSerializationInfo(elementName, serializer, serializer.ValueType);
+                    return true;
                 }
             }
 
-            var message = string.Format(
-                "Class {0} does not have a member called {1}.",
-                BsonUtils.GetFriendlyTypeName(_classMap.ClassType),
-                memberName);
-            throw new ArgumentOutOfRangeException("memberName", message);
+            serializationInfo = null;
+            return false;
         }
 
         /// <summary>

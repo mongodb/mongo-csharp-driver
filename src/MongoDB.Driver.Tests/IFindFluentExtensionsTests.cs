@@ -13,8 +13,11 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq.Expressions;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Translators;
 using NSubstitute;
@@ -26,26 +29,36 @@ namespace MongoDB.Driver.Tests
     public class IFindFluentExtensionsTests
     {
         [Test]
-        public void Projection_should_generate_the_correct_fields_when_a_result_type_is_not_specified()
+        public void Project_should_generate_the_correct_fields_when_a_BsonDocument_is_used()
         {
             var subject = CreateSubject()
-                .Projection(BsonDocument.Parse("{_id: 1, Tags: 1}"));
+                .Project(BsonDocument.Parse("{_id: 1, Tags: 1}"));
 
-            var expectedProject = BsonDocument.Parse("{_id: 1, Tags: 1}");
+            var expectedProjection = BsonDocument.Parse("{_id: 1, Tags: 1}");
 
-            Assert.AreEqual(expectedProject, subject.Options.Projection);
+            AssertProjection(subject, expectedProjection);
         }
 
         [Test]
-        public void Projection_should_generate_the_correct_fields_and_assign_the_correct_result_serializer()
+        public void Project_should_generate_the_correct_fields_when_a_string_is_used()
         {
             var subject = CreateSubject()
-                .Projection(x => x.FirstName + " " + x.LastName);
+                .Project("{_id: 1, Tags: 1}");
 
-            var expectedProject = BsonDocument.Parse("{FirstName: 1, LastName: 1, _id: 0}");
+            var expectedProjection = BsonDocument.Parse("{_id: 1, Tags: 1}");
 
-            Assert.AreEqual(expectedProject, subject.Options.Projection);
-            Assert.IsInstanceOf<ProjectingDeserializer<ProjectedObject, string>>(subject.Options.ResultSerializer);
+            AssertProjection(subject, expectedProjection);
+        }
+
+        [Test]
+        public void Project_should_generate_the_correct_fields_and_assign_the_correct_result_serializer()
+        {
+            var subject = CreateSubject()
+                .Project(x => x.FirstName + " " + x.LastName);
+
+            var expectedProjection = BsonDocument.Parse("{FirstName: 1, LastName: 1, _id: 0}");
+
+            AssertProjection(subject, expectedProjection);
         }
 
         [Test]
@@ -56,7 +69,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: 1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -67,7 +80,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: 1, LastName: 1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -78,7 +91,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: 1, LastName: -1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -89,7 +102,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: 1, LastName: 1, Age: 1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -100,7 +113,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: -1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -111,7 +124,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: -1, LastName: 1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
         }
 
         [Test]
@@ -122,7 +135,17 @@ namespace MongoDB.Driver.Tests
 
             var expectedSort = BsonDocument.Parse("{FirstName: -1, LastName: -1}");
 
-            Assert.AreEqual(expectedSort, subject.Options.Sort);
+            AssertSort(subject, expectedSort);
+        }
+
+        private static void AssertProjection<TResult>(IFindFluent<Person, TResult> subject, BsonDocument expectedProjection)
+        {
+            Assert.AreEqual(expectedProjection, subject.Options.Projection.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry).Document);
+        }
+
+        private static void AssertSort(IFindFluent<Person, Person> subject, BsonDocument expectedSort)
+        {
+            Assert.AreEqual(expectedSort, subject.Options.Sort.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry));
         }
 
         private IFindFluent<Person, Person> CreateSubject()
@@ -130,7 +153,7 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoCollectionSettings();
             var collection = Substitute.For<IMongoCollection<Person>>();
             collection.Settings.Returns(settings);
-            var options = new FindOptions<Person>();
+            var options = new FindOptions<Person, Person>();
             var subject = new FindFluent<Person, Person>(collection, new BsonDocument(), options);
 
             return subject;

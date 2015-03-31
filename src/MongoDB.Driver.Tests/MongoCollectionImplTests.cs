@@ -21,9 +21,8 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FluentAssertions.Reflection;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
@@ -38,17 +37,22 @@ namespace MongoDB.Driver
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(0), new DnsEndPoint("localhost", 27017)), 0);
         private MockOperationExecutor _operationExecutor;
-        private MongoCollectionImpl<BsonDocument> _subject;
 
         [SetUp]
         public void Setup()
         {
+            _operationExecutor = new MockOperationExecutor();
+        }
+
+        private MongoCollectionImpl<TDocument> CreateSubject<TDocument>()
+        {
             var settings = new MongoCollectionSettings();
             var dbSettings = new MongoDatabaseSettings();
-            dbSettings.ApplyDefaultValues(new MongoServerSettings());
+            dbSettings.ApplyDefaultValues(new MongoClientSettings());
             settings.ApplyDefaultValues(dbSettings);
-            _operationExecutor = new MockOperationExecutor();
-            _subject = new MongoCollectionImpl<BsonDocument>(
+
+            return new MongoCollectionImpl<TDocument>(
+                Substitute.For<IMongoDatabase>(),
                 new CollectionNamespace("foo", "bar"),
                 settings,
                 Substitute.For<ICluster>(),
@@ -58,63 +62,31 @@ namespace MongoDB.Driver
         [Test]
         public void CollectionName_should_be_set()
         {
-            _subject.CollectionNamespace.CollectionName.Should().Be("bar");
+            var subject = CreateSubject<BsonDocument>();
+            subject.CollectionNamespace.CollectionName.Should().Be("bar");
+        }
+
+        public void Database_should_be_set()
+        {
+            var subject = CreateSubject<BsonDateTime>();
+            subject.Database.Should().NotBeNull();
         }
 
         [Test]
         public void Settings_should_be_set()
         {
-            _subject.Settings.Should().NotBeNull();
-        }
-
-        [Test]
-        public async Task Aggregate_should_execute_the_AggregateOperation_when_out_is_not_specified()
-        {
-            var pipeline = new object[] 
-            { 
-                BsonDocument.Parse("{ $match: { x: 2 } }"),
-                BsonDocument.Parse("{ $project : { Age : \"$age\", Name : { $concat : [\"$firstName\", \" \", \"$lastName\"] }, _id : 0 } }"),
-                BsonDocument.Parse("{ $group : { _id : \"$Age\", Name : { \"$first\" : \"$Name\" } } }"),
-                BsonDocument.Parse("{ $project : { _id: 1 } }")
-            };
-
-            var fluent = _subject.Aggregate(new AggregateOptions
-                {
-                    AllowDiskUse = true,
-                    BatchSize = 10,
-                    MaxTime = TimeSpan.FromSeconds(3),
-                    UseCursor = false
-                })
-                .Match("{x: 2}")
-                .Project(x => new { Age = x["age"], Name = (string)x["firstName"] + " " + (string)x["lastName"] })
-                .Group(x => x.Age, g => new { _id = g.Key, Name = g.First().Name })
-                .Project("{ _id: 1 }");
-
-            var options = fluent.Options;
-
-            var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
-            _operationExecutor.EnqueueResult(fakeCursor);
-
-            await fluent.ToCursorAsync(CancellationToken.None);
-
-            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
-
-            call.Operation.Should().BeOfType<AggregateOperation<BsonDocument>>();
-            var operation = (AggregateOperation<BsonDocument>)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
-            operation.BatchSize.Should().Be(options.BatchSize);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.UseCursor.Should().Be(options.UseCursor);
-
-            operation.Pipeline.Should().Equal(pipeline);
+            var subject = CreateSubject<BsonDocument>();
+            subject.Settings.Should().NotBeNull();
         }
 
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateOperation_when_out_is_not_specified()
         {
-            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}") };
-            var options = new AggregateOptions<BsonDocument>()
+            var stages = new PipelineStageDefinition<BsonDocument, BsonDocument>[] 
+            { 
+                BsonDocument.Parse("{$match: {x: 2}}")
+            };
+            var options = new AggregateOptions()
             {
                 AllowDiskUse = true,
                 BatchSize = 10,
@@ -125,7 +97,8 @@ namespace MongoDB.Driver
             var fakeCursor = NSubstitute.Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            await _subject.AggregateAsync(pipeline, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.AggregateAsync<BsonDocument>(stages, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -136,15 +109,17 @@ namespace MongoDB.Driver
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.UseCursor.Should().Be(options.UseCursor);
-
-            operation.Pipeline.Should().ContainInOrder(pipeline);
         }
 
         [Test]
         public async Task AggregateAsync_should_execute_the_AggregateToCollectionOperation_and_the_FindOperation_when_out_is_specified()
         {
-            var pipeline = new object[] { BsonDocument.Parse("{$match: {x: 2}}"), BsonDocument.Parse("{$out: \"funny\"}") };
-            var options = new AggregateOptions<BsonDocument>()
+            var stages = new PipelineStageDefinition<BsonDocument, BsonDocument>[] 
+            { 
+                BsonDocument.Parse("{$match: {x: 2}}"), 
+                BsonDocument.Parse("{$out: \"funny\"}") 
+            };
+            var options = new AggregateOptions()
             {
                 AllowDiskUse = true,
                 BatchSize = 10,
@@ -152,7 +127,8 @@ namespace MongoDB.Driver
                 UseCursor = false
             };
 
-            var result = await _subject.AggregateAsync(pipeline, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            var result = await subject.AggregateAsync<BsonDocument>(stages, options, CancellationToken.None);
 
             _operationExecutor.QueuedCallCount.Should().Be(1);
             var writeCall = _operationExecutor.GetWriteCall<BsonDocument>();
@@ -162,7 +138,7 @@ namespace MongoDB.Driver
             writeOperation.CollectionNamespace.FullName.Should().Be("foo.bar");
             writeOperation.AllowDiskUse.Should().Be(options.AllowDiskUse);
             writeOperation.MaxTime.Should().Be(options.MaxTime);
-            writeOperation.Pipeline.Should().BeEquivalentTo(pipeline);
+            writeOperation.Pipeline.Should().HaveCount(2);
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
@@ -213,7 +189,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { new InsertRequest(new BsonDocument("b", 1)) });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            var result = await _subject.BulkWriteAsync(requests, bulkOptions, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            var result = await subject.BulkWriteAsync(requests, bulkOptions, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
 
@@ -328,7 +305,9 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(20),
                 Skip = 30
             };
-            await _subject.CountAsync(filter, options, CancellationToken.None);
+
+            var subject = CreateSubject<BsonDocument>();
+            await subject.CountAsync(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<long>();
 
@@ -341,61 +320,7 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Skip.Should().Be(options.Skip);
         }
-
-        [Test]
-        public async Task CreateIndexAsync_should_execute_the_CreateIndexesOperation()
-         {
-            var keys = new BsonDocument("x", 1);
-            var weights = new BsonDocument("y", 1);
-            var storageEngine = new BsonDocument("awesome", true);
-            var options = new CreateIndexOptions
-            {
-                Background = true,
-                Bits = 10,
-                BucketSize = 20,
-                DefaultLanguage = "en",
-                ExpireAfter = TimeSpan.FromSeconds(20),
-                LanguageOverride = "es",
-                Max = 30,
-                Min = 40,
-                Name = "awesome",
-                Sparse = false,
-                SphereIndexVersion = 50,
-                StorageEngine = storageEngine,
-                TextIndexVersion = 60,
-                Unique = true,
-                Version = 70,
-                Weights = weights
-            };
-            await _subject.CreateIndexAsync(keys, options, CancellationToken.None);
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-
-            call.Operation.Should().BeOfType<CreateIndexesOperation>();
-            var operation = (CreateIndexesOperation)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.Requests.Count().Should().Be(1);
-            var request = operation.Requests.Single();
-            request.AdditionalOptions.Should().BeNull();
-            request.Background.Should().Be(options.Background);
-            request.Bits.Should().Be(options.Bits);
-            request.BucketSize.Should().Be(options.BucketSize);
-            request.DefaultLanguage.Should().Be(options.DefaultLanguage);
-            request.ExpireAfter.Should().Be(options.ExpireAfter);
-            request.Keys.Should().Be(keys);
-            request.LanguageOverride.Should().Be(options.LanguageOverride);
-            request.Max.Should().Be(options.Max);
-            request.Min.Should().Be(options.Min);
-            request.Name.Should().Be(options.Name);
-            request.Sparse.Should().Be(options.Sparse);
-            request.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
-            request.StorageEngine.Should().Be(storageEngine);
-            request.TextIndexVersion.Should().Be(options.TextIndexVersion);
-            request.Unique.Should().Be(options.Unique);
-            request.Version.Should().Be(options.Version);
-            request.Weights.Should().Be(weights);
-        }
-
+        
         [Test]
         public async Task DeleteManyAsync_should_execute_the_BulkMixedOperation()
         {
@@ -404,7 +329,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.DeleteManyAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.DeleteManyAsync(
                 filter,
                 CancellationToken.None);
 
@@ -434,7 +360,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.DeleteManyAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.DeleteManyAsync(
                     filter,
                     CancellationToken.None).GetAwaiter().GetResult();
 
@@ -449,7 +376,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.DeleteOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.DeleteOneAsync(
                 filter,
                 CancellationToken.None);
 
@@ -479,7 +407,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.DeleteOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.DeleteOneAsync(
                     filter,
                     CancellationToken.None).GetAwaiter().GetResult();
 
@@ -491,12 +420,13 @@ namespace MongoDB.Driver
         {
             var fieldName = "a.b";
             var filter = new BsonDocument("x", 1);
-            var options = new DistinctOptions<int>
+            var options = new DistinctOptions
             {
                 MaxTime = TimeSpan.FromSeconds(20),
             };
 
-            await _subject.DistinctAsync("a.b", filter, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.DistinctAsync<int>("a.b", filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<int>>();
 
@@ -509,38 +439,12 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task DropIndexAsync_with_a_name_should_execute_the_DropIndexOperation()
-        {
-            await _subject.DropIndexAsync("name", CancellationToken.None);
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-
-            call.Operation.Should().BeOfType<DropIndexOperation>();
-            var operation = (DropIndexOperation)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.IndexName.Should().Be("name");
-        }
-
-        [Test]
-        public async Task DropIndexAsync_with_keys_should_execute_the_DropIndexOperation()
-        {
-            await _subject.DropIndexAsync(new { A = 1, B = -1 }, CancellationToken.None);
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-
-            call.Operation.Should().BeOfType<DropIndexOperation>();
-            var operation = (DropIndexOperation)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.IndexName.Should().Be("A_1_B_-1");
-        }
-
-        [Test]
         public async Task FindAsync_should_execute_the_FindOperation()
         {
             var filter = BsonDocument.Parse("{x:1}");
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var options = new FindOptions<BsonDocument>
+            var options = new FindOptions<BsonDocument, BsonDocument>
             {
                 AllowPartialResults = true,
                 BatchSize = 20,
@@ -558,7 +462,8 @@ namespace MongoDB.Driver
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            await _subject.FindAsync(filter, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.FindAsync(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -580,29 +485,31 @@ namespace MongoDB.Driver
         }
 
         [Test]
-        public async Task Find_with_an_expression_should_execute_correctly()
+        public async Task FindAsync_with_an_expression_should_execute_correctly()
         {
             Expression<Func<BsonDocument, bool>> filter = doc => doc["x"] == 1;
             var projection = BsonDocument.Parse("{y:1}");
             var sort = BsonDocument.Parse("{a:1}");
-            var fluent = _subject.Find(filter)
-                .Projection<BsonDocument>(projection)
-                .Sort(sort)
-                .AllowPartialResults(true)
-                .BatchSize(20)
-                .Comment("funny")
-                .CursorType(CursorType.TailableAwait)
-                .Limit(30)
-                .MaxTime(TimeSpan.FromSeconds(3))
-                .Modifiers(BsonDocument.Parse("{$snapshot: true}"))
-                .NoCursorTimeout(true)
-                .Skip(40);
-            var options = fluent.Options;
+            var options = new FindOptions<BsonDocument, BsonDocument>
+            {
+                AllowPartialResults = true,
+                BatchSize = 20,
+                Comment = "funny",
+                CursorType = CursorType.TailableAwait,
+                Limit = 30,
+                MaxTime = TimeSpan.FromSeconds(3),
+                Modifiers = BsonDocument.Parse("{$snapshot: true}"),
+                NoCursorTimeout = true,
+                Projection = projection,
+                Skip = 40,
+                Sort = sort
+            };
 
             var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(fakeCursor);
 
-            await fluent.ToCursorAsync(CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.FindAsync(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -613,51 +520,7 @@ namespace MongoDB.Driver
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Comment.Should().Be("funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
-            operation.Filter.Should().Be(BsonDocument.Parse("{x:1}"));
-            operation.Limit.Should().Be(options.Limit);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.Modifiers.Should().Be(options.Modifiers);
-            operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
-            operation.Projection.Should().Be(projection);
-            operation.Skip.Should().Be(options.Skip);
-            operation.Sort.Should().Be(sort);
-        }
-
-        [Test]
-        public async Task Find_should_execute_the_FindOperation()
-        {
-            var filter = BsonDocument.Parse("{x:1}");
-            var projection = BsonDocument.Parse("{y:1}");
-            var sort = BsonDocument.Parse("{a:1}");
-            var fluent = _subject.Find(filter)
-                .Projection<BsonDocument>(projection)
-                .Sort(sort)
-                .AllowPartialResults(true)
-                .BatchSize(20)
-                .Comment("funny")
-                .CursorType(CursorType.TailableAwait)
-                .Limit(30)
-                .MaxTime(TimeSpan.FromSeconds(3))
-                .Modifiers(BsonDocument.Parse("{$snapshot: true}"))
-                .NoCursorTimeout(true)
-                .Skip(40);
-            var options = fluent.Options;
-
-            var fakeCursor = Substitute.For<IAsyncCursor<BsonDocument>>();
-            _operationExecutor.EnqueueResult(fakeCursor);
-
-            await fluent.ToCursorAsync(CancellationToken.None);
-
-            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
-
-            call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
-            var operation = (FindOperation<BsonDocument>)call.Operation;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
-            operation.BatchSize.Should().Be(options.BatchSize);
-            operation.Comment.Should().Be("funny");
-            operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
-            operation.Filter.Should().Be(filter);
+            operation.Filter.Should().Be(new BsonDocument("x", 1));
             operation.Limit.Should().Be(options.Limit);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Modifiers.Should().Be(options.Modifiers);
@@ -673,14 +536,15 @@ namespace MongoDB.Driver
             var filter = BsonDocument.Parse("{x: 1}");
             var projection = BsonDocument.Parse("{x: 1}");
             var sort = BsonDocument.Parse("{a: -1}");
-            var options = new FindOneAndDeleteOptions<BsonDocument>()
+            var options = new FindOneAndDeleteOptions<BsonDocument, BsonDocument>()
             {
                 Projection = projection,
                 Sort = sort,
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndDeleteAsync<BsonDocument>(filter, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.FindOneAndDeleteAsync<BsonDocument>(filter, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -704,7 +568,7 @@ namespace MongoDB.Driver
             var replacement = BsonDocument.Parse("{a: 2}");
             var projection = BsonDocument.Parse("{x: 1}");
             var sort = BsonDocument.Parse("{a: -1}");
-            var options = new FindOneAndReplaceOptions<BsonDocument>()
+            var options = new FindOneAndReplaceOptions<BsonDocument, BsonDocument>()
             {
                 IsUpsert = isUpsert,
                 Projection = projection,
@@ -713,7 +577,8 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndReplaceAsync<BsonDocument>(filter, replacement, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.FindOneAndReplaceAsync<BsonDocument>(filter, replacement, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -740,7 +605,7 @@ namespace MongoDB.Driver
             var update = BsonDocument.Parse("{$set: {a: 2}}");
             var projection = BsonDocument.Parse("{x: 1}");
             var sort = BsonDocument.Parse("{a: -1}");
-            var options = new FindOneAndUpdateOptions<BsonDocument>()
+            var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
             {
                 IsUpsert = isUpsert,
                 Projection = projection,
@@ -749,7 +614,8 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(2)
             };
 
-            await _subject.FindOneAndUpdateAsync<BsonDocument>(filter, update, options, CancellationToken.None);
+            var subject = CreateSubject<BsonDocument>();
+            await subject.FindOneAndUpdateAsync<BsonDocument>(filter, update, options, CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
 
@@ -765,10 +631,105 @@ namespace MongoDB.Driver
             operation.MaxTime.Should().Be(options.MaxTime);
         }
 
+
         [Test]
-        public async Task GetIndexesAsync_should_execute_the_ListIndexesOperation()
+        public async Task Indexes_CreateAsync_should_execute_the_CreateIndexesOperation()
         {
-            await _subject.ListIndexesAsync(CancellationToken.None);
+            var keys = new BsonDocument("x", 1);
+            var weights = new BsonDocument("y", 1);
+            var storageEngine = new BsonDocument("awesome", true);
+            var options = new CreateIndexOptions
+            {
+                Background = true,
+                Bits = 10,
+                BucketSize = 20,
+                DefaultLanguage = "en",
+                ExpireAfter = TimeSpan.FromSeconds(20),
+                LanguageOverride = "es",
+                Max = 30,
+                Min = 40,
+                Name = "awesome",
+                Sparse = false,
+                SphereIndexVersion = 50,
+                StorageEngine = storageEngine,
+                TextIndexVersion = 60,
+                Unique = true,
+                Version = 70,
+                Weights = weights
+            };
+
+            var subject = CreateSubject<BsonDocument>();
+            await subject.Indexes.CreateOneAsync(keys, options, CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<CreateIndexesOperation>();
+            var operation = (CreateIndexesOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Requests.Count().Should().Be(1);
+            var request = operation.Requests.Single();
+            request.AdditionalOptions.Should().BeNull();
+            request.Background.Should().Be(options.Background);
+            request.Bits.Should().Be(options.Bits);
+            request.BucketSize.Should().Be(options.BucketSize);
+            request.DefaultLanguage.Should().Be(options.DefaultLanguage);
+            request.ExpireAfter.Should().Be(options.ExpireAfter);
+            request.Keys.Should().Be(keys);
+            request.LanguageOverride.Should().Be(options.LanguageOverride);
+            request.Max.Should().Be(options.Max);
+            request.Min.Should().Be(options.Min);
+            request.Name.Should().Be(options.Name);
+            request.Sparse.Should().Be(options.Sparse);
+            request.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
+            request.StorageEngine.Should().Be(storageEngine);
+            request.TextIndexVersion.Should().Be(options.TextIndexVersion);
+            request.Unique.Should().Be(options.Unique);
+            request.Version.Should().Be(options.Version);
+            request.Weights.Should().Be(weights);
+        }
+
+        [Test]
+        public async Task Indexes_DropAllAsync_should_execute_the_DropIndexOperation()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            await subject.Indexes.DropAllAsync(CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<DropIndexOperation>();
+            var operation = (DropIndexOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.IndexName.Should().Be("*");
+        }
+
+        [Test]
+        public async Task Indexes_DropOneAsync_should_execute_the_DropIndexOperation()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            await subject.Indexes.DropOneAsync("name", CancellationToken.None);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            call.Operation.Should().BeOfType<DropIndexOperation>();
+            var operation = (DropIndexOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.IndexName.Should().Be("name");
+        }
+
+        [Test]
+        public void Indexes_DropOneAsync_should_throw_an_exception_if_an_asterick_is_used()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            Func<Task> act = () => subject.Indexes.DropOneAsync("*", CancellationToken.None);
+
+            act.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
+        public async Task Indexes_ListAsync_should_execute_the_ListIndexesOperation()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            await subject.Indexes.ListAsync(CancellationToken.None);
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
@@ -785,7 +746,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(1, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.InsertOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.InsertOneAsync(
                 document,
                 CancellationToken.None);
 
@@ -815,7 +777,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.InsertOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.InsertOneAsync(
                     document,
                     CancellationToken.None).GetAwaiter().GetResult();
 
@@ -839,13 +802,95 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(2, expectedRequests);
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.InsertManyAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.InsertManyAsync(
                 documents,
                 null,
                 CancellationToken.None);
 
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifyWrites(expectedRequests, true, call);
+        }
+
+        [Test]
+        public async Task MapReduceAsync_with_inline_output_mode_should_execute_the_MapReduceOperation()
+        {
+            var filter = new BsonDocument("filter", 1);
+            var scope = new BsonDocument("test", 3);
+            var sort = new BsonDocument("sort", 1);
+            var options = new MapReduceOptions<BsonDocument, BsonDocument>
+            {
+                Filter = new BsonDocument("filter", 1),
+                Finalize = "finalizer",
+                JavaScriptMode = true,
+                Limit = 10,
+                MaxTime = TimeSpan.FromMinutes(2),
+                OutputOptions = MapReduceOutputOptions.Inline,
+                Scope = scope,
+                Sort = sort,
+                Verbose = true
+            };
+            var subject = CreateSubject<BsonDocument>();
+
+            await subject.MapReduceAsync("map", "reduce", options);
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+            call.Operation.Should().BeOfType<MapReduceOperation<BsonDocument>>();
+            var operation = (MapReduceOperation<BsonDocument>)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Filter.Should().Be(filter);
+            operation.FinalizeFunction.Should().Be(options.Finalize);
+            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MapFunction.Should().Be(new BsonJavaScript("map"));
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReduceFunction.Should().Be(new BsonJavaScript("reduce"));
+            operation.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
+            operation.Scope.Should().Be(scope);
+            operation.Sort.Should().Be(sort);
+            operation.Verbose.Should().Be(options.Verbose);
+        }
+
+        [Test]
+        public async Task MapReduceAsync_with_collection_output_mode_should_execute_the_MapReduceOperation()
+        {
+            var filter = new BsonDocument("filter", 1);
+            var scope = new BsonDocument("test", 3);
+            var sort = new BsonDocument("sort", 1);
+            var options = new MapReduceOptions<BsonDocument, BsonDocument>
+            {
+                Filter = new BsonDocument("filter", 1),
+                Finalize = "finalizer",
+                JavaScriptMode = true,
+                Limit = 10,
+                MaxTime = TimeSpan.FromMinutes(2),
+                OutputOptions = MapReduceOutputOptions.Replace("awesome", "otherDB", true),
+                Scope = scope,
+                Sort = sort,
+                Verbose = true
+            };
+            var subject = CreateSubject<BsonDocument>();
+
+            await subject.MapReduceAsync("map", "reduce", options);
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            call.Operation.Should().BeOfType<MapReduceOutputToCollectionOperation>();
+            var operation = (MapReduceOutputToCollectionOperation)call.Operation;
+            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.Filter.Should().Be(filter);
+            operation.FinalizeFunction.Should().Be(options.Finalize);
+            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MapFunction.Should().Be(new BsonJavaScript("map"));
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.NonAtomicOutput.Should().NotHaveValue();
+            operation.OutputCollectionNamespace.Should().Be(CollectionNamespace.FromFullName("otherDB.awesome"));
+            operation.OutputMode.Should().Be(Core.Operations.MapReduceOutputMode.Replace);
+            operation.ReduceFunction.Should().Be(new BsonJavaScript("reduce"));
+            operation.Scope.Should().Be(scope);
+            operation.ShardedOutput.Should().Be(true);
+            operation.Sort.Should().Be(sort);
+            operation.Verbose.Should().Be(options.Verbose);
         }
 
         [Test]
@@ -859,7 +904,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.ReplaceOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.ReplaceOneAsync(
                 filter,
                 replacement,
                 new UpdateOptions { IsUpsert = upsert },
@@ -893,7 +939,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.ReplaceOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.ReplaceOneAsync(
                 filter,
                 replacement,
                 new UpdateOptions { IsUpsert = upsert },
@@ -913,7 +960,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.UpdateManyAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.UpdateManyAsync(
                 filter,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
@@ -947,7 +995,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.UpdateManyAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.UpdateManyAsync(
                 filter,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
@@ -967,7 +1016,8 @@ namespace MongoDB.Driver
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { expectedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            await _subject.UpdateOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            await subject.UpdateOneAsync(
                 filter,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
@@ -1001,7 +1051,8 @@ namespace MongoDB.Driver
 
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(exception);
 
-            Action act = () => _subject.UpdateOneAsync(
+            var subject = CreateSubject<BsonDocument>();
+            Action act = () => subject.UpdateOneAsync(
                 filter,
                 update,
                 new UpdateOptions { IsUpsert = upsert },
@@ -1013,14 +1064,16 @@ namespace MongoDB.Driver
         [Test]
         public void WithReadPreference_should_return_a_new_collection_with_the_read_preference_changed()
         {
-            var newSubject = _subject.WithReadPreference(ReadPreference.Nearest);
+            var subject = CreateSubject<BsonDocument>();
+            var newSubject = subject.WithReadPreference(ReadPreference.Nearest);
             newSubject.Settings.ReadPreference.Should().Be(ReadPreference.Nearest);
         }
 
         [Test]
         public void WithWriteConcern_should_return_a_new_collection_with_the_write_concern_changed()
         {
-            var newSubject = _subject.WithWriteConcern(WriteConcern.WMajority);
+            var subject = CreateSubject<BsonDocument>();
+            var newSubject = subject.WithWriteConcern(WriteConcern.WMajority);
             newSubject.Settings.WriteConcern.Should().Be(WriteConcern.WMajority);
         }
 
@@ -1031,11 +1084,11 @@ namespace MongoDB.Driver
 
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.IsOrdered.Should().Be(isOrdered);
-            
+
             var actualRequests = operation.Requests.ToList();
             actualRequests.Count.Should().Be(expectedRequests.Length);
 
-            for(int i = 0; i < expectedRequests.Length; i++)
+            for (int i = 0; i < expectedRequests.Length; i++)
             {
                 expectedRequests[i].ShouldBeEquivalentTo(actualRequests[i]);
             }
@@ -1045,6 +1098,16 @@ namespace MongoDB.Driver
             where TRequest : WriteRequest
         {
             VerifyWrites(new[] { expectedRequest }, true, call);
+        }
+
+        private class A
+        {
+            public int PropA = 0;
+        }
+
+        private class B : A
+        {
+            public int PropB = 0;
         }
     }
 }

@@ -55,6 +55,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentAssertions.Core">
+      <HintPath>..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="NSubstitute, Version=1.8.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -68,6 +74,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
@@ -76,9 +83,20 @@
     <Compile Include="BsonExtensionMethodsTests.cs" />
     <Compile Include="BsonUtilsTests.cs" />
     <Compile Include="IO\ArrayElementNameAcceleratorTests.cs" />
+    <Compile Include="IO\BsonBinaryWriterTests.cs" />
+    <Compile Include="IO\BsonChunkPoolTests.cs" />
+    <Compile Include="IO\BsonStreamAdapterTests.cs" />
+    <Compile Include="IO\BsonStreamExtensionsTests.cs" />
     <Compile Include="IO\BsonWriterTests.cs" />
     <Compile Include="IO\ByteArrayBufferTests.cs" />
+    <Compile Include="IO\ByteArrayChunkTests.cs" />
+    <Compile Include="IO\ByteBufferFactoryTests.cs" />
+    <Compile Include="IO\ByteBufferSliceTests.cs" />
+    <Compile Include="IO\ByteBufferStreamTests.cs" />
+    <Compile Include="IO\InputBufferChunkSourceTests.cs" />
     <Compile Include="IO\MultiChunkBufferTests.cs" />
+    <Compile Include="IO\OutputBufferChunkSourceTests.cs" />
+    <Compile Include="IO\SingleChunkBufferTests.cs" />
     <Compile Include="Jira\CSharp728Tests.cs" />
     <Compile Include="Jira\CSharp708Tests.cs" />
     <Compile Include="Jira\CSharp476Tests.cs" />
@@ -225,6 +243,7 @@
     <Compile Include="Serialization\Serializers\SerializeInterfaceTests.cs" />
     <Compile Include="Serialization\IdGenerators\IdGeneratorsTests.cs" />
     <Compile Include="Serialization\Serializers\VersionSerializerTests.cs" />
+    <Compile Include="PowerOf2Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

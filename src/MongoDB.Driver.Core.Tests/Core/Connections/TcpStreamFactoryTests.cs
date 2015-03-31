@@ -57,9 +57,9 @@ namespace MongoDB.Driver.Core.Connections
             Action<Socket> socketConfigurator = s => socketConfiguratorWasCalled = true;
             var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
             var subject = new TcpStreamFactory(settings);
-            var endPoint = SuiteConfiguration.ConnectionString.Hosts[0];
+            var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
-            var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
+            await subject.CreateStreamAsync(endPoint, CancellationToken.None);
 
             socketConfiguratorWasCalled.Should().BeTrue();
         }
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Connections
         public async Task CreateStreamAsync_should_connect_to_a_running_server_and_return_a_non_null_stream()
         {
             var subject = new TcpStreamFactory();
-            var endPoint = SuiteConfiguration.ConnectionString.Hosts[0];
+            var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
             var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
 
@@ -83,14 +83,14 @@ namespace MongoDB.Driver.Core.Connections
             Action<Socket> socketConfigurator = s => s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             var settings = new TcpStreamSettings(socketConfigurator: socketConfigurator);
             var subject = new TcpStreamFactory(settings);
-            var endPoint = SuiteConfiguration.ConnectionString.Hosts[0];
+            var endPoint = CoreTestConfiguration.ConnectionString.Hosts[0];
 
             var stream = await subject.CreateStreamAsync(endPoint, CancellationToken.None);
 
             var socketProperty = typeof(NetworkStream).GetProperty("Socket", BindingFlags.NonPublic | BindingFlags.Instance);
             var socket = (Socket)socketProperty.GetValue(stream);
             var keepAlive = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive);
-            keepAlive.Should().Be(1);
+            keepAlive.Should().NotBe(0); // .NET returns 1 but Mono returns 8
         }
     }
 }

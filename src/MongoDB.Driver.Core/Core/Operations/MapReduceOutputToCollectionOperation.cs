@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a map reduce operation that outputs its results to a collection.
+    /// Represents a map-reduce operation that outputs its results to a collection.
     /// </summary>
     public class MapReduceOutputToCollectionOperation : MapReduceOperationBase, IWriteOperation<BsonDocument>
     {
@@ -43,20 +43,17 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="outputCollectionNamespace">The output collection namespace.</param>
         /// <param name="mapFunction">The map function.</param>
         /// <param name="reduceFunction">The reduce function.</param>
-        /// <param name="filter">The filter.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public MapReduceOutputToCollectionOperation(
             CollectionNamespace collectionNamespace,
             CollectionNamespace outputCollectionNamespace,
             BsonJavaScript mapFunction,
             BsonJavaScript reduceFunction,
-            BsonDocument filter,
             MessageEncoderSettings messageEncoderSettings)
             : base(
                 collectionNamespace,
                 mapFunction,
                 reduceFunction,
-                filter,
                 messageEncoderSettings)
         {
             _outputCollectionNamespace = Ensure.IsNotNull(outputCollectionNamespace, "outputCollectionNamespace");

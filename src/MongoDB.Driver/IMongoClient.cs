@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -25,13 +23,12 @@ namespace MongoDB.Driver
     /// <summary>
     /// The client interface to MongoDB.
     /// </summary>
+    /// <remarks>
+    /// This interface is not guaranteed to remain stable. Implementors should use
+    /// <see cref="MongoClientBase"/>.
+    /// </remarks>
     public interface IMongoClient
     {
-        /// <summary>
-        /// Gets the cluster.
-        /// </summary>
-        ICluster Cluster { get; }
-
         /// <summary>
         /// Gets the settings.
         /// </summary>
@@ -49,16 +46,9 @@ namespace MongoDB.Driver
         /// Gets a database.
         /// </summary>
         /// <param name="name">The name of the database.</param>
-        /// <returns>An implementation of a database.</returns>
-        IMongoDatabase GetDatabase(string name);
-
-        /// <summary>
-        /// Gets a database.
-        /// </summary>
-        /// <param name="name">The name of the database.</param>
         /// <param name="settings">The database settings.</param>
         /// <returns>An implementation of a database.</returns>
-        IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings);
+        IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null);
 
         /// <summary>
         /// Lists the databases on the server.

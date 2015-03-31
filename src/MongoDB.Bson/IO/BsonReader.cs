@@ -124,7 +124,7 @@ namespace MongoDB.Bson.IO
         /// <returns>The current BsonType.</returns>
         public BsonType GetCurrentBsonType()
         {
-            if (_state == BsonReaderState.Initial || _state == BsonReaderState.Done || _state == BsonReaderState.ScopeDocument || _state == BsonReaderState.Type)
+            if (_state == BsonReaderState.Initial || _state == BsonReaderState.ScopeDocument || _state == BsonReaderState.Type)
             {
                 ReadBsonType();
             }
@@ -275,8 +275,8 @@ namespace MongoDB.Bson.IO
                 var endPosition = memoryStream.Position;
                 bsonWriter.WriteEndDocument();
 
-                var bytes = memoryStream.ToArray();
-                return new ByteArrayBuffer(bytes, (int)startPosition, (int)(endPosition - startPosition), true);
+                var buffer = new ByteArrayBuffer(memoryStream.GetBuffer(), (int)memoryStream.Length, isReadOnly: true);
+                return new ByteBufferSlice(buffer, (int)startPosition, (int)(endPosition - startPosition));
             }
         }
 
@@ -292,7 +292,7 @@ namespace MongoDB.Bson.IO
             var deserializationContext = BsonDeserializationContext.CreateRoot(this);
             var document = BsonDocumentSerializer.Instance.Deserialize(deserializationContext);
             var bytes = document.ToBson();
-            return new ByteArrayBuffer(bytes, 0, bytes.Length, true);
+            return new ByteArrayBuffer(bytes, isReadOnly: true);
         }
 
         /// <summary>

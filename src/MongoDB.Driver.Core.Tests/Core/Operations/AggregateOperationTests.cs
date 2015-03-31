@@ -143,8 +143,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => maxTime.Value, maxTime.HasValue }
             };
 
-            var defaultCursorValue = semanticServerVersion >= new SemanticVersion(2, 6, 0);
-            if (useCursor.GetValueOrDefault(defaultCursorValue))
+            if (semanticServerVersion >= new SemanticVersion(2, 6, 0) && useCursor.GetValueOrDefault(true))
             {
                 expectedResult["cursor"] = new BsonDocument
                 {

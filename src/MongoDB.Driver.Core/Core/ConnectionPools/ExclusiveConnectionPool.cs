@@ -249,7 +249,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _listener.ConnectionPoolBeforeOpening(new ConnectionPoolBeforeOpeningEvent(_serverId, _settings));
                 }
 
-                MaintainSize();
+                MaintainSize().ConfigureAwait(false);
 
                 if (_listener != null)
                 {
@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private async void MaintainSize()
+        private async Task MaintainSize()
         {
             var maintenanceCancellationToken = _maintenanceCancellationTokenSource.Token;
             while (!maintenanceCancellationToken.IsCancellationRequested)
@@ -288,7 +288,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     await PrunePoolAsync(maintenanceCancellationToken).ConfigureAwait(false);
                     await EnsureMinSizeAsync(maintenanceCancellationToken).ConfigureAwait(false);
-                    await Task.Delay(_settings.MaintenanceInterval, maintenanceCancellationToken);
+                    await Task.Delay(_settings.MaintenanceInterval, maintenanceCancellationToken).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -475,9 +475,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _connection.OpenAsync(cancellationToken);
             }
 
-            public Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
-                return _connection.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, cancellationToken);
+                return _connection.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
             }
 
             public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
@@ -548,10 +548,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _reference.Instance.OpenAsync(cancellationToken);
             }
 
-            public Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessageAsync<TDocument>(responseTo, serializer, messageEncoderSettings, cancellationToken);
+                return _reference.Instance.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
             }
 
             public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)

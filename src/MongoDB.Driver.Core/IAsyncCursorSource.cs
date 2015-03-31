@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -30,7 +31,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken);
+        Task<IAsyncCursor<TDocument>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 
     /// <summary>

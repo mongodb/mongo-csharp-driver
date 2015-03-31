@@ -25,20 +25,20 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for a findAndModify command to update an object.
     /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class FindOneAndUpdateOptions<TResult>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+    public class FindOneAndUpdateOptions<TDocument, TProjection>
     {
         // fields
         private bool _isUpsert;
         private TimeSpan? _maxTime;
-        private object _projection;
-        private IBsonSerializer<TResult> _resultSerializer;
+        private ProjectionDefinition<TDocument, TProjection> _projection;
         private ReturnDocument _returnDocument;
-        private object _sort;
+        private SortDefinition<TDocument> _sort;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindOneAndUpdateOptions{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="FindOneAndUpdateOptions{TDocument, TProjection}"/> class.
         /// </summary>
         public FindOneAndUpdateOptions()
         {
@@ -67,19 +67,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the projection.
         /// </summary>
-        public object Projection
+        public ProjectionDefinition<TDocument, TProjection> Projection
         {
             get { return _projection; }
             set { _projection = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the result serializer.
-        /// </summary>
-        public IBsonSerializer<TResult> ResultSerializer
-        {
-            get { return _resultSerializer; }
-            set { _resultSerializer = value; }
         }
 
         /// <summary>
@@ -94,10 +85,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort.
         /// </summary>
-        public object Sort
+        public SortDefinition<TDocument> Sort
         {
             get { return _sort; }
             set { _sort = value; }
         }
+    }
+
+    /// <summary>
+    /// Options for a findAndModify command to update an object.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document and the result.</typeparam>
+    public class FindOneAndUpdateOptions<TDocument> : FindOneAndUpdateOptions<TDocument, TDocument>
+    {
     }
 }

@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -34,11 +35,11 @@ namespace MongoDB.Driver
         private string _name;
         private bool? _sparse;
         private int? _sphereIndexVersion;
-        private object _storageEngine;
+        private BsonDocument _storageEngine;
         private int? _textIndexVersion;
         private bool? _unique;
         private int? _version;
-        private object _weights;
+        private BsonDocument _weights;
 
         // properties
         /// <summary>
@@ -143,7 +144,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the storage engine options.
         /// </summary>
-        public object StorageEngine
+        public BsonDocument StorageEngine
         {
             get { return _storageEngine; }
             set { _storageEngine = value; }
@@ -179,7 +180,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the weights for text indexes.
         /// </summary>
-        public object Weights
+        public BsonDocument Weights
         {
             get { return _weights; }
             set { _weights = value; }

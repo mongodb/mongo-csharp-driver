@@ -74,7 +74,12 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The value.</returns>
         protected T GetValue<T>(string memberName, T defaultValue)
         {
-            var info = _serializer.GetMemberSerializationInfo(memberName);
+            BsonSerializationInfo info;
+            if (!_serializer.TryGetMemberSerializationInfo(memberName, out info))
+            {
+                var message = string.Format("The member {0} does not exist.", memberName);
+                throw new ArgumentException(message, "memberName");
+            }
 
             BsonValue bsonValue;
             if (!_backingDocument.TryGetValue(info.ElementName, out bsonValue))
@@ -92,7 +97,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="value">The value.</param>
         protected void SetValue(string memberName, object value)
         {
-            var info = _serializer.GetMemberSerializationInfo(memberName);
+            BsonSerializationInfo info;
+            if (!_serializer.TryGetMemberSerializationInfo(memberName, out info))
+            {
+                var message = string.Format("The member {0} does not exist.", memberName);
+                throw new ArgumentException("memberName", message);
+            }
+
             var bsonValue = info.SerializeValue(value);
             _backingDocument.Set(info.ElementName, bsonValue);
         }

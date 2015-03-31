@@ -131,8 +131,6 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<IAsyncCursor<BsonDocument>> ExecuteUsingQueryAsync(IChannelSourceHandle channelSource, ReadPreference readPreference, CancellationToken cancellationToken)
         {
-            var indexes = new List<BsonDocument>();
-
             var systemIndexesCollection = _collectionNamespace.DatabaseNamespace.SystemIndexesCollection;
             var filter = new BsonDocument("ns", _collectionNamespace.FullName);
             var operation = new FindOperation<BsonDocument>(systemIndexesCollection, BsonDocumentSerializer.Instance, _messageEncoderSettings)

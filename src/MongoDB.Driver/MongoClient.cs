@@ -13,13 +13,10 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Communication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
@@ -28,7 +25,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver
 {
     /// <inheritdoc/>
-    public class MongoClient : IMongoClient
+    public class MongoClient : MongoClientBase
     {
         // private fields
         private readonly ICluster _cluster;
@@ -51,7 +48,7 @@ namespace MongoDB.Driver
         public MongoClient(MongoClientSettings settings)
         {
             _settings = settings.FrozenCopy();
-            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings);
+            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor();
         }
 
@@ -80,14 +77,16 @@ namespace MongoDB.Driver
         }
 
         // public properties
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the cluster.
+        /// </summary>
         public ICluster Cluster
         {
             get { return _cluster; }
         }
 
         /// <inheritdoc/>
-        public MongoClientSettings Settings
+        public sealed override MongoClientSettings Settings
         {
             get { return _settings; }
         }
@@ -101,54 +100,39 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
-        public async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+        public sealed override async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings);
 
             using (var binding = new WritableServerBinding(_cluster))
             {
-                await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
+                await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc/>
-        public IMongoDatabase GetDatabase(string name)
+        public sealed override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
         {
-            var settings = new MongoDatabaseSettings();
-            return GetDatabase(name, settings);
-        }
+            settings = settings == null ?
+                new MongoDatabaseSettings() :
+                settings.Clone();
 
-        /// <inheritdoc/>
-        public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings)
-        {
-            settings = settings.Clone();
             settings.ApplyDefaultValues(_settings);
 
-            return new MongoDatabaseImpl(new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
+            return new MongoDatabaseImpl(this, new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public sealed override async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListDatabasesOperation(messageEncoderSettings);
 
             using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
-        }
-
-        /// <summary>
-        /// Gets a MongoServer object using this client's settings.
-        /// </summary>
-        /// <returns>A MongoServer.</returns>
-        [Obsolete("Use the new high level API instead. See GetDatabase.")]
-        public MongoServer GetServer()
-        {
-            var serverSettings = MongoServerSettings.FromClientSettings(_settings);
-            return MongoServer.Create(serverSettings);
         }
 
         // private methods

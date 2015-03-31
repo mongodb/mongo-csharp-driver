@@ -16,12 +16,18 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents a collection in MongoDB.
+    /// Represents a typed collection in MongoDB.
     /// </summary>
+    /// <remarks>
+    /// This interface is not guaranteed to remain stable. Implementors should use
+    /// <see cref="MongoCollectionBase{TDocument}"/>.
+    /// </remarks>
     /// <typeparam name="TDocument">The type of the documents stored in the collection.</typeparam>
     public interface IMongoCollection<TDocument>
     {
@@ -31,21 +37,24 @@ namespace MongoDB.Driver
         CollectionNamespace CollectionNamespace { get; }
 
         /// <summary>
+        /// Gets the database.
+        /// </summary>
+        IMongoDatabase Database { get; }
+
+        /// <summary>
+        /// Gets the document serializer.
+        /// </summary>
+        IBsonSerializer<TDocument> DocumentSerializer { get; }
+
+        /// <summary>
         /// Gets the index manager.
         /// </summary>
-        IMongoIndexManager<TDocument> IndexManager { get; }
+        IMongoIndexManager<TDocument> Indexes { get; }
 
         /// <summary>
         /// Gets the settings.
         /// </summary>
         MongoCollectionSettings Settings { get; }
-
-        /// <summary>
-        /// Begins a fluent aggregation interface.
-        /// </summary>
-        /// <param name="options">The options.</param>
-        /// <returns>A fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TDocument> Aggregate(AggregateOptions options = null);
 
         /// <summary>
         /// Runs an aggregation pipeline.
@@ -55,7 +64,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IEnumerable<object> pipeline, AggregateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Performs multiple write operations.
@@ -75,7 +84,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The number of documents in the collection.
         /// </returns>
-        Task<long> CountAsync(object filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes multiple documents.
@@ -85,7 +94,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the delete operation.
         /// </returns>
-        Task<DeleteResult> DeleteManyAsync(object filter, CancellationToken cancellationToken = default(CancellationToken));
+        Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes a single document.
@@ -95,62 +104,45 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the delete operation.
         /// </returns>
-        Task<DeleteResult> DeleteOneAsync(object filter, CancellationToken cancellationToken = default(CancellationToken));
+        Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Gets the distinct values for a specified field.
         /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="fieldName">The name of the field.</param>
+        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> DistinctAsync<TResult>(string fieldName, object filter, DistinctOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Begins a fluent find interface.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <returns>A fluent find interface.</returns>
-        IFindFluent<TDocument, TDocument> Find(object filter);
+        Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds the documents matching the filter.
         /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<TResult>> FindAsync<TResult>(object filter, FindOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.
         /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The deleted document if one was deleted.
-        /// </returns>
-        Task<TDocument> FindOneAndDeleteAsync(object filter, FindOneAndDeleteOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Finds a single document and deletes it atomically.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The returned document.
         /// </returns>
-        Task<TResult> FindOneAndDeleteAsync<TResult>(object filter, FindOneAndDeleteOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and replaces it atomically.
         /// </summary>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
         /// <param name="options">The options.</param>
@@ -158,24 +150,12 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        Task<TDocument> FindOneAndReplaceAsync(object filter, TDocument replacement, FindOneAndReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Finds a single document and replaces it atomically.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="filter">The filter.</param>
-        /// <param name="replacement">The replacement.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The returned document.
-        /// </returns>
-        Task<TResult> FindOneAndReplaceAsync<TResult>(object filter, TDocument replacement, FindOneAndReplaceOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and updates it atomically.
         /// </summary>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
         /// <param name="options">The options.</param>
@@ -183,20 +163,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The returned document.
         /// </returns>
-        Task<TDocument> FindOneAndUpdateAsync(object filter, object update, FindOneAndUpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Finds a single document and updates it atomically.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="filter">The filter.</param>
-        /// <param name="update">The update.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The returned document.
-        /// </returns>
-        Task<TResult> FindOneAndUpdateAsync<TResult>(object filter, object update, FindOneAndUpdateOptions<TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts a single document.
@@ -217,7 +184,18 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the insert operation.
         /// </returns>
-        Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken)); 
+        Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Executes a map-reduce command.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="map">The map function.</param>
+        /// <param name="reduce">The reduce function.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
+        Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.
@@ -229,7 +207,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        Task<ReplaceOneResult> ReplaceOneAsync(object filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates many documents.
@@ -241,7 +219,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateManyAsync(object filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates a single document.
@@ -253,7 +231,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateOneAsync(object filter, object update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Returns a new collection with a different read preference.

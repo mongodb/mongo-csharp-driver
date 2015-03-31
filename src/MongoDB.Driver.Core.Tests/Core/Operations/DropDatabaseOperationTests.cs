@@ -35,8 +35,8 @@ namespace MongoDB.Driver.Core.Operations
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            _databaseNamespace = SuiteConfiguration.GetDatabaseNamespaceForTestFixture();
-            _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
+            _databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
+            _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
         // test methods
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer]
         public async Task ExecuteAsync_should_return_expected_result()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 EnsureDatabaseExists(binding);
                 var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);

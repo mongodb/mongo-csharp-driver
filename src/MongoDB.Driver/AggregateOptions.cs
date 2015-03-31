@@ -10,7 +10,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for an aggregate operation.
     /// </summary>
-    public abstract class AggregateOptionsBase
+    public class AggregateOptions
     {
         // fields
         private bool? _allowDiskUse;
@@ -53,32 +53,6 @@ namespace MongoDB.Driver
         {
             get { return _useCursor; }
             set { _useCursor = value; }
-        }
-    }
-
-    /// <summary>
-    /// Options for an aggregate operation.
-    /// </summary>
-    public class AggregateOptions : AggregateOptionsBase
-    { }
-
-    /// <summary>
-    /// Options for an aggregate operation.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class AggregateOptions<TResult> : AggregateOptionsBase
-    {
-        // fields
-        private IBsonSerializer<TResult> _resultSerializer;
-
-        // properties
-        /// <summary>
-        /// Gets or sets the result serializer.
-        /// </summary>
-        public IBsonSerializer<TResult> ResultSerializer
-        {
-            get { return _resultSerializer; }
-            set { _resultSerializer = value; }
         }
     }
 }

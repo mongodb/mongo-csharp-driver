@@ -170,7 +170,7 @@ namespace MongoDB.Bson
         {
             var values = new List<BsonValue>();
 
-            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
                 var context = BsonDeserializationContext.CreateRoot(bsonReader);

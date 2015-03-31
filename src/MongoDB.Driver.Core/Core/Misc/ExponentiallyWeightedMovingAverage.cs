@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Misc
     {
         // fields
         private readonly double _alpha;
-        private TimeSpan _average;
+        private TimeSpan? _average;
 
         // constructors
         public ExponentiallyWeightedMovingAverage(double alpha)
@@ -33,23 +33,23 @@ namespace MongoDB.Driver.Core.Misc
         // properties
         public TimeSpan Average
         {
-            get { return _average; }
+            get { return _average.GetValueOrDefault(TimeSpan.Zero); }
         }
 
         // methods
         public TimeSpan AddSample(TimeSpan value)
         {
-            if (_average == TimeSpan.Zero)
+            if (!_average.HasValue)
             {
                 _average = value;
             }
             else
             {
-                var ticks = (long)(_alpha * value.Ticks + (1 - _alpha) * _average.Ticks);
+                var ticks = (long)(_alpha * value.Ticks + (1 - _alpha) * _average.Value.Ticks);
                 _average = TimeSpan.FromTicks(ticks);
             }
 
-            return _average;
+            return _average.Value;
         }
     }
 }

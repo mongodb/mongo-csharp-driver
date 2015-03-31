@@ -371,7 +371,7 @@ namespace MongoDB.Bson.Tests.Jira
 
             // test failure mode when 20 bytes are truncated from the buffer
             using (var byteBuffer = new MultiChunkBuffer(BsonChunkPool.Default))
-            using (var byteBufferStream = new ByteBufferStream(byteBuffer, ownsByteBuffer: true))
+            using (var byteBufferStream = new ByteBufferStream(byteBuffer, ownsBuffer: true))
             {
                 using (var memoryStream = new MemoryStream(bson))
                 {

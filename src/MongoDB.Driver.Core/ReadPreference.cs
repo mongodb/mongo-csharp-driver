@@ -28,7 +28,6 @@ namespace MongoDB.Driver
     {
         #region static
         // static fields
-        private static readonly IReadOnlyList<TagSet> __noTagSets = new TagSet[0];
         private static readonly ReadPreference __nearest = new ReadPreference(ReadPreferenceMode.Nearest);
         private static readonly ReadPreference __primary = new ReadPreference(ReadPreferenceMode.Primary);
         private static readonly ReadPreference __primaryPreferred = new ReadPreference(ReadPreferenceMode.PrimaryPreferred);
@@ -103,11 +102,11 @@ namespace MongoDB.Driver
         /// <param name="mode">The read preference mode.</param>
         /// <param name="tagSets">The tag sets.</param>
         public ReadPreference(
-            Optional<ReadPreferenceMode> mode = default(Optional<ReadPreferenceMode>), 
-            Optional<IEnumerable<TagSet>> tagSets = default(Optional<IEnumerable<TagSet>>))
+            ReadPreferenceMode mode, 
+            IEnumerable<TagSet> tagSets = null)
         {
-            _mode = mode.WithDefault(ReadPreferenceMode.Primary);
-            _tagSets = Ensure.IsNotNull(tagSets.WithDefault(Enumerable.Empty<TagSet>()), "tagSets").ToList();
+            _mode = mode;
+            _tagSets = (tagSets ?? Enumerable.Empty<TagSet>()).ToList();
 
             if (_mode == ReadPreferenceMode.Primary && _tagSets.Count() > 0)
             {
@@ -177,15 +176,20 @@ namespace MongoDB.Driver
         /// Returns a new instance of ReadPreference with some values changed.
         /// </summary>
         /// <param name="mode">The read preference mode.</param>
+        /// <returns>A new instance of ReadPreference.</returns>
+        public ReadPreference With(ReadPreferenceMode mode)
+        {
+            return new ReadPreference(mode, _tagSets);
+        }
+
+        /// <summary>
+        /// Returns a new instance of ReadPreference with some values changed.
+        /// </summary>
         /// <param name="tagSets">The tag sets.</param>
         /// <returns>A new instance of ReadPreference.</returns>
-        public ReadPreference With(
-            Optional<ReadPreferenceMode> mode = default(Optional<ReadPreferenceMode>), 
-            Optional<IEnumerable<TagSet>> tagSets = default(Optional<IEnumerable<TagSet>>))
+        public ReadPreference With(IEnumerable<TagSet> tagSets)
         {
-            return new ReadPreference(
-                mode.WithDefault(_mode),
-                Optional.Create(tagSets.WithDefault(_tagSets)));
+            return new ReadPreference(_mode, tagSets);
         }
     }
 }

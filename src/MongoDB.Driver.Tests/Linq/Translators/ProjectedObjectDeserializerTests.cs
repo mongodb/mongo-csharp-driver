@@ -28,6 +28,7 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
+    [TestFixture]
     public class ProjectedObjectDeserializerTests
     {
         [Test]

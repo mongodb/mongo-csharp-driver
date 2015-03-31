@@ -17,8 +17,7 @@ namespace MongoDB.Driver.Linq.Expressions
 {
     internal enum MongoExpressionType
     {
-        Document,
-        Field,
+        Serialization,
         Aggregation
     }
 }

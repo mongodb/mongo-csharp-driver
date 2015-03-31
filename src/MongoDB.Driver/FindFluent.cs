@@ -1,21 +1,34 @@
-﻿using System;
+﻿/* Copyright 2010-2014 MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    internal class FindFluent<TDocument, TResult> : IOrderedFindFluent<TDocument, TResult>
+    internal class FindFluent<TDocument, TProjection> : FindFluentBase<TDocument, TProjection>
     {
         // fields
         private readonly IMongoCollection<TDocument> _collection;
-        private object _filter;
-        private readonly FindOptions<TResult> _options;
+        private FilterDefinition<TDocument> _filter;
+        private readonly FindOptions<TDocument, TProjection> _options;
 
         // constructors
-        public FindFluent(IMongoCollection<TDocument> collection, object filter, FindOptions<TResult> options)
+        public FindFluent(IMongoCollection<TDocument> collection, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _filter = Ensure.IsNotNull(filter, "filter");
@@ -23,45 +36,25 @@ namespace MongoDB.Driver
         }
 
         // properties
-        public IMongoCollection<TDocument> Collection
-        {
-            get { return _collection; }
-        }
-
-        public object Filter
+        public override FilterDefinition<TDocument> Filter
         {
             get { return _filter; }
             set { _filter = Ensure.IsNotNull(value, "value"); }
         }
 
-        public FindOptions<TResult> Options
+        public override FindOptions<TDocument, TProjection> Options
         {
             get { return _options; }
         }
 
         // methods
-        public IFindFluent<TDocument, TResult> AllowPartialResults(bool allowPartialResults)
+        public override Task<long> CountAsync(CancellationToken cancellationToken)
         {
-            _options.AllowPartialResults = allowPartialResults;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TResult> BatchSize(int? size)
-        {
-            _options.BatchSize = size;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TResult> Comment(string comment)
-        {
-            _options.Comment = comment;
-            return this;
-        }
-
-        public Task<long> CountAsync(CancellationToken cancellationToken)
-        {
-            BsonValue hint;
-            _options.Modifiers.TryGetValue("$hint", out hint);
+            BsonValue hint = null;
+            if (_options.Modifiers != null)
+            {
+                _options.Modifiers.TryGetValue("$hint", out hint);
+            }
             var options = new CountOptions
             {
                 Hint = hint,
@@ -73,44 +66,15 @@ namespace MongoDB.Driver
             return _collection.CountAsync(_filter, options, cancellationToken);
         }
 
-        public IFindFluent<TDocument, TResult> CursorType(CursorType cursorType)
-        {
-            _options.CursorType = cursorType;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TResult> Limit(int? limit)
+        public override IFindFluent<TDocument, TProjection> Limit(int? limit)
         {
             _options.Limit = limit;
             return this;
         }
 
-        public IFindFluent<TDocument, TResult> MaxTime(TimeSpan? maxTime)
+        public override IFindFluent<TDocument, TNewProjection> Project<TNewProjection>(ProjectionDefinition<TDocument, TNewProjection> projection)
         {
-            _options.MaxTime = maxTime;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TResult> Modifiers(BsonDocument modifiers)
-        {
-            _options.Modifiers = modifiers;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TResult> NoCursorTimeout(bool noCursorTimeout)
-        {
-            _options.NoCursorTimeout = noCursorTimeout;
-            return this;
-        }
-
-        public IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection)
-        {
-            return Projection<TNewResult>(projection, null);
-        }
-
-        public IFindFluent<TDocument, TNewResult> Projection<TNewResult>(object projection, IBsonSerializer<TNewResult> resultSerializer)
-        {
-            var newOptions = new FindOptions<TNewResult>
+            var newOptions = new FindOptions<TDocument, TNewProjection>
             {
                 AllowPartialResults = _options.AllowPartialResults,
                 BatchSize = _options.BatchSize,
@@ -121,26 +85,25 @@ namespace MongoDB.Driver
                 Modifiers = _options.Modifiers,
                 NoCursorTimeout = _options.NoCursorTimeout,
                 Projection = projection,
-                ResultSerializer = resultSerializer ?? _collection.Settings.SerializerRegistry.GetSerializer<TNewResult>(),
                 Skip = _options.Skip,
                 Sort = _options.Sort,
             };
-            return new FindFluent<TDocument, TNewResult>(_collection, _filter, newOptions);
+            return new FindFluent<TDocument, TNewProjection>(_collection, _filter, newOptions);
         }
 
-        public IFindFluent<TDocument, TResult> Skip(int? skip)
+        public override IFindFluent<TDocument, TProjection> Skip(int? skip)
         {
             _options.Skip = skip;
             return this;
         }
 
-        public IFindFluent<TDocument, TResult> Sort(object sort)
+        public override IFindFluent<TDocument, TProjection> Sort(SortDefinition<TDocument> sort)
         {
             _options.Sort = sort;
             return this;
         }
 
-        public Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IAsyncCursor<TProjection>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _collection.FindAsync(_filter, _options, cancellationToken);
         }

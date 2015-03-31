@@ -14,6 +14,8 @@
 */
 
 
+using System.Collections.Generic;
+using System.Linq;
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
@@ -83,32 +85,36 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Gets the serialization info for a member.
+        /// Tries to get the serialization info for a member.
         /// </summary>
-        /// <param name="memberName">The member name.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
         /// <returns>
-        /// The serialization info for the member.
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
         /// </returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
-            return new BsonSerializationInfo(
+            serializationInfo = new BsonSerializationInfo(
                 memberName,
                 BsonValueSerializer.Instance,
                 typeof(BsonValue));
+            return true;
         }
 
         /// <summary>
-        /// Gets the serialization info for individual items of the array.
+        /// Tries to get the serialization info for the individual items of the array.
         /// </summary>
+        /// <param name="serializationInfo">The serialization information.</param>
         /// <returns>
-        /// The serialization info for the items.
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
         /// </returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
-            return new BsonSerializationInfo(
+            serializationInfo = new BsonSerializationInfo(
                 null,
                 BsonValueSerializer.Instance,
                 typeof(BsonValue));
+            return true;
         }
 
         /// <summary>

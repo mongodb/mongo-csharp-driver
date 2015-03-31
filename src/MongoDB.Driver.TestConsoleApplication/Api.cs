@@ -67,13 +67,13 @@ namespace MongoDB.Driver.TestConsoleApplication
         private async Task DoWork(IMongoCollection<BsonDocument> collection)
         {
             var rand = new Random();
-            while(!_cancellationTokenSource.IsCancellationRequested)
+            while (!_cancellationTokenSource.IsCancellationRequested)
             {
                 var i = rand.Next(0, 10000);
                 List<BsonDocument> docs;
                 try
                 {
-                    docs = await collection.Find(Query.EQ("i", i))
+                    docs = await collection.Find(new BsonDocument("i", i))
                         .ToListAsync(_cancellationTokenSource.Token);
                 }
                 catch
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.TestConsoleApplication
                     continue;
                 }
 
-                if(docs.Count == 0)
+                if (docs.Count == 0)
                 {
                     try
                     {

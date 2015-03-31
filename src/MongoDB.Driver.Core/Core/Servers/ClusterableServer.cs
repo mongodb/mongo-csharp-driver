@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Servers
     {
         #region static
         // static fields
-        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(10);
+        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(500);
         private static readonly List<Type> __invalidatingExceptions = new List<Type>
         {
             typeof(MongoNotPrimaryException),
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 var stopwatch = Stopwatch.StartNew();
                 _connectionPool.Initialize();
-                MonitorServer();
+                MonitorServer().ConfigureAwait(false);
                 stopwatch.Stop();
 
                 if (_listener != null)
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private async void MonitorServer()
+        private async Task MonitorServer()
         {
             var metronome = new Metronome(_settings.HeartbeatInterval);
             var heartbeatCancellationToken = _heartbeatCancellationTokenSource.Token;
@@ -212,14 +212,14 @@ namespace MongoDB.Driver.Core.Servers
             {
                 try
                 {
-                    await HeartbeatAsync(heartbeatCancellationToken);
+                    await HeartbeatAsync(heartbeatCancellationToken).ConfigureAwait(false);
                     var newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), __minHeartbeatInterval);
                     var oldHeartbeatDelay = Interlocked.Exchange(ref _heartbeatDelay, newHeartbeatDelay);
                     if (oldHeartbeatDelay != null)
                     {
                         oldHeartbeatDelay.Dispose();
                     }
-                    await newHeartbeatDelay.Task;
+                    await newHeartbeatDelay.Task.ConfigureAwait(false);
                 }
                 catch
                 {

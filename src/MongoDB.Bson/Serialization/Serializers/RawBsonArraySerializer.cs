@@ -53,12 +53,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, RawBsonArray value)
         {
             var bsonWriter = context.Writer;
-
-            var slice = value.Slice;
-            using (var clonedSlice = slice.GetSlice(0, slice.Length))
-            {
-                bsonWriter.WriteRawBsonArray(clonedSlice);
-            }
+            bsonWriter.WriteRawBsonArray(value.Slice);
         }
     }
 }

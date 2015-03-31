@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings);
 
             long result;
-            using (var binding = SuiteConfiguration.GetReadBinding())
+            using (var binding = CoreTestConfiguration.GetReadBinding())
             {
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Filter = BsonDocument.Parse("{ _id : { $gt : 1 } }");
 
             long result;
-            using (var binding = SuiteConfiguration.GetReadBinding())
+            using (var binding = CoreTestConfiguration.GetReadBinding())
             {
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Hint = BsonDocument.Parse("{ _id : 1 }");
 
             long result;
-            using (var binding = SuiteConfiguration.GetReadBinding())
+            using (var binding = CoreTestConfiguration.GetReadBinding())
             {
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Limit = 3;
 
             long result;
-            using (var binding = SuiteConfiguration.GetReadBinding())
+            using (var binding = CoreTestConfiguration.GetReadBinding())
             {
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("EnsureTestData")]
         public void ExecuteAsync_should_return_expected_result_when_maxTime_is_provided()
         {
-            if (SuiteConfiguration.ServerVersion >= new SemanticVersion(2, 4, 0))
+            if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(2, 4, 0))
             {
                 // TODO: port FailPoint infrastructure from Driver.Tests to Core.Tests
             }
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Skip = 3;
 
             long result;
-            using (var binding = SuiteConfiguration.GetReadBinding())
+            using (var binding = CoreTestConfiguration.GetReadBinding())
             {
                 result = await subject.ExecuteAsync(binding, CancellationToken.None);
             }

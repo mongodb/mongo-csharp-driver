@@ -84,13 +84,14 @@ namespace MongoDB.Driver.Core.Connections
         /// <summary>
         /// Receives a message.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="responseTo">The id of the sent message for which a response is to be received.</param>
-        /// <param name="serializer">The serializer.</param>
+        /// <param name="encoderSelector">The encoder selector.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the reply message.</returns>
-        Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
+        /// <returns>
+        /// A Task whose result is the response message.
+        /// </returns>
+        Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken);
 
         /// <summary>
         /// Sends the messages.

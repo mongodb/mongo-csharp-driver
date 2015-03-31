@@ -13,16 +13,20 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// An interface representing methods used to create, delete and modify indexes.
     /// </summary>
+    /// <remarks>
+    /// This interface is not guaranteed to remain stable. Implementors should use
+    /// <see cref="MongoIndexManagerBase{TDocument}"/>.
+    /// </remarks>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public interface IMongoIndexManager<TDocument>
     {
@@ -30,6 +34,11 @@ namespace MongoDB.Driver
         /// Gets the namespace of the collection.
         /// </summary>
         CollectionNamespace CollectionNamespace { get; }
+
+        /// <summary>
+        /// Gets the document serializer.
+        /// </summary>
+        IBsonSerializer<TDocument> DocumentSerializer { get; }
 
         /// <summary>
         /// Gets the collection settings.
@@ -43,29 +52,28 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task CreateIndexAsync(object keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Drops an index.
+        /// Drops all the indexes.
         /// </summary>
-        /// <param name="name">The name of the index to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task DropIndexAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
+        Task DropAllAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Drops an index.
+        /// Drops an index by its name.
         /// </summary>
-        /// <param name="keys">The keys of the index to drop.</param>
+        /// <param name="name">The name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
-        Task DropIndexAsync(object keys, CancellationToken cancellationToken = default(CancellationToken));
+        Task DropOneAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Gets the indexes.
+        /// Lists the indexes.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<BsonDocument>> ListIndexesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

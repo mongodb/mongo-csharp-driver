@@ -24,22 +24,25 @@ namespace MongoDB.Driver.Core.Misc
     internal static class StreamExtensionMethods
     {
         // static methods
-        public static void FillBuffer(this Stream stream, byte[] buffer, int offset, int count)
+        public static async Task ReadBytesAsync(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            while (count > 0)
+            if (stream == null)
             {
-                var bytesRead = stream.Read(buffer, offset, count);
-                if (bytesRead == 0)
-                {
-                    throw new EndOfStreamException();
-                }
-                offset += bytesRead;
-                count -= bytesRead;
+                throw new ArgumentNullException("stream");
             }
-        }
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+            if (offset < 0 || offset > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("offset");
+            }
+            if (count < 0 || offset + count > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
 
-        public static async Task FillBufferAsync(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
             while (count > 0)
             {
                 var bytesRead = await stream.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
@@ -52,8 +55,25 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static async Task FillBufferAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
+        public static async Task ReadBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+            if (offset < 0 || offset > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("offset");
+            }
+            if (count < 0 || offset + count > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
             while (count > 0)
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
@@ -68,12 +88,29 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static async Task WriteBufferAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
+        public static async Task WriteBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+            if (offset < 0 || offset > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("offset");
+            }
+            if (count < 0 || offset + count > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
             while (count > 0)
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
-                var bytesToWrite = Math.Min(count, backingBytes.Count - backingBytes.Offset);
+                var bytesToWrite = Math.Min(count, backingBytes.Count);
                 await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite, cancellationToken).ConfigureAwait(false);
                 offset += bytesToWrite;
                 count -= bytesToWrite;

@@ -29,6 +29,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Linq
 {
+    [TestFixture]
     public class FindProjectionTranslatorTests
     {
         [Test]
@@ -244,8 +245,8 @@ namespace MongoDB.Driver.Core.Linq
                 var context = BsonDeserializationContext.CreateRoot(reader);
                 return new ProjectedResult<T>
                 {
-                    Projection = projectionInfo.Projection,
-                    Value = projectionInfo.Serializer.Deserialize(context)
+                    Projection = projectionInfo.Document,
+                    Value = projectionInfo.ProjectionSerializer.Deserialize(context)
                 };
             }
         }

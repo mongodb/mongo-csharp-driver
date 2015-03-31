@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
@@ -21,10 +22,11 @@ namespace MongoDB.Bson.Serialization
     public interface IBsonDocumentSerializer : IBsonSerializer
     {
         /// <summary>
-        /// Gets the serialization info for a member.
+        /// Tries to get the serialization info for a member.
         /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>The serialization info for the member.</returns>
-        BsonSerializationInfo GetMemberSerializationInfo(string memberName);
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns><c>true</c> if the serialization info exists; otherwise <c>false</c>.</returns>
+        bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo);
     }
 }

@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -280,26 +279,29 @@ namespace MongoDB.Bson.IO
             // overridden in BsonBinaryWriter to write the raw bytes to the stream
             // for all other streams, deserialize the raw bytes and serialize the resulting array instead
 
-            var documentLength = slice.Length + 8;
-            using (var memoryStream = new MemoryStream(documentLength))
+            using (var chunkSource = new InputBufferChunkSource(BsonChunkPool.Default))
+            using (var buffer = new MultiChunkBuffer(chunkSource))
+            using (var stream = new ByteBufferStream(buffer))
             {
                 // wrap the array in a fake document so we can deserialize it
-                var streamWriter = new BsonStreamWriter(memoryStream, Utf8Encodings.Strict);
-                streamWriter.WriteInt32(documentLength);
-                streamWriter.WriteBsonType(BsonType.Array);
-                streamWriter.WriteByte((byte)'x');
-                streamWriter.WriteByte(0);
-                slice.WriteTo(streamWriter.BaseStream);
-                streamWriter.WriteByte(0);
+                var documentLength = slice.Length + 8;
+                buffer.EnsureCapacity(documentLength);
+                stream.WriteInt32(documentLength);
+                stream.WriteBsonType(BsonType.Array);
+                stream.WriteByte((byte)'x');
+                stream.WriteByte(0);
+                stream.WriteSlice(slice);
+                stream.WriteByte(0);
+                buffer.MakeReadOnly();
 
-                memoryStream.Position = 0;
-                using (var bsonReader = new BsonBinaryReader(memoryStream, BsonBinaryReaderSettings.Defaults))
+                stream.Position = 0;
+                using (var reader = new BsonBinaryReader(stream, BsonBinaryReaderSettings.Defaults))
                 {
-                    var deserializationContext = BsonDeserializationContext.CreateRoot(bsonReader);
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadName("x");
+                    var deserializationContext = BsonDeserializationContext.CreateRoot(reader);
+                    reader.ReadStartDocument();
+                    reader.ReadName("x");
                     var array = BsonArraySerializer.Instance.Deserialize(deserializationContext);
-                    bsonReader.ReadEndDocument();
+                    reader.ReadEndDocument();
 
                     var serializationContext = BsonSerializationContext.CreateRoot(this);
                     BsonArraySerializer.Instance.Serialize(serializationContext, array);
@@ -316,7 +318,7 @@ namespace MongoDB.Bson.IO
             // overridden in BsonBinaryWriter to write the raw bytes to the stream
             // for all other streams, deserialize the raw bytes and serialize the resulting document instead
 
-            using (var stream = new ByteBufferStream(slice, ownsByteBuffer: false))
+            using (var stream = new ByteBufferStream(slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, BsonBinaryReaderSettings.Defaults))
             {
                 var deserializationContext = BsonDeserializationContext.CreateRoot(bsonReader);

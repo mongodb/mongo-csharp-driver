@@ -13,8 +13,7 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
+using System.Collections.Generic;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -128,32 +127,34 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="BsonValueCSharpNullArrayAndDocumentSerializer{TBsonValue}"/> class.
         /// </summary>
         /// <param name="wrappedSerializer">The wrapped serializer.</param>
-        public BsonValueCSharpNullArrayAndDocumentSerializer(IBsonSerializer<TBsonValue> wrappedSerializer)            
+        public BsonValueCSharpNullArrayAndDocumentSerializer(IBsonSerializer<TBsonValue> wrappedSerializer)
             : base(wrappedSerializer)
         {
         }
 
         /// <summary>
-        /// Gets the serialization info for individual items of the array.
+        /// Tries to get the serialization info for the individual items of the array.
         /// </summary>
+        /// <param name="serializationInfo">The serialization information.</param>
         /// <returns>
         /// The serialization info for the items.
         /// </returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
-            return BsonValueSerializer.Instance.GetItemSerializationInfo();
+            return BsonValueSerializer.Instance.TryGetItemSerializationInfo(out serializationInfo);
         }
 
         /// <summary>
-        /// Gets the serialization info for a member.
+        /// Tries to get the serialization info for a member.
         /// </summary>
-        /// <param name="memberName">The member name.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
         /// <returns>
-        /// The serialization info for the member.
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
         /// </returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
-            return BsonValueSerializer.Instance.GetMemberSerializationInfo(memberName);
+            return BsonValueSerializer.Instance.TryGetMemberSerializationInfo(memberName, out serializationInfo);
         }
     }
 
@@ -164,25 +165,26 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonValueCSharpNullArraySerializer<TBsonValue> : BsonValueCSharpNullSerializer<TBsonValue>, IBsonArraySerializer
          where TBsonValue : BsonValue
     {
-         // constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="BsonValueCSharpNullArraySerializer{TBsonValue}"/> class.
         /// </summary>
         /// <param name="wrappedSerializer">The wrapped serializer.</param>
-        public BsonValueCSharpNullArraySerializer(IBsonSerializer<TBsonValue> wrappedSerializer)            
+        public BsonValueCSharpNullArraySerializer(IBsonSerializer<TBsonValue> wrappedSerializer)
             : base(wrappedSerializer)
         {
         }
 
-       /// <summary>
-        /// Gets the serialization info for individual items of the array.
+        /// <summary>
+        /// Tries to get the serialization info for the individual items of the array.
         /// </summary>
+        /// <param name="serializationInfo">The serialization information.</param>
         /// <returns>
-        /// The serialization info for the items.
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
         /// </returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
         {
-            return BsonValueSerializer.Instance.GetItemSerializationInfo();
+            return BsonValueSerializer.Instance.TryGetItemSerializationInfo(out serializationInfo);
         }
     }
 
@@ -192,27 +194,28 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TBsonValue">The type of the bson value.</typeparam>
     public class BsonValueCSharpNullDocumentSerializer<TBsonValue> : BsonValueCSharpNullSerializer<TBsonValue>, IBsonDocumentSerializer
           where TBsonValue : BsonValue
-   {
-          // constructors
-       /// <summary>
-       /// Initializes a new instance of the <see cref="BsonValueCSharpNullDocumentSerializer{TBsonValue}"/> class.
-       /// </summary>
-       /// <param name="wrappedSerializer">The wrapped serializer.</param>
-        public BsonValueCSharpNullDocumentSerializer(IBsonSerializer<TBsonValue> wrappedSerializer)            
+    {
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BsonValueCSharpNullDocumentSerializer{TBsonValue}"/> class.
+        /// </summary>
+        /// <param name="wrappedSerializer">The wrapped serializer.</param>
+        public BsonValueCSharpNullDocumentSerializer(IBsonSerializer<TBsonValue> wrappedSerializer)
             : base(wrappedSerializer)
         {
         }
 
-       /// <summary>
-        /// Gets the serialization info for a member.
+        /// <summary>
+        /// Tries to get the serialization info for a member.
         /// </summary>
-        /// <param name="memberName">The member name.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
         /// <returns>
-        /// The serialization info for the member.
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
         /// </returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
-            return BsonValueSerializer.Instance.GetMemberSerializationInfo(memberName);
+            return BsonValueSerializer.Instance.TryGetMemberSerializationInfo(memberName, out serializationInfo);
         }
     }
 }

@@ -21,34 +21,6 @@ using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Server connection mode.
-    /// </summary>
-    [Serializable]
-    public enum ConnectionMode
-    {
-        /// <summary>
-        /// Automatically determine how to connect.
-        /// </summary>
-        Automatic,
-        /// <summary>
-        /// Connect directly to a server.
-        /// </summary>
-        Direct,
-        /// <summary>
-        /// Connect to a replica set.
-        /// </summary>
-        ReplicaSet,
-        /// <summary>
-        /// Connect to one or more shard routers.
-        /// </summary>
-        ShardRouter,
-        /// <summary>
-        /// Connect to a standalone server.
-        /// </summary>
-        Standalone
-    }
-
-    /// <summary>
     /// Represents an immutable URL style connection string. See also MongoUrlBuilder.
     /// </summary>
     [Serializable]

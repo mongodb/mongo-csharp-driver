@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("DropCollection")]
         public async Task ExecuteAsync_should_not_throw_when_collection_does_not_exist()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var indexName = "x_1";
                 var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
         [RequiresServer("DropCollection")]
         public async Task ExecuteAsync_should_return_expected_result()
         {
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var keys = new BsonDocument("x", 1);
                 var requests = new[] { new CreateIndexRequest(keys) };

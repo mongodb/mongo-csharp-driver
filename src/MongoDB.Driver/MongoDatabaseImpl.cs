@@ -28,17 +28,19 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
 {
-    internal sealed class MongoDatabaseImpl : IMongoDatabase
+    internal sealed class MongoDatabaseImpl : MongoDatabaseBase
     {
         // fields
+        private readonly IMongoClient _client;
         private readonly ICluster _cluster;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoDatabaseSettings _settings;
 
         // constructors
-        public MongoDatabaseImpl(DatabaseNamespace databaseNamespace, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
+        public MongoDatabaseImpl(IMongoClient client, DatabaseNamespace databaseNamespace, MongoDatabaseSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
         {
+            _client = Ensure.IsNotNull(client, "client");
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, "databaseNamespace");
             _settings = Ensure.IsNotNull(settings, "settings").Freeze();
             _cluster = Ensure.IsNotNull(cluster, "cluster");
@@ -46,18 +48,23 @@ namespace MongoDB.Driver
         }
 
         // properties
-        public DatabaseNamespace DatabaseNamespace
+        public override IMongoClient Client
+        {
+            get { return _client; }
+        }
+
+        public override DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
         }
 
-        public MongoDatabaseSettings Settings
+        public override MongoDatabaseSettings Settings
         {
             get { return _settings; }
         }
 
         // methods
-        public Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
+        public override Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNullOrEmpty(name, "name");
             options = options ?? new CreateCollectionOptions();
@@ -68,47 +75,44 @@ namespace MongoDB.Driver
                 Capped = options.Capped,
                 MaxDocuments = options.MaxDocuments,
                 MaxSize = options.MaxSize,
-                StorageEngine = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, options.StorageEngine),
+                StorageEngine = options.StorageEngine,
                 UsePowerOf2Sizes = options.UsePowerOf2Sizes
             };
 
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task DropCollectionAsync(string name, CancellationToken cancellationToken)
+        public override Task DropCollectionAsync(string name, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new DropCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings);
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public IMongoCollection<TDocument> GetCollection<TDocument>(string name)
-        {
-            return GetCollection<TDocument>(name, new MongoCollectionSettings());
-        }
-
-        public IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
+        public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
         {
             Ensure.IsNotNullOrEmpty(name, "name");
-            Ensure.IsNotNull(settings, "settings");
 
-            settings = settings.Clone();
+            settings = settings == null ?
+                new MongoCollectionSettings() :
+                settings.Clone();
+
             settings.ApplyDefaultValues(_settings);
 
-            return new MongoCollectionImpl<TDocument>(new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
+            return new MongoCollectionImpl<TDocument>(this, new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
-        public Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)
+        public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
             {
-                Filter = options == null ? null : BsonDocumentHelper.FilterToBsonDocument<BsonDocument>(_settings.SerializerRegistry, options.Filter)
+                Filter = options == null ? null : options.Filter.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry)
             };
             return ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken);
         }
 
-        public Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
+        public override Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNullOrEmpty(oldName, "oldName");
             Ensure.IsNotNullOrEmpty(newName, "newName");
@@ -125,24 +129,23 @@ namespace MongoDB.Driver
             return ExecuteWriteOperation(operation, cancellationToken);
         }
 
-        public Task<T> RunCommandAsync<T>(object command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(command, "command");
             readPreference = readPreference ?? ReadPreference.Primary;
 
-            var commandDocument = BsonDocumentHelper.ToBsonDocument(_settings.SerializerRegistry, command);
-            var serializer = _settings.SerializerRegistry.GetSerializer<T>();
+            var renderedCommand = command.Render(_settings.SerializerRegistry);
             var messageEncoderSettings = GetMessageEncoderSettings();
 
             if (readPreference == ReadPreference.Primary)
             {
-                var operation = new WriteCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
-                return ExecuteWriteOperation<T>(operation, cancellationToken);
+                var operation = new WriteCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
+                return ExecuteWriteOperation<TResult>(operation, cancellationToken);
             }
             else
             {
-                var operation = new ReadCommandOperation<T>(_databaseNamespace, commandDocument, serializer, messageEncoderSettings);
-                return ExecuteReadOperation<T>(operation, readPreference, cancellationToken);
+                var operation = new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
+                return ExecuteReadOperation<TResult>(operation, readPreference, cancellationToken);
             }
         }
 
@@ -155,7 +158,7 @@ namespace MongoDB.Driver
         {
             using (var binding = new ReadPreferenceBinding(_cluster, readPreference))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -163,7 +166,7 @@ namespace MongoDB.Driver
         {
             using (var binding = new WritableServerBinding(_cluster))
             {
-                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, _settings.OperationTimeout, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
         }
 

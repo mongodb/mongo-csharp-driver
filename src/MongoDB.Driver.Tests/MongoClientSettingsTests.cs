@@ -15,12 +15,13 @@
 
 using System;
 using System.Linq;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using NUnit.Framework;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Threading;
+using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
 {
@@ -102,7 +103,6 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
             Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
-            Assert.AreEqual(MongoDefaults.OperationTimeout, settings.OperationTimeout);
             Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreEqual(null, settings.ReplicaSetName);
             Assert.AreEqual(_localHost, settings.Server);
@@ -162,10 +162,6 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.MinConnectionPoolSize = settings.MinConnectionPoolSize + 1;
-            Assert.IsFalse(clone.Equals(settings));
-
-            clone = settings.Clone();
-            clone.OperationTimeout = TimeSpan.FromMilliseconds(20);
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -389,21 +385,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestOperationTimeout()
-        {
-            var settings = new MongoClientSettings();
-            Assert.AreEqual(MongoDefaults.OperationTimeout, settings.OperationTimeout);
-
-            var operationTimeout = new TimeSpan(1, 2, 3);
-            settings.OperationTimeout = operationTimeout;
-            Assert.AreEqual(operationTimeout, settings.OperationTimeout);
-
-            settings.Freeze();
-            Assert.AreEqual(operationTimeout, settings.OperationTimeout);
-            Assert.Throws<InvalidOperationException>(() => { settings.OperationTimeout = operationTimeout; });
-        }
-
-        [Test]
         public void TestReadPreference()
         {
             var settings = new MongoClientSettings();
@@ -511,7 +492,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestSocketConfigurator()
         {
-            var settings = Configuration.TestClient.Settings.Clone();
+            var settings = DriverTestConfiguration.Client.Settings.Clone();
             var socketConfiguratorWasCalled = false;
             Action<Socket> socketConfigurator = s => { socketConfiguratorWasCalled = true; };
             settings.ClusterConfigurator = cb => cb.ConfigureTcp(tcp => tcp.With(socketConfigurator: socketConfigurator));
@@ -625,6 +606,60 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.AreEqual(writeConcern, settings.WriteConcern);
             Assert.Throws<InvalidOperationException>(() => { settings.WriteConcern = writeConcern; });
+        }
+
+        [Test]
+        public void ToClusterKey_should_copy_relevant_values()
+        {
+            var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
+            var servers = new[] { new MongoServerAddress("localhost") };
+            var sslSettings = new SslSettings
+            {
+                CheckCertificateRevocation = true,
+                EnabledSslProtocols = SslProtocols.Ssl3
+            };
+
+            var subject = new MongoClientSettings
+            {
+                ConnectionMode = ConnectionMode.Direct,
+                ConnectTimeout = TimeSpan.FromSeconds(1),
+                Credentials = credentials,
+                GuidRepresentation = GuidRepresentation.Standard,
+                IPv6 = true,
+                MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
+                MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
+                MaxConnectionPoolSize = 10,
+                MinConnectionPoolSize = 5,
+                ReplicaSetName = "rs",
+                LocalThreshold = TimeSpan.FromMilliseconds(20),
+                Servers = servers,
+                SocketTimeout = TimeSpan.FromSeconds(4),
+                SslSettings = sslSettings,
+                UseSsl = true,
+                VerifySslCertificate = true,
+                WaitQueueSize = 20,
+                WaitQueueTimeout = TimeSpan.FromSeconds(5)
+            };
+
+            var result = subject.ToClusterKey();
+
+            result.ConnectionMode.Should().Be(subject.ConnectionMode);
+            result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            result.Credentials.Should().Equal(subject.Credentials);
+            result.IPv6.Should().Be(subject.IPv6);
+            result.MaxConnectionIdleTime.Should().Be(subject.MaxConnectionIdleTime);
+            result.MaxConnectionLifeTime.Should().Be(subject.MaxConnectionLifeTime);
+            result.MaxConnectionPoolSize.Should().Be(subject.MaxConnectionPoolSize);
+            result.MinConnectionPoolSize.Should().Be(subject.MinConnectionPoolSize);
+            result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
+            result.LocalThreshold.Should().Be(subject.LocalThreshold);
+            result.Servers.Should().Equal(subject.Servers);
+            result.SocketTimeout.Should().Be(subject.SocketTimeout);
+            result.SslSettings.Should().Be(subject.SslSettings);
+            result.UseSsl.Should().Be(subject.UseSsl);
+            result.VerifySslCertificate.Should().Be(subject.VerifySslCertificate);
+            result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
+            result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
     }
 }

@@ -112,8 +112,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             await connection.SendMessagesAsync(messages, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             if (getLastErrorMessage != null && getLastErrorMessage.WasSent)
             {
-                var reply = await connection.ReceiveMessageAsync<BsonDocument>(getLastErrorMessage.RequestId, BsonDocumentSerializer.Instance, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                return ProcessReply(connection.ConnectionId, getLastErrorCommand, reply);
+                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+                var reply = await connection.ReceiveMessageAsync(getLastErrorMessage.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                return ProcessReply(connection.ConnectionId, getLastErrorCommand, (ReplyMessage<BsonDocument>)reply);
             }
             else
             {

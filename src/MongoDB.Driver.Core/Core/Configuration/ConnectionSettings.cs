@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>))
         {
             return new ConnectionSettings(
-                authenticators: Optional.Create(authenticators.WithDefault(_authenticators)),
+                authenticators: Optional.Enumerable(authenticators.WithDefault(_authenticators)),
                 maxIdleTime: maxIdleTime.WithDefault(_maxIdleTime),
                 maxLifeTime: maxLifeTime.WithDefault(_maxLifeTime));
         }

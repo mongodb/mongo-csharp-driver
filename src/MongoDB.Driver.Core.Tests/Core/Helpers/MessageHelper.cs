@@ -118,14 +118,14 @@ namespace MongoDB.Driver.Core.Helpers
             return TranslateMessagesToBsonDocuments(TranslateBytesToRequests(bytes));
         }
 
-        public static void WriteRepliesToStream(Stream stream, IEnumerable<ReplyMessage> replies)
+        public static void WriteResponsesToStream(Stream stream, IEnumerable<ResponseMessage> responses)
         {
             var startPosition = stream.Position;
-            foreach (var reply in replies)
+            foreach (var response in responses)
             {
                 var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = reply.GetEncoder(encoderFactory);
-                encoder.WriteMessage(reply);
+                var encoder = response.GetEncoder(encoderFactory);
+                encoder.WriteMessage(response);
             }
             stream.Position = startPosition;
         }
@@ -134,17 +134,17 @@ namespace MongoDB.Driver.Core.Helpers
         {
             var requests = new List<RequestMessage>();
 
-            using (var stream = new MemoryStream(bytes))
+            using (var buffer = new ByteArrayBuffer(bytes))
+            using (var stream = new ByteBufferStream(buffer))
             {
                 int bytesRead = 0;
                 while (stream.Length > bytesRead)
                 {
                     int startPosition = bytesRead;
-                    var streamReader = new BsonStreamReader(stream, Utf8Encodings.Strict);
-                    var length = streamReader.ReadInt32();
-                    streamReader.ReadInt32(); // requestId
-                    streamReader.ReadInt32(); // responseTo
-                    var opCode = (Opcode)streamReader.ReadInt32();
+                    var length = stream.ReadInt32();
+                    stream.ReadInt32(); // requestId
+                    stream.ReadInt32(); // responseTo
+                    var opCode = (Opcode)stream.ReadInt32();
                     bytesRead += length;
                     stream.Position = startPosition;
 

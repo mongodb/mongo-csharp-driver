@@ -20,6 +20,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace MongoDB.Bson.Tests.IO
@@ -35,6 +36,34 @@ namespace MongoDB.Bson.Tests.IO
             {
                 this.Value = value;
                 this.Expected = expected;
+            }
+        }
+
+        [Test]
+        public void JsonWriter_should_support_writing_multiple_documents(
+            [Range(0, 3)]
+            int numberOfDocuments,
+            [Values("", " ", "\r\n")]
+            string documentSeparator)
+        {
+            var document = new BsonDocument("x", 1);
+            var json = document.ToJson();
+            var expectedResult = Enumerable.Repeat(json, numberOfDocuments).Aggregate("", (a, j) => a + j + documentSeparator);
+
+            using (var stringWriter = new StringWriter())
+            using (var jsonWriter = new JsonWriter(stringWriter))
+            {
+                for (var n = 0; n < numberOfDocuments; n++)
+                {
+                    jsonWriter.WriteStartDocument();
+                    jsonWriter.WriteName("x");
+                    jsonWriter.WriteInt32(1);
+                    jsonWriter.WriteEndDocument();
+                    jsonWriter.BaseTextWriter.Write(documentSeparator);
+                }
+
+                var result = stringWriter.ToString();
+                result.Should().Be(expectedResult);
             }
         }
 

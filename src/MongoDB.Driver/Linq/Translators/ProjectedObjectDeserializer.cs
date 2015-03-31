@@ -34,21 +34,22 @@ namespace MongoDB.Driver.Linq.Translators
 
         public override ProjectedObject Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var type = context.Reader.GetCurrentBsonType();
+            context.Reader.GetCurrentBsonType();
             var obj = ReadDocument(context, null, null, new ProjectedObject());
             return obj;
         }
 
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        /// <summary>
+        /// Tries to get the serialization info for a member.
+        /// </summary>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="serializationInfo">The serialization information.</param>
+        /// <returns>
+        ///   <c>true</c> if the serialization info exists; otherwise <c>false</c>.
+        /// </returns>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
-            BsonSerializationInfo found;
-            if(_deserializationMap.TryGetValue(memberName, out found))
-            {
-                return found;
-            }
-
-            // TODO: this is the wrong exception type, but it's what is used in BsonClassMapSerializer
-            throw new ArgumentOutOfRangeException("memberName", "No member found by the name of " + memberName);
+            return _deserializationMap.TryGetValue(memberName, out serializationInfo);
         }
 
         // private methods
@@ -70,12 +71,11 @@ namespace MongoDB.Driver.Linq.Translators
             BsonType bsonType;
             while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
             {
-                var currentBsonType = bsonReader.GetCurrentBsonType();
-                if (currentBsonType == BsonType.Document)
+                if (bsonType == BsonType.Document)
                 {
                     array.Add(ReadDocument(context, currentKey, null, new ProjectedObject()));
                 }
-                else if (currentBsonType == BsonType.Array)
+                else if (bsonType == BsonType.Array)
                 {
                     array.Add(ReadArray(context, currentKey));
                 }
@@ -107,7 +107,6 @@ namespace MongoDB.Driver.Linq.Translators
                 }
                 else
                 {
-                    var nestedBsonType = bsonReader.GetCurrentBsonType();
                     if (bsonType == BsonType.Document)
                     {
                         // we are going to read nested documents into the same documentStore to keep them flat, optimized for lookup

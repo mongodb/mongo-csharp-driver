@@ -91,9 +91,9 @@ namespace MongoDB.Driver.Core.Helpers
             return Task.FromResult<object>(null);
         }
 
-        public Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, Bson.Serialization.IBsonSerializer<TDocument> serializer, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            return Task.FromResult<ReplyMessage<TDocument>>((ReplyMessage<TDocument>)_replyMessages.Dequeue());
+            return Task.FromResult((ResponseMessage)_replyMessages.Dequeue());
         }
 
         public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)

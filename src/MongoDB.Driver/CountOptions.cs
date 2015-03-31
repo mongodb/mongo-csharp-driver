@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -23,7 +24,7 @@ namespace MongoDB.Driver
     public sealed class CountOptions
     {
         // fields
-        private object _hint;
+        private BsonValue _hint;
         private long? _limit;
         private TimeSpan? _maxTime;
         private long? _skip;
@@ -32,7 +33,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the hint.
         /// </summary>
-        public object Hint
+        public BsonValue Hint
         {
             get { return _hint; }
             set { _hint = value; }

@@ -27,10 +27,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a map reduce operation.
+    /// Represents a map-reduce operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public class MapReduceOperation<TResult> : MapReduceOperationBase, IReadOperation<TResult>
+    public class MapReduceOperation<TResult> : MapReduceOperationBase, IReadOperation<IAsyncCursor<TResult>>
     {
         // fields
         private readonly IBsonSerializer<TResult> _resultSerializer;
@@ -42,15 +42,13 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="mapFunction">The map function.</param>
         /// <param name="reduceFunction">The reduce function.</param>
-        /// <param name="filter">The filter.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        public MapReduceOperation(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, BsonDocument filter, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+        public MapReduceOperation(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
             : base(
                 collectionNamespace,
                 mapFunction,
                 reduceFunction,
-                filter,
                 messageEncoderSettings)
         {
             _resultSerializer = Ensure.IsNotNull(resultSerializer, "resultSerializer");
@@ -76,12 +74,15 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public Task<TResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, "binding");
             var command = CreateCommand();
-            var operation = new ReadCommandOperation<TResult>(CollectionNamespace.DatabaseNamespace, command, _resultSerializer, MessageEncoderSettings);
-            return operation.ExecuteAsync(binding, cancellationToken);
+            var resultArraySerializer = new ArraySerializer<TResult>(_resultSerializer);
+            var resultSerializer = new ElementDeserializer<TResult[]>("results", resultArraySerializer);
+            var operation = new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings);
+            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return new SingleBatchAsyncCursor<TResult>(result);
         }
     }
 }

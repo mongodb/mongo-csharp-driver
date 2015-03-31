@@ -32,6 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\MongoDB.Driver.Core.XML</DocumentationFile>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -44,7 +45,6 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Core\Misc\Hasher.cs</Link>
     </Compile>
-    <Compile Include="Core\Async\AsyncDropbox.cs" />
     <Compile Include="Core\Authentication\DefaultAuthenticator.cs" />
     <Compile Include="Core\Authentication\GssapiAuthenticator.cs" />
     <Compile Include="Core\Authentication\Sspi\AuthIdentity.cs" />
@@ -123,12 +123,16 @@
     <Compile Include="Core\Events\ConnectionBeforeClosingEvent.cs" />
     <Compile Include="Core\Events\ConnectionFailedEvent.cs" />
     <Compile Include="Core\Misc\ExceptionMapper.cs" />
-    <Compile Include="Core\Misc\Optional.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\IMessageEncoderSelector.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\ReplyMessageEncoderSelector.cs" />
+    <Compile Include="Core\WireProtocol\Messages\ResponseMessage.cs" />
+    <Compile Include="Optional.cs" />
     <Compile Include="Core\Misc\ReferenceCounted.cs" />
     <Compile Include="Core\Bindings\WritableServerBinding.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\WritableServerSelector.cs" />
     <Compile Include="Core\Misc\StringBuilderExtensionMethods.cs" />
     <Compile Include="Core\Operations\AggregateExplainOperation.cs" />
+    <Compile Include="Core\Operations\MapReduceLegacyOperation.cs" />
     <Compile Include="ServerErrorCategory.cs" />
     <Compile Include="Core\Operations\MongoBulkWriteOperationException.cs" />
     <Compile Include="Core\Operations\CreateIndexRequest.cs" />
@@ -255,7 +259,7 @@
     <Compile Include="Core\Configuration\TcpStreamSettings.cs" />
     <Compile Include="Core\Configuration\ConnectionString.cs" />
     <Compile Include="MongoConfigurationException.cs" />
-    <Compile Include="MongoMessageNotSentException.cs" />
+    <Compile Include="MongoConnectionClosedException.cs" />
     <Compile Include="Core\Misc\Range.cs" />
     <Compile Include="Core\Misc\ToStringComparer.cs" />
     <Compile Include="Core\Misc\IdGenerator.cs" />

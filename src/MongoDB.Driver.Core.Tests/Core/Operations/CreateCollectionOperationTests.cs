@@ -38,8 +38,8 @@ namespace MongoDB.Driver.Core.Operations
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            _collectionNamespace = SuiteConfiguration.GetCollectionNamespaceForTestFixture();
-            _messageEncoderSettings = SuiteConfiguration.MessageEncoderSettings;
+            _collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestFixture();
+            _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
         // test methods
@@ -236,7 +236,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Core.Operations
                 AutoIndexId = autoIndexId
             };
 
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
@@ -285,7 +285,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxSize = maxSize
             };
 
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
@@ -309,7 +309,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxDocuments = maxDocuments
             };
 
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
@@ -333,7 +333,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxSize = maxSize
             };
 
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
@@ -347,7 +347,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Test]
-        [RequiresServer("DropCollection", StorageEngines = "mmapv1")]
+        [RequiresServer("DropCollection", StorageEngines = "mmapv1", ClusterTypes = ClusterTypes.StandaloneOrReplicaSet)]
         public async Task ExecuteAsync_should_create_collection_when_UsePowerOf2Sizes_is_set(
             [Values(false, true)]
             bool usePowerOf2Sizes)
@@ -357,7 +357,7 @@ namespace MongoDB.Driver.Core.Operations
                 UsePowerOf2Sizes = usePowerOf2Sizes
             };
 
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 var result = await subject.ExecuteAsync(binding, CancellationToken.None);
 
@@ -439,7 +439,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var operation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
-            using (var binding = SuiteConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
             {
                 operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
             }

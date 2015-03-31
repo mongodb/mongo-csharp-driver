@@ -27,62 +27,33 @@ using NUnit.Framework;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson;
+using MongoDB.Driver.Tests;
 
-namespace MongoDB.Driver.Core.Linq
+namespace MongoDB.Driver.Tests.Linq.Translators
 {
-    public class AggregateProjectionTranslatorTests_Group
+    [TestFixture]
+    public class AggregateProjectionTranslatorTests_Group : TranslatorTestBase
     {
-        private IMongoCollection<Root> _collection;
-
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
+        [Test]
+        public async Task Should_translate_using_non_anonymous_type_with_default_constructor()
         {
-            var client = MongoDB.Driver.Tests.Configuration.TestClient;
-            var db = client.GetDatabase(MongoDB.Driver.Tests.Configuration.TestDatabase.Name);
-            _collection = db.GetCollection<Root>(MongoDB.Driver.Tests.Configuration.TestCollection.Name);
-            db.DropCollectionAsync(_collection.CollectionNamespace.CollectionName).GetAwaiter().GetResult();
+            var result = await Group(x => x.A, g => new RootView { Property = g.Key, Field = g.First().B });
 
-            var root = new Root
-            {
-                A = "Awesome",
-                B = "Balloon",
-                C = new C
-                {
-                    D = "Dexter",
-                    E = new E
-                    {
-                        F = 11,
-                        H = 22,
-                        I = new[] { "it", "icky" }
-                    }
-                },
-                G = new[] { 
-                        new C
-                        {
-                            D = "Don't",
-                            E = new E
-                            {
-                                F = 33,
-                                H = 44,
-                                I = new [] { "ignanimous"}
-                            }
-                        },
-                        new C
-                        {
-                            D = "Dolphin",
-                            E = new E
-                            {
-                                F = 55,
-                                H = 66,
-                                I = new [] { "insecure"}
-                            }
-                        }
-                },
-                Id = 10,
-                J = new DateTime(2012, 12, 1, 13, 14, 15, 16),
-                K = true
-            };
-            _collection.InsertOneAsync(root).GetAwaiter().GetResult();
+            result.Projection.Should().Be("{ _id: \"$A\", Field: { \"$first\" : \"$B\" } }");
+
+            result.Value.Property.Should().Be("Awesome");
+            result.Value.Field.Should().Be("Balloon");
+        }
+
+        [Test]
+        public async Task Should_translate_using_non_anonymous_type_with_parameterized_constructor()
+        {
+            var result = await Group(x => x.A, g => new RootView(g.Key) { Field = g.First().B });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Field: { \"$first\" : \"$B\" } }");
+
+            result.Value.Property.Should().Be("Awesome");
+            result.Value.Field.Should().Be("Balloon");
         }
 
         [Test]
@@ -93,6 +64,16 @@ namespace MongoDB.Driver.Core.Linq
             result.Projection.Should().Be("{ _id: \"$A\" }");
 
             result.Value._id.Should().Be("Awesome");
+        }
+
+        [Test]
+        public async Task Should_translate_id_when_not_named_specifically()
+        {
+            var result = await Group(x => x.A, g => new { Test = g.Key });
+
+            result.Projection.Should().Be("{ _id: \"$A\" }");
+
+            result.Value.Test.Should().Be("Awesome");
         }
 
         [Test]
@@ -313,14 +294,13 @@ namespace MongoDB.Driver.Core.Linq
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
             var projectionInfo = AggregateProjectionTranslator.TranslateGroup<TKey, Root, TResult>(idProjector, groupProjector, serializer, BsonSerializer.SerializerRegistry);
 
-            var pipelineOperator = new BsonDocument("$group", projectionInfo.Projection);
-            var options = new AggregateOptions<TResult> { ResultSerializer = projectionInfo.Serializer };
-            using (var cursor = await _collection.AggregateAsync<TResult>(new object[] { pipelineOperator }, options))
+            var pipelineOperator = new BsonDocument("$group", projectionInfo.Document);
+            using (var cursor = await _collection.AggregateAsync<TResult>(new PipelineStagePipelineDefinition<Root, TResult>(new PipelineStageDefinition<Root, TResult>[] { pipelineOperator }, projectionInfo.ProjectionSerializer)))
             {
                 var list = await cursor.ToListAsync();
                 return new ProjectedResult<TResult>
                 {
-                    Projection = projectionInfo.Projection,
+                    Projection = projectionInfo.Document,
                     Value = (TResult)list[0]
                 };
             }
@@ -330,39 +310,6 @@ namespace MongoDB.Driver.Core.Linq
         {
             public BsonDocument Projection;
             public T Value;
-        }
-
-        private class Root
-        {
-            public int Id { get; set; }
-
-            public string A { get; set; }
-
-            public string B { get; set; }
-
-            public C C { get; set; }
-
-            public IEnumerable<C> G { get; set; }
-
-            public DateTime J { get; set; }
-
-            public bool K { get; set; }
-        }
-
-        public class C
-        {
-            public string D { get; set; }
-
-            public E E { get; set; }
-        }
-
-        public class E
-        {
-            public int F { get; set; }
-
-            public int H { get; set; }
-
-            public IEnumerable<string> I { get; set; }
         }
     }
 }

@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
@@ -23,74 +24,52 @@ namespace MongoDB.Driver
     /// <summary>
     /// Fluent interface for aggregate.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    public interface IAggregateFluent<TDocument, TResult> : IAsyncCursorSource<TResult>
+    /// <remarks>
+    /// This interface is not guaranteed to remain stable. Implementors should use
+    /// <see cref="AggregateFluentBase{TResult}" />.
+    /// </remarks>
+    /// <typeparam name="TResult">The type of the result of the pipeline.</typeparam>
+    public interface IAggregateFluent<TResult> : IAsyncCursorSource<TResult>
     {
-        /// <summary>
-        /// Gets the collection.
-        /// </summary>
-        IMongoCollection<TDocument> Collection { get; }
-
         /// <summary>
         /// Gets the options.
         /// </summary>
         AggregateOptions Options { get; }
 
         /// <summary>
-        /// Gets the pipeline.
+        /// Gets the stages.
         /// </summary>
-        IList<object> Pipeline { get; }
+        IList<IPipelineStageDefinition> Stages { get; }
 
         /// <summary>
-        /// Gets the result serializer.
+        /// Appends the stage to the pipeline.
         /// </summary>
-        IBsonSerializer<TResult> ResultSerializer { get; }
-
-        /// <summary>
-        /// Appends a stage to the pipeline.
-        /// </summary>
+        /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
         /// <param name="stage">The stage.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TResult> AppendStage(object stage);
+        IAggregateFluent<TNewResult> AppendStage<TNewResult>(PipelineStageDefinition<TResult, TNewResult> stage);
 
         /// <summary>
-        /// Appends a geoNear stage to the pipeline.
+        /// Appends a group stage to the stages.
         /// </summary>
-        /// <param name="geoNear">The geo near options.</param>
+        /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
+        /// <param name="group">The group projection.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TResult> GeoNear(object geoNear);
-
-        /// <summary>
-        /// Appends a group stage to the pipeline.
-        /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="group">The group expressions.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group);
-
-        /// <summary>
-        /// Appends a group stage to the pipeline.
-        /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="group">The group expressions.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TNewResult> Group<TNewResult>(object group, IBsonSerializer<TNewResult> resultSerializer);
+        IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group);
 
         /// <summary>
         /// Appends a limit stage to the pipeline.
         /// </summary>
         /// <param name="limit">The limit.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TResult> Limit(int limit);
+        IAggregateFluent<TResult> Limit(int limit);
 
         /// <summary>
         /// Appends a match stage to the pipeline.
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TResult> Match(object filter);
+        IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter);
 
         /// <summary>
         /// Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
@@ -103,65 +82,44 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends a project stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="project">The project specifications.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project);
-
-        /// <summary>
-        /// Appends a project stage to the pipeline.
-        /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="project">The project specifications.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TNewResult> Project<TNewResult>(object project, IBsonSerializer<TNewResult> resultSerializer);
-
-        /// <summary>
-        /// Appends a redact stage to the pipeline.
-        /// </summary>
-        /// <param name="redact">The redact expression.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TResult> Redact(object redact);
+        /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection);
 
         /// <summary>
         /// Appends a skip stage to the pipeline.
         /// </summary>
         /// <param name="skip">The number of documents to skip.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TResult> Skip(int skip);
+        IAggregateFluent<TResult> Skip(int skip);
 
         /// <summary>
         /// Appends a sort stage to the pipeline.
         /// </summary>
         /// <param name="sort">The sort specification.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TResult> Sort(object sort);
+        IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort);
 
         /// <summary>
         /// Appends an unwind stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="fieldName">The name of the field to unwind.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName);
-
-        /// <summary>
-        /// Appends an unwind stage to the pipeline.
-        /// </summary>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="fieldName">The name of the field to unwind.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TDocument, TNewResult> Unwind<TNewResult>(string fieldName, IBsonSerializer<TNewResult> resultSerializer);
+        /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="newResultSerializer">The new result serializer.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, IBsonSerializer<TNewResult> newResultSerializer = null);
     }
 
     /// <summary>
     /// Fluent interface for aggregate.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public interface IOrderedAggregateFluent<TDocument, TResult> : IAggregateFluent<TDocument, TResult>
+    public interface IOrderedAggregateFluent<TResult> : IAggregateFluent<TResult>
     {
     }
 }
