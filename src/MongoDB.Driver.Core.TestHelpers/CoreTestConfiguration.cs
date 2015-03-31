@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -66,9 +67,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                var writableServerDescription = __cluster.Value.Description.Servers.FirstOrDefault(
-                    description => description.Type.IsWritable());
-                return writableServerDescription.Version;
+                var server = __cluster.Value.SelectServerAsync(WritableServerSelector.Instance, CancellationToken.None).GetAwaiter().GetResult();
+                return server.Description.Version;
             }
         }
 
