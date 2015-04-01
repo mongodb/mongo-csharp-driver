@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Clusters
             _description = ClusterDescription.CreateInitial(_clusterId, _settings.ConnectionMode.ToClusterType());
             _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
 
-            _rapidHeartbeatTimer = new Timer(o => RequestHeartbeat(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            _rapidHeartbeatTimer = new Timer(RapidHeartbeatTimerCallback, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         }
 
         // events
@@ -159,6 +159,20 @@ namespace MongoDB.Driver.Core.Clusters
             _state.TryChange(State.Initial, State.Open);
         }
 
+        private void RapidHeartbeatTimerCallback(object args)
+        {
+            try
+            {
+                RequestHeartbeat();
+            }
+            catch
+            {
+                // TODO: Trace this
+                // If we don't protect this call, we could
+                // take down the app domain.
+            }
+        }
+
         protected abstract void RequestHeartbeat();
 
         protected void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
@@ -188,14 +202,14 @@ namespace MongoDB.Driver.Core.Clusters
             if (_settings.PreServerSelector != null || _settings.PostServerSelector != null)
             {
                 var allSelectors = new List<IServerSelector>();
-                if(_settings.PreServerSelector != null)
+                if (_settings.PreServerSelector != null)
                 {
                     allSelectors.Add(_settings.PreServerSelector);
                 }
 
                 allSelectors.Add(selector);
 
-                if(_settings.PostServerSelector != null)
+                if (_settings.PostServerSelector != null)
                 {
                     allSelectors.Add(_settings.PostServerSelector);
                 }

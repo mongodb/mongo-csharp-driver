@@ -169,7 +169,19 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (server.IsInitialized)
                 {
-                    server.RequestHeartbeat();
+                    try
+                    {
+                        server.RequestHeartbeat();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // There is a possible race condition here
+                        // due to the fact that we are working 
+                        // with the server outside of the lock,
+                        // meaning another thread could remove 
+                        // the server and dispose of it before
+                        // we invoke the method.
+                    }
                 }
             }
         }
