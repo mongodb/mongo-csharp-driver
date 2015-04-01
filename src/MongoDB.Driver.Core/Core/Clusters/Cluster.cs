@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Clusters
     {
         #region static
         // static fields
-        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(10);
+        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(500);
         private static readonly Range<int> __supportedWireVersionRange = new Range<int>(0, 3);
         private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
         #endregion
