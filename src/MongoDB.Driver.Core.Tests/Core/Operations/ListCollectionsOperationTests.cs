@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
             var createCollectionOperation = new CreateCollectionOperation(collectionNamespace, _messageEncoderSettings)
             {
                 Capped = true,
-                MaxSize = 100000
+                MaxSize = 10000
             };
             ExecuteOperation(createCollectionOperation);
 
