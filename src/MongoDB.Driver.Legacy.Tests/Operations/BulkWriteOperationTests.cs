@@ -1184,6 +1184,7 @@ namespace MongoDB.Driver.Tests.Operations
         }
 
         [Test]
+        [Explicit]
         [RequiresServer(MinimumVersion = "2.4.0", ClusterTypes = ClusterTypes.ReplicaSet)]
         public void TestWTimeoutPlusDuplicateKeyError()
         {
