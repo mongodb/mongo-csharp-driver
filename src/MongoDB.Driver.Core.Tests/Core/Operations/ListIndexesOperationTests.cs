@@ -35,7 +35,8 @@ namespace MongoDB.Driver.Core.Operations
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            _collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestFixture();
+            var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
+            _collectionNamespace = new CollectionNamespace(databaseNamespace, "ListIndexesOperationTests");
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 

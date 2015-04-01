@@ -36,7 +36,8 @@ namespace MongoDB.Driver.Tests
             _server = LegacyTestConfiguration.Server;
             _primary = LegacyTestConfiguration.Server.Primary;
             _database = LegacyTestConfiguration.Database;
-            _database.Drop();
+            // TODO: DropDatabase
+            //_database.Drop();
         }
 
         // TODO: more tests for MongoDatabase
@@ -251,11 +252,13 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestGetCollectionNames()
         {
-            _database.Drop();
-            _database.GetCollection("a").Insert(new BsonDocument("a", 1));
-            _database.GetCollection("b").Insert(new BsonDocument("b", 1));
-            _database.GetCollection("c").Insert(new BsonDocument("c", 1));
-            var collectionNames = _database.GetCollectionNames();
+            var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
+            var database = _server.GetDatabase(databaseNamespace.DatabaseName);
+            database.Drop();
+            database.GetCollection("a").Insert(new BsonDocument("a", 1));
+            database.GetCollection("b").Insert(new BsonDocument("b", 1));
+            database.GetCollection("c").Insert(new BsonDocument("c", 1));
+            var collectionNames = database.GetCollectionNames();
             Assert.AreEqual(new[] { "a", "b", "c" }, collectionNames.Where(n => n != "system.indexes"));
         }
 
