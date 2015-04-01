@@ -279,7 +279,8 @@ namespace MongoDB.Driver
         {
             if (__cluster.IsValueCreated)
             {
-                DropDatabase();
+                // TODO: DropDatabase
+                //DropDatabase();
                 __cluster.Value.Dispose();
                 __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
             }
