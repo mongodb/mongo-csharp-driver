@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver.Linq.Processors
 {
@@ -166,24 +167,16 @@ namespace MongoDB.Driver.Linq.Processors
             var unaryExpression = newNode as UnaryExpression;
             if (node != newNode &&
                 unaryExpression != null &&
-                !unaryExpression.Operand.Type.IsEnum && // enums are weird, so we skip them
                 (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked))
             {
-                if (unaryExpression.Operand.Type.IsGenericType && unaryExpression.Operand.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    var underlyingType = Nullable.GetUnderlyingType(node.Operand.Type);
-                    if (underlyingType.IsEnum)
-                    {
-                        // we skip enums because they are weird
-                        return newNode;
-                    }
-                }
-
                 var serializationExpression = unaryExpression.Operand as ISerializationExpression;
                 if (serializationExpression != null)
                 {
                     BsonSerializationInfo serializationInfo;
-                    if (!unaryExpression.Type.IsAssignableFrom(unaryExpression.Operand.Type))
+                    var operandType = unaryExpression.Operand.Type;
+                    if (!unaryExpression.Operand.Type.IsEnum &&
+                        !TypeHelper.IsNullableEnum(operandType) &&
+                        !unaryExpression.Type.IsAssignableFrom(unaryExpression.Operand.Type))
                     {
                         // only lookup a new serializer if the cast is "unnecessary"
                         var serializer = _serializerRegistry.GetSerializer(node.Type);

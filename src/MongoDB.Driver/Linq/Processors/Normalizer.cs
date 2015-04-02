@@ -80,8 +80,8 @@ namespace MongoDB.Driver.Linq.Processors
 
             // VB introduces a Convert on the LHS with a Nothing comparison, so we make it look like C# which does not have
             // any with a comparison to null
-            if ((node.NodeType == ExpressionType.Equal || node.NodeType == ExpressionType.NotEqual) && 
-                node.Left.NodeType == ExpressionType.Convert && 
+            if ((node.NodeType == ExpressionType.Equal || node.NodeType == ExpressionType.NotEqual) &&
+                node.Left.NodeType == ExpressionType.Convert &&
                 node.Right.NodeType == ExpressionType.Constant)
             {
                 var left = (UnaryExpression)node.Left;
@@ -163,7 +163,9 @@ namespace MongoDB.Driver.Linq.Processors
             var left = node.Left;
             var right = node.Right;
             var operatorType = node.NodeType;
-            if (left.NodeType == ExpressionType.Constant)
+            if (left.NodeType == ExpressionType.Constant ||
+                (left.NodeType == ExpressionType.Convert && ((UnaryExpression)left).Operand.NodeType == ExpressionType.Constant) ||
+                (left.NodeType == ExpressionType.ConvertChecked && ((UnaryExpression)left).Operand.NodeType == ExpressionType.Constant))
             {
                 right = node.Left;
                 left = node.Right;

@@ -66,6 +66,31 @@ namespace MongoDB.Driver.Linq.Utils
             return candidate.GetInterfaces().Any(i => TypeHelper.ImplementsInterface(i, iface));
         }
 
+        internal static bool IsNullable(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        internal static bool IsNullableEnum(Type type)
+        {
+            if (!IsNullable(type))
+            {
+                return false;
+            }
+
+            return GetNullableUnderlyingType(type).IsEnum;
+        }
+
+        internal static Type GetNullableUnderlyingType(Type type)
+        {
+            if (!IsNullable(type))
+            {
+                throw new ArgumentException("Type must be nullable.", "type");
+            }
+
+            return type.GetGenericArguments()[0];
+        }
+
         private static Type FindIEnumerable(Type seqType)
         {
             if (seqType == null || seqType == typeof(string))
