@@ -333,73 +333,44 @@ namespace MongoDB.Driver.Linq.Translators
 
         private FilterDefinition<BsonDocument> BuildComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
-            BsonSerializationInfo serializationInfo = null;
             var value = constantExpression.Value;
 
-            var unaryExpression = variableExpression as UnaryExpression;
-            if (unaryExpression != null && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+            var methodCallExpression = variableExpression as MethodCallExpression;
+            if (methodCallExpression != null && value is bool)
             {
-                if (unaryExpression.Operand.Type.IsEnum)
-                {
-                    var enumType = unaryExpression.Operand.Type;
-                    if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
-                    {
-                        serializationInfo = GetSerializationInfo(unaryExpression.Operand);
-                        value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
-                    }
-                }
-                else if (
-                    unaryExpression.Type.IsGenericType &&
-                    unaryExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                    unaryExpression.Operand.Type.IsGenericType &&
-                    unaryExpression.Operand.Type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                    unaryExpression.Operand.Type.GetGenericArguments()[0].IsEnum)
-                {
-                    var enumType = unaryExpression.Operand.Type.GetGenericArguments()[0];
-                    if (unaryExpression.Type.GetGenericArguments()[0] == Enum.GetUnderlyingType(enumType))
-                    {
-                        serializationInfo = GetSerializationInfo(unaryExpression.Operand);
-                        if (value != null)
-                        {
-                            value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
-                        }
-                    }
-                }
-                else
-                {
-                    //Allows a cast, which would be required for compilation, such as (float){object} >= 25f to be built as __builder.GTE({object}, 25)
-                    serializationInfo = GetSerializationInfo(unaryExpression.Operand);
-                }
-            }
-            else
-            {
-                var methodCallExpression = variableExpression as MethodCallExpression;
-                if (methodCallExpression != null && value is bool)
-                {
-                    var boolValue = (bool)value;
-                    var query = this.BuildMethodCallQuery(methodCallExpression);
+                var boolValue = (bool)value;
+                var query = this.BuildMethodCallQuery(methodCallExpression);
 
-                    var isTrueComparison = (boolValue && operatorType == ExpressionType.Equal)
-                                            || (!boolValue && operatorType == ExpressionType.NotEqual);
+                var isTrueComparison = (boolValue && operatorType == ExpressionType.Equal)
+                                        || (!boolValue && operatorType == ExpressionType.NotEqual);
 
-                    return isTrueComparison ? query : __builder.Not(query);
-                }
-
-                serializationInfo = GetSerializationInfo(variableExpression);
+                return isTrueComparison ? query : __builder.Not(query);
             }
 
-            if (serializationInfo != null)
+            var serializationInfo = GetSerializationInfo(variableExpression);
+            var valueType = serializationInfo.Serializer.ValueType;
+            if (valueType.IsEnum || TypeHelper.IsNullableEnum(valueType))
             {
-                var serializedValue = serializationInfo.SerializeValue(value);
-                switch (operatorType)
+                if (!valueType.IsEnum && value != null)
                 {
-                    case ExpressionType.Equal: return __builder.Eq(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.GreaterThan: return __builder.Gt(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.GreaterThanOrEqual: return __builder.Gte(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.LessThan: return __builder.Lt(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.LessThanOrEqual: return __builder.Lte(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.NotEqual: return __builder.Ne(serializationInfo.ElementName, serializedValue);
+                    valueType = TypeHelper.GetNullableUnderlyingType(valueType);
                 }
+
+                if (value != null)
+                {
+                    value = Enum.ToObject(valueType, value);
+                }
+            }
+
+            var serializedValue = serializationInfo.SerializeValue(value);
+            switch (operatorType)
+            {
+                case ExpressionType.Equal: return __builder.Eq(serializationInfo.ElementName, serializedValue);
+                case ExpressionType.GreaterThan: return __builder.Gt(serializationInfo.ElementName, serializedValue);
+                case ExpressionType.GreaterThanOrEqual: return __builder.Gte(serializationInfo.ElementName, serializedValue);
+                case ExpressionType.LessThan: return __builder.Lt(serializationInfo.ElementName, serializedValue);
+                case ExpressionType.LessThanOrEqual: return __builder.Lte(serializationInfo.ElementName, serializedValue);
+                case ExpressionType.NotEqual: return __builder.Ne(serializationInfo.ElementName, serializedValue);
             }
 
             return null;

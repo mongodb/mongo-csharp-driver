@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -162,6 +163,29 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<StringSerializer>();
         }
 
+        [Test]
+        public void Should_resolve_an_enum_with_field_type()
+        {
+            var subject = new ExpressionFieldDefinition<Person, Gender>(x => x.Gender);
+
+            var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
+
+            renderedField.FieldName.Should().Be("g");
+            renderedField.FieldSerializer.Should().BeOfType<EnumSerializer<Gender>>();
+        }
+
+        [Test]
+        public void Should_resolve_an_enum_without_field_type()
+        {
+            Expression<Func<Person, object>> exp = x => x.Gender;
+            var subject = new ExpressionFieldDefinition<Person>(exp);
+
+            var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
+
+            renderedField.FieldName.Should().Be("g");
+            renderedField.FieldSerializer.Should().BeOfType<EnumSerializer<Gender>>();
+        }
+
         private class Person
         {
             [BsonElement("name")]
@@ -169,6 +193,9 @@ namespace MongoDB.Driver.Tests
 
             [BsonElement("pets")]
             public IEnumerable<Pet> Pets { get; set; }
+
+            [BsonElement("g")]
+            public Gender Gender { get; set; }
         }
 
         private class Name
@@ -186,6 +213,12 @@ namespace MongoDB.Driver.Tests
 
             [BsonElement("name")]
             public Name Name { get; set; }
+        }
+
+        private enum Gender
+        {
+            Male,
+            Female
         }
     }
 }
