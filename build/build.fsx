@@ -4,7 +4,7 @@ open Fake
 open Fake.AssemblyInfoFile
 
 let config = getBuildParamOrDefault "config" "Release"
-let baseVersion = getBuildParamOrDefault "baseVersion" "2.0.0"
+let baseVersion = getBuildParamOrDefault "baseVersion" "2.1.0"
 let preRelease = getBuildParamOrDefault "preRelease" "local"
 let getComputedBuildNumber() = 
     let result = Git.CommandHelper.runSimpleGitCommand currentDirectory "describe HEAD^1 --tags --long --match \"v[0-9].[0-9].[0-9]\""
@@ -171,7 +171,7 @@ Target "ApiDocs" (fun _ ->
 
     let preliminary =
         match preRelease with
-        | "" -> "False"
+        | "#release#" -> "False"
         | _ -> "True"
 
     let properties = ["Configuration", config
