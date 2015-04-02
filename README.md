@@ -72,15 +72,13 @@ foreach(var person in list)
 Documentation
 -------------
 * [MongoDB](http://www.mongodb.org/)
-* [Documentation](http://www.mongodb.org/display/DOCS/CSharp+Language+Center)
-* [Api Documentation](http://api.mongodb.org/csharp/)
+* [Documentation](http://mongodb.github.io/mongo-csharp-driver/)
 
 Questions/Bug Reports
 ---------------------
 * [Discussion Forum](http://groups.google.com/group/mongodb-user)
 * [Stack Overflow](http://stackoverflow.com/questions/tagged/mongodb)
 * [Jira](https://jira.mongodb.org/browse/CSHARP)
-* [Jabbr](https://jabbr.net/#/rooms/mongodb)
 
 If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the [instructions here](http://docs.mongodb.org/manual/tutorial/create-a-vulnerability-report).
 
