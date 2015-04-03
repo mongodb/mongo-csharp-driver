@@ -103,3 +103,148 @@ var result = await collection.Find(filter)
 	.Skip(10)
 	.FirstOrDefaultAsync();
 ```
+
+## Aggregation
+
+MongoDB offers the [aggregation framework]({{< docsref "core/aggregation-pipeline/" >}}) which can be accessed via the [`Aggregate`]({{< apiref "M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1" >}}) method. The result type is [`IAggregateFluent`]({{< apiref "T_MongoDB_Driver_IAggregateFluent_1" >}}) and provides access to build up and aggregation pipeline.
+
+The first example from [MongoDB's documentation]({{< docsref "tutorial/aggregation-zip-code-data-set/#return-states-with-populations-above-10-million" >}}) is done in a type-safe manner below:
+
+```csharp
+[BsonIgnoreExtraElements]
+class ZipEntry
+{
+    [BsonId]
+    public string Zip { get; set; }
+
+    [BsonElement("city")]
+    public string City { get; set; }
+
+    [BsonElement("state")]
+    public string State { get; set; }
+
+    [BsonElement("pop")]
+    public int Population { get; set; }
+}
+
+var pipeline = db.GetCollection<ZipEntry>.Aggregate()
+	.Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
+	.Match(x => x.TotalPopulation > 20000);
+```
+
+This will result in the following aggregation pipeline getting sent to the server:
+
+```json
+[{ group: { _id: '$state', TotalPopulation: { $sum : '$pop' } } },
+{ $match: { TotalPopulation: { $gt: 20000 } } }]
+```
+
+{{% note %}}You can call `ToString` on the pipeline to see what would be sent to the server.{{% /note %}}
+
+More samples are located in the [source]({{< srcref "MongoDB.Driver.Tests/Samples/AggregationSample.cs" >}}.
+
+### Stage Operators
+
+All the [stage operators]({{< docsref "reference/operator/aggregation/#aggregation-pipeline-operator-reference" >}}) are supported, however some of them must use the [`AppendStage`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1" >}}) method due to lack of support for certain projections in the language.
+
+{{% note class="important" %}}Unlike `Find`, the order that stages are defined in matters. `Skip(10).Limit(10)` is not the same as `Limit(10).Skip(10)`.{{% /note %}}
+
+#### $project
+
+A `$project` is rendered using the [`Project`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Project__1" >}}) method and its overloads. Unlike in `Find`, an aggregate projection is not executed client-side and must be fully translatable to the server's supported expressions.  See [expressions]({{< relref "reference\driver\expressions.md#projections" >}}) for more detail about the expressions available inside a $project.
+
+```csharp
+Project(x => new { Name = x.FirstName + " " + x.LastName });
+```
+```json
+{ $project: { Name: { $concat: ['$FirstName', ' ', '$LastName'] } } }
+```
+
+{{% note %}}In an aggregation framework projection, a new type, either anonymous or named, must be used.{{% /note %}}
+
+#### $match
+
+A `$match` stage is rendered using the [`Match`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Match" >}}) method and its overloads. It follows the same requirements as that of `Find`.
+
+```csharp
+Match(x => x.Age > 21);
+```
+```json
+{ $match: { Age: { $gt: 21 } } }
+```
+
+#### $redact
+
+There is no method defined for a `$redact` stage. However, it can be added using [`AppendStage`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1" >}}).
+
+#### $limit
+
+A `$limit` stage is rendered using the [`Limit`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Limit" >}}) method.
+
+```csharp
+Limit(20);
+```
+```json
+{ $limit: 20 }
+```
+
+#### $skip
+
+A `$skip` stage is rendered using the [`Skip`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Skip" >}}) method.
+
+```csharp
+Skip(20);
+```
+```json
+{ $skip: 20 }
+```
+
+#### $unwind
+
+An `$unwind` stage is rendered using the [`Unwind`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Unwind__1" >}}) method and its overloads. Because $unwind is a type of projection, you must provide a return type, although not specifying one will use the overload that projects into a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}).
+
+```csharp
+Unwind(x => x.ArrayFieldToUnwind);
+```
+```json
+{ $unwind: 'ArrayFieldToUnwind' }
+```
+
+#### $group
+
+A `$group` stage is rendered using the [`Group`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Group__1" >}}) method and its overloads. Because $unwind is a type of projection, you must provide a return type. The most useful of the overloads is where 2 lambda expressions are expressed, the first for the key and the second for the grouping. See [expressions]({{< relref "reference\driver\expressions.md#grouping" >}}) for more detail about the expressions available inside a $group.
+
+```csharp
+Group(x => x.Name, g => new { Name = g.Key, AverageAge = g.Average(x = x.Age) });
+```
+```json
+{ $group: { _id: '$Name', AverageAge: { $avg: '$Age'} } }
+```
+
+As in project, it is required that the result of the grouping be a new type, either anonymous or named. If the `Key` of the grouping is not used, an `_id` will still be inserted as this is required by the `$group` operator.
+
+#### $sort
+
+A `$sort` stage is rendered using the [`Sort`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Sort" >}}) method. However, `SortBy`, `SortByDescending`, `ThenBy`, and `ThenByDescending` are also present. 
+
+```csharp
+SortBy(x => x.LastName).ThenByDescending(x => x.Age);
+```
+```json
+{ $sort: { LastName: 1, Age: -1 } }
+```
+
+#### $geoNear
+
+There is no method defined for a `$geoNear` stage. However, it can be added using [`AppendStage`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1" >}}).
+
+#### $out
+
+A `$out` stage is rendered using the [`Out`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Out" >}}) method.
+
+```csharp
+Out("myNewCollection");
+```
+```json
+{ $out: 'myNewCollection' }
+```
