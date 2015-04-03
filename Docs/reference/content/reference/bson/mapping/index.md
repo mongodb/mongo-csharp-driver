@@ -570,53 +570,6 @@ The 3 options in the [`DictionaryRepresentation`]({{< apiref "T_MongoDB_Bson_Ser
 - `ArrayOfDocuments`: A dictionary represented as an ArrayOfDocuments will be stored as a BsonArray of key/value pairs, where each key/value pair is stored as a nested two-element BsonDocument of the form { k : key, v : value }. This representation is just as general as the ArrayOfArrays representation, but because the keys and values are tagged with element names it is much easier to write queries against it. For backward compatibility reasons this is not the default representation.
 
 
-### Representation
-
-For some .NET primitive types you can control what BSON type you want used to represent the value. For example, you can specify whether a char value should be represented as a BSON Int32 or as a one-character BSON String:
-
-```csharp
-public class MyClass 
-{
-    [BsonRepresentation(BsonType.Int32)]
-    public char RepresentAsInt32 { get; set; }
-
-    [BsonRepresentation(BsonType.String)]
-    public char RepresentAsString { get; set; }
-}
-```
-
-Or via code:
-
-```csharp
-BsonClassMap.RegisterClassMap<MyClass>(cm => 
-{
-    cm.AutoMap();
-    cm.GetMemberMap(c => c.RepresentAsInt32).SetRepresentation(BsonType.Int32);
-    cm.GetMemberMap(c => c.RepresentAsString).SetRepresentation(BsonType.String);
-});
-```
-
-One case that deserves special mention is representing a string externally as an ObjectId. For example:
-
-```csharp
-public class Employee 
-{
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
-}
-```
-
-In this case, the serializer will convert the [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}}) to a `string` when reading data from the database and will convert the `string` back to an [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}}) when writing data to the database (the `string` value must be a valid [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}})). Typically this is done when you want to keep your domain classes free of any dependencies on the driver. To keep your domain classes free of dependencies on the C# driver you also won’t want to use attributes, so you can accomplish the same thing using initialization code instead of attributes:
-
-```csharp
-BsonClassMap.RegisterClassMap<Employee>(cm => 
-{
-    cm.AutoMap();
-    cm.IdMemberMap.SetRepresentation(BsonType.ObjectId);
-});
-```
-
-
 ## Custom Attributes
 
 It is possible to implement custom attributes to contribute to the serialization infrastructure. There are 3 interfaces you might want to implement:
