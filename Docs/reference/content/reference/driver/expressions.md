@@ -302,7 +302,7 @@ Find(x => x.FavoriteNumbers.Count() == 3);
 { FavoriteNumbers: { $size: 3 } }
 ```
 
-## Aggregate
+## Aggregation Projections
 
 We'll walk through the supported expressions below. The [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Project.cs" >}}) are also a good reference.
 
@@ -799,11 +799,11 @@ p => p.Name ?? "awesome";
 
 See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#accumulators" >}}) for more information on each operator.
 
-Also, the [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Group.cs" >}}) are also a good reference.
+Also, the [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Group.cs" >}}) are a good reference.
 
 {{% note %}}These are only supported in a grouping expression.{{% /note %}}
 
-In the below, it should be assumed that `g` is of type [`IGrouping<TKey, TElement>`]({{< msdnref "bb344977" >}}).
+In the examples below, it should be assumed that `g` is of type [`IGrouping<TKey, TElement>`]({{< msdnref "bb344977" >}}).
 
 #### $sum
 
