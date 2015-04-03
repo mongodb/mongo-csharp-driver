@@ -620,7 +620,7 @@ BsonClassMap.RegisterClassMap<Employee>(cm =>
 
 #### Enums
 
-Another case that deserves mention is enumerations. Enumerations are, by default, represented as their base value. In other words, a plain enum will be represented as an integer value. However, it is possible to instruct the driver to represent an enum as a string.
+Another case that deserves mention is enums. Enums are, by default, represented as their underlying value. In other words, a plain enum will be represented as an integer value. However, it is possible to instruct the driver to represent an enum as a string.
 
 ```csharp
 public enum Color

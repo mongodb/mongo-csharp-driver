@@ -35,10 +35,10 @@ As 2.0 is a major revision, there are some breaking changes when coming from the
 - [CSHARP-979](https://jira.mongodb.org/browse/CSHARP-979): `MongoConnectionStringBuilder` has been removed. Use the documented mongodb connection string format and/or `MongoUrlBuilder`.
 - `MongoServer` is a deprecated class. Anyone using `MongoClient.GetServer()` will encounter a deprecation warning and, depending on how your build is setup, may receive an error. It is still safe to use this API until your code is ported to the new API. *Note that this API requires the use of the [mongocsharpdriver](http://nuget.org/packages/mongocsharpdriver) to include the legacy API.
 - [CSHARP-1043](https://jira.mongodb.org/browse/CSHARP-1043) and [CSHARP-1044](https://jira.mongodb.org/browse/CSHARP-1044): `ReadPreference` and `WriteConcern` were rewritten. These classes are now immutable. Any current application code that sets values on these classes will no longer function. Instead, you should use the With method to alter a `ReadPreference` or `WriteConcern`.
-	
-	``` csharp
-	var writeConcern = myCurrentWriteConcern.With(journal: true);
-	```
+    
+    ``` csharp
+    var writeConcern = myCurrentWriteConcern.With(journal: true);
+    ```
 
 ## Migrating
 
@@ -48,13 +48,13 @@ Below are some common actions in the old API and their counterpart in the new AP
 
 _[More information.]({{< relref "reference\driver\definitions.md" >}})_
 
-The old builders (Query, Update, etc...) have all be replaced with Builders<T>.Filter, Builders<T>.Update, etc...
+The old builders (`Query`, `Update`, etc...) have all been replaced by `Builders<T>.Filter`, `Builders<T>.Update`, etc...
 
 ```csharp
 // old API
 var query = Query.And(
-	Query<Person>.EQ(x => x.FirstName, "Jack"), 
-	Query<Person>.LT(x => x.Age, 21));
+    Query<Person>.EQ(x => x.FirstName, "Jack"), 
+    Query<Person>.LT(x => x.Age, 21));
 
 // new API
 var builder = Builders<Person>.Filter;
@@ -64,20 +64,20 @@ var filter = builder.Eq(x => x.FirstName, "Jack") & builder.Lt(x => x.Age, 21);
 ```csharp
 // old API
 var update = Update.Combine(
-	Update<Person>.Set(x => x.LastName, "McJack"),
-	Update<Person>.Inc(x => x.Age, 1));
+    Update<Person>.Set(x => x.LastName, "McJack"),
+    Update<Person>.Inc(x => x.Age, 1));
 
 // new API
 var update = Builders<Person>.Update
-	.Set(x => x.LastName, "McJack")
-	.Inc(x => x.Age, 1);
+    .Set(x => x.LastName, "McJack")
+    .Inc(x => x.Age, 1);
 ```
 
 ### Finding All Documents
 
 _[More information.]({{< relref "reference\driver\crud\reading.md#finding-documents" >}})_
 
-To find all documents, you must specify an empty filter.
+To match all documents, you must specify an empty filter.
 
 ```csharp
 // old API
@@ -91,14 +91,14 @@ var list = await collection.Find(new BsonDocument()).ToListAsync();
 
 _[More information.]({{< relref "reference\driver\crud\reading.md#single-results" >}})_
 
-To find all documents, you must specify an empty filter.
+To match all documents, you must specify an empty filter.
 
 ```csharp
 // old API
-var doc = collection.FindOne();
+var document = collection.FindOne();
 
 // new API
-var doc = await collection.Find(new BsonDocument()).FirstOrDefaultAsync();
+var document = await collection.Find(new BsonDocument()).FirstOrDefaultAsync();
 ```
 
 ### Iteration
@@ -109,30 +109,30 @@ You cannot iterate synchronously using a foreach loop without first getting a li
 
 ```csharp
 // old API
-foreach(var doc in collection.Find(new QueryDocument("Name", "Jack")))
+foreach (var document in collection.Find(new QueryDocument("Name", "Jack")))
 {
-	// do something
+    // do something
 }
 
 // new API
 await collection.Find(new BsonDocument("Name", "Jack"))
-	.ForEachAsync(doc =>
-	{
-		// do something
-	});
+    .ForEachAsync(document =>
+    {
+        // do something
+    });
 
 await collection.Find(new BsonDocument("Name", "Jack"))
-	.ForEachAsync(async doc =>
-	{
-		// do something with await
-	});
+    .ForEachAsync(async document =>
+    {
+        // do something with await
+    });
 ```
 
 ### Counting All Documents
 
 _[More information.]({{< relref "reference\driver\crud\reading.md#counting-documents" >}})_
 
-To find all documents, you must specify an empty filter.
+To match all documents, you must specify an empty filter.
 
 ```csharp
 // old API
@@ -151,20 +151,20 @@ You can still use attributes as you have done before. To set the representation 
 ```csharp
 class Test
 {
-	public char RepresentAsInt32 { get; set; }
+    public char RepresentAsInt32 { get; set; }
 }
 
 // old API
 BsonClassMap.RegisterClassMap<Person>(cm =>
 {
-	// snip...
-	cm.MapMember(x => x.RepresentAsInt32).SetRepresentation(BsonType.Int32);
+    // snip...
+    cm.MapMember(x => x.RepresentAsInt32).SetRepresentation(BsonType.Int32);
 });
 
 // new API
 BsonClassMap.RegisterClassMap<Person>(cm =>
 {
-	// snip...
-	cm.MapMember(x => x.RepresentAsInt32).SetSerializer(new CharSerializer(BsonType.Int32));
+    // snip...
+    cm.MapMember(x => x.RepresentAsInt32).SetSerializer(new CharSerializer(BsonType.Int32));
 });
 ```
