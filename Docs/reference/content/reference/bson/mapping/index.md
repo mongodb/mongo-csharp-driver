@@ -591,10 +591,12 @@ Or via code:
 BsonClassMap.RegisterClassMap<MyClass>(cm => 
 {
     cm.AutoMap();
-    cm.GetMemberMap(c => c.RepresentAsInt32).SetRepresentation(BsonType.Int32);
-    cm.GetMemberMap(c => c.RepresentAsString).SetRepresentation(BsonType.String);
+    cm.MapMember(c => c.RepresentAsInt32).SetSerializer(new CharSerializer(BsonType.Int32));
+    cm.MapMember(c => c.RepresentAsString).SetSerializer(new CharSerializer(BsonType.String));
 });
 ```
+
+#### ObjectIds
 
 One case that deserves special mention is representing a string externally as an ObjectId. For example:
 
@@ -616,6 +618,33 @@ BsonClassMap.RegisterClassMap<Employee>(cm =>
 });
 ```
 
+#### Enums
+
+Another case that deserves mention is enumerations. Enumerations are, by default, represented as their base value. In other words, a plain enum will be represented as an integer value. However, it is possible to instruct the driver to represent an enum as a string.
+
+```csharp
+public enum Color
+{
+    Blue,
+    Other
+}
+
+public class Person 
+{
+    [BsonRepresentation(BsonType.String)]
+    public Color FavoriteColor { get; set; }
+}
+```
+
+Or via code:
+
+```csharp
+BsonClassMap.RegisterClassMap<Person>(cm => 
+{
+    cm.AutoMap();
+    cm.MapMember(c => c.FavoriteColor).SetSerializer(new EnumSerializer<Color>(BsonType.String));
+});
+```
 
 ## Custom Attributes
 
