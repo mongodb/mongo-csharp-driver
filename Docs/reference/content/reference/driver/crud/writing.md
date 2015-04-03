@@ -104,7 +104,7 @@ var result = await collection.FindOneAndDeleteAsync(filter);
 
 if (result != null)
 {
-	Assert(result["FirstName"] == "Jack");
+    Assert(result["FirstName"] == "Jack");
 }
 ```
 
@@ -170,7 +170,7 @@ var result = await collection.FindOneAndUpdateAsync(filter, update, options);
 
 if (result != null)
 {
-	Assert(result["FirstName"] == "John");
+    Assert(result["FirstName"] == "John");
 }
 ```
 
