@@ -92,7 +92,7 @@ var result = await collection.DeleteManyAsync(filter);
 
 ## Find And Modify
 
-There are a certain class of operations using the [findAndModify command]({{< docsref "reference/command/findAndModify/" >}}) from the server. This command will perform some operation on the document and return the document either before or after the modification takes place. By default, the document is returned before the modification takes place.
+There are a certain class of operations using the [findAndModify command]({{< docsref "reference/command/findAndModify/" >}}) from the server. This command will perform some operation on the document and return either the original version of the document as it was before the operation, or the new version of the document as it became after the operation. By default, the original version of the document is returned.
 
 ### FindOneAndDelete
 
@@ -102,7 +102,10 @@ A single document can be deleted atomically using [`FindOneAndDeleteAsync`]({{< 
 var filter = new BsonDocument("FirstName", "Jack");
 var result = await collection.FindOneAndDeleteAsync(filter);
 
-Assert(result["FirstName"] == "Jack"); // will be true if a document was found.
+if (result != null)
+{
+	Assert(result["FirstName"] == "Jack");
+}
 ```
 
 The above will find a document where the `FirstName` is `Jack` and delete it. It will then return the document that was just deleted.
@@ -118,7 +121,10 @@ var replacementDocument = new BsonDocument("FirstName", "John");
 
 var result = await collection.FindOneAndReplaceAsync(filter, doc);
 
-Assert(result["FirstName"] == "Jack"); // will be true if a document was found.
+if (result != null)
+{
+	Assert(result["FirstName"] == "Jack");
+}
 ```
 
 The above will find a document where the `FirstName` is `Jack` and replace it with `replacementDocument`. It will then return the document that was replaced.
@@ -133,7 +139,10 @@ var update = Builders<BsonDocument>.Update.Set("FirstName", "John");
 
 var result = await collection.FindOneAndUpdateAsync(filter, update);
 
-Assert(result["FirstName"] == "Jack"); // will be true if a document was found.
+if (result != null)
+{
+	Assert(result["FirstName"] == "Jack");
+}
 ```
 
 The above will find a document where the `FirstName` is `Jack` and set its `FirstName` field to `John`. It will then return the document that was replaced.
@@ -145,7 +154,7 @@ Each of the 3 operations has certain options available.
 
 #### ReturnDocument
 
-For Replacing and Updating, the [`ReturnDocument`]({{< apiref "T_MongoDB_Driver_ReturnDocument" >}}) enum can be provided. It allows you to return the document after the modification has taken place. The default is `Before`.
+For Replacing and Updating, the [`ReturnDocument`]({{< apiref "T_MongoDB_Driver_ReturnDocument" >}}) enum can be provided. It allows you to choose which version of the document to return, either the original version as it was before the operation, or the modified version as it became after the operation.
 
 For example:
 
@@ -153,13 +162,16 @@ For example:
 var filter = new BsonDocument("FirstName", "Jack");
 var update = Builders<BsonDocument>.Update.Set("FirstName", "John");
 
-var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>
+var options = new FindOneAndUpdateOptions<BsonDocument>
 {
-	ReturnDocument = ReturnDocument.After
+    ReturnDocument = ReturnDocument.After
 };
 var result = await collection.FindOneAndUpdateAsync(filter, update, options);
 
-Assert(result["FirstName"] == "John"); // will be true if a document was found.
+if (result != null)
+{
+	Assert(result["FirstName"] == "John");
+}
 ```
 
 #### Projection
@@ -168,7 +180,7 @@ A projection can be provided to shape the result. The easiest way to build the p
 
 #### Sort
 
-Since only a single document is selected, for filters that could result in multiple choices, a sort should be provided and the first document will be selected.
+Since only a single document is selected, for filters that could result in multiple choices, a sort should be provided and the first document in the sort order will be the one modified.
 
 #### IsUpsert
 
