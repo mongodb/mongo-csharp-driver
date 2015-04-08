@@ -141,6 +141,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder ConfigureServer(Func<ServerSettings, ServerSettings> configurator)
         {
+            Ensure.IsNotNull(configurator, "configurator");
+
             _serverSettings = configurator(_serverSettings);
             return this;
         }
@@ -152,6 +154,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder ConfigureSsl(Func<SslStreamSettings, SslStreamSettings> configurator)
         {
+            Ensure.IsNotNull(configurator, "configurator");
+
             _sslStreamSettings = configurator(_sslStreamSettings ?? new SslStreamSettings());
             return this;
         }
