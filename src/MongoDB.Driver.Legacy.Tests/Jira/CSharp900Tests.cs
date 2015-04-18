@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests.Jira
         private class B
         {
             public ObjectId Id;
-            public object Value;          
+            public object Value;
             public List<C> SubValues;
         }
 
@@ -53,12 +53,12 @@ namespace MongoDB.Driver.Tests.Jira
 
             _collection.Drop();
             _collection.CreateIndex("Value", "SubValues.Value");
-            
+
             //numeric
             _collection.Insert(new B { Id = ObjectId.GenerateNewId(), Value = (byte)1, SubValues = new List<C>() { new C(2f), new C(3), new C(4D), new C(5UL) } });
-            _collection.Insert(new B { Id = ObjectId.GenerateNewId(), Value = 2f, SubValues = new List<C>() { new C(6f), new C(7), new C(8D), new C(9UL) } });  
+            _collection.Insert(new B { Id = ObjectId.GenerateNewId(), Value = 2f, SubValues = new List<C>() { new C(6f), new C(7), new C(8D), new C(9UL) } });
             //strings
-            _collection.Insert(new B { Id = ObjectId.GenerateNewId(), Value = "1", SubValues = new List<C>() { new C("2"), new C("3"), new C("4"), new C("5") } });            
+            _collection.Insert(new B { Id = ObjectId.GenerateNewId(), Value = "1", SubValues = new List<C>() { new C("2"), new C("3"), new C("4"), new C("5") } });
         }
 
         [Ignore("LINQ Convert")]

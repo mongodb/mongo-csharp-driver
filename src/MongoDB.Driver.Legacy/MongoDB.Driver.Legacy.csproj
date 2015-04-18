@@ -160,7 +160,6 @@
     <Compile Include="QueryFlags.cs" />
     <Compile Include="RemoveFlags.cs" />
     <Compile Include="Support\TaskExtensions.cs" />
-    <Compile Include="Sync\AsyncCursorEnumeratorAdapter.cs" />
     <Compile Include="Sync\IClusterExtensions.cs" />
     <Compile Include="Sync\IOperationExtensions.cs" />
     <Compile Include="Sync\IServerExtensions.cs" />

@@ -14,14 +14,12 @@
 */
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Expressions
 {
-    [DebuggerDisplay("Serialization({SerializationInfo.ElementName})")]
-    internal class SerializationExpression : MongoExpression, ISerializationExpression
+    internal class SerializationExpression : ExtensionExpression, ISerializationExpression
     {
         private readonly Expression _expression;
         private readonly BsonSerializationInfo _serializationInfo;
@@ -37,9 +35,9 @@ namespace MongoDB.Driver.Linq.Expressions
             get { return _expression; }
         }
 
-        public override MongoExpressionType MongoNodeType
+        public override ExtensionExpressionType ExtensionType
         {
-            get { return MongoExpressionType.Serialization; }
+            get { return ExtensionExpressionType.Serialization; }
         }
 
         public BsonSerializationInfo SerializationInfo
@@ -54,7 +52,27 @@ namespace MongoDB.Driver.Linq.Expressions
 
         public override string ToString()
         {
-            return string.Format("Serialization({0})", _serializationInfo.ElementName);
+            if (_serializationInfo.ElementName == null)
+            {
+                return "[" + _expression.ToString() + "]";
+            }
+
+            return string.Format("[{0}]", _serializationInfo.ElementName);
+        }
+
+        public SerializationExpression Update(Expression expression)
+        {
+            if (expression != _expression)
+            {
+                return new SerializationExpression(expression, _serializationInfo);
+            }
+
+            return this;
+        }
+
+        protected internal override Expression Accept(ExtensionExpressionVisitor visitor)
+        {
+            return visitor.VisitSerialization(this);
         }
     }
 }

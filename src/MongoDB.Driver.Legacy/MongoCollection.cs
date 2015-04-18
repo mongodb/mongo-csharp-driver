@@ -144,8 +144,8 @@ namespace MongoDB.Driver
                 var resultSerializer = BsonDocumentSerializer.Instance;
                 var findOperation = new FindOperation<BsonDocument>(outputCollectionNamespace, resultSerializer, messageEncoderSettings)
                 {
-                     BatchSize = args.BatchSize,
-                     MaxTime = args.MaxTime
+                    BatchSize = args.BatchSize,
+                    MaxTime = args.MaxTime
                 };
 
                 return new AggregateEnumerable(this, findOperation, ReadPreference.Primary);
@@ -638,7 +638,7 @@ namespace MongoDB.Driver
                 MaxTime = args.MaxTime,
                 Projection = projection,
                 Sort = sort
-               
+
             };
 
             try
@@ -1569,7 +1569,7 @@ namespace MongoDB.Driver
             };
 
             var cursors = ExecuteReadOperation(operation, args.ReadPreference);
-            var documentEnumerators = cursors.Select(c => new AsyncCursorEnumeratorAdapter<TDocument>(c).GetEnumerator()).ToList();
+            var documentEnumerators = cursors.Select(c => new AsyncCursorEnumeratorAdapter<TDocument>(c, CancellationToken.None).GetEnumerator()).ToList();
             return new ReadOnlyCollection<IEnumerator<TDocument>>(documentEnumerators);
         }
 

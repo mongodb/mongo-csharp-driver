@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq.Translators;
-using MongoDB.Driver.Linq.Utils;
 using NUnit.Framework;
 using FluentAssertions;
 using MongoDB.Bson.IO;
@@ -33,7 +32,7 @@ using MongoDB.Driver.Core;
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
     [TestFixture]
-    public class AggregateProjectionTranslatorTests_Project : TranslatorTestBase
+    public class AggregateProjectionTranslatorTests_Project : IntegrationTestBase
     {
         [Test]
         public async Task Should_translate_using_non_anonymous_type_with_default_constructor()

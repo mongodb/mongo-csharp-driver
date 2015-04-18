@@ -21,7 +21,6 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Translators;
-using MongoDB.Driver.Linq.Utils;
 using NUnit.Framework;
 using FluentAssertions;
 using MongoDB.Bson.IO;

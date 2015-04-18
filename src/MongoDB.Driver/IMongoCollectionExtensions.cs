@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -39,6 +40,18 @@ namespace MongoDB.Driver
         public static IAggregateFluent<TDocument> Aggregate<TDocument>(this IMongoCollection<TDocument> collection, AggregateOptions options = null)
         {
             return new AggregateFluent<TDocument, TDocument>(collection, Enumerable.Empty<IPipelineStageDefinition>(), options ?? new AggregateOptions());
+        }
+
+        /// <summary>
+        /// Creates a queryable source of documents.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <returns>A queryable source of documents.</returns>
+        public static IMongoQueryable<TDocument> AsQueryable<TDocument>(this IMongoCollection<TDocument> collection)
+        {
+            var provider = new MQueryProvider<TDocument>(collection, new AggregateOptions());
+            return new MQueryable<TDocument, TDocument>(provider);
         }
 
         /// <summary>

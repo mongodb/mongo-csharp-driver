@@ -20,16 +20,16 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
-using MongoDB.Driver.Linq.Utils;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Processors
 {
-    internal class SerializationInfoBinder : MongoExpressionVisitor
+    internal class SerializationInfoBinder : ExtensionExpressionVisitor
     {
         // private fields
         private readonly Dictionary<MemberInfo, Expression> _memberMap;
         private readonly Dictionary<ParameterExpression, Expression> _parameterMap;
-        private readonly IBsonSerializerRegistry _serializerRegistry;
+        protected readonly IBsonSerializerRegistry _serializerRegistry;
 
         // constructors
         public SerializationInfoBinder(IBsonSerializerRegistry serializerRegistry)
@@ -98,7 +98,9 @@ namespace MongoDB.Driver.Linq.Processors
                     return newNode;
                 }
 
-                var message = string.Format("Could not determine serialization information for member {0}", node.Member);
+                var message = string.Format("Could not determine serialization information for member {0} in the expression tree {1}.",
+                    node.Member,
+                    node.ToString());
                 throw new MongoInternalException(message);
             }
 
@@ -161,6 +163,11 @@ namespace MongoDB.Driver.Linq.Processors
             return node;
         }
 
+        protected internal override Expression VisitSerialization(SerializationExpression node)
+        {
+            return node;
+        }
+
         protected override Expression VisitUnary(UnaryExpression node)
         {
             var newNode = base.VisitUnary(node);
@@ -175,7 +182,7 @@ namespace MongoDB.Driver.Linq.Processors
                     BsonSerializationInfo serializationInfo;
                     var operandType = unaryExpression.Operand.Type;
                     if (!unaryExpression.Operand.Type.IsEnum &&
-                        !TypeHelper.IsNullableEnum(operandType) &&
+                        !operandType.IsNullableEnum() &&
                         !unaryExpression.Type.IsAssignableFrom(unaryExpression.Operand.Type))
                     {
                         // only lookup a new serializer if the cast is "unnecessary"

@@ -148,21 +148,11 @@ namespace MongoDB.Driver
         /// <param name="find">The fluent find.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is the first result.</returns>
-        public async static Task<TProjection> FirstAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TProjection> FirstAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(find, "find");
 
-            using (var cursor = await find.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    return cursor.Current.First();
-                }
-                else
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
-            }
+            return AsyncCursorHelper.FirstAsync(find.Limit(1).ToCursorAsync(), cancellationToken);
         }
 
         /// <summary>
@@ -173,21 +163,11 @@ namespace MongoDB.Driver
         /// <param name="find">The fluent find.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is the first result or null.</returns>
-        public async static Task<TProjection> FirstOrDefaultAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TProjection> FirstOrDefaultAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(find, "find");
 
-            using (var cursor = await find.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    return cursor.Current.FirstOrDefault();
-                }
-                else
-                {
-                    return default(TProjection);
-                }
-            }
+            return AsyncCursorHelper.FirstOrDefaultAsync(find.Limit(1).ToCursorAsync(), cancellationToken);
         }
 
         /// <summary>
@@ -198,21 +178,15 @@ namespace MongoDB.Driver
         /// <param name="find">The fluent find.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is the single result.</returns>
-        public async static Task<TProjection> SingleAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TProjection> SingleAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(find, "find");
 
-            using (var cursor = await find.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            if (!find.Options.Limit.HasValue || find.Options.Limit.Value > 2)
             {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    return cursor.Current.Single();
-                }
-                else
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
+                find = find.Limit(2);
             }
+            return AsyncCursorHelper.SingleAsync(find.ToCursorAsync(), cancellationToken);
         }
 
         /// <summary>
@@ -223,21 +197,15 @@ namespace MongoDB.Driver
         /// <param name="find">The fluent find.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is the single result or null.</returns>
-        public async static Task<TProjection> SingleOrDefaultAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TProjection> SingleOrDefaultAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(find, "find");
 
-            using (var cursor = await find.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
+            if (!find.Options.Limit.HasValue || find.Options.Limit.Value > 2)
             {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    return cursor.Current.SingleOrDefault();
-                }
-                else
-                {
-                    return default(TProjection);
-                }
+                find = find.Limit(2);
             }
+            return AsyncCursorHelper.SingleOrDefaultAsync(find.ToCursorAsync(), cancellationToken);
         }
     }
 }

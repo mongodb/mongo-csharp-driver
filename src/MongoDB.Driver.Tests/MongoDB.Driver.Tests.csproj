@@ -94,8 +94,9 @@
     <Compile Include="BulkWriteErrorTests.cs" />
     <Compile Include="FieldDefinitionTests.cs" />
     <Compile Include="FindFluentTests.cs" />
+    <Compile Include="Linq\MongoQueryableTests.cs" />
     <Compile Include="Linq\Translators\LegacyPredicateTranslatorTests.cs" />
-    <Compile Include="Linq\Translators\TranslatorTestBase.cs" />
+    <Compile Include="Linq\IntegrationTestBase.cs" />
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
     <Compile Include="PipelineDefinitionTests.cs" />
     <Compile Include="ProjectionDefinitionBuilderTests.cs" />

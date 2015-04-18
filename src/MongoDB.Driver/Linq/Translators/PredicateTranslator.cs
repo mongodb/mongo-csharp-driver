@@ -23,10 +23,9 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
-using MongoDB.Driver.Linq.Processors;
-using MongoDB.Driver.Linq.Utils;
-using MongoDB.Driver.Linq.Translators;
 using MongoDB.Driver.Linq.Expressions;
+using MongoDB.Driver.Linq.Processors;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Translators
 {
@@ -44,13 +43,22 @@ namespace MongoDB.Driver.Linq.Translators
             var parameterExpression = new SerializationExpression(predicate.Parameters[0], parameterSerializationInfo);
             var binder = new SerializationInfoBinder(BsonSerializer.SerializerRegistry);
             binder.RegisterParameterReplacement(predicate.Parameters[0], parameterExpression);
-            var normalizedBody = Normalizer.Normalize(predicate.Body);
-            var evaluatedBody = PartialEvaluator.Evaluate(normalizedBody);
-            var boundExpression = binder.Bind(evaluatedBody);
+            var node = Transformer.Transform(predicate.Body);
+            node = PartialEvaluator.Evaluate(node);
+            node = binder.Bind(node);
 
+            return Translate(node, serializerRegistry);
+        }
+
+        public static BsonDocument Translate(Expression node, IBsonSerializerRegistry serializerRegistry)
+        {
             var translator = new PredicateTranslator();
-            return translator.BuildFilter(boundExpression)
+            return translator.BuildFilter(node)
                 .Render(serializerRegistry.GetSerializer<BsonDocument>(), serializerRegistry);
+        }
+
+        private PredicateTranslator()
+        {
         }
 
         private FilterDefinition<BsonDocument> BuildFilter(Expression expression)
@@ -98,12 +106,12 @@ namespace MongoDB.Driver.Linq.Translators
                     filter = BuildTypeIsQuery((TypeBinaryExpression)expression);
                     break;
                 case ExpressionType.Extension:
-                    var mongoExpression = expression as MongoExpression;
+                    var mongoExpression = expression as ExtensionExpression;
                     if (mongoExpression != null)
                     {
-                        switch (mongoExpression.MongoNodeType)
+                        switch (mongoExpression.ExtensionType)
                         {
-                            case MongoExpressionType.Serialization:
+                            case ExtensionExpressionType.Serialization:
                                 if (mongoExpression.Type == typeof(bool))
                                 {
                                     filter = BuildBooleanQuery(mongoExpression);
@@ -349,11 +357,11 @@ namespace MongoDB.Driver.Linq.Translators
 
             var serializationInfo = GetSerializationInfo(variableExpression);
             var valueType = serializationInfo.Serializer.ValueType;
-            if (valueType.IsEnum || TypeHelper.IsNullableEnum(valueType))
+            if (valueType.IsEnum || valueType.IsNullableEnum())
             {
                 if (!valueType.IsEnum && value != null)
                 {
-                    valueType = TypeHelper.GetNullableUnderlyingType(valueType);
+                    valueType = valueType.GetNullableUnderlyingType();
                 }
 
                 if (value != null)
@@ -1375,7 +1383,9 @@ namespace MongoDB.Driver.Linq.Translators
             BsonSerializationInfo serializationInfo;
             if (!TryGetSerializationInfo(expression, out serializationInfo))
             {
-                throw new InvalidOperationException(string.Format("{0} is not supported.", expression));
+                var message = string.Format("{0} is not supported.",
+                    expression.ToString());
+                throw new InvalidOperationException(message);
             }
 
             return serializationInfo;
@@ -1391,6 +1401,46 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             return itemSerializationInfo;
+        }
+
+        /// <summary>
+        /// This guy is going to replace expressions like Serialization("G.D") with Serialization("D").
+        /// </summary>
+        private class PrefixedFieldRenamer : ExtensionExpressionVisitor
+        {
+            public static Expression Rename(Expression node, string prefix)
+            {
+                var renamer = new PrefixedFieldRenamer(prefix);
+                return renamer.Visit(node);
+            }
+
+            private string _prefix;
+
+            private PrefixedFieldRenamer(string prefix)
+            {
+                _prefix = prefix;
+            }
+
+            protected internal override Expression VisitSerialization(SerializationExpression node)
+            {
+                if (node.SerializationInfo.ElementName.StartsWith(_prefix))
+                {
+                    var name = node.SerializationInfo.ElementName;
+                    if (name == _prefix)
+                    {
+                        name = "";
+                    }
+                    else
+                    {
+                        name = name.Remove(0, _prefix.Length + 1);
+                    }
+                    return new SerializationExpression(
+                        node.Expression,
+                        node.SerializationInfo.WithNewName(name));
+                }
+
+                return base.VisitSerialization(node);
+            }
         }
     }
 }
