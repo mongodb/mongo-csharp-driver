@@ -685,10 +685,10 @@ namespace MongoDB.Driver.Tests.Linq
                 "{ $match: { A: 'Awesome' } }");
         }
 
-        private List<T> Assert<T>(IMongoQueryable<T> queryable, int resultCount, params string[] stages)
+        private List<T> Assert<T>(IMongoQueryable<T> queryable, int resultCount, params string[] expectedStages)
         {
-            var documents = ((AggregateQuerableExecutionModel<T>)queryable.BuildExecutionModel()).Documents;
-            CollectionAssert.AreEqual(stages.Select(x => BsonDocument.Parse(x)).ToList(), documents);
+            var stages = ((AggregateQueryableExecutionModel<T>)queryable.BuildExecutionModel()).Stages;
+            CollectionAssert.AreEqual(expectedStages.Select(x => BsonDocument.Parse(x)).ToList(), stages);
 
             // async
             var results = queryable.ToListAsync().GetAwaiter().GetResult();

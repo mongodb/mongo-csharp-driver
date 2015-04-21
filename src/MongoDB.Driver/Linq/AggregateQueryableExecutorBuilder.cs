@@ -36,12 +36,11 @@ namespace MongoDB.Driver.Linq
         public static IQueryableExecutor Build(AggregateOptions options, IBsonSerializerRegistry serializerRegistry, Expression expression)
         {
             var builder = new AggregateQueryableExecutorBuilder(serializerRegistry);
-            var stages = new List<BsonDocument>();
-            builder.Visit(stages, expression);
+            builder.Visit(expression);
 
             var model = Activator.CreateInstance(
-                typeof(AggregateQuerableExecutionModel<>).MakeGenericType(builder._serializer.ValueType),
-                stages,
+                typeof(AggregateQueryableExecutionModel<>).MakeGenericType(builder._serializer.ValueType),
+                builder._stages,
                 builder._serializer);
 
             return (IQueryableExecutor)Activator.CreateInstance(
@@ -55,13 +54,15 @@ namespace MongoDB.Driver.Linq
         private LambdaExpression _aggregator;
         private IBsonSerializer _serializer;
         private readonly IBsonSerializerRegistry _serializerRegistry;
+        private readonly List<BsonDocument> _stages;
 
         private AggregateQueryableExecutorBuilder(IBsonSerializerRegistry serializerRegistry)
         {
             _serializerRegistry = serializerRegistry;
+            _stages = new List<BsonDocument>();
         }
 
-        private void Visit(List<BsonDocument> stages, Expression node)
+        private void Visit(Expression node)
         {
             switch (node.NodeType)
             {
@@ -70,36 +71,36 @@ namespace MongoDB.Driver.Linq
                     switch (mongoExpression.ExtensionType)
                     {
                         case ExtensionExpressionType.CorrelatedGroupBy:
-                            VisitCorrelatedGroupBy(stages, (CorrelatedGroupByExpression)node);
+                            VisitCorrelatedGroupBy((CorrelatedGroupByExpression)node);
                             return;
                         case ExtensionExpressionType.Distinct:
-                            VisitDistinct(stages, (DistinctExpression)node);
+                            VisitDistinct((DistinctExpression)node);
                             return;
                         case ExtensionExpressionType.GroupByWithResultSelector:
-                            VisitGroupByWithResultSelector(stages, (GroupByWithResultSelectorExpression)node);
+                            VisitGroupByWithResultSelector((GroupByWithResultSelectorExpression)node);
                             return;
                         case ExtensionExpressionType.Projection:
-                            VisitProjection(stages, (ProjectionExpression)node);
+                            VisitProjection((ProjectionExpression)node);
                             return;
                         case ExtensionExpressionType.OrderBy:
-                            VisitOrderBy(stages, (OrderByExpression)node);
+                            VisitOrderBy((OrderByExpression)node);
                             return;
                         case ExtensionExpressionType.RootAccumulator:
-                            VisitRootAccumulator(stages, (RootAccumulatorExpression)node);
+                            VisitRootAccumulator((RootAccumulatorExpression)node);
                             return;
                         case ExtensionExpressionType.Select:
-                            VisitSelect(stages, (SelectExpression)node);
+                            VisitSelect((SelectExpression)node);
                             return;
                         case ExtensionExpressionType.Serialization:
                             return;
                         case ExtensionExpressionType.Skip:
-                            VisitSkip(stages, (SkipExpression)node);
+                            VisitSkip((SkipExpression)node);
                             return;
                         case ExtensionExpressionType.Take:
-                            VisitTake(stages, (TakeExpression)node);
+                            VisitTake((TakeExpression)node);
                             return;
                         case ExtensionExpressionType.Where:
-                            VisitWhere(stages, (WhereExpression)node);
+                            VisitWhere((WhereExpression)node);
                             return;
                     }
                     break;
@@ -108,43 +109,43 @@ namespace MongoDB.Driver.Linq
             throw new NotSupportedException();
         }
 
-        private void VisitCorrelatedGroupBy(List<BsonDocument> stages, CorrelatedGroupByExpression node)
+        private void VisitCorrelatedGroupBy(CorrelatedGroupByExpression node)
         {
-            Visit(stages, node.Source);
+            Visit(node.Source);
 
-            var doc = new BsonDocument();
-            doc.Add("_id", AggregateLanguageTranslator.Translate(node.Id));
+            var group = new BsonDocument();
+            group.Add("_id", AggregateLanguageTranslator.Translate(node.Id));
 
             foreach (var accumulator in node.Accumulators)
             {
                 var serializationExpression = (SerializationExpression)accumulator;
-                doc.Add(
+                group.Add(
                     serializationExpression.SerializationInfo.ElementName,
                     AggregateLanguageTranslator.Translate(serializationExpression.Expression));
             }
 
-            stages.Add(new BsonDocument("$group", doc));
+            _stages.Add(new BsonDocument("$group", group));
         }
 
-        private void VisitDistinct(List<BsonDocument> stages, DistinctExpression node)
+        private void VisitDistinct(DistinctExpression node)
         {
-            Visit(stages, node.Source);
+            Visit(node.Source);
 
             var id = new BsonDocument("_id", AggregateLanguageTranslator.Translate(node.Selector));
-            stages.Add(new BsonDocument("$group", id));
+            _stages.Add(new BsonDocument("$group", id));
         }
 
-        private void VisitGroupByWithResultSelector(List<BsonDocument> stages, GroupByWithResultSelectorExpression node)
+        private void VisitGroupByWithResultSelector(GroupByWithResultSelectorExpression node)
         {
-            Visit(stages, node.Source);
+            Visit(node.Source);
 
             var projection = AggregateProjectionTranslator.TranslateProject(node.Selector);
-            stages.Add(new BsonDocument("$group", projection));
+            _stages.Add(new BsonDocument("$group", projection));
         }
 
-        private void VisitProjection(List<BsonDocument> stages, ProjectionExpression node)
+        private void VisitProjection(ProjectionExpression node)
         {
-            Visit(stages, node.Source);
+            Visit(node.Source);
 
             _aggregator = node.Aggregator;
 
@@ -181,9 +182,9 @@ namespace MongoDB.Driver.Linq
             _serializer = SerializerBuilder.Build(node.Projector, _serializerRegistry);
         }
 
-        private void VisitOrderBy(List<BsonDocument> stages, OrderByExpression node)
+        private void VisitOrderBy(OrderByExpression node)
         {
-            Visit(stages, node.Source);
+            Visit(node.Source);
 
             BsonDocument sort = new BsonDocument();
             foreach (var clause in node.Clauses)
@@ -203,12 +204,12 @@ namespace MongoDB.Driver.Linq
                 }
             }
 
-            stages.Add(new BsonDocument("$sort", sort));
+            _stages.Add(new BsonDocument("$sort", sort));
         }
 
-        private void VisitRootAccumulator(List<BsonDocument> stages, RootAccumulatorExpression node)
+        private void VisitRootAccumulator(RootAccumulatorExpression node)
         {
-            Visit(stages, node.Source);
+            Visit(node.Source);
 
             var group = new BsonDocument("_id", BsonNull.Value);
 
@@ -218,46 +219,46 @@ namespace MongoDB.Driver.Linq
                 serializationAccumulator.SerializationInfo.ElementName,
                 AggregateLanguageTranslator.Translate(serializationAccumulator.Expression));
 
-            stages.Add(new BsonDocument("$group", group));
+            _stages.Add(new BsonDocument("$group", group));
         }
 
-        private void VisitSelect(List<BsonDocument> stages, SelectExpression node)
+        private void VisitSelect(SelectExpression node)
         {
-            Visit(stages, node.Source);
+            Visit(node.Source);
 
             var projection = AggregateProjectionTranslator.TranslateProject(node.Selector);
-            stages.Add(new BsonDocument("$project", projection));
+            _stages.Add(new BsonDocument("$project", projection));
         }
 
-        private void VisitSkip(List<BsonDocument> stages, SkipExpression node)
+        private void VisitSkip(SkipExpression node)
         {
-            Visit(stages, node.Source);
-            stages.Add(new BsonDocument("$skip", node.Count));
+            Visit(node.Source);
+            _stages.Add(new BsonDocument("$skip", node.Count));
         }
 
-        private void VisitTake(List<BsonDocument> stages, TakeExpression node)
+        private void VisitTake(TakeExpression node)
         {
-            Visit(stages, node.Source);
-            stages.Add(new BsonDocument("$limit", node.Count));
+            Visit(node.Source);
+            _stages.Add(new BsonDocument("$limit", node.Count));
         }
 
-        private void VisitWhere(List<BsonDocument> stages, WhereExpression node)
+        private void VisitWhere(WhereExpression node)
         {
-            Visit(stages, node.Source);
+            Visit(node.Source);
 
             var renderedPredicate = PredicateTranslator.Translate(node.Predicate, _serializerRegistry);
-            stages.Add(new BsonDocument("$match", renderedPredicate));
+            _stages.Add(new BsonDocument("$match", renderedPredicate));
         }
 
         public class AggregateExecutor<TOutput> : IQueryableExecutor
         {
             private readonly LambdaExpression _aggregator;
-            private readonly AggregateQuerableExecutionModel<TOutput> _executionModel;
+            private readonly AggregateQueryableExecutionModel<TOutput> _executionModel;
             private readonly AggregateOptions _options;
 
             internal AggregateExecutor(
                 AggregateOptions options,
-                AggregateQuerableExecutionModel<TOutput> executionModel,
+                AggregateQueryableExecutionModel<TOutput> executionModel,
                 LambdaExpression aggregator)
             {
                 _options = Ensure.IsNotNull(options, "options");
@@ -293,7 +294,7 @@ namespace MongoDB.Driver.Linq
             private Task<IAsyncCursor<TOutput>> ExecuteCursorAsync<TInput>(IMongoCollection<TInput> collection, CancellationToken cancellationToken)
             {
                 var pipelineDefinition = new BsonDocumentStagePipelineDefinition<TInput, TOutput>(
-                    _executionModel.Documents,
+                    _executionModel.Stages,
                     _executionModel.OutputSerializer);
 
                 return collection.AggregateAsync(pipelineDefinition, _options, cancellationToken);

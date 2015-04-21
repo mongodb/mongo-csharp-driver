@@ -23,18 +23,18 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq
 {
-    internal class MQueryable<TInput, TOutput> : IOrderedMongoQueryable<TOutput>
+    internal class MongoQueryableImpl<TInput, TOutput> : IOrderedMongoQueryable<TOutput>
     {
         private readonly IMongoQueryProvider _queryProvider;
         private readonly Expression _expression;
 
-        public MQueryable(IMongoQueryProvider queryProvider)
+        public MongoQueryableImpl(IMongoQueryProvider queryProvider)
         {
             _queryProvider = Ensure.IsNotNull(queryProvider, "queryProvider");
             _expression = Expression.Constant(this, typeof(IMongoQueryable<TOutput>));
         }
 
-        public MQueryable(IMongoQueryProvider queryProvider, Expression expression)
+        public MongoQueryableImpl(IMongoQueryProvider queryProvider, Expression expression)
         {
             _queryProvider = Ensure.IsNotNull(queryProvider, "queryProvider");
             _expression = Ensure.IsNotNull(expression, "expression");
@@ -57,13 +57,13 @@ namespace MongoDB.Driver.Linq
 
         public QueryableExecutionModel BuildExecutionModel()
         {
-            return ((MQueryProvider<TInput>)_queryProvider).BuildExecutionModel(_expression);
+            return ((MongoQueryProviderImpl<TInput>)_queryProvider).BuildExecutionModel(_expression);
         }
 
         public IEnumerator<TOutput> GetEnumerator()
         {
-            var results = _queryProvider.Execute(_expression);
-            return ((IEnumerable<TOutput>)results).GetEnumerator();
+            var results = (IEnumerable<TOutput>)_queryProvider.Execute(_expression);
+            return results.GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

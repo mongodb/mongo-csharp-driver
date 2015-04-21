@@ -284,7 +284,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, "aggregate");
 
-            return AsyncCursorHelper.FirstAsync(aggregate.Limit(1).ToCursorAsync(), cancellationToken);
+            return AsyncCursorHelper.FirstAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -300,7 +300,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, "aggregate");
 
-            return AsyncCursorHelper.FirstOrDefaultAsync(aggregate.Limit(1).ToCursorAsync(), cancellationToken);
+            return AsyncCursorHelper.FirstOrDefaultAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -316,7 +316,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, "aggregate");
 
-            return AsyncCursorHelper.SingleAsync(aggregate.Limit(2).ToCursorAsync(), cancellationToken);
+            return AsyncCursorHelper.SingleAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -332,7 +332,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, "aggregate");
 
-            return AsyncCursorHelper.SingleOrDefaultAsync(aggregate.Limit(2).ToCursorAsync(), cancellationToken);
+            return AsyncCursorHelper.SingleOrDefaultAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
         }
 
         private sealed class ProjectExpressionProjection<TResult, TNewResult> : ProjectionDefinition<TResult, TNewResult>

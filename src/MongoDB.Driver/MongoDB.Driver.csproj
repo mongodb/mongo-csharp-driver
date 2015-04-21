@@ -117,8 +117,8 @@
     <Compile Include="Linq\Processors\Transformers\SelectSelectCombiningTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\FirstLastMemberTransformer.cs" />
     <Compile Include="Linq\QueryableExecutionModel.cs" />
-    <Compile Include="Linq\MQueryable.cs" />
-    <Compile Include="Linq\MQueryProvider.cs" />
+    <Compile Include="Linq\MongoQueryableImpl.cs" />
+    <Compile Include="Linq\MongoQueryProviderImpl.cs" />
     <Compile Include="Linq\Expressions\GroupIdExpression.cs" />
     <Compile Include="Linq\Processors\CorrelatedGroupMap.cs" />
     <Compile Include="Linq\Processors\CorrelatedGroupRewriter.cs" />

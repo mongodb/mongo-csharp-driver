@@ -24,12 +24,12 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq
 {
-    internal class MQueryProvider<TDocument> : IMongoQueryProvider
+    internal class MongoQueryProviderImpl<TDocument> : IMongoQueryProvider
     {
         private readonly IMongoCollection<TDocument> _collection;
         private readonly AggregateOptions _options;
 
-        public MQueryProvider(IMongoCollection<TDocument> collection, AggregateOptions options)
+        public MongoQueryProviderImpl(IMongoCollection<TDocument> collection, AggregateOptions options)
         {
             _collection = Ensure.IsNotNull(collection, "collection");
             _options = Ensure.IsNotNull(options, "options");
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            return new MQueryable<TDocument, TElement>(this, expression);
+            return new MongoQueryableImpl<TDocument, TElement>(this, expression);
         }
 
         public IQueryable CreateQuery(Expression expression)
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Linq
             try
             {
                 return (IQueryable)Activator.CreateInstance(
-                    typeof(MQueryable<,>).MakeGenericType(typeof(TDocument), elementType),
+                    typeof(MongoQueryableImpl<,>).MakeGenericType(typeof(TDocument), elementType),
                     new object[] { this, expression });
             }
             catch (TargetInvocationException tie)

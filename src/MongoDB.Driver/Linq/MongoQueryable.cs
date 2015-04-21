@@ -408,7 +408,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <typeparam name="TKey">The type of the key returned by the function represented in keySelector.</typeparam>
-        /// <param name="source">An <see cref="IMongoQueryable{T}" /> whose elements to group.</param>
+        /// <param name="source">An <see cref="IMongoQueryable{TSource}" /> whose elements to group.</param>
         /// <param name="keySelector">A function to extract the key for each element.</param>
         /// <returns>
         /// An <see cref="IMongoQueryable{T}" /> that has a type argument of <see cref="IGrouping{TKey, TSource}"/> 
@@ -427,7 +427,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <typeparam name="TKey">The type of the key returned by the function represented in keySelector.</typeparam>
         /// <typeparam name="TResult">The type of the result value returned by resultSelector.</typeparam>
-        /// <param name="source">An <see cref="IMongoQueryable{T}" /> whose elements to group.</param>
+        /// <param name="source">An <see cref="IMongoQueryable{TSource}" /> whose elements to group.</param>
         /// <param name="keySelector">A function to extract the key for each element.</param>
         /// <param name="resultSelector">A function to create a result value from each group.</param>
         /// <returns>
@@ -538,7 +538,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to order.</param>
         /// <param name="keySelector">A function to extract a key from an element.</param>
         /// <returns>
-        /// An <see cref="IOrderedMongoQueryable{T}"/> whose elements are sorted according to a key.
+        /// An <see cref="IOrderedMongoQueryable{TSource}"/> whose elements are sorted according to a key.
         /// </returns>
         public static IOrderedMongoQueryable<TSource> OrderBy<TSource, TKey>(this IMongoQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
@@ -553,7 +553,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to order.</param>
         /// <param name="keySelector">A function to extract a key from an element.</param>
         /// <returns>
-        /// An <see cref="IOrderedMongoQueryable{T}"/> whose elements are sorted in descending order according to a key.
+        /// An <see cref="IOrderedMongoQueryable{TSource}"/> whose elements are sorted in descending order according to a key.
         /// </returns>
         public static IOrderedMongoQueryable<TSource> OrderByDescending<TSource, TKey>(this IMongoQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
@@ -569,7 +569,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to project.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
         /// <returns>
-        /// An <see cref="IMongoQueryable{T}"/> whose elements are the result of invoking a
+        /// An <see cref="IMongoQueryable{TResult}"/> whose elements are the result of invoking a
         /// projection function on each element of source.
         /// </returns>
         public static IMongoQueryable<TResult> Select<TSource, TResult>(this IMongoQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
@@ -658,10 +658,10 @@ namespace MongoDB.Driver.Linq
         /// remaining elements.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of source</typeparam>
-        /// <param name="source">An <see cref="IMongoQueryable{T}"/> to return elements from.</param>
+        /// <param name="source">An <see cref="IMongoQueryable{TSource}"/> to return elements from.</param>
         /// <param name="count">The number of elements to skip before returning the remaining elements.</param>
         /// <returns>
-        /// An <see cref="IMongoQueryable{T}"/> that contains elements that occur after the
+        /// An <see cref="IMongoQueryable{TSource}"/> that contains elements that occur after the
         /// specified index in the input sequence.
         /// </returns>
         public static IMongoQueryable<TSource> Skip<TSource>(this IMongoQueryable<TSource> source, int count)
@@ -926,7 +926,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">The sequence to return elements from.</param>
         /// <param name="count">The number of elements to return.</param>
         /// <returns>
-        /// An <see cref="IMongoQueryable{T}"/> that contains the specified number of elements
+        /// An <see cref="IMongoQueryable{TSource}"/> that contains the specified number of elements
         /// from the start of source.
         /// </returns>
         public static IMongoQueryable<TSource> Take<TSource>(this IMongoQueryable<TSource> source, int count)
@@ -943,7 +943,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to order.</param>
         /// <param name="keySelector">A function to extract a key from an element.</param>
         /// <returns>
-        /// An <see cref="IOrderedMongoQueryable{T}"/> whose elements are sorted according to a key.
+        /// An <see cref="IOrderedMongoQueryable{TSource}"/> whose elements are sorted according to a key.
         /// </returns>
         public static IOrderedMongoQueryable<TSource> ThenBy<TSource, TKey>(this IOrderedMongoQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
@@ -959,7 +959,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to order.</param>
         /// <param name="keySelector">A function to extract a key from an element.</param>
         /// <returns>
-        /// An <see cref="IOrderedMongoQueryable{T}"/> whose elements are sorted in descending order according to a key.
+        /// An <see cref="IOrderedMongoQueryable{TSource}"/> whose elements are sorted in descending order according to a key.
         /// </returns>
         public static IOrderedMongoQueryable<TSource> ThenByDescending<TSource, TKey>(this IOrderedMongoQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
@@ -970,10 +970,10 @@ namespace MongoDB.Driver.Linq
         /// Filters a sequence of values based on a predicate.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
-        /// <param name="source">An <see cref="IMongoQueryable{T}"/> to return elements from.</param>
+        /// <param name="source">An <see cref="IMongoQueryable{TSource}"/> to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <returns>
-        /// An <see cref="IMongoQueryable{T}"/> that contains elements from the input sequence
+        /// An <see cref="IMongoQueryable{TSource}"/> that contains elements from the input sequence
         /// that satisfy the condition specified by predicate.
         /// </returns>
         public static IMongoQueryable<TSource> Where<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
@@ -981,7 +981,7 @@ namespace MongoDB.Driver.Linq
             return (IMongoQueryable<TSource>)Queryable.Where(source, predicate);
         }
 
-        private static Task<TResult> AverageAsync<T, TResult>(this IMongoQueryable<T> source)
+        private static Task<TResult> AverageAsync<TSource, TResult>(this IMongoQueryable<TSource> source)
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
                 Expression.Call(
@@ -991,7 +991,7 @@ namespace MongoDB.Driver.Linq
                     source.Expression));
         }
 
-        private static Task<TResult> AverageAsync<TSource, T, TResult>(this IMongoQueryable<TSource> source, Expression<Func<TSource, T>> selector)
+        private static Task<TResult> AverageAsync<TSource, TValue, TResult>(this IMongoQueryable<TSource> source, Expression<Func<TSource, TValue>> selector)
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
                 Expression.Call(
@@ -999,12 +999,12 @@ namespace MongoDB.Driver.Linq
                     "Average",
                     new[] { typeof(TSource) },
                     source.Expression,
-                    selector));
+                    Expression.Quote(selector)));
         }
 
-        private static Task<T> SumAsync<T>(this IMongoQueryable<T> source)
+        private static Task<TSource> SumAsync<TSource>(this IMongoQueryable<TSource> source)
         {
-            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<T>(
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
                     typeof(Queryable),
                     "Sum",
@@ -1012,9 +1012,9 @@ namespace MongoDB.Driver.Linq
                     source.Expression));
         }
 
-        private static Task<T> SumAsync<TSource, T>(this IMongoQueryable<TSource> source, Expression<Func<TSource, T>> selector)
+        private static Task<TValue> SumAsync<TSource, TValue>(this IMongoQueryable<TSource> source, Expression<Func<TSource, TValue>> selector)
         {
-            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<T>(
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TValue>(
                 Expression.Call(
                     typeof(Queryable),
                     "Sum",

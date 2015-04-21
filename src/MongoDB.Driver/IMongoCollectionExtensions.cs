@@ -50,8 +50,8 @@ namespace MongoDB.Driver
         /// <returns>A queryable source of documents.</returns>
         public static IMongoQueryable<TDocument> AsQueryable<TDocument>(this IMongoCollection<TDocument> collection)
         {
-            var provider = new MQueryProvider<TDocument>(collection, new AggregateOptions());
-            return new MQueryable<TDocument, TDocument>(provider);
+            var provider = new MongoQueryProviderImpl<TDocument>(collection, new AggregateOptions());
+            return new MongoQueryableImpl<TDocument, TDocument>(provider);
         }
 
         /// <summary>

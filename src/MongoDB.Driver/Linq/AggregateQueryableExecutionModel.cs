@@ -28,32 +28,28 @@ namespace MongoDB.Driver.Linq
     /// A model for a queryable to be executed using the aggregation framework.
     /// </summary>
     /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public class AggregateQuerableExecutionModel<TOutput> : QueryableExecutionModel
+    public class AggregateQueryableExecutionModel<TOutput> : QueryableExecutionModel
     {
-        private readonly ReadOnlyCollection<BsonDocument> _documents;
+        private readonly IReadOnlyList<BsonDocument> _stages;
         private readonly IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateQuerableExecutionModel{TOutput}"/> class.
+        /// Initializes a new instance of the <see cref="AggregateQueryableExecutionModel{TOutput}"/> class.
         /// </summary>
-        /// <param name="documents">The documents.</param>
+        /// <param name="stages">The stages.</param>
         /// <param name="outputSerializer">The output serializer.</param>
-        public AggregateQuerableExecutionModel(IEnumerable<BsonDocument> documents, IBsonSerializer<TOutput> outputSerializer)
+        public AggregateQueryableExecutionModel(IEnumerable<BsonDocument> stages, IBsonSerializer<TOutput> outputSerializer)
         {
-            _documents = Ensure.IsNotNull(documents, "documents") as ReadOnlyCollection<BsonDocument>;
-            if (_documents == null)
-            {
-                _documents = new List<BsonDocument>(documents).AsReadOnly();
-            }
+            _stages = (Ensure.IsNotNull(stages, "stages") as IReadOnlyList<BsonDocument>) ?? stages.ToList();
             _outputSerializer = Ensure.IsNotNull(outputSerializer, "outputSerializer");
         }
 
         /// <summary>
-        /// Gets the documents.
+        /// Gets the stages.
         /// </summary>
-        public ReadOnlyCollection<BsonDocument> Documents
+        public IEnumerable<BsonDocument> Stages
         {
-            get { return _documents; }
+            get { return _stages; }
         }
 
         /// <summary>
@@ -81,9 +77,9 @@ namespace MongoDB.Driver.Linq
         public override string ToString()
         {
             var sb = new StringBuilder("aggregate([");
-            if (_documents.Count > 0)
+            if (_stages.Count > 0)
             {
-                sb.Append(string.Join(", ", _documents.Select(x => x.ToString())));
+                sb.Append(string.Join(", ", _stages.Select(x => x.ToString())));
             }
             sb.Append("])");
             return sb.ToString();
