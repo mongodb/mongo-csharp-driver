@@ -236,6 +236,11 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Set(x => x.FavoriteColors[2], "yellow"), "{$set: {'colors.2': 'yellow'}}");
             Assert(subject.Set(x => x.Pets[2].Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
             Assert(subject.Set(x => x.Pets.ElementAt(2).Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
+
+            var index = 2;
+            Assert(subject.Set(x => x.FavoriteColors[index], "yellow"), "{$set: {'colors.2': 'yellow'}}");
+            Assert(subject.Set(x => x.Pets[index].Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
+            Assert(subject.Set(x => x.Pets.ElementAt(index).Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
         }
 
         [Test]
