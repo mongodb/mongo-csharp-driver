@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.TestHelpers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -229,6 +230,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        [Jira("CSHARP-1246")]
         public void Indexed_Typed()
         {
             var subject = CreateSubject<Person>();
@@ -236,6 +238,11 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Set(x => x.FavoriteColors[2], "yellow"), "{$set: {'colors.2': 'yellow'}}");
             Assert(subject.Set(x => x.Pets[2].Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
             Assert(subject.Set(x => x.Pets.ElementAt(2).Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
+
+            var index = 2;
+            Assert(subject.Set(x => x.FavoriteColors[index], "yellow"), "{$set: {'colors.2': 'yellow'}}");
+            Assert(subject.Set(x => x.Pets[index].Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
+            Assert(subject.Set(x => x.Pets.ElementAt(index).Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
         }
 
         [Test]
