@@ -11,7 +11,6 @@ using FluentAssertions;
 using NUnit.Framework;
 using System.Text.RegularExpressions;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
@@ -302,7 +301,6 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
-        [Jira("CSHARP-926")]
         public void Equals_with_byte_based_enum()
         {
             Assert(
@@ -312,7 +310,6 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
-        [Jira("CSHARP-954")]
         public void Equals_with_nullable_date_time()
         {
             Assert(

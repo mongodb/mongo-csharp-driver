@@ -20,7 +20,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Core.TestHelpers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -230,7 +229,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        [Jira("CSHARP-1246")]
         public void Indexed_Typed()
         {
             var subject = CreateSubject<Person>();
