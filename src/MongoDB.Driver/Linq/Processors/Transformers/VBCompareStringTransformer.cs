@@ -23,9 +23,6 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
     /// </remarks>
     internal class VBCompareStringTransformer : IExpressionTransformer<BinaryExpression>
     {
-        private static readonly MethodInfo __stringCompareToMethod =
-            typeof(string).GetRuntimeMethod("CompareTo", new[] { typeof(string) });
-
         private readonly ExpressionType[] _supportedNodeTypes = new[] 
         {
             ExpressionType.Equal,
