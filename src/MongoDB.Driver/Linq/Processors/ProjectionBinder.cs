@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Linq.Processors
             var message = string.Format("The expression tree is not supported: {0}",
                 node.ToString());
 
-            throw new NotSupportedException();
+            throw new NotSupportedException(message);
         }
 
         private Expression RemoveUnnecessaries(Expression node)
