@@ -83,6 +83,7 @@
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="Linq\AggregateQueryableExecutionModel.cs" />
     <Compile Include="Linq\IQueryableExecutor.cs" />
+    <Compile Include="Linq\Processors\Transformers\NullableTransformer.cs" />
     <Compile Include="Linq\QueryableExecutionPlanBuilder.cs" />
     <Compile Include="Linq\Expressions\CorrelatedAccumulatorExpression.cs" />
     <Compile Include="Linq\Expressions\CorrelatedGroupByExpression.cs" />

@@ -11,6 +11,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using System.Text.RegularExpressions;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
@@ -298,6 +299,26 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                 x => x.G.ElementAt(1).D == "Dolphin",
                 1,
                 "{'G.1.D': 'Dolphin'}");
+        }
+
+        [Test]
+        [Jira("CSHARP-926")]
+        public void Equals_with_byte_based_enum()
+        {
+            Assert(
+                x => x.Q == Q.One,
+                1,
+                "{'Q': 1}");
+        }
+
+        [Test]
+        [Jira("CSHARP-954")]
+        public void Equals_with_nullable_date_time()
+        {
+            Assert(
+                x => x.R.HasValue && x.R.Value > DateTime.MinValue,
+                1,
+                "{'R': { $ne: null, $gt: ISODate('0001-01-01T00:00:00Z') } }");
         }
 
         [Test]

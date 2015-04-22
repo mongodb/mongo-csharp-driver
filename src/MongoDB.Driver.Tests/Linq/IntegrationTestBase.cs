@@ -78,7 +78,9 @@ namespace MongoDB.Driver.Tests.Linq
                 K = true,
                 L = new HashSet<int>(new[] { 1, 3, 5 }),
                 M = new[] { 2, 4, 5 },
-                O = new List<long> { 10, 20, 30 }
+                O = new List<long> { 10, 20, 30 },
+                Q = Q.One,
+                R = new DateTime(2013, 1, 2, 3, 4, 5, 6, DateTimeKind.Utc),
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
@@ -169,6 +171,10 @@ namespace MongoDB.Driver.Tests.Linq
             public int[] M { get; set; }
 
             public List<long> O { get; set; }
+
+            public Q Q { get; set; }
+
+            public DateTime? R { get; set; }
         }
 
         public class RootDescended : Root
@@ -195,6 +201,12 @@ namespace MongoDB.Driver.Tests.Linq
         public interface IRoot
         {
             int Id { get; set; }
+        }
+
+        public enum Q : byte
+        {
+            Zero,
+            One
         }
     }
 }
