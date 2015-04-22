@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
         {
             var members = new Stack<MemberInfo>();
             Expression currentNode = node;
-            while (currentNode.NodeType == ExpressionType.MemberAccess)
+            while (currentNode != null && currentNode.NodeType == ExpressionType.MemberAccess)
             {
                 var mex = (MemberExpression)currentNode;
                 members.Push(mex.Member);
