@@ -654,6 +654,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public async Task Should_translate_string_is_null_or_empty()
+        {
+            var result = await Project(x => new { Result = string.IsNullOrEmpty(x.B) });
+
+            result.Projection.Should().Be("{ Result: { \"$or\": [{ $eq: [\"$B\", null] }, { $eq: [\"$B\", \"\"] } ] }, _id: 0 }");
+
+            result.Value.Result.Should().BeFalse();
+        }
+
+        [Test]
         public async Task Should_translate_substring()
         {
             var result = await Project(x => new { Result = x.B.Substring(3, 20) });

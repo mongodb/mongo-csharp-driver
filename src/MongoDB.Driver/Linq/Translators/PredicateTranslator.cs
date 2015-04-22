@@ -699,13 +699,8 @@ namespace MongoDB.Driver.Linq.Translators
             if (methodCallExpression.Method.DeclaringType == typeof(string) && methodCallExpression.Object == null)
             {
                 var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 1)
-                {
-                    var serializationInfo = GetSerializationInfo(arguments[0]);
-                    return __builder.Or(
-                        __builder.Type(serializationInfo.ElementName, BsonType.Null), // this is the safe way to test for null
-                        __builder.Eq(serializationInfo.ElementName, ""));
-                }
+                var serializationInfo = GetSerializationInfo(arguments[0]);
+                return __builder.In<string>(serializationInfo.ElementName, new string[] { null, "" });
             }
 
             return null;

@@ -215,6 +215,13 @@ namespace MongoDB.Driver.Linq.Translators
                 return result;
             }
 
+            if (node.Object == null
+                && node.Method.DeclaringType == typeof(string)
+                && TryBuildStaticStringMethodCall(node, out result))
+            {
+                return result;
+            }
+
             if (node.Object != null
                 && node.Object.Type == typeof(string)
                 && TryBuildStringMethodCall(node, out result))
@@ -489,6 +496,25 @@ namespace MongoDB.Driver.Linq.Translators
                                 { "in", inValue }
                             });
                 return true;
+            }
+
+            return false;
+        }
+
+        private bool TryBuildStaticStringMethodCall(MethodCallExpression node, out BsonValue result)
+        {
+            result = null;
+            switch (node.Method.Name)
+            {
+                case "IsNullOrEmpty":
+                    var field = BuildValue(node.Arguments[0]);
+                    result = new BsonDocument("$or",
+                        new BsonArray
+                        {
+                            new BsonDocument("$eq", new BsonArray { field, BsonNull.Value }),
+                            new BsonDocument("$eq", new BsonArray { field, BsonString.Empty })
+                        });
+                    return true;
             }
 
             return false;

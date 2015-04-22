@@ -500,6 +500,24 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void String_IsNullOrEmpty()
+        {
+            Assert(
+                x => string.IsNullOrEmpty(x.A),
+                0,
+                "{A: { $in: [null, ''] } }");
+        }
+
+        [Test]
+        public void Not_String_IsNullOrEmpty()
+        {
+            Assert(
+                x => !string.IsNullOrEmpty(x.A),
+                2,
+                "{A: { $nin: [null, ''] } }");
+        }
+
+        [Test]
         public async Task Binding_through_an_unnecessary_conversion()
         {
             var root = await Find(_collection, 10);
