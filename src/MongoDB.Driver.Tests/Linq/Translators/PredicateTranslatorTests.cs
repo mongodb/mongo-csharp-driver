@@ -283,6 +283,60 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void CompareTo_equal()
+        {
+            Assert(
+                x => x.A.CompareTo("Amazing") == 0,
+                1,
+                "{'A': 'Amazing' }");
+        }
+
+        [Test]
+        public void CompareTo_greater_than()
+        {
+            Assert(
+                x => x.A.CompareTo("Around") > 0,
+                1,
+                "{'A': { $gt: 'Around' } }");
+        }
+
+        [Test]
+        public void CompareTo_greater_than_or_equal()
+        {
+            Assert(
+                x => x.A.CompareTo("Around") >= 0,
+                1,
+                "{'A': { $gte: 'Around' } }");
+        }
+
+        [Test]
+        public void CompareTo_less_than()
+        {
+            Assert(
+                x => x.A.CompareTo("Around") < 0,
+                1,
+                "{'A': { $lt: 'Around' } }");
+        }
+
+        [Test]
+        public void CompareTo_less_than_or_equal()
+        {
+            Assert(
+                x => x.A.CompareTo("Around") <= 0,
+                1,
+                "{'A': { $lte: 'Around' } }");
+        }
+
+        [Test]
+        public void CompareTo_not_equal()
+        {
+            Assert(
+                x => x.A.CompareTo("Amazing") != 0,
+                1,
+                "{'A': { $ne: 'Amazing' } }");
+        }
+
+        [Test]
         public void EnumerableCount()
         {
             Assert(
