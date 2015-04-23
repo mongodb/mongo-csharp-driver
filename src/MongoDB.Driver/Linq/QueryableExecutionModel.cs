@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Linq
 {
@@ -26,5 +28,9 @@ namespace MongoDB.Driver.Linq
         /// Gets the type of the output.
         /// </summary>
         public abstract Type OutputType { get; }
+
+        internal abstract Task ExecuteAsync<TInput>(IMongoCollection<TInput> collection, AggregateOptions options, CancellationToken cancellationToken);
+
+        internal abstract object Execute<TInput>(IMongoCollection<TInput> collection, AggregateOptions options);
     }
 }

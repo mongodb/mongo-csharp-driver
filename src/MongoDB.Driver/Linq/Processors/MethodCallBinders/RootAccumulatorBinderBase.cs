@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
 
@@ -24,13 +25,21 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
     {
         protected abstract AccumulatorType AccumulatorType { get; }
 
-        public override System.Linq.Expressions.Expression Bind(Expressions.ProjectionExpression projection, ProjectionBindingContext context, System.Linq.Expressions.MethodCallExpression node, IEnumerable<System.Linq.Expressions.Expression> arguments)
+        public override Expression Bind(Expressions.ProjectionExpression projection, ProjectionBindingContext context, System.Linq.Expressions.MethodCallExpression node, IEnumerable<System.Linq.Expressions.Expression> arguments)
         {
-            var aggregator = CreateAggregator("SingleAsync", node.Method.ReturnType);
+            var aggregatorName = "Single";
+            var returnType = node.Method.ReturnType;
+            if (node.Method.Name.EndsWith("Async"))
+            {
+                aggregatorName += "Async";
+                returnType = returnType.GetGenericArguments()[0];
+            }
+
+            var aggregator = CreateAggregator(aggregatorName, returnType);
 
             var source = projection.Source;
-            var argument = arguments.SingleOrDefault();
-            if (argument != null)
+            var argument = arguments.FirstOrDefault();
+            if (argument != null && ExtensionExpressionVisitor.IsLambda(argument))
             {
                 var lambda = ExtensionExpressionVisitor.GetLambda(argument);
                 var binder = new AccumulatorBinder(context.GroupMap, context.SerializerRegistry);
@@ -47,8 +56,8 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
                 }
             }
 
-            var serializer = context.SerializerRegistry.GetSerializer(node.Method.ReturnType);
-            var accumulator = new AccumulatorExpression(node.Method.ReturnType, AccumulatorType, argument);
+            var serializer = context.SerializerRegistry.GetSerializer(returnType);
+            var accumulator = new AccumulatorExpression(returnType, AccumulatorType, argument);
             var serializationAccumulator = new SerializationExpression(
                 accumulator,
                 new BsonSerializationInfo("__agg0", serializer, serializer.ValueType));

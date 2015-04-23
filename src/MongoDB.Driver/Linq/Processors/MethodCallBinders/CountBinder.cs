@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -25,19 +26,24 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
     {
         public override Expression Bind(ProjectionExpression projection, ProjectionBindingContext context, MethodCallExpression node, IEnumerable<Expression> arguments)
         {
-            var aggregator = CreateAggregator("SingleOrDefaultAsync", node.Method.ReturnType);
+            var aggregatorName = "SingleOrDefault";
+            var returnType = node.Method.ReturnType;
+            if (node.Method.Name.EndsWith("Async"))
+            {
+                aggregatorName += "Async";
+                returnType = returnType.GetGenericArguments()[0]; // it's a task
+            }
+            var aggregator = CreateAggregator(aggregatorName, returnType);
 
             var source = projection.Source;
-            var argument = arguments.SingleOrDefault();
-            if (argument != null)
+            var argument = arguments.FirstOrDefault();
+            if (argument != null && ExtensionExpressionVisitor.IsLambda(argument))
             {
                 source = BindPredicate(projection, context, source, argument);
-
-                argument = null;
             }
 
-            var serializer = context.SerializerRegistry.GetSerializer(node.Method.ReturnType);
-            var accumulator = new AccumulatorExpression(node.Method.ReturnType, AccumulatorType.Count, argument);
+            var serializer = context.SerializerRegistry.GetSerializer(returnType);
+            var accumulator = new AccumulatorExpression(returnType, AccumulatorType.Count, null);
             var serializationAccumulator = new SerializationExpression(
                 accumulator,
                 new BsonSerializationInfo("__agg0", serializer, serializer.ValueType));

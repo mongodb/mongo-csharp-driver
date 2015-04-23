@@ -16,47 +16,34 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors;
 using MongoDB.Driver.Linq.Translators;
 using MongoDB.Driver.Support;
-using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver.Linq
 {
-    internal class AggregateQueryableExecutorBuilder
+    internal class QueryableExecutionModelBuilder
     {
-        public static IQueryableExecutor Build(AggregateOptions options, IBsonSerializerRegistry serializerRegistry, Expression expression)
+        public static QueryableExecutionModel Build(Expression node, IBsonSerializerRegistry serializerRegistry)
         {
-            var builder = new AggregateQueryableExecutorBuilder(serializerRegistry);
-            builder.Visit(expression);
+            var builder = new QueryableExecutionModelBuilder(serializerRegistry);
+            builder.Visit(node);
 
-            var model = Activator.CreateInstance(
+            return (QueryableExecutionModel)Activator.CreateInstance(
                 typeof(AggregateQueryableExecutionModel<>).MakeGenericType(builder._serializer.ValueType),
                 builder._stages,
                 builder._serializer);
-
-            return (IQueryableExecutor)Activator.CreateInstance(
-                typeof(AggregateExecutor<>).MakeGenericType(builder._serializer.ValueType),
-                BindingFlags.Instance | BindingFlags.NonPublic,
-                null,
-                new object[] { options, model, builder._aggregator },
-                null);
         }
 
-        private LambdaExpression _aggregator;
         private IBsonSerializer _serializer;
         private readonly IBsonSerializerRegistry _serializerRegistry;
         private readonly List<BsonDocument> _stages;
 
-        private AggregateQueryableExecutorBuilder(IBsonSerializerRegistry serializerRegistry)
+        private QueryableExecutionModelBuilder(IBsonSerializerRegistry serializerRegistry)
         {
             _serializerRegistry = serializerRegistry;
             _stages = new List<BsonDocument>();
@@ -146,8 +133,6 @@ namespace MongoDB.Driver.Linq
         private void VisitProjection(ProjectionExpression node)
         {
             Visit(node.Source);
-
-            _aggregator = node.Aggregator;
 
             var serializationExpression = node.Projector as ISerializationExpression;
             if (serializationExpression != null)
@@ -248,86 +233,6 @@ namespace MongoDB.Driver.Linq
 
             var renderedPredicate = PredicateTranslator.Translate(node.Predicate, _serializerRegistry);
             _stages.Add(new BsonDocument("$match", renderedPredicate));
-        }
-
-        public class AggregateExecutor<TOutput> : IQueryableExecutor
-        {
-            private readonly LambdaExpression _aggregator;
-            private readonly AggregateQueryableExecutionModel<TOutput> _executionModel;
-            private readonly AggregateOptions _options;
-
-            internal AggregateExecutor(
-                AggregateOptions options,
-                AggregateQueryableExecutionModel<TOutput> executionModel,
-                LambdaExpression aggregator)
-            {
-                _options = Ensure.IsNotNull(options, "options");
-                _executionModel = Ensure.IsNotNull(executionModel, "executionModel");
-                _aggregator = aggregator; // can be null
-            }
-
-            public QueryableExecutionModel ExecutionModel
-            {
-                get { return _executionModel; }
-            }
-
-            public Task ExecuteAsync<TInput>(IMongoCollection<TInput> collection, CancellationToken cancellationToken)
-            {
-                if (_aggregator == null)
-                {
-                    return ExecuteCursorAsync(collection, cancellationToken);
-                }
-
-                return ExecuteScalarAsync(collection, cancellationToken);
-            }
-
-            public object Execute<TInput>(IMongoCollection<TInput> collection)
-            {
-                if (_aggregator == null)
-                {
-                    return ExecuteEnumerable(collection);
-                }
-
-                return ExecuteScalar(collection);
-            }
-
-            private Task<IAsyncCursor<TOutput>> ExecuteCursorAsync<TInput>(IMongoCollection<TInput> collection, CancellationToken cancellationToken)
-            {
-                var pipelineDefinition = new BsonDocumentStagePipelineDefinition<TInput, TOutput>(
-                    _executionModel.Stages,
-                    _executionModel.OutputSerializer);
-
-                return collection.AggregateAsync(pipelineDefinition, _options, cancellationToken);
-            }
-
-            private Task<TOutput> ExecuteScalarAsync<TInput>(IMongoCollection<TInput> collection, CancellationToken cancellationToken)
-            {
-                var cursorTaskParameter = _aggregator.Parameters[0];
-                var cancellationTokenParameter = _aggregator.Parameters[1];
-
-                var call = Expression.Call(
-                    Expression.Constant(this),
-                    "ExecuteCursorAsync",
-                    new Type[] { typeof(TInput) },
-                    Expression.Constant(collection),
-                    cancellationTokenParameter);
-
-                var aggregate = Expression.Invoke(_aggregator, call, cancellationTokenParameter);
-
-                var executor = Expression.Lambda<Func<CancellationToken, Task<TOutput>>>(aggregate, cancellationTokenParameter).Compile();
-
-                return executor(cancellationToken);
-            }
-
-            private IEnumerable<TOutput> ExecuteEnumerable<TInput>(IMongoCollection<TInput> collection)
-            {
-                return new AsyncCursorEnumerableAdapter<TOutput>(x => ExecuteCursorAsync(collection, CancellationToken.None), CancellationToken.None);
-            }
-
-            private TOutput ExecuteScalar<TInput>(IMongoCollection<TInput> collection)
-            {
-                return ExecuteScalarAsync(collection, CancellationToken.None).GetAwaiter().GetResult();
-            }
         }
     }
 }

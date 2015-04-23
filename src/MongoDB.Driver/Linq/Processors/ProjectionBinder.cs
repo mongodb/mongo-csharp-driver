@@ -32,60 +32,55 @@ namespace MongoDB.Driver.Linq.Processors
         {
             var nameBasedBinder = new NameBasedMethodCallBinder();
 
-            nameBasedBinder.Register(new AverageBinder(), "Average", node => true);
+            nameBasedBinder.Register(new AnyBinder(), "Any", "AnyAsync");
 
-            nameBasedBinder.Register(new CountBinder(), "Count", node => true);
-            nameBasedBinder.Register(new CountBinder(), "LongCount", node => true);
+            nameBasedBinder.Register(new AverageBinder(), "Average", "AverageAsync");
 
-            nameBasedBinder.Register(new DistinctBinder(), "Distinct", node => node.Arguments.Count == 1);
+            nameBasedBinder.Register(new CountBinder(), "Count", "CountAsync", "LongCount", "LongCountAsync");
 
-            nameBasedBinder.Register(new FirstBinder(), "First", node => true);
-            nameBasedBinder.Register(new FirstBinder(), "FirstOrDefault", node => true);
+            nameBasedBinder.Register(new DistinctBinder(), node => node.Arguments.Count == 1, "Distinct");
 
-            nameBasedBinder.Register(new CorrelatedGroupByBinder(), "GroupBy", node =>
+            nameBasedBinder.Register(new FirstBinder(), "First", "FirstAsync", "FirstOrDefault", "FirstOrDefaultAsync");
+
+            nameBasedBinder.Register(new CorrelatedGroupByBinder(), node =>
                 node.Arguments.Count == 2 &&
-                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1));
-            nameBasedBinder.Register(new GroupByWithResultSelectorBinder(), "GroupBy", node =>
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1),
+                "GroupBy");
+
+            nameBasedBinder.Register(new GroupByWithResultSelectorBinder(), node =>
                 node.Arguments.Count == 3 &&
                 ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1) &&
-                ExtensionExpressionVisitor.IsLambda(node.Arguments[2], 2));
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[2], 2),
+                "GroupBy");
 
-            nameBasedBinder.Register(new MaxBinder(), "Max", node => true);
+            nameBasedBinder.Register(new MaxBinder(), "Max", "MaxAsync");
 
-            nameBasedBinder.Register(new MinBinder(), "Min", node => true);
+            nameBasedBinder.Register(new MinBinder(), "Min", "MinAsync");
 
-            nameBasedBinder.Register(new OfTypeBinder(), "OfType", node => true);
+            nameBasedBinder.Register(new OfTypeBinder(), "OfType");
 
-            var orderByBinder = new OrderByBinder();
-            nameBasedBinder.Register(orderByBinder, "OrderBy", node =>
+            nameBasedBinder.Register(new OrderByBinder(), node =>
                 node.Arguments.Count == 2 &&
-                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1));
-            nameBasedBinder.Register(orderByBinder, "OrderByDescending", node =>
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1),
+                "OrderBy", "OrderByDescending", "ThenBy", "ThenByDescending");
+
+            nameBasedBinder.Register(new SelectBinder(), node =>
                 node.Arguments.Count == 2 &&
-                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1));
-            nameBasedBinder.Register(orderByBinder, "ThenBy", node =>
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1),
+                "Select");
+
+            nameBasedBinder.Register(new SingleBinder(), "Single", "SingleAsync", "SingleOrDefault", "SingleOrDefaultAsync");
+
+            nameBasedBinder.Register(new SkipBinder(), "Skip");
+
+            nameBasedBinder.Register(new TakeBinder(), "Take");
+
+            nameBasedBinder.Register(new SumBinder(), "Sum", "SumAsync");
+
+            nameBasedBinder.Register(new WhereBinder(), node =>
                 node.Arguments.Count == 2 &&
-                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1));
-            nameBasedBinder.Register(orderByBinder, "ThenByDescending", node =>
-                node.Arguments.Count == 2 &&
-                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1));
-
-            nameBasedBinder.Register(new SelectBinder(), "Select", node =>
-                node.Arguments.Count == 2 &&
-                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1));
-
-            nameBasedBinder.Register(new SingleBinder(), "Single", node => true);
-            nameBasedBinder.Register(new SingleBinder(), "SingleOrDefault", node => true);
-
-            nameBasedBinder.Register(new SkipBinder(), "Skip", node => true);
-
-            nameBasedBinder.Register(new TakeBinder(), "Take", node => true);
-
-            nameBasedBinder.Register(new SumBinder(), "Sum", node => true);
-
-            nameBasedBinder.Register(new WhereBinder(), "Where", node =>
-                node.Arguments.Count == 2 &&
-                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1));
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1),
+                "Where");
 
             __methodCallBinder = nameBasedBinder;
         }

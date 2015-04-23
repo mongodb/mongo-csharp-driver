@@ -82,9 +82,8 @@
     <Compile Include="Builders.cs" />
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="Linq\AggregateQueryableExecutionModel.cs" />
-    <Compile Include="Linq\IQueryableExecutor.cs" />
+    <Compile Include="Linq\Processors\MethodCallBinders\AnyBinder.cs" />
     <Compile Include="Linq\Processors\Transformers\NullableTransformer.cs" />
-    <Compile Include="Linq\QueryableExecutionPlanBuilder.cs" />
     <Compile Include="Linq\Expressions\CorrelatedAccumulatorExpression.cs" />
     <Compile Include="Linq\Expressions\CorrelatedGroupByExpression.cs" />
     <Compile Include="Linq\Expressions\ExpressionComparer.cs" />
@@ -101,7 +100,6 @@
     <Compile Include="Linq\Expressions\SkipExpression.cs" />
     <Compile Include="Linq\IMongoQueryable.cs" />
     <Compile Include="Linq\IMongoQueryProvider.cs" />
-    <Compile Include="Linq\IQueryableExecutionPlan.cs" />
     <Compile Include="Linq\MongoQueryable.cs" />
     <Compile Include="Linq\Processors\MethodCallBinders\MethodCallBinderBase.cs" />
     <Compile Include="Linq\Processors\MethodCallBinders\SingleBinder.cs" />
@@ -147,8 +145,9 @@
     <Compile Include="Linq\Processors\Transformers\VBNothingConversionRemovalTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\VBInformationIsNothingTransformer.cs" />
     <Compile Include="Linq\Processors\Transformers\VBStringIndexComparisonTransformer.cs" />
+    <Compile Include="Linq\QueryableExecutionBuilder.cs" />
     <Compile Include="Linq\Translators\AggregateLanguageTranslator.cs" />
-    <Compile Include="Linq\AggregateQueryableExecutorBuilder.cs" />
+    <Compile Include="Linq\QueryableExecutionModelBuilder.cs" />
     <Compile Include="Linq\Translators\PredicateTranslator.cs" />
     <Compile Include="PipelineStageDefinition.cs" />
     <Compile Include="PipelineDefinition.cs" />

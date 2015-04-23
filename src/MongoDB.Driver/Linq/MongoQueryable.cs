@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,9 +28,51 @@ namespace MongoDB.Driver.Linq
     /// </summary>
     public static class MongoQueryable
     {
-        /// <averagemary>
+        /// <summary>
+        /// Determines whether a sequence contains any elements.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence to check for being empty.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// true if the source sequence contains any elements; otherwise, false.
+        /// </returns>
+        public static Task<bool> AnyAsync<TSource>(this IMongoQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<bool>(
+                Expression.Call(
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(cancellationToken)),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Determines whether any element of a sequence satisfies a condition.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence whose elements to test for a condition.</param>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// true if any elements in the source sequence pass the test in the specified predicate; otherwise, false.
+        /// </returns>
+        public static Task<bool> AnyAsync<TSource>(this IMongoQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ((IMongoQueryProvider)source.Provider).ExecuteAsync<bool>(
+                Expression.Call(
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(predicate),
+                    Expression.Constant(cancellationToken)),
+                cancellationToken);
+        }
+
+        /// <summary>
         /// Computes the average of a sequence of <see cref="Decimal"/> values.
-        /// </averagemary>
+        /// </summary>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The average of the values in the sequence.</returns>
@@ -38,9 +81,9 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<decimal, decimal>(source, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of a sequence of <see cref="Nullable{Decimal}"/> values.
-        /// </averagemary>
+        /// </summary>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The average of the values in the sequence.</returns>
@@ -49,9 +92,9 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<decimal?, decimal?>(source, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of a sequence of <see cref="Double"/> values.
-        /// </averagemary>
+        /// </summary>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The average of the values in the sequence.</returns>
@@ -60,9 +103,9 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<double, double>(source, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of a sequence of <see cref="Nullable{Double}"/> values.
-        /// </averagemary>
+        /// </summary>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The average of the values in the sequence.</returns>
@@ -71,9 +114,9 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<double?, double?>(source, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of a sequence of <see cref="Single"/> values.
-        /// </averagemary>
+        /// </summary>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The average of the values in the sequence.</returns>
@@ -82,9 +125,9 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<float, float>(source, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of a sequence of <see cref="Nullable{Single}"/> values.
-        /// </averagemary>
+        /// </summary>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The average of the values in the sequence.</returns>
@@ -93,9 +136,9 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<float?, float?>(source, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of a sequence of <see cref="Int32"/> values.
-        /// </averagemary>
+        /// </summary>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The average of the values in the sequence.</returns>
@@ -104,9 +147,9 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<int, double>(source, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of a sequence of <see cref="Nullable{Int32}"/> values.
-        /// </averagemary>
+        /// </summary>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The average of the values in the sequence.</returns>
@@ -115,9 +158,9 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<int?, double?>(source, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of a sequence of <see cref="Int64"/> values.
-        /// </averagemary>
+        /// </summary>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The average of the values in the sequence.</returns>
@@ -126,9 +169,9 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<long, double>(source, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of a sequence of <see cref="Nullable{Int64}"/> values.
-        /// </averagemary>
+        /// </summary>
         /// <param name="source">A sequence of values to calculate the average of.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The average of the values in the sequence.</returns>
@@ -137,10 +180,10 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<long?, double?>(source, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of the sequence of <see cref="Decimal" /> values that is obtained
         /// by invoking a projection function on each element of the input sequence.
-        /// </averagemary>
+        /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
@@ -153,10 +196,10 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<TSource, decimal, decimal>(source, selector, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of the sequence of <see cref="Nullable{Decimal}" /> values that is obtained
         /// by invoking a projection function on each element of the input sequence.
-        /// </averagemary>
+        /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
@@ -169,10 +212,10 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<TSource, decimal?, decimal?>(source, selector, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of the sequence of <see cref="Double" /> values that is obtained
         /// by invoking a projection function on each element of the input sequence.
-        /// </averagemary>
+        /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
@@ -185,10 +228,10 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<TSource, double, double>(source, selector, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of the sequence of <see cref="Nullable{Double}" /> values that is obtained
         /// by invoking a projection function on each element of the input sequence.
-        /// </averagemary>
+        /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
@@ -201,10 +244,10 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<TSource, double?, double?>(source, selector, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of the sequence of <see cref="Single" /> values that is obtained
         /// by invoking a projection function on each element of the input sequence.
-        /// </averagemary>
+        /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
@@ -217,10 +260,10 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<TSource, float, float>(source, selector, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of the sequence of <see cref="Nullable{Single}" /> values that is obtained
         /// by invoking a projection function on each element of the input sequence.
-        /// </averagemary>
+        /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
@@ -233,10 +276,10 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<TSource, float?, float?>(source, selector, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of the sequence of <see cref="Int32" /> values that is obtained
         /// by invoking a projection function on each element of the input sequence.
-        /// </averagemary>
+        /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
@@ -249,10 +292,10 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<TSource, int, double>(source, selector, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of the sequence of <see cref="Nullable{Int32}" /> values that is obtained
         /// by invoking a projection function on each element of the input sequence.
-        /// </averagemary>
+        /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
@@ -265,10 +308,10 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<TSource, int?, double?>(source, selector, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of the sequence of <see cref="Int64" /> values that is obtained
         /// by invoking a projection function on each element of the input sequence.
-        /// </averagemary>
+        /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
@@ -281,10 +324,10 @@ namespace MongoDB.Driver.Linq
             return AverageAsync<TSource, long, double>(source, selector, cancellationToken);
         }
 
-        /// <averagemary>
+        /// <summary>
         /// Computes the average of the sequence of <see cref="Nullable{Int64}" /> values that is obtained
         /// by invoking a projection function on each element of the input sequence.
-        /// </averagemary>
+        /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
         /// <param name="selector">A projection function to apply to each element.</param>
@@ -310,10 +353,10 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<int>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Count",
-                    new[] { typeof(TSource) },
-                    source.Expression),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -331,11 +374,11 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<int>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Count",
-                    new[] { typeof(TSource) },
-                    source.Expression,
-                    Expression.Quote(predicate)),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(predicate),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -365,10 +408,10 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "First",
-                    new[] { typeof(TSource) },
-                    source.Expression),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -386,11 +429,11 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "First",
-                    new[] { typeof(TSource) },
-                    source.Expression,
-                    Expression.Quote(predicate)),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(predicate),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -407,10 +450,10 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "FirstOrDefault",
-                    new[] { typeof(TSource) },
-                    source.Expression),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -428,11 +471,11 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "FirstOrDefault",
-                    new[] { typeof(TSource) },
-                    source.Expression,
-                    Expression.Quote(predicate)),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(predicate),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -483,12 +526,13 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static Task<TSource> MaxAsync<TSource>(this IMongoQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            var method = ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) });
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Max",
-                    new[] { typeof(TSource) },
-                    source.Expression),
+                    null,
+                    method,
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -507,11 +551,11 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Max",
-                    new[] { typeof(TSource), typeof(TResult) },
-                    source.Expression,
-                    Expression.Quote(selector)),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource), typeof(TResult) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -528,10 +572,10 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Min",
-                    new[] { typeof(TSource) },
-                    source.Expression),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -550,11 +594,11 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Min",
-                    new[] { typeof(TSource), typeof(TResult) },
-                    source.Expression,
-                    Expression.Quote(selector)),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource), typeof(TResult) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -631,10 +675,10 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Single",
-                    new[] { typeof(TSource) },
-                    source.Expression),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -652,11 +696,11 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Single",
-                    new[] { typeof(TSource) },
-                    source.Expression,
-                    Expression.Quote(predicate)),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(predicate),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -673,10 +717,10 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "SingleOrDefault",
-                    new[] { typeof(TSource) },
-                    source.Expression),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -694,11 +738,11 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "SingleOrDefault",
-                    new[] { typeof(TSource) },
-                    source.Expression,
-                    Expression.Quote(predicate)),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(predicate),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -1054,10 +1098,10 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Average",
-                    Type.EmptyTypes,
-                    source.Expression),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource), typeof(TResult) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -1065,11 +1109,11 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Average",
-                    new[] { typeof(TSource) },
-                    source.Expression,
-                    Expression.Quote(selector)),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource), typeof(TValue), typeof(TResult) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -1077,10 +1121,10 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Sum",
-                    Type.EmptyTypes,
-                    source.Expression),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
 
@@ -1088,11 +1132,11 @@ namespace MongoDB.Driver.Linq
         {
             return ((IMongoQueryProvider)source.Provider).ExecuteAsync<TValue>(
                 Expression.Call(
-                    typeof(Queryable),
-                    "Sum",
-                    new[] { typeof(TSource) },
-                    source.Expression,
-                    Expression.Quote(selector)),
+                    null,
+                    ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] { typeof(TSource), typeof(TValue) }),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(selector),
+                    Expression.Constant(cancellationToken)),
                 cancellationToken);
         }
     }

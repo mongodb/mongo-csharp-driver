@@ -15,12 +15,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Sync;
 
 namespace MongoDB.Driver.Linq
 {
@@ -65,7 +67,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         public override Type OutputType
         {
-            get { return typeof(TOutput); }
+            get { return _outputSerializer.ValueType; }
         }
 
         /// <summary>
@@ -83,6 +85,20 @@ namespace MongoDB.Driver.Linq
             }
             sb.Append("])");
             return sb.ToString();
+        }
+
+        internal override Task ExecuteAsync<TInput>(IMongoCollection<TInput> collection, AggregateOptions options, CancellationToken cancellationToken)
+        {
+            var pipeline = new BsonDocumentStagePipelineDefinition<TInput, TOutput>(
+                _stages,
+                _outputSerializer);
+
+            return collection.AggregateAsync(pipeline, options, cancellationToken);
+        }
+
+        internal override object Execute<TInput>(IMongoCollection<TInput> collection, AggregateOptions options)
+        {
+            return new AsyncCursorEnumerableAdapter<TOutput>(ct => (Task<IAsyncCursor<TOutput>>)ExecuteAsync(collection, options, ct), CancellationToken.None);
         }
     }
 }

@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Linq.Expressions
                 Visit(node.Accumulators));
         }
 
-        internal Expression VisitDistinct(DistinctExpression node)
+        protected internal virtual Expression VisitDistinct(DistinctExpression node)
         {
             return node.Update(
                 Visit(node.Source),
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Linq.Expressions
             return node.Update(Visit(node.Expression));
         }
 
-        internal Expression VisitOrderBy(OrderByExpression node)
+        protected internal virtual Expression VisitOrderBy(OrderByExpression node)
         {
             return node.Update(
                 Visit(node.Source),
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Linq.Expressions
                 VisitAndConvert<LambdaExpression>(node.Aggregator, "VisitPipeline"));
         }
 
-        protected internal Expression VisitRootAccumulator(RootAccumulatorExpression node)
+        protected internal virtual Expression VisitRootAccumulator(RootAccumulatorExpression node)
         {
             return node.Update(
                 Visit(node.Source),

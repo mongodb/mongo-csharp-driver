@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq.Processors;
 
 namespace MongoDB.Driver.Linq
 {
@@ -42,12 +43,9 @@ namespace MongoDB.Driver.Linq
 
         public QueryableExecutionModel BuildExecutionModel(Expression expression)
         {
-            return BuildExecutionPlan(expression).BuildExecutionModel();
-        }
-
-        public IQueryableExecutionPlan BuildExecutionPlan(Expression expression)
-        {
-            return QueryableExecutionPlanBuilder.Build(expression, _options, _collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
+            return QueryableExecutionModelBuilder.Build(
+                Prepare(expression),
+                _collection.Settings.SerializerRegistry);
         }
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
@@ -81,14 +79,44 @@ namespace MongoDB.Driver.Linq
 
         public object Execute(Expression expression)
         {
-            var executionPlan = BuildExecutionPlan(expression);
-            return executionPlan.Execute(_collection);
+            var executionPlan = QueryableExecutionBuilder.Build(
+                Prepare(expression),
+                Expression.Constant(this),
+                _collection.Settings.SerializerRegistry);
+
+            var efn = Expression.Lambda(executionPlan);
+            return efn.Compile().DynamicInvoke(null);
         }
 
         public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var executionPlan = BuildExecutionPlan(expression);
-            return (Task<TResult>)executionPlan.ExecuteAsync(_collection, cancellationToken);
+            var executionPlan = QueryableExecutionBuilder.BuildAsync(
+                Prepare(expression),
+                Expression.Constant(this),
+                Expression.Constant(cancellationToken),
+                _collection.Settings.SerializerRegistry);
+
+            var efn = Expression.Lambda(executionPlan);
+            return (Task<TResult>)efn.Compile().DynamicInvoke(null);
+        }
+
+        private object Execute(QueryableExecutionModel model)
+        {
+            return model.Execute(_collection, _options);
+        }
+
+        private Task ExecuteAsync(QueryableExecutionModel model, CancellationToken cancellationToken)
+        {
+            return model.ExecuteAsync(_collection, _options, cancellationToken);
+        }
+
+        private Expression Prepare(Expression expression)
+        {
+            expression = PartialEvaluator.Evaluate(expression);
+            expression = Transformer.Transform(expression);
+            expression = ProjectionBinder.Bind(expression, _collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
+
+            return expression;
         }
 
         private static Type GetElementType(Type seqType)

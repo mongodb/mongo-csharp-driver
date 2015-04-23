@@ -24,11 +24,11 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
     {
         public override Expression Bind(ProjectionExpression projection, ProjectionBindingContext context, MethodCallExpression node, IEnumerable<Expression> arguments)
         {
-            var aggregator = CreateAggregator(node.Method.Name + "Async", projection.Projector.Type);
+            var aggregator = CreateAggregator(node.Method.Name, projection.Projector.Type);
 
             var source = projection.Source;
-            var argument = arguments.SingleOrDefault();
-            if (argument != null)
+            var argument = arguments.FirstOrDefault();
+            if (argument != null && ExtensionExpressionVisitor.IsLambda(argument))
             {
                 source = BindPredicate(projection, context, source, argument);
             }

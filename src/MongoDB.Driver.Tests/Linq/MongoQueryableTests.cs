@@ -15,6 +15,42 @@ namespace MongoDB.Driver.Tests.Linq
     public class MongoQueryableTests : IntegrationTestBase
     {
         [Test]
+        public void Any()
+        {
+            var result = CreateQuery().Any();
+
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Any_with_predicate()
+        {
+            var result = CreateQuery().Any(x => x.C.E.F == 234124);
+            result.Should().BeFalse();
+
+            result = CreateQuery().Any(x => x.C.E.F == 11);
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task AnyAsync()
+        {
+            var result = await CreateQuery().AnyAsync();
+
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task AnyAsync_with_predicate()
+        {
+            var result = await CreateQuery().AnyAsync(x => x.C.E.F == 234124);
+            result.Should().BeFalse();
+
+            result = await CreateQuery().AnyAsync(x => x.C.E.F == 11);
+            result.Should().BeTrue();
+        }
+
+        [Test]
         public void Average()
         {
             var result = CreateQuery().Select(x => x.C.E.F).Average();
@@ -31,17 +67,17 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void AverageAsync()
+        public async Task AverageAsync()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).AverageAsync().GetAwaiter().GetResult();
+            var result = await CreateQuery().Select(x => x.C.E.F).AverageAsync();
 
             result.Should().Be(61);
         }
 
         [Test]
-        public void AverageAsync_with_selector()
+        public async Task AverageAsync_with_selector()
         {
-            var result = CreateQuery().AverageAsync(x => x.C.E.F).GetAwaiter().GetResult();
+            var result = await CreateQuery().AverageAsync(x => x.C.E.F);
 
             result.Should().Be(61);
         }
@@ -63,17 +99,17 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void CountAsync()
+        public async Task CountAsync()
         {
-            var result = CreateQuery().CountAsync().GetAwaiter().GetResult();
+            var result = await CreateQuery().CountAsync();
 
             result.Should().Be(2);
         }
 
         [Test]
-        public void CountAsync_with_predicate()
+        public async Task CountAsync_with_predicate()
         {
-            var result = CreateQuery().CountAsync(x => x.C.E.F == 11).GetAwaiter().GetResult();
+            var result = await CreateQuery().CountAsync(x => x.C.E.F == 11);
 
             result.Should().Be(1);
         }
@@ -106,17 +142,17 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void FirstAsync()
+        public async Task FirstAsync()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).FirstAsync().GetAwaiter().GetResult();
+            var result = await CreateQuery().Select(x => x.C.E.F).FirstAsync();
 
             result.Should().Be(11);
         }
 
         [Test]
-        public void FirstAsync_with_predicate()
+        public async Task FirstAsync_with_predicate()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).FirstAsync(x => x == 11).GetAwaiter().GetResult();
+            var result = await CreateQuery().Select(x => x.C.E.F).FirstAsync(x => x == 11);
 
             result.Should().Be(11);
         }
@@ -138,17 +174,17 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void FirstOrDefaultAsync()
+        public async Task FirstOrDefaultAsync()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).FirstOrDefaultAsync().GetAwaiter().GetResult();
+            var result = await CreateQuery().Select(x => x.C.E.F).FirstOrDefaultAsync();
 
             result.Should().Be(11);
         }
 
         [Test]
-        public void FirstOrDefaultAsync_with_predicate()
+        public async Task FirstOrDefaultAsync_with_predicate()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).FirstOrDefaultAsync(x => x == 11).GetAwaiter().GetResult();
+            var result = await CreateQuery().Select(x => x.C.E.F).FirstOrDefaultAsync(x => x == 11);
 
             result.Should().Be(11);
         }
@@ -303,17 +339,17 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void MaxAsync()
+        public async Task MaxAsync()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).MaxAsync().GetAwaiter().GetResult();
+            var result = await CreateQuery().Select(x => x.C.E.F).MaxAsync();
 
             result.Should().Be(111);
         }
 
         [Test]
-        public void MaxAsync_with_selector()
+        public async Task MaxAsync_with_selector()
         {
-            var result = CreateQuery().MaxAsync(x => x.C.E.F).GetAwaiter().GetResult();
+            var result = await CreateQuery().MaxAsync(x => x.C.E.F);
 
             result.Should().Be(111);
         }
@@ -335,17 +371,17 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void MinAsync()
+        public async Task MinAsync()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).MinAsync().GetAwaiter().GetResult();
+            var result = await CreateQuery().Select(x => x.C.E.F).MinAsync();
 
             result.Should().Be(11);
         }
 
         [Test]
-        public void MinAsync_with_selector()
+        public async Task MinAsync_with_selector()
         {
-            var result = CreateQuery().MinAsync(x => x.C.E.F).GetAwaiter().GetResult();
+            var result = await CreateQuery().MinAsync(x => x.C.E.F);
 
             result.Should().Be(11);
         }
@@ -563,17 +599,17 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void SingleAsync()
+        public async Task SingleAsync()
         {
-            var result = CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).SingleAsync().GetAwaiter().GetResult();
+            var result = await CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).SingleAsync();
 
             result.Should().Be(11);
         }
 
         [Test]
-        public void SingleAsync_with_predicate()
+        public async Task SingleAsync_with_predicate()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).SingleAsync(x => x == 11).GetAwaiter().GetResult();
+            var result = await CreateQuery().Select(x => x.C.E.F).SingleAsync(x => x == 11);
 
             result.Should().Be(11);
         }
@@ -595,17 +631,17 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void SingleOrDefaultAsync()
+        public async Task SingleOrDefaultAsync()
         {
-            var result = CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).SingleOrDefaultAsync().GetAwaiter().GetResult();
+            var result = await CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).SingleOrDefaultAsync();
 
             result.Should().Be(11);
         }
 
         [Test]
-        public void SingleOrDefaultAsync_with_predicate()
+        public async Task SingleOrDefaultAsync_with_predicate()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).SingleOrDefaultAsync(x => x == 11).GetAwaiter().GetResult();
+            var result = await CreateQuery().Select(x => x.C.E.F).SingleOrDefaultAsync(x => x == 11);
 
             result.Should().Be(11);
         }
@@ -637,17 +673,17 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void SumAsync()
+        public async Task SumAsync()
         {
-            var result = CreateQuery().Select(x => x.C.E.F).SumAsync().GetAwaiter().GetResult();
+            var result = await CreateQuery().Select(x => x.C.E.F).SumAsync();
 
             result.Should().Be(122);
         }
 
         [Test]
-        public void SumAsync_with_selector()
+        public async Task SumAsync_with_selector()
         {
-            var result = CreateQuery().SumAsync(x => x.C.E.F).GetAwaiter().GetResult();
+            var result = await CreateQuery().SumAsync(x => x.C.E.F);
 
             result.Should().Be(122);
         }

@@ -47,18 +47,31 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
             return binder.Bind(projection, context, node, arguments);
         }
 
-        public void Register(IMethodCallBinder binder, string name, Func<MethodCallExpression, bool> filter)
+        public void Register(IMethodCallBinder binder, params string[] names)
         {
-            List<KeyValuePair<Registration, IMethodCallBinder>> namedBinders;
-            if (!_binders.TryGetValue(name, out namedBinders))
+            Register(binder, node => true, names);
+        }
+
+        public void Register(IMethodCallBinder binder, Func<MethodCallExpression, bool> filter, params string[] names)
+        {
+            if (names == null)
             {
-                _binders[name] = namedBinders = new List<KeyValuePair<Registration, IMethodCallBinder>>();
+                return;
             }
 
-            namedBinders.Add(
-                new KeyValuePair<Registration, IMethodCallBinder>(
-                    new Registration(name, filter),
-                    binder));
+            foreach (var name in names)
+            {
+                List<KeyValuePair<Registration, IMethodCallBinder>> namedBinders;
+                if (!_binders.TryGetValue(name, out namedBinders))
+                {
+                    _binders[name] = namedBinders = new List<KeyValuePair<Registration, IMethodCallBinder>>();
+                }
+
+                namedBinders.Add(
+                    new KeyValuePair<Registration, IMethodCallBinder>(
+                        new Registration(name, filter),
+                        binder));
+            }
         }
 
         private class Registration

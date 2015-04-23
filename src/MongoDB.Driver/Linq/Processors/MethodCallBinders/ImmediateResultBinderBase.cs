@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -25,16 +26,39 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
     {
         protected static LambdaExpression CreateAggregator(string aggregatorName, Type returnType)
         {
-            var cursorType = typeof(IAsyncCursor<>).MakeGenericType(returnType);
-            var cursorParameter = Expression.Parameter(typeof(Task<>).MakeGenericType(cursorType), "cursorTask");
+            if (aggregatorName.EndsWith("Async"))
+            {
+                return CreateAsyncAggregator(aggregatorName, returnType);
+            }
+
+            return CreateSyncAggregator(aggregatorName, returnType);
+        }
+
+        private static LambdaExpression CreateSyncAggregator(string aggregatorName, Type returnType)
+        {
+            var sourceType = typeof(IEnumerable<>).MakeGenericType(returnType);
+            var sourceParameter = Expression.Parameter(sourceType, "source");
+            var cancellationTokenParameter = Expression.Parameter(typeof(CancellationToken), "ct");
+            return Expression.Lambda(
+                Expression.Call(typeof(Enumerable),
+                    aggregatorName,
+                    new[] { returnType },
+                    sourceParameter),
+                sourceParameter);
+        }
+
+        private static LambdaExpression CreateAsyncAggregator(string aggregatorName, Type returnType)
+        {
+            var sourceType = typeof(IAsyncCursor<>).MakeGenericType(returnType);
+            var sourceParameter = Expression.Parameter(typeof(Task<>).MakeGenericType(sourceType), "source");
             var cancellationTokenParameter = Expression.Parameter(typeof(CancellationToken), "ct");
             return Expression.Lambda(
                 Expression.Call(typeof(AsyncCursorHelper),
                     aggregatorName,
                     new[] { returnType },
-                    cursorParameter,
+                    sourceParameter,
                     cancellationTokenParameter),
-                cursorParameter,
+                sourceParameter,
                 cancellationTokenParameter);
         }
     }
