@@ -140,6 +140,14 @@ namespace MongoDB.Driver.Linq.Expressions
                 Visit(node.Selector));
         }
 
+        protected internal virtual Expression VisitSelectMany(SelectManyExpression node)
+        {
+            return node.Update(
+                Visit(node.Source),
+                Visit(node.CollectionSelector),
+                Visit(node.ResultSelector));
+        }
+
         protected internal virtual Expression VisitSerialization(SerializationExpression node)
         {
             return node.Update(Visit(node.Expression));

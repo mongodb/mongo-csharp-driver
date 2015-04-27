@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Linq.Expressions
         Projection,
         RootAccumulator,
         Select,
+        SelectMany,
         Skip,
         Take,
         Where

@@ -69,6 +69,17 @@ namespace MongoDB.Driver.Linq.Processors
                 ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1),
                 "Select");
 
+            nameBasedBinder.Register(new SelectManyBinder(), node =>
+                node.Arguments.Count == 2 &&
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1),
+                "SelectMany");
+
+            nameBasedBinder.Register(new SelectManyBinder(), node =>
+                node.Arguments.Count == 3 &&
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[1], 1) &&
+                ExtensionExpressionVisitor.IsLambda(node.Arguments[2], 2),
+                "SelectMany");
+
             nameBasedBinder.Register(new SingleBinder(), "Single", "SingleAsync", "SingleOrDefault", "SingleOrDefaultAsync");
 
             nameBasedBinder.Register(new SkipBinder(), "Skip");

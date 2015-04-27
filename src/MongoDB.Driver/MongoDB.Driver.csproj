@@ -83,7 +83,9 @@
     <Compile Include="CreateIndexModel.cs" />
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="Linq\AggregateQueryableExecutionModel.cs" />
+    <Compile Include="Linq\Expressions\SelectManyExpression.cs" />
     <Compile Include="Linq\Processors\MethodCallBinders\AnyBinder.cs" />
+    <Compile Include="Linq\Processors\MethodCallBinders\SelectManyBinder.cs" />
     <Compile Include="Linq\Processors\Transformers\NullableTransformer.cs" />
     <Compile Include="Linq\Expressions\CorrelatedAccumulatorExpression.cs" />
     <Compile Include="Linq\Expressions\CorrelatedGroupByExpression.cs" />

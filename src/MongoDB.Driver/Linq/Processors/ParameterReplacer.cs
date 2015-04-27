@@ -20,23 +20,23 @@ namespace MongoDB.Driver.Linq.Processors
 {
     internal class ParameterReplacer : ExtensionExpressionVisitor
     {
-        public static Expression Replace(Expression target, ParameterExpression parameter, Expression replacement)
+        public static Expression Replace(Expression node, ParameterExpression target, Expression replacement)
         {
-            return new ParameterReplacer(parameter, replacement).Visit(target);
+            return new ParameterReplacer(target, replacement).Visit(node);
         }
 
-        private readonly ParameterExpression _parameter;
+        private readonly ParameterExpression _target;
         private readonly Expression _replacement;
 
-        private ParameterReplacer(ParameterExpression parameter, Expression replacement)
+        private ParameterReplacer(ParameterExpression target, Expression replacement)
         {
-            _parameter = parameter;
+            _target = target;
             _replacement = replacement;
         }
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            if (_parameter == node)
+            if (_target == node)
             {
                 return _replacement;
             }

@@ -583,6 +583,93 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
+        public void SelectMany_with_only_resultSelector()
+        {
+            var query = CreateQuery()
+                .SelectMany(x => x.G);
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { G: 1, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_method_simple_scalar()
+        {
+            var query = CreateQuery()
+                .SelectMany(x => x.G, (x, c) => c);
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { G: 1, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_syntax_simple_scalar()
+        {
+            var query = from x in CreateQuery()
+                        from y in x.G
+                        select y;
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { G: 1, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_method_computed_scalar()
+        {
+            var query = CreateQuery()
+                .SelectMany(x => x.G, (x, c) => x.C.E.F + c.E.F + c.E.H);
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { __fld0: { $add: ['$C.E.F', '$G.E.F', '$G.E.H'] }, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_syntax_computed_scalar()
+        {
+            var query = from x in CreateQuery()
+                        from y in x.G
+                        select x.C.E.F + y.E.F + y.E.H;
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { __fld0: { $add: ['$C.E.F', '$G.E.F', '$G.E.H'] }, _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_method_anonymous_type()
+        {
+            var query = CreateQuery()
+                .SelectMany(x => x.G, (x, c) => new { x.C.E.F, Other = c.D });
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { F: '$C.E.F', Other: '$G.D', _id: 0 } }");
+        }
+
+        [Test]
+        public void SelectMany_with_collection_selector_syntax_anonymous_type()
+        {
+            var query = from x in CreateQuery()
+                        from y in x.G
+                        select new { x.C.E.F, Other = y.D };
+
+            Assert(query,
+                4,
+                "{ $unwind: '$G' }",
+                "{ $project: { F: '$C.E.F', Other: '$G.D', _id: 0 } }");
+        }
+
+        [Test]
         public void Single()
         {
             var result = CreateQuery().Where(x => x.Id == 10).Select(x => x.C.E.F).Single();

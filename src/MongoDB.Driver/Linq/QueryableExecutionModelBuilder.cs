@@ -78,6 +78,9 @@ namespace MongoDB.Driver.Linq
                         case ExtensionExpressionType.Select:
                             VisitSelect((SelectExpression)node);
                             return;
+                        case ExtensionExpressionType.SelectMany:
+                            VisitSelectMany((SelectManyExpression)node);
+                            return;
                         case ExtensionExpressionType.Serialization:
                             return;
                         case ExtensionExpressionType.Skip:
@@ -212,6 +215,23 @@ namespace MongoDB.Driver.Linq
             Visit(node.Source);
 
             var projection = AggregateProjectionTranslator.TranslateProject(node.Selector);
+            _stages.Add(new BsonDocument("$project", projection));
+        }
+
+        private void VisitSelectMany(SelectManyExpression node)
+        {
+            Visit(node.Source);
+
+            var field = node.CollectionSelector as ISerializationExpression;
+            if (field == null || field.SerializationInfo.ElementName == null)
+            {
+                var message = string.Format("The collection selector must be an ISerializationExpression: {0}", node.ToString());
+                throw new NotSupportedException(message);
+            }
+
+            _stages.Add(new BsonDocument("$unwind", "$" + field.SerializationInfo.ElementName));
+
+            var projection = AggregateProjectionTranslator.TranslateProject(node.ResultSelector);
             _stages.Add(new BsonDocument("$project", projection));
         }
 
