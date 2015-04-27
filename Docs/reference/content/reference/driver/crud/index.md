@@ -4,7 +4,7 @@ draft = false
 title = "CRUD Operations"
 [menu.main]
   parent = "Driver"
-  weight = 30
+  weight = 50
   pre = "<i class='fa'></i>"
 +++
 

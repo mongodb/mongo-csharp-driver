@@ -20,15 +20,16 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Expressions;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Processors
 {
-    internal class SerializationInfoBinder : MongoExpressionVisitor
+    internal class SerializationInfoBinder : ExtensionExpressionVisitor
     {
         // private fields
         private readonly Dictionary<MemberInfo, Expression> _memberMap;
         private readonly Dictionary<ParameterExpression, Expression> _parameterMap;
-        private readonly IBsonSerializerRegistry _serializerRegistry;
+        protected readonly IBsonSerializerRegistry _serializerRegistry;
 
         // constructors
         public SerializationInfoBinder(IBsonSerializerRegistry serializerRegistry)
@@ -97,7 +98,9 @@ namespace MongoDB.Driver.Linq.Processors
                     return newNode;
                 }
 
-                var message = string.Format("Could not determine serialization information for member {0}", node.Member);
+                var message = string.Format("Could not determine serialization information for member {0} in the expression tree {1}.",
+                    node.Member,
+                    node.ToString());
                 throw new MongoInternalException(message);
             }
 
@@ -160,30 +163,27 @@ namespace MongoDB.Driver.Linq.Processors
             return node;
         }
 
+        protected internal override Expression VisitSerialization(SerializationExpression node)
+        {
+            return node;
+        }
+
         protected override Expression VisitUnary(UnaryExpression node)
         {
             var newNode = base.VisitUnary(node);
             var unaryExpression = newNode as UnaryExpression;
             if (node != newNode &&
                 unaryExpression != null &&
-                !unaryExpression.Operand.Type.IsEnum && // enums are weird, so we skip them
                 (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked))
             {
-                if (unaryExpression.Operand.Type.IsGenericType && unaryExpression.Operand.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    var underlyingType = Nullable.GetUnderlyingType(node.Operand.Type);
-                    if (underlyingType.IsEnum)
-                    {
-                        // we skip enums because they are weird
-                        return newNode;
-                    }
-                }
-
                 var serializationExpression = unaryExpression.Operand as ISerializationExpression;
                 if (serializationExpression != null)
                 {
                     BsonSerializationInfo serializationInfo;
-                    if (!unaryExpression.Type.IsAssignableFrom(unaryExpression.Operand.Type))
+                    var operandType = unaryExpression.Operand.Type;
+                    if (!unaryExpression.Operand.Type.IsEnum &&
+                        !operandType.IsNullableEnum() &&
+                        !unaryExpression.Type.IsAssignableFrom(unaryExpression.Operand.Type))
                     {
                         // only lookup a new serializer if the cast is "unnecessary"
                         var serializer = _serializerRegistry.GetSerializer(node.Type);

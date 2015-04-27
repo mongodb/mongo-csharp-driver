@@ -1,26 +1,15 @@
-language: objective-c
+language: csharp
 
 branches:
   only:
   - master
 
-env:
-  global:
-  - EnableNuGetPackageRestore=true
-  matrix:
-  - MONO_VERSION="3.10.0"
-
 notifications:
   flowdock: 
     secure: "c0bIn9SSI1jV9EU6LAl7kHz/pZV1n5MIYgMKqGSwptYVRdm0hKjoH/uTMiwQPulKSIADL89PR/J83UHmXUJV5dMJ35KJ6J02hkVUkC5+NwFgvTqDMnDFcURTvmuDopR6orbMr02rKMuh7RaIHZx1HVu7Emcf+adLgY2vBW13fOg="
 
-before_install:
-- wget "http://download.mono-project.com/archive/${MONO_VERSION}/macos-10-x86/MonoFramework-MDK-${MONO_VERSION}.macos10.xamarin.x86.pkg"
-- sudo installer -pkg "MonoFramework-MDK-${MONO_VERSION}.macos10.xamarin.x86.pkg" -target /
-
 script:
 - ./build.sh -ev buildNumber $TRAVIS_BUILD_NUMBER
-- brew install mongodb
 - mkdir -p ./build/db/data
 - mongod --dbpath ./build/db/data --logpath ./build/db/log.log --fork --setParameter enableTestCommands=1
 - ./build.sh Test -ev buildNumber $TRAVIS_BUILD_NUMBER

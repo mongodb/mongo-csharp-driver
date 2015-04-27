@@ -88,10 +88,14 @@ namespace MongoDB.Driver.Tests
         {
             if (!_isMasterSlavePair)
             {
-                _database.Drop();
-                Assert.IsFalse(_server.DatabaseExists(_database.Name));
-                _collection.Insert(new BsonDocument("x", 1));
-                Assert.IsTrue(_server.DatabaseExists(_database.Name));
+                var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
+                var database = _server.GetDatabase(databaseNamespace.DatabaseName);
+                var collection = database.GetCollection("test");
+
+                database.Drop();
+                Assert.IsFalse(_server.DatabaseExists(database.Name));
+                collection.Insert(new BsonDocument("x", 1));
+                Assert.IsTrue(_server.DatabaseExists(database.Name));
             }
         }
 
@@ -100,13 +104,17 @@ namespace MongoDB.Driver.Tests
         {
             if (!_isMasterSlavePair)
             {
-                _collection.Insert(new BsonDocument());
-                var databaseNames = _server.GetDatabaseNames();
-                Assert.IsTrue(databaseNames.Contains(_database.Name));
+                var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestFixture();
+                var database = _server.GetDatabase(databaseNamespace.DatabaseName);
+                var collection = database.GetCollection("test");
 
-                _server.DropDatabase(_database.Name);
+                collection.Insert(new BsonDocument());
+                var databaseNames = _server.GetDatabaseNames();
+                Assert.IsTrue(databaseNames.Contains(database.Name));
+
+                _server.DropDatabase(database.Name);
                 databaseNames = _server.GetDatabaseNames();
-                Assert.IsFalse(databaseNames.Contains(_database.Name));
+                Assert.IsFalse(databaseNames.Contains(database.Name));
             }
         }
 

@@ -4,7 +4,7 @@ draft = false
 title = "What's New"
 [menu.main]
   weight = 20
-  pre = "<i class='fa'></i>"
+  pre = "<i class='fa fa-star'></i>"
 +++
 
 ## What's New in the MongoDB .NET 2.0 Driver
@@ -27,7 +27,7 @@ All new applications should utilize the New API.
 
 Because of our async nature, we have rebuilt our entire API. The new API is accessible via MongoClient.GetDatabase. 
 
-- Interfaces are used (`IMongoClient`, `IMongoDatabase`, `IMongoCollection<TDocument>`) to support easier testing.
+- Interfaces are used ([`IMongoClient`]({{< apiref "T_MongoDB_Driver_IMongoClient" >}}), [`IMongoDatabase`]({{< apiref "T_MongoDB_Driver_IMongoDatabase" >}}), [`IMongoCollection<TDocument>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}})) to support easier testing.
 - A fluent Find API is available with full support for expression trees including projections.
 
 	``` csharp

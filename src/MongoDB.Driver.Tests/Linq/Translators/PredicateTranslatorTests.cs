@@ -21,8 +21,8 @@ namespace MongoDB.Driver.Tests.Linq.Translators
     /// Unit tests for PredicateTranslator class
     /// </summary>
     [TestFixture]
-    public class PredicateTranslatorTests : TranslatorTestBase
-	{
+    public class PredicateTranslatorTests : IntegrationTestBase
+    {
 		private class A1
 		{
 
@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => x.G.Any(),
-                1,
+                2,
                 "{G: {$ne: null, $not: {$size: 0}}}");
         }
 
@@ -173,13 +173,13 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         public void Any_with_a_predicate_on_scalars_legacy()
         {
             Assert(
-                x => x.M.Any(m => m > 2),
+                x => x.M.Any(m => m > 5),
                 1,
-                "{M: {$elemMatch: {$gt: 2}}}");
+                "{M: {$elemMatch: {$gt: 5}}}");
 
             Assert(
                 x => x.M.Any(m => m > 2 && m < 6),
-                1,
+                2,
                 "{M: {$elemMatch: {$gt: 2, $lt: 6}}}");
         }
 
@@ -188,9 +188,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         public void Any_with_a_predicate_on_scalars()
         {
             Assert(
-                x => x.M.Any(m => m == 5),
+                x => x.M.Any(m => m == 6),
                 1,
-                "{M: {$elemMatch: {$eq: 5}}}");
+                "{M: {$elemMatch: {$eq: 6}}}");
 
             Assert(
                 x => x.C.E.I.Any(i => i.StartsWith("ick")),
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             Assert(
                 x => local.Contains(x.Id),
-                1,
+                2,
                 "{_id: {$in: [10, 20, 30]}}");
         }
 
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             Assert(
                 x => local.Contains(x.Id),
-                1,
+                2,
                 "{_id: {$in: [10, 20, 30]}}");
         }
 
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             Assert(
                 x => local.Contains(x.Id),
-                1,
+                2,
                 "{_id: {$in: [10, 20, 30]}}");
         }
 
@@ -236,12 +236,12 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => x.M.Length == 3,
-                1,
+                2,
                 "{M: {$size: 3}}");
 
             Assert(
                 x => 3 == x.M.Length,
-                1,
+                2,
                 "{M: {$size: 3}}");
         }
 
@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => !(x.M.Length != 3),
-                1,
+                2,
                 "{M: {$size: 3}}");
         }
 
@@ -286,7 +286,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => x.M[1] != 4,
-                0,
+                1,
                 "{'M.1': {$ne: 4}}");
         }
 
@@ -340,7 +340,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => x.K == false,
-                0,
+                1,
                 "{K: false}");
         }
 
@@ -349,7 +349,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => x.K != true,
-                0,
+                1,
                 "{K: {$ne: true}}");
         }
 
@@ -367,7 +367,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => !x.K,
-                0,
+                1,
                 "{K: {$ne: true}}");
         }
 
@@ -394,7 +394,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => x.C != new C { D = "Dexter" },
-                1,
+                2,
                 "{C: {$ne: {D: 'Dexter', E: null}}}");
         }
         
@@ -412,8 +412,62 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => x.C.D != "Dexter",
-                0,
+                1,
                 "{'C.D': {$ne: 'Dexter'}}");
+        }
+
+        [Test]
+        public void CompareTo_equal()
+        {
+            Assert(
+                x => x.A.CompareTo("Amazing") == 0,
+                1,
+                "{'A': 'Amazing' }");
+        }
+
+        [Test]
+        public void CompareTo_greater_than()
+        {
+            Assert(
+                x => x.A.CompareTo("Around") > 0,
+                1,
+                "{'A': { $gt: 'Around' } }");
+        }
+
+        [Test]
+        public void CompareTo_greater_than_or_equal()
+        {
+            Assert(
+                x => x.A.CompareTo("Around") >= 0,
+                1,
+                "{'A': { $gte: 'Around' } }");
+        }
+
+        [Test]
+        public void CompareTo_less_than()
+        {
+            Assert(
+                x => x.A.CompareTo("Around") < 0,
+                1,
+                "{'A': { $lt: 'Around' } }");
+        }
+
+        [Test]
+        public void CompareTo_less_than_or_equal()
+        {
+            Assert(
+                x => x.A.CompareTo("Around") <= 0,
+                1,
+                "{'A': { $lte: 'Around' } }");
+        }
+
+        [Test]
+        public void CompareTo_not_equal()
+        {
+            Assert(
+                x => x.A.CompareTo("Amazing") != 0,
+                1,
+                "{'A': { $ne: 'Amazing' } }");
         }
 
         [Test]
@@ -421,7 +475,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => x.G.Count() == 2,
-                1,
+                2,
                 "{'G': {$size: 2}}");
         }
 
@@ -435,11 +489,29 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void Equals_with_byte_based_enum()
+        {
+            Assert(
+                x => x.Q == Q.One,
+                1,
+                "{'Q': 1}");
+        }
+
+        [Test]
+        public void Equals_with_nullable_date_time()
+        {
+            Assert(
+                x => x.R.HasValue && x.R.Value > DateTime.MinValue,
+                1,
+                "{'R': { $ne: null, $gt: ISODate('0001-01-01T00:00:00Z') } }");
+        }
+
+        [Test]
         public void HashSetCount()
         {
             Assert(
                 x => x.L.Count == 3,
-                1,
+                2,
                 "{'L': {$size: 3}}");
         }
 
@@ -448,7 +520,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => x.O.Count == 3,
-                1,
+                2,
                 "{'O': {$size: 3}}");
         }
 
@@ -512,7 +584,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => !x.A.Contains("some"),
-                0,
+                1,
                 "{A: {$not: /some/s}}");
         }
 
@@ -557,8 +629,26 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             Assert(
                 x => !x.A.Equals("Awesome"),
-                0,
+                1,
                 "{A: {$ne: 'Awesome'}}");
+        }
+
+        [Test]
+        public void String_IsNullOrEmpty()
+        {
+            Assert(
+                x => string.IsNullOrEmpty(x.A),
+                0,
+                "{A: { $in: [null, ''] } }");
+        }
+
+        [Test]
+        public void Not_String_IsNullOrEmpty()
+        {
+            Assert(
+                x => !string.IsNullOrEmpty(x.A),
+                2,
+                "{A: { $nin: [null, ''] } }");
         }
 
         [Test]

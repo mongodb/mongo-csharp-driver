@@ -3,8 +3,8 @@ date = "2015-03-17T15:36:56Z"
 draft = false
 title = "Authentication"
 [menu.main]
-  parent = "Driver"
-  weight = 20
+  parent = "Connecting"
+  weight = 30
   pre = "<i class='fa'></i>"
 +++
 
@@ -12,7 +12,7 @@ title = "Authentication"
 
 The .NET driver supports all [MongoDB authentication mechanisms]({{< docsref "core/authentication/" >}}) including those in the [Enterprise Edition]({{< docsref "administration/install-enterprise/" >}}).
 
-Authentication credentials are created by the application as instances of [`MongoCredential`]({{< apiref "T_MongoDB_Driver_MongoCredential" >}}) which includes static factory methods for each of the supported authentication mechanisms. A list of these instances must be passed to the driver using the `MongoClient` constructor that takes a [`MongoClientSettings`]({{< apiref "T_MongoDB_Driver_MongoClientSettings" >}}). When only one credential is necessary, it is possible to specify via the [connection string]({{< relref "connecting.md#connection-string" >}}).
+Authentication credentials are created by the application as instances of [`MongoCredential`]({{< apiref "T_MongoDB_Driver_MongoCredential" >}}) which includes static factory methods for each of the supported authentication mechanisms. A list of these instances must be passed to the driver using the [`MongoClient constructor`]({{< apiref "M_MongoDB_Driver_MongoClient__ctor_1" >}}) that takes a [`MongoClientSettings`]({{< apiref "T_MongoDB_Driver_MongoClientSettings" >}}). When only one credential is necessary, it is possible to specify via the [connection string]({{< relref "connecting.md#connection-string" >}}).
 
 
 ### Default
@@ -36,7 +36,7 @@ This is the recommended approach as it will make upgrading from MongoDB 2.6 to M
 
 ### x.509 Authentication
 
-The [x.509](http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication) mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of SSL connections with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:
+The [x.509](http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication) mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of [SSL connections]({{< relref "reference\driver\ssl.md" >}}) with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:
 
 ```csharp
 var credential = MongoCredential.CreateX509Credential(username);
@@ -48,7 +48,7 @@ Or via the connection string:
 mongodb://username@myserver/?authMechanism=MONGODB-X509
 ```
 
-Even when using the connection string to provide the credential, the certificate must still be provided via code. This certificate can be pulled out of the trust stores on the box, or from a file. However, to be used with client authentication, the [X509Certificate]({{< msdnref "system.security.cryptography.x509certificates.x509certificate" >}}) provided to the driver must contain the [PrivateKey]({{< msdnref "system.security.cryptography.x509certificates.x509certificate2.privatekey" >}}).
+Even when using the connection string to provide the credential, the certificate must still be provided via code. This certificate can be pulled out of the trust stores on the box, or from a file. However, to be used with client authentication, the [`X509Certificate`]({{< msdnref "system.security.cryptography.x509certificates.x509certificate" >}}) provided to the driver must contain the [`PrivateKey`]({{< msdnref "system.security.cryptography.x509certificates.x509certificate2.privatekey" >}}).
 
 ```csharp
 var cert = new X509Certificate2("client.pfx", "mySuperSecretPassword");

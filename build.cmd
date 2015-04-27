@@ -1,5 +1,3 @@
 @echo off
-if not exist packages\FAKE\tools\Fake.exe ( 
-	"tools\nuget\nuget.exe" "install" "FAKE" "-OutputDirectory" "packages" "-ExcludeVersion"
-)
-"packages\FAKE\tools\Fake.exe" build\build.fsx %*
+Tools\NuGet\NuGet.exe install FAKE -OutputDirectory Tools -ExcludeVersion
+Tools\FAKE\tools\Fake.exe build\build.fsx %*

@@ -200,11 +200,12 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
+            var lambda = (LambdaExpression)PartialEvaluator.Evaluate(_expression);
             var binder = new SerializationInfoBinder(serializerRegistry);
             var parameterSerializationInfo = new BsonSerializationInfo(null, documentSerializer, documentSerializer.ValueType);
-            var parameterExpression = new SerializationExpression(_expression.Parameters[0], parameterSerializationInfo);
-            binder.RegisterParameterReplacement(_expression.Parameters[0], parameterExpression);
-            var bound = binder.Bind(_expression.Body) as ISerializationExpression;
+            var parameterExpression = new SerializationExpression(lambda.Parameters[0], parameterSerializationInfo);
+            binder.RegisterParameterReplacement(lambda.Parameters[0], parameterExpression);
+            var bound = binder.Bind(lambda.Body) as ISerializationExpression;
             if (bound == null)
             {
                 var message = string.Format("Unable to determine the serialization information for {0}.", _expression);
@@ -244,11 +245,12 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
+            var lambda = (LambdaExpression)PartialEvaluator.Evaluate(_expression);
             var binder = new SerializationInfoBinder(serializerRegistry);
             var parameterSerializationInfo = new BsonSerializationInfo(null, documentSerializer, documentSerializer.ValueType);
-            var parameterExpression = new SerializationExpression(_expression.Parameters[0], parameterSerializationInfo);
-            binder.RegisterParameterReplacement(_expression.Parameters[0], parameterExpression);
-            var bound = binder.Bind(_expression.Body) as ISerializationExpression;
+            var parameterExpression = new SerializationExpression(lambda.Parameters[0], parameterSerializationInfo);
+            binder.RegisterParameterReplacement(lambda.Parameters[0], parameterExpression);
+            var bound = binder.Bind(lambda.Body) as ISerializationExpression;
             if (bound == null)
             {
                 var message = string.Format("Unable to determine the serialization information for {0}.", _expression);

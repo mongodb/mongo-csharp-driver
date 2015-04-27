@@ -4,7 +4,7 @@ draft = false
 title = "Definitions and Builders"
 [menu.main]
   parent = "Driver"
-  weight = 20
+  weight = 40
   pre = "<i class='fa'></i>"
 +++
 
@@ -31,7 +31,7 @@ fieldName.Should().Be("fun");
 
 However, if you are working with a [mapped class]({{< relref "reference\bson\mapping\index.md" >}}), then 2 further options exist.
 
-First, most locations that accept a [`FieldDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_FieldDefinition_1" >}}) or [`FieldDefinition<TDocument, TField>`]({{< apiref "T_MongoDB_Driver_FieldDefinition_2" >}}) will also have an overload (via extension method) that accepts a lambda expression. Given the following class definition marked with the [`BsonElementAttribute`]({{< apiref "T_MongoDB_Bson_Serializers_Attributes_BsonElementAttribute" >}}) instructing the use of a different field name:
+First, most locations that accept a [`FieldDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_FieldDefinition_1" >}}) or [`FieldDefinition<TDocument, TField>`]({{< apiref "T_MongoDB_Driver_FieldDefinition_2" >}}) will also have an overload (via extension method) that accepts a lambda expression. Given the following class definition marked with the [`BsonElementAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_BsonElementAttribute" >}}) instructing the use of a different field name:
 
 ```csharp
 class Person
@@ -184,7 +184,7 @@ PipelineDefinition pipeline = new BsonDocument[]
 };
 ```
 
-{{% note %}}There is no builder for a PipelineDefinition. In most cases, the `IAggregateFluent<TDocument>` interface would be used which is returned from the `IMongoCollection<TDocument>.Aggregate` method.{{% /note %}}
+{{% note %}}There is no builder for a PipelineDefinition. In most cases, the [`IAggregateFluent<TDocument>`]({{< apiref "T_MongoDB_Driver_IAggregateFluent_1" >}}) interface would be used which is returned from the [`IMongoCollection<TDocument>.Aggregate`]({{< apiref "M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1" >}}) method.{{% /note %}}
 
 
 ## Projections
@@ -234,7 +234,7 @@ var projection = Builders<Widget>.Projection.Include(x => x.X).Include(x => x.Y)
 var projection = Builders<Widget>.Projection.Expression(x => new { X = x.X, Y = x.Y });
 ```
 
-This last projection where we've used the [`Expression`]({{< apiref "M_MongoDB_Driver_ProjectionDefinitionBuilder_1_Expression" >}}) method is subtly different as is explained below, and its return type is a ([`ProjectionDefinition<TDocument, TProjection>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_2" >}})) as opposed to the others which return a ([`ProjectionDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_1" >}})).
+This last projection where we've used the [`Expression`]({{< apiref "M_MongoDB_Driver_ProjectionDefinitionBuilder_1_Expression__1" >}}) method is subtly different as is explained below, and its return type is a ([`ProjectionDefinition<TDocument, TProjection>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_2" >}})) as opposed to the others which return a ([`ProjectionDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinition_1" >}})).
 
 
 #### Lambda Expressions
@@ -246,9 +246,7 @@ The driver supports using expression trees to render projections. The same expre
 
 _See the [tests]({{< srcref "MongoDB.Driver.Tests/Linq/Translators/FindProjectionTranslatorTests.cs" >}}) for examples._
 
-When a Find projection is defined using a lambda expression, only the [projection operators]({{< docsref "reference/operator/query/#projection-operators" >}}) are supported.
-
-{{% note %}}$slice and $meta are not currently supported via lambda expressions.{{% /note %}}
+When a Find projection is defined using a lambda expression, it is run client-side. The driver inspects the lambda expression to determine which fields are referenced and automatically constructs a server-side projection to return only those fields.
 
 Given the following class:
 

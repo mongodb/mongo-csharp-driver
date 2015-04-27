@@ -23,10 +23,9 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
-using MongoDB.Driver.Linq.Processors;
-using MongoDB.Driver.Linq.Utils;
-using MongoDB.Driver.Linq.Translators;
 using MongoDB.Driver.Linq.Expressions;
+using MongoDB.Driver.Linq.Processors;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Translators
 {
@@ -44,13 +43,22 @@ namespace MongoDB.Driver.Linq.Translators
             var parameterExpression = new SerializationExpression(predicate.Parameters[0], parameterSerializationInfo);
             var binder = new SerializationInfoBinder(BsonSerializer.SerializerRegistry);
             binder.RegisterParameterReplacement(predicate.Parameters[0], parameterExpression);
-            var normalizedBody = Normalizer.Normalize(predicate.Body);
-            var evaluatedBody = PartialEvaluator.Evaluate(normalizedBody);
-            var boundExpression = binder.Bind(evaluatedBody);
+            var node = Transformer.Transform(predicate.Body);
+            node = PartialEvaluator.Evaluate(node);
+            node = binder.Bind(node);
 
+            return Translate(node, serializerRegistry);
+        }
+
+        public static BsonDocument Translate(Expression node, IBsonSerializerRegistry serializerRegistry)
+        {
             var translator = new PredicateTranslator();
-            return translator.BuildFilter(boundExpression)
+            return translator.BuildFilter(node)
                 .Render(serializerRegistry.GetSerializer<BsonDocument>(), serializerRegistry);
+        }
+
+        private PredicateTranslator()
+        {
         }
 
         private FilterDefinition<BsonDocument> BuildFilter(Expression expression)
@@ -98,12 +106,12 @@ namespace MongoDB.Driver.Linq.Translators
                     filter = BuildTypeIsQuery((TypeBinaryExpression)expression);
                     break;
                 case ExpressionType.Extension:
-                    var mongoExpression = expression as MongoExpression;
+                    var mongoExpression = expression as ExtensionExpression;
                     if (mongoExpression != null)
                     {
-                        switch (mongoExpression.MongoNodeType)
+                        switch (mongoExpression.ExtensionType)
                         {
-                            case MongoExpressionType.Serialization:
+                            case ExtensionExpressionType.Serialization:
                                 if (mongoExpression.Type == typeof(bool))
                                 {
                                     filter = BuildBooleanQuery(mongoExpression);
@@ -298,6 +306,12 @@ namespace MongoDB.Driver.Linq.Translators
                 return query;
             }
 
+            query = BuildCompareToQuery(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
             query = BuildStringIndexOfQuery(variableExpression, operatorType, constantExpression);
             if (query != null)
             {
@@ -331,75 +345,68 @@ namespace MongoDB.Driver.Linq.Translators
             return BuildComparisonQuery(variableExpression, operatorType, constantExpression);
         }
 
+        private FilterDefinition<BsonDocument> BuildCompareToQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
+            if (constantExpression.Type != typeof(int) || ((int)constantExpression.Value) != 0)
+            {
+                return null;
+            }
+
+            var call = variableExpression as MethodCallExpression;
+            if (call == null || call.Object == null || call.Method.Name != "CompareTo" || call.Arguments.Count != 1)
+            {
+                return null;
+            }
+
+            constantExpression = call.Arguments[0] as ConstantExpression;
+            if (constantExpression == null)
+            {
+                return null;
+            }
+
+            return BuildComparisonQuery(call.Object, operatorType, constantExpression);
+        }
+
         private FilterDefinition<BsonDocument> BuildComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
-            BsonSerializationInfo serializationInfo = null;
             var value = constantExpression.Value;
 
-            var unaryExpression = variableExpression as UnaryExpression;
-            if (unaryExpression != null && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+            var methodCallExpression = variableExpression as MethodCallExpression;
+            if (methodCallExpression != null && value is bool)
             {
-                if (unaryExpression.Operand.Type.IsEnum)
-                {
-                    var enumType = unaryExpression.Operand.Type;
-                    if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
-                    {
-                        serializationInfo = GetSerializationInfo(unaryExpression.Operand);
-                        value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
-                    }
-                }
-                else if (
-                    unaryExpression.Type.IsGenericType &&
-                    unaryExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                    unaryExpression.Operand.Type.IsGenericType &&
-                    unaryExpression.Operand.Type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                    unaryExpression.Operand.Type.GetGenericArguments()[0].IsEnum)
-                {
-                    var enumType = unaryExpression.Operand.Type.GetGenericArguments()[0];
-                    if (unaryExpression.Type.GetGenericArguments()[0] == Enum.GetUnderlyingType(enumType))
-                    {
-                        serializationInfo = GetSerializationInfo(unaryExpression.Operand);
-                        if (value != null)
-                        {
-                            value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
-                        }
-                    }
-                }
-                else
-                {
-                    //Allows a cast, which would be required for compilation, such as (float){object} >= 25f to be built as __builder.GTE({object}, 25)
-                    serializationInfo = GetSerializationInfo(unaryExpression.Operand);
-                }
-            }
-            else
-            {
-                var methodCallExpression = variableExpression as MethodCallExpression;
-                if (methodCallExpression != null && value is bool)
-                {
-                    var boolValue = (bool)value;
-                    var query = this.BuildMethodCallQuery(methodCallExpression);
+                var boolValue = (bool)value;
+                var query = this.BuildMethodCallQuery(methodCallExpression);
 
-                    var isTrueComparison = (boolValue && operatorType == ExpressionType.Equal)
-                                            || (!boolValue && operatorType == ExpressionType.NotEqual);
+                var isTrueComparison = (boolValue && operatorType == ExpressionType.Equal)
+                                        || (!boolValue && operatorType == ExpressionType.NotEqual);
 
-                    return isTrueComparison ? query : __builder.Not(query);
-                }
-
-                serializationInfo = GetSerializationInfo(variableExpression);
+                return isTrueComparison ? query : __builder.Not(query);
             }
 
-            if (serializationInfo != null)
+            var serializationInfo = GetSerializationInfo(variableExpression);
+            var valueType = serializationInfo.Serializer.ValueType;
+            if (valueType.IsEnum || valueType.IsNullableEnum())
             {
-                var serializedValue = serializationInfo.SerializeValue(value);
-                switch (operatorType)
+                if (!valueType.IsEnum && value != null)
                 {
-                    case ExpressionType.Equal: return __builder.Eq(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.GreaterThan: return __builder.Gt(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.GreaterThanOrEqual: return __builder.Gte(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.LessThan: return __builder.Lt(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.LessThanOrEqual: return __builder.Lte(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.NotEqual: return __builder.Ne(serializationInfo.ElementName, serializedValue);
+                    valueType = valueType.GetNullableUnderlyingType();
                 }
+
+                if (value != null)
+                {
+                    value = Enum.ToObject(valueType, value);
+                }
+            }
+
+            var serializedValue = serializationInfo.SerializeValue(value);
+            switch (operatorType)
+            {
+                case ExpressionType.Equal: return __builder.Eq(serializationInfo.ElementName, serializedValue);
+                case ExpressionType.GreaterThan: return __builder.Gt(serializationInfo.ElementName, serializedValue);
+                case ExpressionType.GreaterThanOrEqual: return __builder.Gte(serializationInfo.ElementName, serializedValue);
+                case ExpressionType.LessThan: return __builder.Lt(serializationInfo.ElementName, serializedValue);
+                case ExpressionType.LessThanOrEqual: return __builder.Lte(serializationInfo.ElementName, serializedValue);
+                case ExpressionType.NotEqual: return __builder.Ne(serializationInfo.ElementName, serializedValue);
             }
 
             return null;
@@ -692,13 +699,8 @@ namespace MongoDB.Driver.Linq.Translators
             if (methodCallExpression.Method.DeclaringType == typeof(string) && methodCallExpression.Object == null)
             {
                 var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 1)
-                {
-                    var serializationInfo = GetSerializationInfo(arguments[0]);
-                    return __builder.Or(
-                        __builder.Type(serializationInfo.ElementName, BsonType.Null), // this is the safe way to test for null
-                        __builder.Eq(serializationInfo.ElementName, ""));
-                }
+                var serializationInfo = GetSerializationInfo(arguments[0]);
+                return __builder.In<string>(serializationInfo.ElementName, new string[] { null, "" });
             }
 
             return null;
@@ -718,6 +720,7 @@ namespace MongoDB.Driver.Linq.Translators
                 case "IsNullOrEmpty": return BuildIsNullOrEmptyQuery(methodCallExpression);
                 case "StartsWith": return BuildStringQuery(methodCallExpression);
             }
+
             return null;
         }
 
@@ -1404,7 +1407,9 @@ namespace MongoDB.Driver.Linq.Translators
             BsonSerializationInfo serializationInfo;
             if (!TryGetSerializationInfo(expression, out serializationInfo))
             {
-                throw new InvalidOperationException(string.Format("{0} is not supported.", expression));
+                var message = string.Format("{0} is not supported.",
+                    expression.ToString());
+                throw new InvalidOperationException(message);
             }
 
             return serializationInfo;
@@ -1420,6 +1425,46 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             return itemSerializationInfo;
+        }
+
+        /// <summary>
+        /// This guy is going to replace expressions like Serialization("G.D") with Serialization("D").
+        /// </summary>
+        private class PrefixedFieldRenamer : ExtensionExpressionVisitor
+        {
+            public static Expression Rename(Expression node, string prefix)
+            {
+                var renamer = new PrefixedFieldRenamer(prefix);
+                return renamer.Visit(node);
+            }
+
+            private string _prefix;
+
+            private PrefixedFieldRenamer(string prefix)
+            {
+                _prefix = prefix;
+            }
+
+            protected internal override Expression VisitSerialization(SerializationExpression node)
+            {
+                if (node.SerializationInfo.ElementName.StartsWith(_prefix))
+                {
+                    var name = node.SerializationInfo.ElementName;
+                    if (name == _prefix)
+                    {
+                        name = "";
+                    }
+                    else
+                    {
+                        name = name.Remove(0, _prefix.Length + 1);
+                    }
+                    return new SerializationExpression(
+                        node.Expression,
+                        node.SerializationInfo.WithNewName(name));
+                }
+
+                return base.VisitSerialization(node);
+            }
         }
     }
 }

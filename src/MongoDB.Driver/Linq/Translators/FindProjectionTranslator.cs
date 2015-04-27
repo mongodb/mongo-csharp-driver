@@ -23,11 +23,11 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors;
-using MongoDB.Driver.Linq.Utils;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Translators
 {
-    internal class FindProjectionTranslator : MongoExpressionVisitor
+    internal class FindProjectionTranslator : ExtensionExpressionVisitor
     {
         public static RenderedProjectionDefinition<TProjection> Translate<TDocument, TProjection>(Expression<Func<TDocument, TProjection>> projector, IBsonSerializer<TDocument> parameterSerializer)
         {
@@ -35,10 +35,10 @@ namespace MongoDB.Driver.Linq.Translators
             var parameterExpression = new SerializationExpression(projector.Parameters[0], parameterSerializationInfo);
             var binder = new SerializationInfoBinder(BsonSerializer.SerializerRegistry);
             binder.RegisterParameterReplacement(projector.Parameters[0], parameterExpression);
-            var normalizedBody = Normalizer.Normalize(projector.Body);
+            var normalizedBody = Transformer.Transform(projector.Body);
             var evaluatedBody = PartialEvaluator.Evaluate(normalizedBody);
             var boundExpression = binder.Bind(evaluatedBody);
-            var candidateFields = FieldGatherer.Gather(boundExpression);
+            var candidateFields = SerializationExpressionGatherer.Gather(boundExpression);
 
             var fields = GetUniqueFieldsByHierarchy(candidateFields);
 
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Linq.Translators
             _fields = fields;
         }
 
-        protected override Expression VisitSerialization(SerializationExpression node)
+        protected internal override Expression VisitSerialization(SerializationExpression node)
         {
             if (!_fields.Any(x => x.SerializationInfo.ElementName == node.SerializationInfo.ElementName
                 && x.SerializationInfo.NominalType.Equals(node.SerializationInfo.NominalType)))
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Linq.Translators
                 "GetValue",
                 new[] { node.Type },
                 Expression.Constant(node.SerializationInfo.ElementName),
-                Expression.Constant(TypeHelper.GetDefault(node.SerializationInfo.NominalType), typeof(object)));
+                Expression.Constant(node.SerializationInfo.NominalType.GetDefaultValue(), typeof(object)));
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Linq.Translators
                             "GetValue",
                             new[] { typeof(IEnumerable<object>) },
                             Expression.Constant(source.SerializationInfo.ElementName),
-                            Expression.Constant(TypeHelper.GetDefault(newSourceType), typeof(object))));
+                            Expression.Constant(newSourceType.GetDefaultValue(), typeof(object))));
 
                 return Expression.Call(
                     typeof(Enumerable),
@@ -196,10 +196,57 @@ namespace MongoDB.Driver.Linq.Translators
             return uniqueFields.GroupBy(x => x.SerializationInfo.ElementName).Select(x => x.First()).ToList();
         }
 
+        private class SerializationExpressionGatherer : ExtensionExpressionVisitor
+        {
+            public static IReadOnlyList<SerializationExpression> Gather(Expression node)
+            {
+                var gatherer = new SerializationExpressionGatherer();
+                gatherer.Visit(node);
+                return gatherer._serializationExpressions;
+            }
+
+            private List<SerializationExpression> _serializationExpressions;
+
+            private SerializationExpressionGatherer()
+            {
+                _serializationExpressions = new List<SerializationExpression>();
+            }
+
+            protected internal override Expression VisitSerialization(SerializationExpression node)
+            {
+                if (node.SerializationInfo.ElementName != null)
+                {
+                    _serializationExpressions.Add(node);
+                }
+                return node;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if (!IsLinqMethod(node, "Select", "SelectMany"))
+                {
+                    return base.VisitMethodCall(node);
+                }
+
+                var source = node.Arguments[0] as SerializationExpression;
+                if (source != null)
+                {
+                    var fields = SerializationExpressionGatherer.Gather(node.Arguments[1]);
+                    if (fields.Any(x => x.SerializationInfo.ElementName.StartsWith(source.SerializationInfo.ElementName)))
+                    {
+                        _serializationExpressions.AddRange(fields);
+                        return node;
+                    }
+                }
+
+                return base.VisitMethodCall(node);
+            }
+        }
+
         /// <summary>
         /// This guy is going to replace calls like store.GetValue("d.y") with nestedStore.GetValue("y").
         /// </summary>
-        private class ProjectedObjectFieldReplacer : MongoExpressionVisitor
+        private class ProjectedObjectFieldReplacer : ExtensionExpressionVisitor
         {
             private string _keyPrefix;
             private Expression _source;

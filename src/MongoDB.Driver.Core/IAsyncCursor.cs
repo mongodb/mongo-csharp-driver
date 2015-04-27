@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// Represents an asynchronous cursor.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public interface IAsyncCursor<TDocument> : IDisposable
+    public interface IAsyncCursor<out TDocument> : IDisposable
     {
         /// <summary>
         /// Gets the current batch of documents.

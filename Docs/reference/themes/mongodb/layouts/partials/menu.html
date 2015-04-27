@@ -3,8 +3,8 @@
     <div class="ssidebar nav-collapse">
       <div class="ssidebarwrapper">
         <h3>
-          <a class="index-link" href="{{.Site.BaseUrl}}">{{ .Site.Title }}</a>
-          {{ with .Site.Data.mongodb.currentVersion }}<a class="version pull-right" href="">{{ . }}</a>{{ end }}
+          <a class="index-link" href="{{ .Site.BaseUrl}}/../">{{ .Site.Title }}</a>{{ $baseUrl := .Site.BaseUrl}}
+          {{ with .Site.Data.mongodb.currentVersion }}<a class="version pull-right" href="{{$baseUrl}}">{{ . }}</a>{{ end }}
         </h3>
 
         <!-- sidebar menu start-->

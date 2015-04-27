@@ -51,8 +51,10 @@ namespace MongoDB.Driver
         /// <param name="keys">The keys.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A task.</returns>
-        Task CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// A task whose result is the name of the index that was created.
+        /// </returns>
+        Task<string> CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Drops all the indexes.

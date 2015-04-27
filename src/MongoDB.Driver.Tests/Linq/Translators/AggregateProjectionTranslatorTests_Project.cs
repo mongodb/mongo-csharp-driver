@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq.Translators;
-using MongoDB.Driver.Linq.Utils;
 using NUnit.Framework;
 using FluentAssertions;
 using MongoDB.Bson.IO;
@@ -33,7 +32,7 @@ using MongoDB.Driver.Core;
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
     [TestFixture]
-    public class AggregateProjectionTranslatorTests_Project : TranslatorTestBase
+    public class AggregateProjectionTranslatorTests_Project : IntegrationTestBase
     {
         [Test]
         public async Task Should_translate_using_non_anonymous_type_with_default_constructor()
@@ -652,6 +651,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Func<Task> act = async () => await Project(x => new { Result = x.B.Equals("balloon", comparison) });
 
             act.ShouldThrow<NotSupportedException>();
+        }
+
+        [Test]
+        public async Task Should_translate_string_is_null_or_empty()
+        {
+            var result = await Project(x => new { Result = string.IsNullOrEmpty(x.B) });
+
+            result.Projection.Should().Be("{ Result: { \"$or\": [{ $eq: [\"$B\", null] }, { $eq: [\"$B\", \"\"] } ] }, _id: 0 }");
+
+            result.Value.Result.Should().BeFalse();
         }
 
         [Test]

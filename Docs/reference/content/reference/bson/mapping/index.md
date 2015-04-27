@@ -19,7 +19,7 @@ The .NET BSON library supports mapping these classes to and from BSON/JSON using
 
 In a majority of cases, the driver will be able to automatically map your class for you. This will happen if you begin to use a class for which no [serializer]({{< relref "reference\bson\serialization.md#serializers" >}}) has yet been registered in the [serializer registry]({{< relref "reference\bson\serialization.md#serializer-registry" >}}).
 
-You can choose to register the class map using the [`RegisterClassMap`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_RegisterClassMap_1" >}}) method:
+You can choose to register the class map using the [`RegisterClassMap`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_RegisterClassMap__1_1" >}}) method:
 
 ```csharp
 BsonClassMap.RegisterClassMap<MyClass>();
@@ -27,7 +27,7 @@ BsonClassMap.RegisterClassMap<MyClass>();
 
 {{% note %}}It is very important that the registration of class maps occur prior to them being needed. The best place to register them is at app startup prior to initializing a connection with MongoDB.{{% /note %}}
 
-If you want to control the creation of the class map, you can provide your own initializatzion code in the form of a lambda expression:
+If you want to control the creation of the class map, you can provide your own initialization code in the form of a lambda expression:
 
 ```csharp
 BsonClassMap.RegisterClassMap<MyClass>(cm => 
@@ -37,11 +37,11 @@ BsonClassMap.RegisterClassMap<MyClass>(cm =>
 });
 ```
 
-When your lambda expression is executed, the `cm` (short for class map) parameter is passed an empty class map for you to fill in. In this example, two properties are added to the class map by calling the [`MapMember`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_1_MapMember_1" >}}) method. The arguments to the method are themselves lambda expressions which identify the member of the class. The advantage of using a lambda expression instead of just a string parameter with the name of the property is that Intellisense and compile time checking ensure that you can’t misspell the name of the property.
+When your lambda expression is executed, the `cm` (short for class map) parameter is passed an empty class map for you to fill in. In this example, two properties are added to the class map by calling the [`MapMember`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_1_MapMember__1" >}}) method. The arguments to the method are themselves lambda expressions which identify the member of the class. The advantage of using a lambda expression instead of just a string parameter with the name of the property is that Intellisense and compile time checking ensure that you can’t misspell the name of the property.
 
 ## AutoMap
 
-It is also possible to use automapping and then override some of the results using the [`AutoMap`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_1_AutoMap" >}}) method. This method should be called first in the lambda expression.
+It is also possible to use automapping and then override some of the results using the [`AutoMap`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap" >}}) method. This method should be called first in the lambda expression.
 
 ```csharp
 BsonClassMap.RegisterClassMap<MyClass>(cm => 
@@ -52,7 +52,7 @@ BsonClassMap.RegisterClassMap<MyClass>(cm =>
 });
 ```
 
-[`AutoMap`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_1_AutoMap" >}}) uses conventions to map the class and its members. See the [convention documentation]({{< relref "reference\bson\mapping\conventions.md" >}}) for more information.
+[`AutoMap`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap" >}}) uses conventions to map the class and its members. See the [convention documentation]({{< relref "reference\bson\mapping\conventions.md" >}}) for more information.
 
 
 ## Class Customization
@@ -87,7 +87,7 @@ BsonClassMap.RegisterClassMap<MyClass>(cm =>
 
 ### Supporting Extra Elements
 
-You can design your class to be capable of handling any extra elements that might be found in a BSON document during deserialization. To do so, you must have a property of type [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}) (or [`IDictionary<string, object>`]({{< msdnref "" >}})) and you must identify that property as the one that should hold any extra elements that are found. By [convention]({{< relref "reference\bson\mapping\conventions.md" >}}), the member may be named "ExtraElements". For example:
+You can design your class to be capable of handling any extra elements that might be found in a BSON document during deserialization. To do so, you must have a property of type [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}) (or [`IDictionary<string, object>`]({{< msdnref "s4ys34ea" >}})) and you must identify that property as the one that should hold any extra elements that are found. By [convention]({{< relref "reference\bson\mapping\conventions.md" >}}), the member may be named `ExtraElements`. For example:
 
 ```csharp
 public MyClass 
@@ -322,19 +322,19 @@ BsonClassMap.RegisterClassMap<MyClass>(cm =>
 
 When you Insert a document, the driver checks to see if the `Id` member has been assigned a value and, if not, generates a new unique value for it. Since the `Id` member can be of any type, the driver requires the help of an [`IIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IIdGenerator" >}}) to check whether the `Id` has a value assigned to it and to generate a new value if necessary. The driver has the following Id generators built-in:
 
-- [`ObjectIdGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator" >}})
-- [`StringObjectIdGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator" >}})
-- [`GuidGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator" >}})
-- [`CombGuidGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator" >}})
-- [`NullIdChecker`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_NullIdChecker" >}})
-- [`ZeroIdChecker<T>`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_ZeroIdChecker_1" >}})
-- [`BsonObjectIdGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_BsonObjectIdGenerator" >}})
+- [`ObjectIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator" >}})
+- [`StringObjectIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator" >}})
+- [`GuidGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator" >}})
+- [`CombGuidGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator" >}})
+- [`NullIdChecker`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_NullIdChecker" >}})
+- [`ZeroIdChecker<T>`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_ZeroIdChecker_1" >}})
+- [`BsonObjectIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_BsonObjectIdGenerator" >}})
 
 Some of these Id generators are used automatically for commonly used `Id` types:
 
-- [`GuidGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator" >}}) is used for a [`Guid`]({{< msdnref "system.guid" >}})
-- [`ObjectIdGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator" >}}) is used for an [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}})
-- [`StringObjectIdGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator" >}}) is used for a [`string`]({{< msdnref "system.string" >}}) represented externally as [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}})
+- [`GuidGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator" >}}) is used for a [`Guid`]({{< msdnref "system.guid" >}})
+- [`ObjectIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator" >}}) is used for an [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}})
+- [`StringObjectIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator" >}}) is used for a [`string`]({{< msdnref "system.string" >}}) represented externally as [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}})
 
 To specify the Id generator via an attribute:
 
@@ -356,7 +356,7 @@ BsonClassMap.RegisterClassMap<MyClass>(cm =>
 });
 ```
 
-You could also say that you want to use the [`CombGuidGenerator`]({{ apiref "T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator" >}}) for all Guids.
+You could also say that you want to use the [`CombGuidGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator" >}}) for all Guids.
 
 ```csharp
 BsonSerializer.RegisterIdGenerator(
@@ -388,7 +388,7 @@ BsonClassMap.RegisterClassMap<MyClass>(cm =>
 });
 ```
 
-When using code, [`AutoMap`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_1_AutoMap" >}}) will have initially added the property to the class map automatically. [`UnmapMember`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_1_UnmapMember_1" >}}) will remove it.
+When using code, [`AutoMap`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap" >}}) will have initially added the property to the class map automatically. [`UnmapMember`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_1_UnmapMember__1" >}}) will remove it.
 
 
 ### Ignoring Default Values
@@ -448,7 +448,7 @@ public class MyClass
 
 ### Ignoring a Member at Runtime
 
-Sometimes the decision whether to serialize a member or not is more complicated than just whether the value is `null` or equal to the default value. In these cases, you can write a method that determines whether a value should be serialized. Usually the method for member Xyz is named ShouldSerializeXyz. If you follow this naming convention then [`AutoMap`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_1_AutoMap" >}}) will automatically detect the method and use it. For example:
+Sometimes the decision whether to serialize a member or not is more complicated than just whether the value is `null` or equal to the default value. In these cases, you can write a method that determines whether a value should be serialized. Usually the method for member Xyz is named ShouldSerializeXyz. If you follow this naming convention then [`AutoMap`]({{< apiref "M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap" >}}) will automatically detect the method and use it. For example:
 
 ```csharp
 public class Employee 
@@ -551,7 +551,7 @@ public class C
 }
 ```
 
-When done via code, a [`DictionaryInterfaceImplementerSerializer`]({{< apiref "T_MongoDB_Bson_Serialization_Serializers_DictionaryInterfaceImplementerSerializer" >}}) should be set:
+When done via code, a [`DictionaryInterfaceImplementerSerializer`]({{< apiref "T_MongoDB_Bson_Serialization_Serializers_DictionaryInterfaceImplementerSerializer_1" >}}) should be set:
 
 ```csharp
 BsonClassMap.RegisterClassMap<C>(cm => 
@@ -591,10 +591,12 @@ Or via code:
 BsonClassMap.RegisterClassMap<MyClass>(cm => 
 {
     cm.AutoMap();
-    cm.GetMemberMap(c => c.RepresentAsInt32).SetRepresentation(BsonType.Int32);
-    cm.GetMemberMap(c => c.RepresentAsString).SetRepresentation(BsonType.String);
+    cm.MapMember(c => c.RepresentAsInt32).SetSerializer(new CharSerializer(BsonType.Int32));
+    cm.MapMember(c => c.RepresentAsString).SetSerializer(new CharSerializer(BsonType.String));
 });
 ```
+
+#### ObjectIds
 
 One case that deserves special mention is representing a string externally as an ObjectId. For example:
 
@@ -616,13 +618,40 @@ BsonClassMap.RegisterClassMap<Employee>(cm =>
 });
 ```
 
+#### Enums
+
+Another case that deserves mention is enums. Enums are, by default, represented as their underlying value. In other words, a plain enum will be represented as an integer value. However, it is possible to instruct the driver to represent an enum as a string.
+
+```csharp
+public enum Color
+{
+    Blue,
+    Other
+}
+
+public class Person 
+{
+    [BsonRepresentation(BsonType.String)]
+    public Color FavoriteColor { get; set; }
+}
+```
+
+Or via code:
+
+```csharp
+BsonClassMap.RegisterClassMap<Person>(cm => 
+{
+    cm.AutoMap();
+    cm.MapMember(c => c.FavoriteColor).SetSerializer(new EnumSerializer<Color>(BsonType.String));
+});
+```
 
 ## Custom Attributes
 
 It is possible to implement custom attributes to contribute to the serialization infrastructure. There are 3 interfaces you might want to implement:
 
-- [`IBsonClassMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_IBsonClassMapAttribute" >}}) is used to contribute to a class map.
-- [`IBsonMemberMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_IBsonMemberMapAttribute" >}}) is used to contribute to a member map.
-- [`IBsonCreatorMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_Attributes_IBsonCreatorMapAttribute" >}}) is used to contribute to a creator map.
+- [`IBsonClassMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_IBsonClassMapAttribute" >}}) is used to contribute to a class map.
+- [`IBsonMemberMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_IBsonMemberMapAttribute" >}}) is used to contribute to a member map.
+- [`IBsonCreatorMapAttribute`]({{< apiref "T_MongoDB_Bson_Serialization_IBsonCreatorMapAttribute" >}}) is used to contribute to a creator map.
 
 All the provided attributes implement one or more of these interfaces, so they are good examples of how these interfaces function.

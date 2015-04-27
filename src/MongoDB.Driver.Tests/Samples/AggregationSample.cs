@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Linq;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests.Samples
@@ -57,6 +58,40 @@ namespace MongoDB.Driver.Tests.Samples
             pipeline.ToString().Should().Be("aggregate([" +
                     "{ \"$group\" : { \"_id\" : \"$state\", \"TotalPopulation\" : { \"$sum\" : \"$pop\" } } }, " +
                     "{ \"$match\" : { \"TotalPopulation\" : { \"$gt\" : 20000 } } }])");
+
+            var result = await pipeline.ToListAsync();
+
+            result.Count.Should().Be(1);
+        }
+
+        [Test]
+        public async Task States_with_pops_over_20000_queryable_method()
+        {
+            var pipeline = _collection.AsQueryable()
+                .GroupBy(x => x.State, (k, s) => new { State = k, TotalPopulation = s.Sum(x => x.Population) })
+                .Where(x => x.TotalPopulation > 20000);
+
+            //pipeline.ToString().Should().Be("aggregate([" +
+            //        "{ \"$group\" : { \"_id\" : \"$state\", \"TotalPopulation\" : { \"$sum\" : \"$pop\" } } }, " +
+            //        "{ \"$match\" : { \"TotalPopulation\" : { \"$gt\" : 20000 } } }])");
+
+            var result = await pipeline.ToListAsync();
+
+            result.Count.Should().Be(1);
+        }
+
+        [Test]
+        public async Task States_with_pops_over_20000_queryable_syntax()
+        {
+            var pipeline = from z in _collection.AsQueryable()
+                           group z by z.State into g
+                           where g.Sum(x => x.Population) > 20000
+                           select new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) };
+
+            //pipeline.ToString().Should().Be("aggregate([" +
+            //        "{ \"$group\" : { \"_id\" : \"$state\", \"TotalPopulation\" : { \"$sum\" : \"$pop\" } } }, " +
+            //        "{ \"$match\" : { \"TotalPopulation\" : { \"$gt\" : 20000 } } }, " +
+            //        "{ \"$project\" : { \"State\" : \"$_id\", \"TotalPopulation\" : { \"$gt\" : 20000 } } }])");
 
             var result = await pipeline.ToListAsync();
 
@@ -112,6 +147,39 @@ namespace MongoDB.Driver.Tests.Samples
                 "{ \"$group\" : { \"_id\" : \"$_id.State\", \"BiggestCity\" : { \"$last\" : \"$_id.City\" }, \"BiggestPopulation\" : { \"$last\" : \"$Population\" }, \"SmallestCity\" : { \"$first\" : \"$_id.City\" }, \"SmallestPopulation\" : { \"$first\" : \"$Population\" } } }, " +
                 "{ \"$project\" : { \"State\" : \"$_id\", \"BiggestCity\" : { \"Name\" : \"$BiggestCity\", \"Population\" : \"$BiggestPopulation\" }, \"SmallestCity\" : { \"Name\" : \"$SmallestCity\", \"Population\" : \"$SmallestPopulation\" }, \"_id\" : 0 } }, " +
                 "{ \"$sort\" : { \"State\" : 1 } }])");
+
+            var result = await pipeline.ToListAsync();
+
+            result[0].State.Should().Be("AL");
+            result[0].BiggestCity.Name.Should().Be("THOMASVILLE");
+            result[0].BiggestCity.Population.Should().Be(6229);
+            result[0].SmallestCity.Name.Should().Be("SPROTT");
+            result[0].SmallestCity.Population.Should().Be(1191);
+            result[1].State.Should().Be("MA");
+            result[1].BiggestCity.Name.Should().Be("LUDLOW");
+            result[1].BiggestCity.Population.Should().Be(18820);
+            result[1].SmallestCity.Name.Should().Be("LEEDS");
+            result[1].SmallestCity.Population.Should().Be(1350);
+        }
+
+        [Test]
+        public async Task Largest_and_smallest_cities_by_state_queryable_syntax()
+        {
+            var pipeline = from o in
+                               (
+                                    from z in _collection.AsQueryable()
+                                    group z by new { z.State, z.City } into g
+                                    select new { StateAndCity = g.Key, Population = g.Sum(x => x.Population) }
+                               )
+                           orderby o.Population
+                           group o by o.StateAndCity.State into g
+                           orderby g.Key
+                           select new
+                           {
+                               State = g.Key,
+                               BiggestCity = new { Name = g.Last().StateAndCity.City, Population = g.Last().Population },
+                               SmallestCity = new { Name = g.First().StateAndCity.City, Population = g.First().Population }
+                           };
 
             var result = await pipeline.ToListAsync();
 

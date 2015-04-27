@@ -30,8 +30,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                var dropDatabaseOperation = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
-                ExecuteOperation(dropDatabaseOperation);
+                // TODO: DropDatabase
+                //var dropDatabaseOperation = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
+                //ExecuteOperation(dropDatabaseOperation);
             }
             catch
             {

@@ -15,6 +15,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Sync;
@@ -43,7 +44,7 @@ namespace MongoDB.Driver
         public IEnumerator<BsonDocument> GetEnumerator()
         {
             var cursor = _collection.ExecuteReadOperation(_operation, _readPreference);
-            var adapter = new AsyncCursorEnumeratorAdapter<BsonDocument>(cursor);
+            var adapter = new AsyncCursorEnumeratorAdapter<BsonDocument>(cursor, CancellationToken.None);
             return adapter.GetEnumerator();
         }
 

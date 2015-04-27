@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             {
                 new C { Id = _id2, X = 2, LX = 2, Y = 11, Date = new DateTime(2000, 1, 1, 1, 1, 1, 1, DateTimeKind.Utc), D = new D { Z = 22 }, NullableDouble = 2, A = new[] { 2, 3, 4 }, DA = new List<D> { new D { Y = 11, Z = 111 }, new D { Z = 222 } }, L = new List<int> { 2, 3, 4 } },
                 new C { Id = _id1, X = 1, LX = 1, Y = 11, Date = new DateTime(2000, 2, 2, 2, 2, 2, 2, DateTimeKind.Utc), D = new D { Z = 11 }, NullableDouble = 2, S = "abc", SA = new string[] { "Tom", "Dick", "Harry" } },
-                new C { Id = _id3, X = 3, LX = 3, Y = 33, Date = new DateTime(2001, 1, 1, 1, 1, 1, 1, DateTimeKind.Utc), D = new D { Z = 33 }, NullableDouble = 5, B = true, BA = new bool[] { true }, E = E.A, EA = new E[] { E.A, E.B } },
+                new C { Id = _id3, X = 3, LX = 3, Y = 33, Date = new DateTime(2001, 1, 1, 1, 1, 1, 1, DateTimeKind.Utc), D = new D { Z = 33 }, NullableDouble = 5, B = true, BA = new bool[] { true }, E = E.A, ENullable = E.A, EA = new E[] { E.A, E.B } },
                 new C { Id = _id5, X = 5, LX = 5, Y = 44, Date = new DateTime(2001, 2, 2, 2, 2, 2, 2, DateTimeKind.Utc), D = new D { Z = 55 }, DBRef = new MongoDBRef("db", "c", 1), F = new F { G = new G { H = 10 } } },
                 new C { Id = _id4, X = 4, LX = 4, Y = 44, Date = new DateTime(2001, 3, 3, 3, 3, 3, 3, DateTimeKind.Utc), D = new D { Z = 44 }, S = "   xyz   ", DA = new List<D> { new D { Y = 33, Z = 333 }, new D { Y = 44, Z = 444 } } }
             }).GetAwaiter().GetResult();
@@ -343,6 +343,30 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         public void TestWhereENotEqualsANot()
         {
             Assert<C>(c => !(c.E != E.A), 1, "{ \"e\" : \"A\" }");
+        }
+
+        [Test]
+        public void TestWhereENullableEqualsA()
+        {
+            Assert<C>(c => c.ENullable == E.A, 1, "{ \"en\" : \"A\" }");
+        }
+
+        [Test]
+        public void TestWhereENullableEqualsNull()
+        {
+            Assert<C>(c => c.ENullable == null, 4, "{ \"en\" : null }");
+        }
+
+        [Test]
+        public void TestWhereENullabeEqualsAReversed()
+        {
+            Assert<C>(c => E.A == c.ENullable, 1, "{ \"en\" : \"A\" }");
+        }
+
+        [Test]
+        public void TestWhereENullabeEqualsNullReversed()
+        {
+            Assert<C>(c => null == c.ENullable, 4, "{ \"en\" : null }");
         }
 
         [Test]
@@ -1188,6 +1212,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             [BsonIgnoreIfDefault]
             [BsonRepresentation(BsonType.String)]
             public E E { get; set; }
+            [BsonElement("en")]
+            [BsonRepresentation(BsonType.String)]
+            public E? ENullable { get; set; }
             [BsonElement("ea")]
             [BsonIgnoreIfNull]
             public E[] EA { get; set; }

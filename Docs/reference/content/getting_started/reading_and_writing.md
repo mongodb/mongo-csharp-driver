@@ -65,13 +65,16 @@ var result = await collection.UpdateOneAsync(
 
 This will generate a filter of `{ Name: "Tom" }` and an update specification of `{ $set: { Profession: "Musician" } }`. Only one document will get updated even if there is more than one person named "Tom" because we used [`UpdateOneAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync" >}}) instead of [`UpdateManyAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync" >}}). More information on updates is available in the [reference guide]({{< relref "reference\driver\crud\writing.md#update-and-replace" >}}).
 
-Alternatively, if we want to replace a  document completely, we can use the [`ReplaceOneAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync" >}}) method. Assuming Tom's `Id` value is "550c4aa98e59471bddf68eef":
+Alternatively, if we want to replace a  document completely, we can use the [`ReplaceOneAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync" >}}) method. Assuming Tom's `Id` value is `550c4aa98e59471bddf68eef`:
 
 ```csharp
-var tom = await collection.Find(x => x.Id == ObjectId.Parse("550c4aa98e59471bddf68eef")).SingleAsync();
+var tom = await collection.Find(x => x.Id == ObjectId.Parse("550c4aa98e59471bddf68eef"))
+	.SingleAsync();
+
 tom.Name = "Thomas";
 tom.Age = 43;
 tom.Profession = "Hacker";
+
 var result = await collection.ReplaceOneAsync(x => x.Id == tom.Id, tom);
 ```
 

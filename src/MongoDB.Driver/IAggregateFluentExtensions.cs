@@ -280,22 +280,11 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        /// <exception cref="System.InvalidOperationException">The aggregate sequence is empty.</exception>
-        public async static Task<TResult> FirstAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TResult> FirstAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(aggregate, "aggregate");
 
-            using (var cursor = await aggregate.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    return cursor.Current.First();
-                }
-                else
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
-            }
+            return AsyncCursorHelper.FirstAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -307,21 +296,11 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public async static Task<TResult> FirstOrDefaultAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TResult> FirstOrDefaultAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(aggregate, "aggregate");
 
-            using (var cursor = await aggregate.Limit(1).ToCursorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    return cursor.Current.FirstOrDefault();
-                }
-                else
-                {
-                    return default(TResult);
-                }
-            }
+            return AsyncCursorHelper.FirstOrDefaultAsync(aggregate.Limit(1).ToCursorAsync(cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -333,22 +312,11 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        /// <exception cref="System.InvalidOperationException">The aggregate sequence is empty.</exception>
-        public async static Task<TResult> SingleAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TResult> SingleAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(aggregate, "aggregate");
 
-            using (var cursor = await aggregate.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    return cursor.Current.Single();
-                }
-                else
-                {
-                    throw new InvalidOperationException("The source sequence is empty.");
-                }
-            }
+            return AsyncCursorHelper.SingleAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -360,21 +328,11 @@ namespace MongoDB.Driver
         /// <returns>
         /// The fluent aggregate interface.
         /// </returns>
-        public async static Task<TResult> SingleOrDefaultAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TResult> SingleOrDefaultAsync<TResult>(this IAggregateFluent<TResult> aggregate, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(aggregate, "aggregate");
 
-            using (var cursor = await aggregate.Limit(2).ToCursorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                if (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    return cursor.Current.SingleOrDefault();
-                }
-                else
-                {
-                    return default(TResult);
-                }
-            }
+            return AsyncCursorHelper.SingleOrDefaultAsync(aggregate.Limit(2).ToCursorAsync(cancellationToken), cancellationToken);
         }
 
         private sealed class ProjectExpressionProjection<TResult, TNewResult> : ProjectionDefinition<TResult, TNewResult>

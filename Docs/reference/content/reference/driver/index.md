@@ -14,7 +14,7 @@ The MongoDB .NET Driver is mostly just a wrapper around [MongoDB.Driver.Core]({{
 
 - [Connecting]({{< relref "reference\driver\connecting.md" >}})
 - [Authentication]({{< relref "reference\driver\authentication.md" >}})
-- SSL
+- [SSL]({{< relref "reference\driver\ssl.md" >}})
 - [Definitions and Builders]({{< relref "reference\driver\definitions.md" >}})
 - [CRUD Operations]({{< relref "reference\driver\crud\index.md" >}})
 - Indexes

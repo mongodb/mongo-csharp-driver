@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq.Translators;
-using MongoDB.Driver.Linq.Utils;
 using NUnit.Framework;
 using FluentAssertions;
 using MongoDB.Bson.IO;
@@ -32,7 +31,7 @@ using MongoDB.Driver.Tests;
 namespace MongoDB.Driver.Tests.Linq.Translators
 {
     [TestFixture]
-    public class AggregateProjectionTranslatorTests_Group : TranslatorTestBase
+    public class AggregateProjectionTranslatorTests_Group : IntegrationTestBase
     {
         [Test]
         public async Task Should_translate_using_non_anonymous_type_with_default_constructor()
@@ -41,8 +40,8 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Field: { \"$first\" : \"$B\" } }");
 
-            result.Value.Property.Should().Be("Awesome");
-            result.Value.Field.Should().Be("Balloon");
+            result.Value.Property.Should().Be("Amazing");
+            result.Value.Field.Should().Be("Baby");
         }
 
         [Test]
@@ -52,8 +51,8 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Field: { \"$first\" : \"$B\" } }");
 
-            result.Value.Property.Should().Be("Awesome");
-            result.Value.Field.Should().Be("Balloon");
+            result.Value.Property.Should().Be("Amazing");
+            result.Value.Field.Should().Be("Baby");
         }
 
         [Test]
@@ -63,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\" }");
 
-            result.Value._id.Should().Be("Awesome");
+            result.Value._id.Should().Be("Amazing");
         }
 
         [Test]
@@ -73,7 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\" }");
 
-            result.Value.Test.Should().Be("Awesome");
+            result.Value.Test.Should().Be("Amazing");
         }
 
         [Test]
@@ -83,7 +82,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$addToSet\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Equal(11);
+            result.Value.Result.Should().Equal(111);
         }
 
         [Test]
@@ -93,7 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$addToSet\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Equal(11);
+            result.Value.Result.Should().Equal(111);
         }
 
         [Test]
@@ -103,7 +102,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$avg\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Be(11);
+            result.Value.Result.Should().Be(111);
         }
 
         [Test]
@@ -113,7 +112,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$avg\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Be(11);
+            result.Value.Result.Should().Be(111);
         }
 
         [Test]
@@ -143,7 +142,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", B: { \"$first\": \"$B\" } }");
 
-            result.Value.B.Should().Be("Balloon");
+            result.Value.B.Should().Be("Baby");
         }
 
         [Test]
@@ -153,7 +152,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", B: { \"$first\": \"$B\" } }");
 
-            result.Value.B.Should().Be("Balloon");
+            result.Value.B.Should().Be("Baby");
         }
 
         [Test]
@@ -163,7 +162,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", B: { \"$last\": \"$B\" } }");
 
-            result.Value.B.Should().Be("Balloon");
+            result.Value.B.Should().Be("Baby");
         }
 
         [Test]
@@ -173,7 +172,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", B: { \"$last\": \"$B\" } }");
 
-            result.Value.B.Should().Be("Balloon");
+            result.Value.B.Should().Be("Baby");
         }
 
         [Test]
@@ -183,7 +182,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$max\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Be(11);
+            result.Value.Result.Should().Be(111);
         }
 
         [Test]
@@ -193,7 +192,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$max\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Be(11);
+            result.Value.Result.Should().Be(111);
         }
 
         [Test]
@@ -203,7 +202,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$min\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Be(11);
+            result.Value.Result.Should().Be(111);
         }
 
         [Test]
@@ -213,7 +212,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$min\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Be(11);
+            result.Value.Result.Should().Be(111);
         }
 
         [Test]
@@ -223,7 +222,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$push\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Equal(11);
+            result.Value.Result.Should().Equal(111);
         }
 
         [Test]
@@ -233,7 +232,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$push\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Equal(11);
+            result.Value.Result.Should().Equal(111);
         }
 
         [Test]
@@ -243,7 +242,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$push\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Equal(11);
+            result.Value.Result.Should().Equal(111);
         }
 
         [Test]
@@ -253,7 +252,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$sum\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Be(11);
+            result.Value.Result.Should().Be(111);
         }
 
         [Test]
@@ -263,7 +262,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$sum\": \"$C.E.F\" } }");
 
-            result.Value.Result.Should().Be(11);
+            result.Value.Result.Should().Be(111);
         }
 
         [Test]
@@ -282,11 +281,11 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ _id : \"$A\", Count : { \"$sum\" : 1 }, Sum : { \"$sum\" : { \"$add\": [\"$C.E.F\", \"$C.E.H\"] } }, First : { \"$first\" : \"$B\" }, Last : { \"$last\" : \"$K\" }, Min : { \"$min\" : { \"$add\" : [\"$C.E.F\", \"$C.E.H\"] } }, Max : { \"$max\" : { \"$add\" : [\"$C.E.F\", \"$C.E.H\"] } } }");
 
             result.Value.Count.Should().Be(1);
-            result.Value.Sum.Should().Be(33);
-            result.Value.First.Should().Be("Balloon");
-            result.Value.Last.Should().Be(true);
-            result.Value.Min.Should().Be(33);
-            result.Value.Max.Should().Be(33);
+            result.Value.Sum.Should().Be(333);
+            result.Value.First.Should().Be("Baby");
+            result.Value.Last.Should().Be(false);
+            result.Value.Min.Should().Be(333);
+            result.Value.Max.Should().Be(333);
         }
 
         private async Task<ProjectedResult<TResult>> Group<TKey, TResult>(Expression<Func<Root, TKey>> idProjector, Expression<Func<IGrouping<TKey, Root>, TResult>> groupProjector)
@@ -294,8 +293,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
             var projectionInfo = AggregateProjectionTranslator.TranslateGroup<TKey, Root, TResult>(idProjector, groupProjector, serializer, BsonSerializer.SerializerRegistry);
 
-            var pipelineOperator = new BsonDocument("$group", projectionInfo.Document);
-            using (var cursor = await _collection.AggregateAsync<TResult>(new PipelineStagePipelineDefinition<Root, TResult>(new PipelineStageDefinition<Root, TResult>[] { pipelineOperator }, projectionInfo.ProjectionSerializer)))
+            var group = new BsonDocument("$group", projectionInfo.Document);
+            var sort = new BsonDocument("$sort", new BsonDocument("_id", 1));
+            using (var cursor = await _collection.AggregateAsync<TResult>(new BsonDocumentStagePipelineDefinition<Root, TResult>(new[] { group, sort }, projectionInfo.ProjectionSerializer)))
             {
                 var list = await cursor.ToListAsync();
                 return new ProjectedResult<TResult>
