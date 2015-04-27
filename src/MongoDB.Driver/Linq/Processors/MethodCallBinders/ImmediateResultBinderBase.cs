@@ -38,7 +38,6 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
         {
             var sourceType = typeof(IEnumerable<>).MakeGenericType(returnType);
             var sourceParameter = Expression.Parameter(sourceType, "source");
-            var cancellationTokenParameter = Expression.Parameter(typeof(CancellationToken), "ct");
             return Expression.Lambda(
                 Expression.Call(typeof(Enumerable),
                     aggregatorName,

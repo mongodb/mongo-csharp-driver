@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
 
-            var result = subject.CountAsync().GetAwaiter().GetResult();
+            subject.CountAsync().GetAwaiter().GetResult();
 
             _collection.Received().CountAsync(
                 subject.Filter,

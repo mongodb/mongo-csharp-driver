@@ -63,7 +63,6 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
 
         private LambdaExpression CreateSyncAggregator()
         {
-            var sourceType = typeof(IEnumerable<int>);
             var sourceParameter = Expression.Parameter(typeof(IEnumerable<int>), "source");
             return Expression.Lambda(
                 Expression.Call(
@@ -76,7 +75,6 @@ namespace MongoDB.Driver.Linq.Processors.MethodCallBinders
 
         private static LambdaExpression CreateAsyncAggregator()
         {
-            var sourceType = typeof(IAsyncCursor<int>);
             var sourceParameter = Expression.Parameter(typeof(Task<IAsyncCursor<int>>), "source");
             var cancellationTokenParameter = Expression.Parameter(typeof(CancellationToken), "ct");
             return Expression.Lambda(
