@@ -186,6 +186,20 @@ namespace MongoDB.Driver.Tests
             renderedField.FieldSerializer.Should().BeOfType<EnumSerializer<Gender>>();
         }
 
+        [Test]
+        public void Should_assign_a_non_typed_field_definition_from_a_typed_field_definition()
+        {
+            Expression<Func<Person, object>> exp = x => x.Gender;
+
+            FieldDefinition<Person, Gender> subject = new ExpressionFieldDefinition<Person, Gender>(x => x.Gender);
+            FieldDefinition<Person> subject2 = subject;
+
+            var renderedField = subject2.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
+
+            renderedField.FieldName.Should().Be("g");
+            renderedField.FieldSerializer.Should().BeOfType<EnumSerializer<Gender>>();
+        }
+
         private class Person
         {
             [BsonElement("name")]
