@@ -144,6 +144,22 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void Empty()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Empty, "{}");
+        }
+
+        [Test]
+        public void Empty_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.Empty, "{}");
+        }
+
+        [Test]
         public void Eq()
         {
             var subject = CreateSubject<BsonDocument>();

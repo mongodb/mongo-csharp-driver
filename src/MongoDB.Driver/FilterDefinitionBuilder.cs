@@ -32,6 +32,14 @@ namespace MongoDB.Driver
     public sealed class FilterDefinitionBuilder<TDocument>
     {
         /// <summary>
+        /// Gets an empty filter. An empty filter matches everything.
+        /// </summary>
+        public FilterDefinition<TDocument> Empty
+        {
+            get { return FilterDefinition<TDocument>.Empty; }
+        }
+
+        /// <summary>
         /// Creates an all filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
