@@ -77,6 +77,7 @@ namespace MongoDB.Bson.IO
         public string Decode(BsonStream stream, UTF8Encoding encoding)
         {
             BsonTrieNode<TValue> node;
+            var oldPosition = stream.Position;
             if (_trie.TryGetNode(stream, out node))
             {
                 if (node.HasValue)
@@ -85,6 +86,8 @@ namespace MongoDB.Bson.IO
                     _value = node.Value;
                     return node.ElementName;
                 }
+
+                stream.Position = oldPosition;
             }
 
             return stream.ReadCString(encoding);
