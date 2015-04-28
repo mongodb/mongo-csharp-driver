@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Configuration
             _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), "endPoints").ToList();
             _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), "maxServerSelectionWaitQueueSize");
             _replicaSetName = replicaSetName.WithDefault(null);
-            _serverSelectionTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), "serverSelectionTimeout");
+            _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), "serverSelectionTimeout");
             _preServerSelector = preServerSelector.WithDefault(null);
             _postServerSelector = postServerSelector.WithDefault(null);
         }

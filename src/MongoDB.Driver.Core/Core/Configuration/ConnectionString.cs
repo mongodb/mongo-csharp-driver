@@ -59,6 +59,7 @@ namespace MongoDB.Driver.Core.Configuration
         private ReadPreferenceMode? _readPreference;
         private IReadOnlyList<TagSet> _readPreferenceTags;
         private string _replicaSet;
+        private TimeSpan? _serverSelectionTimeout;
         private TimeSpan? _socketTimeout;
         private bool? _ssl;
         private bool? _sslVerifyCertificate;
@@ -252,6 +253,14 @@ namespace MongoDB.Driver.Core.Configuration
         public IReadOnlyList<TagSet> ReadPreferenceTags
         {
             get { return _readPreferenceTags; }
+        }
+
+        /// <summary>
+        /// Gets the server selection timeout.
+        /// </summary>
+        public TimeSpan? ServerSelectionTimeout
+        {
+            get { return _serverSelectionTimeout; }
         }
 
         /// <summary>
@@ -533,6 +542,10 @@ namespace MongoDB.Driver.Core.Configuration
                     _readPreference = ParseBoolean(name, value) ?
                         ReadPreferenceMode.SecondaryPreferred :
                         ReadPreferenceMode.Primary;
+                    break;
+                case "serverselectiontimeout":
+                case "serverselectiontimeoutms":
+                    _serverSelectionTimeout = ParseTimeSpan(name, value);
                     break;
                 case "sockettimeout":
                 case "sockettimeoutms":

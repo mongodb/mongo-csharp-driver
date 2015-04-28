@@ -46,6 +46,7 @@ namespace MongoDB.Driver
         private ReadPreference _readPreference;
         private string _replicaSetName;
         private List<MongoServerAddress> _servers;
+        private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
         private SslSettings _sslSettings;
         private bool _useSsl;
@@ -80,6 +81,7 @@ namespace MongoDB.Driver
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
+            _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _sslSettings = null;
             _useSsl = false;
@@ -324,6 +326,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the server selection timeout.
+        /// </summary>
+        public TimeSpan ServerSelectionTimeout
+        {
+            get { return _serverSelectionTimeout; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _serverSelectionTimeout = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the socket timeout.
         /// </summary>
         public TimeSpan SocketTimeout
@@ -501,6 +516,7 @@ namespace MongoDB.Driver
             clientSettings.ReplicaSetName = url.ReplicaSetName;
             clientSettings.LocalThreshold = url.LocalThreshold;
             clientSettings.Servers = new List<MongoServerAddress>(url.Servers);
+            clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
             clientSettings.SslSettings = null; // SSL settings must be provided in code
             clientSettings.UseSsl = url.UseSsl;
@@ -535,6 +551,7 @@ namespace MongoDB.Driver
             clone._replicaSetName = _replicaSetName;
             clone._localThreshold = _localThreshold;
             clone._servers = new List<MongoServerAddress>(_servers);
+            clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
             clone._useSsl = _useSsl;
@@ -585,6 +602,7 @@ namespace MongoDB.Driver
                 _replicaSetName == rhs._replicaSetName &&
                 _localThreshold == rhs._localThreshold &&
                 _servers.SequenceEqual(rhs._servers) &&
+                _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
                 _sslSettings == rhs._sslSettings &&
                 _useSsl == rhs._useSsl &&
@@ -653,6 +671,7 @@ namespace MongoDB.Driver
                 .Hash(_replicaSetName)
                 .Hash(_localThreshold)
                 .HashElements(_servers)
+                .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
                 .Hash(_sslSettings)
                 .Hash(_useSsl)
@@ -693,6 +712,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("ReplicaSetName={0};", _replicaSetName);
             sb.AppendFormat("LocalThreshold={0};", _localThreshold);
             sb.AppendFormat("Servers={0};", string.Join(",", _servers.Select(s => s.ToString()).ToArray()));
+            sb.AppendFormat("ServerSelectionTimeout={0};", _serverSelectionTimeout);
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
             if (_sslSettings != null)
             {
@@ -726,6 +746,7 @@ namespace MongoDB.Driver
                 _minConnectionPoolSize,
                 _replicaSetName,
                 _servers.ToList(),
+                _serverSelectionTimeout,
                 _socketTimeout,
                 _sslSettings,
                 _useSsl,

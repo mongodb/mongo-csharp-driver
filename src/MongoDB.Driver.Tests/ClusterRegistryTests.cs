@@ -64,6 +64,7 @@ namespace MongoDB.Driver.Tests
                 ReplicaSetName = "rs",
                 LocalThreshold = TimeSpan.FromMilliseconds(20),
                 Servers = servers,
+                ServerSelectionTimeout = TimeSpan.FromSeconds(5),
                 SocketTimeout = TimeSpan.FromSeconds(4),
                 SslSettings = sslSettings,
                 UseSsl = true,
@@ -81,6 +82,7 @@ namespace MongoDB.Driver.Tests
                 cluster.Settings.ConnectionMode.Should().Be(ClusterConnectionMode.ReplicaSet);
                 cluster.Settings.EndPoints.Equals(endPoints);
                 cluster.Settings.ReplicaSetName.Should().Be("rs");
+                cluster.Settings.ServerSelectionTimeout.Should().Be(clientSettings.ServerSelectionTimeout);
                 cluster.Settings.PostServerSelector.Should().NotBeNull().And.Subject.Should().BeOfType<LatencyLimitingServerSelector>();
 
                 var serverDescription = cluster.Description.Servers.Single(s => s.EndPoint.Equals(endPoints[0]));

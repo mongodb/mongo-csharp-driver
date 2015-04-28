@@ -50,6 +50,7 @@ namespace MongoDB.Driver
         private readonly string _replicaSetName;
         private readonly TimeSpan _localThreshold;
         private readonly IEnumerable<MongoServerAddress> _servers;
+        private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
         private readonly string _username;
         private readonly bool _useSsl;
@@ -88,6 +89,7 @@ namespace MongoDB.Driver
             _readPreference = builder.ReadPreference;
             _replicaSetName = builder.ReplicaSetName;
             _servers = builder.Servers;
+            _serverSelectionTimeout = builder.ServerSelectionTimeout;
             _socketTimeout = builder.SocketTimeout;
             _username = builder.Username;
             _useSsl = builder.UseSsl;
@@ -277,6 +279,14 @@ namespace MongoDB.Driver
         public IEnumerable<MongoServerAddress> Servers
         {
             get { return _servers; }
+        }
+
+        /// <summary>
+        /// Gets the server selection timeout.
+        /// </summary>
+        public TimeSpan ServerSelectionTimeout
+        {
+            get { return _serverSelectionTimeout; }
         }
 
         /// <summary>

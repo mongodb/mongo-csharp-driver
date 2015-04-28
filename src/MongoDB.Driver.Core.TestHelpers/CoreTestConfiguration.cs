@@ -75,7 +75,9 @@ namespace MongoDB.Driver
         // static methods
         public static ClusterBuilder ConfigureCluster()
         {
-            var builder = new ClusterBuilder().ConfigureWithConnectionString(__connectionString);
+            var builder = new ClusterBuilder()
+                .ConfigureWithConnectionString(__connectionString)
+                .ConfigureCluster(c => c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(500)));
 
             if (__connectionString.Ssl.HasValue && __connectionString.Ssl.Value)
             {

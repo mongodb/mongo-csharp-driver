@@ -54,6 +54,7 @@ namespace MongoDB.Driver
         private ReadPreference _readPreference;
         private string _replicaSetName;
         private IEnumerable<MongoServerAddress> _servers;
+        private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
         private string _username;
         private bool _useSsl;
@@ -89,6 +90,7 @@ namespace MongoDB.Driver
             _replicaSetName = null;
             _localThreshold = MongoDefaults.LocalThreshold;
             _servers = new[] { new MongoServerAddress("localhost", 27017) };
+            _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _username = null;
             _useSsl = false;
@@ -376,6 +378,22 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the server selection timeout.
+        /// </summary>
+        public TimeSpan ServerSelectionTimeout
+        {
+            get { return _serverSelectionTimeout; }
+            set
+            {
+                if (value < TimeSpan.Zero)
+                {
+                    throw new ArgumentOutOfRangeException("value", "ServerSelectionTimeout must be greater than or equal to zero.");
+                }
+                _serverSelectionTimeout = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the socket timeout.
         /// </summary>
         public TimeSpan SocketTimeout
@@ -583,6 +601,7 @@ namespace MongoDB.Driver
                     throw new NotSupportedException("Only DnsEndPoint and IPEndPoints are supported in the connection string.");
                 }
             });
+            _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
             _username = connectionString.Username;
             _useSsl = connectionString.Ssl.GetValueOrDefault(false);
@@ -741,6 +760,10 @@ namespace MongoDB.Driver
             if (_localThreshold != MongoDefaults.LocalThreshold)
             {
                 query.AppendFormat("localThreshold={0};", FormatTimeSpan(_localThreshold));
+            }
+            if (_serverSelectionTimeout != MongoDefaults.ServerSelectionTimeout)
+            {
+                query.AppendFormat("serverSelectionTimeout={0};", FormatTimeSpan(_serverSelectionTimeout));
             }
             if (_socketTimeout != MongoDefaults.SocketTimeout)
             {

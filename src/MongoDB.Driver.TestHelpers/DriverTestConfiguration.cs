@@ -40,6 +40,8 @@ namespace MongoDB.Driver.Tests
                 clientSettings.WriteConcern = WriteConcern.Acknowledged; // ensure WriteConcern is enabled regardless of what the URL says
             }
 
+            clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(500);
+
             __client = new MongoClient(clientSettings);
             __databaseNamespace = mongoUrl.DatabaseName == null ? CoreTestConfiguration.DatabaseNamespace : new DatabaseNamespace(mongoUrl.DatabaseName);
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");

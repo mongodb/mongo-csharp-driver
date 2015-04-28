@@ -141,6 +141,10 @@ namespace MongoDB.Driver.Core.Configuration
                 builder = builder.ConfigureCluster(s => s.With(
                     replicaSetName: connectionString.ReplicaSet));
             }
+            if (connectionString.ServerSelectionTimeout != null)
+            {
+                builder = builder.ConfigureCluster(s => s.With(serverSelectionTimeout: connectionString.ServerSelectionTimeout.Value));
+            }
 
             return builder;
         }

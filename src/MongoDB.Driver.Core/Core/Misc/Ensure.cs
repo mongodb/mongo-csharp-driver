@@ -115,6 +115,22 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         /// <summary>
+        /// Ensures that the value of a parameter is greater than or equal to zero.
+        /// </summary>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="paramName">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
+        public static TimeSpan IsGreaterThanOrEqualToZero(TimeSpan value, string paramName)
+        {
+            if (value < TimeSpan.Zero)
+            {
+                var message = string.Format("Value is not greater than or equal to zero: {0}.", TimeSpanParser.ToString(value));
+                throw new ArgumentOutOfRangeException(paramName, message);
+            }
+            return value;
+        }
+
+        /// <summary>
         /// Ensures that the value of a parameter is greater than zero.
         /// </summary>
         /// <param name="value">The value of the parameter.</param>
