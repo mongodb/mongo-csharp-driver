@@ -542,36 +542,39 @@ namespace MongoDB.Driver
                 get { return _collection._settings; }
             }
 
-            public override async Task<string> CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options, CancellationToken cancellationToken)
+            public async override Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
             {
-                Ensure.IsNotNull(keys, "keys");
+                Ensure.IsNotNull(models, "models");
 
-                var keysDocument = keys.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
-
-                options = options ?? new CreateIndexOptions();
-                var request = new CreateIndexRequest(keysDocument)
+                var requests = models.Select(m =>
                 {
-                    Name = options.Name,
-                    Background = options.Background,
-                    Bits = options.Bits,
-                    BucketSize = options.BucketSize,
-                    DefaultLanguage = options.DefaultLanguage,
-                    ExpireAfter = options.ExpireAfter,
-                    LanguageOverride = options.LanguageOverride,
-                    Max = options.Max,
-                    Min = options.Min,
-                    Sparse = options.Sparse,
-                    SphereIndexVersion = options.SphereIndexVersion,
-                    StorageEngine = options.StorageEngine,
-                    TextIndexVersion = options.TextIndexVersion,
-                    Unique = options.Unique,
-                    Version = options.Version,
-                    Weights = options.Weights
-                };
+                    var keysDocument = m.Keys.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
+                    var options = m.Options ?? new CreateIndexOptions();
+                    return new CreateIndexRequest(keysDocument)
+                    {
+                        Name = options.Name,
+                        Background = options.Background,
+                        Bits = options.Bits,
+                        BucketSize = options.BucketSize,
+                        DefaultLanguage = options.DefaultLanguage,
+                        ExpireAfter = options.ExpireAfter,
+                        LanguageOverride = options.LanguageOverride,
+                        Max = options.Max,
+                        Min = options.Min,
+                        Sparse = options.Sparse,
+                        SphereIndexVersion = options.SphereIndexVersion,
+                        StorageEngine = options.StorageEngine,
+                        TextIndexVersion = options.TextIndexVersion,
+                        Unique = options.Unique,
+                        Version = options.Version,
+                        Weights = options.Weights
+                    };
+                });
 
-                var operation = new CreateIndexesOperation(_collection._collectionNamespace, new[] { request }, _collection._messageEncoderSettings);
+                var operation = new CreateIndexesOperation(_collection._collectionNamespace, requests, _collection._messageEncoderSettings);
                 await _collection.ExecuteWriteOperation(operation, cancellationToken).ConfigureAwait(false);
-                return request.GetIndexName();
+
+                return requests.Select(x => x.GetIndexName());
             }
 
             public override Task DropAllAsync(CancellationToken cancellationToken)
