@@ -84,6 +84,7 @@ namespace MongoDB.Driver
                 connectionMode: clusterKey.ConnectionMode.ToCore(),
                 endPoints: Optional.Enumerable(endPoints),
                 replicaSetName: clusterKey.ReplicaSetName,
+                maxServerSelectionWaitQueueSize: clusterKey.WaitQueueSize,
                 postServerSelector: new LatencyLimitingServerSelector(clusterKey.LocalThreshold));
         }
 
