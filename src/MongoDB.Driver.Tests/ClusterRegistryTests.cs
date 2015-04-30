@@ -84,6 +84,7 @@ namespace MongoDB.Driver.Tests
                 cluster.Settings.ReplicaSetName.Should().Be("rs");
                 cluster.Settings.ServerSelectionTimeout.Should().Be(clientSettings.ServerSelectionTimeout);
                 cluster.Settings.PostServerSelector.Should().NotBeNull().And.Subject.Should().BeOfType<LatencyLimitingServerSelector>();
+                cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(20);
 
                 var serverDescription = cluster.Description.Servers.Single(s => s.EndPoint.Equals(endPoints[0]));
                 serverDescription.EndPoint.Should().Be(endPoints[0]);
