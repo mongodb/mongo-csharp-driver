@@ -177,6 +177,14 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void Should_throw_an_exception_when_last_is_used_with_a_predicate()
+        {
+            Func<Task> act = () => Group(x => x.A, g => new { g.Last(x => x.A == "bin").B });
+
+            act.ShouldThrow<NotSupportedException>();
+        }
+
+        [Test]
         public async Task Should_translate_max_with_embedded_projector()
         {
             var result = await Group(x => x.A, g => new { Result = g.Max(x => x.C.E.F) });

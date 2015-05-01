@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Linq.Processors
 
                 // we are going to rewrite g.Last().Member to g.Select(x => x.Member).Last()
                 var call = currentNode as MethodCallExpression;
-                if (call != null && IsAggregateMethod(call.Method.Name))
+                if (call != null && IsAggregateMethod(call.Method.Name) && call.Arguments.Count == 1)
                 {
                     var source = Visit(call.Arguments[0]);
                     var typeArguments = call.Method.GetGenericArguments();
