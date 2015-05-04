@@ -60,6 +60,7 @@ namespace MongoDB.Driver.Operations
                 {
                     user = new BsonDocument
                     {
+                        { "_id", ObjectId.GenerateNewId() },
                         { "user", _username }, 
                         { "pwd", _passwordHash },
                         { "readOnly", _readOnly },
