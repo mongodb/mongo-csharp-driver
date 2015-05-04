@@ -1266,8 +1266,23 @@ namespace MongoDB.Driver
             var document = _elementMatchFilter.Render(documentSerializer, serializerRegistry);
 
             var elemMatch = (BsonDocument)document[0]["$elemMatch"];
+            Compress(elemMatch);
+
+            return document;
+        }
+
+        private static void Compress(BsonDocument elemMatch)
+        {
             BsonValue condition;
-            if (elemMatch.TryGetValue("", out condition))
+            if (elemMatch.TryGetValue("$and", out condition))
+            {
+                var array = (BsonArray)condition;
+                foreach (BsonDocument singleCondition in array)
+                {
+                    Compress(singleCondition);
+                }
+            }
+            else if (elemMatch.TryGetValue("", out condition))
             {
                 elemMatch.Remove("");
 
@@ -1288,8 +1303,6 @@ namespace MongoDB.Driver
                     elemMatch.Add("$eq", condition);
                 }
             }
-
-            return document;
         }
     }
 

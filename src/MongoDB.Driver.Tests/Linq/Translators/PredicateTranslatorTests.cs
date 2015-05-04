@@ -30,9 +30,42 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         public void Any_with_a_predicate_on_documents()
         {
             Assert(
+                x => x.G.Any(g => g.D == "Don't"),
+                1,
+                "{\"G.D\": \"Don't\"}");
+
+            Assert(
                 x => x.G.Any(g => g.D == "Don't" && g.E.F == 33),
                 1,
                 "{G: {$elemMatch: {D: \"Don't\", 'E.F': 33}}}");
+        }
+
+        [Test]
+        public void Any_with_a_nested_Any()
+        {
+            Assert(
+                x => x.G.Any(g => g.S.Any()),
+                1,
+                "{G: {$elemMatch: {S: {$ne: null, $not: {$size: 0}}}}}");
+
+            Assert(
+                x => x.G.Any(g => g.S.Any(s => s.D == "Delilah")),
+                1,
+                "{\"G.S.D\": \"Delilah\"}");
+        }
+
+        [Test]
+        public void Any_with_a_not()
+        {
+            Assert(
+                x => x.G.Any(g => !g.S.Any()),
+                2,
+                "{G: {$elemMatch: {$nor: [{S: {$ne: null, $not: {$size: 0}}}]}}}");
+
+            Assert(
+                x => x.G.Any(g => !g.S.Any(s => s.D == "Delilah")),
+                1,
+                "{\"G.S.D\": {$ne: \"Delilah\"}}}");
         }
 
         [Test]
@@ -41,7 +74,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.M.Any(m => m > 5),
                 1,
-                "{M: {$elemMatch: {$gt: 5}}}");
+                "{M: {$gt: 5}}");
 
             Assert(
                 x => x.M.Any(m => m > 2 && m < 6),
@@ -54,14 +87,24 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         public void Any_with_a_predicate_on_scalars()
         {
             Assert(
-                x => x.M.Any(m => m == 6),
-                1,
-                "{M: {$elemMatch: {$eq: 6}}}");
-
-            Assert(
                 x => x.C.E.I.Any(i => i.StartsWith("ick")),
                 1,
-                new BsonDocument("C.E.I", new BsonDocument("$elemMatch", new BsonDocument("$regex", new BsonRegularExpression("^ick", "s")))));
+                "{\"C.E.I\": /^ick/s}");
+
+            // this isn't a legal query, as in, there isn't any 
+            // way to render this legally for the server...
+            //Assert(
+            //    x => x.C.E.I.Any(i => i.StartsWith("ick") && i == "Jack"),
+            //    1,
+            //    new BsonDocument(
+            //        "C.E.I",
+            //        new BsonDocument(
+            //            "$elemMatch",
+            //            new BsonDocument
+            //            {
+            //                { "$regex", new BsonRegularExpression("^ick", "s") },
+            //                { "$eq", "Jack" }
+            //            })));
         }
 
         [Test]
@@ -243,7 +286,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C == new C { D = "Dexter" },
                 0,
-                "{C: {D: 'Dexter', E: null}}");
+                "{C: {D: 'Dexter', E: null, S: null}}");
         }
 
         [Test]
@@ -252,7 +295,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C.Equals(new C { D = "Dexter" }),
                 0,
-                "{C: {D: 'Dexter', E: null}}");
+                "{C: {D: 'Dexter', E: null, S: null}}");
         }
 
         [Test]
@@ -261,7 +304,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C != new C { D = "Dexter" },
                 2,
-                "{C: {$ne: {D: 'Dexter', E: null}}}");
+                "{C: {$ne: {D: 'Dexter', E: null, S: null}}}");
         }
 
         [Test]

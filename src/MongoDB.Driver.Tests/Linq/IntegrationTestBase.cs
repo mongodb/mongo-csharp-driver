@@ -60,6 +60,12 @@ namespace MongoDB.Driver.Tests.Linq
                                 F = 33,
                                 H = 44,
                                 I = new [] { "ignanimous"}
+                            },
+                            S = new [] {
+                                    new C
+                                    {
+                                        D = "Delilah"
+                                    }
                             }
                         },
                         new C
@@ -190,6 +196,8 @@ namespace MongoDB.Driver.Tests.Linq
             public string D { get; set; }
 
             public E E { get; set; }
+
+            public IEnumerable<C> S { get; set; }
         }
 
         public class E
