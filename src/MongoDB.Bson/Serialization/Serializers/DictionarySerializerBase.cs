@@ -24,7 +24,11 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for dictionaries.
     /// </summary>
     /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
-    public abstract class DictionarySerializerBase<TDictionary> : ClassSerializerBase<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary
+    public abstract class DictionarySerializerBase<TDictionary> :
+        ClassSerializerBase<TDictionary>,
+        IBsonDocumentSerializer,
+        IBsonDictionarySerializer
+        where TDictionary : class, IDictionary
     {
         // private constants
         private static class Flags
@@ -110,7 +114,24 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return _valueSerializer; }
         }
 
-        // public methods
+        // public methods        
+        /// <inheritdoc/>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            if (_dictionaryRepresentation != DictionaryRepresentation.Document)
+            {
+                serializationInfo = null;
+                return false;
+            }
+
+            serializationInfo = new BsonSerializationInfo(
+                memberName,
+                _valueSerializer,
+                _valueSerializer.ValueType);
+            return true;
+        }
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
@@ -314,7 +335,11 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
     /// <typeparam name="TKey">The type of the keys.</typeparam>
     /// <typeparam name="TValue">The type of the values.</typeparam>
-    public abstract class DictionarySerializerBase<TDictionary, TKey, TValue> : ClassSerializerBase<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary<TKey, TValue>
+    public abstract class DictionarySerializerBase<TDictionary, TKey, TValue> :
+        ClassSerializerBase<TDictionary>,
+        IBsonDocumentSerializer,
+        IBsonDictionarySerializer
+        where TDictionary : class, IDictionary<TKey, TValue>
     {
         // private constants
         private static class Flags
@@ -401,6 +426,23 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // public methods
+        /// <inheritdoc/>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            if (_dictionaryRepresentation != DictionaryRepresentation.Document)
+            {
+                serializationInfo = null;
+                return false;
+            }
+
+            serializationInfo = new BsonSerializationInfo(
+                memberName,
+                _valueSerializer,
+                _valueSerializer.ValueType);
+            return true;
+        }
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>

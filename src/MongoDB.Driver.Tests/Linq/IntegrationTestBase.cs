@@ -81,6 +81,7 @@ namespace MongoDB.Driver.Tests.Linq
                 O = new List<long> { 10, 20, 30 },
                 Q = Q.One,
                 R = new DateTime(2013, 1, 2, 3, 4, 5, 6, DateTimeKind.Utc),
+                T = new Dictionary<string, int> { { "one", 1 }, { "two", 2 } }
             };
             _collection.InsertOneAsync(root).GetAwaiter().GetResult();
         }
@@ -175,6 +176,8 @@ namespace MongoDB.Driver.Tests.Linq
             public Q Q { get; set; }
 
             public DateTime? R { get; set; }
+
+            public Dictionary<string, int> T { get; set; }
         }
 
         public class RootDescended : Root

@@ -337,6 +337,15 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Test]
+        public void DictionaryIndexer()
+        {
+            Assert(
+                x => x.T["one"] == 1,
+                1,
+                "{'T.one': 1}");
+        }
+
+        [Test]
         public void EnumerableCount()
         {
             Assert(
