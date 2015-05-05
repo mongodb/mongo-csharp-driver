@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Text;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
@@ -52,7 +53,7 @@ namespace MongoDB.Driver
             WriteError writeError,
             WriteConcernError writeConcernError,
             Exception innerException)
-            : base(connectionId, "A write operation resulted in an error.", innerException)
+            : base(connectionId, FormatMessage(writeError, writeConcernError), innerException)
         {
             _writeError = writeError;
             _writeConcernError = writeConcernError;
@@ -98,6 +99,22 @@ namespace MongoDB.Driver
             base.GetObjectData(info, context);
             info.AddValue("_writeConcernError", _writeConcernError);
             info.AddValue("_writeError", _writeError);
+        }
+
+        // private static methods
+        private static string FormatMessage(WriteError writeError, WriteConcernError writeConcernError)
+        {
+            var sb = new StringBuilder("A write operation resulted in an error.");
+            if (writeError != null)
+            {
+                sb.AppendLine().Append("  " + writeError.Message);
+            }
+            if (writeConcernError != null)
+            {
+                sb.AppendLine().Append("  " + writeConcernError.Message);
+            }
+
+            return sb.ToString();
         }
     }
 }
