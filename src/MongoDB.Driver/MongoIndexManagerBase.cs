@@ -41,7 +41,7 @@ namespace MongoDB.Driver
         public async virtual Task<string> CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var model = new CreateIndexModel<TDocument>(keys, options);
-            var result = await CreateManyAsync(new[] { model }, cancellationToken);
+            var result = await CreateManyAsync(new[] { model }, cancellationToken).ConfigureAwait(false);
             return result.Single();
         }
 
