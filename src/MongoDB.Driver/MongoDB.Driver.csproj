@@ -150,6 +150,8 @@
     <Compile Include="Linq\Translators\AggregateLanguageTranslator.cs" />
     <Compile Include="Linq\QueryableExecutionModelBuilder.cs" />
     <Compile Include="Linq\Translators\PredicateTranslator.cs" />
+    <Compile Include="MongoCollectionExtensions.cs" />
+    <Compile Include="MongoDatabaseExtensions.cs" />
     <Compile Include="PipelineStageDefinition.cs" />
     <Compile Include="PipelineDefinition.cs" />
     <Compile Include="BulkWriteError.cs" />
