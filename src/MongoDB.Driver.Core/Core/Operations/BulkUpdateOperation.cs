@@ -122,8 +122,13 @@ namespace MongoDB.Driver.Core.Operations
                 bsonWriter.PushElementNameValidator(ElementNameValidatorFactory.ForUpdateType(updateType));
                 try
                 {
+                    var position = bsonWriter.BaseStream.Position;
                     var context = BsonSerializationContext.CreateRoot(bsonWriter);
                     BsonDocumentSerializer.Instance.Serialize(context, update);
+                    if (updateType == UpdateType.Update && bsonWriter.BaseStream.Position == position + 8)
+                    {
+                        throw new BsonSerializationException("Update documents cannot be empty.");
+                    }
                 }
                 finally
                 {

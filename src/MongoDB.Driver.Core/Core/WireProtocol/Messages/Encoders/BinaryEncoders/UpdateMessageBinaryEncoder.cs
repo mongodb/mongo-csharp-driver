@@ -24,6 +24,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations.ElementNameValidators;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
@@ -126,8 +127,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             binaryWriter.PushElementNameValidator(updateValidator);
             try
             {
+                var position = binaryWriter.BaseStream.Position;
                 var context = BsonSerializationContext.CreateRoot(binaryWriter);
                 BsonDocumentSerializer.Instance.Serialize(context, update);
+                if (updateValidator is UpdateElementNameValidator && binaryWriter.BaseStream.Position == position + 5)
+                {
+                    throw new BsonSerializationException("Update documents cannot be empty.");
+                }
             }
             finally
             {
