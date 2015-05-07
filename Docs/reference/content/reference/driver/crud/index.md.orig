@@ -4,8 +4,17 @@ draft = false
 title = "Reading and Writing"
 [menu.main]
   parent = "Driver"
+<<<<<<< HEAD
+<<<<<<< HEAD
+  weight = 50
+=======
   weight = 40
   identifier = "Reference Reading and Writing"
+>>>>>>> 5358409... added identifiers to all content so navigation works.
+=======
+  weight = 40
+  identifier = "Reference Reading and Writing"
+>>>>>>> 64d90fa... temp
   pre = "<i class='fa'></i>"
 +++
 

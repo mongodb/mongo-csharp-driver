@@ -4,6 +4,7 @@ draft = false
 title = "Upgrading"
 [menu.main]
   parent = "What's New"
+  identifier = "Upgrading"
   weight = 10
   pre = "<i class='fa'></i>"
 +++

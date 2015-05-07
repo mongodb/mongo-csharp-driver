@@ -4,6 +4,7 @@ draft = false
 title = "What's New"
 [menu.main]
   weight = 20
+  identifier = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 

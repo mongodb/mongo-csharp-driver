@@ -4,6 +4,7 @@ draft = false
 title = "Serialization"
 [menu.main]
   parent = "BSON"
+  identifier = "Serialization"
   weight = 30
   pre = "<i class='fa'></i>"
 +++

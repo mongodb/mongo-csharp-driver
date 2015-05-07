@@ -4,6 +4,7 @@ draft = false
 title = "Getting Started"
 [menu.main]
   weight = 10
+  identifier = "Getting Started"
   pre = "<i class='fa fa-road'></i>"
 +++
 

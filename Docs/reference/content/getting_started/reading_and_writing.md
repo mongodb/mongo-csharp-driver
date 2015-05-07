@@ -4,6 +4,7 @@ draft = false
 title = "Reading and Writing"
 [menu.main]
   parent = "Getting Started"
+  identifier = "Getting Started Reading and Writing"
   weight = 20
   pre = "<i class='fa'></i>"
 +++

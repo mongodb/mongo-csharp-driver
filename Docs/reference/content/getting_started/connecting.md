@@ -1,9 +1,10 @@
 +++
 date = "2015-03-17T15:36:56Z"
 draft = false
-title = "Connecting to the Server"
+title = "Connecting"
 [menu.main]
   parent = "Getting Started"
+  identifier = "Getting Started Connecting"
   weight = 10
   pre = "<i class='fa'></i>"
 +++
