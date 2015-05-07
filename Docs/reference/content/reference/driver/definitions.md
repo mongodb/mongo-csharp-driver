@@ -4,7 +4,7 @@ draft = false
 title = "Definitions and Builders"
 [menu.main]
   parent = "Driver"
-  weight = 40
+  weight = 20
   identifier = "Definitions and Builders"
   pre = "<i class='fa'></i>"
 +++
@@ -299,7 +299,7 @@ A projection is also used when performing grouping in the [Aggregation Framework
 
 ```csharp
 // method definition
-BsonDocument Sort(SortDefinition<BsonDocument> sort);
+BsonDocument Sort(SortDefinition<BsonDocument> filter);
 
 // invocation
 var doc = Sort("{ x: 1 }");
@@ -353,17 +353,17 @@ var sort = builder.Ascending("x").Descending("y");
 
 ## Updates
 
-[`UpdateDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_UpdateDefinition_1" >}}) defines an update document. It is implicity convertible from both a JSON string as well as a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}). Given the following method, all the following are valid:
+[`UpdateDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_UpdateDefinition_1" >}}) defines how to render a valid update document. It is implicity convertible from both a JSON string as well as a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}). Given the following method, all the following are valid:
 
 ```csharp
 // method definition
-BsonDocument Update(UpdateDefinition<BsonDocument> update);
+BsonDocument Update(UpdateDefinition<BsonDocument> filter);
 
 // invocation
 var doc = Update("{ $set: { x: 1 } }");
 doc.ToJson().Should().Be("{ $set: { x: 1 } }");
 
-var doc = Update(new BsonDocument("$set", new BsonDocument("x", 1)));
+var doc = Sort(new BsonDocument("$set", new BsonDocument("x", 1)));
 doc.ToJson().Should().Be("{ $set: { x: 1 } }");
 ```
 
@@ -409,61 +409,4 @@ var update = builder.Set("X", 1).Set("Y", 3).Inc("Z", 1);
 // or
 
 var update = builder.Set("x", 1).Set("y", 3).Inc("z", 1);
-```
-
-## Index Keys
-
-[`IndexKeysDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_IndexKeysDefinition_1" >}}) defines the index keys component of an index. It is implicity convertible from both a JSON string as well as a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}). Given the following method, all the following are valid:
-
-```csharp
-// method definition
-BsonDocument IndexKeys(IndexKeysDefinition<BsonDocument> keys);
-
-// invocation
-var doc = IndexKeys("{ x: 1 }");
-doc.ToJson().Should().Be("{ $set: { x: 1 } }");
-
-var doc = IndexKeys(new BsonDocument("x", 1));
-doc.ToJson().Should().Be("{ $set: { x: 1 } }");
-```
-
-### Index Keys Definition Builder 
-
-_See the [tests]({{< srcref "MongoDB.Driver.Tests/IndexKeysDefinitionBuilderTests.cs" >}}) for examples._
-
-The [`IndexKeysDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_IndexKeysDefinitionBuilder_1" >}}) provides a nice API for specifying the keys of an index.
-
-For example, to specify this index, `{ x: 1, y: -1, }`, do the following:
-
-```csharp
-var builder = Builders<BsonDocument>.IndexKeys;
-var keys = builder.Ascending("x").Descending("y");
-```
-
-Given the following class:
-
-```csharp
-class Widget
-{
-    [BsonElement("x")]
-    public int X { get; set; }
-
-    [BsonElement("y")]
-    public int Y { get; set; }
-}
-```
-
-We can achieve the same result in a typed variant:
-
-```csharp
-var builder = Builders<Widget>.IndexKeys;
-var keys = builder.Ascending(x => x.X).Descending(x => x.Y);
-
-// or
-
-var keys = builder.Ascending("X").Descending("Y");
-
-// or
-
-var keys = builder.Ascending("x").Descending("y");
 ```
