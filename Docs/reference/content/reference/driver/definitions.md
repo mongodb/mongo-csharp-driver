@@ -42,14 +42,13 @@ Since we know the type is `Person`, we can provide the property name, `FirstName
 ```csharp
 FieldDefinition<Person> field = "FirstName";
 ```
-{{% note %}}We don't validate that the provided string exists as a mapped field, so it is still possible to provide a field that hasn't been mapped:{{% /note %}}
+{{% note %}}We don't validate that the provided string exists as a mapped field, so it is still possible to provide a field that hasn't been mapped:
 
 ```csharp
 FieldDefinition<Person> field = "fn";
 ```
 
-And the output field name of this will be just "fn".
-
+And the output field name of this will be just "fn".{{% /note %}}
 
 ## Filters
 
